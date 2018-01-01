@@ -12,9 +12,9 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
-        public void Dispatch(IEvent @event) => _this.WithExclusiveAccess(@this => DispatchMessage(@event, @this, TransportMessage.OutGoing.Create(@event)));
+        public void Dispatch(IEvent @event) => _state.WithExclusiveAccess(state => DispatchMessage(@event, state, TransportMessage.OutGoing.Create(@event)));
 
-        public void Dispatch(IDomainCommand command) => _this.WithExclusiveAccess(@this => DispatchMessage(command, @this, TransportMessage.OutGoing.Create(command)));
+        public void Dispatch(IDomainCommand command) => _state.WithExclusiveAccess(state => DispatchMessage(command, state, TransportMessage.OutGoing.Create(command)));
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => (TCommandResult)await DispatchMessageWithResponse(command);
 
@@ -22,39 +22,39 @@ namespace Composable.Messaging.Buses.Implementation
 
         public ClientConnection(IGlobalBusStateTracker globalBusStateTracker, IEndpoint endpoint, NetMQPoller poller)
         {
-            _this.WithExclusiveAccess(@this =>
+            _state.WithExclusiveAccess(state =>
             {
-                @this.GlobalBusStateTracker = globalBusStateTracker;
+                state.GlobalBusStateTracker = globalBusStateTracker;
 
-                @this.Poller = poller;
+                state.Poller = poller;
 
-                @this.Poller.Add(@this.DispatchQueue);
+                state.Poller.Add(state.DispatchQueue);
 
-                @this.DispatchQueue.ReceiveReady += @this.DispatchMessage;
+                state.DispatchQueue.ReceiveReady += state.DispatchMessage;
 
-                @this.Socket = new DealerSocket();
+                state.Socket = new DealerSocket();
 
                 //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
-                @this.Socket.Options.SendHighWatermark = int.MaxValue;
-                @this.Socket.Options.ReceiveHighWatermark = int.MaxValue;
+                state.Socket.Options.SendHighWatermark = int.MaxValue;
+                state.Socket.Options.ReceiveHighWatermark = int.MaxValue;
 
                 //We guarantee delivery upon restart in other ways. When we shut down, just do it.
-                @this.Socket.Options.Linger = 0.Milliseconds();
+                state.Socket.Options.Linger = 0.Milliseconds();
 
-                @this.Socket.ReceiveReady += ReceiveResponse;
+                state.Socket.ReceiveReady += ReceiveResponse;
 
-                @this.Socket.Connect(endpoint.Address);
-                poller.Add(@this.Socket);
+                state.Socket.Connect(endpoint.Address);
+                poller.Add(state.Socket);
             });
         }
 
-        public void Dispose() => _this.WithExclusiveAccess(@this =>
+        public void Dispose() => _state.WithExclusiveAccess(state =>
         {
-            @this.Socket.Dispose();
-            @this.DispatchQueue.Dispose();
+            state.Socket.Dispose();
+            state.DispatchQueue.Dispose();
         });
 
-        class Implementation
+        class State
         {
             public IGlobalBusStateTracker GlobalBusStateTracker;
             public readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
@@ -71,18 +71,18 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        readonly IThreadShared<Implementation> _this = ThreadShared<Implementation>.WithTimeout(10.Seconds());
+        readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
 
         //Runs on poller thread so NO BLOCKING HERE!
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
         {
             var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, batchMaximum: 100);
 
-            _this.WithExclusiveAccess(@this =>
+            _state.WithExclusiveAccess(state =>
             {
                 foreach(var response in responseBatch)
                 {
-                    var responseTask = @this.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
+                    var responseTask = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
                     if(response.SuccessFull)
                     {
                         Task.Run(() =>
@@ -104,7 +104,7 @@ namespace Composable.Messaging.Buses.Implementation
             });
         }
 
-        Task<object> DispatchMessageWithResponse(IMessage message) => _this.WithExclusiveAccess(@this =>
+        Task<object> DispatchMessageWithResponse(IMessage message) => _state.WithExclusiveAccess(state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -112,18 +112,18 @@ namespace Composable.Messaging.Buses.Implementation
 
             if(message.RequiresResponse())
             {
-                @this.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+                state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
             } else
             {
                 taskCompletionSource.SetResult(null);
             }
 
-            DispatchMessage(message, @this, outGoingMessage);
+            DispatchMessage(message, state, outGoingMessage);
 
             return taskCompletionSource.Task;
         });
 
-        static void DispatchMessage(IMessage message, Implementation @this, TransportMessage.OutGoing outGoingMessage)
+        static void DispatchMessage(IMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
         {
             @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
             @this.DispatchQueue.Enqueue(outGoingMessage);

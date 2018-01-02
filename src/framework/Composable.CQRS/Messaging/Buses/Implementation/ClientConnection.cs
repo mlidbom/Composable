@@ -46,7 +46,7 @@ namespace Composable.Messaging.Buses.Implementation
             return taskCompletionSource.Task;
         });
 
-        async Task DispatchMessageAsync(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
+        static async Task DispatchMessageAsync(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
         {
             await @this.MessageStorage.MarkAsSentAsync(outGoingMessage, @this.RemoteEndpointId);
             //todo: after transaction succeeds...

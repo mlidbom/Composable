@@ -43,7 +43,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         bool HasPassedSendtime(ScheduledCommand message) => _timeSource.UtcNow >= message.SendAt;
 
-        void Send(ScheduledCommand scheduledCommand) => _transport.DispatchAsync(scheduledCommand.Command);
+        void Send(ScheduledCommand scheduledCommand) => _transport.DispatchAsync(scheduledCommand.Command).Wait();
 
         public void Dispose() => Stop();
 

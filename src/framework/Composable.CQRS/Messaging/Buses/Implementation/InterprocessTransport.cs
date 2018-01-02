@@ -64,18 +64,16 @@ namespace Composable.Messaging.Buses.Implementation
 
             var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToList();
 
-            var saveMessageTask = state.MessageStorage.SaveMessageAsync(@event);
-            var dispatchTasks = connections.Select(receiver => receiver.DispatchAsync(@event)).ToList();
-
-            await saveMessageTask;
-            await Task.WhenAll(dispatchTasks);
+            await state.MessageStorage.SaveMessageAsync(@event);
+            connections.ForEach(async receiver => await receiver.DispatchAsync(@event));
         });
 
         public async Task DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command) => await _state.WithExclusiveAccess(async state =>
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
-            await Task.WhenAll(state.MessageStorage.SaveMessageAsync(command), connection.DispatchAsync(command));
+            await state.MessageStorage.SaveMessageAsync(command);
+            await connection.DispatchAsync(command);
         });
 
         public async Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
@@ -83,11 +81,8 @@ namespace Composable.Messaging.Buses.Implementation
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
 
-            var saveMessageTask = state.MessageStorage.SaveMessageAsync(command);
-            var dispatchTask = connection.DispatchAsyncAsync(command);
-
-            await saveMessageTask;
-            return await dispatchTask;
+            await state.MessageStorage.SaveMessageAsync(command);
+            return await connection.DispatchAsyncAsync(command);
         });
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>

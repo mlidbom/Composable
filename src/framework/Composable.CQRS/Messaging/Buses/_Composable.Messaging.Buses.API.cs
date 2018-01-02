@@ -13,7 +13,7 @@ namespace Composable.Messaging.Buses
     ///<summary>Dispatches messages within a process.</summary>
     public interface IInProcessServiceBus
     {
-        void Publish(IDomainEvent anEvent);
+        void Publish(ITransactionalExactlyOnceDeliveryEvent anEvent);
         TResult Query<TResult>(IQuery<TResult> query);
         TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
         void Send(ITransactionalExactlyOnceDeliveryCommand message);
@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses
 
     public interface ISimpleServiceBus
     {
-        void Publish(IDomainEvent @event);
+        void Publish(ITransactionalExactlyOnceDeliveryEvent @event);
         void Send(ITransactionalExactlyOnceDeliveryCommand command);
 
         void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command);
@@ -36,7 +36,7 @@ namespace Composable.Messaging.Buses
     public interface IServiceBus : ISimpleServiceBus, IDisposable
     {
         Task SendAtTimeAsync(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command);
-        Task PublishAsync(IDomainEvent anEvent);
+        Task PublishAsync(ITransactionalExactlyOnceDeliveryEvent anEvent);
         Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
 
         Task SendAsync(ITransactionalExactlyOnceDeliveryCommand command);
@@ -54,20 +54,20 @@ namespace Composable.Messaging.Buses
 
         Func<ITransactionalExactlyOnceDeliveryCommand, object> GetCommandHandler(Type commandType);
         Func<IQuery, object> GetQueryHandler(Type commandType);
-        IReadOnlyList<Action<IDomainEvent>> GetEventHandlers(Type eventType);
+        IReadOnlyList<Action<ITransactionalExactlyOnceDeliveryEvent>> GetEventHandlers(Type eventType);
 
         Func<IQuery<TResult>, TResult> GetQueryHandler<TResult>(IQuery<TResult> query);
 
         Func<ITransactionalExactlyOnceDeliveryCommand<TResult>, TResult> GetCommandHandler<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
 
-        IEventDispatcher<IDomainEvent> CreateEventDispatcher();
+        IEventDispatcher<ITransactionalExactlyOnceDeliveryEvent> CreateEventDispatcher();
 
         ISet<Type> HandledTypes();
     }
 
     public interface IMessageHandlerRegistrar
     {
-        IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : IDomainEvent;
+        IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : ITransactionalExactlyOnceDeliveryEvent;
         IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : ITransactionalExactlyOnceDeliveryCommand;
         IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : ITransactionalExactlyOnceDeliveryCommand<TResult>;
         IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult>;

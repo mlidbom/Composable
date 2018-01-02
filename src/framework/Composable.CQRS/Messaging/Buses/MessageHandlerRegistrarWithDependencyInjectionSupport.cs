@@ -78,7 +78,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TEvent> action) where TEvent : IDomainEvent
+            Action<TEvent> action) where TEvent : ITransactionalExactlyOnceDeliveryEvent
         {
             @this.Register.ForEvent(action);
             return @this;
@@ -86,7 +86,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent, TDependency1>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TEvent, TDependency1> action) where TEvent : IDomainEvent
+            Action<TEvent, TDependency1> action) where TEvent : ITransactionalExactlyOnceDeliveryEvent
                                                  where TDependency1 : class
         {
             @this.ForEvent<TEvent>(command => action(command, @this.ServiceLocator.Resolve<TDependency1>()));
@@ -95,7 +95,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent, TDependency1, TDependency2>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TEvent, TDependency1, TDependency2> action) where TEvent : IDomainEvent
+            Action<TEvent, TDependency1, TDependency2> action) where TEvent : ITransactionalExactlyOnceDeliveryEvent
                                                                where TDependency1 : class
                                                                where TDependency2 : class
         {
@@ -104,7 +104,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent, TDependency1, TDependency2, TDependency3>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TEvent, TDependency1, TDependency2, TDependency3> action) where TEvent : IDomainEvent
+            Action<TEvent, TDependency1, TDependency2, TDependency3> action) where TEvent : ITransactionalExactlyOnceDeliveryEvent
                                                                where TDependency1 : class
                                                                where TDependency2 : class
                                                                              where TDependency3 : class

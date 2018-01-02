@@ -95,7 +95,7 @@ namespace Composable.Messaging.Buses.Implementation
             static TransportMessageType GetMessageType(IMessage message)
             {
                 switch(message) {
-                    case IDomainEvent _:
+                    case ITransactionalExactlyOnceDeliveryEvent _:
                         return TransportMessageType.Event;
                     case ITransactionalExactlyOnceDeliveryCommand _:
                         return TransportMessageType.Command;

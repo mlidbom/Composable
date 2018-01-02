@@ -9,7 +9,7 @@ namespace Composable.Messaging.Buses
 
         public InProcessServiceBus(IMessageHandlerRegistry handlerRegistry) => _handlerRegistry = handlerRegistry;
 
-        void IInProcessServiceBus.Publish(IDomainEvent anEvent)
+        void IInProcessServiceBus.Publish(ITransactionalExactlyOnceDeliveryEvent anEvent)
         {
             _handlerRegistry.CreateEventDispatcher()
                             .Dispatch(anEvent);

@@ -49,7 +49,7 @@ namespace Composable.Messaging.Buses
             await _transport.DispatchAsync(command).NoMarshalling();
         }
 
-        public async Task PublishAsync(IDomainEvent anEvent) => await _transport.DispatchAsync(anEvent).NoMarshalling();
+        public async Task PublishAsync(ITransactionalExactlyOnceDeliveryEvent anEvent) => await _transport.DispatchAsync(anEvent).NoMarshalling();
 
         public async Task<Task<TResult>> SendAsyncAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command)
         {
@@ -62,7 +62,7 @@ namespace Composable.Messaging.Buses
         #endregion
 
         #region ISimpleServicebus
-        public void Publish(IDomainEvent @event) => PublishAsync(@event).Wait();
+        public void Publish(ITransactionalExactlyOnceDeliveryEvent @event) => PublishAsync(@event).Wait();
         public void Send(ITransactionalExactlyOnceDeliveryCommand command) => SendAsync(command).Wait();
         public void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => SendAtTimeAsync(sendAt, command).Wait();
         public TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => SendAsync(command).Result;

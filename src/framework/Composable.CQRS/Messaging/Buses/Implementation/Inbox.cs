@@ -156,7 +156,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 case ITransactionalExactlyOnceDeliveryCommand command:
                     return await DispatchAsync(command, message);
-                case IDomainEvent @event:
+                case ITransactionalExactlyOnceDeliveryEvent @event:
                     return await DispatchAsync(@event, message);
                 case IQuery query:
                     return await DispatchAsync(query, message);
@@ -193,7 +193,7 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task.NoMarshalling();
         }
 
-        async Task<object> DispatchAsync(IDomainEvent @event, TransportMessage.InComing message)
+        async Task<object> DispatchAsync(ITransactionalExactlyOnceDeliveryEvent @event, TransportMessage.InComing message)
         {
             var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);

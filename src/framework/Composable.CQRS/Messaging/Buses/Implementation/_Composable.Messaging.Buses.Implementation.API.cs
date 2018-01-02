@@ -23,9 +23,9 @@ namespace Composable.Messaging.Buses.Implementation
 
     interface IClientConnection : IDisposable
     {
-        Task Dispatch(ITransactionalExactlyOnceDeliveryEvent @event);
-        Task Dispatch(ITransactionalExactlyOnceDeliveryCommand command);
-        Task<TCommandResult> DispatchAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command);
+        Task DispatchAsync(ITransactionalExactlyOnceDeliveryEvent @event);
+        Task DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command);
+        Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query);
     }
 

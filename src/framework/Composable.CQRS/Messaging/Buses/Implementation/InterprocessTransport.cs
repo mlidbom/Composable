@@ -57,45 +57,32 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(@event);
 
-            var saveMessage = SaveMessage(@event);
-            var saveDispatchInfo = eventHandlerEndpointIds.Select(endpointId => SaveDispatchInfo(endpointId, @event)).ToList();
-
             var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToList();
 
-            await Task.WhenAll(saveMessage);
-            await Task.WhenAll(saveDispatchInfo);
+            var saveMessageTask = SaveMessage(@event);
+            var dispatchTasks = connections.Select(receiver => receiver.DispatchAsync(@event)).ToList();
 
-            //todo: send after transaction
-            connections.ForEach(receiver => receiver.Dispatch(@event));
+            await saveMessageTask;
+            await Task.WhenAll(dispatchTasks);
         });
 
         public async Task DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command) => await _state.WithExclusiveAccess(async state =>
         {
-            var saveMessage = SaveMessage(command);
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
-
-            var dispatchSave = SaveDispatchInfo(endPointId, command);
-            //todo: send after transaction
             var connection = state.EndpointConnections[endPointId];
-            connection.Dispatch(command);
-
-            await Task.WhenAll(saveMessage, dispatchSave);
+            await Task.WhenAll(SaveMessage(command), connection.DispatchAsync(command));
         });
 
         public async Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
         {
-            var saveMessage = SaveMessage(command);
-
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
-
-            var dispatchSave = SaveDispatchInfo(endPointId, command);
-
             var connection = state.EndpointConnections[endPointId];
 
-            await Task.WhenAll(saveMessage, dispatchSave);
+            var saveMessageTask = SaveMessage(command);
+            var dispatchTask = connection.DispatchAsyncAsync(command);
 
-            //todo: send after transaction
-            return await Task.FromResult(connection.DispatchAsync(command));
+            await saveMessageTask;
+            return await dispatchTask;
         });
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>
@@ -106,8 +93,6 @@ namespace Composable.Messaging.Buses.Implementation
         });
 
         async Task SaveMessage(ITransactionalExactlyOnceDeliveryMessage message) => await Task.CompletedTask;
-
-        async Task SaveDispatchInfo(EndpointId endpoint, ITransactionalExactlyOnceDeliveryMessage message) => await Task.CompletedTask;
 
         public void Dispose() => _state.WithExclusiveAccess(state =>
         {

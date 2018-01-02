@@ -9,7 +9,7 @@ namespace AccountManagement.Domain.Events
 {
     public static partial class AccountEvent
     {
-        [TypeId("F6747983-2552-4952-8932-360E006FF836")]public interface Root : IDomainEvent {}
+        [TypeId("F6747983-2552-4952-8932-360E006FF836")]public interface Root : IAggregateRootEvent {}
 
         [TypeId("D7599E28-936E-45AE-AD01-AED9EBFEB383")]public interface Created :
                 Root,

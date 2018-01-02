@@ -33,8 +33,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.When_renaming_events
             _nameMapper.GetType(typeof(Event2).FullName).Should().Be(typeof(Event2));
         }
 
-        [TypeId("4F6B80CA-37CC-4226-8E9B-332400C0187E")]class Event1 : DomainEvent { }
+        [TypeId("4F6B80CA-37CC-4226-8E9B-332400C0187E")]class Event1 : AggregateRootEvent { }
 
-        [TypeId("60ABB657-CF4F-4A89-90C6-2AC0C62B2E48")]class Event2 : DomainEvent { }
+        [TypeId("60ABB657-CF4F-4A89-90C6-2AC0C62B2E48")]class Event2 : AggregateRootEvent { }
     }
 }

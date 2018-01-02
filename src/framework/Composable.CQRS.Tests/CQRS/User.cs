@@ -53,10 +53,10 @@ namespace Composable.Tests.CQRS
         }
     }
 
-    [TypeId("602DB8BE-9210-423B-999E-7B0F21461BB8")]interface IUserEvent : IDomainEvent, IRootEvent
+    [TypeId("602DB8BE-9210-423B-999E-7B0F21461BB8")]interface IUserEvent : IAggregateRootEvent, IRootEvent
     { }
 
-    abstract class UserEvent : DomainEvent, IUserEvent
+    abstract class UserEvent : AggregateRootEvent, IUserEvent
     {}
 
     [TypeId("EEF29472-92ED-4AB4-81D3-3B38EB571025")]class UserChangedEmail : UserEvent, IUserEvent

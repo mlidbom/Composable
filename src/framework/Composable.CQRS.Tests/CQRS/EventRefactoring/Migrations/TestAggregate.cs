@@ -10,9 +10,9 @@ using JetBrains.Annotations;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
-    [TypeId("4DE32D33-C069-4573-8BF8-9AC9384E6679")]interface IRootEvent : IDomainEvent { }
+    [TypeId("4DE32D33-C069-4573-8BF8-9AC9384E6679")]interface IRootEvent : IAggregateRootEvent { }
 
-    abstract class RootEvent : DomainEvent, IRootEvent
+    abstract class RootEvent : AggregateRootEvent, IRootEvent
     {}
 
     namespace Events
@@ -46,7 +46,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             if (GetIdBypassContractValidation() == Guid.Empty && events.First().AggregateRootId == Guid.Empty)
             {
                 SetIdBeVerySureYouKnowWhatYouAreDoing(Guid.NewGuid());
-                events.Cast<DomainEvent>().First().AggregateRootId = Id;
+                events.Cast<AggregateRootEvent>().First().AggregateRootId = Id;
             }
 
             foreach (var @event in events)
@@ -83,12 +83,12 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public static TestAggregate FromEvents(IUtcTimeTimeSource timeSource, Guid? id, IEnumerable<Type> events)
         {
             var rootEvents = events.ToEvents();
-            rootEvents.Cast<DomainEvent>().First().AggregateRootId = id ?? Guid.NewGuid();
+            rootEvents.Cast<AggregateRootEvent>().First().AggregateRootId = id ?? Guid.NewGuid();
             return new TestAggregate(timeSource, rootEvents);
         }
 
         readonly List<IRootEvent> _history = new List<IRootEvent>();
-        public IReadOnlyList<IDomainEvent> History => _history;
+        public IReadOnlyList<IAggregateRootEvent> History => _history;
     }
 
     static class EventSequenceGenerator

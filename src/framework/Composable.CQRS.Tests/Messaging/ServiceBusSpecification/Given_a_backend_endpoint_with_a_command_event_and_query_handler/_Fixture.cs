@@ -57,7 +57,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         }
 
         [TypeId("C0616624-77D3-4082-A3C1-408A89D9C8AA")]protected class MyCommand : TransactionalExactlyOnceDeliveryCommand {}
-        [TypeId("20B798AF-F7D7-448A-9F78-A189D4D5499A")]protected class MyEvent : DomainEvent {}
+        [TypeId("20B798AF-F7D7-448A-9F78-A189D4D5499A")]protected class MyEvent : AggregateRootEvent {}
         [TypeId("5D0DBBDE-5FF6-4771-9505-289922BE4333")]protected class MyQuery : Query<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
         [TypeId("7CA55A90-436C-4DE1-98CF-1FB4328DE61F")]protected class MyCommandWithResult : TransactionalExactlyOnceDeliveryCommand<MyCommandResult> {}

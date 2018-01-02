@@ -75,13 +75,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserEvent
         {
-            [TypeId("176EE1DD-8D56-4879-8230-46FCAF30E523")]public interface IRoot : IDomainEvent {}
+            [TypeId("176EE1DD-8D56-4879-8230-46FCAF30E523")]public interface IRoot : IAggregateRootEvent {}
 
             [TypeId("86B52908-5201-45B5-B504-23776CB58480")]public interface UserRegistered : IRoot, IAggregateRootCreatedEvent {}
 
             public static class Implementation
             {
-                [TypeId("F53F2EB7-F856-4743-B90D-6AD96C95883D")]public class Root : DomainEvent, IRoot
+                [TypeId("F53F2EB7-F856-4743-B90D-6AD96C95883D")]public class Root : AggregateRootEvent, IRoot
                 {
                     protected Root() {}
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
@@ -109,10 +109,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarEvent
         {
-            [TypeId("B4C43E2D-5B17-4FE2-8E81-2135F6934807")]public interface IRoot : IDomainEvent {}
+            [TypeId("B4C43E2D-5B17-4FE2-8E81-2135F6934807")]public interface IRoot : IAggregateRootEvent {}
             public static class Implementation
             {
-                [TypeId("F4FE9D4A-082C-4B1E-A703-CD392E8D6946")]public class Root : DomainEvent, IRoot
+                [TypeId("F4FE9D4A-082C-4B1E-A703-CD392E8D6946")]public class Root : AggregateRootEvent, IRoot
                 {
                     protected Root() {}
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
@@ -164,8 +164,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public class UserResource : QueryResult
         {
-            public IEnumerable<IDomainEvent> History { get; }
-            public UserResource(IEnumerable<IDomainEvent> history) { History = history; }
+            public IEnumerable<IAggregateRootEvent> History { get; }
+            public UserResource(IEnumerable<IAggregateRootEvent> history) { History = history; }
         }
 
         public class RegisterUserResult : Message

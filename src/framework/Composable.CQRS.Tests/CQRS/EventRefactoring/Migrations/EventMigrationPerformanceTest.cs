@@ -20,7 +20,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
     {
         public EventMigrationPerformanceTest(Type eventStoreType) : base(eventStoreType) { }
 
-        List<DomainEvent> _history;
+        List<AggregateRootEvent> _history;
         TestAggregate _aggregate;
         IServiceLocator _container;
         IReadOnlyList<IEventMigration> _currentMigrations;
@@ -36,7 +36,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                                      .Concat(Seq.OfTypes<E2, E4, E6, E8>()))).ToList();
 
             _aggregate = TestAggregate.FromEvents(DummyTimeSource.Now, Guid.NewGuid(), historyTypes);
-            _history = _aggregate.History.Cast<DomainEvent>().ToList();
+            _history = _aggregate.History.Cast<AggregateRootEvent>().ToList();
 
             _currentMigrations = Seq.Empty<IEventMigration>().ToList();
             _container = CreateServiceLocatorForEventStoreType(migrationsfactory: () => _currentMigrations, eventStoreType: EventStoreType);

@@ -32,14 +32,6 @@ namespace Composable.Messaging
     public interface ITransactionalExactlyOnceDeliveryCommand : ITransactionalExactlyOnceDeliveryMessage { }
     public interface ITransactionalExactlyOnceDeliveryCommand<TResult> : ITransactionalExactlyOnceDeliveryCommand { }
 
-    public interface IDomainEvent : ITransactionalExactlyOnceDeliveryEvent
-    {
-        Guid EventId { get; }
-        int AggregateRootVersion { get; }
-        Guid AggregateRootId { get; }
-        DateTime UtcTimeStamp { get; }
-    }
-
 
     public interface IEntityQuery<TEntity> : IQuery<TEntity>
     {

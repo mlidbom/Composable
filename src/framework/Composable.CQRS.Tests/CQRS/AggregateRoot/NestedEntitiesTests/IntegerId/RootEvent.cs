@@ -9,7 +9,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
 {
     static partial class RootEvent
     {
-        [TypeId("41E237B3-F2B2-4159-84C0-6EC04AA48CE6")]public interface IRoot : IDomainEvent {}
+        [TypeId("41E237B3-F2B2-4159-84C0-6EC04AA48CE6")]public interface IRoot : IAggregateRootEvent {}
 
         [TypeId("FEEEC8A1-7FBC-4E4F-A8B4-727483214346")]interface Created : IRoot, IAggregateRootCreatedEvent, PropertyUpdated.Name {}
 
@@ -23,7 +23,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
 
         internal static class Implementation
         {
-            public abstract class Root : DomainEvent, IRoot
+            public abstract class Root : AggregateRootEvent, IRoot
             {
                 protected Root() { }
                 protected Root(Guid aggregateRootId) : base(aggregateRootId) { }

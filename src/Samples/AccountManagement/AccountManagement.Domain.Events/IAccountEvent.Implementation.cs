@@ -13,7 +13,7 @@ namespace AccountManagement.Domain.Events
     {
         public static class Implementation
         {
-            [TypeId("66BAE496-9422-4379-8719-1642FAAD35B6")]public abstract class Root : DomainEvent, AccountEvent.Root
+            [TypeId("66BAE496-9422-4379-8719-1642FAAD35B6")]public abstract class Root : AggregateRootEvent, AccountEvent.Root
             {
                 protected Root() {}
                 protected Root(Guid aggregateRootId) : base(aggregateRootId) {}

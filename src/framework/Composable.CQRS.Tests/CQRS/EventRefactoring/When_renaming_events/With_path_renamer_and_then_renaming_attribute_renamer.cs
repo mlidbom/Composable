@@ -38,12 +38,12 @@ namespace Composable.Tests.CQRS.EventRefactoring.When_renaming_events
             _nameMapper.GetType(Event2.OldName).Should().Be(typeof(Event2));
         }
 
-        [TypeId("A6ABDC1B-5D5C-4A0B-8816-2ED38F8AC56D")][EventRenamedFrom(Name = "OldEvent1")] class Event1 : DomainEvent
+        [TypeId("A6ABDC1B-5D5C-4A0B-8816-2ED38F8AC56D")][EventRenamedFrom(Name = "OldEvent1")] class Event1 : AggregateRootEvent
         {
             public const string OldName = OldPath + "OldEvent1";
         }
 
-        [TypeId("A77340CA-69C7-48CE-AC2A-34F18B580CCD")][EventRenamedFrom(Name = "OldEvent2")] class Event2 : DomainEvent
+        [TypeId("A77340CA-69C7-48CE-AC2A-34F18B580CCD")][EventRenamedFrom(Name = "OldEvent2")] class Event2 : AggregateRootEvent
         {
             public const string OldName = OldPath + "OldEvent2";
         }

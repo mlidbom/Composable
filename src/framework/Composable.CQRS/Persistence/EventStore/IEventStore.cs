@@ -6,10 +6,10 @@ namespace Composable.Persistence.EventStore
 {
     interface IEventStore : IDisposable
     {
-        IReadOnlyList<IDomainEvent> GetAggregateHistoryForUpdate(Guid id);
-        IReadOnlyList<IDomainEvent> GetAggregateHistory(Guid id);
-        void SaveEvents(IEnumerable<IDomainEvent> events);
-        void StreamEvents(int batchSize, Action<IReadOnlyList<IDomainEvent>> handleEvents);
+        IReadOnlyList<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id);
+        IReadOnlyList<IAggregateRootEvent> GetAggregateHistory(Guid id);
+        void SaveEvents(IEnumerable<IAggregateRootEvent> events);
+        void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents);
         void DeleteAggregate(Guid aggregateId);
         void PersistMigrations();
 
@@ -24,9 +24,9 @@ namespace Composable.Persistence.EventStore
 
     static class EventStoreTestingExtensions
     {
-        public static IReadOnlyList<IDomainEvent> ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize(this IEventStore @this, int batchSize = 10000)
+        public static IReadOnlyList<IAggregateRootEvent> ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize(this IEventStore @this, int batchSize = 10000)
         {
-            var events = new List<IDomainEvent>();
+            var events = new List<IAggregateRootEvent>();
             @this.StreamEvents(batchSize, events.AddRange);
             return events;
         }

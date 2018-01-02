@@ -24,12 +24,12 @@ namespace Composable.Persistence.EventStore
 
         internal class Entry
         {
-            public static readonly  Entry Empty = new Entry(new List<DomainEvent>(), 0);
+            public static readonly  Entry Empty = new Entry(new List<AggregateRootEvent>(), 0);
 
-            public IReadOnlyList<DomainEvent> Events { get; private set; }
+            public IReadOnlyList<AggregateRootEvent> Events { get; private set; }
             public int MaxSeenInsertedVersion { get; private set; }
 
-            public Entry(IReadOnlyList<DomainEvent> events, int maxSeenInsertedVersion)
+            public Entry(IReadOnlyList<AggregateRootEvent> events, int maxSeenInsertedVersion)
             {
                 Events = events;
                 MaxSeenInsertedVersion = maxSeenInsertedVersion;

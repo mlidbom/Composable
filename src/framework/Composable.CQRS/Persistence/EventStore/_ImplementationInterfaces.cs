@@ -55,13 +55,13 @@ namespace Composable.Persistence.EventStore
 
     class EventWriteDataRow
     {
-        public EventWriteDataRow(DomainEvent @event, string eventAsJson):this(SqlDecimal.Null, @event, eventAsJson)
+        public EventWriteDataRow(AggregateRootEvent @event, string eventAsJson):this(SqlDecimal.Null, @event, eventAsJson)
         {}
 
         public EventWriteDataRow(EventWriteDataRow source, SqlDecimal manualReadOrder) : this(manualReadOrder, source.Event, source.EventJson)
         { }
 
-        EventWriteDataRow(SqlDecimal manualReadOrder, DomainEvent @event, string eventAsJson)
+        EventWriteDataRow(SqlDecimal manualReadOrder, AggregateRootEvent @event, string eventAsJson)
         {
             if(!(manualReadOrder.IsNull || (manualReadOrder.Precision == 38 && manualReadOrder.Scale == 17)))
             {
@@ -88,7 +88,7 @@ namespace Composable.Persistence.EventStore
         }
 
         public SqlDecimal ManualReadOrder { get; private set; }
-        public DomainEvent Event { get; private set; }
+        public AggregateRootEvent Event { get; private set; }
 
 
         public int EventType { get; set; }

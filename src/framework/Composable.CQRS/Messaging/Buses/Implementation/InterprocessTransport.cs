@@ -6,6 +6,8 @@ using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
+using Composable.System.Configuration;
+using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 using NetMQ;
@@ -27,9 +29,9 @@ namespace Composable.Messaging.Buses.Implementation
 
         readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource) => _state.WithExclusiveAccess(@this =>
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory) => _state.WithExclusiveAccess(@this =>
         {
-            @this.MessageStorage = new MessageStorage();
+            @this.MessageStorage = new MessageStorage(connectionFactory);
             @this.TimeSource = timeSource;
             @this.GlobalBusStateTracker = globalBusStateTracker;
         });
@@ -52,6 +54,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             Contract.State.Assert(!@this.Running);
             @this.Running = true;
+            @this.MessageStorage.Start();
             @this.Poller.RunAsync();
         });
 

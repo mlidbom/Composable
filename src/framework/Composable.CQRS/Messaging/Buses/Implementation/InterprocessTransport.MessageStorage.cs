@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Composable.System.Data.SqlClient;
 
 namespace Composable.Messaging.Buses.Implementation
 {
     partial class InterprocessTransport
     {
-        internal class MessageStorage
+        internal partial class MessageStorage
         {
+            readonly ISqlConnection _connectionFactory;
+
+            public MessageStorage(ISqlConnection connectionFactory) => _connectionFactory = connectionFactory;
+
             internal async Task MarkAsSentAsync(TransportMessage.OutGoing outGoingMessage)
             {
                 try
@@ -45,6 +50,9 @@ namespace Composable.Messaging.Buses.Implementation
                     throw;
                 }
             }
+
+            public void Start() => SchemaManager.EnsureTablesExist(_connectionFactory);
+
         }
     }
 }

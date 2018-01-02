@@ -1,0 +1,81 @@
+﻿using Composable.System.Data.SqlClient;
+
+namespace Composable.Messaging.Buses.Implementation
+{
+    partial class InterprocessTransport
+    {
+        static class OutboxMessages
+        {
+            internal const string TableName = nameof(OutboxMessages);
+
+            internal const string Identity = nameof(Identity);
+            internal const string TypeId = nameof(TypeId);
+            internal const string MessageId = nameof(MessageId);
+            internal const string Body = nameof(Body);
+        }
+
+        static class MessageDispatching
+        {
+            internal const string TableName = nameof(MessageDispatching);
+
+            internal const string MessageIdentity = nameof(MessageIdentity);
+            internal const string EndpointId = nameof(EndpointId);
+            internal const string IsReceived = nameof(IsReceived);
+        }
+
+        partial class MessageStorage
+        {
+            static class SchemaManager
+            {
+                public static void EnsureTablesExist(ISqlConnection connectionFactory)
+                {
+                    using(var connection = connectionFactory.OpenConnection())
+                    {
+                        var valueTypeExists = (int)connection.ExecuteScalar("select count(*) from sys.tables where name = 'OutboxMessages'");
+                        if(valueTypeExists == 0)
+                        {
+                            connection.ExecuteNonQuery($@"
+CREATE TABLE [dbo].[{OutboxMessages.TableName}]
+(
+	[{OutboxMessages.Identity}] [int] IDENTITY(1,1) NOT NULL,
+    [{OutboxMessages.TypeId}] [uniqueidentifier] NOT NULL,
+    [{OutboxMessages.MessageId}] [uniqueidentifier] NOT NULL,
+	[{OutboxMessages.Body}] [nvarchar](MAX) NOT NULL,
+
+    CONSTRAINT [PK_{OutboxMessages.TableName}] PRIMARY KEY CLUSTERED 
+    (
+	    [{OutboxMessages.Identity}] ASC
+    ),
+
+    CONSTRAINT IX_{OutboxMessages.TableName}_Unique_{OutboxMessages.MessageId} UNIQUE
+    (
+        {OutboxMessages.MessageId}
+    )
+
+    WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+
+) ON [PRIMARY]
+
+CREATE TABLE [dbo].[{MessageDispatching.TableName}]
+(
+	[{MessageDispatching.MessageIdentity}] [int] NOT NULL,
+    [{MessageDispatching.EndpointId}] [uniqueidentifier] NOT NULL,
+    [{MessageDispatching.IsReceived}] [uniqueidentifier] NOT NULL,
+
+    CONSTRAINT [PK_{MessageDispatching.TableName}] 
+        PRIMARY KEY CLUSTERED( {MessageDispatching.MessageIdentity}, {MessageDispatching.EndpointId})
+        WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY],
+
+    CONSTRAINT FK_{MessageDispatching.TableName}_{MessageDispatching.MessageIdentity} 
+        FOREIGN KEY ( [{MessageDispatching.MessageIdentity}] )  
+        REFERENCES {OutboxMessages.TableName} ([{OutboxMessages.Identity}])
+
+) ON [PRIMARY]
+");
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

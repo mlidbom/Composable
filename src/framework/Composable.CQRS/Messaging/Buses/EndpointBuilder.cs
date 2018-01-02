@@ -28,7 +28,7 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod(() => Configuration)
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
-                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource) => new InterprocessTransport(globalStateTracker, timeSource))
+                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider) => new InterprocessTransport(globalStateTracker, timeSource, connectionProvider.GetConnectionProvider(Configuration.ConnectionStringName)))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()

@@ -48,7 +48,6 @@ namespace Composable.Messaging.Buses.Implementation
 
         static async Task DispatchMessageAsync(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
         {
-            await @this.MessageStorage.MarkAsSentAsync(outGoingMessage, @this.RemoteEndpointId);
             //todo: after transaction succeeds...
             @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, new PendingDeliveryNotification(outGoingMessage.MessageId, @this.TimeSource.UtcNow));
 

@@ -64,7 +64,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToList();
 
-            await state.MessageStorage.SaveMessageAsync(@event);
+            await state.MessageStorage.SaveMessageAsync(@event, eventHandlerEndpointIds.ToArray());
             connections.ForEach(async receiver => await receiver.DispatchAsync(@event));
         });
 
@@ -72,7 +72,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
-            await state.MessageStorage.SaveMessageAsync(command);
+            await state.MessageStorage.SaveMessageAsync(command, endPointId);
             await connection.DispatchAsync(command);
         });
 
@@ -81,7 +81,7 @@ namespace Composable.Messaging.Buses.Implementation
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
 
-            await state.MessageStorage.SaveMessageAsync(command);
+            await state.MessageStorage.SaveMessageAsync(command, endPointId);
             return await connection.DispatchAsyncAsync(command);
         });
 

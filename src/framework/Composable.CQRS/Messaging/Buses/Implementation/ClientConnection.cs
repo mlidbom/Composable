@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         async Task DispatchMessageAsync(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
         {
-            await MarkAsSentAsync(outGoingMessage);
+            await @this.MessageStorage.MarkAsSentAsync(outGoingMessage);
             //todo: after transaction succeeds...
             @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, new PendingDeliveryNotification(outGoingMessage.MessageId, @this.TimeSource.UtcNow));
 
@@ -56,11 +56,17 @@ namespace Composable.Messaging.Buses.Implementation
             @this.DispatchQueue.Enqueue(outGoingMessage);
         }
 
-        public ClientConnection(IGlobalBusStateTracker globalBusStateTracker, IEndpoint endpoint, NetMQPoller poller, IUtcTimeTimeSource timeSource)
+        public ClientConnection(IGlobalBusStateTracker globalBusStateTracker,
+                                IEndpoint endpoint,
+                                NetMQPoller poller,
+                                IUtcTimeTimeSource timeSource,
+                                InterprocessTransport.MessageStorage messageStorage)
         {
             _state.WithExclusiveAccess(state =>
             {
                 state.TimeSource = timeSource;
+
+                state.MessageStorage = messageStorage;
 
                 state.GlobalBusStateTracker = globalBusStateTracker;
 
@@ -94,15 +100,16 @@ namespace Composable.Messaging.Buses.Implementation
 
         class State
         {
-            public IGlobalBusStateTracker GlobalBusStateTracker;
-            public readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
-            public readonly Dictionary<Guid, PendingDeliveryNotification> PendingDeliveryNotifications = new Dictionary<Guid, PendingDeliveryNotification>();
-            public DealerSocket Socket;
-            public NetMQPoller Poller;
-            public readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
-            public IUtcTimeTimeSource TimeSource { get; set; }
+            internal IGlobalBusStateTracker GlobalBusStateTracker;
+            internal readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
+            internal readonly Dictionary<Guid, PendingDeliveryNotification> PendingDeliveryNotifications = new Dictionary<Guid, PendingDeliveryNotification>();
+            internal DealerSocket Socket;
+            internal NetMQPoller Poller;
+            internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
+            internal IUtcTimeTimeSource TimeSource { get; set; }
+            internal InterprocessTransport.MessageStorage MessageStorage { get; set; }
 
-            public void DispatchMessage(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> e)
+            internal void DispatchMessage(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> e)
             {
                 while(e.Queue.TryDequeue(out var message, TimeSpan.Zero))
                 {
@@ -145,7 +152,7 @@ namespace Composable.Messaging.Buses.Implementation
                         case TransportMessage.Response.ResponseType.Received:
 #pragma warning disable 4014
                             Contract.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
-                            MarkAsReceivedAsync(response);
+                            state.MessageStorage.MarkAsReceivedAsync(response);
 #pragma warning restore 4014
                             break;
                         default:
@@ -155,35 +162,9 @@ namespace Composable.Messaging.Buses.Implementation
             });
         }
 
-        async Task MarkAsReceivedAsync(TransportMessage.Response.Incoming response)
-        {
-            try
-            {
-                await Task.CompletedTask;
-            }
-            catch(Exception)
-            {
-                //todo: proper exception handling here.
-                throw;
-            }
-        }
-
-        async Task MarkAsSentAsync(TransportMessage.OutGoing outGoingMessage)
-        {
-            try
-            {
-                await Task.CompletedTask;
-            }
-            catch(Exception)
-            {
-                //todo: proper exception handling here.
-                throw;
-            }
-        }
-
         class PendingDeliveryNotification
         {
-            public PendingDeliveryNotification(Guid messageId, DateTime sentAt)
+            internal PendingDeliveryNotification(Guid messageId, DateTime sentAt)
             {
                 MessageId = messageId;
                 SentAt = sentAt;

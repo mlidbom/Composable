@@ -22,19 +22,21 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly HandlerStorage HandlerStorage = new HandlerStorage();
             internal readonly NetMQPoller Poller = new NetMQPoller();
             public IUtcTimeTimeSource TimeSource { get; set; }
+            public MessageStorage MessageStorage { get; set; }
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
 
         public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource) => _state.WithExclusiveAccess(@this =>
         {
+            @this.MessageStorage = new MessageStorage();
             @this.TimeSource = timeSource;
             @this.GlobalBusStateTracker = globalBusStateTracker;
         });
 
         public void Connect(IEndpoint endpoint) => _state.WithExclusiveAccess(@this =>
         {
-            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource));
+            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage));
             @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypes().Select(TypeId.FromType).ToSet());
         });
 
@@ -59,7 +61,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToList();
 
-            var saveMessageTask = SaveMessage(@event);
+            var saveMessageTask = state.MessageStorage.SaveMessageAsync(@event);
             var dispatchTasks = connections.Select(receiver => receiver.DispatchAsync(@event)).ToList();
 
             await saveMessageTask;
@@ -70,7 +72,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
-            await Task.WhenAll(SaveMessage(command), connection.DispatchAsync(command));
+            await Task.WhenAll(state.MessageStorage.SaveMessageAsync(command), connection.DispatchAsync(command));
         });
 
         public async Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
@@ -78,7 +80,7 @@ namespace Composable.Messaging.Buses.Implementation
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
 
-            var saveMessageTask = SaveMessage(command);
+            var saveMessageTask = state.MessageStorage.SaveMessageAsync(command);
             var dispatchTask = connection.DispatchAsyncAsync(command);
 
             await saveMessageTask;
@@ -91,8 +93,6 @@ namespace Composable.Messaging.Buses.Implementation
             var connection = state.EndpointConnections[endPointId];
             return await connection.DispatchAsync(query);
         });
-
-        async Task SaveMessage(ITransactionalExactlyOnceDeliveryMessage message) => await Task.CompletedTask;
 
         public void Dispose() => _state.WithExclusiveAccess(state =>
         {

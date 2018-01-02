@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Composable.Contracts;
 using Composable.System.Data.SqlClient;
 using Newtonsoft.Json;
 
@@ -38,11 +39,30 @@ INSERT {MessageDispatching.TableName}
                 }
             }
 
-            internal async Task MarkAsReceivedAsync(TransportMessage.Response.Incoming response)
+            internal async Task MarkAsReceivedAsync(TransportMessage.Response.Incoming response, EndpointId endpointId)
             {
                 try
                 {
-                    await Task.CompletedTask;
+                    await _connectionFactory.UseCommandAsync(
+                        async command =>
+                        {
+                            var affectedRows = await command
+                                         .SetCommandText(
+                                             $@"
+UPDATE {MessageDispatching.TableName} 
+    SET {MessageDispatching.IsReceived} = 1
+WHERE {MessageDispatching.MessageId} = @{MessageDispatching.MessageId}
+    AND {MessageDispatching.EndpointId} = @{MessageDispatching.EndpointId}
+    AND {MessageDispatching.IsReceived} = 0
+")
+                                         .AddParameter(MessageDispatching.MessageId, response.RespondingToMessageId)
+                                         .AddParameter(MessageDispatching.EndpointId, endpointId.GuidValue)
+                                         .AddParameter(MessageDispatching.IsReceived, 1)
+                                         .ExecuteNonQueryAsync();
+
+                            Contract.Result.Assert(affectedRows == 1);
+                            return affectedRows;
+                        });
                 }
                 catch(Exception)
                 {

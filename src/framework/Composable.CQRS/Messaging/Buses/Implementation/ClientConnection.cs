@@ -155,7 +155,7 @@ namespace Composable.Messaging.Buses.Implementation
                         case TransportMessage.Response.ResponseType.Received:
 #pragma warning disable 4014
                             Contract.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
-                            state.MessageStorage.MarkAsReceivedAsync(response);
+                            state.MessageStorage.MarkAsReceivedAsync(response, state.RemoteEndpointId);
 #pragma warning restore 4014
                             break;
                         default:

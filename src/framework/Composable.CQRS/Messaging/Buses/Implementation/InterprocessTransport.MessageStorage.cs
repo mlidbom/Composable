@@ -13,11 +13,23 @@ namespace Composable.Messaging.Buses.Implementation
 
             public MessageStorage(ISqlConnection connectionFactory) => _connectionFactory = connectionFactory;
 
-            internal async Task MarkAsSentAsync(TransportMessage.OutGoing outGoingMessage)
+            internal async Task MarkAsSentAsync(TransportMessage.OutGoing outGoingMessage, EndpointId endpointId)
             {
                 try
                 {
-                    await Task.CompletedTask;
+                    await _connectionFactory.UseCommandAsync(
+                        async command =>
+                            await command
+                                  .SetCommandText(
+                                      $@"
+INSERT {MessageDispatching.TableName} 
+            ({MessageDispatching.MessageId},  {MessageDispatching.EndpointId},  {MessageDispatching.IsReceived}) 
+    VALUES (@{MessageDispatching.MessageId}, @{MessageDispatching.EndpointId}, @{MessageDispatching.IsReceived})
+")
+                                  .AddParameter(MessageDispatching.MessageId, outGoingMessage.MessageId)
+                                  .AddParameter(MessageDispatching.EndpointId, endpointId.GuidValue)
+                                  .AddParameter(MessageDispatching.IsReceived, 0)
+                                  .ExecuteNonQueryAsync());
                 }
                 catch(Exception)
                 {

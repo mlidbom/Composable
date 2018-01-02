@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         async Task DispatchMessageAsync(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
         {
-            await @this.MessageStorage.MarkAsSentAsync(outGoingMessage);
+            await @this.MessageStorage.MarkAsSentAsync(outGoingMessage, @this.RemoteEndpointId);
             //todo: after transaction succeeds...
             @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, new PendingDeliveryNotification(outGoingMessage.MessageId, @this.TimeSource.UtcNow));
 
@@ -87,6 +87,8 @@ namespace Composable.Messaging.Buses.Implementation
 
                 state.Socket.ReceiveReady += ReceiveResponse;
 
+                state.RemoteEndpointId = endpoint.Id;
+
                 state.Socket.Connect(endpoint.Address);
                 poller.Add(state.Socket);
             });
@@ -108,6 +110,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
             internal IUtcTimeTimeSource TimeSource { get; set; }
             internal InterprocessTransport.MessageStorage MessageStorage { get; set; }
+            public EndpointId RemoteEndpointId { get; set; }
 
             internal void DispatchMessage(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> e)
             {

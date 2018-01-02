@@ -18,7 +18,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             internal const string TableName = nameof(MessageDispatching);
 
-            internal const string MessageIdentity = nameof(MessageIdentity);
+            internal const string MessageId = nameof(MessageId);
             internal const string EndpointId = nameof(EndpointId);
             internal const string IsReceived = nameof(IsReceived);
         }
@@ -56,17 +56,17 @@ CREATE TABLE [dbo].[{OutboxMessages.TableName}]
 
 CREATE TABLE [dbo].[{MessageDispatching.TableName}]
 (
-	[{MessageDispatching.MessageIdentity}] [int] NOT NULL,
+	[{MessageDispatching.MessageId}] [uniqueidentifier] NOT NULL,
     [{MessageDispatching.EndpointId}] [uniqueidentifier] NOT NULL,
-    [{MessageDispatching.IsReceived}] [uniqueidentifier] NOT NULL,
+    [{MessageDispatching.IsReceived}] [bit] NOT NULL,
 
     CONSTRAINT [PK_{MessageDispatching.TableName}] 
-        PRIMARY KEY CLUSTERED( {MessageDispatching.MessageIdentity}, {MessageDispatching.EndpointId})
+        PRIMARY KEY CLUSTERED( {MessageDispatching.MessageId}, {MessageDispatching.EndpointId})
         WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY],
 
-    CONSTRAINT FK_{MessageDispatching.TableName}_{MessageDispatching.MessageIdentity} 
-        FOREIGN KEY ( [{MessageDispatching.MessageIdentity}] )  
-        REFERENCES {OutboxMessages.TableName} ([{OutboxMessages.Identity}])
+    CONSTRAINT FK_{MessageDispatching.TableName}_{MessageDispatching.MessageId} 
+        FOREIGN KEY ( [{MessageDispatching.MessageId}] )  
+        REFERENCES {OutboxMessages.TableName} ([{OutboxMessages.MessageId}])
 
 ) ON [PRIMARY]
 ");

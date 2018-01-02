@@ -15,13 +15,17 @@ namespace Composable.Messaging.Buses
 
         readonly IDependencyInjectionContainer _container;
 
-        public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container)
+        public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, string name)
         {
             _container = container;
 
+            Configuration = new EndpointConfiguration(name)
+                            {
+                            };
+
             _container.Register(
                 Component.For<EndpointConfiguration>()
-                         .UsingFactoryMethod(() => new EndpointConfiguration())
+                         .UsingFactoryMethod(() => Configuration)
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
                          .UsingFactoryMethod((IUtcTimeTimeSource timeSource) => new InterprocessTransport(globalStateTracker, timeSource))
@@ -61,6 +65,7 @@ namespace Composable.Messaging.Buses
         }
 
         public IDependencyInjectionContainer Container => _container;
+        public EndpointConfiguration Configuration { get; }
 
         public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers =>
             new MessageHandlerRegistrarWithDependencyInjectionSupport(_container.CreateServiceLocator().Resolve<IMessageHandlerRegistrar>(), _container.CreateServiceLocator());

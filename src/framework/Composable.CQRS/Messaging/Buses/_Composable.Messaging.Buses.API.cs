@@ -96,6 +96,7 @@ namespace Composable.Messaging.Buses
     public interface IEndpointBuilder
     {
         IDependencyInjectionContainer Container { get; }
+        EndpointConfiguration Configuration { get; }
         MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers { get; }
     }
 

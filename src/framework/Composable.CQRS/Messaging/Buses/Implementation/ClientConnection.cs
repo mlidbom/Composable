@@ -22,15 +22,15 @@ namespace Composable.Messaging.Buses.Implementation
 
         public async Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
         {
-            var objectCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             var outGoingMessage = TransportMessage.OutGoing.Create(command);
 
-            state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, objectCompletionSource);
+            state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
 
             await DispatchMessageAsync(command, state, outGoingMessage);
 
-            return await Task.FromResult(objectCompletionSource.Task.Cast<object, TCommandResult>());
+            return await Task.FromResult(taskCompletionSource.Task.Cast<object, TCommandResult>());
         });
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(state =>
@@ -39,19 +39,22 @@ namespace Composable.Messaging.Buses.Implementation
 
             var outGoingMessage = TransportMessage.OutGoing.Create(query);
 
-            if(query.RequiresResponse())
-            {
-                state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-            } else
-            {
-                taskCompletionSource.SetResult(null);
-            }
-
+            state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
             state.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, query);
             state.DispatchQueue.Enqueue(outGoingMessage);
 
             return taskCompletionSource.Task;
         });
+
+        async Task DispatchMessageAsync(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
+        {
+            await MarkAsSentAsync(outGoingMessage);
+            //todo: after transaction succeeds...
+            @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, new PendingDeliveryNotification(outGoingMessage.MessageId, @this.TimeSource.UtcNow));
+
+            @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
+            @this.DispatchQueue.Enqueue(outGoingMessage);
+        }
 
         public ClientConnection(IGlobalBusStateTracker globalBusStateTracker, IEndpoint endpoint, NetMQPoller poller, IUtcTimeTimeSource timeSource)
         {
@@ -176,16 +179,6 @@ namespace Composable.Messaging.Buses.Implementation
                 //todo: proper exception handling here.
                 throw;
             }
-        }
-
-        async Task DispatchMessageAsync(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
-        {
-            await MarkAsSentAsync(outGoingMessage);
-            //todo: after transaction succeeds...
-            @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, new PendingDeliveryNotification(outGoingMessage.MessageId, @this.TimeSource.UtcNow));
-
-            @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
-            @this.DispatchQueue.Enqueue(outGoingMessage);
         }
 
         class PendingDeliveryNotification

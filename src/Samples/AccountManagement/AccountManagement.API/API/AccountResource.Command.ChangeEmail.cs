@@ -15,7 +15,7 @@ namespace AccountManagement.API
         {
             public static class ChangeEmail
             {
-                [TypeId("0EAC052B-3185-4AAA-9267-5073EEE15D5A")]internal class Domain : DomainCommand
+                [TypeId("0EAC052B-3185-4AAA-9267-5073EEE15D5A")]internal class Domain : TransactionalExactlyOnceDeliveryCommand
                 {
                     [UsedImplicitly] Domain() {}
                     public Domain(Guid accountId, Email email)
@@ -30,7 +30,7 @@ namespace AccountManagement.API
                     public Email Email { get; private set; }
                 }
 
-                [TypeId("746695CC-B3CB-4620-A622-F6831AA4C5F3")]public class UI : DomainCommand
+                [TypeId("746695CC-B3CB-4620-A622-F6831AA4C5F3")]public class UI : TransactionalExactlyOnceDeliveryCommand
                 {
                     [UsedImplicitly] UI() {}
                     public UI(Guid accountId) => AccountId = accountId;

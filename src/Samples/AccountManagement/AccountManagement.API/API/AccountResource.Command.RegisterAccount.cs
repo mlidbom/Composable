@@ -16,10 +16,10 @@ namespace AccountManagement.API
         {
             public static class Register
             {
-                [TypeId("B0CAD429-295D-43E7-8441-566B7887C7F0")]internal class DomainCommand : DomainCommand<RegistrationAttemptResult>
+                [TypeId("B0CAD429-295D-43E7-8441-566B7887C7F0")]internal class TransactionalExactlyOnceDeliveryCommand : TransactionalExactlyOnceDeliveryCommand<RegistrationAttemptResult>
                 {
-                    [UsedImplicitly] DomainCommand() { }
-                    public DomainCommand(Guid accountId, Password password, Email email)
+                    [UsedImplicitly] TransactionalExactlyOnceDeliveryCommand() { }
+                    public TransactionalExactlyOnceDeliveryCommand(Guid accountId, Password password, Email email)
                     {
                         OldContract.Argument(() => accountId, () => password, () => email).NotNullOrDefault();
                         AccountId = accountId;
@@ -32,7 +32,7 @@ namespace AccountManagement.API
                     public Email Email { get; private set; }
                 }
 
-                [TypeId("B1406B7E-A51C-4487-845C-AB7326465AD0")]public class UICommand : DomainCommand<RegistrationAttemptResult>, IValidatableObject
+                [TypeId("B1406B7E-A51C-4487-845C-AB7326465AD0")]public class UICommand : TransactionalExactlyOnceDeliveryCommand<RegistrationAttemptResult>, IValidatableObject
                 {
                     public UICommand() {}
                     public UICommand(Guid accountId, string email, string password)
@@ -53,7 +53,7 @@ namespace AccountManagement.API
 
                     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Password.Validate(Password, this, () => Password);
 
-                    internal DomainCommand ToDomainCommand() => new DomainCommand(AccountId, new Password(Password), Domain.Email.Parse(Email));
+                    internal TransactionalExactlyOnceDeliveryCommand ToDomainCommand() => new TransactionalExactlyOnceDeliveryCommand(AccountId, new Password(Password), Domain.Email.Parse(Email));
                 }
 
                 public enum RegistrationAttemptResult

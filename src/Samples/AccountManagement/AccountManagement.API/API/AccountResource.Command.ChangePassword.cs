@@ -16,7 +16,7 @@ namespace AccountManagement.API
         {
             public static class ChangePassword
             {
-                [TypeId("F9074BCF-39B3-4C76-993A-9C27F3E71279")]internal class Domain : DomainCommand
+                [TypeId("F9074BCF-39B3-4C76-993A-9C27F3E71279")]internal class Domain : TransactionalExactlyOnceDeliveryCommand
                 {
                     [UsedImplicitly] Domain() {}
                     public Domain(Guid accountId, string oldPassword, Password newPassword)
@@ -34,7 +34,7 @@ namespace AccountManagement.API
                     public Password NewPassword { get; private set; }
                 }
 
-                [TypeId("43922809-0404-4392-B754-38928C905EBF")]public class UI : DomainCommand, IValidatableObject
+                [TypeId("43922809-0404-4392-B754-38928C905EBF")]public class UI : TransactionalExactlyOnceDeliveryCommand, IValidatableObject
                 {
                     public UI(Guid accountId) => AccountId = accountId;
 

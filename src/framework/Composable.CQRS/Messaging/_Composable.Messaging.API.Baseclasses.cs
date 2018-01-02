@@ -9,10 +9,6 @@ namespace Composable.Messaging
     {
     }
 
-    public abstract class Event : Message, IEvent
-    {
-    }
-
     public abstract class Query<TResult> : Message, IQuery<TResult>
     {
     }

@@ -8,7 +8,7 @@ namespace Composable.Messaging.Buses
     {
         static class CommandValidator
         {
-            public static void AssertCommandIsValid(IDomainCommand command)
+            public static void AssertCommandIsValid(ITransactionalExactlyOnceDeliveryCommand command)
             {
                 var failures = ValidationFailures(command);
                 if(failures.Any())

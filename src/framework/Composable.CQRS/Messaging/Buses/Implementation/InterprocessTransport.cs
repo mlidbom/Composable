@@ -53,7 +53,7 @@ namespace Composable.Messaging.Buses.Implementation
             @this.Poller.RunAsync();
         });
 
-        public async Task DispatchAsync(IEvent @event) => await _state.WithExclusiveAccess(async state =>
+        public async Task DispatchAsync(IDomainEvent @event) => await _state.WithExclusiveAccess(async state =>
         {
             var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(@event);
 
@@ -69,7 +69,7 @@ namespace Composable.Messaging.Buses.Implementation
             connections.ForEach(receiver => receiver.Dispatch(@event));
         });
 
-        public async Task DispatchAsync(IDomainCommand command) => await _state.WithExclusiveAccess(async state =>
+        public async Task DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command) => await _state.WithExclusiveAccess(async state =>
         {
             var saveMessage = SaveMessage(command);
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
@@ -82,7 +82,7 @@ namespace Composable.Messaging.Buses.Implementation
             await Task.WhenAll(saveMessage, dispatchSave);
         });
 
-        public async Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
+        public async Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
         {
             var saveMessage = SaveMessage(command);
 

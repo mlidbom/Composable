@@ -146,7 +146,7 @@ namespace Composable.Messaging.Buses.Implementation
         async Task<object> DispatchAsync(TransportMessage.InComing message) => await Task.Run(async () =>
         {
             var innerMessage = message.DeserializeMessageAndCacheForNextCall();
-            if(innerMessage is IExactlyOnceDeliveryMessage)
+            if(innerMessage is ITransactionalExactlyOnceDeliveryMessage)
             {
                 await PersistMessage(message);
                 _responseQueue.Enqueue(message.CreatePersistedResponse());
@@ -154,9 +154,9 @@ namespace Composable.Messaging.Buses.Implementation
 
             switch(innerMessage)
             {
-                case IDomainCommand command:
+                case ITransactionalExactlyOnceDeliveryCommand command:
                     return await DispatchAsync(command, message);
-                case IEvent @event:
+                case IDomainEvent @event:
                     return await DispatchAsync(@event, message);
                 case IQuery query:
                     return await DispatchAsync(query, message);
@@ -193,7 +193,7 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task.NoMarshalling();
         }
 
-        async Task<object> DispatchAsync(IEvent @event, TransportMessage.InComing message)
+        async Task<object> DispatchAsync(IDomainEvent @event, TransportMessage.InComing message)
         {
             var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -217,7 +217,7 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task.NoMarshalling();
         }
 
-        async Task<object> DispatchAsync(IDomainCommand command, TransportMessage.InComing message)
+        async Task<object> DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command, TransportMessage.InComing message)
         {
             var handler = _handlerRegistry.GetCommandHandler(command.GetType());
 

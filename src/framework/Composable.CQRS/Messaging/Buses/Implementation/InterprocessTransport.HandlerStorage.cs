@@ -58,7 +58,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _queryHandlerMap.Add(queryTypeId, endpointId);
             }
 
-            internal EndpointId GetCommandHandlerEndpoint(IDomainCommand command)
+            internal EndpointId GetCommandHandlerEndpoint(ITransactionalExactlyOnceDeliveryCommand command)
             {
                 var commandTypeId = TypeId.FromType(command.GetType());
 
@@ -82,7 +82,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return endpointId;
             }
 
-            internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(IEvent @event)
+            internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(IDomainEvent @event)
             {
                 var typedEventHandlerRegistrations = _eventHandlerRegistrations
                                                      .Where(me => me.EventType.TryGetType(out var _))
@@ -98,8 +98,8 @@ namespace Composable.Messaging.Buses.Implementation
                        .ToList();
             }
 
-            static bool IsCommand(Type type) => typeof(IDomainCommand).IsAssignableFrom(type);
-            static bool IsEvent(Type type) => typeof(IEvent).IsAssignableFrom(type);
+            static bool IsCommand(Type type) => typeof(ITransactionalExactlyOnceDeliveryCommand).IsAssignableFrom(type);
+            static bool IsEvent(Type type) => typeof(IDomainEvent).IsAssignableFrom(type);
             static bool IsQuery(Type type) => typeof(IQuery).IsAssignableFrom(type);
         }
     }

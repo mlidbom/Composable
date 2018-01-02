@@ -2,6 +2,7 @@
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Persistence.EventStore;
 using FluentAssertions;
 using Xunit;
 
@@ -98,7 +99,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             }
         }
 
-        [TypeId("857392BE-FF1E-45D0-A11F-D5BB0FFC3DCE")]class ACommand : IDomainCommand
+        [TypeId("857392BE-FF1E-45D0-A11F-D5BB0FFC3DCE")]class ACommand : ITransactionalExactlyOnceDeliveryCommand
         {
             public Guid MessageId { get; } = Guid.NewGuid();
         }
@@ -107,6 +108,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
         class AQueryResult : QueryResult {}
 
-        class AnEvent : Event {}
+        class AnEvent : DomainEvent {}
     }
 }

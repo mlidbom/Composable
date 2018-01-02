@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses
                 return true;
             }
 
-            return busState.MessagesQueuedForExecutionLocally.None(executing => executing.Message is IEvent || executing.Message is IDomainCommand);
+            return busState.MessagesQueuedForExecutionLocally.None(executing => executing.Message is IDomainEvent || executing.Message is ITransactionalExactlyOnceDeliveryCommand);
         }
     }
 }

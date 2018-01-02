@@ -11,7 +11,7 @@ namespace Composable.Messaging.Buses
     class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry
     {
         readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
-        readonly Dictionary<Type, List<Action<IEvent>>> _eventHandlers = new Dictionary<Type, List<Action<IEvent>>>();
+        readonly Dictionary<Type, List<Action<IDomainEvent>>> _eventHandlers = new Dictionary<Type, List<Action<IDomainEvent>>>();
         readonly Dictionary<Type, Func<object, object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
         readonly Dictionary<Type, Func<object, object>> _commandHandlersReturningResults = new Dictionary<Type, Func<object, object>>();
         readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
@@ -22,8 +22,8 @@ namespace Composable.Messaging.Buses
         {
             lock(_lock)
             {
-                Contract.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(IDomainCommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(IQuery)));
-                _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<IEvent>>()).Add(@event => handler((TEvent)@event));
+                Contract.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(ITransactionalExactlyOnceDeliveryCommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(IQuery)));
+                _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<IDomainEvent>>()).Add(@event => handler((TEvent)@event));
                 _eventHandlerRegistrations.Add(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
                 return this;
             }
@@ -33,17 +33,17 @@ namespace Composable.Messaging.Buses
         {
             lock(_lock)
             {
-                Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
+                Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IDomainEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
                 _commandHandlers.Add(typeof(TCommand), command => handler((TCommand)command));
                 return this;
             }
         }
 
-        public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : IDomainCommand<TResult>
+        public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : ITransactionalExactlyOnceDeliveryCommand<TResult>
         {
             lock (_lock)
             {
-                Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
+                Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IDomainEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
                 _commandHandlersReturningResults.Add(typeof(TCommand), command =>
                 {
                     var result = handler((TCommand)command);
@@ -62,7 +62,7 @@ namespace Composable.Messaging.Buses
         {
             lock(_lock)
             {
-                Contract.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(IEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(IDomainCommand)));
+                Contract.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(IDomainEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(ITransactionalExactlyOnceDeliveryCommand)));
                 _queryHandlers.Add(typeof(TQuery), query => handler((TQuery)query));
                 return this;
             }
@@ -70,7 +70,7 @@ namespace Composable.Messaging.Buses
 
 
 
-        Action<object> IMessageHandlerRegistry.GetCommandHandler(IDomainCommand message)
+        Action<object> IMessageHandlerRegistry.GetCommandHandler(ITransactionalExactlyOnceDeliveryCommand message)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public Func<IDomainCommand, object> GetCommandHandler(Type commandType)
+        public Func<ITransactionalExactlyOnceDeliveryCommand, object> GetCommandHandler(Type commandType)
         {
             if(_commandHandlers.TryGetValue(commandType, out var handler))
             {
@@ -101,7 +101,7 @@ namespace Composable.Messaging.Buses
 
         public Func<IQuery, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType];
 
-        public IReadOnlyList<Action<IEvent>> GetEventHandlers(Type eventType)
+        public IReadOnlyList<Action<IDomainEvent>> GetEventHandlers(Type eventType)
         {
             return _eventHandlers.Where(@this => @this.Key.IsAssignableFrom(eventType)).SelectMany(@this => @this.Value).ToList();
         }
@@ -122,7 +122,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public Func<IDomainCommand<TResult>, TResult> GetCommandHandler<TResult>(IDomainCommand<TResult> command)
+        public Func<ITransactionalExactlyOnceDeliveryCommand<TResult>, TResult> GetCommandHandler<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command)
         {
             try
             {
@@ -139,11 +139,11 @@ namespace Composable.Messaging.Buses
         }
 
 
-        IEventDispatcher<IEvent> IMessageHandlerRegistry.CreateEventDispatcher()
+        IEventDispatcher<IDomainEvent> IMessageHandlerRegistry.CreateEventDispatcher()
         {
-            var dispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<IEvent>();
+            var dispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<IDomainEvent>();
             var registrar = dispatcher.RegisterHandlers()
-                                      .IgnoreUnhandled<IEvent>();
+                                      .IgnoreUnhandled<IDomainEvent>();
             lock(_lock)
             {
                 _eventHandlerRegistrations.ForEach(handlerRegistration => handlerRegistration.RegisterHandlerWithRegistrar(registrar));
@@ -164,8 +164,8 @@ namespace Composable.Messaging.Buses
         internal class EventHandlerRegistration
         {
             public Type Type { get; }
-            public Action<IEventHandlerRegistrar<IEvent>> RegisterHandlerWithRegistrar { get; }
-            public EventHandlerRegistration(Type type, Action<IEventHandlerRegistrar<IEvent>> registerHandlerWithRegistrar)
+            public Action<IEventHandlerRegistrar<IDomainEvent>> RegisterHandlerWithRegistrar { get; }
+            public EventHandlerRegistration(Type type, Action<IEventHandlerRegistrar<IDomainEvent>> registerHandlerWithRegistrar)
             {
                 Type = type;
                 RegisterHandlerWithRegistrar = registerHandlerWithRegistrar;

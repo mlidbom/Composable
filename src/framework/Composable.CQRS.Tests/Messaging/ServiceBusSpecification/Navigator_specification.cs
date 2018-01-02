@@ -6,6 +6,7 @@ using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
+using Composable.Persistence.EventStore;
 using FluentAssertions;
 using Xunit;
 
@@ -75,7 +76,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public RegisterUserCommand RegisterUser(string userName) => new RegisterUserCommand(userName);
             }
 
-            [TypeId("6EDCBCD0-C1DE-4499-9CBB-8E8E8405A9C3")]class UserRegisteredEvent : Event
+            [TypeId("6EDCBCD0-C1DE-4499-9CBB-8E8E8405A9C3")]class UserRegisteredEvent : DomainEvent
             {
                 public UserRegisteredEvent(string name) => Name = name;
                 public string Name { get; }
@@ -93,7 +94,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            [TypeId("3B1A2A50-F114-4886-B981-C56753AFD55E")]protected class RegisterUserCommand : DomainCommand<UserRegisteredConfirmationResource>
+            [TypeId("3B1A2A50-F114-4886-B981-C56753AFD55E")]protected class RegisterUserCommand : TransactionalExactlyOnceDeliveryCommand<UserRegisteredConfirmationResource>
             {
                 public RegisterUserCommand(string name) => Name = name;
                 public string Name { get; }

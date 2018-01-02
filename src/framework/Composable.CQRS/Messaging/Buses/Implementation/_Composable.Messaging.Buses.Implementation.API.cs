@@ -14,18 +14,18 @@ namespace Composable.Messaging.Buses.Implementation
     {
         void Stop();
         void Start();
-        Task DispatchAsync(IEvent message);
-        Task DispatchAsync(IDomainCommand command);
-        Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(IDomainCommand<TCommandResult> command);
+        Task DispatchAsync(IDomainEvent message);
+        Task DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command);
+        Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> command);
         void Connect(IEndpoint endpoint);
     }
 
     interface IClientConnection : IDisposable
     {
-        void Dispatch(IEvent @event);
-        void Dispatch(IDomainCommand command);
-        Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command);
+        void Dispatch(IDomainEvent @event);
+        void Dispatch(ITransactionalExactlyOnceDeliveryCommand command);
+        Task<TCommandResult> DispatchAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query);
     }
 

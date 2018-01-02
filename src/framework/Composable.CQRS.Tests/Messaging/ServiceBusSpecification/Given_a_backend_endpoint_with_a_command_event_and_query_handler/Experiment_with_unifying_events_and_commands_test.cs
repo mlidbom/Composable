@@ -96,10 +96,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarCommand
         {
-            public interface IRoot : IDomainCommand {}
+            public interface IRoot : ITransactionalExactlyOnceDeliveryCommand {}
 
-            public class Root : DomainCommand, IRoot {}
-            public class Root<TResult> : DomainCommand<TResult>, IRoot where TResult : IMessage {}
+            public class Root : TransactionalExactlyOnceDeliveryCommand, IRoot {}
+            public class Root<TResult> : TransactionalExactlyOnceDeliveryCommand<TResult>, IRoot where TResult : IMessage {}
 
             [TypeId("ED0AFADB-AD2D-4212-833A-CB14266204ED")]public class RegisterUserCommand : Root<RegisterUserResult>
             {

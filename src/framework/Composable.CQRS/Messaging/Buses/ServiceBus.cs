@@ -40,18 +40,18 @@ namespace Composable.Messaging.Buses
             _inbox.Stop();
         }
 
-        public async Task SendAtTimeAsync(DateTime sendAt, IDomainCommand command) =>
+        public async Task SendAtTimeAsync(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) =>
             await _commandScheduler.Schedule(sendAt, command).NoMarshalling();
 
-        public async Task SendAsync(IDomainCommand command)
+        public async Task SendAsync(ITransactionalExactlyOnceDeliveryCommand command)
         {
             CommandValidator.AssertCommandIsValid(command);
             await _transport.DispatchAsync(command).NoMarshalling();
         }
 
-        public async Task PublishAsync(IEvent anEvent) => await _transport.DispatchAsync(anEvent).NoMarshalling();
+        public async Task PublishAsync(IDomainEvent anEvent) => await _transport.DispatchAsync(anEvent).NoMarshalling();
 
-        public async Task<Task<TResult>> SendAsyncAsync<TResult>(IDomainCommand<TResult> command)
+        public async Task<Task<TResult>> SendAsyncAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command)
         {
             CommandValidator.AssertCommandIsValid(command);
             return await _transport.DispatchAsyncAsync(command).NoMarshalling();
@@ -62,12 +62,12 @@ namespace Composable.Messaging.Buses
         #endregion
 
         #region ISimpleServicebus
-        public void Publish(IEvent @event) => PublishAsync(@event).Wait();
-        public void Send(IDomainCommand command) => SendAsync(command).Wait();
-        public void SendAtTime(DateTime sendAt, IDomainCommand command) => SendAtTimeAsync(sendAt, command).Wait();
-        public TResult Send<TResult>(IDomainCommand<TResult> command) => SendAsync(command).Result;
+        public void Publish(IDomainEvent @event) => PublishAsync(@event).Wait();
+        public void Send(ITransactionalExactlyOnceDeliveryCommand command) => SendAsync(command).Wait();
+        public void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => SendAtTimeAsync(sendAt, command).Wait();
+        public TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => SendAsync(command).Result;
         public TResult Query<TResult>(IQuery<TResult> query) => QueryAsync(query).Result;
-        public async Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command) => await SendAsyncAsync(command).Result.NoMarshalling();
+        public async Task<TResult> SendAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => await SendAsyncAsync(command).Result.NoMarshalling();
         #endregion
 
         public void Dispose() { Contract.State.Assert(!_started); }

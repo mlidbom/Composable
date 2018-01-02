@@ -128,7 +128,8 @@ namespace Composable.Messaging.Buses.Implementation
             while(!_cancellationTokenSource.Token.IsCancellationRequested)
                 try
                 {
-                    _globalStateTracker.AwaitDispatchableMessage(this, _dispatchingRules).Run();
+                    var dispatchableMessage = _globalStateTracker.AwaitDispatchableMessage(this, _dispatchingRules);
+                    dispatchableMessage.Run();
                 }
                 catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException)
                 {

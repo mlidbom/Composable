@@ -57,7 +57,7 @@ WHERE {MessageDispatching.MessageId} = @{MessageDispatching.MessageId}
 
             public async Task SaveMessageAsync(ITransactionalExactlyOnceDeliveryMessage message)
             {
-                _connectionFactory.UseCommand(
+                await _connectionFactory.UseCommandAsync(
                     command =>
                         command
                             .SetCommandText(
@@ -69,7 +69,7 @@ INSERT {OutboxMessages.TableName}
                             .AddParameter(OutboxMessages.MessageId, message.MessageId)
                             .AddParameter(OutboxMessages.TypeId, TypeId.FromType(message.GetType()).GuidValue)
                             .AddNVarcharMaxParameter(OutboxMessages.Body, JsonConvert.SerializeObject(message))
-                            .ExecuteNonQuery());
+                            .ExecuteNonQueryAsync());
             }
 
             public void Start() => SchemaManager.EnsureTablesExist(_connectionFactory);

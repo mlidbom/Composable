@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.System.Data.SqlClient;
+using Newtonsoft.Json;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -42,7 +43,19 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 try
                 {
-                    await Task.CompletedTask;
+                    await _connectionFactory.UseCommandAsync(
+                        async command =>
+                            await command
+                                  .SetCommandText(
+                                      $@"
+INSERT {OutboxMessages.TableName} 
+            ({OutboxMessages.MessageId},  {OutboxMessages.TypeId},  {OutboxMessages.Body}) 
+    VALUES (@{OutboxMessages.MessageId}, @{OutboxMessages.TypeId}, @{OutboxMessages.Body})
+")
+                                  .AddParameter(OutboxMessages.MessageId, message.MessageId)
+                                  .AddParameter(OutboxMessages.TypeId, TypeId.FromType(message.GetType()).GuidValue)
+                                  .AddNVarcharMaxParameter(OutboxMessages.Body, JsonConvert.SerializeObject(message))
+                                  .ExecuteNonQueryAsync());
                 }
                 catch(Exception)
                 {
@@ -52,7 +65,6 @@ namespace Composable.Messaging.Buses.Implementation
             }
 
             public void Start() => SchemaManager.EnsureTablesExist(_connectionFactory);
-
         }
     }
 }

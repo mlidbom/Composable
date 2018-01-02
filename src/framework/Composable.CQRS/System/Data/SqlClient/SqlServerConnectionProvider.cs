@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 using System.Transactions;
 using Composable.System.Linq;
 
@@ -47,6 +48,14 @@ namespace Composable.System.Data.SqlClient
             }
         }
 
+        public async static Task<TResult> UseCommandAsync<TResult>(this SqlConnection @this, Func<SqlCommand, Task<TResult>> action)
+        {
+            using(var command = @this.CreateCommand())
+            {
+                return await action(command);
+            }
+        }
+
         public static void ExecuteNonQuery(this SqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteNonQuery(commandText));
         public static object ExecuteScalar(this SqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteScalar(commandText));
         public static void ExecuteReader(this SqlConnection @this, string commandText, Action<SqlDataReader> forEach) => @this.UseCommand(command => command.ExecuteReader(commandText, forEach));
@@ -84,9 +93,20 @@ namespace Composable.System.Data.SqlClient
             }
         }
 
+        static async Task<TResult> UseConnectionAsync<TResult>(this ISqlConnection @this, Func<SqlConnection, Task<TResult>> action)
+        {
+            using(var connection = @this.OpenConnection())
+            {
+                return await action(connection);
+            }
+        }
+
+
         public static void UseCommand(this ISqlConnection @this, Action<SqlCommand> action) => @this.UseConnection(connection => connection.UseCommand(action));
 
         public static TResult UseCommand<TResult>(this ISqlConnection @this, Func<SqlCommand, TResult> action) => @this.UseConnection(connection => connection.UseCommand(action));
+
+        public static Task<TResult> UseCommandAsync<TResult>(this ISqlConnection @this, Func<SqlCommand, Task<TResult>> action) => @this.UseConnectionAsync(connection => connection.UseCommandAsync(action));
     }
 
     static class SqlCommandExtensions

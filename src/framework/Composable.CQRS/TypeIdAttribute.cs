@@ -22,12 +22,12 @@ namespace Composable
 
     class TypeId : ValueObject<TypeId>
     {
-        readonly Guid _guidValue;
+        internal readonly Guid GuidValue;
 
         public TypeId(Guid guidValue)
         {
             Contract.Argument.Assert(guidValue != Guid.Empty);
-            _guidValue = guidValue;
+            GuidValue = guidValue;
         }
 
         static readonly Dictionary<TypeId, Type> TypeIdToTypemap = CreateTypeMap();
@@ -48,7 +48,7 @@ namespace Composable
         {
             if(!TypeIdToTypemap.TryGetValue(this, out var type))
             {
-                throw new Exception($"Failed to map {nameof(TypeId)}:{_guidValue} to a type. Make sure the assembly defining the type is decorated with: {nameof(ContainsComposableTypeIdsAttribute)}");
+                throw new Exception($"Failed to map {nameof(TypeId)}:{GuidValue} to a type. Make sure the assembly defining the type is decorated with: {nameof(ContainsComposableTypeIdsAttribute)}");
             }
 
             return type;

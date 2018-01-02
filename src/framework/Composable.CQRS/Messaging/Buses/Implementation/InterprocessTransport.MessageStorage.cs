@@ -16,84 +16,60 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal async Task MarkAsSentAsync(TransportMessage.OutGoing outGoingMessage, EndpointId endpointId)
             {
-                try
-                {
-                    _connectionFactory.UseCommand(
-                        command =>
-                            command
-                                .SetCommandText(
-                                    $@"
+                _connectionFactory.UseCommand(
+                    command =>
+                        command
+                            .SetCommandText(
+                                $@"
 INSERT {MessageDispatching.TableName} 
             ({MessageDispatching.MessageId},  {MessageDispatching.EndpointId},  {MessageDispatching.IsReceived}) 
     VALUES (@{MessageDispatching.MessageId}, @{MessageDispatching.EndpointId}, @{MessageDispatching.IsReceived})
 ")
-                                .AddParameter(MessageDispatching.MessageId, outGoingMessage.MessageId)
-                                .AddParameter(MessageDispatching.EndpointId, endpointId.GuidValue)
-                                .AddParameter(MessageDispatching.IsReceived, 0)
-                                .ExecuteNonQuery());
-                }
-                catch(Exception)
-                {
-                    //todo: proper exception handling here.
-                    throw;
-                }
+                            .AddParameter(MessageDispatching.MessageId, outGoingMessage.MessageId)
+                            .AddParameter(MessageDispatching.EndpointId, endpointId.GuidValue)
+                            .AddParameter(MessageDispatching.IsReceived, 0)
+                            .ExecuteNonQuery());
             }
 
             internal async Task MarkAsReceivedAsync(TransportMessage.Response.Incoming response, EndpointId endpointId)
             {
-                try
-                {
-                    _connectionFactory.UseCommand(
-                        command =>
-                        {
-                            var affectedRows = command
-                                               .SetCommandText(
-                                                   $@"
+                _connectionFactory.UseCommand(
+                    command =>
+                    {
+                        var affectedRows = command
+                                           .SetCommandText(
+                                               $@"
 UPDATE {MessageDispatching.TableName} 
     SET {MessageDispatching.IsReceived} = 1
 WHERE {MessageDispatching.MessageId} = @{MessageDispatching.MessageId}
     AND {MessageDispatching.EndpointId} = @{MessageDispatching.EndpointId}
     AND {MessageDispatching.IsReceived} = 0
 ")
-                                               .AddParameter(MessageDispatching.MessageId, response.RespondingToMessageId)
-                                               .AddParameter(MessageDispatching.EndpointId, endpointId.GuidValue)
-                                               .AddParameter(MessageDispatching.IsReceived, 1)
-                                               .ExecuteNonQuery();
+                                           .AddParameter(MessageDispatching.MessageId, response.RespondingToMessageId)
+                                           .AddParameter(MessageDispatching.EndpointId, endpointId.GuidValue)
+                                           .AddParameter(MessageDispatching.IsReceived, 1)
+                                           .ExecuteNonQuery();
 
-                            Contract.Result.Assert(affectedRows == 1);
-                            return affectedRows;
-                        });
-                }
-                catch(Exception)
-                {
-                    //todo: proper exception handling here.
-                    throw;
-                }
+                        Contract.Result.Assert(affectedRows == 1);
+                        return affectedRows;
+                    });
             }
 
             public async Task SaveMessageAsync(ITransactionalExactlyOnceDeliveryMessage message)
             {
-                try
-                {
-                    _connectionFactory.UseCommand(
-                        command =>
-                            command
-                                .SetCommandText(
-                                    $@"
+                _connectionFactory.UseCommand(
+                    command =>
+                        command
+                            .SetCommandText(
+                                $@"
 INSERT {OutboxMessages.TableName} 
             ({OutboxMessages.MessageId},  {OutboxMessages.TypeId},  {OutboxMessages.Body}) 
     VALUES (@{OutboxMessages.MessageId}, @{OutboxMessages.TypeId}, @{OutboxMessages.Body})
 ")
-                                .AddParameter(OutboxMessages.MessageId, message.MessageId)
-                                .AddParameter(OutboxMessages.TypeId, TypeId.FromType(message.GetType()).GuidValue)
-                                .AddNVarcharMaxParameter(OutboxMessages.Body, JsonConvert.SerializeObject(message))
-                                .ExecuteNonQuery());
-                }
-                catch(Exception)
-                {
-                    //todo: proper exception handling here.
-                    throw;
-                }
+                            .AddParameter(OutboxMessages.MessageId, message.MessageId)
+                            .AddParameter(OutboxMessages.TypeId, TypeId.FromType(message.GetType()).GuidValue)
+                            .AddNVarcharMaxParameter(OutboxMessages.Body, JsonConvert.SerializeObject(message))
+                            .ExecuteNonQuery());
             }
 
             public void Start() => SchemaManager.EnsureTablesExist(_connectionFactory);

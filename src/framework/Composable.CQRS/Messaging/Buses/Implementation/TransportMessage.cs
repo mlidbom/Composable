@@ -122,7 +122,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 Success,
                 Failure,
-                Persisted
+                Received
             }
 
             static class Constants
@@ -175,7 +175,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     responseMessage.Append(incoming.Client);
                     responseMessage.Append(incoming.MessageId);
-                    responseMessage.Append((int)ResponseType.Persisted);
+                    responseMessage.Append((int)ResponseType.Received);
                     return new Outgoing(responseMessage);
                 }
             }
@@ -225,7 +225,7 @@ namespace Composable.Messaging.Buses.Implementation
                             return new Incoming(type: type, respondingToMessageId: messageId, resultJson: responseBody, responseType: responseType);
                         case ResponseType.Failure:
                             return new Incoming(type: type, respondingToMessageId: messageId, resultJson: null, responseType: null);
-                        case ResponseType.Persisted:
+                        case ResponseType.Received:
                             return new Incoming(type: type, respondingToMessageId: messageId, resultJson: null, responseType: null);
                         default:
                             throw new ArgumentOutOfRangeException();

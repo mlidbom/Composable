@@ -108,7 +108,7 @@ namespace Composable.Messaging.Buses.Implementation
                             var failureResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
                             failureResponse.SetException(new MessageDispatchingFailedException());
                             break;
-                        case TransportMessage.Response.ResponseType.Persisted:
+                        case TransportMessage.Response.ResponseType.Received:
 #pragma warning disable 4014
                             Contract.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
                             MarkAsReceivedAsync(response);

@@ -153,10 +153,8 @@ namespace Composable.Messaging.Buses.Implementation
                             failureResponse.SetException(new MessageDispatchingFailedException());
                             break;
                         case TransportMessage.Response.ResponseType.Received:
-#pragma warning disable 4014
                             Contract.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
-                            state.MessageStorage.MarkAsReceivedAsync(response, state.RemoteEndpointId);
-#pragma warning restore 4014
+                            Task.Run(() => state.MessageStorage.MarkAsReceivedAsync(response, state.RemoteEndpointId));
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();

@@ -11,14 +11,14 @@ namespace Composable.Messaging.Buses.Implementation
 {
     static class TransportMessage
     {
-        public enum TransportMessageType
+        internal enum TransportMessageType
         {
             Event,
             Command,
             Query
         }
 
-        public class InComing
+        internal class InComing
         {
             public readonly byte[] Client;
             public readonly Guid MessageId;
@@ -62,10 +62,13 @@ namespace Composable.Messaging.Buses.Implementation
             public Response.Outgoing CreateFailureResponse(Exception exception) => Response.Outgoing.Failure(this, exception);
 
             public Response.Outgoing CreateSuccessResponse(object response) => Response.Outgoing.Success(this, response);
+
+            public Response.Outgoing CreatePersistedResponse() => Response.Outgoing.Persisted(this);
         }
 
-        public class OutGoing
+        internal class OutGoing
         {
+            public bool IsExactlyOnceDeliveryMessage { get; }
             public readonly Guid MessageId;
             public readonly TransportMessageType Type;
 
@@ -86,7 +89,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 var messageId = (message as IExactlyOnceDeliveryMessage)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
-                return new OutGoing(message.GetType(), messageId, body, GetMessageType(message));
+                return new OutGoing(message.GetType(), messageId, body, GetMessageType(message), message is IExactlyOnceDeliveryMessage);
             }
 
             static TransportMessageType GetMessageType(IMessage message)
@@ -103,8 +106,9 @@ namespace Composable.Messaging.Buses.Implementation
                 }
             }
 
-            OutGoing(Type messageType, Guid messageId, string messageBody, TransportMessageType type)
+            OutGoing(Type messageType, Guid messageId, string messageBody, TransportMessageType type, bool isExactlyOnceDeliveryMessage)
             {
+                IsExactlyOnceDeliveryMessage = isExactlyOnceDeliveryMessage;
                 Type = type;
                 _messageType = messageType.FullName;
                 MessageId = messageId;
@@ -112,16 +116,21 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        public class Response
+        internal class Response
         {
+            internal enum ResponseType
+            {
+                Success,
+                Failure,
+                Persisted
+            }
+
             static class Constants
             {
-                public const string ReplySuccess = "OK";
-                public const string ReplyFailure = "FAIL";
                 public const string NullString = "NULL";
             }
 
-            public class Outgoing
+            internal class Outgoing
             {
                 readonly NetMQMessage _response;
 
@@ -135,7 +144,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     responseMessage.Append(incoming.Client);
                     responseMessage.Append(incoming.MessageId);
-                    responseMessage.Append(Constants.ReplySuccess);
+                    responseMessage.Append((int)ResponseType.Success);
 
                     if(result != null)
                     {
@@ -155,19 +164,29 @@ namespace Composable.Messaging.Buses.Implementation
 
                     response.Append(incoming.Client);
                     response.Append(incoming.MessageId);
-                    response.Append(Constants.ReplyFailure);
+                    response.Append((int)ResponseType.Failure);
 
                     return new Outgoing(response);
                 }
+
+                public static Outgoing Persisted(InComing incoming)
+                {
+                    var responseMessage = new NetMQMessage();
+
+                    responseMessage.Append(incoming.Client);
+                    responseMessage.Append(incoming.MessageId);
+                    responseMessage.Append((int)ResponseType.Persisted);
+                    return new Outgoing(responseMessage);
+                }
             }
 
-            public class Incoming
+            internal class Incoming
             {
                 readonly string _resultJson;
                 readonly string _responseType;
                 object _result;
-                public bool SuccessFull { get; }
-                public Guid RespondingToMessageId { get; }
+                internal ResponseType ResponseType { get; }
+                internal Guid RespondingToMessageId { get; }
 
                 public object DeserializeResult()
                 {
@@ -196,24 +215,28 @@ namespace Composable.Messaging.Buses.Implementation
                 static Incoming FromMultipartMessage(NetMQMessage message)
                 {
                     var messageId = new Guid(message[0].ToByteArray());
-                    var result = message[1].ConvertToString();
+                    var type = (ResponseType)message[1].ConvertToInt32();
 
-                    if(result == Constants.ReplySuccess)
+                    switch(type)
                     {
-                        var responseType = message[2].ConvertToString();
-                        var responseBody = message[3].ConvertToString();
-                        return new Incoming(successFull: true, respondingToMessageId: messageId, resultJson: responseBody, responseType: responseType);
-                    } else
-                    {
-                        return new Incoming(successFull: false, respondingToMessageId: messageId, resultJson: null, responseType: null);
+                        case ResponseType.Success:
+                            var responseType = message[2].ConvertToString();
+                            var responseBody = message[3].ConvertToString();
+                            return new Incoming(type: type, respondingToMessageId: messageId, resultJson: responseBody, responseType: responseType);
+                        case ResponseType.Failure:
+                            return new Incoming(type: type, respondingToMessageId: messageId, resultJson: null, responseType: null);
+                        case ResponseType.Persisted:
+                            return new Incoming(type: type, respondingToMessageId: messageId, resultJson: null, responseType: null);
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
 
-                Incoming(bool successFull, Guid respondingToMessageId, string resultJson, string responseType)
+                Incoming(ResponseType type, Guid respondingToMessageId, string resultJson, string responseType)
                 {
                     _resultJson = resultJson;
                     _responseType = responseType;
-                    SuccessFull = successFull;
+                    ResponseType = type;
                     RespondingToMessageId = respondingToMessageId;
                 }
             }

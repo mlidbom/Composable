@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
+using Composable.GenericAbstractions.Time;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
@@ -20,16 +21,20 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly Dictionary<EndpointId, ClientConnection> EndpointConnections = new Dictionary<EndpointId, ClientConnection>();
             internal readonly HandlerStorage HandlerStorage = new HandlerStorage();
             internal readonly NetMQPoller Poller = new NetMQPoller();
+            public IUtcTimeTimeSource TimeSource { get; set; }
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker) => _state.WithExclusiveAccess(@this => @this.GlobalBusStateTracker = globalBusStateTracker);
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource) => _state.WithExclusiveAccess(@this =>
+        {
+            @this.TimeSource = timeSource;
+            @this.GlobalBusStateTracker = globalBusStateTracker;
+        });
 
         public void Connect(IEndpoint endpoint) => _state.WithExclusiveAccess(@this =>
         {
-            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller));
-
+            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource));
             @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypes().Select(TypeId.FromType).ToSet());
         });
 

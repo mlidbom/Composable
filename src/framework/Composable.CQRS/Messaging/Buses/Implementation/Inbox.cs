@@ -142,23 +142,30 @@ namespace Composable.Messaging.Buses.Implementation
         void EnqueueNonTransactionalTask(TransportMessage.InComing message, Action action)
             => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
 
-        Task<object> DispatchAsync(TransportMessage.InComing message)
+        async Task<object> DispatchAsync(TransportMessage.InComing message) => await Task.Run(async () =>
         {
-            return Task.Run(() =>
+            var innerMessage = message.DeserializeMessageAndCacheForNextCall();
+            if(innerMessage is IExactlyOnceDeliveryMessage)
             {
-                switch(message.DeserializeMessageAndCacheForNextCall())
-                {
-                    case IDomainCommand command:
-                        return DispatchAsync(command, message);
-                    case IEvent @event:
-                        return DispatchAsync(@event, message);
-                    case IQuery query:
-                        return DispatchAsync(query, message);
-                    default:
-                        throw new Exception($"Unsupported message type: {message.GetType()}");
-                }
-            });
-        }
+                await PersistMessage(message);
+                _responseQueue.Enqueue(message.CreatePersistedResponse());
+            }
+
+            switch(innerMessage)
+            {
+                case IDomainCommand command:
+                    return await DispatchAsync(command, message);
+                case IEvent @event:
+                    return await DispatchAsync(@event, message);
+                case IQuery query:
+                    return await DispatchAsync(query, message);
+                default:
+                    throw new Exception($"Unsupported message type: {message.GetType()}");
+            }
+        });
+
+
+        async Task PersistMessage(TransportMessage.InComing message) => await Task.CompletedTask;
 
         async Task<object> DispatchAsync(IQuery query, TransportMessage.InComing message)
         {

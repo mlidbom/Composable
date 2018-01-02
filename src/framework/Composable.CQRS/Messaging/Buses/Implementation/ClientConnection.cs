@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Composable.Contracts;
+using Composable.GenericAbstractions.Time;
 using Composable.Messaging.NetMQCE;
 using Composable.System;
 using Composable.System.Collections.Collections;
@@ -20,10 +22,12 @@ namespace Composable.Messaging.Buses.Implementation
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => (TQueryResult)await DispatchMessageWithResponse(query);
 
-        public ClientConnection(IGlobalBusStateTracker globalBusStateTracker, IEndpoint endpoint, NetMQPoller poller)
+        public ClientConnection(IGlobalBusStateTracker globalBusStateTracker, IEndpoint endpoint, NetMQPoller poller, IUtcTimeTimeSource timeSource)
         {
             _state.WithExclusiveAccess(state =>
             {
+                state.TimeSource = timeSource;
+
                 state.GlobalBusStateTracker = globalBusStateTracker;
 
                 state.Poller = poller;
@@ -58,9 +62,11 @@ namespace Composable.Messaging.Buses.Implementation
         {
             public IGlobalBusStateTracker GlobalBusStateTracker;
             public readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
+            public readonly Dictionary<Guid, PendingDeliveryNotification> PendingDeliveryNotifications = new Dictionary<Guid, PendingDeliveryNotification>();
             public DealerSocket Socket;
             public NetMQPoller Poller;
             public readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
+            public IUtcTimeTimeSource TimeSource { get; set; }
 
             public void DispatchMessage(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> e)
             {
@@ -82,26 +88,50 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 foreach(var response in responseBatch)
                 {
-                    var responseTask = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
-                    if(response.SuccessFull)
+                    switch(response.ResponseType)
                     {
-                        Task.Run(() =>
-                        {
-                            try
+                        case TransportMessage.Response.ResponseType.Success:
+                            var successResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
+                            Task.Run(() =>
                             {
-                                responseTask.SetResult(response.DeserializeResult());
-                            }
-                            catch(Exception exception)
-                            {
-                                responseTask.SetException(exception);
-                            }
-                        });
-                    } else
-                    {
-                        responseTask.SetException(new MessageDispatchingFailedException());
+                                try
+                                {
+                                    successResponse.SetResult(response.DeserializeResult());
+                                }
+                                catch(Exception exception)
+                                {
+                                    successResponse.SetException(exception);
+                                }
+                            });
+                            break;
+                        case TransportMessage.Response.ResponseType.Failure:
+                            var failureResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
+                            failureResponse.SetException(new MessageDispatchingFailedException());
+                            break;
+                        case TransportMessage.Response.ResponseType.Persisted:
+#pragma warning disable 4014
+                            Contract.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
+                            MarkAsReceivedAsync(response);
+#pragma warning restore 4014
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
             });
+        }
+
+        async Task MarkAsReceivedAsync(TransportMessage.Response.Incoming response)
+        {
+            try
+            {
+                await Task.CompletedTask;
+            }
+            catch(Exception)
+            {
+                //todo: proper exception handling here.
+                throw;
+            }
         }
 
         Task<object> DispatchMessageWithResponse(IMessage message) => _state.WithExclusiveAccess(state =>
@@ -125,8 +155,24 @@ namespace Composable.Messaging.Buses.Implementation
 
         static void DispatchMessage(IMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
         {
+            if(outGoingMessage.IsExactlyOnceDeliveryMessage)
+            {
+                @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, new PendingDeliveryNotification(outGoingMessage.MessageId, @this.TimeSource.UtcNow));
+            }
             @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
             @this.DispatchQueue.Enqueue(outGoingMessage);
+        }
+
+        class PendingDeliveryNotification
+        {
+            public PendingDeliveryNotification(Guid messageId, DateTime sentAt)
+            {
+                MessageId = messageId;
+                SentAt = sentAt;
+            }
+
+            internal Guid MessageId { get; }
+            internal DateTime SentAt { get; }
         }
     }
 }

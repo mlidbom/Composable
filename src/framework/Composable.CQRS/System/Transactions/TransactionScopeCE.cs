@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Transactions;
+using Composable.Contracts;
 using JetBrains.Annotations;
 
 namespace Composable.System.Transactions
@@ -18,6 +20,7 @@ namespace Composable.System.Transactions
         internal static TResult Execute<TResult>([InstantHandle]Func<TResult> action, TransactionScopeOption option = TransactionScopeOption.Required, IsolationLevel isolationLevel = IsolationLevel.Serializable)
         {
             TResult result;
+            Contract.Argument.Assert(!typeof(Task).IsAssignableFrom(typeof(TResult)));
             using (var transaction = new TransactionScope(option, new TransactionOptions() { IsolationLevel = isolationLevel }))
             {
                 result = action();

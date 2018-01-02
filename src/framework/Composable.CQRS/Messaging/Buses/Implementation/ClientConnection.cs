@@ -14,9 +14,9 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
-        public void Dispatch(ITransactionalExactlyOnceDeliveryEvent @event) => _state.WithExclusiveAccess(state => DispatchMessage(@event, state, TransportMessage.OutGoing.Create(@event)));
+        public async Task Dispatch(ITransactionalExactlyOnceDeliveryEvent @event) => await _state.WithExclusiveAccess(async state => await DispatchMessageAsync(@event, state, TransportMessage.OutGoing.Create(@event)));
 
-        public void Dispatch(ITransactionalExactlyOnceDeliveryCommand command) => _state.WithExclusiveAccess(state => DispatchMessage(command, state, TransportMessage.OutGoing.Create(command)));
+        public async Task Dispatch(ITransactionalExactlyOnceDeliveryCommand command) => await _state.WithExclusiveAccess(async state => await DispatchMessageAsync(command, state, TransportMessage.OutGoing.Create(command)));
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => (TCommandResult)await DispatchMessageWithResponse(command);
 
@@ -134,6 +134,20 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
+        async Task MarkAsSentAsync(TransportMessage.OutGoing outGoingMessage)
+        {
+            try
+            {
+                await Task.CompletedTask;
+            }
+            catch(Exception)
+            {
+                //todo: proper exception handling here.
+                throw;
+            }
+        }
+
+
         Task<object> DispatchMessageWithResponse(IMessage message) => _state.WithExclusiveAccess(state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -152,6 +166,15 @@ namespace Composable.Messaging.Buses.Implementation
 
             return taskCompletionSource.Task;
         });
+
+        async Task DispatchMessageAsync(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
+        {
+            await MarkAsSentAsync(outGoingMessage);
+            //todo: after transaction succeeds...
+            @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, new PendingDeliveryNotification(outGoingMessage.MessageId, @this.TimeSource.UtcNow));
+            @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
+            @this.DispatchQueue.Enqueue(outGoingMessage);
+        }
 
         static void DispatchMessage(IMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
         {

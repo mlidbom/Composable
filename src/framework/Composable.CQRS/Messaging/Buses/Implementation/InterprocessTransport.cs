@@ -105,9 +105,9 @@ namespace Composable.Messaging.Buses.Implementation
             return await connection.DispatchAsync(query);
         });
 
-        async Task SaveMessage(IMessage message) => await Task.CompletedTask;
+        async Task SaveMessage(ITransactionalExactlyOnceDeliveryMessage message) => await Task.CompletedTask;
 
-        async Task SaveDispatchInfo(EndpointId endpoint, IMessage message) => await Task.CompletedTask;
+        async Task SaveDispatchInfo(EndpointId endpoint, ITransactionalExactlyOnceDeliveryMessage message) => await Task.CompletedTask;
 
         public void Dispose() => _state.WithExclusiveAccess(state =>
         {

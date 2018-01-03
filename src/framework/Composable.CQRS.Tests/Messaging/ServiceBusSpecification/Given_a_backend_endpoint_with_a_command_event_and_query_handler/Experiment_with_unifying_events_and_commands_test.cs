@@ -51,7 +51,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() => _userDomainServiceLocator.Resolve<IUserEventStoreUpdater>().Save(UserRegistrarAggregate.Create()));
         }
 
-        [Fact] async Task Can_register_user_and_fetch_user_resource()
+        [Fact] void Can_register_user_and_fetch_user_resource()
         {
             var registrationResult = _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() => UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>()).Result);
 

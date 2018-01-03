@@ -57,7 +57,9 @@ ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
                     SqlConnection.ClearPool(connection);
                 }
 
-                var dropCommand = $"drop database [{db.Name()}]";
+                var dropCommand = $@"
+alter database [{db.Name()}] set single_user with rollback immediate
+drop database [{db.Name()}]";
                 _log.Info(dropCommand);
                 _masterConnection.ExecuteNonQuery(dropCommand);
             }

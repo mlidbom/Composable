@@ -48,11 +48,19 @@ namespace Composable.System.Data.SqlClient
             }
         }
 
-        public async static Task<TResult> UseCommandAsync<TResult>(this SqlConnection @this, Func<SqlCommand, Task<TResult>> action)
+        public static async Task<TResult> UseCommandAsync<TResult>(this SqlConnection @this, Func<SqlCommand, Task<TResult>> action)
         {
             using(var command = @this.CreateCommand())
             {
                 return await action(command);
+            }
+        }
+
+        public static async Task UseCommandAsync(this SqlConnection @this, Func<SqlCommand, Task> action)
+        {
+            using(var command = @this.CreateCommand())
+            {
+                await action(command);
             }
         }
 
@@ -101,12 +109,21 @@ namespace Composable.System.Data.SqlClient
             }
         }
 
+        static async Task UseConnectionAsync(this ISqlConnection @this, Func<SqlConnection, Task> action)
+        {
+            using(var connection = @this.OpenConnection())
+            {
+                await action(connection);
+            }
+        }
+
 
         public static void UseCommand(this ISqlConnection @this, Action<SqlCommand> action) => @this.UseConnection(connection => connection.UseCommand(action));
 
         public static TResult UseCommand<TResult>(this ISqlConnection @this, Func<SqlCommand, TResult> action) => @this.UseConnection(connection => connection.UseCommand(action));
 
         public static Task<TResult> UseCommandAsync<TResult>(this ISqlConnection @this, Func<SqlCommand, Task<TResult>> action) => @this.UseConnectionAsync(connection => connection.UseCommandAsync(action));
+        public static Task UseCommandAsync(this ISqlConnection @this, Func<SqlCommand, Task> action) => @this.UseConnectionAsync(connection => connection.UseCommandAsync(action));
     }
 
     static class SqlCommandExtensions
@@ -115,6 +132,7 @@ namespace Composable.System.Data.SqlClient
         public static SqlDataReader ExecuteReader(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteReader();
         public static object ExecuteScalar(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteScalar();
         public static void ExecuteNonQuery(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteNonQuery();
+        public static SqlCommand AppendCommandText(this SqlCommand @this, string append) => @this.Mutate(me => me.CommandText = me.CommandText + append);
         public static SqlCommand SetCommandText(this SqlCommand @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
     }
 

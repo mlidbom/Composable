@@ -65,7 +65,7 @@ namespace Composable.Messaging.Buses.Implementation
             var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToList();
 
             await state.MessageStorage.SaveMessageAsync(@event, eventHandlerEndpointIds.ToArray());
-            connections.ForEach(async receiver => await receiver.DispatchAsync(@event));
+            connections.ForEach(receiver => receiver.DispatchAsync(@event));
         });
 
         public async Task DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command) => await _state.WithExclusiveAccess(async state =>
@@ -73,7 +73,7 @@ namespace Composable.Messaging.Buses.Implementation
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
             await state.MessageStorage.SaveMessageAsync(command, endPointId);
-            await connection.DispatchAsync(command);
+            connection.DispatchAsync(command);
         });
 
         public async Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>

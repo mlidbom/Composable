@@ -16,9 +16,9 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
-        public async Task DispatchAsync(ITransactionalExactlyOnceDeliveryEvent @event) => await _state.WithExclusiveAccess(async state => await DispatchMessageAsync(@event, state, TransportMessage.OutGoing.Create(@event)));
+        public void DispatchAsync(ITransactionalExactlyOnceDeliveryEvent @event) => _state.WithExclusiveAccess(state => DispatchMessageAsync(@event, state, TransportMessage.OutGoing.Create(@event)));
 
-        public async Task DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command) => await _state.WithExclusiveAccess(async state => await DispatchMessageAsync(command, state, TransportMessage.OutGoing.Create(command)));
+        public void DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command) => _state.WithExclusiveAccess(state => DispatchMessageAsync(command, state, TransportMessage.OutGoing.Create(command)));
 
         public async Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
         {
@@ -28,7 +28,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
 
-            await DispatchMessageAsync(command, state, outGoingMessage);
+            DispatchMessageAsync(command, state, outGoingMessage);
 
             return await Task.FromResult(taskCompletionSource.Task.Cast<object, TCommandResult>());
         });
@@ -46,7 +46,7 @@ namespace Composable.Messaging.Buses.Implementation
             return taskCompletionSource.Task;
         });
 
-        static async Task DispatchMessageAsync(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
+        static void DispatchMessageAsync(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
         {
             //todo: after transaction succeeds...
             @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, new PendingDeliveryNotification(outGoingMessage.MessageId, @this.TimeSource.UtcNow));

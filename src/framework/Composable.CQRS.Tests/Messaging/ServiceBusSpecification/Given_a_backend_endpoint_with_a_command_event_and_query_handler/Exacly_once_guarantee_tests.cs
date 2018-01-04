@@ -29,7 +29,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             CommandHandlerWithResultThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
                                               .Should()
-                                              .Be(false);
+                                              .Be(false, "command should not reach handler");
 
             AssertThrows.Exception<TransactionAbortedException>(() => commandResultTask.ResultUnwrappingException());
         }
@@ -48,7 +48,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             CommandHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
                                               .Should()
-                                              .Be(false);
+                                              .Be(false, "command should not reach handler");
         }
 
         [Fact] void If_transaction_fails_after_successfully_calling_Publish_event_never_reaches_handler()
@@ -65,7 +65,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             EventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
                                     .Should()
-                                    .Be(false);
+                                    .Be(false, "event should not reach handler");
         }
     }
 }

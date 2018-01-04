@@ -3,6 +3,7 @@ using AccountManagement.API;
 using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Services;
 using Composable.Contracts;
+using Composable.Functional;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore.AggregateRoots;
@@ -38,14 +39,14 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        static AccountResource.Command.Register.RegistrationAttemptResult Register(Account.Command.Register command, IAccountRepository repository, IInProcessServiceBus bus)
+        static AccountResource.Command.Register.RegistrationAttemptResult Register(Command.Register command, IAccountRepository repository, IInProcessServiceBus bus)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
             OldContract.Argument(() => command, () => repository, () => bus).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
-            if(bus.Query(PrivateApi.Account.Queries.TryGetByEmail(command.Email)).FoundEntity)
+            if(bus.Query(PrivateApi.Account.Queries.TryGetByEmail(command.Email)).HasValue)
             {
                 return AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
             }
@@ -57,7 +58,7 @@ namespace AccountManagement.Domain
             return AccountResource.Command.Register.RegistrationAttemptResult.Successful;
         }
 
-        void ChangePassword(Account.Command.ChangePassword command)
+        void ChangePassword(Command.ChangePassword command)
         {
             OldContract.Argument(() => command).NotNullOrDefault();
 
@@ -66,7 +67,7 @@ namespace AccountManagement.Domain
             Publish(new AccountEvent.Implementation.UserChangedPassword(command.NewPassword));
         }
 
-        void ChangeEmail(Account.Command.ChangeEmail command)
+        void ChangeEmail(Command.ChangeEmail command)
         {
             OldContract.Argument(() => command).NotNullOrDefault();
 
@@ -86,10 +87,9 @@ namespace AccountManagement.Domain
             return AccountResource.Command.LogIn.LoginAttemptResult.Failure();
         }
 
-        static AccountResource.Command.LogIn.LoginAttemptResult Login(Account.Command.Login logIn, IInProcessServiceBus bus)
-        {
-            var queryResult = bus.Query(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email));
-            return queryResult.FoundEntity ? queryResult.Result.Login(logIn.Password) : AccountResource.Command.LogIn.LoginAttemptResult.Failure();
-        }
+        static AccountResource.Command.LogIn.LoginAttemptResult Login(Command.Login logIn, IInProcessServiceBus bus) =>
+            bus.Query(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email)) is Some<Account> account
+                ? account.Value.Login(logIn.Password)
+                : AccountResource.Command.LogIn.LoginAttemptResult.Failure();
     }
 }

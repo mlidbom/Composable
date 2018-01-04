@@ -1,4 +1,6 @@
 ﻿using System;
+using Composable.Functional;
+
 // ReSharper disable UnusedTypeParameter
 
 namespace Composable.Messaging
@@ -36,27 +38,5 @@ namespace Composable.Messaging
     public interface IEntityQuery<TEntity> : IQuery<TEntity>
     {
         Guid Id { get; }
-    }
-
-    public class TryGetEntityQuery<TEntity> : IEntityQuery<TryGetEntityQueryResult<TEntity>>
-    {
-        public Guid Id { get; }
-        public static TryGetEntityQuery<TEntity> WithEntityId(Guid entityId) => new TryGetEntityQuery<TEntity>(entityId);
-        TryGetEntityQuery(Guid entityId) { Id = entityId; }
-    }
-
-    public class TryGetEntityQueryResult<TEntity>
-    {
-        public TryGetEntityQueryResult(bool foundEntity, TEntity result)
-        {
-            FoundEntity = foundEntity;
-            Result = result;
-        }
-
-        public bool FoundEntity { get; }
-        public TEntity Result { get; }
-
-        public static TryGetEntityQueryResult<TEntity> SuccessFul(TEntity result) => new TryGetEntityQueryResult<TEntity>(true, result);
-        public static TryGetEntityQueryResult<TEntity>Failed() => new TryGetEntityQueryResult<TEntity>(false, default);
     }
 }

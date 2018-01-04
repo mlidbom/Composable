@@ -38,14 +38,14 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        static AccountResource.Command.Register.RegistrationAttemptResult Register(AccountResource.Command.Register.TransactionalExactlyOnceDeliveryCommand command, IAccountRepository repository, IFindAccountByEmail findAccountByEmail)
+        static AccountResource.Command.Register.RegistrationAttemptResult Register(AccountResource.Command.Register.DomainCommand command, IAccountRepository repository, IInProcessServiceBus bus)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
-            OldContract.Argument(() => command, () => repository, () => findAccountByEmail).NotNullOrDefault();
+            OldContract.Argument(() => command, () => repository, () => bus).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
-            if(findAccountByEmail.AccountExists(command.Email))
+            if(bus.Query(PrivateApi.Account.Queries.TryGetByEmail(command.Email)) != null)
             {
                 return AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
             }
@@ -73,23 +73,23 @@ namespace AccountManagement.Domain
             Publish(new AccountEvent.Implementation.UserChangedEmail(command.Email));
         }
 
-        LoginAttemptResult Login(string logInPassword)
+        AccountResource.Command.LogIn.LoginAttemptResult Login(string logInPassword)
         {
             if(Password.IsCorrectPassword(logInPassword))
             {
                 var authenticationToken = Guid.NewGuid().ToString();
                 Publish(new AccountEvent.Implementation.LoggedIn(authenticationToken));
-                return LoginAttemptResult.Success(authenticationToken);
+                return AccountResource.Command.LogIn.LoginAttemptResult.Success(authenticationToken);
             }
 
             Publish(new AccountEvent.Implementation.LoginFailed());
-            return LoginAttemptResult.Failure();
+            return AccountResource.Command.LogIn.LoginAttemptResult.Failure();
         }
 
-        static LoginAttemptResult Login(AccountResource.Command.LogIn.Domain logIn, IInProcessServiceBus bus)
+        static AccountResource.Command.LogIn.LoginAttemptResult Login(AccountResource.Command.LogIn.Domain logIn, IInProcessServiceBus bus)
         {
             var account = bus.Query(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email));
-            return account == null ? LoginAttemptResult.Failure() : account.Login(logIn.Password);
+            return account == null ? AccountResource.Command.LogIn.LoginAttemptResult.Failure() : account.Login(logIn.Password);
         }
     }
 }

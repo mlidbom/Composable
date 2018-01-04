@@ -28,7 +28,7 @@ namespace AccountManagement.Tests.Scenarios
             _bus = bus;
         }
 
-        public LoginAttemptResult Execute()
+        public AccountResource.Command.LogIn.LoginAttemptResult Execute()
         {
             return _bus.Get(AccountApi.Start)
                 .Post(start => start.Commands.Login.Mutate(@this =>

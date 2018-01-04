@@ -12,8 +12,8 @@ namespace AccountManagement.Domain
             {
                 registrar.ForQuery((StartResource.Query.AccountByIdQuery accountQuery, IAccountRepository repository) =>
                                        new AccountResource(repository.GetReadonlyCopy(accountQuery.Id)))
-                         .ForCommandWithResult((AccountResource.Command.Register.UICommand command, IFindAccountByEmail duplicateChecker, IAccountRepository repository) =>
-                                                   Account.Register(command.ToDomainCommand(), repository, duplicateChecker))
+                         .ForCommandWithResult((AccountResource.Command.Register.UICommand command, IInProcessServiceBus bus, IAccountRepository repository) =>
+                                                   Account.Register(command.ToDomainCommand(), repository, bus))
                          .ForCommand((AccountResource.Command.ChangeEmail.UI command, IAccountRepository repository) =>
                                          repository.Get(command.AccountId).ChangeEmail(command.ToDomainCommand()))
                          .ForCommand((AccountResource.Command.ChangePassword.UI command, IAccountRepository repository) =>

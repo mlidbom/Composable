@@ -16,10 +16,10 @@ namespace AccountManagement.API
         {
             public static class Register
             {
-                [TypeId("B0CAD429-295D-43E7-8441-566B7887C7F0")]internal class TransactionalExactlyOnceDeliveryCommand : TransactionalExactlyOnceDeliveryCommand<RegistrationAttemptResult>
+                [TypeId("B0CAD429-295D-43E7-8441-566B7887C7F0")]internal class DomainCommand : TransactionalExactlyOnceDeliveryCommand<RegistrationAttemptResult>
                 {
-                    [UsedImplicitly] TransactionalExactlyOnceDeliveryCommand() { }
-                    public TransactionalExactlyOnceDeliveryCommand(Guid accountId, Password password, Email email)
+                    [UsedImplicitly] DomainCommand() { }
+                    public DomainCommand(Guid accountId, Password password, Email email)
                     {
                         OldContract.Argument(() => accountId, () => password, () => email).NotNullOrDefault();
                         AccountId = accountId;
@@ -53,7 +53,7 @@ namespace AccountManagement.API
 
                     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Password.Validate(Password, this, () => Password);
 
-                    internal TransactionalExactlyOnceDeliveryCommand ToDomainCommand() => new TransactionalExactlyOnceDeliveryCommand(AccountId, new Password(Password), Domain.Email.Parse(Email));
+                    internal DomainCommand ToDomainCommand() => new DomainCommand(AccountId, new Password(Password), Domain.Email.Parse(Email));
                 }
 
                 public enum RegistrationAttemptResult

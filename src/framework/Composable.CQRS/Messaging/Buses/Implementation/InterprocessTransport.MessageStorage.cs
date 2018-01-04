@@ -15,9 +15,9 @@ namespace Composable.Messaging.Buses.Implementation
 
             public MessageStorage(ISqlConnection connectionFactory) => _connectionFactory = connectionFactory;
 
-            public async Task SaveMessageAsync(ITransactionalExactlyOnceDeliveryMessage message, params EndpointId[] receiverEndpointIds) =>
-                await _connectionFactory.UseCommandAsync(
-                    async command =>
+            public void SaveMessage(ITransactionalExactlyOnceDeliveryMessage message, params EndpointId[] receiverEndpointIds) =>
+                _connectionFactory.UseCommand(
+                    command =>
                     {
                         command
                             .SetCommandText(
@@ -42,14 +42,14 @@ INSERT {MessageDispatching.TableName}
                                           .AddParameter($"{MessageDispatching.EndpointId}_{index}", endpointId.GuidValue)
                                           .AddParameter(MessageDispatching.IsReceived, 0));
 
-                        await command.ExecuteNonQueryAsync();
+                        command.ExecuteNonQuery();
                     });
 
-            internal async Task MarkAsReceivedAsync(TransportMessage.Response.Incoming response, EndpointId endpointId) =>
-                await _connectionFactory.UseCommandAsync(
-                    async command =>
+            internal void MarkAsReceived(TransportMessage.Response.Incoming response, EndpointId endpointId) =>
+                 _connectionFactory.UseCommand(
+                    command =>
                     {
-                        var affectedRows = await command
+                        var affectedRows = command
                                                  .SetCommandText(
                                                      $@"
 UPDATE {MessageDispatching.TableName} 
@@ -61,7 +61,7 @@ WHERE {MessageDispatching.MessageId} = @{MessageDispatching.MessageId}
                                                  .AddParameter(MessageDispatching.MessageId, response.RespondingToMessageId)
                                                  .AddParameter(MessageDispatching.EndpointId, endpointId.GuidValue)
                                                  .AddParameter(MessageDispatching.IsReceived, 1)
-                                                 .ExecuteNonQueryAsync();
+                                                 .ExecuteNonQuery();
 
                         Contract.Result.Assert(affectedRows == 1);
                         return affectedRows;

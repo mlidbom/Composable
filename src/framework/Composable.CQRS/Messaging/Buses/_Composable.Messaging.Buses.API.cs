@@ -19,28 +19,19 @@ namespace Composable.Messaging.Buses
         void Send(ITransactionalExactlyOnceDeliveryCommand message);
     }
 
-    public interface ISimpleServiceBus
-    {
-        void Publish(ITransactionalExactlyOnceDeliveryEvent @event);
-        void Send(ITransactionalExactlyOnceDeliveryCommand command);
-
-        void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command);
-
-        TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
-        TResult Query<TResult>(IQuery<TResult> query);
-
-        Task<TResult> SendAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
-    }
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IServiceBus : ISimpleServiceBus, IDisposable
+    public interface IServiceBus : IDisposable
     {
-        Task SendAtTimeAsync(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command);
-        Task PublishAsync(ITransactionalExactlyOnceDeliveryEvent anEvent);
-        Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
+        void Send(ITransactionalExactlyOnceDeliveryCommand command);
+        void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command);
+        TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
+        Task<TResult> SendAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
 
-        Task SendAsync(ITransactionalExactlyOnceDeliveryCommand command);
-        Task<Task<TResult>> SendAsyncAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
+        void Publish(ITransactionalExactlyOnceDeliveryEvent @event);
+
+        Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
+        TResult Query<TResult>(IQuery<TResult> query);
     }
 
     public interface IMessageSpy

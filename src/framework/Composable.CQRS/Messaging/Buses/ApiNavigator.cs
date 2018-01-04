@@ -13,7 +13,7 @@ namespace Composable.Messaging.Buses
             => new ApiNavigator<TCommandResult>(_bus,
                                                 getCurrentResource: async () =>
                                                 {
-                                                    var commandResultTask = await _bus.SendAsyncAsync(command);
+                                                    var commandResultTask = _bus.SendAsync(command);
                                                     return await commandResultTask;
                                                 });
 
@@ -45,7 +45,7 @@ namespace Composable.Messaging.Buses
                                                  getCurrentResource: async () =>
                                                  {
                                                      var currentResource = await _getCurrentResource();
-                                                     var commandResultTask = await _bus.SendAsyncAsync(selectCommand(currentResource));
+                                                     var commandResultTask = _bus.SendAsync(selectCommand(currentResource));
                                                      return await commandResultTask;
                                                  });
 

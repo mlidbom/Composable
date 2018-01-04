@@ -8,7 +8,7 @@
         public static IApiNavigator<TCommandResult> Post<TCommandResult>(this IServiceBus @this, ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command)
             => new ApiNavigator<TCommandResult>(@this, async () =>
             {
-                var commandResultTask = await @this.SendAsyncAsync(command);
+                var commandResultTask = @this.SendAsync(command);
                 return await commandResultTask;
             });
     }

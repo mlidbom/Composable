@@ -6,7 +6,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 {
     public class Query_policies : Fixture
     {
-        [Fact] public async Task The_same_query_can_be_reused_in_parallel_without_issues()
+        [Fact] public void The_same_query_can_be_reused_in_parallel_without_issues()
         {
             var test = new MyQuery();
 
@@ -18,7 +18,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(length: 2);
             QueryHandlerThreadGate.Open();
 
-            await Task.WhenAll(result1, result2);
+            Task.WaitAll(result1, result2);
         }
     }
 }

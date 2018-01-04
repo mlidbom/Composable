@@ -13,25 +13,25 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 {
     public class Fixture_tests : Fixture
     {
-        [Fact] public async Task If_command_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
+        [Fact] public void If_command_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             CommandHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            await Host.ClientBus.SendAsync(new MyCommand());
+            Host.ClientBus.Send(new MyCommand());
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
         [Fact] public async Task If_command_handler_with_result_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception_and_SendAsync_throws_MessageDispatchingFailedException()
         {
             CommandHandlerWithResultThreadGate.ThrowOnPassThrough(_thrownException);
-            await AssertThrows.Async<MessageDispatchingFailedException>(async () => await await Host.ClientBus.SendAsyncAsync(new MyCommandWithResult()));
+            await AssertThrows.Async<MessageDispatchingFailedException>(async () => await Host.ClientBus.SendAsync(new MyCommandWithResult()));
 
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
-        [Fact] public async Task If_event_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
+        [Fact] public void If_event_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             EventHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            await Host.ClientBus.PublishAsync(new MyEvent());
+            Host.ClientBus.Publish(new MyEvent());
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 

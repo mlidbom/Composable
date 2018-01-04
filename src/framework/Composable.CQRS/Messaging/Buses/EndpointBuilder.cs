@@ -55,7 +55,7 @@ namespace Composable.Messaging.Buses
                 Component.For<CommandScheduler>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))
                          .LifestyleSingleton(),
-                Component.For<IServiceBus, ISimpleServiceBus, IServiceBusControl>()
+                Component.For<IServiceBus, IServiceBusControl>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IInbox inbox, CommandScheduler scheduler) => new ServiceBus(transport, inbox, scheduler))
                          .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()

@@ -58,31 +58,31 @@ namespace Composable.Messaging.Buses.Implementation
             @this.Poller.RunAsync();
         });
 
-        public async Task DispatchAsync(ITransactionalExactlyOnceDeliveryEvent @event) => await _state.WithExclusiveAccess(async state =>
+        public void Dispatch(ITransactionalExactlyOnceDeliveryEvent @event) => _state.WithExclusiveAccess(state =>
         {
             var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(@event);
 
             var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToList();
 
-            await state.MessageStorage.SaveMessageAsync(@event, eventHandlerEndpointIds.ToArray());
-            connections.ForEach(receiver => receiver.DispatchAsync(@event));
+            state.MessageStorage.SaveMessage(@event, eventHandlerEndpointIds.ToArray());
+            connections.ForEach(receiver => receiver.Dispatch(@event));
         });
 
-        public async Task DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command) => await _state.WithExclusiveAccess(async state =>
+        public void Dispatch(ITransactionalExactlyOnceDeliveryCommand command) => _state.WithExclusiveAccess(state =>
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
-            await state.MessageStorage.SaveMessageAsync(command, endPointId);
-            connection.DispatchAsync(command);
+            state.MessageStorage.SaveMessage(command, endPointId);
+            connection.Dispatch(command);
         });
 
-        public async Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
 
-            await state.MessageStorage.SaveMessageAsync(command, endPointId);
-            return await connection.DispatchAsyncAsync(command);
+            state.MessageStorage.SaveMessage(command, endPointId);
+            return await connection.DispatchAsync(command);
         });
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>

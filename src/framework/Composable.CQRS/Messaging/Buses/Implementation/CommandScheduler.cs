@@ -26,24 +26,23 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Start() => _guard.Update(() => _scheduledMessagesTimer = new Timer(callback: _ => SendDueCommands(), state: null, dueTime: 0.Seconds(), period: 100.Milliseconds()));
 
-        public async Task Schedule(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand message) => await _guard.Update(async () =>
+        public void Schedule(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand message) => _guard.Update(() =>
         {
             if(_timeSource.UtcNow > sendAt.ToUniversalTime())
                 throw new InvalidOperationException(message: "You cannot schedule a queuedMessageInformation to be sent in the past.");
 
             var scheduledCommand = new ScheduledCommand(sendAt, message);
-            await PersistAsync(scheduledCommand);
+            Persist(scheduledCommand);
             _scheduledMessages.Add(scheduledCommand);
         });
 
-
-        async Task PersistAsync(ScheduledCommand scheduledCommand) => await Task.CompletedTask;
+        static void Persist(ScheduledCommand scheduledCommand) {}
 
         void SendDueCommands() => _guard.Update(() => _scheduledMessages.RemoveWhere(HasPassedSendtime).ForEach(Send));
 
         bool HasPassedSendtime(ScheduledCommand message) => _timeSource.UtcNow >= message.SendAt;
 
-        void Send(ScheduledCommand scheduledCommand) => _transport.DispatchAsync(scheduledCommand.Command).Wait();
+        void Send(ScheduledCommand scheduledCommand) => _transport.Dispatch(scheduledCommand.Command);
 
         public void Dispose() => Stop();
 

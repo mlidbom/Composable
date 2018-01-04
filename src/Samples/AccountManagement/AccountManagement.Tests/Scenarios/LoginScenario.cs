@@ -30,15 +30,15 @@ namespace AccountManagement.Tests.Scenarios
             _bus = bus;
         }
 
-        public async Task<LoginAttemptResult> ExecuteAsync()
+        public LoginAttemptResult Execute()
         {
-            return await _bus.Get(AccountApi.Start)
+            return _bus.Get(AccountApi.Start)
                 .Post(start => start.Commands.Login.Mutate(@this =>
                        {
                            @this.Email = Email;
                            @this.Password = Password;
                        }))
-                .ExecuteAsync();
+                .Execute();
         }
     }
 }

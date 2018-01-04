@@ -21,8 +21,6 @@ namespace Composable.Messaging.Buses
             _commandScheduler = commandScheduler;
         }
 
-        #region IServicebus
-
         public void Start()
         {
             Contract.State.Assert(!_started);
@@ -42,41 +40,28 @@ namespace Composable.Messaging.Buses
             _inbox.Stop();
         }
 
-        public async Task SendAtTimeAsync(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) =>
-            await TransactionScopeCe.ExecuteAsync(async () => await _commandScheduler.Schedule(sendAt, command).NoMarshalling());
 
-        public async Task SendAsync(ITransactionalExactlyOnceDeliveryCommand command) =>
-            await TransactionScopeCe.ExecuteAsync(async () =>
-            {
-                CommandValidator.AssertCommandIsValid(command);
-                await _transport.DispatchAsync(command).NoMarshalling();
-            });
+        public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) => await _transport.DispatchAsync(query).NoMarshalling();
 
-        public async Task PublishAsync(ITransactionalExactlyOnceDeliveryEvent anEvent) =>
-            await TransactionScopeCe.ExecuteAsync(async () => await _transport.DispatchAsync(anEvent).NoMarshalling());
-
-        public async Task<Task<TResult>> SendAsyncAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) =>
-            await TransactionScopeCe.ExecuteAsync(async () =>
-            {
-                CommandValidator.AssertCommandIsValid(command);
-                return await _transport.DispatchAsyncAsync(command).NoMarshalling();
-            });
-
-        public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) =>
-            await _transport.DispatchAsync(query).NoMarshalling();
-
-        #endregion
-
-        #region ISimpleServicebus
-
-        public void Publish(ITransactionalExactlyOnceDeliveryEvent @event) => PublishAsync(@event).WaitUnwrappingException();
-        public void Send(ITransactionalExactlyOnceDeliveryCommand command) => SendAsync(command).WaitUnwrappingException();
-        public void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => SendAtTimeAsync(sendAt, command).WaitUnwrappingException();
-        public TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => SendAsync(command).ResultUnwrappingException();
         public TResult Query<TResult>(IQuery<TResult> query) => QueryAsync(query).ResultUnwrappingException();
-        public async Task<TResult> SendAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => await SendAsyncAsync(command).Result.NoMarshalling();
 
-        #endregion
+        public void Publish(ITransactionalExactlyOnceDeliveryEvent @event) => TransactionScopeCe.Execute(() => _transport.Dispatch(@event));
+
+        public void Send(ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
+        {
+            CommandValidator.AssertCommandIsValid(command);
+            _transport.Dispatch(command);
+        });
+
+        public void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() => _commandScheduler.Schedule(sendAt, command));
+
+        public Task<TResult> SendAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => TransactionScopeCe.Execute(() =>
+        {
+            CommandValidator.AssertCommandIsValid(command);
+            return _transport.DispatchAsync(command);
+        });
+
+        public TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => SendAsync(command).ResultUnwrappingException();
 
         public void Dispose() { Contract.State.Assert(!_started); }
     }

@@ -16,11 +16,11 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
-        public void DispatchAsync(ITransactionalExactlyOnceDeliveryEvent @event) => _state.WithExclusiveAccess(state => DispatchMessageAsync(@event, state, TransportMessage.OutGoing.Create(@event)));
+        public void Dispatch(ITransactionalExactlyOnceDeliveryEvent @event) => _state.WithExclusiveAccess(state => DispatchMessage(@event, state, TransportMessage.OutGoing.Create(@event)));
 
-        public void DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command) => _state.WithExclusiveAccess(state => DispatchMessageAsync(command, state, TransportMessage.OutGoing.Create(command)));
+        public void Dispatch(ITransactionalExactlyOnceDeliveryCommand command) => _state.WithExclusiveAccess(state => DispatchMessage(command, state, TransportMessage.OutGoing.Create(command)));
 
-        public async Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -28,9 +28,9 @@ namespace Composable.Messaging.Buses.Implementation
 
             state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
 
-            DispatchMessageAsync(command, state, outGoingMessage);
+            DispatchMessage(command, state, outGoingMessage);
 
-            return await Task.FromResult(taskCompletionSource.Task.Cast<object, TCommandResult>());
+            return await taskCompletionSource.Task;
         });
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(state =>
@@ -46,7 +46,7 @@ namespace Composable.Messaging.Buses.Implementation
             return taskCompletionSource.Task;
         });
 
-        static void DispatchMessageAsync(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
+        static void DispatchMessage(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
         {
             //todo: after transaction succeeds...
             @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, new PendingDeliveryNotification(outGoingMessage.MessageId, @this.TimeSource.UtcNow));
@@ -153,7 +153,7 @@ namespace Composable.Messaging.Buses.Implementation
                             break;
                         case TransportMessage.Response.ResponseType.Received:
                             Contract.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
-                            Task.Run(() => state.MessageStorage.MarkAsReceivedAsync(response, state.RemoteEndpointId));
+                            Task.Run(() => state.MessageStorage.MarkAsReceived(response, state.RemoteEndpointId));
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();

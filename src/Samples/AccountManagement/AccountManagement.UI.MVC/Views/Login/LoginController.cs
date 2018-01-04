@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using AccountManagement.API;
+﻿using AccountManagement.API;
 using Composable.Messaging.Buses;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,11 +9,11 @@ namespace AccountManagement.UI.MVC.Views.Login
         readonly IServiceBus _serviceBus;
         public LoginController(IServiceBus serviceBus) => _serviceBus = serviceBus;
 
-        public async Task<IActionResult> Login(AccountResource.Command.LogIn.UI loginCommand)
+        public IActionResult Login(AccountResource.Command.LogIn.UI loginCommand)
         {
             if(!ModelState.IsValid) return View("LoginForm");
 
-            var result = await await _serviceBus.SendAsyncAsync(loginCommand);
+            var result = _serviceBus.Send(loginCommand);
             if(result.Succeeded)
             {
                 return View("LoggedIn");
@@ -24,6 +23,6 @@ namespace AccountManagement.UI.MVC.Views.Login
             return View("LoginForm");
         }
 
-        public async Task<IActionResult> LoginForm() => View("LoginForm", (await _serviceBus.QueryAsync(AccountApi.Start)).Commands.Login);
+        public IActionResult LoginForm() => View("LoginForm", (_serviceBus.Query(AccountApi.Start)).Commands.Login);
     }
 }

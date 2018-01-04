@@ -148,7 +148,7 @@ namespace Composable.Messaging.Buses.Implementation
             var innerMessage = message.DeserializeMessageAndCacheForNextCall();
             if(innerMessage is ITransactionalExactlyOnceDeliveryMessage)
             {
-                await PersistMessage(message);
+                PersistMessage(message);
                 _responseQueue.Enqueue(message.CreatePersistedResponse());
             }
 
@@ -166,7 +166,7 @@ namespace Composable.Messaging.Buses.Implementation
         });
 
 
-        async Task PersistMessage(TransportMessage.InComing message) => await Task.CompletedTask;
+        void PersistMessage(TransportMessage.InComing message) {}
 
         async Task<object> DispatchAsync(IQuery query, TransportMessage.InComing message)
         {

@@ -65,7 +65,6 @@ namespace AccountManagement
             registrar.ForQuery((StartResourceQuery query) =>
                                    new StartResource());
 
-            EmailToAccountMapQueryModel.RegisterHandlers(registrar);
             EmailToAccountIdQueryModel.RegisterHandlers(registrar);
 
             Account.MessageHandlers.RegisterHandlers(registrar);

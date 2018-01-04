@@ -10,8 +10,8 @@ namespace AccountManagement.UI.QueryModels
 
     partial class AccountQueryModel : ISingleAggregateQueryModel
     {
-        public Password Password { get; internal set; }
-        public Email Email { get; internal set; }
+        public Password Password { get; private set; }
+        public Email Email { get; private set; }
         public Guid Id { get; private set; }
 
         void ISingleAggregateQueryModel.SetId(Guid id) { Id = id; }

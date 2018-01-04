@@ -71,7 +71,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 state.Poller.Add(state.DispatchQueue);
 
-                state.DispatchQueue.ReceiveReady += state.DispatchMessage;
+                state.DispatchQueue.ReceiveReady += DispatchQueuedMessages;
 
                 state.Socket = new DealerSocket();
 
@@ -91,6 +91,14 @@ namespace Composable.Messaging.Buses.Implementation
             });
         }
 
+        void DispatchQueuedMessages(object sender,NetMQQueueEventArgs<TransportMessage.OutGoing> netMQQueueEventArgs) => _state.WithExclusiveAccess(state =>
+        {
+            while(netMQQueueEventArgs.Queue.TryDequeue(out var message, TimeSpan.Zero))
+            {
+                state.Socket.Send(message);
+            }
+        });
+
         public void Dispose() => _state.WithExclusiveAccess(state =>
         {
             state.Socket.Dispose();
@@ -108,14 +116,6 @@ namespace Composable.Messaging.Buses.Implementation
             internal IUtcTimeTimeSource TimeSource { get; set; }
             internal InterprocessTransport.MessageStorage MessageStorage { get; set; }
             public EndpointId RemoteEndpointId { get; set; }
-
-            internal void DispatchMessage(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> e)
-            {
-                while(e.Queue.TryDequeue(out var message, TimeSpan.Zero))
-                {
-                    Socket.Send(message);
-                }
-            }
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());

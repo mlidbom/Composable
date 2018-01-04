@@ -11,13 +11,13 @@ namespace AccountManagement.API
 
             public CommandsCollection(AccountResource accountResource)
             {
-                ChangeEmail = new Command.ChangeEmail.UI(accountResource.Id);
-                ChangePassword = new Command.ChangePassword.UI(accountResource.Id);
+                ChangeEmail = new Command.ChangeEmail(accountResource.Id);
+                ChangePassword = new Command.ChangePassword(accountResource.Id);
             }
 
-            public Command.ChangeEmail.UI ChangeEmail { get; private set; }
+            public Command.ChangeEmail ChangeEmail { get; private set; }
 
-            public Command.ChangePassword.UI ChangePassword { get; private set; }
+            public Command.ChangePassword ChangePassword { get; private set; }
         }
     }
 }

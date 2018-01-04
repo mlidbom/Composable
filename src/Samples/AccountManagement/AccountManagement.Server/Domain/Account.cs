@@ -45,7 +45,7 @@ namespace AccountManagement.Domain
             OldContract.Argument(() => command, () => repository, () => bus).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
-            if(bus.Query(PrivateApi.Account.Queries.TryGetByEmail(command.Email)) != null)
+            if(bus.Query(PrivateApi.Account.Queries.TryGetByEmail(command.Email)).FoundEntity)
             {
                 return AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
             }
@@ -57,7 +57,7 @@ namespace AccountManagement.Domain
             return AccountResource.Command.Register.RegistrationAttemptResult.Successful;
         }
 
-        void ChangePassword(AccountResource.Command.ChangePassword.Domain command)
+        void ChangePassword(Account.Command.ChangePassword command)
         {
             OldContract.Argument(() => command).NotNullOrDefault();
 
@@ -66,7 +66,7 @@ namespace AccountManagement.Domain
             Publish(new AccountEvent.Implementation.UserChangedPassword(command.NewPassword));
         }
 
-        void ChangeEmail(AccountResource.Command.ChangeEmail.Domain command)
+        void ChangeEmail(Account.Command.ChangeEmail command)
         {
             OldContract.Argument(() => command).NotNullOrDefault();
 
@@ -88,8 +88,8 @@ namespace AccountManagement.Domain
 
         static AccountResource.Command.LogIn.LoginAttemptResult Login(AccountResource.Command.LogIn.Domain logIn, IInProcessServiceBus bus)
         {
-            var account = bus.Query(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email));
-            return account == null ? AccountResource.Command.LogIn.LoginAttemptResult.Failure() : account.Login(logIn.Password);
+            var queryResult = bus.Query(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email));
+            return queryResult.FoundEntity ? queryResult.Result.Login(logIn.Password) : AccountResource.Command.LogIn.LoginAttemptResult.Failure();
         }
     }
 }

@@ -2,6 +2,7 @@
 using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Services;
 using Composable.Contracts;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using JetBrains.Annotations;
 
@@ -30,8 +31,8 @@ namespace AccountManagement.Domain.QueryModels
                                    TryGetAccountByEmail(tryGetAccount, documentDb, accountRepository));
         }
 
-        static Account TryGetAccountByEmail(PrivateApi.Account.Queries.TryGetByEmailQuery tryGetAccount, IAccountManagementDomainDocumentDbReader documentDb, IAccountRepository accountRepository)
-            => documentDb.TryGet(tryGetAccount.Email, out EmailToAccountIdQueryModel map) ? accountRepository.Get(map.AccountId) : null;
+        static TryGetEntityQueryResult<Account> TryGetAccountByEmail(PrivateApi.Account.Queries.TryGetByEmailQuery tryGetAccount, IAccountManagementDomainDocumentDbReader documentDb, IAccountRepository accountRepository)
+            => documentDb.TryGet(tryGetAccount.Email, out EmailToAccountIdQueryModel map) ? TryGetEntityQueryResult<Account>.SuccessFul(accountRepository.Get(map.AccountId)) : TryGetEntityQueryResult<Account>.Failed();
 
         static void UpdateQueryModel(AccountEvent.PropertyUpdated.Email message, IAccountRepository repository, IAccountManagementDomainDocumentDbUpdater queryModels)
         {

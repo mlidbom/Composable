@@ -51,6 +51,6 @@ namespace Composable.Messaging.Buses
 
         public async Task<TCurrentResource> ExecuteAsync() => await _getCurrentResource().NoMarshalling();
 
-        public TCurrentResource Execute() => ExecuteAsync().Result;
+        public TCurrentResource Execute() => ExecuteAsync().ResultUnwrappingException();
     }
 }

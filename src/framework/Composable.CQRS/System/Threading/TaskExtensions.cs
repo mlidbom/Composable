@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Composable.Contracts;
 
@@ -40,6 +41,31 @@ namespace Composable.System.Threading
                                });
 
             return await typedCompletionSource.Task;
+        }
+
+        internal static void WaitUnwrappingException(this Task task)
+        {
+            try
+            {
+                task.Wait();
+            }
+            catch(AggregateException exception)
+            {
+                ExceptionDispatchInfo.Capture(exception.InnerException).Throw();
+            }
+        }
+
+        internal static TResult ResultUnwrappingException<TResult>(this Task<TResult> task)
+        {
+            try
+            {
+                return task.Result;
+            }
+            catch(AggregateException exception)
+            {
+                ExceptionDispatchInfo.Capture(exception.InnerException).Throw();
+            }
+            throw new Exception("Impossible!");
         }
     }
 }

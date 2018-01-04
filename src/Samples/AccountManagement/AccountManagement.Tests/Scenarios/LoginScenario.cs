@@ -13,10 +13,10 @@ namespace AccountManagement.Tests.Scenarios
         public string Email { get; set; }
 
 
-        public static async Task<LoginScenario> CreateAsync(IServiceBus bus)
+        public static LoginScenario Create(IServiceBus bus)
         {
             var registerAccountScenario = new RegisterAccountScenario(bus);
-            await registerAccountScenario.ExecuteAsync();
+            registerAccountScenario.Execute();
             return new LoginScenario(bus, registerAccountScenario.Email, registerAccountScenario.Password);
         }
 

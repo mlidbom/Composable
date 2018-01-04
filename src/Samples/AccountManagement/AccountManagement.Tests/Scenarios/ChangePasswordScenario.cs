@@ -12,10 +12,10 @@ namespace AccountManagement.Tests.Scenarios
         public string NewPasswordAsString;
         public AccountResource Account { get; private set; }
 
-        public static async Task<ChangePasswordScenario> CreateAsync(IServiceBus bus)
+        public static ChangePasswordScenario Create(IServiceBus bus)
         {
             var registerAccountScenario = new RegisterAccountScenario(bus);
-            var account = (await registerAccountScenario.ExecuteAsync()).Account;
+            var account = registerAccountScenario.Execute().Account;
 
             return new ChangePasswordScenario(bus, account, registerAccountScenario.Password);
         }
@@ -28,14 +28,14 @@ namespace AccountManagement.Tests.Scenarios
             NewPasswordAsString = newPassword ?? TestData.Password.CreateValidPasswordString();
         }
 
-        public async Task ExecuteAsync()
+        public void Execute()
         {
             var command = Account.CommandsCollections.ChangePassword;
             command.NewPassword = NewPasswordAsString;
             command.OldPassword = OldPassword;
 
-            await _bus.SendAsync(command);
-            Account = await _bus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(Account.Id)).ExecuteAsync();
+            _bus.Send(command);
+            Account = _bus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(Account.Id)).Execute();
         }
     }
 }

@@ -12,9 +12,9 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
     {
         ChangeAccountEmailScenario _changeEmailScenario;
 
-        [SetUp] public async Task ChangeEmail()
+        [SetUp] public void ChangeEmail()
         {
-            _changeEmailScenario = await ChangeAccountEmailScenario.CreateAsync(ClientBus);
+            _changeEmailScenario = ChangeAccountEmailScenario.Create(ClientBus);
             _changeEmailScenario.Execute();
         }
 
@@ -31,11 +31,11 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [Test] public void Account_Email_is_the_supplied_email() =>
             _changeEmailScenario.Account.Email.Should().Be(_changeEmailScenario.NewEmail);
 
-        [Test] public async Task Registering_an_account_with_the_old_email_works() =>
-            await new RegisterAccountScenario(ClientBus, email: _changeEmailScenario.OldEmail.ToString()).ExecuteAsync();
+        [Test] public void Registering_an_account_with_the_old_email_works() =>
+            new RegisterAccountScenario(ClientBus, email: _changeEmailScenario.OldEmail.ToString()).Execute();
 
-        [Test] public async Task Attempting_to_register_an_account_with_the_new_email_fails_with_email_already_registered_message() =>
-            (await new RegisterAccountScenario(ClientBus, email: _changeEmailScenario.NewEmail.ToString()).ExecuteAsync())
+        [Test] public void Attempting_to_register_an_account_with_the_new_email_fails_with_email_already_registered_message() =>
+            new RegisterAccountScenario(ClientBus, email: _changeEmailScenario.NewEmail.ToString()).Execute()
             .Result
             .Should().Be(AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered);
     }

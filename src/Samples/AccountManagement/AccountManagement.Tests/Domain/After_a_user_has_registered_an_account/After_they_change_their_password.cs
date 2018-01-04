@@ -13,10 +13,10 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         ChangePasswordScenario _changePasswordScenario;
 
         [SetUp]
-        public async Task RegisterAccount()
+        public void RegisterAccount()
         {
-            _changePasswordScenario = await ChangePasswordScenario.CreateAsync(ClientBus);
-            await _changePasswordScenario.ExecuteAsync();
+            _changePasswordScenario = ChangePasswordScenario.Create(ClientBus);
+            _changePasswordScenario.Execute();
         }
 
         [Test]

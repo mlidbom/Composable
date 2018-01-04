@@ -69,11 +69,11 @@ namespace Composable.Messaging.Buses
 
         #region ISimpleServicebus
 
-        public void Publish(ITransactionalExactlyOnceDeliveryEvent @event) => PublishAsync(@event).Wait();
-        public void Send(ITransactionalExactlyOnceDeliveryCommand command) => SendAsync(command).Wait();
-        public void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => SendAtTimeAsync(sendAt, command).Wait();
-        public TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => SendAsync(command).Result;
-        public TResult Query<TResult>(IQuery<TResult> query) => QueryAsync(query).Result;
+        public void Publish(ITransactionalExactlyOnceDeliveryEvent @event) => PublishAsync(@event).WaitUnwrappingException();
+        public void Send(ITransactionalExactlyOnceDeliveryCommand command) => SendAsync(command).WaitUnwrappingException();
+        public void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => SendAtTimeAsync(sendAt, command).WaitUnwrappingException();
+        public TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => SendAsync(command).ResultUnwrappingException();
+        public TResult Query<TResult>(IQuery<TResult> query) => QueryAsync(query).ResultUnwrappingException();
         public async Task<TResult> SendAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => await SendAsyncAsync(command).Result.NoMarshalling();
 
         #endregion

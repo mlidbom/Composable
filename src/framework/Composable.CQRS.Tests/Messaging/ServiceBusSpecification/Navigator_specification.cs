@@ -6,6 +6,7 @@ using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
+using Composable.Persistence.EventStore;
 using FluentAssertions;
 using Xunit;
 
@@ -27,6 +28,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                     DependencyInjectionContainer.Create,
                     buildHost => buildHost.RegisterAndStartEndpoint(
                         "Backend",
+                        new EndpointId(Guid.Parse("3A1B6A8C-D232-476C-A15A-9C8295413210")),
                         builder => builder.RegisterHandlers
                                           .ForEvent((UserRegisteredEvent myEvent) => queryResults.Add(new UserResource(myEvent.Name)))
                                           .ForQuery((GetUserQuery query) => queryResults.Single(result => result.Name == query.Name))
@@ -74,13 +76,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public RegisterUserCommand RegisterUser(string userName) => new RegisterUserCommand(userName);
             }
 
-            class UserRegisteredEvent : Event
+            [TypeId("6EDCBCD0-C1DE-4499-9CBB-8E8E8405A9C3")]class UserRegisteredEvent : AggregateRootEvent
             {
                 public UserRegisteredEvent(string name) => Name = name;
                 public string Name { get; }
             }
 
-            protected class GetUserQuery : Query<UserResource>
+            [TypeId("3D2C5363-620E-4859-BF94-9535BCC994FA")]protected class GetUserQuery : Query<UserResource>
             {
                 public GetUserQuery(string name) => Name = name;
                 public string Name { get; }
@@ -92,7 +94,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class RegisterUserCommand : DomainCommand<UserRegisteredConfirmationResource>
+            [TypeId("3B1A2A50-F114-4886-B981-C56753AFD55E")]protected class RegisterUserCommand : TransactionalExactlyOnceDeliveryCommand<UserRegisteredConfirmationResource>
             {
                 public RegisterUserCommand(string name) => Name = name;
                 public string Name { get; }
@@ -105,7 +107,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            class UserApiStartPageQuery : Query<UserApiStartPage> {}
+            [TypeId("F762C93B-8F03-4A1C-BCCA-DC43A5EC4459")]class UserApiStartPageQuery : Query<UserApiStartPage> {}
         }
     }
 }

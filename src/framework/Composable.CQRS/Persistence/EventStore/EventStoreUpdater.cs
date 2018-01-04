@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
 using Composable.System.Reactive;
@@ -89,7 +88,7 @@ namespace Composable.Persistence.EventStore
             _disposableResources.Add(aggregate.EventStream.Subscribe(OnAggregateEvent));
         }
 
-        void OnAggregateEvent(IDomainEvent @event)
+        void OnAggregateEvent(IAggregateRootEvent @event)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             OldContract.Assert.That(_idMap.ContainsKey(@event.AggregateRootId), "Got event from aggregate that is not tracked!");
@@ -114,11 +113,11 @@ namespace Composable.Persistence.EventStore
         public override string ToString() => $"{_id}: {GetType().FullName}";
         readonly Guid _id = Guid.NewGuid();
 
-        public IEnumerable<IDomainEvent> GetHistory(Guid aggregateId) => GetHistoryInternal(aggregateId, takeWriteLock:false);
+        public IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId) => GetHistoryInternal(aggregateId, takeWriteLock:false);
 
-        IEnumerable<IDomainEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
+        IEnumerable<IAggregateRootEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
-            IList<IDomainEvent> history = (takeWriteLock
+            IList<IAggregateRootEvent> history = (takeWriteLock
                                                      ? _store.GetAggregateHistoryForUpdate(aggregateId)
                                                      : _store.GetAggregateHistory(aggregateId)).ToList();
 

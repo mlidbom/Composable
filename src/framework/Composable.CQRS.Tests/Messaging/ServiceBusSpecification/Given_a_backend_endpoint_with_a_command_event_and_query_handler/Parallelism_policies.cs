@@ -1,7 +1,5 @@
 ﻿using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using Composable.Messaging.Buses;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -10,17 +8,17 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 {
     public class Parallelism_policies : Fixture
     {
-        [Fact] public async Task Command_handler_executes_on_different_thread_from_client_sending_command()
+        [Fact] public void Command_handler_executes_on_different_thread_from_client_sending_command()
         {
-            await Host.ClientBus.SendAsync(new MyCommand());
+            Host.ClientBus.Send(new MyCommand());
 
             CommandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1);
             CommandHandlerThreadGate.PassedThrough.Single().Should().NotBe(Thread.CurrentThread);
         }
 
-        [Fact] public async Task Event_handler_executes_on_different_thread_from_client_publishing_event()
+        [Fact] public void Event_handler_executes_on_different_thread_from_client_publishing_event()
         {
-            await Host.ClientBus.PublishAsync(new MyEvent());
+            Host.ClientBus.Publish(new MyEvent());
 
             EventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1);
             EventHandlerThreadGate.PassedThrough.Single().Should().NotBe(Thread.CurrentThread);
@@ -50,73 +48,73 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(5);
         }
 
-        [Fact] public async Task Two_event_handlers_cannot_execute_in_parallel()
+        [Fact] public void Two_event_handlers_cannot_execute_in_parallel()
         {
             CloseGates();
-            await Host.ClientBus.PublishAsync(new MyEvent());
-            await Host.ClientBus.PublishAsync(new MyEvent());
+            Host.ClientBus.Publish(new MyEvent());
+            Host.ClientBus.Publish(new MyEvent());
 
             EventHandlerThreadGate.AwaitQueueLengthEqualTo(1)
                                   .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
         }
 
-        [Fact] public async Task Two_command_handlers_cannot_execute_in_parallel()
+        [Fact] public void Two_command_handlers_cannot_execute_in_parallel()
         {
             CloseGates();
-            await Host.ClientBus.SendAsync(new MyCommand());
-            await Host.ClientBus.SendAsync(new MyCommand());
+            Host.ClientBus.Send(new MyCommand());
+            Host.ClientBus.Send(new MyCommand());
 
             CommandHandlerThreadGate.AwaitQueueLengthEqualTo(1)
                                     .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
         }
 
-        [Fact] public async Task Command_handler_cannot_execute_if_event_handler_is_executing()
+        [Fact] public void Command_handler_cannot_execute_if_event_handler_is_executing()
         {
             CloseGates();
 
-            await Host.ClientBus.PublishAsync(new MyEvent());
+            Host.ClientBus.Publish(new MyEvent());
             EventHandlerThreadGate.AwaitQueueLengthEqualTo(1);
 
-            await Host.ClientBus.SendAsync(new MyCommand());
+            Host.ClientBus.Send(new MyCommand());
 
             CommandHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds()).Should().Be(false);
         }
 
-        [Fact] public async Task Command_handler_with_result_cannot_execute_if_event_handler_is_executing()
+        [Fact] public void Command_handler_with_result_cannot_execute_if_event_handler_is_executing()
         {
             CloseGates();
-            await Host.ClientBus.PublishAsync(new MyEvent());
+            Host.ClientBus.Publish(new MyEvent());
             EventHandlerThreadGate.AwaitQueueLengthEqualTo(1);
 
-            var result = Host.ClientBus.SendAsyncAsync(new MyCommandWithResult()); //awaiting later
+            var resultTask = Host.ClientBus.SendAsync(new MyCommandWithResult()); //awaiting later
             CommandHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds()).Should().Be(false);
 
             OpenGates();
-            (await result).Should().NotBe(null);
+            resultTask.Result.Should().NotBe(null);
         }
 
-        [Fact] public async Task Event_handler_cannot_execute_if_command_handler_is_executing()
+        [Fact] public void Event_handler_cannot_execute_if_command_handler_is_executing()
         {
             CloseGates();
-            await Host.ClientBus.SendAsync(new MyCommand());
+            Host.ClientBus.Send(new MyCommand());
             CommandHandlerThreadGate.AwaitQueueLengthEqualTo(1);
 
-            await Host.ClientBus.PublishAsync(new MyEvent());
+            Host.ClientBus.Publish(new MyEvent());
             EventHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds()).Should().Be(false);
         }
 
-        [Fact] public async Task Event_handler_cannot_execute_if_command_handler_with_result_is_executing()
+        [Fact] public void Event_handler_cannot_execute_if_command_handler_with_result_is_executing()
         {
             CloseGates();
 
-            var result = Host.ClientBus.SendAsyncAsync(new MyCommandWithResult()); //awaiting later
+            var resultTask = Host.ClientBus.SendAsync(new MyCommandWithResult()); //awaiting later
             CommandHandlerWithResultThreadGate.AwaitQueueLengthEqualTo(1);
 
-            await Host.ClientBus.PublishAsync(new MyEvent());
+            Host.ClientBus.Publish(new MyEvent());
             EventHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds()).Should().Be(false);
 
             OpenGates();
-            (await result).Should().NotBe(null);
+            resultTask.Result.Should().NotBe(null);
         }
     }
 }

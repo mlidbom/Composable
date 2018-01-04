@@ -1,23 +1,23 @@
 ﻿using System;
 using Composable.DDD;
-using Composable.Messaging;
 using Newtonsoft.Json;
 
 namespace Composable.Persistence.EventStore
 {
     //Review:mlidbo: Make instances immutable: Inspect inheriting types and throw exception if mutable.
     //Review:mlidbo: Extract refactoring information into a separate abstraction.
-    public class DomainEvent : ValueObject<DomainEvent>, IDomainEvent
+    //todo: make abstract
+    public class AggregateRootEvent : ValueObject<AggregateRootEvent>, IAggregateRootEvent
     {
-        protected DomainEvent()
+        protected AggregateRootEvent()
         {
             EventId = Guid.NewGuid();
             UtcTimeStamp = DateTime.UtcNow;//Todo: Should use timesource.
         }
 
-        protected DomainEvent(Guid aggregateRootId) : this() => AggregateRootId = aggregateRootId;
+        protected AggregateRootEvent(Guid aggregateRootId) : this() => AggregateRootId = aggregateRootId;
 
-        [Obsolete("Only intended for testing. Do not use for normal inheritance.")] protected DomainEvent(Guid? eventId = null,
+        [Obsolete("Only intended for testing. Do not use for normal inheritance.")] protected AggregateRootEvent(Guid? eventId = null,
                                                                                                                  int? aggregateRootVersion = null,
                                                                                                                  Guid? aggregateRootId = null,
                                                                                                                  DateTime? utcTimeStamp = null,

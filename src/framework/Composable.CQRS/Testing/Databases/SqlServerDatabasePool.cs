@@ -137,6 +137,7 @@ namespace Composable.Testing.Databases
             }
             catch(Exception exception)
             {
+                _log.Error(exception, "Something went wrong with the database pool and it will be rebooted.");
                 RebootPool();
                 throw new Exception("Something went wrong with the database pool and it was rebooted. You may see other test failures due to this", exception);
             }

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Composable.Messaging;
 
 namespace Composable.Persistence.EventStore
 {
     public interface IEventStoreReader
     {
-        IEnumerable<IDomainEvent> GetHistory(Guid aggregateId);
+        IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId);
         /// <summary>
         /// Loads a specific version of the aggregate.
         /// This instance is NOT tracked for changes.

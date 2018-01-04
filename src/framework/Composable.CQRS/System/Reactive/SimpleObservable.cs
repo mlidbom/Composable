@@ -10,21 +10,21 @@ namespace Composable.System.Reactive
     ///<summary>Simple implementation of <see cref="IObservable{T}"/> that tracks subscribers and allows for calling OnNext on them all at once.</summary>
     class SimpleObservable<TEvent> : IObservable<TEvent>
     {
-        readonly IGuardedResource<HashSet<IObserver<TEvent>>> _observerCollection = GuardedResource<HashSet<IObserver<TEvent>>>.Optimized();
+        readonly IThreadShared<HashSet<IObserver<TEvent>>> _observerCollection = ThreadShared<HashSet<IObserver<TEvent>>>.Optimized();
 
         ///<summary>Calls <see cref="IObserver{T}.OnNext"/> for each subscribed observer.</summary>
         public void OnNext(TEvent @event)
         {
             ContractOptimized.Argument(@event, nameof(@event)).NotNull();
 
-            _observerCollection.Locked(@this => @this.ForEach(observer => observer.OnNext(@event)));
+            _observerCollection.WithExclusiveAccess(@this => @this.ForEach(observer => observer.OnNext(@event)));
         }
 
         /// <inheritdoc />
         public IDisposable Subscribe(IObserver<TEvent> observer)
         {
-            _observerCollection.Locked(@this =>  @this.Add(observer));
-            return Disposable.Create(() => _observerCollection.Locked(@this => @this.Remove(observer)));
+            _observerCollection.WithExclusiveAccess(@this =>  @this.Add(observer));
+            return Disposable.Create(() => _observerCollection.WithExclusiveAccess(@this => @this.Remove(observer)));
         }
     }
 }

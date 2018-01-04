@@ -9,7 +9,7 @@ namespace Composable.Messaging.Buses
 
         public InProcessServiceBus(IMessageHandlerRegistry handlerRegistry) => _handlerRegistry = handlerRegistry;
 
-        void IInProcessServiceBus.Publish(IEvent anEvent)
+        void IInProcessServiceBus.Publish(ITransactionalExactlyOnceDeliveryEvent anEvent)
         {
             _handlerRegistry.CreateEventDispatcher()
                             .Dispatch(anEvent);
@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses
         }
 
 
-        public TResult Send<TResult>(IDomainCommand<TResult> command)
+        public TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command)
         {
 
             var returnValue = _handlerRegistry.GetCommandHandler(command)
@@ -28,7 +28,7 @@ namespace Composable.Messaging.Buses
         }
 
 
-        void IInProcessServiceBus.Send(IDomainCommand message)
+        void IInProcessServiceBus.Send(ITransactionalExactlyOnceDeliveryCommand message)
         {
             _handlerRegistry.GetCommandHandler(message)(message);
             AfterDispatchingMessage(message);

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
 
 namespace Composable.Persistence.EventStore
 {
@@ -9,10 +8,10 @@ namespace Composable.Persistence.EventStore
     {
         Guid Id { get; }
         int Version { get; }
-        IEnumerable<IDomainEvent> GetChanges();
+        IEnumerable<IAggregateRootEvent> GetChanges();
         void AcceptChanges();
-        void LoadFromHistory(IEnumerable<IDomainEvent> history);
+        void LoadFromHistory(IEnumerable<IAggregateRootEvent> history);
         void SetTimeSource(IUtcTimeTimeSource timeSource);
-        IObservable<IDomainEvent> EventStream { get; }
+        IObservable<IAggregateRootEvent> EventStream { get; }
     }
 }

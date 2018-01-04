@@ -26,11 +26,11 @@ namespace AccountManagement.Domain.QueryModels
         {
             registrar.ForEvent((AccountEvent.PropertyUpdated.Email message, IAccountManagementDomainDocumentDbUpdater queryModels, IAccountRepository repository) =>
                                    UpdateQueryModel(message, repository, queryModels))
-                     .ForQuery((PrivateApi.TryGetAccountByEmailQuery tryGetAccount, IAccountManagementDomainDocumentDbReader documentDb, IAccountRepository accountRepository) =>
+                     .ForQuery((PrivateApi.Account.Queries.TryGetByEmailQuery tryGetAccount, IAccountManagementDomainDocumentDbReader documentDb, IAccountRepository accountRepository) =>
                                    TryGetAccountByEmail(tryGetAccount, documentDb, accountRepository));
         }
 
-        static Account TryGetAccountByEmail(PrivateApi.TryGetAccountByEmailQuery tryGetAccount, IAccountManagementDomainDocumentDbReader documentDb, IAccountRepository accountRepository)
+        static Account TryGetAccountByEmail(PrivateApi.Account.Queries.TryGetByEmailQuery tryGetAccount, IAccountManagementDomainDocumentDbReader documentDb, IAccountRepository accountRepository)
             => documentDb.TryGet(tryGetAccount.Email, out EmailToAccountIdQueryModel map) ? accountRepository.Get(map.AccountId) : null;
 
         static void UpdateQueryModel(AccountEvent.PropertyUpdated.Email message, IAccountRepository repository, IAccountManagementDomainDocumentDbUpdater queryModels)

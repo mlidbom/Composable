@@ -1,6 +1,4 @@
-﻿using Composable.Messaging;
-
-namespace Composable.Persistence.EventStore
+﻿namespace Composable.Persistence.EventStore
 {
     /// <summary>
     /// Marks an event as meaning that the aggregate was created.
@@ -9,7 +7,7 @@ namespace Composable.Persistence.EventStore
     /// <para>AggregateRoot: Id is only set when such an event is raised. It is only ever possibly to raise 1 such event. More than one will cause an exception</para>
     /// <para>SingleAggregateQueryModelUpdater: Creates the initial query model when it receives such an event</para>
     /// </summary>
-    public interface IAggregateRootCreatedEvent : IDomainEvent
+    public interface IAggregateRootCreatedEvent : IAggregateRootEvent
     {
 
     }

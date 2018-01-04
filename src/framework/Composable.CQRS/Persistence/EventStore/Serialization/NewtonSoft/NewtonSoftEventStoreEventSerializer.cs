@@ -1,5 +1,4 @@
 using System;
-using Composable.Messaging;
 using Newtonsoft.Json;
 
 namespace Composable.Persistence.EventStore.Serialization.NewtonSoft
@@ -10,6 +9,6 @@ namespace Composable.Persistence.EventStore.Serialization.NewtonSoft
 
         public string Serialize(object @event) => JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings);
 
-        public IDomainEvent Deserialize(Type eventType, string eventData) => (IDomainEvent)JsonConvert.DeserializeObject(eventData, eventType, JsonSettings);
+        public IAggregateRootEvent Deserialize(Type eventType, string eventData) => (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, eventType, JsonSettings);
     }
 }

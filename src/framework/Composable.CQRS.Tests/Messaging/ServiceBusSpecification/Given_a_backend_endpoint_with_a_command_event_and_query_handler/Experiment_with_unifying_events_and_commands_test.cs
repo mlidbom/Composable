@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
@@ -32,9 +31,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 DependencyInjectionContainer.Create,
                 buildHost => _userManagementDomainEndpoint = buildHost.RegisterAndStartEndpoint(
                                  "UserManagement.Domain",
+                                 new EndpointId(Guid.Parse("A4A2BA96-8D82-47AC-8A1B-38476C7B5D5D")),
                                  builder =>
                                  {
-                                     builder.Container.RegisterSqlServerEventStore<IUserEventStoreUpdater, IUserEventStoreReader>("SomeConnectionName");
+                                     builder.Container.RegisterSqlServerEventStore<IUserEventStoreUpdater, IUserEventStoreReader>(builder.Configuration.ConnectionStringName);
 
                                      builder.RegisterHandlers
                                             .ForEvent((UserEvent.Implementation.UserRegisteredEvent myEvent) => {})
@@ -50,10 +50,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() => _userDomainServiceLocator.Resolve<IUserEventStoreUpdater>().Save(UserRegistrarAggregate.Create()));
         }
 
-        [Fact] async Task Can_register_user_and_fetch_user_resource()
+        [Fact] void Can_register_user_and_fetch_user_resource()
         {
-            var registrationResult = await _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(
-                                         () => UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>()));
+            var registrationResult = UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>());
 
             var user = _host.ClientBus.Query(registrationResult.UserLink);
 
@@ -74,19 +73,19 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserEvent
         {
-            public interface IRoot : IDomainEvent {}
+            [TypeId("176EE1DD-8D56-4879-8230-46FCAF30E523")]public interface IRoot : IAggregateRootEvent {}
 
-            public interface UserRegistered : IRoot, IAggregateRootCreatedEvent {}
+            [TypeId("86B52908-5201-45B5-B504-23776CB58480")]public interface UserRegistered : IRoot, IAggregateRootCreatedEvent {}
 
             public static class Implementation
             {
-                public class Root : DomainEvent, IRoot
+                [TypeId("F53F2EB7-F856-4743-B90D-6AD96C95883D")]public class Root : AggregateRootEvent, IRoot
                 {
                     protected Root() {}
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
                 }
 
-                public class UserRegisteredEvent : Root, UserEvent.UserRegistered
+                [TypeId("3210D879-0D81-4DAB-9254-CA85B9D70F69")]public class UserRegisteredEvent : Root, UserEvent.UserRegistered
                 {
                     public UserRegisteredEvent(Guid userId) : base(userId) {}
                 }
@@ -95,12 +94,12 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarCommand
         {
-            public interface IRoot : IDomainCommand {}
+            public interface IRoot : ITransactionalExactlyOnceDeliveryCommand {}
 
-            public class Root : DomainCommand, IRoot {}
-            public class Root<TResult> : DomainCommand<TResult>, IRoot where TResult : IMessage {}
+            public class Root : TransactionalExactlyOnceDeliveryCommand, IRoot {}
+            public class Root<TResult> : TransactionalExactlyOnceDeliveryCommand<TResult>, IRoot where TResult : IMessage {}
 
-            public class RegisterUserCommand : Root<RegisterUserResult>
+            [TypeId("ED0AFADB-AD2D-4212-833A-CB14266204ED")]public class RegisterUserCommand : Root<RegisterUserResult>
             {
                 public Guid UserId { get; private set; } = Guid.NewGuid();
             }
@@ -108,16 +107,16 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarEvent
         {
-            public interface IRoot : IDomainEvent {}
+            [TypeId("B4C43E2D-5B17-4FE2-8E81-2135F6934807")]public interface IRoot : IAggregateRootEvent {}
             public static class Implementation
             {
-                public class Root : DomainEvent, IRoot
+                [TypeId("F4FE9D4A-082C-4B1E-A703-CD392E8D6946")]public class Root : AggregateRootEvent, IRoot
                 {
                     protected Root() {}
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
                 }
 
-                public class Created : Root, IAggregateRootCreatedEvent
+                [TypeId("0B8E14C7-56BA-4EC1-98D3-A213385ADB88")]public class Created : Root, IAggregateRootCreatedEvent
                 {
                     public Created() : base(UserRegistrarAggregate.SingleId) {}
                 }
@@ -138,7 +137,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 => RegisterEventAppliers()
                     .IgnoreUnhandled<UserRegistrarEvent.IRoot>();
 
-            internal static async Task<RegisterUserResult> RegisterUser(IServiceBus bus) => await await bus.SendAsyncAsync(new UserRegistrarCommand.RegisterUserCommand());
+            internal static RegisterUserResult RegisterUser(IServiceBus bus) => bus.Send(new UserRegistrarCommand.RegisterUserCommand());
         }
 
         public class UserAggregate : AggregateRoot<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>
@@ -155,7 +154,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        public class GetUserQuery : Query<UserResource>
+        [TypeId("ADFEAF4F-DD79-4BC1-9B34-82816CCAA752")]public class GetUserQuery : Query<UserResource>
         {
             public Guid UserId { get; private set; }
             public GetUserQuery(Guid userId) => UserId = userId;
@@ -163,8 +162,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public class UserResource : QueryResult
         {
-            public IEnumerable<IDomainEvent> History { get; }
-            public UserResource(IEnumerable<IDomainEvent> history) { History = history; }
+            public IEnumerable<IAggregateRootEvent> History { get; }
+            public UserResource(IEnumerable<IAggregateRootEvent> history) { History = history; }
         }
 
         public class RegisterUserResult : Message

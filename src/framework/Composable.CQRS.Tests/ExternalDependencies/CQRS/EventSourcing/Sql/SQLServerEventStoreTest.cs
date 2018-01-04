@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Transactions;
 using Composable.DependencyInjection;
-using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.Tests.CQRS;
 using NUnit.Framework;
@@ -72,13 +71,13 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
                 }
             }
 
-            IDomainEvent firstRead;
+            IAggregateRootEvent firstRead;
             using(_serviceLocator.BeginScope())
             {
                 firstRead = _serviceLocator.SqlEventStore().GetAggregateHistory(user.Id).Single();
             }
 
-            IDomainEvent secondRead;
+            IAggregateRootEvent secondRead;
             using (_serviceLocator.BeginScope())
             {
                 secondRead = _serviceLocator.SqlEventStore().GetAggregateHistory(user.Id).Single();

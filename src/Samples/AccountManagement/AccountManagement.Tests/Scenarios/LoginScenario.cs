@@ -1,8 +1,6 @@
-﻿using System.Threading.Tasks;
-using AccountManagement.API;
+﻿using AccountManagement.API;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
-using Composable.System.Threading;
 
 namespace AccountManagement.Tests.Scenarios
 {
@@ -13,10 +11,10 @@ namespace AccountManagement.Tests.Scenarios
         public string Email { get; set; }
 
 
-        public static async Task<LoginScenario> CreateAsync(IServiceBus bus)
+        public static LoginScenario Create(IServiceBus bus)
         {
             var registerAccountScenario = new RegisterAccountScenario(bus);
-            await registerAccountScenario.ExecuteAsync();
+            registerAccountScenario.Execute();
             return new LoginScenario(bus, registerAccountScenario.Email, registerAccountScenario.Password);
         }
 
@@ -30,15 +28,15 @@ namespace AccountManagement.Tests.Scenarios
             _bus = bus;
         }
 
-        public async Task<LoginAttemptResult> ExecuteAsync()
+        public LoginAttemptResult Execute()
         {
-            return await _bus.Get(AccountApi.Start)
+            return _bus.Get(AccountApi.Start)
                 .Post(start => start.Commands.Login.Mutate(@this =>
                        {
                            @this.Email = Email;
                            @this.Password = Password;
                        }))
-                .ExecuteAsync();
+                .Execute();
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
 using Composable.Messaging.Events;
 
 // ReSharper disable UnusedMember.Global todo:tests
@@ -9,8 +8,8 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 {
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IDomainEvent
-        where TAggregateRootBaseEventClass : DomainEvent, TAggregateRootBaseEventInterface
+        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
         public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
             where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface

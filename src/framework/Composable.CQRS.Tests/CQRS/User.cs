@@ -1,6 +1,5 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
 using Composable.Tests.CQRS.EventRefactoring.Migrations;
@@ -53,39 +52,39 @@ namespace Composable.Tests.CQRS
         }
     }
 
-    interface IUserEvent : IDomainEvent, IRootEvent
+    [TypeId("602DB8BE-9210-423B-999E-7B0F21461BB8")]interface IUserEvent : IAggregateRootEvent, IRootEvent
     { }
 
-    abstract class UserEvent : DomainEvent, IUserEvent
+    abstract class UserEvent : AggregateRootEvent, IUserEvent
     {}
 
-    class UserChangedEmail : UserEvent, IUserEvent
+    [TypeId("EEF29472-92ED-4AB4-81D3-3B38EB571025")]class UserChangedEmail : UserEvent, IUserEvent
     {
         public UserChangedEmail(string email) => Email = email;
         public string Email { get; private set; }
     }
 
-    class UserChangedPassword : UserEvent, IUserEvent
+    [TypeId("B10B3CA4-5F9D-43FF-B2BB-DA65DFBAF3BD")]class UserChangedPassword : UserEvent, IUserEvent
     {
         public string Password { get; set; }
     }
 
-    class UserRegistered : UserEvent, IAggregateRootCreatedEvent
+    [TypeId("B9517AE2-0697-469C-82C4-A3C827F11142")]class UserRegistered : UserEvent, IAggregateRootCreatedEvent
     {
         public Guid UserId { [UsedImplicitly] get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
     }
 
-    [UsedImplicitly] class MigratedBeforeUserRegisteredEvent : UserEvent, IAggregateRootCreatedEvent
+    [TypeId("D04B3EE8-8C5D-4CF5-BA7E-8F6248EC91DA")][UsedImplicitly] class MigratedBeforeUserRegisteredEvent : UserEvent, IAggregateRootCreatedEvent
     {
     }
 
-    [UsedImplicitly] class MigratedAfterUserChangedEmailEvent : UserEvent, IAggregateRootCreatedEvent
+    [TypeId("49ACCFAC-3F2C-4D8D-A199-233298653B40")][UsedImplicitly] class MigratedAfterUserChangedEmailEvent : UserEvent, IAggregateRootCreatedEvent
     {
     }
 
-    [UsedImplicitly] class MigratedReplaceUserChangedPasswordEvent : UserEvent, IAggregateRootCreatedEvent
+    [TypeId("51AAB04D-31BB-4060-BBA6-EC37A9BB06D4")][UsedImplicitly] class MigratedReplaceUserChangedPasswordEvent : UserEvent, IAggregateRootCreatedEvent
     {
     }
 }

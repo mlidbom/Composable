@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
@@ -25,11 +24,11 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             public Migrator(IEnumerable<Type> replaceWith) => _replaceWith = replaceWith;
 
-            public void MigrateEvent(IDomainEvent @event, IEventModifier modifier)
+            public void MigrateEvent(IAggregateRootEvent @event, IEventModifier modifier)
             {
                 if (@event.GetType() == typeof(TEvent))
                 {
-                    modifier.Replace(_replaceWith.Select(Activator.CreateInstance).Cast<DomainEvent>().ToArray());
+                    modifier.Replace(_replaceWith.Select(Activator.CreateInstance).Cast<AggregateRootEvent>().ToArray());
                 }
             }
         }

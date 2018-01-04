@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Transactions;
+using Composable.Contracts;
+using Composable.GenericAbstractions.Time;
 using Composable.Messaging.NetMQCE;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Threading.ResourceAccess;
+using Composable.SystemExtensions.TransactionsCE;
 using NetMQ;
 using NetMQ.Sockets;
 
@@ -12,121 +16,166 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
-        public void Dispatch(IEvent @event) => _this.Locked(@this => DispatchMessage(@event, @this, TransportMessage.OutGoing.Create(@event)));
+        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(@event, state, TransportMessage.OutGoing.Create(@event))));
 
-        public void Dispatch(IDomainCommand command) => _this.Locked(@this => DispatchMessage(command, @this, TransportMessage.OutGoing.Create(command)));
+        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(command, state, TransportMessage.OutGoing.Create(command))));
 
-        public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => (TCommandResult)await DispatchMessageWithResponse(command);
-
-        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => (TQueryResult)await DispatchMessageWithResponse(query);
-
-        public ClientConnection(IGlobalBusStateTracker globalBusStateTracker, IEndpoint endpoint, NetMQPoller poller)
+        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
         {
-            _this.Locked(@this =>
+            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var outGoingMessage = TransportMessage.OutGoing.Create(command);
+
+            Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(innerState =>
             {
-                @this.GlobalBusStateTracker = globalBusStateTracker;
+                innerState.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+                DispatchMessage(command, innerState, outGoingMessage);
+            }));
 
-                @this.Poller = poller;
+            Transaction.Current.OnAbort(() => taskCompletionSource.SetException(new TransactionAbortedException("Transaction aborted so command was never dispatched")));
 
-                @this.Poller.Add(@this.DispatchQueue);
+            return await taskCompletionSource.Task;
+        });
 
-                @this.DispatchQueue.ReceiveReady += @this.DispatchMessage;
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(state =>
+        {
+            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-                @this.Socket = new DealerSocket();
+            var outGoingMessage = TransportMessage.OutGoing.Create(query);
+
+            state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+            state.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, query);
+            state.DispatchQueue.Enqueue(outGoingMessage);
+
+            return taskCompletionSource.Task;
+        });
+
+        static void DispatchMessage(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
+        {
+            //todo: after transaction succeeds...
+            @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, new PendingDeliveryNotification(outGoingMessage.MessageId, @this.TimeSource.UtcNow));
+
+            @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
+            @this.DispatchQueue.Enqueue(outGoingMessage);
+        }
+
+        public ClientConnection(IGlobalBusStateTracker globalBusStateTracker,
+                                IEndpoint endpoint,
+                                NetMQPoller poller,
+                                IUtcTimeTimeSource timeSource,
+                                InterprocessTransport.MessageStorage messageStorage)
+        {
+            _state.WithExclusiveAccess(state =>
+            {
+                state.TimeSource = timeSource;
+
+                state.MessageStorage = messageStorage;
+
+                state.GlobalBusStateTracker = globalBusStateTracker;
+
+                state.Poller = poller;
+
+                state.Poller.Add(state.DispatchQueue);
+
+                state.DispatchQueue.ReceiveReady += DispatchQueuedMessages;
+
+                state.Socket = new DealerSocket();
 
                 //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
-                @this.Socket.Options.SendHighWatermark = int.MaxValue;
-                @this.Socket.Options.ReceiveHighWatermark = int.MaxValue;
+                state.Socket.Options.SendHighWatermark = int.MaxValue;
+                state.Socket.Options.ReceiveHighWatermark = int.MaxValue;
 
                 //We guarantee delivery upon restart in other ways. When we shut down, just do it.
-                @this.Socket.Options.Linger = 0.Milliseconds();
+                state.Socket.Options.Linger = 0.Milliseconds();
 
-                @this.Socket.ReceiveReady += ReceiveResponse;
+                state.Socket.ReceiveReady += ReceiveResponse;
 
-                @this.Socket.Connect(endpoint.Address);
-                poller.Add(@this.Socket);
+                state.RemoteEndpointId = endpoint.Id;
+
+                state.Socket.Connect(endpoint.Address);
+                poller.Add(state.Socket);
             });
         }
 
-        public void Dispose() => _this.Locked(@this =>
+        void DispatchQueuedMessages(object sender,NetMQQueueEventArgs<TransportMessage.OutGoing> netMQQueueEventArgs) => _state.WithExclusiveAccess(state =>
         {
-            @this.Socket.Dispose();
-            @this.DispatchQueue.Dispose();
+            while(netMQQueueEventArgs.Queue.TryDequeue(out var message, TimeSpan.Zero))
+            {
+                state.Socket.Send(message);
+            }
         });
 
-        class Implementation
+        public void Dispose() => _state.WithExclusiveAccess(state =>
         {
-            public IGlobalBusStateTracker GlobalBusStateTracker;
-            public readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
-            public DealerSocket Socket;
-            public NetMQPoller Poller;
-            public readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
+            state.Socket.Dispose();
+            state.DispatchQueue.Dispose();
+        });
 
-            public void DispatchMessage(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> e)
-            {
-                while(e.Queue.TryDequeue(out var message, TimeSpan.Zero))
-                {
-                    Socket.Send(message);
-                }
-            }
+        class State
+        {
+            internal IGlobalBusStateTracker GlobalBusStateTracker;
+            internal readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
+            internal readonly Dictionary<Guid, PendingDeliveryNotification> PendingDeliveryNotifications = new Dictionary<Guid, PendingDeliveryNotification>();
+            internal DealerSocket Socket;
+            internal NetMQPoller Poller;
+            internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
+            internal IUtcTimeTimeSource TimeSource { get; set; }
+            internal InterprocessTransport.MessageStorage MessageStorage { get; set; }
+            public EndpointId RemoteEndpointId { get; set; }
         }
 
-        readonly IGuardedResource<Implementation> _this = GuardedResource<Implementation>.WithTimeout(10.Seconds());
+        readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
 
         //Runs on poller thread so NO BLOCKING HERE!
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
         {
             var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, batchMaximum: 100);
 
-            _this.Locked(@this =>
+            _state.WithExclusiveAccess(state =>
             {
                 foreach(var response in responseBatch)
                 {
-                    var responseTask = @this.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
-                    if(response.SuccessFull)
+                    switch(response.ResponseType)
                     {
-                        Task.Run(() =>
-                        {
-                            try
+                        case TransportMessage.Response.ResponseType.Success:
+                            var successResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
+                            Task.Run(() =>
                             {
-                                responseTask.SetResult(response.DeserializeResult());
-                            }
-                            catch(Exception exception)
-                            {
-                                responseTask.SetException(exception);
-                            }
-                        });
-                    } else
-                    {
-                        responseTask.SetException(new MessageDispatchingFailedException());
+                                try
+                                {
+                                    successResponse.SetResult(response.DeserializeResult());
+                                }
+                                catch(Exception exception)
+                                {
+                                    successResponse.SetException(exception);
+                                }
+                            });
+                            break;
+                        case TransportMessage.Response.ResponseType.Failure:
+                            var failureResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
+                            failureResponse.SetException(new MessageDispatchingFailedException());
+                            break;
+                        case TransportMessage.Response.ResponseType.Received:
+                            Contract.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
+                            Task.Run(() => state.MessageStorage.MarkAsReceived(response, state.RemoteEndpointId));
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
             });
         }
 
-        Task<object> DispatchMessageWithResponse(IMessage message) => _this.Locked(@this =>
+        class PendingDeliveryNotification
         {
-            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-            var outGoingMessage = TransportMessage.OutGoing.Create(message);
-
-            if(message.RequiresResponse())
+            internal PendingDeliveryNotification(Guid messageId, DateTime sentAt)
             {
-                @this.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-            } else
-            {
-                taskCompletionSource.SetResult(null);
+                MessageId = messageId;
+                SentAt = sentAt;
             }
 
-            DispatchMessage(message, @this, outGoingMessage);
-
-            return taskCompletionSource.Task;
-        });
-
-        static void DispatchMessage(IMessage message, Implementation @this, TransportMessage.OutGoing outGoingMessage)
-        {
-            @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
-            @this.DispatchQueue.Enqueue(outGoingMessage);
+            internal Guid MessageId { get; }
+            internal DateTime SentAt { get; }
         }
     }
 }

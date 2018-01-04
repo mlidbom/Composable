@@ -15,16 +15,20 @@ namespace Composable.Messaging.Buses
 
         readonly IDependencyInjectionContainer _container;
 
-        public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container)
+        public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, string name)
         {
             _container = container;
 
+            Configuration = new EndpointConfiguration(name)
+                            {
+                            };
+
             _container.Register(
                 Component.For<EndpointConfiguration>()
-                         .UsingFactoryMethod(() => new EndpointConfiguration())
+                         .UsingFactoryMethod(() => Configuration)
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
-                         .UsingFactoryMethod(() => new InterprocessTransport(globalStateTracker))
+                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider) => new InterprocessTransport(globalStateTracker, timeSource, connectionProvider.GetConnectionProvider(Configuration.ConnectionStringName)))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
@@ -51,7 +55,7 @@ namespace Composable.Messaging.Buses
                 Component.For<CommandScheduler>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))
                          .LifestyleSingleton(),
-                Component.For<IServiceBus, ISimpleServiceBus, IServiceBusControl>()
+                Component.For<IServiceBus, IServiceBusControl>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IInbox inbox, CommandScheduler scheduler) => new ServiceBus(transport, inbox, scheduler))
                          .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()
@@ -61,10 +65,11 @@ namespace Composable.Messaging.Buses
         }
 
         public IDependencyInjectionContainer Container => _container;
+        public EndpointConfiguration Configuration { get; }
 
         public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers =>
             new MessageHandlerRegistrarWithDependencyInjectionSupport(_container.CreateServiceLocator().Resolve<IMessageHandlerRegistrar>(), _container.CreateServiceLocator());
 
-        public IEndpoint Build() => new Endpoint(_container.CreateServiceLocator());
+        public IEndpoint Build(string name, EndpointId id) => new Endpoint(_container.CreateServiceLocator(), id, name);
     }
 }

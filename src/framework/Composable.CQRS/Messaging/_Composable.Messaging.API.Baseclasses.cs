@@ -9,22 +9,8 @@ namespace Composable.Messaging
     {
     }
 
-    public abstract class Event : Message, IEvent
-    {
-    }
-
     public abstract class Query<TResult> : Message, IQuery<TResult>
     {
-    }
-
-    public static class SingletonQuery
-    {
-        public static SingletonQuery<TResource> For<TResource>() => new SingletonQuery<TResource>();
-    }
-
-    public class SingletonQuery<TSingleton> : Query<TSingleton>
-    {
-        internal SingletonQuery() {}
     }
 
     ///<summary>Represent an entity within the domain of the current API that is uniquely identifiable through its type and Id.</summary>
@@ -33,12 +19,12 @@ namespace Composable.Messaging
         Guid Id { get; }
     }
 
-    public class EntityQuery<TEntity> : Message, IEntityQuery<TEntity>
+    public abstract class EntityByIdQuery<TEntity, TInheritor> : Message, IEntityQuery<TEntity> where TInheritor : EntityByIdQuery<TEntity, TInheritor>, new()
     {
-        public EntityQuery() {}
-        public EntityQuery(Guid id) => Id = id;
+        public EntityByIdQuery() {}
+        public EntityByIdQuery(Guid id) => Id = id;
         public Guid Id { get; set; }
-        public EntityQuery<TEntity> WithId(Guid id) => new EntityQuery<TEntity>(id);
+        public TInheritor WithId(Guid id) => new TInheritor{ Id = id};
     }
 
     public abstract class Message : IMessage
@@ -55,9 +41,7 @@ namespace Composable.Messaging
         protected EntityResource(Guid id)
         {
             Id = id;
-            Self = new EntityQuery<TResource>(id);
         }
-        public IQuery<TResource> Self { get; private set; }
         public Guid Id { get; private set; }
     }
 }

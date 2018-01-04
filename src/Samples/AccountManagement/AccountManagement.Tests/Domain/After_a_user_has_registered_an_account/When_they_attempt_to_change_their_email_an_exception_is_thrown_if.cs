@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using AccountManagement.Tests.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
@@ -11,9 +10,9 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         ChangeAccountEmailScenario _changeEmail;
 
         [SetUp]
-        public async Task RegisterAccount()
+        public void RegisterAccount()
         {
-            _changeEmail = await ChangeAccountEmailScenario.CreateAsync(ClientBus);
+            _changeEmail = ChangeAccountEmailScenario.Create(ClientBus);
         }
 
         [Test]

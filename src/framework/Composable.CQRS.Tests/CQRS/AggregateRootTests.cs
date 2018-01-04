@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
 using FluentAssertions;
@@ -58,7 +57,7 @@ namespace Composable.Tests.CQRS
         public void When_Raising_event_that_triggers_another_event_both_events_are_outputted_on_the_observable_only_after_the_triggered_event_and_in_the_raised_order()
         {
             var aggregate = new CascadingEventsAggregate();
-            var receivedEvents = new List<IDomainEvent>();
+            var receivedEvents = new List<IAggregateRootEvent>();
             using(((IEventStored)aggregate).EventStream.Subscribe(@event =>
                                                   {
                                                       receivedEvents.Add(@event);
@@ -76,7 +75,7 @@ namespace Composable.Tests.CQRS
             receivedEvents[1].GetType().Should().Be(typeof(TriggeredEvent));
         }
 
-        class CascadingEventsAggregate : AggregateRoot<CascadingEventsAggregate, DomainEvent, IDomainEvent>
+        class CascadingEventsAggregate : AggregateRoot<CascadingEventsAggregate, AggregateRootEvent, IAggregateRootEvent>
         {
             public CascadingEventsAggregate():base(DummyTimeSource.Now)
             {
@@ -95,12 +94,12 @@ namespace Composable.Tests.CQRS
             }
         }
 
-        class TriggeringEvent : DomainEvent, IAggregateRootCreatedEvent
+        [TypeId("116B5753-FA3F-4E90-AA2F-1E0F54407DC1")]class TriggeringEvent : AggregateRootEvent, IAggregateRootCreatedEvent
         {
             public TriggeringEvent() : base(Guid.NewGuid()) {}
         }
 
-        class TriggeredEvent : DomainEvent
+        [TypeId("30206FD8-AA2C-48EC-B31E-50D2C648F0CF")]class TriggeredEvent : AggregateRootEvent
         {
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
@@ -24,6 +23,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             var endpoint = _host.RegisterAndStartEndpoint(
                 "endpoint",
+                new EndpointId(Guid.Parse("17ED9DF9-33A8-4DF8-B6EC-6ED97AB2030B")),
                 builder => builder.RegisterHandlers.ForCommand<ScheduledCommand>(
                     cmd => _receivedCommandGate.AwaitPassthrough()));
 
@@ -34,20 +34,20 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             _bus = serviceLocator.Resolve<IServiceBus>();
         }
 
-        [Fact] public async Task Messages_whose_due_time_has_passed_are_delivered()
+        [Fact] public void Messages_whose_due_time_has_passed_are_delivered()
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            await _bus.SendAtTimeAsync(now + .1.Seconds(), inOneHour);
+            _bus.SendAtTime(now + .1.Seconds(), inOneHour);
 
             _receivedCommandGate.AwaitPassedThroughCountEqualTo(1, timeout: .5.Seconds());
         }
 
-        [Fact] public async Task Messages_whose_due_time_have_not_passed_are_not_delivered()
+        [Fact] public void Messages_whose_due_time_have_not_passed_are_not_delivered()
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            await _bus.SendAtTimeAsync(now + TimeSpanExtensions.Seconds(2), inOneHour);
+            _bus.SendAtTime(now + TimeSpanExtensions.Seconds(2), inOneHour);
 
             _receivedCommandGate.TryAwaitPassededThroughCountEqualTo(1, timeout: .5.Seconds())
                                 .Should().Be(false);
@@ -55,6 +55,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
         public void Dispose() { _host.Dispose(); }
 
-        class ScheduledCommand : DomainCommand {}
+        [TypeId("BEB1E3BA-3515-43EA-A33D-1EE7A5775A11")]class ScheduledCommand : TransactionalExactlyOnceDeliveryCommand {}
     }
 }

@@ -7,13 +7,13 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
     {
         public static partial class Component
         {
-            public interface IRoot : RootEvent.IRoot {}
+            [TypeId("0B50E0B3-7C68-4366-B398-67B71CC8EC32")]public interface IRoot : RootEvent.IRoot {}
 
-            interface Renamed : IRoot, PropertyUpdated.Name {}
+            [TypeId("DEFAA6BA-38B5-4F86-A996-43335BEFE6EE")]interface Renamed : IRoot, PropertyUpdated.Name {}
 
             public static class PropertyUpdated
             {
-                public interface Name : IRoot
+                [TypeId("7DB5A895-08BB-4DBD-9F25-7446D7C8CE7D")]public interface Name : IRoot
                 {
                     string Name { get; }
                 }
@@ -23,7 +23,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
             {
                 public abstract class Root : RootEvent.Implementation.Root, Component.IRoot {}
 
-                public class Renamed : Root, Component.Renamed
+                [TypeId("FD278BF6-3B49-44E5-BF96-26AEB58918B0")]public class Renamed : Root, Component.Renamed
                 {
                     public Renamed(string name) => Name = name;
                     public string Name { get; }

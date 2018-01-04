@@ -128,7 +128,8 @@ namespace Composable.Messaging.Buses.Implementation
             while(!_cancellationTokenSource.Token.IsCancellationRequested)
                 try
                 {
-                    _globalStateTracker.AwaitDispatchableMessage(this, _dispatchingRules).Run();
+                    var dispatchableMessage = _globalStateTracker.AwaitDispatchableMessage(this, _dispatchingRules);
+                    dispatchableMessage.Run();
                 }
                 catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException)
                 {
@@ -142,23 +143,30 @@ namespace Composable.Messaging.Buses.Implementation
         void EnqueueNonTransactionalTask(TransportMessage.InComing message, Action action)
             => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
 
-        Task<object> DispatchAsync(TransportMessage.InComing message)
+        async Task<object> DispatchAsync(TransportMessage.InComing message) => await Task.Run(async () =>
         {
-            return Task.Run(() =>
+            var innerMessage = message.DeserializeMessageAndCacheForNextCall();
+            if(innerMessage is ITransactionalExactlyOnceDeliveryMessage)
             {
-                switch(message.DeserializeMessageAndCacheForNextCall())
-                {
-                    case IDomainCommand command:
-                        return DispatchAsync(command, message);
-                    case IEvent @event:
-                        return DispatchAsync(@event, message);
-                    case IQuery query:
-                        return DispatchAsync(query, message);
-                    default:
-                        throw new Exception($"Unsupported message type: {message.GetType()}");
-                }
-            });
-        }
+                PersistMessage(message);
+                _responseQueue.Enqueue(message.CreatePersistedResponse());
+            }
+
+            switch(innerMessage)
+            {
+                case ITransactionalExactlyOnceDeliveryCommand command:
+                    return await DispatchAsync(command, message);
+                case ITransactionalExactlyOnceDeliveryEvent @event:
+                    return await DispatchAsync(@event, message);
+                case IQuery query:
+                    return await DispatchAsync(query, message);
+                default:
+                    throw new Exception($"Unsupported message type: {message.GetType()}");
+            }
+        });
+
+
+        void PersistMessage(TransportMessage.InComing message) {}
 
         async Task<object> DispatchAsync(IQuery query, TransportMessage.InComing message)
         {
@@ -185,7 +193,7 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task.NoMarshalling();
         }
 
-        async Task<object> DispatchAsync(IEvent @event, TransportMessage.InComing message)
+        async Task<object> DispatchAsync(ITransactionalExactlyOnceDeliveryEvent @event, TransportMessage.InComing message)
         {
             var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -209,7 +217,7 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task.NoMarshalling();
         }
 
-        async Task<object> DispatchAsync(IDomainCommand command, TransportMessage.InComing message)
+        async Task<object> DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command, TransportMessage.InComing message)
         {
             var handler = _handlerRegistry.GetCommandHandler(command.GetType());
 

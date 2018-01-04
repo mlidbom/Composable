@@ -1,4 +1,5 @@
-﻿using AccountManagement.API;
+﻿using System;
+using AccountManagement.API;
 using AccountManagement.Domain;
 using AccountManagement.Domain.QueryModels;
 using AccountManagement.Domain.Services;
@@ -7,34 +8,33 @@ using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Services.Implementation;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Buses.Implementation;
 using Composable.SystemExtensions.Threading;
 
 namespace AccountManagement
 {
     public static class AccountManagementServerDomainBootstrapper
     {
-        const string ConnectionStringName = "AccountManagement";
 
         public static IEndpoint RegisterWith(IEndpointHost host)
         {
-            return host.RegisterAndStartEndpoint("UserManagement.Domain",
+            return host.RegisterAndStartEndpoint("AccountManagement",
+                                                 new EndpointId(Guid.Parse("1A1BE9C8-C8F6-4E38-ABFB-F101E5EDB00D")),
                                                  builder =>
                                                  {
-                                                     RegisterDomainComponents(builder.Container);
-                                                     RegisterUserInterfaceComponents(builder.Container);
+                                                     RegisterDomainComponents(builder.Container, builder.Configuration);
+                                                     RegisterUserInterfaceComponents(builder.Container, builder.Configuration);
 
                                                      RegisterHandlers(builder.RegisterHandlers);
                                                  });
         }
 
-        static void RegisterDomainComponents(IDependencyInjectionContainer container)
+        static void RegisterDomainComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
-            container.RegisterSqlServerEventStore<IAccountManagementEventStoreUpdater, IAccountManagementEventStoreReader>(ConnectionStringName);
+            container.RegisterSqlServerEventStore<IAccountManagementEventStoreUpdater, IAccountManagementEventStoreReader>(configuration.ConnectionStringName);
 
-            container.RegisterSqlServerDocumentDb<IAccountManagementDomainDocumentDbUpdater, IAccountManagementDomainDocumentDbReader, IAccountManagementDomainDocumentDbBulkReader>(
-                ConnectionStringName);
+            container.RegisterSqlServerDocumentDb<IAccountManagementDomainDocumentDbUpdater, IAccountManagementDomainDocumentDbReader, IAccountManagementDomainDocumentDbBulkReader>(configuration.ConnectionStringName);
 
             container.Register(
                 Component.For<IAccountRepository>()
@@ -45,9 +45,9 @@ namespace AccountManagement
                          .LifestyleScoped());
         }
 
-        static void RegisterUserInterfaceComponents(IDependencyInjectionContainer container)
+        static void RegisterUserInterfaceComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
-            container.RegisterSqlServerDocumentDb<IAccountManagementUiDocumentDbUpdater, IAccountManagementUiDocumentDbReader, IAccountManagementUiDocumentDbBulkReader>(ConnectionStringName);
+            container.RegisterSqlServerDocumentDb<IAccountManagementUiDocumentDbUpdater, IAccountManagementUiDocumentDbReader, IAccountManagementUiDocumentDbBulkReader>(configuration.ConnectionStringName);
 
             container.Register(
                 Component.For<AccountManagementQueryModelReader>()
@@ -62,7 +62,7 @@ namespace AccountManagement
 
         static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            registrar.ForQuery((SingletonQuery<StartResource> query) =>
+            registrar.ForQuery((StartResourceQuery query) =>
                                    new StartResource());
 
             EmailToAccountMapQueryModel.RegisterHandlers(registrar);

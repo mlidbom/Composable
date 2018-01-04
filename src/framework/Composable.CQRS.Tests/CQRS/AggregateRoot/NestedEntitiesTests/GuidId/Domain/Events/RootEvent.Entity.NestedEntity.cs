@@ -12,19 +12,19 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.
         {
             public static class NestedEntity
             {
-                public interface IRoot : RootEvent.Entity.IRoot
+                [TypeId("545758B2-DDCC-4EE8-8324-36D355100E0F")]public interface IRoot : RootEvent.Entity.IRoot
                 {
                     Guid NestedEntityId { get; }
                 }
 
-                public interface Created : IRoot, PropertyUpdated.Name {}
+                [TypeId("80FE0081-C349-4626-8943-41022A45D3DF")]public interface Created : IRoot, PropertyUpdated.Name {}
 
-                interface Renamed : IRoot, PropertyUpdated.Name {}
-                public interface Removed : IRoot { }
+                [TypeId("B752A942-D906-414E-ACEA-48EA0B7B6997")]interface Renamed : IRoot, PropertyUpdated.Name {}
+                [TypeId("692DE3B4-DB36-4FF0-8C76-D9C9CE2F7DA1")]public interface Removed : IRoot { }
 
                 public static class PropertyUpdated
                 {
-                    public interface Name : IRoot
+                    [TypeId("2073E6B6-BFFD-46C0-B43E-02B888EFC1CD")]public interface Name : IRoot
                     {
                         string Name { get; }
                     }
@@ -43,7 +43,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.
                         }
                     }
 
-                    public class Created : Root, NestedEntity.Created
+                    [TypeId("D7CDB34E-3584-4F28-BB46-640C48FB313C")]public class Created : Root, NestedEntity.Created
                     {
                         public Created(Guid nestedEntityId, string name)
                         {
@@ -53,13 +53,13 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.
                         public string Name { get; }
                     }
 
-                    public class Renamed : Root, NestedEntity.Renamed
+                    [TypeId("0599E9D2-BD94-420E-A13C-F17D9B4D14AB")]public class Renamed : Root, NestedEntity.Renamed
                     {
                         public Renamed(string name) => Name = name;
                         public string Name { get; }
                     }
 
-                    public class Removed : Root, NestedEntity.Removed
+                    [TypeId("78FABE1C-EB3D-4DDA-BE85-9D7BD6CFA6C9")]public class Removed : Root, NestedEntity.Removed
                     {
                     }
                 }

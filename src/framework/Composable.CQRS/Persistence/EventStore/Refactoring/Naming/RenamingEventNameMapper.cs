@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.Messaging;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Reflection;
@@ -33,7 +32,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Naming
         public RenamingEventNameMapper(IEnumerable<Type> eventTypes, params IRenameEvents[] renamers)
         {
             var nameMappings = eventTypes
-                .Where(type => type.Implements<IDomainEvent>())
+                .Where(type => type.Implements<IAggregateRootEvent>())
                 .Select(type => new EventNameMapping(type))
                 .ToArray();
 

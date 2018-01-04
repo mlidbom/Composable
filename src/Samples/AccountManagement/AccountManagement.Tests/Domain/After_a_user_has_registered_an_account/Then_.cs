@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
 using AccountManagement.API;
 using AccountManagement.Domain.Events;
 using AccountManagement.Tests.Scenarios;
@@ -14,10 +13,10 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         RegisterAccountScenario _registerAccountScenario;
         AccountResource.Command.Register.RegistrationAttemptResult _result;
 
-        [SetUp] public async Task RegisterAccount()
+        [SetUp] public void RegisterAccount()
         {
             _registerAccountScenario = new RegisterAccountScenario(ClientBus);
-            (_result, _registeredAccount) = await _registerAccountScenario.ExecuteAsync();
+            (_result, _registeredAccount) = _registerAccountScenario.Execute();
             _result.Should().Be(AccountResource.Command.Register.RegistrationAttemptResult.Successful);
         }
 
@@ -27,28 +26,28 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
 
         [Test] public void AccountPassword_is_the_one_used_for_registration() => Assert.True(_registeredAccount.Password.IsCorrectPassword(_registerAccountScenario.Password));
 
-        [Test] public async Task Login_with_the_correct_email_and_password_succeeds_returning_NotNullOrWhiteSpace_authenticationToken()
+        [Test] public void Login_with_the_correct_email_and_password_succeeds_returning_NotNullOrWhiteSpace_authenticationToken()
         {
-            var result = await new LoginScenario(ClientBus, _registeredAccount, _registerAccountScenario.Password).ExecuteAsync();
+            var result = new LoginScenario(ClientBus, _registeredAccount, _registerAccountScenario.Password).Execute();
 
             result.Succeeded.Should().Be(true);
             result.AuthenticationToken.Should().NotBeNullOrWhiteSpace();
         }
 
-        [Test] public async Task Login_with_the_correct_email_but_wrong_password_fails()
-            => (await new LoginScenario(ClientBus, _registeredAccount, "SomeOtherPassword").ExecuteAsync())
+        [Test] public void Login_with_the_correct_email_but_wrong_password_fails()
+            => new LoginScenario(ClientBus, _registeredAccount, "SomeOtherPassword").Execute()
                .Succeeded.Should().Be(false);
 
-        [Test] public async Task Login_with_the_wrong_email_but_correct_password_fails()
-            => (await new LoginScenario(ClientBus, "some_other@email.com", _registerAccountScenario.Password).ExecuteAsync())
+        [Test] public void Login_with_the_wrong_email_but_correct_password_fails()
+            => new LoginScenario(ClientBus, "some_other@email.com", _registerAccountScenario.Password).Execute()
                .Succeeded.Should().Be(false);
 
         [Test]
-        public async Task Attempting_to_register_an_account_with_the_new_email_fails_with_email_already_registered_message()
+        public void Attempting_to_register_an_account_with_the_new_email_fails_with_email_already_registered_message()
         {
             var scenario = new RegisterAccountScenario(ClientBus, email: _registerAccountScenario.Email);
 
-            var (result, _) = await scenario.ExecuteAsync();
+            var (result, _) = scenario.Execute();
             result.Should().Be(AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered);
         }
     }

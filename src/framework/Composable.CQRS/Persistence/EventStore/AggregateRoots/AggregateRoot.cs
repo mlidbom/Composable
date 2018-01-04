@@ -4,7 +4,6 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
 using Composable.Messaging.Events;
 using Composable.System.Linq;
 using Composable.System.Reactive;
@@ -13,8 +12,8 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 {
     public partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>, IEventStored
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IDomainEvent
-        where TAggregateRootBaseEventClass : DomainEvent, TAggregateRootBaseEventInterface
+        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
         IUtcTimeTimeSource TimeSource { get; set; }
 
@@ -31,7 +30,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             _eventHandlersEventDispatcher.Register().IgnoreUnhandled<TAggregateRootBaseEventInterface>();
         }
 
-        readonly IList<IDomainEvent> _unCommittedEvents = new List<IDomainEvent>();
+        readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
 
@@ -121,24 +120,24 @@ namespace Composable.Persistence.EventStore.AggregateRoots
         }
 
         readonly SimpleObservable<TAggregateRootBaseEventClass> _simpleObservable = new SimpleObservable<TAggregateRootBaseEventClass>();
-        IObservable<IDomainEvent> IEventStored.EventStream => _simpleObservable;
+        IObservable<IAggregateRootEvent> IEventStored.EventStream => _simpleObservable;
 
         void IEventStored.AcceptChanges()
         {
             _unCommittedEvents.Clear();
         }
 
-        IEnumerable<IDomainEvent> IEventStored.GetChanges() => _unCommittedEvents;
+        IEnumerable<IAggregateRootEvent> IEventStored.GetChanges() => _unCommittedEvents;
 
         void IEventStored.SetTimeSource(IUtcTimeTimeSource timeSource)
         {
             TimeSource = timeSource;
         }
 
-        void IEventStored.LoadFromHistory(IEnumerable<IDomainEvent> history)
+        void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
         {
             history.ForEach(theEvent => ApplyEvent((TAggregateRootBaseEventInterface)theEvent));
-            var maxInsertedVersion = history.Max(@event => ((DomainEvent)@event).InsertedVersion);
+            var maxInsertedVersion = history.Max(@event => ((AggregateRootEvent)@event).InsertedVersion);
             if(maxInsertedVersion != Version)
             {
                 _insertedVersionToAggregateVersionOffset = maxInsertedVersion - Version;

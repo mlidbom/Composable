@@ -9,11 +9,11 @@ namespace Composable.Messaging.Buses
         readonly IServiceBus _bus;
         public ApiNavigator(IServiceBus bus) => _bus = bus;
 
-        public IApiNavigator<TCommandResult> Post<TCommandResult>(IDomainCommand<TCommandResult> command)
+        public IApiNavigator<TCommandResult> Post<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command)
             => new ApiNavigator<TCommandResult>(_bus,
                                                 getCurrentResource: async () =>
                                                 {
-                                                    var commandResultTask = await _bus.SendAsyncAsync(command);
+                                                    var commandResultTask = _bus.SendAsync(command);
                                                     return await commandResultTask;
                                                 });
 
@@ -40,17 +40,17 @@ namespace Composable.Messaging.Buses
                                                      return await _bus.QueryAsync(selectQuery(currentResource));
                                                  });
 
-        public IApiNavigator<TReturnResource> Post<TReturnResource>(Func<TCurrentResource, IDomainCommand<TReturnResource>> selectCommand)
+        public IApiNavigator<TReturnResource> Post<TReturnResource>(Func<TCurrentResource, ITransactionalExactlyOnceDeliveryCommand<TReturnResource>> selectCommand)
             => new ApiNavigator<TReturnResource>(_bus,
                                                  getCurrentResource: async () =>
                                                  {
                                                      var currentResource = await _getCurrentResource();
-                                                     var commandResultTask = await _bus.SendAsyncAsync(selectCommand(currentResource));
+                                                     var commandResultTask = _bus.SendAsync(selectCommand(currentResource));
                                                      return await commandResultTask;
                                                  });
 
         public async Task<TCurrentResource> ExecuteAsync() => await _getCurrentResource().NoMarshalling();
 
-        public TCurrentResource Execute() => ExecuteAsync().Result;
+        public TCurrentResource Execute() => ExecuteAsync().ResultUnwrappingException();
     }
 }

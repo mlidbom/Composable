@@ -1,9 +1,7 @@
 using System;
-using System.Threading.Tasks;
 using AccountManagement.API;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
-using Composable.System.Threading;
 
 namespace AccountManagement.Tests.Scenarios
 {
@@ -23,21 +21,21 @@ namespace AccountManagement.Tests.Scenarios
             Email = email ?? TestData.Email.CreateValidEmail().ToString();
         }
 
-        public async Task<(AccountResource.Command.Register.RegistrationAttemptResult Result, AccountResource Account)> ExecuteAsync()
+        public (AccountResource.Command.Register.RegistrationAttemptResult Result, AccountResource Account) Execute()
         {
-            var result = await _bus.Get(AccountApi.Start)
+            var result = _bus.Get(AccountApi.Start)
                        .Post(start => start.Commands.Register.Mutate(@this =>
                        {
                            @this.AccountId = AccountId;
                            @this.Email = Email;
                            @this.Password = Password;
                        }))
-                       .ExecuteAsync();
+                       .Execute();
 
             switch(result)
             {
                 case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
-                    return (result, await _bus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(AccountId)).ExecuteAsync());
+                    return (result, _bus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(AccountId)).Execute());
                 case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     return (result, null);
                 default:

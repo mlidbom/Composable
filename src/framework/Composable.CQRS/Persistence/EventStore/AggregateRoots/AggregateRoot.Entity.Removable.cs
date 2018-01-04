@@ -1,13 +1,12 @@
 ﻿using System;
-using Composable.Messaging;
 using Composable.Messaging.Events;
 
 namespace Composable.Persistence.EventStore.AggregateRoots
 {
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IDomainEvent
-        where TAggregateRootBaseEventClass : DomainEvent, TAggregateRootBaseEventInterface
+        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
         public abstract class Entity<TEntity,
                                      TEntityId,

@@ -6,7 +6,6 @@ using Composable.DependencyInjection.Persistence;
 using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
-using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
@@ -54,7 +53,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             var timeSource = serviceLocator.Resolve<DummyTimeSource>();
 
-            IReadOnlyList<IDomainEvent> eventsInStoreAtStart;
+            IReadOnlyList<IAggregateRootEvent> eventsInStoreAtStart;
             using(serviceLocator.BeginScope()) //Why is this needed? It fails without it but I do not understand why...
             {
                 var eventStore = serviceLocator.Resolve<IEventStore>();
@@ -195,7 +194,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             return serviceLocator;
         }
 
-        protected static void AssertStreamsAreIdentical(IEnumerable<IDomainEvent> expected, IEnumerable<IDomainEvent> migratedHistory, string descriptionOfHistory)
+        protected static void AssertStreamsAreIdentical(IEnumerable<IAggregateRootEvent> expected, IEnumerable<IAggregateRootEvent> migratedHistory, string descriptionOfHistory)
         {
             try
             {
@@ -210,7 +209,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                         }
                     });
 
-                migratedHistory.Cast<DomainEvent>()
+                migratedHistory.Cast<AggregateRootEvent>()
                                .ShouldAllBeEquivalentTo(
                                    expected,
                                    config => config.RespectingRuntimeTypes()

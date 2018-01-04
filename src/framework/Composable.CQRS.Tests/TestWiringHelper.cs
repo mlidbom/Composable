@@ -57,8 +57,7 @@ namespace Composable.Tests
 
         static void RegisterTestingSqlServerEventStore(this IDependencyInjectionContainer @this)
         {
-            @this.RegisterSqlServerEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>
-                (EventStoreConnectionStringName);
+            @this.RegisterSqlServerEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>(EventStoreConnectionStringName);
         }
 
         internal static IServiceLocator SetupTestingServiceLocator(TestingMode mode, [InstantHandle]Action<IDependencyInjectionContainer> configureContainer = null)

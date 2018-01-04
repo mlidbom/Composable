@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using Composable.System.Data.SqlClient;
+﻿using Composable.System.Data.SqlClient;
 
 namespace Composable.Persistence.DocumentDb.SqlServer
 {

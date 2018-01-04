@@ -4,117 +4,99 @@ using System.Linq;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
+using Composable.GenericAbstractions.Time;
 using Composable.System;
-using Composable.System.Collections.Collections;
+using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    class InterprocessTransport : IInterprocessTransport, IDisposable
+    partial class InterprocessTransport : IInterprocessTransport, IDisposable
     {
-        class Implementation
+        class State
         {
+            internal bool Running;
             public IGlobalBusStateTracker GlobalBusStateTracker;
-
-            public readonly Dictionary<Type, HashSet<IClientConnection>> EventConnections = new Dictionary<Type, HashSet<IClientConnection>>();
-            public readonly Dictionary<Type, IClientConnection> CommandConnections = new Dictionary<Type, IClientConnection>();
-            public readonly Dictionary<Type, IClientConnection> QueryConnections = new Dictionary<Type, IClientConnection>();
-
-            public bool Running;
-            public readonly IList<ClientConnection> ClientConnections = new List<ClientConnection>();
-            public readonly NetMQPoller Poller = new NetMQPoller();
+            internal readonly Dictionary<EndpointId, ClientConnection> EndpointConnections = new Dictionary<EndpointId, ClientConnection>();
+            internal readonly HandlerStorage HandlerStorage = new HandlerStorage();
+            internal readonly NetMQPoller Poller = new NetMQPoller();
+            public IUtcTimeTimeSource TimeSource { get; set; }
+            public MessageStorage MessageStorage { get; set; }
         }
 
-        readonly IGuardedResource<Implementation> _this = GuardedResource<Implementation>.WithTimeout(10.Seconds());
+        readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker) => _this.Locked(@this => @this.GlobalBusStateTracker = globalBusStateTracker);
-
-        public void Connect(IEndpoint endpoint) => _this.Locked(@this =>
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory) => _state.WithExclusiveAccess(@this =>
         {
-            var messageHandlers = endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>();
-
-            var clientConnection = new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller);
-
-            @this.ClientConnections.Add(clientConnection);
-
-            foreach(var messageType in messageHandlers.HandledTypes())
-            {
-                if(IsEvent(messageType))
-                {
-                    @this.EventConnections.GetOrAdd(messageType, () => new HashSet<IClientConnection>()).Add(clientConnection);
-                } else if(IsCommand(messageType))
-                {
-                    @this.CommandConnections.Add(messageType, clientConnection);
-                } else if(IsQuery(messageType))
-                {
-                    @this.QueryConnections.Add(messageType, clientConnection);
-                } else
-                {
-                    Contract.Argument.Assert(false);
-                }
-            }
+            @this.MessageStorage = new MessageStorage(connectionFactory);
+            @this.TimeSource = timeSource;
+            @this.GlobalBusStateTracker = globalBusStateTracker;
         });
 
-        public void Stop() => _this.Locked(@this =>
+        public void Connect(IEndpoint endpoint) => _state.WithExclusiveAccess(@this =>
         {
-            Contract.State.Assert(@this.Running);
-            @this.Running = false;
-            @this.Poller.Dispose();
-            @this.ClientConnections.ForEach(socket => socket.Dispose());
+            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage));
+            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypes().Select(TypeId.FromType).ToSet());
         });
 
-        public void Start() => _this.Locked(@this =>
+        public void Stop() => _state.WithExclusiveAccess(state =>
+        {
+            Contract.State.Assert(state.Running);
+            state.Running = false;
+            state.Poller.Dispose();
+            state.EndpointConnections.Values.ForEach(socket => socket.Dispose());
+        });
+
+        public void Start() => _state.WithExclusiveAccess(@this =>
         {
             Contract.State.Assert(!@this.Running);
             @this.Running = true;
+            @this.MessageStorage.Start();
             @this.Poller.RunAsync();
         });
 
-        public Task DispatchAsync(IEvent @event) => _this.Locked(@this =>
+        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event) => _state.WithExclusiveAccess(state =>
         {
-            var eventReceivers = @this.EventConnections.Where(me => me.Key.IsInstanceOfType(@event)).SelectMany(me => me.Value).Distinct().ToList();
-            eventReceivers.ForEach(receiver => receiver.Dispatch(@event));
-            return Task.CompletedTask;
+            var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(@event);
+
+            var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToList();
+
+            state.MessageStorage.SaveMessage(@event, eventHandlerEndpointIds.ToArray());
+            connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(@event));
         });
 
-        public Task DispatchAsync(IDomainCommand command) => _this.Locked(@this =>
+        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command) => _state.WithExclusiveAccess(state =>
         {
-            if(!@this.CommandConnections.TryGetValue(command.GetType(), out var connection))
-            {
-                throw new NoHandlerForcommandTypeException(command.GetType());
-            }
-            connection.Dispatch(command);
-            return Task.CompletedTask;
+            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
+            var connection = state.EndpointConnections[endPointId];
+            state.MessageStorage.SaveMessage(command, endPointId);
+            connection.DispatchIfTransactionCommits(command);
         });
 
-        public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => await _this.Locked(async @this =>
+        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
         {
-            if (!@this.CommandConnections.TryGetValue(command.GetType(), out var connection))
-            {
-                throw new NoHandlerForcommandTypeException(command.GetType());
-            }
-            return await connection.DispatchAsync(command);
+            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
+            var connection = state.EndpointConnections[endPointId];
+
+            state.MessageStorage.SaveMessage(command, endPointId);
+            return await connection.DispatchIfTransactionCommitsAsync(command);
         });
 
-        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => await _this.Locked(async @this =>
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>
         {
-            var commandHandlerConnection = @this.QueryConnections[query.GetType()];
-            return await commandHandlerConnection.DispatchAsync(query);
+            var endPointId = state.HandlerStorage.GetQueryHandlerEndpoint(query);
+            var connection = state.EndpointConnections[endPointId];
+            return await connection.DispatchAsync(query);
         });
 
-        public void Dispose() => _this.Locked(@this =>
+        public void Dispose() => _state.WithExclusiveAccess(state =>
         {
-            if(@this.Running)
+            if(state.Running)
             {
                 Stop();
             }
         });
-
-
-        static bool IsCommand(Type type) => typeof(IDomainCommand).IsAssignableFrom(type);
-        static bool IsEvent(Type type) => typeof(IEvent).IsAssignableFrom(type);
-        static bool IsQuery(Type type) => typeof(IQuery).IsAssignableFrom(type);
     }
 }

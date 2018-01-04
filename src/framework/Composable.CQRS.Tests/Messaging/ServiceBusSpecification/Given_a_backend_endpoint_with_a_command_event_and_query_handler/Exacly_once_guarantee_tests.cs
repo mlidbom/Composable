@@ -13,7 +13,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 {
     public class Exacly_once_guarantee_tests : Fixture
     {
-        [Fact] void If_transaction_fails_SendAsync_command_never_reaches_command_handler_and_awaiting_result_throws_TransactionAbortedException()
+        [Fact] void If_transaction_fails_after_successfully_calling_SendAsync_command_never_reaches_command_handler_and_awaiting_result_throws_TransactionAbortedException()
         {
             Task<MyCommandResult> commandResultTask = null;
 
@@ -34,7 +34,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             AssertThrows.Exception<TransactionAbortedException>(() => commandResultTask.ResultUnwrappingException());
         }
 
-        [Fact] void If_transaction_fails_Send_command_never_reaches_command_handler()
+        [Fact] void If_transaction_fails_after_successfully_calling_Send_command_never_reaches_command_handler()
         {
             try
             {
@@ -51,7 +51,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                               .Be(false);
         }
 
-        [Fact] void If_transaction_fails_Published_event_never_reaches_handler()
+        [Fact] void If_transaction_fails_after_successfully_calling_Publish_event_never_reaches_handler()
         {
             try
             {

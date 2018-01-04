@@ -88,7 +88,7 @@ namespace AccountManagement.Domain
 
         static LoginAttemptResult Login(AccountResource.Command.LogIn.Domain logIn, IInProcessServiceBus bus)
         {
-            var account = bus.Query(new PrivateApi.TryGetAccountByEmailQuery(logIn.Email));
+            var account = bus.Query(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email));
             return account == null ? LoginAttemptResult.Failure() : account.Login(logIn.Password);
         }
     }

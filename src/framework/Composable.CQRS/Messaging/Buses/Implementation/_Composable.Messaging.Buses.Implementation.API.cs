@@ -14,9 +14,9 @@ namespace Composable.Messaging.Buses.Implementation
     {
         void Stop();
         void Start();
-        void Dispatch(ITransactionalExactlyOnceDeliveryEvent message);
-        void Dispatch(ITransactionalExactlyOnceDeliveryCommand command);
-        Task<TCommandResult> DispatchAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command);
+        void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent message);
+        void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command);
+        Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> command);
         void Connect(IEndpoint endpoint);
     }

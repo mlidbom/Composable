@@ -45,12 +45,12 @@ namespace Composable.Messaging.Buses
 
         public TResult Query<TResult>(IQuery<TResult> query) => QueryAsync(query).ResultUnwrappingException();
 
-        public void Publish(ITransactionalExactlyOnceDeliveryEvent @event) => TransactionScopeCe.Execute(() => _transport.Dispatch(@event));
+        public void Publish(ITransactionalExactlyOnceDeliveryEvent @event) => TransactionScopeCe.Execute(() => _transport.DispatchIfTransactionCommits(@event));
 
         public void Send(ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
-            _transport.Dispatch(command);
+            _transport.DispatchIfTransactionCommits(command);
         });
 
         public void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() => _commandScheduler.Schedule(sendAt, command));
@@ -58,7 +58,7 @@ namespace Composable.Messaging.Buses
         public Task<TResult> SendAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
-            return _transport.DispatchAsync(command);
+            return _transport.DispatchIfTransactionCommitsAsync(command);
         });
 
         public TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => SendAsync(command).ResultUnwrappingException();

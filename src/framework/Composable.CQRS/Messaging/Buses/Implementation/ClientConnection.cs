@@ -32,6 +32,8 @@ namespace Composable.Messaging.Buses.Implementation
                 DispatchMessage(command, innerState, outGoingMessage);
             }));
 
+            Transaction.Current.OnAbort(() => taskCompletionSource.SetException(new TransactionAbortedException("Transaction aborted so command was never dispatched")));
+
             return await taskCompletionSource.Task;
         });
 

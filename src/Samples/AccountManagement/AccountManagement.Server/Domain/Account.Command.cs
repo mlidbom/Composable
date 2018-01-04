@@ -14,7 +14,7 @@ namespace AccountManagement.Domain
             [TypeId("B0CAD429-295D-43E7-8441-566B7887C7F0")]internal class Register : TransactionalExactlyOnceDeliveryCommand<AccountResource.Command.Register.RegistrationAttemptResult>
             {
                 [UsedImplicitly] Register() { }
-                public Register(Guid accountId, Password password, Email email)
+                internal Register(Guid accountId, Password password, Email email)
                 {
                     OldContract.Argument(() => accountId, () => password, () => email).NotNullOrDefault();
                     AccountId = accountId;
@@ -30,7 +30,7 @@ namespace AccountManagement.Domain
             [TypeId("0EAC052B-3185-4AAA-9267-5073EEE15D5A")]internal class ChangeEmail : TransactionalExactlyOnceDeliveryCommand
             {
                 [UsedImplicitly] ChangeEmail() {}
-                public ChangeEmail(Guid accountId, Email email)
+                internal ChangeEmail(Guid accountId, Email email)
                 {
                     OldContract.Argument(() => accountId, () => email).NotNullOrDefault();
 
@@ -46,7 +46,7 @@ namespace AccountManagement.Domain
             [TypeId("F9074BCF-39B3-4C76-993A-9C27F3E71279")]internal class ChangePassword : TransactionalExactlyOnceDeliveryCommand
             {
                 [UsedImplicitly] ChangePassword() {}
-                public ChangePassword(Guid accountId, string oldPassword, Password newPassword)
+                internal ChangePassword(Guid accountId, string oldPassword, Password newPassword)
                 {
                     OldContract.Argument(() => accountId, () => newPassword).NotNullOrDefault();
                     OldContract.Argument(() => oldPassword).NotNullEmptyOrWhiteSpace();

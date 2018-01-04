@@ -11,6 +11,22 @@ namespace AccountManagement.Domain
     {
         internal static class Command
         {
+            [TypeId("B0CAD429-295D-43E7-8441-566B7887C7F0")]internal class Register : TransactionalExactlyOnceDeliveryCommand<AccountResource.Command.Register.RegistrationAttemptResult>
+            {
+                [UsedImplicitly] Register() { }
+                public Register(Guid accountId, Password password, Email email)
+                {
+                    OldContract.Argument(() => accountId, () => password, () => email).NotNullOrDefault();
+                    AccountId = accountId;
+                    Password = password;
+                    Email = email;
+                }
+
+                public Guid AccountId { get; private set; }
+                public Password Password { get; private set; }
+                public Email Email { get; private set; }
+            }
+
             [TypeId("0EAC052B-3185-4AAA-9267-5073EEE15D5A")]internal class ChangeEmail : TransactionalExactlyOnceDeliveryCommand
             {
                 [UsedImplicitly] ChangeEmail() {}
@@ -43,6 +59,21 @@ namespace AccountManagement.Domain
                 public Guid AccountId { get; private set; }
                 public string OldPassword { get; private set; }
                 public Password NewPassword { get; private set; }
+            }
+
+            [TypeId("14B6DD28-205B-42ED-9CF4-20D6B0299632")]internal class Login : TransactionalExactlyOnceDeliveryCommand<AccountResource.Command.LogIn.LoginAttemptResult>
+            {
+                internal Login(Email email, string password)
+                {
+                    OldContract.Argument(() => email).NotNullOrDefault();
+                    OldContract.Argument(() => password).NotNullEmptyOrWhiteSpace();
+
+                    Email = email;
+                    Password = password;
+                }
+
+                public Email Email { get; }
+                public string Password { get; }
             }
         }
     }

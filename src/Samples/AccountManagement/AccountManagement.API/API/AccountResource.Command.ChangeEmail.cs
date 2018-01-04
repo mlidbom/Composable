@@ -1,9 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
-using AccountManagement.Domain;
 using Composable;
-using Composable.Contracts;
 using Composable.Messaging.Commands;
 using JetBrains.Annotations;
 
@@ -17,7 +15,7 @@ namespace AccountManagement.API
             public class ChangeEmail : TransactionalExactlyOnceDeliveryCommand
             {
                 [UsedImplicitly] ChangeEmail() {}
-                public ChangeEmail(Guid accountId) => AccountId = accountId;
+                internal ChangeEmail(Guid accountId) => AccountId = accountId;
 
                 [Required] [EntityId] public Guid AccountId { get; set; }
                 [Required] [Email] public string Email { get; set; }

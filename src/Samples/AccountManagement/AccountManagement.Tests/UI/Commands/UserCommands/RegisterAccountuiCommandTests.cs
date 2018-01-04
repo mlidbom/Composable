@@ -9,12 +9,12 @@ namespace AccountManagement.Tests.UI.Commands.UserCommands
     [TestFixture]
     public class RegisterAccountUICommandTests
     {
-        AccountResource.Command.Register.UICommand _registerAccountUiCommand;
+        AccountResource.Command.Register _registerAccountUiCommand;
 
         [SetUp]
         public void CreateValidCommand()
         {
-            _registerAccountUiCommand = new AccountResource.Command.Register.UICommand()
+            _registerAccountUiCommand = new AccountResource.Command.Register()
                                       {
                                           Email = "valid.email@google.com",
                                           Password = "AComplex!1Password"

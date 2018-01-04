@@ -10,7 +10,7 @@ namespace AccountManagement.UI.MVC.Views.Register
         readonly IServiceBus _serviceBus;
         public RegisterController(IServiceBus serviceBus) => _serviceBus = serviceBus;
 
-        public IActionResult Register(AccountResource.Command.Register.UICommand registrationCommand)
+        public IActionResult Register(AccountResource.Command.Register registrationCommand)
         {
             if(!ModelState.IsValid) return View("RegistrationForm");
 

@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using AccountManagement.API;
+﻿using AccountManagement.API;
 using AccountManagement.Domain;
 using Composable.Messaging.Buses;
 

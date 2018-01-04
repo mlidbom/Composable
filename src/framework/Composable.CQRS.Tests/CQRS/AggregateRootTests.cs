@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
 using FluentAssertions;

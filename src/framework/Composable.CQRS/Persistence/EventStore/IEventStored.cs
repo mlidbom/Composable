@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
 
 namespace Composable.Persistence.EventStore
 {

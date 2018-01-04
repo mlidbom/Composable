@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
 using Composable.System.Reactive;

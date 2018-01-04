@@ -1,5 +1,4 @@
 using System;
-using Composable.Messaging;
 using Newtonsoft.Json;
 
 namespace Composable.Persistence.EventStore.Serialization.NewtonSoft

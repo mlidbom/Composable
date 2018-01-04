@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AccountManagement.API
+﻿namespace AccountManagement.API
 {
     public class LoginAttemptResult
     {

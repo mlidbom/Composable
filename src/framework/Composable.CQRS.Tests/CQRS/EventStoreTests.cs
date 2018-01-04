@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Composable.DependencyInjection;
-using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.System.Linq;
 using FluentAssertions;

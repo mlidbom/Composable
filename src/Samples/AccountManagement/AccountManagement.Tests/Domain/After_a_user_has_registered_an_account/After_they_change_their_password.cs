@@ -1,8 +1,6 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
 using AccountManagement.Domain.Events;
 using AccountManagement.Tests.Scenarios;
-using Composable.System.Threading;
 using FluentAssertions;
 using NUnit.Framework;
 

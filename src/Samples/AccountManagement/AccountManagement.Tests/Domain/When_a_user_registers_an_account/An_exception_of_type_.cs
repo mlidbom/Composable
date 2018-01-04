@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Threading.Tasks;
-using AccountManagement.Domain;
 using AccountManagement.Tests.Scenarios;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
 using Composable.Testing;
-using FluentAssertions;
 using NUnit.Framework;
 
 namespace AccountManagement.Tests.Domain.When_a_user_registers_an_account

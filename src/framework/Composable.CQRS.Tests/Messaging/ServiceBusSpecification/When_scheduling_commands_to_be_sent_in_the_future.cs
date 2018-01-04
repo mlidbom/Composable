@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;

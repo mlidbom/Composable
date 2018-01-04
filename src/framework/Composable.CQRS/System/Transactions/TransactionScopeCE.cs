@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Transactions;
-using Composable.Contracts;
 using JetBrains.Annotations;
 
 namespace Composable.System.Transactions

@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using AccountManagement.Tests.Scenarios;
+﻿using AccountManagement.Tests.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 

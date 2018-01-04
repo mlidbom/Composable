@@ -6,7 +6,6 @@ using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
-using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;

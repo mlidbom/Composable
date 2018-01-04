@@ -1,5 +1,4 @@
 ﻿using Composable;
-using Composable.Messaging;
 using Composable.Persistence.EventStore;
 
 // ReSharper disable MemberHidesStaticFromOuterClass

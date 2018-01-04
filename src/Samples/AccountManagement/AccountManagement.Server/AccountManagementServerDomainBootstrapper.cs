@@ -8,7 +8,6 @@ using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Services.Implementation;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.SystemExtensions.Threading;

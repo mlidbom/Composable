@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Composable.Contracts;
+﻿using Composable.Contracts;
 using Composable.NewtonSoft;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;

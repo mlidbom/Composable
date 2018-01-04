@@ -4,7 +4,6 @@ using System.Linq;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
-using Composable.Messaging;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System;
 using Composable.System.Linq;

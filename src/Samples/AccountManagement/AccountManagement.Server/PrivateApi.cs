@@ -1,5 +1,4 @@
-﻿using System;
-using AccountManagement.Domain;
+﻿using AccountManagement.Domain;
 using Composable;
 using Composable.Contracts;
 using Composable.Messaging;

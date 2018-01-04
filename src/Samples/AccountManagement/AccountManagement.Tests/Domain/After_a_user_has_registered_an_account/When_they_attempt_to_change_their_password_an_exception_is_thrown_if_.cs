@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using AccountManagement.Tests.Scenarios;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;

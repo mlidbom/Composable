@@ -1,9 +1,7 @@
 using System;
-using System.Threading.Tasks;
 using AccountManagement.API;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
-using Composable.System.Threading;
 
 namespace AccountManagement.Tests.Scenarios
 {

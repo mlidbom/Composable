@@ -1,5 +1,3 @@
-using System;
-
 namespace AccountManagement.UI.MVC.Models
 {
     public class ErrorViewModel

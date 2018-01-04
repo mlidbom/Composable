@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using AccountManagement.API;
+﻿using AccountManagement.API;
 using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios

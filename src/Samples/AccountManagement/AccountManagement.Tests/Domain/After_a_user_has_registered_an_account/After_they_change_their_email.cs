@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
 using AccountManagement.API;
 using AccountManagement.Domain.Events;
 using AccountManagement.Tests.Scenarios;

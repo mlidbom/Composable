@@ -64,7 +64,7 @@ namespace Composable.Messaging.Buses.Implementation
             var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToList();
 
             state.MessageStorage.SaveMessage(@event, eventHandlerEndpointIds.ToArray());
-            connections.ForEach(receiver => receiver.Dispatch(@event));
+            connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(@event));
         });
 
         public void Dispatch(ITransactionalExactlyOnceDeliveryCommand command) => _state.WithExclusiveAccess(state =>
@@ -72,7 +72,7 @@ namespace Composable.Messaging.Buses.Implementation
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
             state.MessageStorage.SaveMessage(command, endPointId);
-            connection.Dispatch(command);
+            connection.DispatchIfTransactionCommits(command);
         });
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
@@ -81,7 +81,7 @@ namespace Composable.Messaging.Buses.Implementation
             var connection = state.EndpointConnections[endPointId];
 
             state.MessageStorage.SaveMessage(command, endPointId);
-            return await connection.DispatchAsync(command);
+            return await connection.DispatchIfTransactionCommitsAsync(command);
         });
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>

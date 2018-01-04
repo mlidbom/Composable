@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Transactions;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.NetMQCE;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Threading.ResourceAccess;
+using Composable.SystemExtensions.TransactionsCE;
 using NetMQ;
 using NetMQ.Sockets;
 
@@ -14,19 +16,21 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
-        public void Dispatch(ITransactionalExactlyOnceDeliveryEvent @event) => _state.WithExclusiveAccess(state => DispatchMessage(@event, state, TransportMessage.OutGoing.Create(@event)));
+        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(@event, state, TransportMessage.OutGoing.Create(@event))));
 
-        public void Dispatch(ITransactionalExactlyOnceDeliveryCommand command) => _state.WithExclusiveAccess(state => DispatchMessage(command, state, TransportMessage.OutGoing.Create(command)));
+        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(command, state, TransportMessage.OutGoing.Create(command))));
 
-        public async Task<TCommandResult> DispatchAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
+        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             var outGoingMessage = TransportMessage.OutGoing.Create(command);
 
-            state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-
-            DispatchMessage(command, state, outGoingMessage);
+            Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(innerState =>
+            {
+                innerState.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+                DispatchMessage(command, innerState, outGoingMessage);
+            }));
 
             return await taskCompletionSource.Task;
         });

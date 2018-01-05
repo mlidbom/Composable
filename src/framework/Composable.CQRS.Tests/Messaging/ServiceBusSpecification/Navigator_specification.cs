@@ -48,19 +48,20 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_navigate_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = Host.ClientBus.Execute(NavigationSpecification.Get(UserApiStartPage.Self)
-                                                                                 .Post(startpage => startpage.RegisterUser("new-user-name"))
-                                                                                 .Get(registerUserResult => registerUserResult.User));
+                var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
+                                                          .Post(startpage => startpage.RegisterUser("new-user-name"))
+                                                          .Get(registerUserResult => registerUserResult.User)
+                                                          .Execute(Host.ClientBus);
 
                 userResource.Name.Should().Be("new-user-name");
             }
 
             [Fact] async Task Can_navigate_async_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = Host.ClientBus.ExecuteAsync(
-                    NavigationSpecification.Get(UserApiStartPage.Self)
-                                           .Post(startpage => startpage.RegisterUser("new-user-name"))
-                                           .Get(registerUserResult => registerUserResult.User));
+                var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
+                                                          .Post(startpage => startpage.RegisterUser("new-user-name"))
+                                                          .Get(registerUserResult => registerUserResult.User)
+                                                          .ExecuteAsync(Host.ClientBus);
 
                 (await userResource).Name.Should().Be("new-user-name");
             }

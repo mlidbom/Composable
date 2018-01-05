@@ -31,9 +31,10 @@ namespace AccountManagement.Tests.Scenarios
 
             _clientBus.Send(command);
 
-            Account = _clientBus.Execute(NavigationSpecification
-                                         .Get(AccountApi.Start)
-                                         .Get(start => start.Queries.AccountById.WithId(Account.Id)));
+            Account = NavigationSpecification
+                      .Get(AccountApi.Start)
+                      .Get(start => start.Queries.AccountById.WithId(Account.Id))
+                      .Execute(_clientBus);
         }
     }
 }

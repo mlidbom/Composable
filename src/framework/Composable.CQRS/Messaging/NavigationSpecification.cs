@@ -9,8 +9,8 @@ namespace Composable.Messaging
         public abstract void Execute(IServiceBus bus);
         public abstract Task ExecuteAsync(IServiceBus bus);
 
-        public static NavigationSpecification<TCurrent> Get<TCurrent>(IQuery<TCurrent> query) => new NavigationSpecification<TCurrent>.StartQuery(query);
-        public static NavigationSpecification<TCurrent> Post<TCurrent>(ITransactionalExactlyOnceDeliveryCommand<TCurrent> command) => new NavigationSpecification<TCurrent>.StartCommand(command);
+        public static NavigationSpecification<TResult> Get<TResult>(IQuery<TResult> query) => new NavigationSpecification<TResult>.StartQuery(query);
+        public static NavigationSpecification<TResult> Post<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => new NavigationSpecification<TResult>.StartCommand(command);
     }
 
     public abstract class NavigationSpecification<TResult>
@@ -20,7 +20,7 @@ namespace Composable.Messaging
 
         public NavigationSpecification<TNext> Get<TNext>(Func<TResult, IQuery<TNext>> next) => new NavigationSpecification<TNext>.ContinuationQuery<TResult>(this, next);
         public NavigationSpecification<TNext> Post<TNext>(Func<TResult, ITransactionalExactlyOnceDeliveryCommand<TNext>> next) => new NavigationSpecification<TNext>.PostCommand<TResult>(this, next);
-        public NavigationSpecification Post(Func<TResult, ITransactionalExactlyOnceDeliveryCommand> next) => new NavigationSpecification<TResult>.PostVoidCommand<TResult>(this, next);
+        public NavigationSpecification Post(Func<TResult, ITransactionalExactlyOnceDeliveryCommand> next) => new PostVoidCommand<TResult>(this, next);
 
         internal class StartQuery : NavigationSpecification<TResult>
         {
@@ -122,7 +122,7 @@ namespace Composable.Messaging
     public static class NavigationSpecificationExtensions
     {
         public static TResult Execute<TResult>(this IServiceBus @this, NavigationSpecification<TResult> specification) => specification.Execute(@this);
-        public async static Task<TResult> ExecuteAsync<TResult>(this IServiceBus @this, NavigationSpecification<TResult> specification) => await specification.ExecuteAsync(@this);
+        public static async Task<TResult> ExecuteAsync<TResult>(this IServiceBus @this, NavigationSpecification<TResult> specification) => await specification.ExecuteAsync(@this);
 
         public static void Execute(this IServiceBus @this, NavigationSpecification specification) => specification.Execute(@this);
         public static async Task ExecuteAsync(this IServiceBus @this, NavigationSpecification specification) => await specification.ExecuteAsync(@this);

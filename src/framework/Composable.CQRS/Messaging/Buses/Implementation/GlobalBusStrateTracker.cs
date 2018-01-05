@@ -29,11 +29,11 @@ namespace Composable.Messaging.Buses.Implementation
                 QueuedMessage result;
                 do
                 {
-                    var snapshot = new GlobalBusStateSnapshot(bus, _queuedMessages.ToList(), _inflightMessages.Values.Select(msg => msg.Message).ToList());
+                    var executingMessages = _queuedMessages.Where(@this => @this.IsExecuting).Select(queued => queued.Message).ToList();
 
                     result = _queuedMessages
                         .Where(queuedMessage => queuedMessage.Bus == bus && !queuedMessage.IsExecuting)
-                        .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(snapshot, queuedTask)));
+                        .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(executingMessages, queuedTask.Message)));
 
                     if(result == null)
                     {
@@ -93,14 +93,10 @@ namespace Composable.Messaging.Buses.Implementation
             public GlobalBusStateSnapshot(IInbox bus, IReadOnlyList<QueuedMessage> queuedMessages, List<TransportMessage.OutGoing> inFlightMessages)
             {
                 var bus1 = bus;
-                MessagesQueuedForExecution = queuedMessages;
-                InFlightMessages = inFlightMessages;
-                MessagesQueuedForExecutionLocally = queuedMessages.Where(message => message.Bus == bus1 && message.IsExecuting).ToList();
+                ExecutingMessages = queuedMessages.Where(message => message.Bus == bus1 && message.IsExecuting).ToList();
             }
 
-            public IReadOnlyList<IQueuedMessageInformation> MessagesQueuedForExecution { get; }
-            public IReadOnlyList<IQueuedMessage> MessagesQueuedForExecutionLocally { get; }
-            public IReadOnlyList<TransportMessage.OutGoing> InFlightMessages { get; }
+            public IReadOnlyList<IQueuedMessageInformation> ExecutingMessages { get; }
         }
 
         class QueuedMessage : IQueuedMessage

@@ -1,26 +1,25 @@
-﻿using System;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses.Implementation
 {
     class QueriesExecuteAfterAllCommandsAndEventsAreDone : IMessageDispatchingRule
     {
-        public bool CanBeDispatched(IGlobalBusStateSnapshot busState, IQueuedMessageInformation queuedMessageInformation)
+        public bool CanBeDispatched(IReadOnlyList<IMessage> executingMessages, IMessage message)
         {
-            if(!(queuedMessageInformation.Message is IQuery)) return true;
+            if(!(message is IQuery)) return true;
 
-            return busState.MessagesQueuedForExecution.None(message => message.Message is IEvent || message.Message is ICommand);
+            return executingMessages.None(executing => executing is IEvent || executing is ICommand);
         }
     }
 
     class CommandsAndEventHandlersDoNotRunInParallelWithEachOtherInTheSameEndpoint : IMessageDispatchingRule
     {
-        public bool CanBeDispatched(IGlobalBusStateSnapshot busState, IQueuedMessageInformation queuedMessageInformation)
+        public bool CanBeDispatched(IReadOnlyList<IMessage> executingMessages, IMessage message)
         {
-            if(queuedMessageInformation.Message is IQuery) return true;
+            if(message is IQuery) return true;
 
-            return busState.MessagesQueuedForExecutionLocally.None(executing => executing.Message is IEvent || executing.Message is ICommand);
+            return executingMessages.None(executing => executing is IEvent || executing is ICommand);
         }
     }
 }

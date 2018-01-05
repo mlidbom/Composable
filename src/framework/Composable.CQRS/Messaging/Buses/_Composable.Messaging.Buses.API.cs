@@ -108,9 +108,7 @@ namespace Composable.Messaging.Buses
 
     interface IGlobalBusStateSnapshot
     {
-        IReadOnlyList<IQueuedMessageInformation> MessagesQueuedForExecution { get; }
-        IReadOnlyList<IQueuedMessage> MessagesQueuedForExecutionLocally { get; }
-        IReadOnlyList<TransportMessage.OutGoing> InFlightMessages { get; }
+        IReadOnlyList<IQueuedMessageInformation> ExecutingMessages { get; }
     }
 
     interface IQueuedMessageInformation
@@ -121,7 +119,7 @@ namespace Composable.Messaging.Buses
 
     interface IMessageDispatchingRule
     {
-        bool CanBeDispatched(IGlobalBusStateSnapshot busState, IQueuedMessageInformation queuedMessageInformation);
+        bool CanBeDispatched(IReadOnlyList<IMessage> executingMessages, IMessage message);
     }
 
     interface IQueuedMessage : IQueuedMessageInformation

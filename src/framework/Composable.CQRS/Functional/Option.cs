@@ -26,7 +26,7 @@ namespace Composable.Functional
     {
         public Some(T value)
         {
-            Contract.Argument.Assert(!Equals(value, default(T)));
+            Contract.Argument.NotNull(value);
             Value = value;
         }
 

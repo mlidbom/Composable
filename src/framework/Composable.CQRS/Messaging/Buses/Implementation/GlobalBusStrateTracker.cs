@@ -18,7 +18,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         readonly List<Exception> _busExceptions = new List<Exception>();
 
-        public IReadOnlyList<Exception> GetExceptionsFor() => _guard.Update(() => _busExceptions.ToList());
+        public IReadOnlyList<Exception> GetExceptions() => _guard.Update(() => _busExceptions.ToList());
 
         public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage) => _guard.Update(() =>
         {

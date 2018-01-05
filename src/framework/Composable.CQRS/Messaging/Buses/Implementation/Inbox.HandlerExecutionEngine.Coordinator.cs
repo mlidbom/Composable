@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses.Implementation
                 readonly IResourceGuard _guard = ResourceGuard.WithTimeout(100.Milliseconds());
                 public Coordinator(IGlobalBusStateTracker globalStateTracker) => _globalStateTracker = globalStateTracker;
 
-                public IQueuedMessage AwaitDispatchableMessage(IInbox bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
+                internal QueuedMessage AwaitDispatchableMessage(IInbox bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
                 {
                     using(var @lock = _guard.AwaitExclusiveLock())
                     {
@@ -63,7 +63,7 @@ namespace Composable.Messaging.Buses.Implementation
                     _messagesWaitingToExecute.Remove(queuedMessageInformation);
                 }
 
-                class QueuedMessage : IQueuedMessage
+                internal class QueuedMessage
                 {
                     public readonly IInbox Bus;
                     readonly Coordinator _coordinator;

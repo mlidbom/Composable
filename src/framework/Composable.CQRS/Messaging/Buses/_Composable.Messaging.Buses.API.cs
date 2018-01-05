@@ -106,30 +106,14 @@ namespace Composable.Messaging.Buses
         IApiNavigator ClientNavigator { get; }
     }
 
-    interface IGlobalBusStateSnapshot
-    {
-        IReadOnlyList<IQueuedMessageInformation> ExecutingMessages { get; }
-    }
-
-    interface IQueuedMessageInformation
-    {
-        IMessage Message { get; }
-        bool IsExecuting { get; }
-    }
-
     interface IMessageDispatchingRule
     {
         bool CanBeDispatched(IReadOnlyList<IMessage> executingMessages, IMessage message);
     }
 
-    interface IQueuedMessage : IQueuedMessageInformation
-    {
-        void Run();
-    }
-
     interface IGlobalBusStateTracker
     {
-        IReadOnlyList<Exception> GetExceptionsFor();
+        IReadOnlyList<Exception> GetExceptions();
 
         void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage);
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);

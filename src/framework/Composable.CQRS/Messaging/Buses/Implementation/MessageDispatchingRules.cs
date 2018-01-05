@@ -1,7 +1,6 @@
-﻿using Composable.Messaging.Buses.Implementation;
-using Composable.System.Linq;
+﻿using Composable.System.Linq;
 
-namespace Composable.Messaging.Buses
+namespace Composable.Messaging.Buses.Implementation
 {
     class QueriesExecuteAfterAllCommandsAndEventsAreDone : IMessageDispatchingRule
     {

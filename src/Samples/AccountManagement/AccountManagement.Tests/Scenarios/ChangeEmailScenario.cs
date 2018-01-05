@@ -1,5 +1,7 @@
-﻿using AccountManagement.API;
+﻿using System;
+using AccountManagement.API;
 using AccountManagement.Domain;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
@@ -29,9 +31,7 @@ namespace AccountManagement.Tests.Scenarios
 
             _clientBus.Send(command);
 
-            Account = _clientBus.Get(AccountApi.Start)
-                                .Get(start => start.Queries.AccountById.WithId(Account.Id))
-                                .Execute();
+            Account = _clientBus.Execute(NavigationSpecification.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(Account.Id)));
         }
     }
 }

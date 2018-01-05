@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
+using Composable.Messaging.Buses;
+
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable UnusedTypeParameter
 // ReSharper disable UnusedMember.Global

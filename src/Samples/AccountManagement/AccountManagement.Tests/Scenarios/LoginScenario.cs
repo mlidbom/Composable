@@ -1,4 +1,5 @@
 ﻿using AccountManagement.API;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
 
@@ -30,13 +31,12 @@ namespace AccountManagement.Tests.Scenarios
 
         public AccountResource.Command.LogIn.LoginAttemptResult Execute()
         {
-            return _bus.Get(AccountApi.Start)
-                .Post(start => start.Commands.Login.Mutate(@this =>
-                       {
-                           @this.Email = Email;
-                           @this.Password = Password;
-                       }))
-                .Execute();
+            return _bus.Execute(
+                AccountApi.Start.ThenPost(start => start.Commands.Login.Mutate(@this =>
+                {
+                    @this.Email = Email;
+                    @this.Password = Password;
+                })));
         }
     }
 }

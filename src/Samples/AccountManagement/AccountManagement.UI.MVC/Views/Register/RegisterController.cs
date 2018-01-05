@@ -1,5 +1,6 @@
 ﻿using System;
 using AccountManagement.API;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +19,7 @@ namespace AccountManagement.UI.MVC.Views.Register
             switch(result)
             {
                 case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
-                    return View("ValidateYourEmail", _serviceBus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(registrationCommand.AccountId)).Execute());
+                    return View("ValidateYourEmail", _serviceBus.Execute(NavigationSpecification.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(registrationCommand.AccountId))));
                 case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
                     return View("RegistrationForm");

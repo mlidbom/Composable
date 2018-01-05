@@ -103,7 +103,6 @@ namespace Composable.Messaging.Buses
         TException AssertThrown<TException>() where TException : Exception;
 
         IServiceBus ClientBus { get; }
-        IApiNavigator ClientNavigator { get; }
     }
 
     interface IMessageDispatchingRule
@@ -118,12 +117,6 @@ namespace Composable.Messaging.Buses
         void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage);
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
         void DoneWith(Guid message, Exception exception);
-    }
-
-    public interface IApiNavigator
-    {
-        IApiNavigator<TReturnResource> Get<TReturnResource>(IQuery<TReturnResource> createQuery);
-        IApiNavigator<TCommandResult> Post<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command);
     }
 
     public interface IApiNavigator<TCurrentResource>

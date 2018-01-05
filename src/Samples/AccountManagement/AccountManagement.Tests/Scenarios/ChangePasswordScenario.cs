@@ -1,4 +1,6 @@
-﻿using AccountManagement.API;
+﻿using System;
+using AccountManagement.API;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
@@ -34,7 +36,7 @@ namespace AccountManagement.Tests.Scenarios
             command.OldPassword = OldPassword;
 
             _bus.Send(command);
-            Account = _bus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(Account.Id)).Execute();
+            Account = _bus.Execute(NavigationSpecification.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(Account.Id)));
         }
     }
 }

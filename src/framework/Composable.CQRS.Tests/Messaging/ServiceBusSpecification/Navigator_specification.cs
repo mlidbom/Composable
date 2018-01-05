@@ -42,28 +42,25 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_get_command_result()
             {
-                var commandResult1 = Host.ClientBus.Post(new RegisterUserCommand("new-user-name")).Execute();
+                var commandResult1 = Host.ClientBus.Send(new RegisterUserCommand("new-user-name"));
                 commandResult1.Name.Should().Be("new-user-name");
             }
 
             [Fact] void Can_navigate_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = Host.ClientBus
-                                       .Get(UserApiStartPage.Self)
-                                       .Post(startpage => startpage.RegisterUser("new-user-name"))
-                                       .Get(registerUserResult => registerUserResult.User)
-                                       .Execute();
+                var userResource = Host.ClientBus.Execute(UserApiStartPage.Self
+                                                                          .ThenPost(startpage => startpage.RegisterUser("new-user-name"))
+                                                                          .Get(registerUserResult => registerUserResult.User));
 
                 userResource.Name.Should().Be("new-user-name");
             }
 
             [Fact] async Task Can_navigate_async_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = Host.ClientNavigator
-                                       .Get(UserApiStartPage.Self)
-                                       .Post(startpage => startpage.RegisterUser("new-user-name"))
-                                       .Get(registerUserResult => registerUserResult.User)
-                                       .ExecuteAsync();
+                var userResource = Host.ClientBus.ExecuteAsync(
+                    UserApiStartPage.Self
+                                    .ThenPost(startpage => startpage.RegisterUser("new-user-name"))
+                                    .Get(registerUserResult => registerUserResult.User));
 
                 (await userResource).Name.Should().Be("new-user-name");
             }

@@ -25,13 +25,13 @@ namespace AccountManagement.Tests.Scenarios
         public (AccountResource.Command.Register.RegistrationAttemptResult Result, AccountResource Account) Execute()
         {
             var result = _bus.Execute(
-                AccountApi.Start
-                          .ThenPost(start => start.Commands.Register.Mutate(@this =>
-                          {
-                              @this.AccountId = AccountId;
-                              @this.Email = Email;
-                              @this.Password = Password;
-                          })));
+                NavigationSpecification.Get(AccountApi.Start)
+                                       .Post(start => start.Commands.Register.Mutate(@this =>
+                                       {
+                                           @this.AccountId = AccountId;
+                                           @this.Email = Email;
+                                           @this.Password = Password;
+                                       })));
 
             switch(result)
             {

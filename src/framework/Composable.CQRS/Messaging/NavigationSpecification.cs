@@ -16,6 +16,10 @@ namespace Composable.Messaging
         internal abstract TResult Execute(IServiceBus bus);
         internal abstract Task<TResult> ExecuteAsync(IServiceBus bus);
 
+        public NavigationSpecification<TNext> Get<TNext>(Func<TResult, IQuery<TNext>> next) => new NavigationSpecification<TNext>.ContinuationQuery<TResult>(this, next);
+        public NavigationSpecification<TNext> Post<TNext>(Func<TResult, ITransactionalExactlyOnceDeliveryCommand<TNext>> next) => new NavigationSpecification<TNext>.PostCommand<TResult>(this, next);
+        public NavigationSpecification Post(Func<TResult, ITransactionalExactlyOnceDeliveryCommand> next) => new NavigationSpecification<TResult>.PostVoidCommand<TResult>(this, next);
+
         internal class StartQuery : NavigationSpecification<TResult>
         {
             readonly IQuery<TResult> _start;
@@ -103,17 +107,12 @@ namespace Composable.Messaging
         }
     }
 
-    public static class QueryExtensions
+    public static class NavigationSpecificationExtensions
     {
-        public static NavigationSpecification<TResult> Get<TResult, TCurrent>(this IQuery<TCurrent> @this, Func<TCurrent, IQuery<TResult>> next) => NavigationSpecification.Get(@this).Get(next);
-        public static NavigationSpecification<TResult> Get<TResult, TCurrent>(this NavigationSpecification<TCurrent> @this, Func<TCurrent, IQuery<TResult>> next) => new NavigationSpecification<TResult>.ContinuationQuery<TCurrent>(@this, next);
-
-        public static NavigationSpecification<TResult> ThenPost<TResult, TCurrent>(this IQuery<TCurrent> @this, Func<TCurrent, ITransactionalExactlyOnceDeliveryCommand<TResult>> next) => NavigationSpecification.Get(@this).ThenPost(next);
-
-        public static NavigationSpecification<TResult> ThenPost<TResult, TCurrent>(this NavigationSpecification<TCurrent> @this, Func<TCurrent, ITransactionalExactlyOnceDeliveryCommand<TResult>> next) => new NavigationSpecification<TResult>.PostCommand<TCurrent>(@this, next);
-        public static NavigationSpecification ThenPost<TCurrent>(this NavigationSpecification<TCurrent> @this, Func<TCurrent, ITransactionalExactlyOnceDeliveryCommand> next) => new NavigationSpecification<TCurrent>.PostVoidCommand<TCurrent>(@this, next);
-
         public static TResult Execute<TResult>(this IServiceBus @this, NavigationSpecification<TResult> specification) => specification.Execute(@this);
         public async static Task<TResult> ExecuteAsync<TResult>(this IServiceBus @this, NavigationSpecification<TResult> specification) => await specification.ExecuteAsync(@this);
+
+        public static void Execute(this IServiceBus @this, NavigationSpecification specification) => specification.Execute(@this);
+        public static async Task ExecuteAsync(this IServiceBus @this, NavigationSpecification specification) => await specification.ExecuteAsync(@this);
     }
 }

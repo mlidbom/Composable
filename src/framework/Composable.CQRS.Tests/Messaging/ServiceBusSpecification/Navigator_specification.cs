@@ -48,9 +48,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_navigate_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = Host.ClientBus.Execute(UserApiStartPage.Self
-                                                                          .ThenPost(startpage => startpage.RegisterUser("new-user-name"))
-                                                                          .Get(registerUserResult => registerUserResult.User));
+                var userResource = Host.ClientBus.Execute(NavigationSpecification.Get(UserApiStartPage.Self)
+                                                                                 .Post(startpage => startpage.RegisterUser("new-user-name"))
+                                                                                 .Get(registerUserResult => registerUserResult.User));
 
                 userResource.Name.Should().Be("new-user-name");
             }
@@ -58,9 +58,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             [Fact] async Task Can_navigate_async_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
                 var userResource = Host.ClientBus.ExecuteAsync(
-                    UserApiStartPage.Self
-                                    .ThenPost(startpage => startpage.RegisterUser("new-user-name"))
-                                    .Get(registerUserResult => registerUserResult.User));
+                    NavigationSpecification.Get(UserApiStartPage.Self)
+                                           .Post(startpage => startpage.RegisterUser("new-user-name"))
+                                           .Get(registerUserResult => registerUserResult.User));
 
                 (await userResource).Name.Should().Be("new-user-name");
             }
@@ -73,13 +73,15 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public RegisterUserCommand RegisterUser(string userName) => new RegisterUserCommand(userName);
             }
 
-            [TypeId("6EDCBCD0-C1DE-4499-9CBB-8E8E8405A9C3")]class UserRegisteredEvent : AggregateRootEvent
+            [TypeId("6EDCBCD0-C1DE-4499-9CBB-8E8E8405A9C3")]
+            class UserRegisteredEvent : AggregateRootEvent
             {
                 public UserRegisteredEvent(string name) => Name = name;
                 public string Name { get; }
             }
 
-            [TypeId("3D2C5363-620E-4859-BF94-9535BCC994FA")]protected class GetUserQuery : Query<UserResource>
+            [TypeId("3D2C5363-620E-4859-BF94-9535BCC994FA")]
+            protected class GetUserQuery : Query<UserResource>
             {
                 public GetUserQuery(string name) => Name = name;
                 public string Name { get; }
@@ -91,7 +93,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            [TypeId("3B1A2A50-F114-4886-B981-C56753AFD55E")]protected class RegisterUserCommand : TransactionalExactlyOnceDeliveryCommand<UserRegisteredConfirmationResource>
+            [TypeId("3B1A2A50-F114-4886-B981-C56753AFD55E")]
+            protected class RegisterUserCommand : TransactionalExactlyOnceDeliveryCommand<UserRegisteredConfirmationResource>
             {
                 public RegisterUserCommand(string name) => Name = name;
                 public string Name { get; }
@@ -104,7 +107,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            [TypeId("F762C93B-8F03-4A1C-BCCA-DC43A5EC4459")]class UserApiStartPageQuery : Query<UserApiStartPage> {}
+            [TypeId("F762C93B-8F03-4A1C-BCCA-DC43A5EC4459")]
+            class UserApiStartPageQuery : Query<UserApiStartPage> {}
         }
     }
 }

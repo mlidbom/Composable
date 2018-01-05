@@ -20,8 +20,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             if(queuedMessageInformation.Message is IQuery) return true;
 
-            return busState.MessagesQueuedForExecutionLocally.None(executing => executing.Message is ITransactionalExactlyOnceDeliveryEvent
-                                                                                || executing.Message is ITransactionalExactlyOnceDeliveryCommand);
+            return busState.MessagesQueuedForExecutionLocally.None(executing => executing.Message is IEvent || executing.Message is ICommand);
         }
     }
 }

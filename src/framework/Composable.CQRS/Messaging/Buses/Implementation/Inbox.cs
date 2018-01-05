@@ -146,6 +146,7 @@ namespace Composable.Messaging.Buses.Implementation
         void EnqueueNonTransactionalTask(TransportMessage.InComing message, Action action)
             => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
 
+        //Todo sane exception handling for this background task.
         async Task<object> DispatchAsync(TransportMessage.InComing message) => await Task.Run(async () =>
         {
             var innerMessage = message.DeserializeMessageAndCacheForNextCall();

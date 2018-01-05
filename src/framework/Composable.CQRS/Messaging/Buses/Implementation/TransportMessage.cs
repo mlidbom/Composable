@@ -23,7 +23,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly byte[] Client;
             internal readonly Guid MessageId;
             internal readonly string Body;
-            readonly string _messageType;
+            internal readonly TypeId MessageType;
 
             IMessage _message;
 
@@ -31,7 +31,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(_message == null)
                 {
-                    _message = (IMessage)JsonConvert.DeserializeObject(Body, _messageType.AsType(), JsonSettings.JsonSerializerSettings);
+                    _message = (IMessage)JsonConvert.DeserializeObject(Body, MessageType.GetRuntimeType(), JsonSettings.JsonSerializerSettings);
 
 
                     Contract.State.Assert(!(_message is ITransactionalExactlyOnceDeliveryMessage) || MessageId == (_message as ITransactionalExactlyOnceDeliveryMessage).MessageId);
@@ -39,10 +39,10 @@ namespace Composable.Messaging.Buses.Implementation
                 return _message;
             }
 
-            InComing(string body, string messageType, byte[] client, Guid messageId)
+            InComing(string body, TypeId messageType, byte[] client, Guid messageId)
             {
                 Body = body;
-                _messageType = messageType;
+                MessageType = messageType;
                 Client = client;
                 MessageId = messageId;
             }
@@ -53,7 +53,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 var client = receivedMessage[0].ToByteArray();
                 var messageId = new Guid(receivedMessage[1].ToByteArray());
-                var messageTypeString = receivedMessage[2].ConvertToString();
+                var messageTypeString = new TypeId(new Guid(receivedMessage[2].ToByteArray()));
                 var messageBody = receivedMessage[3].ConvertToString();
 
                 return new InComing(messageBody, messageTypeString, client, messageId);
@@ -72,14 +72,14 @@ namespace Composable.Messaging.Buses.Implementation
             public readonly Guid MessageId;
             public readonly TransportMessageType Type;
 
-            readonly string _messageType;
+            readonly TypeId _messageType;
             readonly string _messageBody;
 
             public void Send(IOutgoingSocket socket)
             {
                 var message = new NetMQMessage(4);
                 message.Append(MessageId);
-                message.Append(_messageType);
+                message.Append(_messageType.GuidValue);
                 message.Append(_messageBody);
 
                 socket.SendMultipartMessage(message);
@@ -89,7 +89,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 var messageId = (message as ITransactionalExactlyOnceDeliveryMessage)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
-                return new OutGoing(message.GetType(), messageId, body, GetMessageType(message), message is ITransactionalExactlyOnceDeliveryMessage);
+                return new OutGoing(TypeId.FromType(message.GetType()), messageId, body, GetMessageType(message), message is ITransactionalExactlyOnceDeliveryMessage);
             }
 
             static TransportMessageType GetMessageType(IMessage message)
@@ -106,11 +106,11 @@ namespace Composable.Messaging.Buses.Implementation
                 }
             }
 
-            OutGoing(Type messageType, Guid messageId, string messageBody, TransportMessageType type, bool isExactlyOnceDeliveryMessage)
+            OutGoing(TypeId messageType, Guid messageId, string messageBody, TransportMessageType type, bool isExactlyOnceDeliveryMessage)
             {
                 IsExactlyOnceDeliveryMessage = isExactlyOnceDeliveryMessage;
                 Type = type;
-                _messageType = messageType.FullName;
+                _messageType = messageType;
                 MessageId = messageId;
                 _messageBody = messageBody;
             }

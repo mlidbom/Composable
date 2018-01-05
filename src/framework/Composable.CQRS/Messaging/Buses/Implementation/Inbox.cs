@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             _address = configuration.Address;
             _storage = new MessageStorage(connectionFactory);
-            _handlerExecutionEngine = new HandlerExecutionEngine(this, globalStateTracker, handlerRegistry, serviceLocator, _storage);
+            _handlerExecutionEngine = new HandlerExecutionEngine(globalStateTracker, handlerRegistry, serviceLocator, _storage);
         }
 
         public EndPointAddress Address => new EndPointAddress(_address);

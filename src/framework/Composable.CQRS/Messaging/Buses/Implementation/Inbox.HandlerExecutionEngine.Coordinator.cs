@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses.Implementation
                 readonly IResourceGuard _guard = ResourceGuard.WithTimeout(100.Milliseconds());
                 public Coordinator(IGlobalBusStateTracker globalStateTracker) => _globalStateTracker = globalStateTracker;
 
-                internal QueuedMessage AwaitDispatchableMessage(IInbox bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
+                internal QueuedMessage AwaitDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
                 {
                     using(var @lock = _guard.AwaitExclusiveLock())
                     {
@@ -31,7 +31,7 @@ namespace Composable.Messaging.Buses.Implementation
                             var executingMessages = _messagesWaitingToExecute.Where(@this => @this.IsExecuting).Select(queued => queued.Message).ToList();
 
                             result = _messagesWaitingToExecute
-                                     .Where(queuedMessage => queuedMessage.Bus == bus && !queuedMessage.IsExecuting)
+                                     .Where(queuedMessage => !queuedMessage.IsExecuting)
                                      .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(executingMessages, queuedTask.Message)));
 
                             if(result == null)
@@ -45,9 +45,9 @@ namespace Composable.Messaging.Buses.Implementation
                     }
                 }
 
-                public void EnqueueMessageTask(IInbox bus, TransportMessage.InComing message, Action messageTask) => _guard.Update(() =>
+                public void EnqueueMessageTask(TransportMessage.InComing message, Action messageTask) => _guard.Update(() =>
                 {
-                    var inflightMessage = new QueuedMessage(bus, message, this, messageTask);
+                    var inflightMessage = new QueuedMessage(message, this, messageTask);
                     _messagesWaitingToExecute.Add(inflightMessage);
                     return inflightMessage;
                 });
@@ -65,7 +65,6 @@ namespace Composable.Messaging.Buses.Implementation
 
                 internal class QueuedMessage
                 {
-                    public readonly IInbox Bus;
                     readonly Coordinator _coordinator;
                     readonly Action _messageTask;
                     public IMessage Message { get; }
@@ -88,9 +87,8 @@ namespace Composable.Messaging.Buses.Implementation
                         });
                     }
 
-                    public QueuedMessage(IInbox bus, TransportMessage.InComing message, Coordinator coordinator, Action messageTask)
+                    public QueuedMessage(TransportMessage.InComing message, Coordinator coordinator, Action messageTask)
                     {
-                        Bus = bus;
                         MessageId = message.MessageId;
                         _coordinator = coordinator;
                         _messageTask = messageTask;

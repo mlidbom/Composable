@@ -15,7 +15,6 @@ namespace Composable.Messaging.Buses.Implementation
     {
         partial class HandlerExecutionEngine
         {
-            readonly Inbox _inbox;
             readonly IMessageHandlerRegistry _handlerRegistry;
             readonly IServiceLocator _serviceLocator;
             readonly MessageStorage _storage;
@@ -30,13 +29,11 @@ namespace Composable.Messaging.Buses.Implementation
                                                                                 };
             readonly Coordinator _coordinator;
 
-            public HandlerExecutionEngine(Inbox inbox,
-                                          IGlobalBusStateTracker globalStateTracker,
+            public HandlerExecutionEngine(IGlobalBusStateTracker globalStateTracker,
                                           IMessageHandlerRegistry handlerRegistry,
                                           IServiceLocator serviceLocator,
                                           MessageStorage storage)
             {
-                _inbox = inbox;
                 _handlerRegistry = handlerRegistry;
                 _serviceLocator = serviceLocator;
                 _storage = storage;
@@ -73,7 +70,7 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     try
                     {
-                        var dispatchableMessage = _coordinator.AwaitDispatchableMessage(_inbox, _dispatchingRules);
+                        var dispatchableMessage = _coordinator.AwaitDispatchableMessage(_dispatchingRules);
                         dispatchableMessage.Run();
                     }
                     catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException)
@@ -87,7 +84,7 @@ namespace Composable.Messaging.Buses.Implementation
                 => EnqueueNonTransactionalTask(message, action: () => TransactionScopeCe.Execute(action));
 
             void EnqueueNonTransactionalTask(TransportMessage.InComing message, Action action)
-                => _coordinator.EnqueueMessageTask(_inbox, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
+                => _coordinator.EnqueueMessageTask(message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
 
             async Task<object> DispatchAsync(IQuery query, TransportMessage.InComing message)
             {

@@ -132,10 +132,24 @@ namespace Composable.Messaging.Buses
         }
     }
 
+    interface ICreateMyOwnResultQuery<TResult> : IQuery<TResult>
+    {
+        TResult CreateResult();
+    }
+
+    public class SelfGeneratingResourceQuery<TResource> : ICreateMyOwnResultQuery<TResource> where TResource : new()
+    {
+        SelfGeneratingResourceQuery() {}
+        public static SelfGeneratingResourceQuery<TResource> Instance = new SelfGeneratingResourceQuery<TResource>();
+        public TResource CreateResult() => new TResource();
+    }
+
+    ///<summary>Any query for this resource will be executed by simply calling the default constructor of the resource type</summary>
+    public interface ISelfGeneratingResource{}
+
     public enum ClientCachingStrategy
     {
         ReuseSingletonInstance = 1,
-        ReuseOriginalSerializedData = 2 ,
-        CreateNewInstanceWithDefaultConstructor =  3
+        ReuseOriginalSerializedData = 2
     }
 }

@@ -4,13 +4,12 @@ using Composable.Messaging.Buses;
 
 namespace AccountManagement.API
 {
-    [ClientCacheable(ClientCachingStrategy.CreateNewInstanceWithDefaultConstructor, validForSeconds: int.MaxValue)]
-    public class StartResource
+    public class StartResource : ISelfGeneratingResource
     {
-        public StartResourceCommands Commands { get; private set; } = new StartResourceCommands();
+        public Command Commands { get; private set; } = new Command();
+
         public Query Queries { get; private set; } = new Query();
 
-        [ClientCacheable(ClientCachingStrategy.CreateNewInstanceWithDefaultConstructor, validForSeconds: int.MaxValue)]
         public class Query
         {
             public AccountByIdQuery AccountById { get; private set; } = new AccountByIdQuery();
@@ -19,8 +18,7 @@ namespace AccountManagement.API
             public class AccountByIdQuery : EntityByIdQuery<AccountResource, AccountByIdQuery> {}
         }
 
-        [ClientCacheable(ClientCachingStrategy.CreateNewInstanceWithDefaultConstructor, validForSeconds: int.MaxValue)]
-        public class StartResourceCommands
+        public class Command
         {
             public AccountResource.Command.LogIn.UI Login { get; private set; } = new AccountResource.Command.LogIn.UI();
             public AccountResource.Command.Register Register { get; private set; } = new AccountResource.Command.Register();

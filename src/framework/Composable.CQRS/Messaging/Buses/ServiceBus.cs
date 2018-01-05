@@ -40,8 +40,10 @@ namespace Composable.Messaging.Buses
             _inbox.Stop();
         }
 
-
-        public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) => await _transport.DispatchAsync(query).NoMarshalling();
+        public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) =>
+            query is ICreateMyOwnResultQuery<TResult> selfCreating
+                ? selfCreating.CreateResult()
+                : await _transport.DispatchAsync(query).NoMarshalling();
 
         public TResult Query<TResult>(IQuery<TResult> query) => QueryAsync(query).ResultUnwrappingException();
 

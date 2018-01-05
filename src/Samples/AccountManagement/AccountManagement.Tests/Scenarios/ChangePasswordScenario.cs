@@ -1,5 +1,4 @@
-﻿using System;
-using AccountManagement.API;
+﻿using AccountManagement.API;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using AccountManagement.API;
 using AccountManagement.Domain;
 using AccountManagement.Domain.QueryModels;
 using AccountManagement.Domain.Services;
@@ -62,9 +61,6 @@ namespace AccountManagement
 
         static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            registrar.ForQuery((StartResourceQuery query) =>
-                                   new StartResource());
-
             EmailToAccountIdQueryModel.RegisterHandlers(registrar);
 
             Account.MessageHandlers.RegisterHandlers(registrar);

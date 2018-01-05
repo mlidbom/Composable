@@ -84,8 +84,6 @@ namespace Composable.Messaging.Buses.Implementation
                 _responseQueue.Enqueue(transportMessage.CreatePersistedResponse());
             }
 
-            Console.WriteLine($"Inbox:{transportMessage.MessageType.GetRuntimeType().Name}");
-
             var dispatchTask = _handlerExecutionEngine.Enqueue(transportMessage);
 
             dispatchTask.ContinueWith(dispatchResult =>

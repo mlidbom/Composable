@@ -8,10 +8,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         public bool CanBeDispatched(IGlobalBusStateSnapshot busState, IQueuedMessageInformation queuedMessageInformation)
         {
-            if(!(queuedMessageInformation.Message is IQuery))
-            {
-                return true;
-            }
+            if(!(queuedMessageInformation.Message is IQuery)) return true;
 
             return busState.MessagesQueuedForExecution.None(message => message.Message is IEvent || message.Message is ICommand);
         }
@@ -21,10 +18,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         public bool CanBeDispatched(IGlobalBusStateSnapshot busState, IQueuedMessageInformation queuedMessageInformation)
         {
-            if(queuedMessageInformation.Message is IQuery)
-            {
-                return true;
-            }
+            if(queuedMessageInformation.Message is IQuery) return true;
 
             return busState.MessagesQueuedForExecutionLocally.None(executing => executing.Message is ITransactionalExactlyOnceDeliveryEvent
                                                                                 || executing.Message is ITransactionalExactlyOnceDeliveryCommand);

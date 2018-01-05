@@ -16,9 +16,9 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
-        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(@event, state, TransportMessage.OutGoing.Create(@event))));
+        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event))));
 
-        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(command, state, TransportMessage.OutGoing.Create(command))));
+        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command))));
 
         public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
         {
@@ -29,7 +29,7 @@ namespace Composable.Messaging.Buses.Implementation
             Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(innerState =>
             {
                 innerState.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-                DispatchMessage(command, innerState, outGoingMessage);
+                DispatchMessage(innerState, outGoingMessage);
             }));
 
             Transaction.Current.OnAbort(() => taskCompletionSource.SetException(new TransactionAbortedException("Transaction aborted so command was never dispatched")));
@@ -44,18 +44,18 @@ namespace Composable.Messaging.Buses.Implementation
             var outGoingMessage = TransportMessage.OutGoing.Create(query);
 
             state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-            state.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, query);
+            state.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
             state.DispatchQueue.Enqueue(outGoingMessage);
 
             return taskCompletionSource.Task;
         });
 
-        static void DispatchMessage(ITransactionalExactlyOnceDeliveryMessage message, State @this, TransportMessage.OutGoing outGoingMessage)
+        static void DispatchMessage(State @this, TransportMessage.OutGoing outGoingMessage)
         {
             //todo: after transaction succeeds...
             @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, new PendingDeliveryNotification(outGoingMessage.MessageId, @this.TimeSource.UtcNow));
 
-            @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
+            @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
             @this.DispatchQueue.Enqueue(outGoingMessage);
         }
 

@@ -129,13 +129,11 @@ namespace Composable.Messaging.Buses
 
     interface IGlobalBusStateTracker
     {
-        IReadOnlyList<Exception> GetExceptionsFor(IInbox bus);
+        IReadOnlyList<Exception> GetExceptionsFor();
 
-        IQueuedMessage AwaitDispatchableMessage(IInbox bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules);
-
-        void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage, IMessage message);
-        void EnqueueMessageTask(IInbox bus, TransportMessage.InComing message, Action messageTask);
+        void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage);
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
+        void DoneWith(Guid message, Exception exception);
     }
 
     public interface IApiNavigator

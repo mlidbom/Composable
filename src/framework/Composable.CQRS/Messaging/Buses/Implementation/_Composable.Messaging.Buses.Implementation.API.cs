@@ -31,7 +31,6 @@ namespace Composable.Messaging.Buses.Implementation
 
     interface IInbox
     {
-        IReadOnlyList<Exception> ThrownExceptions { get; }
         EndPointAddress Address { get; }
         void Start();
         void Stop();

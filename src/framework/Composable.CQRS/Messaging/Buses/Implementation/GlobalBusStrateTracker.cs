@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
@@ -11,129 +10,46 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class GlobalBusStateTracker : IGlobalBusStateTracker
     {
-        readonly List<QueuedMessage> _queuedMessages = new List<QueuedMessage>();
         readonly Dictionary<Guid, InFlightMessage> _inflightMessages = new Dictionary<Guid, InFlightMessage>();
 
         //Todo: It is never OK for this class to block for a significant amount of time. So make that explicit with a really strict timeout on all operations waiting for access.
         //Currently we cannot make the timeout really strict because it does time out....
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(100.Milliseconds());
 
-        readonly Dictionary<IInbox, IList<Exception>> _busExceptions = new Dictionary<IInbox, IList<Exception>>();
+        readonly List<Exception> _busExceptions = new List<Exception>();
 
-        public IReadOnlyList<Exception> GetExceptionsFor(IInbox bus) => _guard.Update(() => _busExceptions.GetOrAdd(bus, () => new List<Exception>()).ToList());
+        public IReadOnlyList<Exception> GetExceptionsFor() => _guard.Update(() => _busExceptions.ToList());
 
-        public IQueuedMessage AwaitDispatchableMessage(IInbox bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
-        {
-            using(var @lock = _guard.AwaitExclusiveLock())
-            {
-                QueuedMessage result;
-                do
-                {
-                    var executingMessages = _queuedMessages.Where(@this => @this.IsExecuting).Select(queued => queued.Message).ToList();
-
-                    result = _queuedMessages
-                        .Where(queuedMessage => queuedMessage.Bus == bus && !queuedMessage.IsExecuting)
-                        .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(executingMessages, queuedTask.Message)));
-
-                    if(result == null)
-                    {
-                        @lock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
-                    }
-                } while(result == null);
-                result.SetIsExecuting();
-                return result;
-            }
-        }
-
-        public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage, IMessage message) => _guard.Update(() =>
+        public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage) => _guard.Update(() =>
         {
             var inFlightMessage = _inflightMessages.GetOrAdd(transportMessage.MessageId, () => new InFlightMessage(transportMessage));
             inFlightMessage.RemainingReceivers++;
         });
 
-        public void EnqueueMessageTask(IInbox bus, TransportMessage.InComing message, Action messageTask) => _guard.Update(() =>
-        {
-            var inflightMessage = new QueuedMessage(bus, message, this, messageTask);
-            _queuedMessages.Add(inflightMessage);
-            return inflightMessage;
-        });
-
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride)
             => _guard.AwaitCondition(timeout: timeoutOverride ?? 30.Seconds(),
-                                     condition: () => _queuedMessages.None() && _inflightMessages.None());
+                                     condition: () => _inflightMessages.None());
 
-        void Succeeded(QueuedMessage queuedMessageInformation) => _guard.Update(() => DoneDispatching(queuedMessageInformation));
-
-        void Failed(QueuedMessage queuedMessageInformation, Exception exception) => _guard.Update(() =>
+        public void DoneWith(Guid messageId, Exception exception) => _guard.Update(() =>
         {
-            _busExceptions.GetOrAdd(queuedMessageInformation.Bus, () => new List<Exception>()).Add(exception);
-            DoneDispatching(queuedMessageInformation);
-        });
+            if(exception != null)
+            {
+                _busExceptions.Add(exception);
+            }
 
-        void DoneDispatching(QueuedMessage queuedMessageInformation)
-        {
-            _queuedMessages.Remove(queuedMessageInformation);
-            var inFlightMessage = _inflightMessages[queuedMessageInformation.MessageId];
+            var inFlightMessage = _inflightMessages[messageId];
             inFlightMessage.RemainingReceivers--;
             if(inFlightMessage.RemainingReceivers == 0)
             {
-                _inflightMessages.Remove(queuedMessageInformation.MessageId);
+                _inflightMessages.Remove(messageId);
             }
-        }
+        });
 
         class InFlightMessage
         {
             public InFlightMessage(TransportMessage.OutGoing message) => Message = message;
             public int RemainingReceivers { get; set; }
             public TransportMessage.OutGoing Message { get; private set; }
-        }
-
-        class GlobalBusStateSnapshot : IGlobalBusStateSnapshot
-        {
-            public GlobalBusStateSnapshot(IInbox bus, IReadOnlyList<QueuedMessage> queuedMessages, List<TransportMessage.OutGoing> inFlightMessages)
-            {
-                var bus1 = bus;
-                ExecutingMessages = queuedMessages.Where(message => message.Bus == bus1 && message.IsExecuting).ToList();
-            }
-
-            public IReadOnlyList<IQueuedMessageInformation> ExecutingMessages { get; }
-        }
-
-        class QueuedMessage : IQueuedMessage
-        {
-            public readonly IInbox Bus;
-            readonly GlobalBusStateTracker _globalBusStateTracker;
-            readonly Action _messageTask;
-            public IMessage Message { get; }
-            public Guid MessageId { get; }
-            public bool IsExecuting { get; private set; }
-
-            public void Run()
-            {
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        _messageTask();
-                        _globalBusStateTracker.Succeeded(this);
-                    }
-                    catch(Exception exception)
-                    {
-                        _globalBusStateTracker.Failed(this, exception);
-                    }
-                });
-            }
-
-            public QueuedMessage(IInbox bus, TransportMessage.InComing message, GlobalBusStateTracker globalBusStateTracker, Action messageTask)
-            {
-                Bus = bus;
-                MessageId = message.MessageId;
-                _globalBusStateTracker = globalBusStateTracker;
-                _messageTask = messageTask;
-                Message = message.DeserializeMessageAndCacheForNextCall();
-            }
-
-            public void SetIsExecuting() => IsExecuting = true;
         }
     }
 }

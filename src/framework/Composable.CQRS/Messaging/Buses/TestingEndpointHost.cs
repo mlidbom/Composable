@@ -50,12 +50,6 @@ namespace Composable.Messaging.Buses
 
         readonly List<Exception> _handledExceptions = new List<Exception>();
 
-        List<Exception> GetThrownExceptions()
-        {
-            return Endpoints
-                .SelectMany(endpoint => endpoint.ServiceLocator
-                                                .Resolve<IInbox>().ThrownExceptions)
-                .ToList();
-        }
+        List<Exception> GetThrownExceptions() => Endpoints.First().ServiceLocator.Resolve<IGlobalBusStateTracker>().GetExceptionsFor().ToList();
     }
 }

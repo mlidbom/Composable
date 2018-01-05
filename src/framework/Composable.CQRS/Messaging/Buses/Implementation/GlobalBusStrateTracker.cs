@@ -53,6 +53,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void EnqueueMessageTask(IInbox bus, TransportMessage.InComing message, Action messageTask) => _guard.Update(() =>
         {
+            Console.WriteLine($"Enqueued {message.MessageType.GetRuntimeType().Name}");
             var inflightMessage = new QueuedMessage(bus, message, this, messageTask);
             _queuedMessages.Add(inflightMessage);
             return inflightMessage;

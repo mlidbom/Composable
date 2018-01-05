@@ -50,7 +50,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
 
 
-            internal async Task<object> Enqueue(TransportMessage.InComing message) => await Task.Run(async () =>
+            internal async Task<object> Enqueue(TransportMessage.InComing message)
             {
                 var innerMessage = message.DeserializeMessageAndCacheForNextCall();
 
@@ -65,7 +65,7 @@ namespace Composable.Messaging.Buses.Implementation
                     default:
                         throw new Exception($"Unsupported message type: {message.GetType()}");
                 }
-            });
+            }
 
             void AwaitDispatchableMessageThread()
             {

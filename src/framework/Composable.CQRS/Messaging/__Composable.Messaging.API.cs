@@ -31,7 +31,7 @@ namespace Composable.Messaging
 
 
     public interface ITransactionalExactlyOnceDeliveryEvent : IEvent, ITransactionalExactlyOnceDeliveryMessage { }
-    public interface ITransactionalExactlyOnceDeliveryCommand : ITransactionalExactlyOnceDeliveryMessage { }
+    public interface ITransactionalExactlyOnceDeliveryCommand : ICommand, ITransactionalExactlyOnceDeliveryMessage { }
     public interface ITransactionalExactlyOnceDeliveryCommand<TResult> : ITransactionalExactlyOnceDeliveryCommand { }
 
 

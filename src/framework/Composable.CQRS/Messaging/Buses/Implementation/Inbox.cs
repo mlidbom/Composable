@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.System;
 using Composable.System.Data.SqlClient;
-using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using NetMQ;
 using NetMQ.Sockets;
@@ -79,7 +77,16 @@ namespace Composable.Messaging.Buses.Implementation
             Contract.Argument.Assert(e.IsReadyToReceive);
             var transportMessage = TransportMessage.InComing.Receive(_responseSocket);
 
-            var dispatchTask = DispatchAsync(transportMessage);
+            var innerMessage = transportMessage.DeserializeMessageAndCacheForNextCall();
+            if(innerMessage is ITransactionalExactlyOnceDeliveryMessage)
+            {
+                _storage.SaveMessage(transportMessage);
+                _responseQueue.Enqueue(transportMessage.CreatePersistedResponse());
+            }
+
+            Console.WriteLine($"Inbox:{transportMessage.MessageType.GetRuntimeType().Name}");
+
+            var dispatchTask = _handlerExecutionEngine.Enqueue(transportMessage);
 
             dispatchTask.ContinueWith(dispatchResult =>
             {
@@ -106,19 +113,6 @@ namespace Composable.Messaging.Buses.Implementation
             _responseSocket.Dispose();
             _handlerExecutionEngine.Stop();
         }
-
-        //Todo sane exception handling for this background task.
-        async Task<object> DispatchAsync(TransportMessage.InComing message) => await Task.Run(async () =>
-        {
-            var innerMessage = message.DeserializeMessageAndCacheForNextCall();
-            if(innerMessage is ITransactionalExactlyOnceDeliveryMessage)
-            {
-                _storage.SaveMessage(message);
-                _responseQueue.Enqueue(message.CreatePersistedResponse());
-            }
-
-            return await _handlerExecutionEngine.Enqueue(message);
-        });
 
         public void Dispose()
         {

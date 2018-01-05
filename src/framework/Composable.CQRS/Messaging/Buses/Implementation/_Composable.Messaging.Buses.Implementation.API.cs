@@ -29,7 +29,7 @@ namespace Composable.Messaging.Buses.Implementation
         Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query);
     }
 
-    interface IInbox : IDisposable
+    interface IInbox
     {
         IReadOnlyList<Exception> ThrownExceptions { get; }
         EndPointAddress Address { get; }

@@ -1,7 +1,5 @@
 ﻿using Composable.Contracts;
-using Composable.NewtonSoft;
 using Composable.System.Data.SqlClient;
-using Newtonsoft.Json;
 
 namespace Composable.Messaging.Buses.Implementation
 {

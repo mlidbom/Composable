@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
-using Composable.Messaging.Buses.Implementation;
 
 namespace Composable.Messaging.Buses
 {

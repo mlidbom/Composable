@@ -3,7 +3,6 @@ using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Services;
 using Composable.Contracts;
 using Composable.Functional;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
 using JetBrains.Annotations;
 

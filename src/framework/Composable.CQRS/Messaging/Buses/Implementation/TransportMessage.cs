@@ -20,9 +20,9 @@ namespace Composable.Messaging.Buses.Implementation
 
         internal class InComing
         {
-            public readonly byte[] Client;
-            public readonly Guid MessageId;
-            readonly string _body;
+            internal readonly byte[] Client;
+            internal readonly Guid MessageId;
+            internal readonly string Body;
             readonly string _messageType;
 
             IMessage _message;
@@ -31,7 +31,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(_message == null)
                 {
-                    _message = (IMessage)JsonConvert.DeserializeObject(_body, _messageType.AsType(), JsonSettings.JsonSerializerSettings);
+                    _message = (IMessage)JsonConvert.DeserializeObject(Body, _messageType.AsType(), JsonSettings.JsonSerializerSettings);
 
 
                     Contract.State.Assert(!(_message is ITransactionalExactlyOnceDeliveryMessage) || MessageId == (_message as ITransactionalExactlyOnceDeliveryMessage).MessageId);
@@ -41,7 +41,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             InComing(string body, string messageType, byte[] client, Guid messageId)
             {
-                _body = body;
+                Body = body;
                 _messageType = messageType;
                 Client = client;
                 MessageId = messageId;

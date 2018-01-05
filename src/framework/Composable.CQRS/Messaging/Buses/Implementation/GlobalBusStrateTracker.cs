@@ -22,7 +22,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage) => _guard.Update(() =>
         {
-            var inFlightMessage = _inflightMessages.GetOrAdd(transportMessage.MessageId, () => new InFlightMessage(transportMessage));
+            var inFlightMessage = _inflightMessages.GetOrAdd(transportMessage.MessageId, () => new InFlightMessage());
             inFlightMessage.RemainingReceivers++;
         });
 
@@ -47,9 +47,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         class InFlightMessage
         {
-            public InFlightMessage(TransportMessage.OutGoing message) => Message = message;
             public int RemainingReceivers { get; set; }
-            public TransportMessage.OutGoing Message { get; private set; }
         }
     }
 }

@@ -32,11 +32,9 @@ namespace Composable.Messaging.Buses.Implementation
                 throw new InvalidOperationException(message: "You cannot schedule a queuedMessageInformation to be sent in the past.");
 
             var scheduledCommand = new ScheduledCommand(sendAt, message);
-            Persist(scheduledCommand);
+            //todo:Persistence.
             _scheduledMessages.Add(scheduledCommand);
         });
-
-        static void Persist(ScheduledCommand scheduledCommand) {}
 
         void SendDueCommands() => _guard.Update(() => _scheduledMessages.RemoveWhere(HasPassedSendtime).ForEach(Send));
 

@@ -119,14 +119,6 @@ namespace Composable.Messaging.Buses
         void DoneWith(Guid message, Exception exception);
     }
 
-    public interface IApiNavigator<TCurrentResource>
-    {
-        IApiNavigator<TReturnResource> Get<TReturnResource>(Func<TCurrentResource, IQuery<TReturnResource>> selectQuery);
-        IApiNavigator<TReturnResource> Post<TReturnResource>(Func<TCurrentResource, ITransactionalExactlyOnceDeliveryCommand<TReturnResource>> selectCommand);
-        Task<TCurrentResource> ExecuteAsync();
-        TCurrentResource Execute();
-    }
-
     //todo: Actually use this attribute to do caching.
     public class ClientCacheableAttribute : Attribute
     {

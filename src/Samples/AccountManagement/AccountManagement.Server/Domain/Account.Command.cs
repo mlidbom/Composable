@@ -4,6 +4,7 @@ using Composable;
 using Composable.Contracts;
 using Composable.Messaging.Commands;
 using JetBrains.Annotations;
+// ReSharper disable MemberHidesStaticFromOuterClass
 
 namespace AccountManagement.Domain
 {

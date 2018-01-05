@@ -6,10 +6,8 @@ using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.System;
 using Composable.System.Data.SqlClient;
-using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
-using Composable.System.Transactions;
 using NetMQ;
 using NetMQ.Sockets;
 
@@ -17,21 +15,11 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class Inbox : IInbox, IDisposable
     {
-        readonly IServiceLocator _serviceLocator;
         readonly IGlobalBusStateTracker _globalStateTracker;
-        readonly IMessageHandlerRegistry _handlerRegistry;
 
         readonly IResourceGuard _resourceGuard = ResourceGuard.WithTimeout(1.Seconds());
 
-        CancellationTokenSource _cancellationTokenSource;
-
-        readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
-                                                                            {
-                                                                                new QueriesExecuteAfterAllCommandsAndEventsAreDone(),
-                                                                                new CommandsAndEventHandlersDoNotRunInParallelWithEachOtherInTheSameEndpoint()
-                                                                            };
         bool _running;
-        Thread _messagePumpThread;
         string _address;
 
         readonly NetMQQueue<TransportMessage.Response.Outgoing> _responseQueue = new NetMQQueue<TransportMessage.Response.Outgoing>();
@@ -40,15 +28,15 @@ namespace Composable.Messaging.Buses.Implementation
 
         public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
         NetMQPoller _poller;
-        MessageStorage _storage;
+        readonly MessageStorage _storage;
+        readonly HandlerExecutionEngine _handlerExecutionEngine;
 
         public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory)
         {
             _address = configuration.Address;
-            _serviceLocator = serviceLocator;
             _globalStateTracker = globalStateTracker;
-            _handlerRegistry = handlerRegistry;
             _storage = new MessageStorage(connectionFactory);
+            _handlerExecutionEngine = new HandlerExecutionEngine(this, globalStateTracker, handlerRegistry, serviceLocator, _storage);
         }
 
         public EndPointAddress Address => new EndPointAddress(_address);
@@ -74,14 +62,8 @@ namespace Composable.Messaging.Buses.Implementation
             _poller = new NetMQPoller() {_responseSocket, _responseQueue};
             _poller.RunAsync();
 
-            _cancellationTokenSource = new CancellationTokenSource();
-            _messagePumpThread = new Thread(MessagePumpThread)
-                                 {
-                                     Name = "_MessagePump",
-                                     Priority = ThreadPriority.AboveNormal
-                                 };
+            _handlerExecutionEngine.Start();
             _storage.Start();
-            _messagePumpThread.Start();
         });
 
         void SendResponseMessage(object sender, NetMQQueueEventArgs<TransportMessage.Response.Outgoing> e)
@@ -119,32 +101,11 @@ namespace Composable.Messaging.Buses.Implementation
         {
             Contract.Invariant.Assert(_running);
             _running = false;
-            _cancellationTokenSource.Cancel();
             _poller.Dispose();
             _responseSocket.Close();
             _responseSocket.Dispose();
-            _messagePumpThread.InterruptAndJoin();
+            _handlerExecutionEngine.Stop();
         }
-
-        void MessagePumpThread()
-        {
-            while(!_cancellationTokenSource.Token.IsCancellationRequested)
-                try
-                {
-                    var dispatchableMessage = _globalStateTracker.AwaitDispatchableMessage(this, _dispatchingRules);
-                    dispatchableMessage.Run();
-                }
-                catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException)
-                {
-                    return;
-                }
-        }
-
-        void EnqueueTransactionalTask(TransportMessage.InComing message, Action action)
-            => EnqueueNonTransactionalTask(message, action: () => TransactionScopeCe.Execute(action));
-
-        void EnqueueNonTransactionalTask(TransportMessage.InComing message, Action action)
-            => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
 
         //Todo sane exception handling for this background task.
         async Task<object> DispatchAsync(TransportMessage.InComing message) => await Task.Run(async () =>
@@ -156,94 +117,8 @@ namespace Composable.Messaging.Buses.Implementation
                 _responseQueue.Enqueue(message.CreatePersistedResponse());
             }
 
-            switch(innerMessage)
-            {
-                case ITransactionalExactlyOnceDeliveryCommand command:
-                    return await DispatchAsync(command, message);
-                case ITransactionalExactlyOnceDeliveryEvent @event:
-                    return await DispatchAsync(@event, message);
-                case IQuery query:
-                    return await DispatchAsync(query, message);
-                default:
-                    throw new Exception($"Unsupported message type: {message.GetType()}");
-            }
+            return await _handlerExecutionEngine.Enqueue(message);
         });
-
-        async Task<object> DispatchAsync(IQuery query, TransportMessage.InComing message)
-        {
-            var handler = _handlerRegistry.GetQueryHandler(query.GetType());
-
-            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using(_resourceGuard.AwaitUpdateLock())
-            {
-                EnqueueNonTransactionalTask(message,
-                                            action: () =>
-                                            {
-                                                try
-                                                {
-                                                    var result = handler(query);
-                                                    taskCompletionSource.SetResult(result);
-                                                }
-                                                catch(Exception exception)
-                                                {
-                                                    taskCompletionSource.SetException(exception);
-                                                    throw;
-                                                }
-                                            });
-            }
-            return await taskCompletionSource.Task.NoMarshalling();
-        }
-
-        async Task<object> DispatchAsync(ITransactionalExactlyOnceDeliveryEvent @event, TransportMessage.InComing message)
-        {
-            var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
-            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using(_resourceGuard.AwaitUpdateLock())
-            {
-                EnqueueTransactionalTask(message,
-                                         action: () =>
-                                         {
-                                             try
-                                             {
-                                                 handler.ForEach(action: @this => @this(@event));
-                                                 _storage.MarkAsHandled(message);
-                                                 taskCompletionSource.SetResult(result: null);
-                                             }
-                                             catch(Exception exception)
-                                             {
-                                                 taskCompletionSource.SetException(exception);
-                                                 throw;
-                                             }
-                                         });
-            }
-            return await taskCompletionSource.Task.NoMarshalling();
-        }
-
-        async Task<object> DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command, TransportMessage.InComing message)
-        {
-            var handler = _handlerRegistry.GetCommandHandler(command.GetType());
-
-            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using(_resourceGuard.AwaitUpdateLock())
-            {
-                EnqueueTransactionalTask(message,
-                                         action: () =>
-                                         {
-                                             try
-                                             {
-                                                 var result = handler(command);
-                                                 _storage.MarkAsHandled(message);
-                                                 taskCompletionSource.SetResult(result);
-                                             }
-                                             catch(Exception exception)
-                                             {
-                                                 taskCompletionSource.SetException(exception);
-                                                 throw;
-                                             }
-                                         });
-            }
-            return await taskCompletionSource.Task.NoMarshalling();
-        }
 
         public void Dispose()
         {

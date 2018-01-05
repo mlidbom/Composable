@@ -20,15 +20,15 @@ namespace Composable.Messaging.Buses
             _container = container;
 
             Configuration = new EndpointConfiguration(name)
-                            {
-                            };
+                                {};
 
             _container.Register(
                 Component.For<EndpointConfiguration>()
                          .UsingFactoryMethod(() => Configuration)
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
-                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider) => new InterprocessTransport(globalStateTracker, timeSource, connectionProvider.GetConnectionProvider(Configuration.ConnectionStringName)))
+                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider) =>
+                                                 new InterprocessTransport(globalStateTracker, timeSource, connectionProvider.GetConnectionProvider(Configuration.ConnectionStringName)))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
@@ -50,7 +50,7 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod((IMessageHandlerRegistry registry) => new InProcessServiceBus(registry))
                          .LifestyleSingleton(),
                 Component.For<IInbox>()
-                         .UsingFactoryMethod((IServiceLocator serviceLocator, IGlobalBusStateTracker stateTracker, IMessageHandlerRegistry messageHandlerRegistry, EndpointConfiguration configuration) => new Inbox(serviceLocator, stateTracker, messageHandlerRegistry, configuration))
+                         .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), k.Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName)))
                          .LifestyleSingleton(),
                 Component.For<CommandScheduler>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))

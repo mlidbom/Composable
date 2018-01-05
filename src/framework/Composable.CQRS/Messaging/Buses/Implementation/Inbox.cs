@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.System;
+using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
@@ -14,7 +15,7 @@ using NetMQ.Sockets;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    class Inbox : IInbox, IDisposable
+    partial class Inbox : IInbox, IDisposable
     {
         readonly IServiceLocator _serviceLocator;
         readonly IGlobalBusStateTracker _globalStateTracker;
@@ -39,13 +40,15 @@ namespace Composable.Messaging.Buses.Implementation
 
         public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
         NetMQPoller _poller;
+        MessageStorage _storage;
 
-        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration)
+        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory)
         {
             _address = configuration.Address;
             _serviceLocator = serviceLocator;
             _globalStateTracker = globalStateTracker;
             _handlerRegistry = handlerRegistry;
+            _storage = new MessageStorage(connectionFactory);
         }
 
         public EndPointAddress Address => new EndPointAddress(_address);
@@ -77,7 +80,7 @@ namespace Composable.Messaging.Buses.Implementation
                                      Name = "_MessagePump",
                                      Priority = ThreadPriority.AboveNormal
                                  };
-
+            _storage.Start();
             _messagePumpThread.Start();
         });
 
@@ -148,7 +151,7 @@ namespace Composable.Messaging.Buses.Implementation
             var innerMessage = message.DeserializeMessageAndCacheForNextCall();
             if(innerMessage is ITransactionalExactlyOnceDeliveryMessage)
             {
-                PersistMessage(message);
+                _storage.SaveMessage(message);
                 _responseQueue.Enqueue(message.CreatePersistedResponse());
             }
 
@@ -164,9 +167,6 @@ namespace Composable.Messaging.Buses.Implementation
                     throw new Exception($"Unsupported message type: {message.GetType()}");
             }
         });
-
-
-        void PersistMessage(TransportMessage.InComing message) {}
 
         async Task<object> DispatchAsync(IQuery query, TransportMessage.InComing message)
         {
@@ -205,6 +205,7 @@ namespace Composable.Messaging.Buses.Implementation
                                              try
                                              {
                                                  handler.ForEach(action: @this => @this(@event));
+                                                 _storage.MarkAsHandled(message);
                                                  taskCompletionSource.SetResult(result: null);
                                              }
                                              catch(Exception exception)
@@ -230,6 +231,7 @@ namespace Composable.Messaging.Buses.Implementation
                                              try
                                              {
                                                  var result = handler(command);
+                                                 _storage.MarkAsHandled(message);
                                                  taskCompletionSource.SetResult(result);
                                              }
                                              catch(Exception exception)

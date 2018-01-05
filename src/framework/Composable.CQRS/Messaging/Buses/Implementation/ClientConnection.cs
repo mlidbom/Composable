@@ -53,7 +53,7 @@ namespace Composable.Messaging.Buses.Implementation
         static void DispatchMessage(State @this, TransportMessage.OutGoing outGoingMessage)
         {
             //todo: after transaction succeeds...
-            @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, new PendingDeliveryNotification(outGoingMessage.MessageId, @this.TimeSource.UtcNow));
+            @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, @this.TimeSource.UtcNow);
 
             @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
             @this.DispatchQueue.Enqueue(outGoingMessage);
@@ -115,7 +115,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             internal IGlobalBusStateTracker GlobalBusStateTracker;
             internal readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
-            internal readonly Dictionary<Guid, PendingDeliveryNotification> PendingDeliveryNotifications = new Dictionary<Guid, PendingDeliveryNotification>();
+            internal readonly Dictionary<Guid, DateTime> PendingDeliveryNotifications = new Dictionary<Guid, DateTime>();
             internal DealerSocket Socket;
             internal NetMQPoller Poller;
             internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
@@ -164,18 +164,6 @@ namespace Composable.Messaging.Buses.Implementation
                     }
                 }
             });
-        }
-
-        class PendingDeliveryNotification
-        {
-            internal PendingDeliveryNotification(Guid messageId, DateTime sentAt)
-            {
-                MessageId = messageId;
-                SentAt = sentAt;
-            }
-
-            internal Guid MessageId { get; }
-            internal DateTime SentAt { get; }
         }
     }
 }

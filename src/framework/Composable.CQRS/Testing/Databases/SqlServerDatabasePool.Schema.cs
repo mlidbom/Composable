@@ -10,7 +10,7 @@ namespace Composable.Testing.Databases
 {
     static class DatabaseExtensions
     {
-        internal static string Name(this SqlServerDatabasePool.Database @this) => $"Composable_{SqlServerDatabasePool.PoolDatabaseNamePrefix}{@this.Id:0000}";
+        internal static string Name(this SqlServerDatabasePool.Database @this) => $"{SqlServerDatabasePool.PoolDatabaseNamePrefix}{@this.Id:0000}";
         internal static string ConnectionString(this SqlServerDatabasePool.Database @this, SqlServerDatabasePool pool) => pool.ConnectionStringForDbNamed(@this.Name());
     }
 

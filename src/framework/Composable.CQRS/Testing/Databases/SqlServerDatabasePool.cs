@@ -51,7 +51,7 @@ namespace Composable.Testing.Databases
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 
-        internal static readonly string PoolDatabaseNamePrefix = $"{nameof(SqlServerDatabasePool)}_";
+        internal static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(SqlServerDatabasePool)}_";
 
         public SqlServerDatabasePool(string masterConnectionString)
         {

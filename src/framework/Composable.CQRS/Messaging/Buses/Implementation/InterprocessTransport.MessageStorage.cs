@@ -22,11 +22,12 @@ namespace Composable.Messaging.Buses.Implementation
                             .SetCommandText(
                                 $@"
 INSERT {OutboxMessages.TableName} 
-            ({OutboxMessages.MessageId},  {OutboxMessages.TypeId},  {OutboxMessages.Body}) 
-    VALUES (@{OutboxMessages.MessageId}, @{OutboxMessages.TypeId}, @{OutboxMessages.Body})
+            ({OutboxMessages.MessageId},  {OutboxMessages.TypeIdGuidValue}, {OutboxMessages.ParentTypeIdGuidValue},   {OutboxMessages.Body}) 
+    VALUES (@{OutboxMessages.MessageId}, @{OutboxMessages.TypeIdGuidValue}, @{OutboxMessages.ParentTypeIdGuidValue}, @{OutboxMessages.Body})
 ")
                             .AddParameter(OutboxMessages.MessageId, message.MessageId)
-                            .AddParameter(OutboxMessages.TypeId, TypeId.FromType(message.GetType()).GuidValue)
+                            .AddParameter(OutboxMessages.TypeIdGuidValue, TypeId.FromType(message.GetType()).GuidValue)
+                            .AddParameter(OutboxMessages.ParentTypeIdGuidValue, TypeId.FromType(message.GetType()).ParentTypeGuidValue)
                             //todo: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
                             .AddNVarcharMaxParameter(OutboxMessages.Body, JsonConvert.SerializeObject(message, JsonSettings.JsonSerializerSettings));
 

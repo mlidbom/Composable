@@ -56,7 +56,6 @@ namespace Composable.System.Threading
 
             _fileName = Path.Combine(DataFolder, _fileName);
 
-            Console.WriteLine($"FileName:{_fileName}");
             if (!usePersistentFile)
             {
                 _file = MemoryMappedFile.CreateNew(_name, _capacity, MemoryMappedFileAccess.ReadWrite);
@@ -138,7 +137,8 @@ namespace Composable.System.Threading
                         {
                             try
                             {
-                                mappedFile = MemoryMappedFile.OpenExisting(_name, desiredAccessRights: MemoryMappedFileRights.FullControl, inheritability: HandleInheritability.None);
+                                mappedFile = MemoryMappedFile.OpenExisting(_name, desiredAccessRights: MemoryMappedFileRights.FullControl, 
+                                    inheritability: HandleInheritability.None);
                             }
                             catch (FileNotFoundException)
                             {

@@ -7,7 +7,7 @@ namespace Composable.System.Threading
     class MachineWideSingleThreaded
     {
         readonly string _lockId;
-        MachineWideSingleThreaded(string lockId) => _lockId = lockId;
+        MachineWideSingleThreaded(string lockId) => _lockId = $@"Global\{lockId}";
 
         internal void Execute([InstantHandle]Action action)
         {

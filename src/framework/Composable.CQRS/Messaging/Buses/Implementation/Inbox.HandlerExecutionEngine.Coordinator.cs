@@ -14,7 +14,7 @@ namespace Composable.Messaging.Buses.Implementation
             class Coordinator
             {
                 readonly IGlobalBusStateTracker _globalStateTracker;
-                readonly List<QueuedMessage> _messagesWaitingToExecute = new List<QueuedMessage>();
+                readonly List<QueuedMessage>    _messagesWaitingToExecute = new List<QueuedMessage>();
 
                 //Todo: It is never OK for this class to block for a significant amount of time. So make that explicit with a really strict timeout on all operations waiting for access.
                 //Currently we cannot make the timeout really strict because it does time out....
@@ -31,8 +31,8 @@ namespace Composable.Messaging.Buses.Implementation
                             var executingMessages = _messagesWaitingToExecute.Where(@this => @this.IsExecuting).Select(queued => queued.Message).ToList();
 
                             result = _messagesWaitingToExecute
-                                     .Where(queuedMessage => !queuedMessage.IsExecuting)
-                                     .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(executingMessages, queuedTask.Message)));
+                                    .Where(queuedMessage => !queuedMessage.IsExecuting)
+                                    .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(executingMessages, queuedTask.Message)));
 
                             if(result == null)
                             {
@@ -52,7 +52,6 @@ namespace Composable.Messaging.Buses.Implementation
                     return inflightMessage;
                 });
 
-
                 void Succeeded(QueuedMessage queuedMessageInformation) => _guard.Update(() => DoneDispatching(queuedMessageInformation));
 
                 void Failed(QueuedMessage queuedMessageInformation, Exception exception) => _guard.Update(() => DoneDispatching(queuedMessageInformation, exception));
@@ -66,10 +65,10 @@ namespace Composable.Messaging.Buses.Implementation
                 internal class QueuedMessage
                 {
                     readonly Coordinator _coordinator;
-                    readonly Action _messageTask;
-                    public IMessage Message { get; }
-                    public Guid MessageId { get; }
-                    public bool IsExecuting { get; private set; }
+                    readonly Action      _messageTask;
+                    public   IMessage    Message     { get; }
+                    public   Guid        MessageId   { get; }
+                    public   bool        IsExecuting { get; private set; }
 
                     public void Run()
                     {
@@ -89,10 +88,10 @@ namespace Composable.Messaging.Buses.Implementation
 
                     public QueuedMessage(TransportMessage.InComing message, Coordinator coordinator, Action messageTask)
                     {
-                        MessageId = message.MessageId;
+                        MessageId    = message.MessageId;
                         _coordinator = coordinator;
                         _messageTask = messageTask;
-                        Message = message.DeserializeMessageAndCacheForNextCall();
+                        Message      = message.DeserializeMessageAndCacheForNextCall();
                     }
 
                     public void SetIsExecuting() => IsExecuting = true;

@@ -52,7 +52,7 @@ namespace Composable.System.Threading
 
             _fileName = Path.Combine(DataFolder, fileName);
 
-            _synchronizer = MachineWideSingleThreaded.For($"{fileName}_mutex");
+            _synchronizer = MachineWideSingleThreaded.For($"Composable_{fileName}_mutex");
 
             if(usePersistentFile)
             {

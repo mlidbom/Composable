@@ -28,7 +28,7 @@ namespace Composable.System.Threading
         }
     }
 
-    class MachineWideSharedObject<TObject> : MachineWideSharedObject where TObject : IBinarySerializeMySelf, new()
+    class MachineWideSharedObject<TObject> : MachineWideSharedObject, IDisposable where TObject : IBinarySerializeMySelf, new()
     {
         const int LengthIndicatorIntegerLengthInBytes = 4;
         readonly long _capacity;
@@ -37,68 +37,36 @@ namespace Composable.System.Threading
 
         readonly string _fileName;
 
-        private string _name;
+        readonly string _name;
+
+        private readonly bool _usePersistentFile;
 
         internal static MachineWideSharedObject<TObject> For(string name, bool usePersistentFile = false, long capacity = 1000_000) => new MachineWideSharedObject<TObject>(name, usePersistentFile, capacity);
 
         MachineWideSharedObject(string name, bool usePersistentFile, long capacity)
         {
             _capacity = capacity;
-            _name = name;
-            var fileName = $"Composable_{nameof(MachineWideSharedObject<TObject>)}_{name}";
+            _name = $"Composable_{name}";
+            _usePersistentFile = usePersistentFile;
+            _fileName = $"{nameof(MachineWideSharedObject<TObject>)}_{_name}";
+            _synchronizer = MachineWideSingleThreaded.For($"{_fileName}_mutex");
 
             foreach (var invalidChar in Path.GetInvalidFileNameChars())
-                fileName = fileName.Replace(invalidChar, '_');
+                _fileName = _fileName.Replace(invalidChar, '_');
 
-            _fileName = Path.Combine(DataFolder, fileName);
+            _fileName = Path.Combine(DataFolder, _fileName);
 
-            _synchronizer = MachineWideSingleThreaded.For($"Composable_{fileName}_mutex");
-
-            if(usePersistentFile)
+            Console.WriteLine($"FileName:{_fileName}");
+            if (!usePersistentFile)
             {
-                MemoryMappedFile mappedFile = null;
-                _synchronizer.Execute(() =>
-                                     {
-                                         var actualFileName = fileName;
-                                         foreach(var invalidChar in Path.GetInvalidFileNameChars())
-                                         {
-                                             actualFileName = actualFileName.Replace(invalidChar, '_');
-                                         }
-
-                                         actualFileName = Path.Combine(DataFolder, actualFileName);
-
-                                         if(File.Exists(actualFileName))
-                                         {
-                                             try
-                                             {
-                                                 mappedFile = MemoryMappedFile.OpenExisting(mapName: name);
-                                                 return;
-                                             }
-                                             catch(IOException)
-                                             {
-                                             }
-                                         }
-
-                                         mappedFile = MemoryMappedFile.CreateFromFile(path: actualFileName,
-                                                                                      mode: FileMode.OpenOrCreate,
-                                                                                      mapName: name,
-                                                                                      capacity: _capacity,
-                                                                                      access: MemoryMappedFileAccess.ReadWrite);
-                                     });
-                _file = mappedFile;
-            } else
-            {
-                _file = MemoryMappedFile.CreateOrOpen(mapName: name, capacity: _capacity);
+                _file = MemoryMappedFile.CreateNew(_name, _capacity, MemoryMappedFileAccess.ReadWrite);
             }
-
         }
-
-        internal void Synchronized(Action action) { _synchronizer.Execute(action); }
 
         internal TObject Update(Action<TObject> action)
         {
             var instance = default(TObject);
-            this.UseViewAccessor(accessor =>
+            UseViewAccessor(accessor =>
                 {
                     instance = GetCopy(accessor);
                     action(instance);
@@ -161,32 +129,53 @@ namespace Composable.System.Threading
 
         private void UseViewAccessor(Action<MemoryMappedViewAccessor> action)
         {
-            this._synchronizer.Execute(() =>
-                {
-                    MemoryMappedFile mappedFile;
-
-                    try
+            _synchronizer.Execute(
+                () =>
                     {
-                        mappedFile = MemoryMappedFile.OpenExisting(_name, desiredAccessRights: MemoryMappedFileRights.FullControl, inheritability: HandleInheritability.None);
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        mappedFile = MemoryMappedFile.CreateFromFile(
-                            _fileName,
-                            FileMode.OpenOrCreate,
-                            _name,
-                            _capacity,
-                            MemoryMappedFileAccess.ReadWrite);
-                    }
+                        MemoryMappedFile mappedFile;
 
-                    using (mappedFile)
-                    using (var viewAccessor = mappedFile.CreateViewAccessor())
-                    {
-                        action(viewAccessor);
-                    }
+                        if (_usePersistentFile)
+                        {
+                            try
+                            {
+                                mappedFile = MemoryMappedFile.OpenExisting(_name, desiredAccessRights: MemoryMappedFileRights.FullControl, inheritability: HandleInheritability.None);
+                            }
+                            catch (FileNotFoundException)
+                            {
+                                mappedFile = MemoryMappedFile.CreateFromFile(
+                                    _fileName,
+                                    FileMode.OpenOrCreate,
+                                    _name,
+                                    _capacity,
+                                    MemoryMappedFileAccess.ReadWrite);
 
-                    mappedFile.Dispose();
-                });
+                            }
+                        }
+                        else
+                        {
+                            mappedFile = _file;
+                        }
+
+                        try
+                        {
+                            using (var viewAccessor = mappedFile.CreateViewAccessor())
+                            {
+                                action(viewAccessor);
+                            }
+                        }
+                        finally
+                        {
+                            if (_usePersistentFile)
+                            {
+                                mappedFile.Dispose();
+                            }
+                        }
+                    });
+        }
+
+        public void Dispose()
+        {
+            _file?.Dispose();
         }
     }
 }

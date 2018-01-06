@@ -174,6 +174,7 @@ namespace Composable.Testing.Databases
             if(_disposed) return;
             _disposed = true;
             _machineWideState.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
+            _machineWideState.Dispose();
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 foreach(var typeId in handledTypeIds)
                 {
-                    if(typeId.TryGetType(out var type))
+                    if(typeId.TryGetRuntimeType(out var type))
                     {
                         if(IsEvent(type))
                         {
@@ -85,7 +85,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(ITransactionalExactlyOnceDeliveryEvent @event)
             {
                 var typedEventHandlerRegistrations = _eventHandlerRegistrations
-                                                     .Where(me => me.EventType.TryGetType(out var _))
+                                                     .Where(me => me.EventType.TryGetRuntimeType(out var _))
                                                      .Select(me => new
                                                                    {
                                                                        EventType = me.EventType.GetRuntimeType(),

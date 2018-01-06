@@ -1,4 +1,6 @@
-﻿using Composable.DependencyInjection;
+﻿using AccountManagement.API;
+using Composable.DependencyInjection;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.System;
 using NUnit.Framework;
@@ -18,6 +20,7 @@ namespace AccountManagement.Tests.Domain
         [SetUp] public void SetupContainerAndBeginScope()
         {
             Host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
+            var test = new EntityByIdQuery<AccountResource>();
             _domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(Host);
 
             ServiceLocator = _domainEndpoint.ServiceLocator;

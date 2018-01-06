@@ -16,12 +16,13 @@ namespace Composable.Messaging
         Guid Id { get; }
     }
 
-    public abstract class EntityByIdQuery<TEntity, TInheritor> : Message, IEntityQuery<TEntity> where TInheritor : EntityByIdQuery<TEntity, TInheritor>, new()
+    [TypeId("444153B1-7B35-4F17-9FF3-85040CEEBAAB")]
+    public class EntityByIdQuery<TEntity> : Message, IEntityQuery<TEntity>
     {
         public EntityByIdQuery() {}
         public EntityByIdQuery(Guid id) => Id = id;
         public Guid Id { get; set; }
-        public TInheritor WithId(Guid id) => new TInheritor {Id = id};
+        public EntityByIdQuery<TEntity> WithId(Guid id) => new EntityByIdQuery<TEntity> {Id = id};
     }
 
     public abstract class Message : IMessage

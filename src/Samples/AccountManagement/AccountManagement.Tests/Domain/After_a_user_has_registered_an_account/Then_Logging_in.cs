@@ -1,4 +1,9 @@
-﻿using AccountManagement.Tests.Scenarios;
+﻿using System;
+using AccountManagement.API;
+using AccountManagement.Tests.Scenarios;
+using Composable;
+using Composable.Messaging;
+using Composable.Messaging.Buses;
 using FluentAssertions;
 using NUnit.Framework;
 

@@ -1,5 +1,6 @@
 ﻿using AccountManagement.API;
 using AccountManagement.Domain.Services;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 
 namespace AccountManagement.Domain
@@ -10,7 +11,7 @@ namespace AccountManagement.Domain
         {
             public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
             {
-                registrar.ForQuery((StartResource.Query.AccountByIdQuery accountQuery, IAccountRepository repository) =>
+                registrar.ForQuery((EntityByIdQuery<AccountResource> accountQuery, IAccountRepository repository) =>
                                        new AccountResource(repository.GetReadonlyCopy(accountQuery.Id)))
                          .ForCommandWithResult((AccountResource.Command.Register command, IInProcessServiceBus bus, IAccountRepository repository) =>
                                                    Account.Register(new Account.Command.Register(command.AccountId, new Password(command.Password), Email.Parse(command.Email)), repository, bus))

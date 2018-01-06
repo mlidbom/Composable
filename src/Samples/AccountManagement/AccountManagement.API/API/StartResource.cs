@@ -12,10 +12,7 @@ namespace AccountManagement.API
 
         public class Query
         {
-            public AccountByIdQuery AccountById { get; private set; } = new AccountByIdQuery();
-
-            [TypeId("444153B1-7B35-4F17-9FF3-85040CEEBAAB")]
-            public class AccountByIdQuery : EntityByIdQuery<AccountResource, AccountByIdQuery> {}
+            public EntityByIdQuery<AccountResource> AccountById { get; private set; } = new EntityByIdQuery<AccountResource>();
         }
 
         public class Command

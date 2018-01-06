@@ -51,13 +51,15 @@ namespace Composable.Testing.Databases
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 
-        internal static readonly string PoolDatabaseNamePrefix = $"{nameof(SqlServerDatabasePool)}_";
+        internal static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(SqlServerDatabasePool)}_";
 
         public SqlServerDatabasePool(string masterConnectionString)
         {
             _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 1.Minutes();
 
-            _machineWideState = MachineWideSharedObject<SharedState>.For(masterConnectionString, usePersistentFile: true);
+            var connectionStringWithoutInvalidChars = masterConnectionString.Replace("\\", "_");
+
+            _machineWideState = MachineWideSharedObject<SharedState>.For(connectionStringWithoutInvalidChars, usePersistentFile: true);
             _masterConnectionString = masterConnectionString;
 
             OldContract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),

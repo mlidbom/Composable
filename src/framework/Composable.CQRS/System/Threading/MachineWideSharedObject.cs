@@ -34,12 +34,24 @@ namespace Composable.System.Threading
         readonly long _capacity;
         readonly MemoryMappedFile _file;
         readonly MachineWideSingleThreaded _synchronizer;
+
+        readonly string _fileName;
+
+        private string _name;
+
         internal static MachineWideSharedObject<TObject> For(string name, bool usePersistentFile = false, long capacity = 1000_000) => new MachineWideSharedObject<TObject>(name, usePersistentFile, capacity);
 
         MachineWideSharedObject(string name, bool usePersistentFile, long capacity)
         {
             _capacity = capacity;
-            var fileName = $"{nameof(MachineWideSharedObject<TObject>)}_{name}";
+            _name = name;
+            var fileName = $"Composable_{nameof(MachineWideSharedObject<TObject>)}_{name}";
+
+            foreach (var invalidChar in Path.GetInvalidFileNameChars())
+                fileName = fileName.Replace(invalidChar, '_');
+
+            _fileName = Path.Combine(DataFolder, fileName);
+
             _synchronizer = MachineWideSingleThreaded.For($"{fileName}_mutex");
 
             if(usePersistentFile)
@@ -83,49 +95,19 @@ namespace Composable.System.Threading
 
         internal void Synchronized(Action action) { _synchronizer.Execute(action); }
 
-        internal TObject GetCopy()
-        {
-            var value = default(TObject);
-            Synchronized(() =>
-                                 {
-                                     using(var accessor = _file.CreateViewAccessor())
-                                     {
-
-                                         var objectLength = accessor.ReadInt32(0);
-                                         if(objectLength != 0)
-                                         {
-                                             var buffer = new byte[objectLength];
-                                             accessor.ReadArray(LengthIndicatorIntegerLengthInBytes, buffer, 0, buffer.Length);
-
-                                             using (var objectStream = new MemoryStream(buffer))
-                                             using(var reader = new BinaryReader(objectStream))
-                                             {
-                                                 value = new TObject();
-                                                 value.Deserialize(reader);
-                                             }
-                                         }
-                                     }
-                                     if(Equals(value, default(TObject)))
-                                     {
-                                         Set(value = new TObject());
-                                     }
-                                 });
-            return value;
-        }
-
         internal TObject Update(Action<TObject> action)
         {
             var instance = default(TObject);
-            Synchronized(() =>
-                                 {
-                                     instance = GetCopy();
-                                     action(instance);
-                                     Set(instance);
-                                 });
+            this.UseViewAccessor(accessor =>
+                {
+                    instance = GetCopy(accessor);
+                    action(instance);
+                    Set(instance, accessor);
+                });
             return instance;
         }
 
-        void Set(TObject value)
+        void Set(TObject value, MemoryMappedViewAccessor accessor)
         {
             using (var memoryStream = new MemoryStream())
             using(var writer = new BinaryWriter(memoryStream))
@@ -139,12 +121,72 @@ namespace Composable.System.Threading
                     throw new Exception($"Deserialized object exceeds storage capacity of:{_capacity} bytes with size: {requiredCapacity} bytes.");
                 }
 
-                using (var accessor = _file.CreateViewAccessor())
+                accessor.Write(0, buffer.Length); //First bytes are an int that tells how far to read when deserializing.
+                accessor.WriteArray(LengthIndicatorIntegerLengthInBytes, buffer, 0, buffer.Length);
+            }
+        }
+
+        internal TObject GetCopy()
+        {
+            var instance = default(TObject);
+            UseViewAccessor(accessor => { instance = GetCopy(accessor); });
+            return instance;
+        }
+
+        internal TObject GetCopy(MemoryMappedViewAccessor accessor)
+        {
+            var value = default(TObject);
+
+            var objectLength = accessor.ReadInt32(0);
+            if (objectLength != 0)
+            {
+                var buffer = new byte[objectLength];
+                accessor.ReadArray(LengthIndicatorIntegerLengthInBytes, buffer, 0, buffer.Length);
+
+                using (var objectStream = new MemoryStream(buffer))
+                using (var reader = new BinaryReader(objectStream))
                 {
-                    accessor.Write(0, buffer.Length); //First bytes are an int that tells how far to read when deserializing.
-                    accessor.WriteArray(LengthIndicatorIntegerLengthInBytes, buffer, 0, buffer.Length);
+                    value = new TObject();
+                    value.Deserialize(reader);
                 }
             }
+
+            if (Equals(value, default(TObject)))
+            {
+                Set(value = new TObject(), accessor);
+            }
+
+            return value;
+        }
+
+        private void UseViewAccessor(Action<MemoryMappedViewAccessor> action)
+        {
+            this._synchronizer.Execute(() =>
+                {
+                    MemoryMappedFile mappedFile;
+
+                    try
+                    {
+                        mappedFile = MemoryMappedFile.OpenExisting(_name, desiredAccessRights: MemoryMappedFileRights.FullControl, inheritability: HandleInheritability.None);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        mappedFile = MemoryMappedFile.CreateFromFile(
+                            _fileName,
+                            FileMode.OpenOrCreate,
+                            _name,
+                            _capacity,
+                            MemoryMappedFileAccess.ReadWrite);
+                    }
+
+                    using (mappedFile)
+                    using (var viewAccessor = mappedFile.CreateViewAccessor())
+                    {
+                        action(viewAccessor);
+                    }
+
+                    mappedFile.Dispose();
+                });
         }
     }
 }

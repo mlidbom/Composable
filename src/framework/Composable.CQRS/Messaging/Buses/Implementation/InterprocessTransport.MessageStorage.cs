@@ -60,7 +60,6 @@ WHERE {MessageDispatching.MessageId} = @{MessageDispatching.MessageId}
 ")
                                                  .AddParameter(MessageDispatching.MessageId, response.RespondingToMessageId)
                                                  .AddParameter(MessageDispatching.EndpointId, endpointId.GuidValue)
-                                                 .AddParameter(MessageDispatching.IsReceived, 1)
                                                  .ExecuteNonQuery();
 
                         Contract.Result.Assert(affectedRows == 1);

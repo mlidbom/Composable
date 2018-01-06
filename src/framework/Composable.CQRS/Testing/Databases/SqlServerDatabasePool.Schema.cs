@@ -42,9 +42,8 @@ ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
             RebootedMasterConnections.Add(_masterConnectionString);
             _log.Warning("Rebooting database pool");
 
+            machineWide.Reset();
             _transientCache = new List<Database>();
-
-            ResetInMemoryData(machineWide);
 
             var dbsToDrop = ListPoolDatabases();
 
@@ -72,24 +71,6 @@ drop database [{db.Name()}]";
         void InitializePool(SharedState machineWide)
         {
             1.Through(30).ForEach(_ => InsertDatabase(machineWide));
-        }
-
-        void ResetInMemoryData(SharedState machineWide)
-        {
-            var reservedDatabases = machineWide.DatabasesReservedBy(_poolId);
-            if(reservedDatabases.Any())
-            {
-                foreach(var reservedDatabase in reservedDatabases)
-                {
-                    reservedDatabase.Release();
-                }
-            }
-            machineWide.Reset();
-
-            if(_transientCache.Any())
-            {
-                _transientCache = new List<Database>();
-            }
         }
 
         IReadOnlyList<Database> ListPoolDatabases()

@@ -39,7 +39,7 @@ namespace Composable.System.Threading
 
         readonly string _name;
 
-        private readonly bool _usePersistentFile;
+        readonly bool _usePersistentFile;
 
         internal static MachineWideSharedObject<TObject> For(string name, bool usePersistentFile = false, long capacity = 1000_000) => new MachineWideSharedObject<TObject>(name, usePersistentFile, capacity);
 
@@ -126,7 +126,7 @@ namespace Composable.System.Threading
             return value;
         }
 
-        private void UseViewAccessor(Action<MemoryMappedViewAccessor> action)
+        void UseViewAccessor(Action<MemoryMappedViewAccessor> action)
         {
             _synchronizer.Execute(
                 () =>

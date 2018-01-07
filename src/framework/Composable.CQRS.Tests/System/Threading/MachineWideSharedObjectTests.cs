@@ -19,31 +19,31 @@ namespace Composable.Tests.System.Threading
     {
         [Test] public void Create()
         {
-            var shared = MachineWideSharedObject<SharedObject>.For("somethingPrettyUnique");
-            var test = shared.GetCopy();
+            using (var shared = MachineWideSharedObject<SharedObject>.For("somethingPrettyUnique"))
+            {
+                var test = shared.GetCopy();
 
-            test.Name.Should()
-                .Be("Default");
+                test.Name.Should().Be("Default");
+            }
         }
 
         [Test]
         public void Create_update_and_get()
         {
-            var shared = MachineWideSharedObject<SharedObject>.For("somethingMoreUnique");
-            var test = shared.GetCopy();
+            using (var shared = MachineWideSharedObject<SharedObject>.For("somethingMoreUnique"))
+            {
+                var test = shared.GetCopy();
 
-            test.Name.Should()
-                .Be("Default");
+                test.Name.Should().Be("Default");
 
-            test = shared.Update(@this => @this.Name = "Updated");
+                test = shared.Update(@this => @this.Name = "Updated");
 
-            test.Name.Should()
-                .Be("Updated");
+                test.Name.Should().Be("Updated");
 
-            test = shared.GetCopy();
+                test = shared.GetCopy();
 
-            test.Name.Should()
-                .Be("Updated");
+                test.Name.Should().Be("Updated");
+            }
         }
     }
 }

@@ -57,9 +57,7 @@ namespace Composable.Testing.Databases
         {
             _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 1.Minutes();
 
-            var connectionStringWithoutInvalidChars = masterConnectionString.Replace("\\", "_");
-
-            _machineWideState = MachineWideSharedObject<SharedState>.For(connectionStringWithoutInvalidChars, usePersistentFile: true);
+            _machineWideState = MachineWideSharedObject<SharedState>.For(GetType().FullName, usePersistentFile: true);
             _masterConnectionString = masterConnectionString;
 
             OldContract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
@@ -174,6 +172,7 @@ namespace Composable.Testing.Databases
             if(_disposed) return;
             _disposed = true;
             _machineWideState.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
+            _machineWideState.Dispose();
         }
     }
 }

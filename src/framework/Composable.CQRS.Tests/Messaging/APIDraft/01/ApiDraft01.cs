@@ -32,7 +32,7 @@ namespace Composable.Tests.Messaging.APIDraft._01
 
         class MessageHandlerGroupSettings
         {
-            int MaximumThreads = 1;
+            //int MaximumThreads = 1;
         }
 
         class MessageHandlerSettings {}

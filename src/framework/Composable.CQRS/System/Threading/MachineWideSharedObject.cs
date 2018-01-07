@@ -137,8 +137,7 @@ namespace Composable.System.Threading
                         {
                             try
                             {
-                                mappedFile = MemoryMappedFile.OpenExisting(_name, desiredAccessRights: MemoryMappedFileRights.FullControl, 
-                                    inheritability: HandleInheritability.None);
+                                mappedFile = MemoryMappedFile.OpenExisting(_name, desiredAccessRights: MemoryMappedFileRights.FullControl, inheritability: HandleInheritability.None);
                             }
                             catch (FileNotFoundException)
                             {

@@ -57,7 +57,9 @@ namespace Composable.Testing.Databases
         {
             _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 1.Minutes();
 
-            _machineWideState = MachineWideSharedObject<SharedState>.For(GetType().FullName, usePersistentFile: true);
+            var connectionStringWithoutInvalidChars = masterConnectionString.Replace("\\", "_");
+
+            _machineWideState = MachineWideSharedObject<SharedState>.For(connectionStringWithoutInvalidChars, usePersistentFile: true);
             _masterConnectionString = masterConnectionString;
 
             OldContract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),

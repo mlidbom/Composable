@@ -61,10 +61,13 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(@event);
 
-            var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToList();
+            var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToArray();
 
-            state.MessageStorage.SaveMessage(@event, eventHandlerEndpointIds.ToArray());
-            connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(@event));
+            if(connections.Any())//Don't waste time persisting if there are no receivers
+            {
+                state.MessageStorage.SaveMessage(@event, eventHandlerEndpointIds.ToArray());
+                connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(@event));
+            }
         });
 
         public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command) => _state.WithExclusiveAccess(state =>

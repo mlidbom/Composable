@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
-using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Threading;
-using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses.Implementation
@@ -19,7 +17,6 @@ namespace Composable.Messaging.Buses.Implementation
             readonly IServiceLocator _serviceLocator;
             readonly MessageStorage _storage;
             readonly Thread _messagePumpThread;
-            readonly IResourceGuard _resourceGuard = ResourceGuard.WithTimeout(1.Seconds());
             CancellationTokenSource _cancellationTokenSource;
 
             readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
@@ -80,34 +77,25 @@ namespace Composable.Messaging.Buses.Implementation
                 }
             }
 
-            void EnqueueTransactionalTask(TransportMessage.InComing message, Action action)
-                => EnqueueNonTransactionalTask(message, action: () => TransactionScopeCe.Execute(action));
-
-            void EnqueueNonTransactionalTask(TransportMessage.InComing message, Action action)
-                => _coordinator.EnqueueMessageTask(message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
-
             async Task<object> DispatchAsync(IQuery query, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetQueryHandler(query.GetType());
 
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-                using(_resourceGuard.AwaitUpdateLock())
+
+                _coordinator.EnqueueMessageTask(message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(() =>
                 {
-                    EnqueueNonTransactionalTask(message,
-                                                action: () =>
-                                                {
-                                                    try
-                                                    {
-                                                        var result = handler(query);
-                                                        taskCompletionSource.SetResult(result);
-                                                    }
-                                                    catch(Exception exception)
-                                                    {
-                                                        taskCompletionSource.SetException(exception);
-                                                        throw;
-                                                    }
-                                                });
-                }
+                    try
+                    {
+                        var result = handler(query);
+                        taskCompletionSource.SetResult(result);
+                    }
+                    catch(Exception exception)
+                    {
+                        taskCompletionSource.SetException(exception);
+                        throw;
+                    }
+                }));
 
                 return await taskCompletionSource.Task.NoMarshalling();
             }
@@ -116,24 +104,21 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-                using(_resourceGuard.AwaitUpdateLock())
+
+                _coordinator.EnqueueMessageTask(message, messageTask: () => _serviceLocator.ExecuteTransactionInIsolatedScope(() => TransactionScopeCe.Execute(() =>
                 {
-                    EnqueueTransactionalTask(message,
-                                             action: () =>
-                                             {
-                                                 try
-                                                 {
-                                                     handler.ForEach(action: @this => @this(@event));
-                                                     _storage.MarkAsHandled(message);
-                                                     taskCompletionSource.SetResult(result: null);
-                                                 }
-                                                 catch(Exception exception)
-                                                 {
-                                                     taskCompletionSource.SetException(exception);
-                                                     throw;
-                                                 }
-                                             });
-                }
+                    try
+                    {
+                        handler.ForEach(action: @this => @this(@event));
+                        _storage.MarkAsHandled(message);
+                        taskCompletionSource.SetResult(result: null);
+                    }
+                    catch(Exception exception)
+                    {
+                        taskCompletionSource.SetException(exception);
+                        throw;
+                    }
+                })));
 
                 return await taskCompletionSource.Task.NoMarshalling();
             }
@@ -143,24 +128,21 @@ namespace Composable.Messaging.Buses.Implementation
                 var handler = _handlerRegistry.GetCommandHandler(command.GetType());
 
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-                using(_resourceGuard.AwaitUpdateLock())
+
+                _coordinator.EnqueueMessageTask(message, messageTask: () => _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
                 {
-                    EnqueueTransactionalTask(message,
-                                             action: () =>
-                                             {
-                                                 try
-                                                 {
-                                                     var result = handler(command);
-                                                     _storage.MarkAsHandled(message);
-                                                     taskCompletionSource.SetResult(result);
-                                                 }
-                                                 catch(Exception exception)
-                                                 {
-                                                     taskCompletionSource.SetException(exception);
-                                                     throw;
-                                                 }
-                                             });
-                }
+                    try
+                    {
+                        var result = handler(command);
+                        _storage.MarkAsHandled(message);
+                        taskCompletionSource.SetResult(result);
+                    }
+                    catch(Exception exception)
+                    {
+                        taskCompletionSource.SetException(exception);
+                        throw;
+                    }
+                }));
 
                 return await taskCompletionSource.Task.NoMarshalling();
             }

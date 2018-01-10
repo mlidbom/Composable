@@ -23,8 +23,8 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
         public IReadOnlyEntityCollection<NestedEntity, Guid> Entities => _entities.Entities;
         readonly NestedEntity.CollectionManager _entities;
 
-        public void Rename(string name) { RaiseEvent(new RootEvent.Entity.Implementation.Renamed(name)); }
-        public void Remove() => RaiseEvent(new RootEvent.Entity.Implementation.Removed());
+        public void Rename(string name) { Publish(new RootEvent.Entity.Implementation.Renamed(name)); }
+        public void Remove() => Publish(new RootEvent.Entity.Implementation.Removed());
 
         public NestedEntity AddEntity(string name)
             => _entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: Guid.NewGuid(), name: name));

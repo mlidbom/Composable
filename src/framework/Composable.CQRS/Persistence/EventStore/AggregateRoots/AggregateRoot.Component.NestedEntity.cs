@@ -39,7 +39,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 
                 // ReSharper disable once UnusedMember.Global todo: coverage
                 protected NestedEntity(TComponent parent)
-                    : this(parent.TimeSource, parent.RaiseEvent, parent.RegisterEventAppliers()) { }
+                    : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers()) { }
 
                 protected NestedEntity
                     (IUtcTimeTimeSource timeSource,
@@ -51,7 +51,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                         .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e));
                 }
 
-                protected override void RaiseEvent(TEntityBaseEventClass @event)
+                protected override void Publish(TEntityBaseEventClass @event)
                 {
                     var id = IdGetterSetter.GetId(@event);
                     if (Equals(id, default(TEntityId)))
@@ -62,7 +62,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                     {
                         throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");
                     }
-                    base.RaiseEvent(@event);
+                    base.Publish(@event);
                 }
 
                 internal TEntityId Id { get; private set; }
@@ -72,7 +72,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                   =>
                       new CollectionManager(
                           parent: parent,
-                          raiseEventThroughParent: parent.RaiseEvent,
+                          raiseEventThroughParent: parent.Publish,
                           appliersRegistrar: parent.RegisterEventAppliers());
 
                 public class CollectionManager : EntityCollectionManager<TComponent,

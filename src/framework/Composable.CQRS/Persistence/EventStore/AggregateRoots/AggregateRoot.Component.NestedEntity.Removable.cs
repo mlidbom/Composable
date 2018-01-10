@@ -40,7 +40,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                                     TEntityCreatedEventInterface,
                                     TEventEntityIdSetterGetter>
             {
-                protected NestedEntity(TComponent parent) : this(parent.TimeSource, parent.RaiseEvent, parent.RegisterEventAppliers())
+                protected NestedEntity(TComponent parent) : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers())
                 {
                 }
 
@@ -58,7 +58,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                     =>
                         new CollectionManager(
                             parent: parent,
-                            raiseEventThroughParent: parent.RaiseEvent,
+                            raiseEventThroughParent: parent.Publish,
                             appliersRegistrar: parent.RegisterEventAppliers());
 
                 internal new class CollectionManager : EntityCollectionManager<TComponent,

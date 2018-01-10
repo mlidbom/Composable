@@ -40,7 +40,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
     class TestAggregate : AggregateRoot<TestAggregate, RootEvent, IRootEvent>
     {
-        public void RaiseEvents(params RootEvent[] events)
+        public void Publish(params RootEvent[] events)
         {
             if (GetIdBypassContractValidation() == Guid.Empty && events.First().AggregateRootId == Guid.Empty)
             {
@@ -50,7 +50,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             foreach (var @event in events)
             {
-                Publish(@event);
+                base.Publish(@event);
             }
         }
 
@@ -76,7 +76,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         {
             OldContract.Assert.That(events.First() is IAggregateRootCreatedEvent, "events.First() is IAggregateRootCreatedEvent");
 
-            RaiseEvents(events);
+            Publish(events);
         }
 
         public static TestAggregate FromEvents(IUtcTimeTimeSource timeSource, Guid? id, IEnumerable<Type> events)

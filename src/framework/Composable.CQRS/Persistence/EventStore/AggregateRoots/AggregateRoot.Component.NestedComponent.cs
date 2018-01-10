@@ -24,7 +24,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                 where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
             {
                 protected NestedComponent(TComponent parent)
-                    : base(parent.TimeSource, parent.RaiseEvent, parent.RegisterEventAppliers(), registerEventAppliers: true) {}
+                    : base(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers(), registerEventAppliers: true) {}
 
                 protected NestedComponent
                     (IUtcTimeTimeSource timeSource,

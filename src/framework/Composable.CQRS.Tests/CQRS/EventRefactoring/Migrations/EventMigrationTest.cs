@@ -384,7 +384,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 var historyAfterPersistingAndReloading = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
 
-                serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).RaiseEvents(new E6(), new E7()));
+                serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).Publish(new E6(), new E7()));
 
                 migrations = Seq.Create(Replace<E2>.With<E6>()).ToList();
                 toDispose.Add(serviceLocator = serviceLocator.Clone());
@@ -405,7 +405,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
 
                 migrations = Seq.Empty<IEventMigration>().ToList();
-                serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).RaiseEvents(new E8(), new E9()));
+                serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).Publish(new E8(), new E9()));
                 historyAfterPersistingAndReloading = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 var expectedAfterReplacingE2WithE6AndRaisingE8E9 = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E6, E3, E4, E6, E7, E8, E9>()).History;
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6AndRaisingE8E9, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
@@ -447,7 +447,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 migrations = Seq.Create<IEventMigration>().ToList();
 
-                serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).RaiseEvents(new E2()));
+                serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).Publish(new E2()));
 
                 var aggregate = serviceLocator.ExecuteInIsolatedScope(() => Session().Get<TestAggregate>(id));
 

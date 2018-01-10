@@ -20,8 +20,8 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
                     .For<RootEvent.Component.Entity.PropertyUpdated.Name>(e => Name = e.Name);
             }
 
-            public void Rename(string name) { RaiseEvent(new RootEvent.Component.Entity.Implementation.Renamed(name)); }
-            public void Remove() => RaiseEvent(new RootEvent.Component.Entity.Implementation.Removed());
+            public void Rename(string name) { Publish(new RootEvent.Component.Entity.Implementation.Renamed(name)); }
+            public void Remove() => Publish(new RootEvent.Component.Entity.Implementation.Removed());
         }
     }
 }

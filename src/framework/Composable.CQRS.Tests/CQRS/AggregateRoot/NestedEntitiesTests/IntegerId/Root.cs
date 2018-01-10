@@ -43,7 +43,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
         public IReadOnlyEntityCollection<Entity, int> Entities => _entities.Entities;
         readonly Entity.CollectionManager _entities;
 
-        public void Rename(string name) { RaiseEvent(new RootEvent.Component.Implementation.Renamed(name)); }
+        public void Rename(string name) { Publish(new RootEvent.Component.Implementation.Renamed(name)); }
         public Entity AddEntity(string name) => _entities.Add(new RootEvent.Component.Entity.Implementation.Created(++_instances, name));
 
         public class Entity : NestedEntity<Entity,
@@ -61,8 +61,8 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
                     .For<RootEvent.Component.Entity.PropertyUpdated.Name>(e => Name = e.Name);
             }
 
-            public void Rename(string name) { RaiseEvent(new RootEvent.Component.Entity.Implementation.Renamed(name)); }
-            public void Remove() => RaiseEvent(new RootEvent.Component.Entity.Implementation.Removed());
+            public void Rename(string name) { Publish(new RootEvent.Component.Entity.Implementation.Renamed(name)); }
+            public void Remove() => Publish(new RootEvent.Component.Entity.Implementation.Removed());
         }
     }
 
@@ -86,8 +86,8 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
         public IReadOnlyEntityCollection<NestedEntity, int> Entities => _entities.Entities;
         readonly NestedEntity.CollectionManager _entities;
 
-        public void Rename(string name) { RaiseEvent(new RootEvent.Entity.Implementation.Renamed(name)); }
-        public void Remove() => RaiseEvent(new RootEvent.Entity.Implementation.Removed());
+        public void Rename(string name) { Publish(new RootEvent.Entity.Implementation.Renamed(name)); }
+        public void Remove() => Publish(new RootEvent.Entity.Implementation.Removed());
 
         public class NestedEntity : NestedEntity<NestedEntity,
                                         int,
@@ -104,8 +104,8 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
                     .For<RootEvent.Entity.NestedEntity.PropertyUpdated.Name>(e => Name = e.Name);
             }
 
-            public void Rename(string name) => RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Renamed(name: name));
-            public void Remove() => RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Removed());
+            public void Rename(string name) => Publish(new RootEvent.Entity.NestedEntity.Implementation.Renamed(name: name));
+            public void Remove() => Publish(new RootEvent.Entity.NestedEntity.Implementation.Removed());
 
         }
 

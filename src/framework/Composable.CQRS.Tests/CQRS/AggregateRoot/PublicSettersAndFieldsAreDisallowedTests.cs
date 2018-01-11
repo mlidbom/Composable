@@ -20,6 +20,9 @@ namespace Composable.Tests.CQRS.AggregateRoot
 
             public class Root : AggregateRootEvent, IRoot { public string Public1 { get; set; } }
 
+            [AllowPublicSetters]
+            public class Ignored : Root { public string IgnoredMember { get; set; } }
+
             public static class Component
             {
                 public interface IRoot : RootEvent.IRoot { string Public2 { get; set; }  }
@@ -90,13 +93,14 @@ namespace Composable.Tests.CQRS.AggregateRoot
         }
 
 
-        [Test]public void Trying_to_create_instance_of_aggregate_throws_and_lists_all_broken_types_in_exception()
+        [Test]public void Trying_to_create_instance_of_aggregate_throws_and_lists_all_broken_types_in_exception_except_ignored()
         {
             AssertThrows.Exception<Exception>(() => new Root(null)).InnerException
                         .Message
                         .Should().Contain(typeof(Root).FullName)
                         .And.Contain(typeof(RootEvent.IRoot).FullName)
-                        .And.Contain(typeof(RootEvent.Root).FullName);
+                        .And.Contain(typeof(RootEvent.Root).FullName)
+                        .And.NotContain(typeof(RootEvent.Ignored).FullName);
         }
 
         [Test] public void Trying_to_create_instance_of_component_throws_and_lists_all_broken_types_in_exception()

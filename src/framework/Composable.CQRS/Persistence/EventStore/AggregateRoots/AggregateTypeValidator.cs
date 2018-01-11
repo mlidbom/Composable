@@ -24,18 +24,23 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 
             typesToInspect = typesToInspect.Distinct().ToList();
 
-            var illegalTypes = typesToInspect.Where(HasIllegalPublicSettersOrFields).ToList();
+            var illegalMembers = typesToInspect.SelectMany(GetBrokenMembers).Distinct().ToList();
 
-            if (illegalTypes.Any())
+            if (illegalMembers.Any())
             {
-                var brokenTypeListMessage = illegalTypes.Select(illegal => illegal.FullName).Join(Environment.NewLine);
-                var message = $"Types used by aggregate contains types that have public setters or public  fields. This is a bad domain design. List of problem types:{Environment.NewLine}{brokenTypeListMessage}{Environment.NewLine}{Environment.NewLine}";
+                // ReSharper disable once PossibleNullReferenceException
+                var brokenMembers = illegalMembers.Select(illegal => $"{illegal.DeclaringType.FullName}.{illegal.Name}").Distinct().OrderBy(me => me).Join(Environment.NewLine);
+                var message = $@"Types used by aggregate contains types that have public setters or public  fields. This is a dangerous design. 
+If you ever mutate an event or an aggregate except by raising events your state is likely to become currupt in our caches etc. 
+List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine}{Environment.NewLine}";
+
+                Console.WriteLine(message);
 
                 throw new Exception(message);
             }
         }
 
-        static bool HasIllegalPublicSettersOrFields(Type type)
+        static IEnumerable<MemberInfo> GetBrokenMembers(Type type)
         {
             var publicFields = type.GetMembers(BindingFlags.Public | BindingFlags.Instance).Where(member => member.MemberType.HasFlag(MemberTypes.Field)).ToList();
 
@@ -49,7 +54,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             // ReSharper disable once AssignNullToNotNullAttribute
             totalMutableProperties = totalMutableProperties.Where(member => member.DeclaringType.GetCustomAttribute<AllowPublicSettersAttribute>() == null).ToList();
 
-            return totalMutableProperties.Any();
+            return totalMutableProperties;
         }
 
 

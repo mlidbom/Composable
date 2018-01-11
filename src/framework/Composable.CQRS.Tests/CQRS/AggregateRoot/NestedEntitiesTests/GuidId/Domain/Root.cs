@@ -25,6 +25,6 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
         }
 
         public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;
-        public Entity AddEntity(string name) => _entities.Add(new RootEvent.Entity.Implementation.Created(Guid.NewGuid(), name));
+        public Entity AddEntity(string name) => _entities.AddByPublishing(new RootEvent.Entity.Implementation.Created(Guid.NewGuid(), name));
     }
 }

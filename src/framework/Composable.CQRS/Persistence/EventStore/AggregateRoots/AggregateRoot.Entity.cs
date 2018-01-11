@@ -31,7 +31,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
         {
             static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
-            internal TEntityId Id { get; private set; }
+            public TEntityId Id { get; private set; }
 
             protected Entity(TAggregateRoot aggregateRoot)
                 : this(aggregateRoot.TimeSource, aggregateRoot.Publish, aggregateRoot.RegisterEventAppliers()) {}

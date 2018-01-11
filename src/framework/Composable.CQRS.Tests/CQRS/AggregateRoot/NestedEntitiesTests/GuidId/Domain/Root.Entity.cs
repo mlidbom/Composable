@@ -27,6 +27,6 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
         public void Remove() => Publish(new RootEvent.Entity.Implementation.Removed());
 
         public NestedEntity AddEntity(string name)
-            => _entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: Guid.NewGuid(), name: name));
+            => _entities.AddByPublishing(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: Guid.NewGuid(), name: name));
     }
 }

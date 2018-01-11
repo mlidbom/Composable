@@ -15,7 +15,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
     interface IEntityCollectionManager<TEntity, in TEntityId, in TEventClass, in TEntityCreationInterface>
     {
         IReadOnlyEntityCollection<TEntity, TEntityId> Entities { get; }
-        TEntity Add<TCreationEvent>(TCreationEvent creationEvent)
+        TEntity AddByPublishing<TCreationEvent>(TCreationEvent creationEvent)
             where TCreationEvent : TEventClass, TEntityCreationInterface;
     }
 }

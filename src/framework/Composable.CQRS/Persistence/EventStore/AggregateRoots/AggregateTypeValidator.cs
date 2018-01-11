@@ -7,6 +7,12 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore.AggregateRoots
 {
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
+    public class AllowPublicSettersAttribute : Attribute
+    {
+        
+    }
+
     static class AggregateTypeValidator<TDomainClass, TEventClass, TEventInterface>
     {
         public static void Validate()
@@ -19,28 +25,31 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 
             typesToInspect = typesToInspect.Distinct().ToList();
 
-            var illegalTypes = typesToInspect.Where(HasublicSettersOrFields).ToList();
+            var illegalTypes = typesToInspect.Where(HasIllegalPublicSettersOrFields).ToList();
 
-            if(illegalTypes.Any())
+            if (illegalTypes.Any())
             {
                 var brokenTypeListMessage = illegalTypes.Select(illegal => illegal.FullName).Join(Environment.NewLine);
-                var message =$"Types used by aggregate contains types that have public setters or public  fields. This is a bad domain design. List of problem types:{Environment.NewLine}{brokenTypeListMessage}{Environment.NewLine}{Environment.NewLine}";
+                var message = $"Types used by aggregate contains types that have public setters or public  fields. This is a bad domain design. List of problem types:{Environment.NewLine}{brokenTypeListMessage}{Environment.NewLine}{Environment.NewLine}";
 
                 throw new Exception(message);
             }
         }
 
-        static bool HasublicSettersOrFields(Type type)
+        static bool HasIllegalPublicSettersOrFields(Type type)
         {
-            var publicFields = type.GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).Where(member => member.MemberType.HasFlag(MemberTypes.Field)).ToList();
+            var publicFields = type.GetMembers(BindingFlags.Public | BindingFlags.Instance).Where(member => member.MemberType.HasFlag(MemberTypes.Field)).ToList();
 
-            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
             var publicProperties = properties
-                                       .Where(member => member?.SetMethod?.IsPublic == true)
-                                       .ToList();
+                .Where(member => member?.SetMethod?.IsPublic == true)
+                .ToList();
 
-            return publicProperties.Any() || publicFields.Any();
+            var totalMutableProperties = publicFields.Concat(publicProperties).ToList();
+            totalMutableProperties = totalMutableProperties.Where(member => member.DeclaringType.GetCustomAttribute<AllowPublicSettersAttribute>() == null).ToList();
+
+            return totalMutableProperties.Any();
         }
 
 

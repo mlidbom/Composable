@@ -35,6 +35,8 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                                                        TEntityBaseEventClass,
                                                        TEntityBaseEventInterface>, new()
             {
+                static NestedEntity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.Validate();
+
                 static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
                 // ReSharper disable once UnusedMember.Global todo: coverage

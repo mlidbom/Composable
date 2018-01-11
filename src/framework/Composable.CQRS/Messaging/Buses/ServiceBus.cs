@@ -40,6 +40,7 @@ namespace Composable.Messaging.Buses
             _inbox.Stop();
         }
 
+        //Todo: if(inprocessTransport.TryDispatchSynchronously(out var response)
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) =>
             query is ICreateMyOwnResultQuery<TResult> selfCreating
                 ? selfCreating.CreateResult()
@@ -47,11 +48,13 @@ namespace Composable.Messaging.Buses
 
         public TResult Query<TResult>(IQuery<TResult> query) => QueryAsync(query).ResultUnwrappingException();
 
+        //Todo: inprocessTransport.Publish
         public void Publish(ITransactionalExactlyOnceDeliveryEvent @event) => TransactionScopeCe.Execute(() => _transport.DispatchIfTransactionCommits(@event));
 
         public void Send(ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
+            //Todo: if(inprocessTransport.TryDispatchSynchronously(out var response)
             _transport.DispatchIfTransactionCommits(command);
         });
 

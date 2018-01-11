@@ -41,6 +41,8 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                                                        TEntityBaseEventClass,
                                                        TEntityBaseEventInterface>, new()
             {
+                static SlavedNestedEntity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.Validate();
+
                 static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
                 protected SlavedNestedEntity(TComponent parent)

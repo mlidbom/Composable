@@ -30,7 +30,7 @@ namespace Composable.Tests.CQRS
 
         public void Register(string email, string password, Guid id)
         {
-            Publish(new UserRegistered() { AggregateRootId = id, UserId = id, Email = email, Password = password});
+            Publish(new UserRegistered(id, email, password));
         }
 
         public static User Register(IEventStoreUpdater aggregates, string email, string password, Guid id)
@@ -43,7 +43,7 @@ namespace Composable.Tests.CQRS
 
         public void ChangePassword(string password)
         {
-            Publish(new UserChangedPassword() { Password = password });
+            Publish(new UserChangedPassword(password));
         }
 
         public void ChangeEmail(string email)
@@ -56,7 +56,10 @@ namespace Composable.Tests.CQRS
     { }
 
     abstract class UserEvent : AggregateRootEvent, IUserEvent
-    {}
+    {
+        protected UserEvent() {}
+        protected UserEvent(Guid aggregateRootId) : base(aggregateRootId) {}
+    }
 
     [TypeId("EEF29472-92ED-4AB4-81D3-3B38EB571025")]class UserChangedEmail : UserEvent, IUserEvent
     {
@@ -66,14 +69,20 @@ namespace Composable.Tests.CQRS
 
     [TypeId("B10B3CA4-5F9D-43FF-B2BB-DA65DFBAF3BD")]class UserChangedPassword : UserEvent, IUserEvent
     {
-        public string Password { get; set; }
+        public UserChangedPassword(string password) => Password = password;
+        public string Password { get; private set; }
     }
 
     [TypeId("B9517AE2-0697-469C-82C4-A3C827F11142")]class UserRegistered : UserEvent, IAggregateRootCreatedEvent
     {
-        public Guid UserId { [UsedImplicitly] get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
+        public UserRegistered(Guid userId, string email, string password):base(userId)
+        {
+            Email = email;
+            Password = password;
+        }
+
+        public string Email { get; private set; }
+        public string Password { get; private set; }
     }
 
     [TypeId("D04B3EE8-8C5D-4CF5-BA7E-8F6248EC91DA")][UsedImplicitly] class MigratedBeforeUserRegisteredEvent : UserEvent, IAggregateRootCreatedEvent

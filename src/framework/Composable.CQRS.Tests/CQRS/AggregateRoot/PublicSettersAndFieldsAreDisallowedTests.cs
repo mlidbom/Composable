@@ -6,6 +6,9 @@ using Composable.Persistence.EventStore.AggregateRoots;
 using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
+// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable UnusedMember.Local
+// ReSharper disable ObjectCreationAsStatement
 
 namespace Composable.Tests.CQRS.AggregateRoot
 {
@@ -33,7 +36,7 @@ namespace Composable.Tests.CQRS.AggregateRoot
             {
                 public interface IRoot : RootEvent.IRoot{ string            Public4 { get; set; }  }
                 internal class Root : RootEvent.Root, IRoot { public string Public4 { get; set; }
-                    public class GetterSetter : IGetSetAggregateRootEntityEventEntityId<Guid, Root, IRoot> 
+                    public class GetterSetter : IGetSetAggregateRootEntityEventEntityId<Guid, Root, IRoot>
                     {
                         public Guid GetId(IRoot @event) { throw new NotImplementedException(); }
                         public void SetEntityId(Root @event, Guid id) { throw new NotImplementedException(); }

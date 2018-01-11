@@ -10,7 +10,6 @@ namespace Composable.Persistence.EventStore.AggregateRoots
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class AllowPublicSettersAttribute : Attribute
     {
-        
     }
 
     static class AggregateTypeValidator<TDomainClass, TEventClass, TEventInterface>
@@ -47,6 +46,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                 .ToList();
 
             var totalMutableProperties = publicFields.Concat(publicProperties).ToList();
+            // ReSharper disable once AssignNullToNotNullAttribute
             totalMutableProperties = totalMutableProperties.Where(member => member.DeclaringType.GetCustomAttribute<AllowPublicSettersAttribute>() == null).ToList();
 
             return totalMutableProperties.Any();

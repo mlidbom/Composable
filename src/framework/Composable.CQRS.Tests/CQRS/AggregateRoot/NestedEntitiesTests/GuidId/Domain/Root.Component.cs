@@ -20,7 +20,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 
         public string Name { get; private set; }
         public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;
-        public void Rename(string name) { RaiseEvent(new RootEvent.Component.Implementation.Renamed(name)); }
-        public Component.Entity AddEntity(string name) => _entities.Add(new RootEvent.Component.Entity.Implementation.Created(Guid.NewGuid(), name));
+        public void Rename(string name) { Publish(new RootEvent.Component.Implementation.Renamed(name)); }
+        public Component.Entity AddEntity(string name) => _entities.AddByPublishing(new RootEvent.Component.Entity.Implementation.Created(Guid.NewGuid(), name));
     }
 }

@@ -49,7 +49,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                 }
             }
 
-            protected virtual void RaiseEvent(TComponentBaseEventClass @event)
+            protected virtual void Publish(TComponentBaseEventClass @event)
             {
                 _raiseEventThroughParent(@event);
                 _eventHandlersEventDispatcher.Dispatch(@event);

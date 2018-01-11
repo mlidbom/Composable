@@ -50,7 +50,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations {
 
                     serviceLocator.ExecuteInIsolatedScope(() => PersistingEventStore().PersistMigrations());
 
-                    otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => OtherEventStoreSession().Get<TestAggregate>(id).RaiseEvents(new E3()));
+                    otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => OtherEventStoreSession().Get<TestAggregate>(id).Publish(new E3()));
 
                     var firstProcessHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => PersistingEventStore().GetAggregateHistory(id));
                     var secondProcessHistory = otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => otherProcessServiceLocator.Resolve<IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>>().GetAggregateHistory(id));

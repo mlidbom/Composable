@@ -44,7 +44,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                 static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
                 protected SlavedNestedEntity(TComponent parent)
-                    : this(parent.TimeSource, parent.RaiseEvent, parent.RegisterEventAppliers()) { }
+                    : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers()) { }
 
                 protected SlavedNestedEntity
                     (IUtcTimeTimeSource timeSource,
@@ -56,7 +56,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                         .IgnoreUnhandled<TEntityBaseEventInterface>();
                 }
 
-                protected override void RaiseEvent(TEntityBaseEventClass @event)
+                protected override void Publish(TEntityBaseEventClass @event)
                 {
                     if(object.Equals(Id, default(TEntityId)))
                     {
@@ -71,7 +71,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                     {
                         throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");
                     }
-                    base.RaiseEvent(@event);
+                    base.Publish(@event);
                 }
 
                 // ReSharper disable once MemberCanBePrivate.Global

@@ -54,7 +54,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 
                 public IReadOnlyEntityCollection<TEntity, TEntityId> Entities => ManagedEntities;
 
-                public TEntity Add<TCreationEvent>(TCreationEvent creationEvent)
+                public TEntity AddByPublishing<TCreationEvent>(TCreationEvent creationEvent)
                     where TCreationEvent : TEntityBaseEventClass, TEntityCreatedEventInterface
                 {
                     _raiseEventThroughParent(creationEvent);

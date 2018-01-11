@@ -31,7 +31,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
         {
             static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
-            internal TEntityId Id { get; private set; }
+            public TEntityId Id { get; private set; }
 
             protected Entity(TAggregateRoot aggregateRoot)
                 : this(aggregateRoot.TimeSource, aggregateRoot.Publish, aggregateRoot.RegisterEventAppliers()) {}
@@ -46,7 +46,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                     .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e));
             }
 
-            protected override void RaiseEvent(TEntityBaseEventClass @event)
+            protected override void Publish(TEntityBaseEventClass @event)
             {
                 var id = IdGetterSetter.GetId(@event);
                 if(Equals(id, default(TEntityId)))
@@ -57,7 +57,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                 {
                     throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");
                 }
-                base.RaiseEvent(@event);
+                base.Publish(@event);
             }
 
             // ReSharper disable once UnusedMember.Global todo: write tests.

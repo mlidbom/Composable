@@ -17,6 +17,8 @@ namespace Composable.Persistence.EventStore.AggregateRoots
     {
         IUtcTimeTimeSource TimeSource { get; set; }
 
+        static AggregateRoot() => AggregateTypeValidator<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>.Validate();
+
         [Obsolete("Only for infrastructure", true)] protected AggregateRoot():this(DateTimeNowTimeSource.Instance){ }
 
         int _insertedVersionToAggregateVersionOffset = 0;

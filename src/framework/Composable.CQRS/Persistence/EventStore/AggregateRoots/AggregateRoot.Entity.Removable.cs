@@ -34,6 +34,8 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>,
                 new()
         {
+            static Entity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.Validate();
+
             protected Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot)
             {
                 RegisterEventAppliers()

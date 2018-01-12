@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Composable.Contracts;
@@ -123,5 +122,12 @@ namespace Composable
                                      .ForEach(TypeId.FromType);
         }
 
+        public static TypeId Parse(string eventTypeId)
+        {
+            var primaryGuid = eventTypeId.Substring(0, 36);
+            var secondaryGuid = eventTypeId.Substring(37, 36);
+
+            return new TypeId(Guid.Parse(primaryGuid), Guid.Parse(secondaryGuid));
+        }
     }
 }

@@ -118,9 +118,9 @@ namespace Composable.DependencyInjection.Persistence
                                                     {
                                                         var connectionProvider = connectionProvider1.GetConnectionProvider(connectionName);
 
-                                                        IEventNameMapper nameMapper = new DefaultEventNameMapper();
+                                                        ITypeIdMapper typeIdMapper = new TypeIdAttributeTypeIdMapper();
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
-                                                        var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, nameMapper);
+                                                        var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, typeIdMapper);
                                                         var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
                                                         var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager);
                                                         return new EventStorePersistenceLayer<TSessionInterface>(schemaManager, eventReader, eventWriter);

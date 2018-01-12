@@ -2,9 +2,9 @@ using System;
 
 namespace Composable.Persistence.EventStore.Refactoring.Naming
 {
-    interface IEventNameMapper
+    interface ITypeIdMapper
     {
         string GetName(Type eventType);
-        Type GetType(string eventTypeName);
+        Type GetType(string eventTypeId);
     }
 }

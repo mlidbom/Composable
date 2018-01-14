@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.Persistence.EventStore.Refactoring.Naming
+namespace Composable.Refactoring.Naming
 {
     class TypeIdAttributeTypeIdMapper : ITypeIdMapper
     {

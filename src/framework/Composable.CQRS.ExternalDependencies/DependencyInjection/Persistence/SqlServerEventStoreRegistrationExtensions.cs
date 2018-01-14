@@ -7,7 +7,7 @@ using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
-using Composable.Persistence.EventStore.Refactoring.Naming;
+using Composable.Refactoring.Naming;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;

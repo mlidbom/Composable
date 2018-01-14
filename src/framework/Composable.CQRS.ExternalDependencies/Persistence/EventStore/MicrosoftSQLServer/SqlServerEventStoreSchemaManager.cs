@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using System.Transactions;
 using Composable.Logging.Log4Net;
-using Composable.Persistence.EventStore.Refactoring.Naming;
+using Composable.Refactoring.Naming;
 using Composable.System.Data.SqlClient;
 using Composable.System.Transactions;
 

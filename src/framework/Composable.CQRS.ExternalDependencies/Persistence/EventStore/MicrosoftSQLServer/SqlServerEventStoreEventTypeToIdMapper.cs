@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
 using Composable.Logging.Log4Net;
 using Composable.Refactoring.Naming;
 using Composable.System.Data.SqlClient;
@@ -25,14 +23,14 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             lock(_lockObject)
             {
                 EnsureInitialized();
-                if (_idToTypeMap.TryGetValue(id, out var result))
+                if(_idToTypeMap.TryGetValue(id, out var result))
                 {
                     return result.Type;
                 }
 
                 LoadTypesFromDatabase();
 
-                if (!_idToTypeMap.TryGetValue(id, out result))
+                if(!_idToTypeMap.TryGetValue(id, out result))
                 {
                     throw new Exception($"Failed to load type information Id: {id} from the eventstore");
                 }
@@ -46,20 +44,21 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             lock(_lockObject)
             {
                 EnsureInitialized();
-                if (!_typeToIdMap.TryGetValue(type, out var value))
+                if(!_typeToIdMap.TryGetValue(type, out var value))
                 {
                     var mapping = InsertNewType(type);
                     _idToTypeMap.Add(mapping.Id, mapping);
                     _typeToIdMap.Add(mapping.Type, mapping.Id);
                     value = mapping.Id;
                 }
+
                 return value;
             }
         }
 
         void EnsureInitialized()
         {
-            if (_idToTypeMap == null)
+            if(_idToTypeMap == null)
             {
                 LoadTypesFromDatabase();
             }
@@ -79,6 +78,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                         typeToIdMap.Add(mapping.Type, mapping.Id);
                     }
                 }
+
                 _idToTypeMap = idToTypeMap;
                 //Only assign to the fields once we completely and successfully fetch all types. We do not want a half-way populated, and therefore corrupt, mapping table.
                 _typeToIdMap = typeToIdMap;
@@ -91,9 +91,10 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             {
                 using(var command = connection.CreateCommand())
                 {
-                    command.CommandText = $@"SELECT {EventTypeTable.Columns.Id} FROM {EventTypeTable.Name} WHERE {EventTypeTable.Columns.EventType}=@{EventTypeTable.Columns.EventType}";
-                    command.Parameters.Add(new SqlParameter(EventTypeTable.Columns.EventType, SqlDbType.NVarChar, 450) {Value = _typeIdMapper.GetName(newType)});
-                    using(var reader = command.ExecuteReader())
+                    var reader = command.SetCommandText($@"SELECT {EventTypeTable.Columns.Id} FROM {EventTypeTable.Name} WHERE {EventTypeTable.Columns.EventType}=@{EventTypeTable.Columns.EventType}")
+                                        .AddNVarcharParameter(EventTypeTable.Columns.EventType, 450, _typeIdMapper.GetId(newType).ToString())
+                                        .ExecuteReader();
+                    using(reader)
                     {
                         if(reader.Read())
                         {
@@ -104,9 +105,10 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
                 using(var command = connection.CreateCommand())
                 {
-                    command.CommandText = $@"INSERT {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} ) OUTPUT INSERTED.{EventTypeTable.Columns.Id} VALUES( @{EventTypeTable.Columns.EventType} )";
-                    command.Parameters.Add(new SqlParameter(EventTypeTable.Columns.EventType, SqlDbType.NVarChar, 450) {Value = _typeIdMapper.GetName(newType)});
-                    return new IdTypeMapping(id: (int)command.ExecuteScalar(), type: newType);
+                    var insertedTypeIntegerId = command.SetCommandText($@"INSERT {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} ) OUTPUT INSERTED.{EventTypeTable.Columns.Id} VALUES( @{EventTypeTable.Columns.EventType} )")
+                                                       .AddNVarcharParameter(EventTypeTable.Columns.EventType, 450, _typeIdMapper.GetId(newType).ToString())
+                                                       .ExecuteScalar();
+                    return new IdTypeMapping(id: (int)insertedTypeIntegerId, type: newType);
                 }
             }
         });
@@ -123,17 +125,17 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                     {
                         while(reader.Read())
                         {
-                            var eventTypeName = reader.GetString(1);
+                            var eventType = TypeId.Parse(reader.GetString(1));
                             var eventTypeId = reader.GetInt32(0);
                             Type foundEventType = null;
 
                             try
                             {
-                                foundEventType = _typeIdMapper.GetType(eventTypeName);
+                                foundEventType = _typeIdMapper.GetType(eventType);
                             }
                             catch(CouldNotFindTypeForTypeIdException)
                             {
-                                this.Log().Warn($"The type of event: Id: {eventTypeId}, Name: {eventTypeName} that exists in the database could not be found in the loaded assemblies. No mapping will be created for this class. If an event of this type is read from the store an exception will be thrown");
+                                this.Log().Warn($"The type of event: Id: {eventTypeId}, Name: {eventType} that exists in the database could not be found in the loaded assemblies. No mapping will be created for this class. If an event of this type is read from the store an exception will be thrown");
                             }
 
                             if(foundEventType != null)
@@ -141,12 +143,13 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                                 types.Add(new IdTypeMapping(id: eventTypeId, type: foundEventType));
                             } else
                             {
-                                types.Add(new BrokenIdTypeMapping(id: eventTypeId, typeName: eventTypeName));
+                                types.Add(new BrokenIdTypeMapping(id: eventTypeId, typeId: eventType));
                             }
                         }
                     }
                 }
             }
+
             return types;
         });
 
@@ -154,21 +157,22 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         Dictionary<Type, int> _typeToIdMap;
         readonly object _lockObject = new object();
 
-        interface IIdTypeMapping {
+        interface IIdTypeMapping
+        {
             int Id { get; }
             Type Type { get; }
         }
 
         class BrokenIdTypeMapping : IIdTypeMapping
         {
-            readonly string _typeName;
-            public BrokenIdTypeMapping(int id, string typeName)
+            readonly TypeId _typeId;
+            public BrokenIdTypeMapping(int id, TypeId typeId)
             {
-                _typeName = typeName;
+                _typeId = typeId;
                 Id = id;
             }
             public int Id { get; }
-            public Type Type => throw new TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException(_typeName, Id);
+            public Type Type => throw new TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException(_typeId, Id);
         }
 
         class IdTypeMapping : IIdTypeMapping
@@ -185,6 +189,6 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
     class TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException : Exception
     {
-        public TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException(string typeName, int id):base($"Event type Id: {id}, Name: {typeName} could not be mapped to a type.") {  }
+        public TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException(TypeId typeId, int id) : base($"Event type Id: {id}, Name: {typeId} could not be mapped to a type.") {}
     }
 }

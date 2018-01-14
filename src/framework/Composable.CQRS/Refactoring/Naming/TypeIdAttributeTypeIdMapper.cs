@@ -4,7 +4,7 @@ namespace Composable.Refactoring.Naming
 {
     class TypeIdAttributeTypeIdMapper : ITypeIdMapper
     {
-        public string GetName(Type eventType) => TypeId.FromType(eventType).ToString();
-        public Type GetType(string eventTypeId) => TypeId.Parse(eventTypeId).GetRuntimeType();
+        public TypeId GetId(Type eventType) => TypeId.FromType(eventType);
+        public Type GetType(TypeId typeId) => typeId.GetRuntimeType();
     }
 }

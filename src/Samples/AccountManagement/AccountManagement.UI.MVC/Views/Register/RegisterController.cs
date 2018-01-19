@@ -19,7 +19,7 @@ namespace AccountManagement.UI.MVC.Views.Register
             switch(result)
             {
                 case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
-                    return View("ValidateYourEmail", NavigationSpecification.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(registrationCommand.AccountId)).Execute(_serviceBus));
+                    return View("ValidateYourEmail", _serviceBus.Execute(NavigationSpecification.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(registrationCommand.AccountId))));
                 case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
                     return View("RegistrationForm");

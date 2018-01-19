@@ -29,13 +29,12 @@ namespace AccountManagement.Tests.Scenarios
 
         public AccountResource.Command.LogIn.LoginAttemptResult Execute()
         {
-            return NavigationSpecification.Get(AccountApi.Start)
+            return _bus.Execute(NavigationSpecification.Get(AccountApi.Start)
                                           .Post(start => start.Commands.Login.Mutate(@this =>
                                           {
                                               @this.Email = Email;
                                               @this.Password = Password;
-                                          }))
-                                          .Execute(_bus);
+                                          })));
         }
     }
 }

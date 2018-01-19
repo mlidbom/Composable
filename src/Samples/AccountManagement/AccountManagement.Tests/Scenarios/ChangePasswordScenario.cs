@@ -35,10 +35,9 @@ namespace AccountManagement.Tests.Scenarios
             command.OldPassword = OldPassword;
 
             _bus.Send(command);
-            Account = NavigationSpecification
+            Account = _bus.Execute(NavigationSpecification
                       .Get(AccountApi.Start)
-                      .Get(start => start.Queries.AccountById.WithId(Account.Id))
-                      .Execute(_bus);
+                      .Get(start => start.Queries.AccountById.WithId(Account.Id)));
         }
     }
 }

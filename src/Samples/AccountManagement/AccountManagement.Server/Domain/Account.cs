@@ -88,7 +88,7 @@ namespace AccountManagement.Domain
         }
 
         static AccountResource.Command.LogIn.LoginAttemptResult Login(Command.Login logIn, IInProcessServiceBus bus) =>
-            bus.Query(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email)) is Some<Account> account
+            bus.Query(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email)) is Option<Account>.Some account
                 ? account.Value.Login(logIn.Password)
                 : AccountResource.Command.LogIn.LoginAttemptResult.Failure();
     }

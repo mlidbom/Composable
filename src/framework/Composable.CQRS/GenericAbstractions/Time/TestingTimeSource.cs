@@ -1,5 +1,4 @@
 ﻿using System;
-using Composable.System.Reactive;
 
 namespace Composable.GenericAbstractions.Time
 {

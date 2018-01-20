@@ -9,7 +9,6 @@ using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
-using Composable.Refactoring.Naming;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;

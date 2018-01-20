@@ -1,6 +1,5 @@
 ﻿using System;
 using AccountManagement.API;
-using Composable;
 using Composable.Contracts;
 using Composable.Messaging.Commands;
 using JetBrains.Annotations;

@@ -1,5 +1,4 @@
-﻿using Composable;
-using Composable.Messaging;
+﻿using Composable.Messaging;
 using Composable.Messaging.Buses;
 
 namespace AccountManagement.API

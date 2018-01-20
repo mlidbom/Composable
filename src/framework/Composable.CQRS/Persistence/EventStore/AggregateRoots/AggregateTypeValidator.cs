@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Composable.GenericAbstractions.Hierarchies;
 using Composable.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Linq;

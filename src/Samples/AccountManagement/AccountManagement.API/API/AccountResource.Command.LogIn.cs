@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
-using Composable;
 using Composable.Messaging.Commands;
 
 namespace AccountManagement.API

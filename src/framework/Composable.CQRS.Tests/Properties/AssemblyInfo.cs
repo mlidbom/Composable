@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
-using Composable;
 using NUnit.Framework;
 
 // General Information about an assembly is controlled through the following

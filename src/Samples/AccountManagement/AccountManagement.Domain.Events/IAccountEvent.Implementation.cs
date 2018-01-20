@@ -1,5 +1,4 @@
 ﻿using System;
-using Composable;
 using Composable.Contracts;
 using Composable.Persistence.EventStore;
 using JetBrains.Annotations;

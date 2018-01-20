@@ -3,17 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection.SimpleInjectorImplementation;
 using Composable.DependencyInjection.Windsor;
-using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.AggregateRoots;
-using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.Refactoring.Naming;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
-using Composable.SystemExtensions.Threading;
 
 namespace Composable.DependencyInjection.Testing
 {

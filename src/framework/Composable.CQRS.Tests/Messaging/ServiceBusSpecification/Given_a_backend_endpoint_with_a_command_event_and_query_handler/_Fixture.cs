@@ -4,7 +4,6 @@ using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
 using Composable.Persistence.EventStore;
-using Composable.Refactoring.Naming;
 using Composable.Testing.Threading;
 using FluentAssertions;
 

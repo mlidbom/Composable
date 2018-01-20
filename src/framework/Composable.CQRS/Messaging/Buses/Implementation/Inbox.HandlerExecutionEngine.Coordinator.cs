@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Composable.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Threading.ResourceAccess;
 
@@ -14,12 +15,17 @@ namespace Composable.Messaging.Buses.Implementation
             class Coordinator
             {
                 readonly IGlobalBusStateTracker _globalStateTracker;
+                readonly ITypeIdMapper _typeMapper;
                 readonly List<QueuedMessage>    _messagesWaitingToExecute = new List<QueuedMessage>();
 
                 //Todo: It is never OK for this class to block for a significant amount of time. So make that explicit with a really strict timeout on all operations waiting for access.
                 //Currently we cannot make the timeout really strict because it does time out....
                 readonly IResourceGuard _guard = ResourceGuard.WithTimeout(100.Milliseconds());
-                public Coordinator(IGlobalBusStateTracker globalStateTracker) => _globalStateTracker = globalStateTracker;
+                public Coordinator(IGlobalBusStateTracker globalStateTracker, ITypeIdMapper typeMapper)
+                {
+                    _globalStateTracker = globalStateTracker;
+                    _typeMapper = typeMapper;
+                }
 
                 internal QueuedMessage AwaitDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
                 {
@@ -47,7 +53,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 public void EnqueueMessageTask(TransportMessage.InComing message, Action messageTask) => _guard.Update(() =>
                 {
-                    var inflightMessage = new QueuedMessage(message, this, messageTask);
+                    var inflightMessage = new QueuedMessage(message, this, messageTask, _typeMapper);
                     _messagesWaitingToExecute.Add(inflightMessage);
                     return inflightMessage;
                 });
@@ -86,12 +92,12 @@ namespace Composable.Messaging.Buses.Implementation
                         });
                     }
 
-                    public QueuedMessage(TransportMessage.InComing message, Coordinator coordinator, Action messageTask)
+                    public QueuedMessage(TransportMessage.InComing message, Coordinator coordinator, Action messageTask, ITypeIdMapper typeMapper)
                     {
                         MessageId    = message.MessageId;
                         _coordinator = coordinator;
                         _messageTask = messageTask;
-                        Message      = message.DeserializeMessageAndCacheForNextCall();
+                        Message      = message.DeserializeMessageAndCacheForNextCall(typeMapper);
                     }
 
                     public void SetIsExecuting() => IsExecuting = true;

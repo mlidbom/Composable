@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
+using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -9,15 +10,18 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class HandlerStorage
         {
+            readonly ITypeIdMapper _typeMapper;
             readonly Dictionary<TypeId, EndpointId> _commandHandlerMap = new Dictionary<TypeId, EndpointId>();
             readonly Dictionary<TypeId, EndpointId> _queryHandlerMap = new Dictionary<TypeId, EndpointId>();
             readonly List<(TypeId EventType, EndpointId EndPointId)> _eventHandlerRegistrations = new List<(TypeId EventType, EndpointId EndPointId)>();
+
+            public HandlerStorage(ITypeIdMapper typeMapper) => _typeMapper = typeMapper;
 
             internal void AddRegistrations(EndpointId endpointId, ISet<TypeId> handledTypeIds)
             {
                 foreach(var typeId in handledTypeIds)
                 {
-                    if(typeId.TryGetRuntimeType(out var type))
+                    if(_typeMapper.TryGetType(typeId, out var type))
                     {
                         if(IsEvent(type))
                         {
@@ -39,7 +43,7 @@ namespace Composable.Messaging.Buses.Implementation
             void AddEventHandler(Type eventType, EndpointId endpointId)
             {
                 Contract.Argument.NotNull(eventType, endpointId);
-                var eventTypeId = TypeId.FromType(eventType);
+                var eventTypeId = _typeMapper.GetId(eventType);
 
                 _eventHandlerRegistrations.Add((eventTypeId, endpointId));
             }
@@ -47,20 +51,20 @@ namespace Composable.Messaging.Buses.Implementation
             void AddCommandHandler(Type commandType, EndpointId endpointId)
             {
                 Contract.Argument.NotNull(commandType, endpointId);
-                var commandTypeId = TypeId.FromType(commandType);
+                var commandTypeId = _typeMapper.GetId(commandType);
                 _commandHandlerMap.Add(commandTypeId, endpointId);
             }
 
             void AddQueryHandler(Type queryType, EndpointId endpointId)
             {
                 Contract.Argument.NotNull(queryType, endpointId);
-                var queryTypeId = TypeId.FromType(queryType);
+                var queryTypeId = _typeMapper.GetId(queryType);
                 _queryHandlerMap.Add(queryTypeId, endpointId);
             }
 
             internal EndpointId GetCommandHandlerEndpoint(ITransactionalExactlyOnceDeliveryCommand command)
             {
-                var commandTypeId = TypeId.FromType(command.GetType());
+                var commandTypeId = _typeMapper.GetId(command.GetType());
 
                 if(!_commandHandlerMap.TryGetValue(commandTypeId, out var endpointId))
                 {
@@ -72,7 +76,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal EndpointId GetQueryHandlerEndpoint(IQuery query)
             {
-                var queryTypeId = TypeId.FromType(query.GetType());
+                var queryTypeId = _typeMapper.GetId(query.GetType());
 
                 if(!_queryHandlerMap.TryGetValue(queryTypeId, out var endpointId))
                 {
@@ -85,10 +89,10 @@ namespace Composable.Messaging.Buses.Implementation
             internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(ITransactionalExactlyOnceDeliveryEvent @event)
             {
                 var typedEventHandlerRegistrations = _eventHandlerRegistrations
-                                                     .Where(me => me.EventType.TryGetRuntimeType(out var _))
+                                                     .Where(me => _typeMapper.TryGetType(me.EventType, out var _))
                                                      .Select(me => new
                                                                    {
-                                                                       EventType = me.EventType.GetRuntimeType(),
+                                                                       EventType = _typeMapper.GetType(me.EventType),
                                                                        me.EndPointId
                                                                    }).ToList();
 

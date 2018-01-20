@@ -25,6 +25,7 @@ namespace Composable.Messaging.Buses
         public void Start()
         {
             Contract.State.Assert(!_running);
+
             _running = true;
 
             BusControl.Start();

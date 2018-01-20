@@ -1,5 +1,6 @@
 ﻿using Composable.Contracts;
 using Composable.NewtonSoft;
+using Composable.Refactoring.Naming;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Newtonsoft.Json;
@@ -11,8 +12,13 @@ namespace Composable.Messaging.Buses.Implementation
         public partial class MessageStorage
         {
             readonly ISqlConnection _connectionFactory;
+            readonly ITypeIdMapper _typeMapper;
 
-            public MessageStorage(ISqlConnection connectionFactory) => _connectionFactory = connectionFactory;
+            public MessageStorage(ISqlConnection connectionFactory, ITypeIdMapper typeMapper)
+            {
+                _connectionFactory = connectionFactory;
+                _typeMapper = typeMapper;
+            }
 
             public void SaveMessage(ITransactionalExactlyOnceDeliveryMessage message, params EndpointId[] receiverEndpointIds) =>
                 _connectionFactory.UseCommand(
@@ -26,8 +32,8 @@ INSERT {OutboxMessages.TableName}
     VALUES (@{OutboxMessages.MessageId}, @{OutboxMessages.TypeIdGuidValue}, @{OutboxMessages.ParentTypeIdGuidValue}, @{OutboxMessages.Body})
 ")
                             .AddParameter(OutboxMessages.MessageId, message.MessageId)
-                            .AddParameter(OutboxMessages.TypeIdGuidValue, TypeId.FromType(message.GetType()).GuidValue)
-                            .AddParameter(OutboxMessages.ParentTypeIdGuidValue, TypeId.FromType(message.GetType()).ParentTypeGuidValue)
+                            .AddParameter(OutboxMessages.TypeIdGuidValue, _typeMapper.GetId(message.GetType()).GuidValue)
+                            .AddParameter(OutboxMessages.ParentTypeIdGuidValue, _typeMapper.GetId(message.GetType()).ParentTypeGuidValue)
                             //todo: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
                             .AddNVarcharMaxParameter(OutboxMessages.Body, JsonConvert.SerializeObject(message, JsonSettings.JsonSerializerSettings));
 

@@ -12,7 +12,7 @@ namespace AccountManagement.Domain
     {
         internal static class Command
         {
-            [TypeId("B0CAD429-295D-43E7-8441-566B7887C7F0")]internal class Register : TransactionalExactlyOnceDeliveryCommand<AccountResource.Command.Register.RegistrationAttemptResult>
+            internal class Register : TransactionalExactlyOnceDeliveryCommand<AccountResource.Command.Register.RegistrationAttemptResult>
             {
                 [UsedImplicitly] Register() { }
                 internal Register(Guid accountId, Password password, Email email)
@@ -28,7 +28,7 @@ namespace AccountManagement.Domain
                 public Email Email { get; private set; }
             }
 
-            [TypeId("0EAC052B-3185-4AAA-9267-5073EEE15D5A")]internal class ChangeEmail : TransactionalExactlyOnceDeliveryCommand
+            internal class ChangeEmail : TransactionalExactlyOnceDeliveryCommand
             {
                 [UsedImplicitly] ChangeEmail() {}
                 internal ChangeEmail(Guid accountId, Email email)
@@ -44,7 +44,7 @@ namespace AccountManagement.Domain
                 public Email Email { get; private set; }
             }
 
-            [TypeId("F9074BCF-39B3-4C76-993A-9C27F3E71279")]internal class ChangePassword : TransactionalExactlyOnceDeliveryCommand
+            internal class ChangePassword : TransactionalExactlyOnceDeliveryCommand
             {
                 [UsedImplicitly] ChangePassword() {}
                 internal ChangePassword(Guid accountId, string oldPassword, Password newPassword)
@@ -62,7 +62,7 @@ namespace AccountManagement.Domain
                 public Password NewPassword { get; private set; }
             }
 
-            [TypeId("14B6DD28-205B-42ED-9CF4-20D6B0299632")]internal class Login : TransactionalExactlyOnceDeliveryCommand<AccountResource.Command.LogIn.LoginAttemptResult>
+            internal class Login : TransactionalExactlyOnceDeliveryCommand<AccountResource.Command.LogIn.LoginAttemptResult>
             {
                 internal Login(Email email, string password)
                 {

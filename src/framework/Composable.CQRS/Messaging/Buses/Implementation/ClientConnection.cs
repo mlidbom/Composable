@@ -5,6 +5,7 @@ using System.Transactions;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.NetMQCE;
+using Composable.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Threading.ResourceAccess;
@@ -16,15 +17,15 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
-        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event))));
+        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper))));
 
-        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command))));
+        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
 
         public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var outGoingMessage = TransportMessage.OutGoing.Create(command);
+            var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper);
 
             Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(innerState =>
             {
@@ -41,7 +42,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var outGoingMessage = TransportMessage.OutGoing.Create(query);
+            var outGoingMessage = TransportMessage.OutGoing.Create(query, state.TypeMapper);
 
             state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
             state.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
@@ -63,10 +64,12 @@ namespace Composable.Messaging.Buses.Implementation
                                 IEndpoint endpoint,
                                 NetMQPoller poller,
                                 IUtcTimeTimeSource timeSource,
-                                InterprocessTransport.MessageStorage messageStorage)
+                                InterprocessTransport.MessageStorage messageStorage,
+                                ITypeIdMapper typeMapper)
         {
             _state.WithExclusiveAccess(state =>
             {
+                state.TypeMapper = typeMapper;
                 state.TimeSource = timeSource;
 
                 state.MessageStorage = messageStorage;
@@ -122,6 +125,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal IUtcTimeTimeSource TimeSource { get; set; }
             internal InterprocessTransport.MessageStorage MessageStorage { get; set; }
             public EndpointId RemoteEndpointId { get; set; }
+            public ITypeIdMapper TypeMapper { get; set; }
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());

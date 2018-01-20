@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
-using Composable;
 using Composable.Messaging.Commands;
 using JetBrains.Annotations;
 
@@ -12,7 +11,6 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            [TypeId("B1406B7E-A51C-4487-845C-AB7326465AD0")]
             public class Register : TransactionalExactlyOnceDeliveryCommand<Register.RegistrationAttemptResult>, IValidatableObject
             {
                 public Register() {}

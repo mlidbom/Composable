@@ -53,7 +53,7 @@ namespace Composable.Messaging.Buses
 
         IEventDispatcher<ITransactionalExactlyOnceDeliveryEvent> CreateEventDispatcher();
 
-        ISet<Type> HandledTypes();
+        ISet<TypeId> HandledTypeIds();
     }
 
     public interface IMessageHandlerRegistrar

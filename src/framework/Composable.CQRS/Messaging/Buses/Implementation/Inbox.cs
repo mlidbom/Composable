@@ -1,6 +1,7 @@
 ﻿using System;
 using Composable.Contracts;
 using Composable.DependencyInjection;
+using Composable.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Threading.ResourceAccess;
@@ -11,6 +12,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class Inbox : IInbox, IDisposable
     {
+        readonly ITypeIdMapper _typeMapper;
         readonly IResourceGuard _resourceGuard = ResourceGuard.WithTimeout(1.Seconds());
 
         bool _running;
@@ -24,11 +26,12 @@ namespace Composable.Messaging.Buses.Implementation
         readonly MessageStorage _storage;
         readonly HandlerExecutionEngine _handlerExecutionEngine;
 
-        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory)
+        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory, ITypeIdMapper typeMapper)
         {
+            _typeMapper = typeMapper;
             _address = configuration.Address;
             _storage = new MessageStorage(connectionFactory);
-            _handlerExecutionEngine = new HandlerExecutionEngine(globalStateTracker, handlerRegistry, serviceLocator, _storage);
+            _handlerExecutionEngine = new HandlerExecutionEngine(globalStateTracker, handlerRegistry, serviceLocator, _storage, _typeMapper);
         }
 
         public EndPointAddress Address => new EndPointAddress(_address);
@@ -71,7 +74,7 @@ namespace Composable.Messaging.Buses.Implementation
             Contract.Argument.Assert(e.IsReadyToReceive);
             var transportMessage = TransportMessage.InComing.Receive(_responseSocket);
 
-            var innerMessage = transportMessage.DeserializeMessageAndCacheForNextCall();
+            var innerMessage = transportMessage.DeserializeMessageAndCacheForNextCall(_typeMapper);
             if(innerMessage is ITransactionalExactlyOnceDeliveryMessage)
             {
                 _storage.SaveMessage(transportMessage);
@@ -82,7 +85,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             dispatchTask.ContinueWith(dispatchResult =>
             {
-                var message = transportMessage.DeserializeMessageAndCacheForNextCall();
+                var message = transportMessage.DeserializeMessageAndCacheForNextCall(_typeMapper);
                 if(message.RequiresResponse())
                 {
                     if(dispatchResult.IsFaulted)

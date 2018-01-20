@@ -94,12 +94,12 @@ namespace Composable.Tests.CQRS
             }
         }
 
-        [TypeId("116B5753-FA3F-4E90-AA2F-1E0F54407DC1")]class TriggeringEvent : AggregateRootEvent, IAggregateRootCreatedEvent
+        class TriggeringEvent : AggregateRootEvent, IAggregateRootCreatedEvent
         {
             public TriggeringEvent() : base(Guid.NewGuid()) {}
         }
 
-        [TypeId("30206FD8-AA2C-48EC-B31E-50D2C648F0CF")]class TriggeredEvent : AggregateRootEvent
+        class TriggeredEvent : AggregateRootEvent
         {
         }
     }

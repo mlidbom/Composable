@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
+using Composable.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
@@ -20,25 +21,28 @@ namespace Composable.Messaging.Buses.Implementation
             internal bool Running;
             public IGlobalBusStateTracker GlobalBusStateTracker;
             internal readonly Dictionary<EndpointId, ClientConnection> EndpointConnections = new Dictionary<EndpointId, ClientConnection>();
-            internal readonly HandlerStorage HandlerStorage = new HandlerStorage();
+            internal HandlerStorage HandlerStorage;
             internal readonly NetMQPoller Poller = new NetMQPoller();
             public IUtcTimeTimeSource TimeSource { get; set; }
             public MessageStorage MessageStorage { get; set; }
+            public ITypeIdMapper TypeMapper { get; set; }
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory) => _state.WithExclusiveAccess(@this =>
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeIdMapper typeMapper) => _state.WithExclusiveAccess(@this =>
         {
-            @this.MessageStorage = new MessageStorage(connectionFactory);
+            @this.HandlerStorage = new HandlerStorage(typeMapper);
+            @this.TypeMapper = typeMapper;
+            @this.MessageStorage = new MessageStorage(connectionFactory, typeMapper);
             @this.TimeSource = timeSource;
             @this.GlobalBusStateTracker = globalBusStateTracker;
         });
 
         public void Connect(IEndpoint endpoint) => _state.WithExclusiveAccess(@this =>
         {
-            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage));
-            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypes().Select(TypeId.FromType).ToSet());
+            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper));
+            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypeIds());
         });
 
         public void Stop() => _state.WithExclusiveAccess(state =>

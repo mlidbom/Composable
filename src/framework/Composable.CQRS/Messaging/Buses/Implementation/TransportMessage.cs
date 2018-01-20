@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.NewtonSoft;
+using Composable.Refactoring.Naming;
 using Composable.System.Reflection;
 using NetMQ;
 using NetMQ.Sockets;
@@ -27,11 +28,11 @@ namespace Composable.Messaging.Buses.Implementation
 
             IMessage _message;
 
-            public IMessage DeserializeMessageAndCacheForNextCall()
+            public IMessage DeserializeMessageAndCacheForNextCall(ITypeIdMapper typeMapper)
             {
                 if(_message == null)
                 {
-                    _message = (IMessage)JsonConvert.DeserializeObject(Body, MessageType.GetRuntimeType(), JsonSettings.JsonSerializerSettings);
+                    _message = (IMessage)JsonConvert.DeserializeObject(Body, typeMapper.GetType(MessageType), JsonSettings.JsonSerializerSettings);
 
 
                     Contract.State.Assert(!(_message is ITransactionalExactlyOnceDeliveryMessage) || MessageId == (_message as ITransactionalExactlyOnceDeliveryMessage).MessageId);
@@ -86,11 +87,11 @@ namespace Composable.Messaging.Buses.Implementation
                 socket.SendMultipartMessage(message);
             }
 
-            public static OutGoing Create(IMessage message)
+            public static OutGoing Create(IMessage message, ITypeIdMapper typeMapper)
             {
                 var messageId = (message as ITransactionalExactlyOnceDeliveryMessage)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
-                return new OutGoing(TypeId.FromType(message.GetType()), messageId, body, GetMessageType(message), message is ITransactionalExactlyOnceDeliveryMessage);
+                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, GetMessageType(message), message is ITransactionalExactlyOnceDeliveryMessage);
             }
 
             static TransportMessageType GetMessageType(IMessage message)

@@ -71,7 +71,7 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
 
         public void AssertIsValid<TAggregate>() { ValidatorFor<TAggregate>.AssertValid(_typeMapper); }
 
-        class ValidatorFor<TAggregate>
+        static class ValidatorFor<TAggregate>
         {
             // ReSharper disable once StaticMemberInGenericType (This is exactly the effect we are after...)
             static bool _validated;

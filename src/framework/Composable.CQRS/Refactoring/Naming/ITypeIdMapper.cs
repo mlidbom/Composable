@@ -7,16 +7,13 @@ namespace Composable.Refactoring.Naming
     {
         TypeId GetId(Type type);
         Type GetType(TypeId eventTypeId);
+        bool TryGetType(TypeId typeId, out Type type);
         void AssertMappingsExistFor(IEnumerable<Type> typesThatRequireMappings);
     }
 
     public interface ITypeMappingRegistar
     {
-        ITypeMappingRegistar Map<TType>(Guid typeId);
-    }
-
-    public static class TypeMappingRegistar
-    {
-        public static ITypeMappingRegistar Map<TType>(this ITypeMappingRegistar @this, string typeId) => @this.Map<TType>(Guid.Parse(typeId));
+        ITypeMappingRegistar Map<TType>(Guid typeGuid);
+        ITypeMappingRegistar Map<TType>(string typeGuid);
     }
 }

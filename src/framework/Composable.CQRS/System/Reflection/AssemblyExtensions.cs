@@ -16,10 +16,6 @@ namespace Composable.System.Reflection
             return false;
         }
 
-        internal static bool ContainsComposableMessageTypes(this Assembly @this) =>
-            !@this.IsKnownThirdPartyLibrary() &&
-            @this.GetCustomAttributesData().Any(attributeData => attributeData.AttributeType == typeof(ContainsComposableTypeIdsAttribute));
-
         static readonly string[] StartPatternsForKnownThirdPartyLibraryAssemblies = {"System.", "Castle.", "Microsoft.", "nunit.", "nCrunch.", "xunit."};
         static readonly string[] ExactNamesForKnownThirdPartyLibraryAssemblies =
         {

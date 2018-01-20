@@ -99,12 +99,12 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             }
         }
 
-        [TypeId("857392BE-FF1E-45D0-A11F-D5BB0FFC3DCE")]class ACommand : ITransactionalExactlyOnceDeliveryCommand
+        class ACommand : ITransactionalExactlyOnceDeliveryCommand
         {
             public Guid MessageId { get; } = Guid.NewGuid();
         }
 
-        [TypeId("4DB866F4-2FD9-4CEA-832E-2C17FE52450C")]class AQuery : Query<AQueryResult> {}
+        class AQuery : Query<AQueryResult> {}
 
         class AQueryResult : QueryResult {}
 

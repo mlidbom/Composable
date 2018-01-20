@@ -4,6 +4,7 @@ using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
 using Composable.Persistence.EventStore;
+using Composable.Refactoring.Naming;
 using Composable.Testing.Threading;
 using FluentAssertions;
 
@@ -26,11 +27,19 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 buildHost => buildHost.RegisterAndStartEndpoint(
                     "Backend",
                     new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
-                    builder => builder.RegisterHandlers
-                                      .ForCommand((MyCommand command) => CommandHandlerThreadGate.AwaitPassthrough())
-                                      .ForEvent((MyEvent myEvent) => EventHandlerThreadGate.AwaitPassthrough())
-                                      .ForQuery((MyQuery query) => QueryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
-                                      .ForCommandWithResult((MyCommandWithResult command) => CommandHandlerWithResultThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()))));
+                    builder =>
+                    {
+                        builder.RegisterHandlers
+                               .ForCommand((MyCommand                     command) => CommandHandlerThreadGate.AwaitPassthrough())
+                               .ForEvent((MyEvent                         myEvent) => EventHandlerThreadGate.AwaitPassthrough())
+                               .ForQuery((MyQuery                         query) => QueryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
+                               .ForCommandWithResult((MyCommandWithResult command) => CommandHandlerWithResultThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()));
+
+                        builder.TypeMapper.Map<MyCommand>("0ddefcaa-4d4d-48b2-9e1a-762c0b835275")
+                               .Map<MyCommandWithResult>("24248d03-630b-4909-a6ea-e7fdaf82baa2")
+                               .Map<MyEvent>("2fdde21f-c6d4-46a2-95e5-3429b820dfc3")
+                               .Map<MyQuery>("b9d62f22-514b-4e3c-9ac1-66940a7a8144");
+                    }));
         }
 
         public virtual void Dispose()
@@ -56,11 +65,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             QueryHandlerThreadGate.Open();
         }
 
-        [TypeId("C0616624-77D3-4082-A3C1-408A89D9C8AA")]protected class MyCommand : TransactionalExactlyOnceDeliveryCommand {}
-        [TypeId("20B798AF-F7D7-448A-9F78-A189D4D5499A")]protected class MyEvent : AggregateRootEvent {}
-        [TypeId("5D0DBBDE-5FF6-4771-9505-289922BE4333")]protected class MyQuery : Query<MyQueryResult> {}
+        protected class MyCommand : TransactionalExactlyOnceDeliveryCommand {}
+        protected class MyEvent : AggregateRootEvent {}
+        protected class MyQuery : Query<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
-        [TypeId("7CA55A90-436C-4DE1-98CF-1FB4328DE61F")]protected class MyCommandWithResult : TransactionalExactlyOnceDeliveryCommand<MyCommandResult> {}
+        protected class MyCommandWithResult : TransactionalExactlyOnceDeliveryCommand<MyCommandResult> {}
         protected class MyCommandResult : Message {}
     }
 }

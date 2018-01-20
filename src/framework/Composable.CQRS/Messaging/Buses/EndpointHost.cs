@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses
 {
@@ -57,6 +58,8 @@ namespace Composable.Messaging.Buses
 
             existingEndpoints.ForEach(existingEndpoint =>
             {
+                existingEndpoint.ServiceLocator.Resolve<TypeMapper>().MergeMappingsWith(endpoint.ServiceLocator.Resolve<TypeMapper>());
+
                 existingEndpoint.ServiceLocator.Resolve<IInterprocessTransport>().Connect(endpoint);
                 endpointTransport.Connect(existingEndpoint);
             });

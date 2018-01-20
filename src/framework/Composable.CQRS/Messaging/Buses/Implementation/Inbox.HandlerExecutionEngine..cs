@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
+using Composable.Refactoring.Naming;
 using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Transactions;
@@ -16,6 +17,7 @@ namespace Composable.Messaging.Buses.Implementation
             readonly IMessageHandlerRegistry _handlerRegistry;
             readonly IServiceLocator _serviceLocator;
             readonly MessageStorage _storage;
+            readonly ITypeIdMapper _typeMapper;
             readonly Thread _messagePumpThread;
             CancellationTokenSource _cancellationTokenSource;
 
@@ -29,12 +31,14 @@ namespace Composable.Messaging.Buses.Implementation
             public HandlerExecutionEngine(IGlobalBusStateTracker globalStateTracker,
                                           IMessageHandlerRegistry handlerRegistry,
                                           IServiceLocator serviceLocator,
-                                          MessageStorage storage)
+                                          MessageStorage storage,
+                                          ITypeIdMapper typeMapper)
             {
                 _handlerRegistry = handlerRegistry;
                 _serviceLocator = serviceLocator;
                 _storage = storage;
-                _coordinator =  new Coordinator(globalStateTracker);
+                _typeMapper = typeMapper;
+                _coordinator =  new Coordinator(globalStateTracker, typeMapper);
 
                 _messagePumpThread = new Thread(AwaitDispatchableMessageThread)
                                      {
@@ -46,7 +50,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal async Task<object> Enqueue(TransportMessage.InComing message)
             {
-                var innerMessage = message.DeserializeMessageAndCacheForNextCall();
+                var innerMessage = message.DeserializeMessageAndCacheForNextCall(_typeMapper);
 
                 switch(innerMessage)
                 {

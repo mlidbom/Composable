@@ -16,7 +16,6 @@ namespace Composable.Messaging
         Guid Id { get; }
     }
 
-    [TypeId("444153B1-7B35-4F17-9FF3-85040CEEBAAB")]
     public class EntityByIdQuery<TEntity> : Message, IEntityQuery<TEntity>
     {
         public EntityByIdQuery() {}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 using Composable.Messaging.Events;
+using Composable.Refactoring.Naming;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 
@@ -10,6 +11,7 @@ namespace Composable.Messaging.Buses
 {
     class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry
     {
+        readonly ITypeIdMapper _typeMapper;
         readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
         readonly Dictionary<Type, List<Action<ITransactionalExactlyOnceDeliveryEvent>>> _eventHandlers = new Dictionary<Type, List<Action<ITransactionalExactlyOnceDeliveryEvent>>>();
         readonly Dictionary<Type, Func<object, object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
@@ -17,6 +19,8 @@ namespace Composable.Messaging.Buses
         readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
 
         readonly object _lock = new object();
+
+        public MessageHandlerRegistry(ITypeIdMapper typeMapper) => _typeMapper = typeMapper;
 
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForEvent<TEvent>(Action<TEvent> handler)
         {
@@ -152,13 +156,17 @@ namespace Composable.Messaging.Buses
             return dispatcher;
         }
 
-        public ISet<Type> HandledTypes()
+        public ISet<TypeId> HandledTypeIds()
         {
-            return _commandHandlers.Keys
-                .Concat(_commandHandlersReturningResults.Keys).
-                Concat(_queryHandlers.Keys)
-                .Concat(_eventHandlerRegistrations.Select(reg => reg.Type))
-                .ToSet();
+            var handledTypes = _commandHandlers.Keys
+                                               .Concat(_commandHandlersReturningResults.Keys).Concat(_queryHandlers.Keys)
+                                               .Concat(_eventHandlerRegistrations.Select(reg => reg.Type))
+                                               .ToSet();
+
+            _typeMapper.AssertMappingsExistFor(handledTypes);
+
+            return handledTypes.Select(_typeMapper.GetId)
+                            .ToSet();
         }
 
         internal class EventHandlerRegistration

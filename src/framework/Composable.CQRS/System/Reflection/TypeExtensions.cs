@@ -109,6 +109,19 @@ namespace Composable.System.Reflection
             }
         }
 
+        public static string GetFullNameCompilable(this Type @this)
+        {
+            if(!@this.IsConstructedGenericType) return @this.FullName.Replace("+", ".");
+
+            var typeArguments = @this.GenericTypeArguments;
+            // ReSharper disable once PossibleNullReferenceException
+            var genericTypeName = @this.GetGenericTypeDefinition().FullName.Replace($@"`{typeArguments.Length}", "");
+
+            var name = $"{genericTypeName}<{typeArguments.Select(type => type.FullName).Join(",")}>";
+
+            return name;
+        }
+
         ///<summary>Thrown if there is more than one type that matches the string passed to <see cref="TypeExtensions.AsType"/></summary>
         class MultipleMatchingTypesException : Exception
         {

@@ -24,6 +24,7 @@ namespace Composable.Messaging.Buses
         public void Start()
         {
             Contract.State.Assert(!_started);
+
             _started = true;
 
             _inbox.Start();

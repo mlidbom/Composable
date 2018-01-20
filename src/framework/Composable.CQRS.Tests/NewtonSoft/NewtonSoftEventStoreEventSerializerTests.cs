@@ -18,7 +18,7 @@ namespace Composable.Tests.NewtonSoft
     {
         readonly IEventStoreEventSerializer _eventSerializer = new NewtonSoftEventStoreEventSerializer();
 
-        [TypeId("6129599E-56A4-40F4-9ED1-F3E834D69CB0")]class TestEvent : AggregateRootEvent
+        class TestEvent : AggregateRootEvent
         {
             [UsedImplicitly]
             public TestEvent() { }

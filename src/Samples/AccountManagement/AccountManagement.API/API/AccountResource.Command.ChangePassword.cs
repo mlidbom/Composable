@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
 using AccountManagement.Domain;
-using Composable;
 using Composable.Messaging.Commands;
 
 namespace AccountManagement.API
@@ -12,7 +11,6 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            [TypeId("43922809-0404-4392-B754-38928C905EBF")]
             public class ChangePassword : TransactionalExactlyOnceDeliveryCommand, IValidatableObject
             {
                 public ChangePassword(Guid accountId) => AccountId = accountId;

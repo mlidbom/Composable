@@ -24,8 +24,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             var endpoint = _host.RegisterAndStartEndpoint(
                 "endpoint",
                 new EndpointId(Guid.Parse("17ED9DF9-33A8-4DF8-B6EC-6ED97AB2030B")),
-                builder => builder.RegisterHandlers.ForCommand<ScheduledCommand>(
-                    cmd => _receivedCommandGate.AwaitPassthrough()));
+                builder =>
+                {
+                    builder.RegisterHandlers.ForCommand<ScheduledCommand>(
+                        cmd => _receivedCommandGate.AwaitPassthrough());
+
+                    builder.TypeMapper.Map<ScheduledCommand>("6bc9abe2-8861-4108-98dd-8aa1b50c0c42");
+                });
 
             var serviceLocator = endpoint.ServiceLocator;
             _receivedCommandGate = ThreadGate.CreateOpenWithTimeout(TimeSpanExtensions.Seconds(1));
@@ -55,6 +60,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
         public void Dispose() { _host.Dispose(); }
 
-        [TypeId("BEB1E3BA-3515-43EA-A33D-1EE7A5775A11")]class ScheduledCommand : TransactionalExactlyOnceDeliveryCommand {}
+        class ScheduledCommand : TransactionalExactlyOnceDeliveryCommand {}
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
-using Composable;
 using Composable.Messaging.Commands;
 using JetBrains.Annotations;
 
@@ -11,7 +10,6 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            [TypeId("746695CC-B3CB-4620-A622-F6831AA4C5F3")]
             public class ChangeEmail : TransactionalExactlyOnceDeliveryCommand
             {
                 [UsedImplicitly] ChangeEmail() {}

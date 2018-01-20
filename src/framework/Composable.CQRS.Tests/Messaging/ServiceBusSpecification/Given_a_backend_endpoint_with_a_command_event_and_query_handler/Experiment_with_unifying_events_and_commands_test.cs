@@ -47,6 +47,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                             });
 
                                      builder.TypeMapper
+                                            .Map<GetUserQuery>("f9163a11-c6b6-4d2f-88e4-fd476b95dc07")
+                                            .Map<UserRegistrarCommand.RegisterUserCommand>("99ab8e1f-ce88-4070-becc-7967d65de172")
                                             .Map<UserAggregate>("4281ba68-a3ce-4a9a-82fc-be71d6155fbc")
                                             .Map<UserRegistrarAggregate>("732f0613-ee94-4d03-a479-9e5b69dc0e69")
                                             .Map<UserRegistrarEvent.Implementation.Created>("0e97953f-57f5-4252-8dec-a31c9a387dac")
@@ -86,19 +88,19 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserEvent
         {
-            [TypeId("176EE1DD-8D56-4879-8230-46FCAF30E523")]public interface IRoot : IAggregateRootEvent {}
+            public interface IRoot : IAggregateRootEvent {}
 
-            [TypeId("86B52908-5201-45B5-B504-23776CB58480")]public interface UserRegistered : IRoot, IAggregateRootCreatedEvent {}
+            public interface UserRegistered : IRoot, IAggregateRootCreatedEvent {}
 
             public static class Implementation
             {
-                [TypeId("F53F2EB7-F856-4743-B90D-6AD96C95883D")]public class Root : AggregateRootEvent, IRoot
+                public class Root : AggregateRootEvent, IRoot
                 {
                     protected Root() {}
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
                 }
 
-                [TypeId("3210D879-0D81-4DAB-9254-CA85B9D70F69")]public class UserRegisteredEvent : Root, UserRegistered
+                public class UserRegisteredEvent : Root, UserRegistered
                 {
                     public UserRegisteredEvent(Guid userId) : base(userId) {}
                 }
@@ -112,7 +114,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public class Root : TransactionalExactlyOnceDeliveryCommand, IRoot {}
             public class Root<TResult> : TransactionalExactlyOnceDeliveryCommand<TResult>, IRoot where TResult : IMessage {}
 
-            [TypeId("ED0AFADB-AD2D-4212-833A-CB14266204ED")]public class RegisterUserCommand : Root<RegisterUserResult>
+            public class RegisterUserCommand : Root<RegisterUserResult>
             {
                 public Guid UserId { get; private set; } = Guid.NewGuid();
             }
@@ -120,16 +122,16 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarEvent
         {
-            [TypeId("B4C43E2D-5B17-4FE2-8E81-2135F6934807")]public interface IRoot : IAggregateRootEvent {}
+            public interface IRoot : IAggregateRootEvent {}
             public static class Implementation
             {
-                [TypeId("F4FE9D4A-082C-4B1E-A703-CD392E8D6946")]public class Root : AggregateRootEvent, IRoot
+                public class Root : AggregateRootEvent, IRoot
                 {
                     protected Root() {}
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
                 }
 
-                [TypeId("0B8E14C7-56BA-4EC1-98D3-A213385ADB88")]public class Created : Root, IAggregateRootCreatedEvent
+                public class Created : Root, IAggregateRootCreatedEvent
                 {
                     public Created() : base(UserRegistrarAggregate.SingleId) {}
                 }
@@ -167,7 +169,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        [TypeId("ADFEAF4F-DD79-4BC1-9B34-82816CCAA752")]public class GetUserQuery : Query<UserResource>
+        public class GetUserQuery : Query<UserResource>
         {
             public Guid UserId { get; private set; }
             public GetUserQuery(Guid userId) => UserId = userId;

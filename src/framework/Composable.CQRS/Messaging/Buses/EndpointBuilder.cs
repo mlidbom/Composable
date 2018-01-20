@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses
                 Component.For<EndpointConfiguration>()
                          .UsingFactoryMethod(() => Configuration)
                          .LifestyleSingleton(),
-                Component.For<ITypeMappingRegistar, ITypeIdMapper>()
+                Component.For<ITypeMappingRegistar, ITypeIdMapper, TypeMapper>()
                          .UsingFactoryMethod(() => _typeMapper)
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning(),
@@ -38,8 +38,8 @@ namespace Composable.Messaging.Buses
                          .ImplementedBy<AggregateTypeValidator>()
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
-                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider) =>
-                                                 new InterprocessTransport(globalStateTracker, timeSource, connectionProvider.GetConnectionProvider(Configuration.ConnectionStringName)))
+                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, ITypeIdMapper typeMapper) =>
+                                                 new InterprocessTransport(globalStateTracker, timeSource, connectionProvider.GetConnectionProvider(Configuration.ConnectionStringName), typeMapper))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod(() => globalStateTracker)
                          .LifestyleSingleton(),
                 Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>()
-                         .UsingFactoryMethod(() => new MessageHandlerRegistry())
+                         .UsingFactoryMethod((ITypeIdMapper typeMapper) => new MessageHandlerRegistry(typeMapper))
                          .LifestyleSingleton(),
                 Component.For<IEventStoreEventSerializer>()
                          .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
@@ -61,7 +61,7 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod((IMessageHandlerRegistry registry) => new InProcessServiceBus(registry))
                          .LifestyleSingleton(),
                 Component.For<IInbox>()
-                         .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), k.Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName)))
+                         .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), k.Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName), k.Resolve<ITypeIdMapper>()))
                          .LifestyleSingleton(),
                 Component.For<CommandScheduler>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))

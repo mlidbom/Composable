@@ -15,7 +15,7 @@ namespace Composable.Persistence.EventStore
         IEventStoreReader,
         IEventStoreUpdater
     {
-        readonly IInProcessServiceBus _inprocessBus;
+        readonly IEventstoreEventPublisher _eventPublisher;
         readonly IEventStore _store;
         readonly IAggregateTypeValidator _aggregateTypeValidator;
         readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
@@ -23,13 +23,13 @@ namespace Composable.Persistence.EventStore
         readonly List<IDisposable> _disposableResources = new List<IDisposable>();
         IUtcTimeTimeSource TimeSource { get; set; }
 
-        public EventStoreUpdater(IInProcessServiceBus inprocessBus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator)
+        public EventStoreUpdater(IEventstoreEventPublisher eventPublisher, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator)
         {
-            OldContract.Argument(() => inprocessBus, () => store, () => usageGuard, () => timeSource)
+            OldContract.Argument(() => eventPublisher, () => store, () => usageGuard, () => timeSource)
                         .NotNull();
 
             _usageGuard = new CombinationUsageGuard(usageGuard, new SingleTransactionUsageGuard());
-            _inprocessBus = inprocessBus;
+            _eventPublisher = eventPublisher;
             _store = store;
             _aggregateTypeValidator = aggregateTypeValidator;
             TimeSource = timeSource ?? DateTimeNowTimeSource.Instance;
@@ -86,7 +86,7 @@ namespace Composable.Persistence.EventStore
             var events = aggregate.GetChanges().ToList();
             _store.SaveEvents(events);
 
-            events.ForEach(_inprocessBus.Publish);
+            events.ForEach(_eventPublisher.Publish);
 
             aggregate.AcceptChanges();
             _idMap.Add(aggregate.Id, aggregate);
@@ -99,7 +99,7 @@ namespace Composable.Persistence.EventStore
             _usageGuard.AssertNoContextChangeOccurred(this);
             OldContract.Assert.That(_idMap.ContainsKey(@event.AggregateRootId), "Got event from aggregate that is not tracked!");
             _store.SaveEvents(new[] { @event });
-            _inprocessBus.Publish(@event);
+            _eventPublisher.Publish(@event);
         }
 
         public void Delete(Guid aggregateId)

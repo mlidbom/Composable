@@ -7,7 +7,7 @@ using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses
 {
-    partial class ServiceBus : IServiceBus, IServiceBusControl, IInProcessServiceBus
+    partial class ServiceBus : IServiceBus, IServiceBusControl, IInProcessServiceBus, IEventstoreEventPublisher
     {
         readonly IInterprocessTransport _transport;
         readonly IInbox _inbox;
@@ -91,25 +91,11 @@ namespace Composable.Messaging.Buses
 
         public TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => SendAsync(command).ResultUnwrappingException();
 
-        public TResult SendInProcess<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command)
-        {
-            var returnValue = _handlerRegistry.GetCommandHandler(command)
-                                              .Invoke(command);
-            return returnValue;
-        }
+        public TResult SendInProcess<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => _handlerRegistry.GetCommandHandler(command).Invoke(command);
 
+        void IInProcessServiceBus.SendInProcess(ITransactionalExactlyOnceDeliveryCommand message) => _handlerRegistry.GetCommandHandler(message).Invoke(message);
 
-        void IInProcessServiceBus.SendInProcess(ITransactionalExactlyOnceDeliveryCommand message)
-        {
-            _handlerRegistry.GetCommandHandler(message)(message);
-        }
-
-        TResult IInProcessServiceBus.QueryInProcess<TResult>(IQuery<TResult> query)
-        {
-            var returnValue = _handlerRegistry.GetQueryHandler(query)
-                                              .Invoke(query);
-            return returnValue;
-        }
+        TResult IInProcessServiceBus.QueryInProcess<TResult>(IQuery<TResult> query) => _handlerRegistry.GetQueryHandler(query).Invoke(query);
 
         public void Dispose() { Contract.State.Assert(!_started); }
     }

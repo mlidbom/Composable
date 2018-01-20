@@ -10,10 +10,13 @@ using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses
 {
-    ///<summary>Dispatches messages within a process.</summary>
-    public interface IInProcessServiceBus
+    public interface IEventstoreEventPublisher
     {
         void Publish(ITransactionalExactlyOnceDeliveryEvent anEvent);
+    }
+    ///<summary>Dispatches messages within a process.</summary>
+    public interface IInProcessServiceBus : IEventstoreEventPublisher
+    {
         TResult QueryInProcess<TResult>(IQuery<TResult> query);
         TResult SendInProcess<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
         void SendInProcess(ITransactionalExactlyOnceDeliveryCommand message);
@@ -21,14 +24,12 @@ namespace Composable.Messaging.Buses
 
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IServiceBus : IDisposable
+    public interface IServiceBus : IEventstoreEventPublisher
     {
         void Send(ITransactionalExactlyOnceDeliveryCommand command);
         void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command);
         TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
         Task<TResult> SendAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
-
-        void Publish(ITransactionalExactlyOnceDeliveryEvent @event);
 
         Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
         TResult Query<TResult>(IQuery<TResult> query);

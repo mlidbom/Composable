@@ -39,11 +39,11 @@ namespace Composable.DependencyInjection.Persistence
 
         [UsedImplicitly] class EventStoreUpdater<TSessionInterface, TReaderInterface> : EventStoreUpdater, IEventStoreUpdater<TSessionInterface, TReaderInterface>
         {
-            public EventStoreUpdater(IInProcessServiceBus inprocessBus,
+            public EventStoreUpdater(IInProcessServiceBus eventPublisher,
                                      IEventStore<TSessionInterface, TReaderInterface> store,
                                      ISingleContextUseGuard usageGuard,
                                      IUtcTimeTimeSource timeSource,
-                                     IAggregateTypeValidator aggregateTypeValidator) : base(inprocessBus, store, usageGuard, timeSource, aggregateTypeValidator) {}
+                                     IAggregateTypeValidator aggregateTypeValidator) : base(eventPublisher, store, usageGuard, timeSource, aggregateTypeValidator) {}
         }
 
         interface IEventStorePersistenceLayer<TUpdater> : IEventStorePersistenceLayer

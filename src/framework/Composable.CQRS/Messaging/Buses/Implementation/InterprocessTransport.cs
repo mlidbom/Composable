@@ -22,7 +22,7 @@ namespace Composable.Messaging.Buses.Implementation
             public IGlobalBusStateTracker GlobalBusStateTracker;
             internal readonly Dictionary<EndpointId, ClientConnection> EndpointConnections = new Dictionary<EndpointId, ClientConnection>();
             internal HandlerStorage HandlerStorage;
-            internal readonly NetMQPoller Poller = new NetMQPoller();
+            internal NetMQPoller Poller;
             public IUtcTimeTimeSource TimeSource { get; set; }
             public MessageStorage MessageStorage { get; set; }
             public ITypeMapper TypeMapper { get; set; }
@@ -55,12 +55,13 @@ namespace Composable.Messaging.Buses.Implementation
             state.EndpointConnections.Values.ForEach(socket => socket.Dispose());
         });
 
-        public void Start() => _state.WithExclusiveAccess(@this =>
+        public void Start() => _state.WithExclusiveAccess(state =>
         {
-            Contract.State.Assert(!@this.Running);
-            @this.Running = true;
-            @this.MessageStorage.Start();
-            @this.Poller.RunAsync();
+            Contract.State.Assert(!state.Running);
+            state.Poller = new NetMQPoller();
+            state.Running = true;
+            state.MessageStorage.Start();
+            state.Poller.RunAsync();
         });
 
         public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event) => _state.WithExclusiveAccess(state =>

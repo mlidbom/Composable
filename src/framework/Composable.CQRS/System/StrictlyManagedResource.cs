@@ -53,11 +53,11 @@ namespace Composable.System
     class StrictlyManagedResource<TManagedResource> : IStrictlyManagedResource where TManagedResource : IStrictlyManagedResource
     {
         static readonly bool CollectStackTraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
-        public StrictlyManagedResource(bool forceStackTraceCollection = false)
+        public StrictlyManagedResource(bool forceStackTraceCollection = false, bool needsFileInfo = false)
         {
             if(forceStackTraceCollection || CollectStackTraces || StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResources)
             {
-                ReservationCallStack = new StackTrace(fNeedFileInfo:false).ToString();
+                ReservationCallStack = new StackTrace(fNeedFileInfo:needsFileInfo).ToString();
             }
         }
 
@@ -104,7 +104,7 @@ namespace Composable.System
     {
         bool _disposed;
         readonly StrictlyManagedResource<TInheritor> _strictlyManagedResource;
-        protected StrictlyManagedResourceBase() => _strictlyManagedResource = new StrictlyManagedResource<TInheritor>();
+        protected StrictlyManagedResourceBase(bool forceStackTraceAllocation = false, bool needsFileInfo = false) => _strictlyManagedResource = new StrictlyManagedResource<TInheritor>(forceStackTraceAllocation, needsFileInfo);
 
         public void Dispose()
         {

@@ -9,6 +9,7 @@ using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.SystemExtensions.Threading;
@@ -35,15 +36,14 @@ namespace AccountManagement
         static void RegisterDomainComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
             container.RegisterSqlServerEventStore(configuration.ConnectionStringName);
-
-            container.RegisterSqlServerDocumentDb<IAccountManagementDomainDocumentDbUpdater, IAccountManagementDomainDocumentDbReader, IAccountManagementDomainDocumentDbBulkReader>(configuration.ConnectionStringName);
+            container.RegisterSqlServerDocumentDb(configuration.ConnectionStringName);
 
             container.Register(
                 Component.For<IAccountRepository>()
                          .UsingFactoryMethod((IEventStoreUpdater aggregates, IEventStoreReader reader) => new AccountRepository(aggregates, reader))
                          .LifestyleScoped(),
                 Component.For<IFindAccountByEmail>()
-                         .UsingFactoryMethod((IAccountManagementDomainDocumentDbReader queryModels) => new FindAccountByEmail(queryModels))
+                         .UsingFactoryMethod((IDocumentDbReader queryModels) => new FindAccountByEmail(queryModels))
                          .LifestyleScoped());
         }
 

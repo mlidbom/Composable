@@ -39,6 +39,34 @@ namespace Composable.DependencyInjection.Persistence
             }
         }
 
+        public static void RegisterSqlServerDocumentDb(this IDependencyInjectionContainer @this, string connectionName)
+        {
+            OldContract.Argument(() => connectionName).NotNullEmptyOrWhiteSpace();
+
+            if(@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
+            {
+                @this.Register(Component.For<IDocumentDb>()
+                                         .ImplementedBy<InMemoryDocumentDb>()
+                                         .LifestyleSingleton()
+                                         .DelegateToParentServiceLocatorWhenCloning());
+
+            } else
+            {
+                @this.Register(Component.For<IDocumentDb>()
+                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource) => new SqlServerDocumentDb(connectionProvider.GetConnectionProvider(connectionName), timeSource))
+                                         .LifestyleSingleton());
+            }
+
+
+            @this.Register(Component.For<IDocumentDbSession>()
+                                     .ImplementedBy<DocumentDbSession>()
+                                     .LifestyleScoped());
+            @this.Register(Component.For<IDocumentDbUpdater, IDocumentDbReader, IDocumentDbBulkReader>()
+                                    .ImplementedBy<DocumentDbSession>()
+                                    .LifestyleScoped()
+                          );
+        }
+
         public static void RegisterSqlServerDocumentDb<TUpdater, TReader, TBulkReader>(this IDependencyInjectionContainer @this,
                                                                                                  string connectionName)
             where TUpdater : class, IDocumentDbUpdater

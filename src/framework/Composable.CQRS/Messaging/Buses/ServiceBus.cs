@@ -58,7 +58,11 @@ namespace Composable.Messaging.Buses
             _transport.DispatchIfTransactionCommits(command);
         });
 
-        public void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() => _commandScheduler.Schedule(sendAt, command));
+        public void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
+        {
+            CommandValidator.AssertCommandIsValid(command);
+            _commandScheduler.Schedule(sendAt, command);
+        });
 
         public Task<TResult> SendAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {

@@ -11,7 +11,7 @@ namespace Composable.Tests.GenericAbstractions.Time
         [Test]
         public void Now_should_return_within_100_millisecond_of_datetime_UtcNow()
         {
-            var uut = TestingTimeSource.FrozenNow;
+            var uut = TestingTimeSource.FrozenUtcNow();
             Math.Abs((uut.UtcNow - DateTime.UtcNow).TotalMilliseconds).Should().BeLessThan(100);
         }
 
@@ -19,7 +19,7 @@ namespace Composable.Tests.GenericAbstractions.Time
         public void FromUtcTime_returns_an_instance_with_UtcTime_equal_to_supplied_value()
         {
             var utcNow = DateTime.UtcNow;
-            var uut = TestingTimeSource.FrozenFromUtcTime(utcNow);
+            var uut = TestingTimeSource.FrozenAtUtcTime(utcNow);
             uut.UtcNow.Should().Be(utcNow);
         }
 
@@ -27,7 +27,7 @@ namespace Composable.Tests.GenericAbstractions.Time
         public void Passing_a_parsed_date_to_FromUtcTime_results_in_UtcNow_being_that_date()
         {
             var dateTime = DateTime.Parse("2001-01-01 00:00");
-            var source = TestingTimeSource.FrozenFromUtcTime(dateTime);
+            var source = TestingTimeSource.FrozenAtUtcTime(dateTime);
             source.UtcNow.Should().Be(dateTime);
         }
     }

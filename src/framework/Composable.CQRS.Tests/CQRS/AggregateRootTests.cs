@@ -77,7 +77,7 @@ namespace Composable.Tests.CQRS
 
         class CascadingEventsAggregate : AggregateRoot<CascadingEventsAggregate, AggregateRootEvent, IAggregateRootEvent>
         {
-            public CascadingEventsAggregate():base(TestingTimeSource.FrozenNow)
+            public CascadingEventsAggregate():base(TestingTimeSource.FrozenUtcNow())
             {
                 RegisterEventHandlers()
                     .For<TriggeringEvent>(@event => Publish(new TriggeredEvent()));

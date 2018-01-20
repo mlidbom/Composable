@@ -36,11 +36,11 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             using(var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations.ToArray(), EventStoreType))
             {
                 var timeSource = serviceLocator.Resolve<TestingTimeSource>();
-                timeSource.FreezeAt(DateTime.Parse("2001-01-01 01:01:01.01"));
+                timeSource.FreezeAtUtcTime(DateTime.Parse("2001-01-01 01:01:01.01"));
                 var scenarioIndex = 1;
                 foreach(var migrationScenario in scenarios)
                 {
-                    timeSource.FreezeAt(timeSource.UtcNow + 1.Hours()); //No time collision between scenarios please.
+                    timeSource.FreezeAtUtcTime(timeSource.UtcNow + 1.Hours()); //No time collision between scenarios please.
                     migrations = migrationScenario.Migrations.ToList();
                     RunScenarioWithEventStoreType(migrationScenario, serviceLocator, migrations, scenarioIndex++);
                 }
@@ -63,7 +63,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             SafeConsole.WriteLine($"\n########Running Scenario {indexOfScenarioInBatch}");
 
-            var original = TestAggregate.FromEvents(TestingTimeSource.FrozenNow, scenario.AggregateId, scenario.OriginalHistory)
+            var original = TestAggregate.FromEvents(TestingTimeSource.FrozenUtcNow(), scenario.AggregateId, scenario.OriginalHistory)
                                         .History.ToList();
             SafeConsole.WriteLine("Original History: ");
             original.ForEach(e => SafeConsole.WriteLine($"      {e}"));
@@ -79,7 +79,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             expected.ForEach(e => SafeConsole.WriteLine($"      {e}"));
             SafeConsole.WriteLine();
 
-            timeSource.FreezeAt(timeSource.UtcNow + 1.Hours()); //Bump clock to ensure that times will be be wrong unless the time from the original events are used..
+            timeSource.FreezeAtUtcTime(timeSource.UtcNow + 1.Hours()); //Bump clock to ensure that times will be be wrong unless the time from the original events are used..
 
             serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventStoreUpdater>()
                                                                                 .Save(initialAggregate));

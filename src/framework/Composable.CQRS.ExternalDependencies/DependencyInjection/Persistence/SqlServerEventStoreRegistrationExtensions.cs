@@ -72,7 +72,6 @@ namespace Composable.DependencyInjection.Persistence
             where TSessionInterface : class, IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
             => @this.RegisterSqlServerEventStoreForFlexibleTesting<TSessionInterface, TReaderInterface>(
-                @this.RunMode.Mode,
                 connectionName,
                 migrations != null
                     ? (Func<IReadOnlyList<IEventMigration>>)(() => migrations)
@@ -80,7 +79,6 @@ namespace Composable.DependencyInjection.Persistence
 
         static readonly IEventMigration[] EmptyMigrationsArray = new IEventMigration[0];
         internal static void RegisterSqlServerEventStoreForFlexibleTesting<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
-                                                                                                                TestingMode mode,
                                                                                                                 string connectionName,
                                                                                                                 Func<IReadOnlyList<IEventMigration>> migrations)
             where TSessionInterface : class, IEventStoreUpdater
@@ -97,7 +95,7 @@ namespace Composable.DependencyInjection.Persistence
                                     .ImplementedBy<EventCache<TSessionInterface>>()
                                     .LifestyleSingleton());
 
-            if (@this.RunMode.IsTesting && mode == TestingMode.InMemory)
+            if (@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
                 @this.Register(Component.For<InMemoryEventStore<TSessionInterface, TReaderInterface>>()
                                         .UsingFactoryMethod(() => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations()))

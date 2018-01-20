@@ -35,7 +35,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                                      .Select(_ => typeof(E1))
                                                      .Concat(Seq.OfTypes<E2, E4, E6, E8>()))).ToList();
 
-            _aggregate = TestAggregate.FromEvents(DummyTimeSource.Now, Guid.NewGuid(), historyTypes);
+            _aggregate = TestAggregate.FromEvents(TestingTimeSource.FrozenNow, Guid.NewGuid(), historyTypes);
             _history = _aggregate.History.Cast<AggregateRootEvent>().ToList();
 
             _currentMigrations = Seq.Empty<IEventMigration>().ToList();

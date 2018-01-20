@@ -35,12 +35,12 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             IList<IEventMigration> migrations = new List<IEventMigration>();
             using(var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations.ToArray(), EventStoreType))
             {
-                var timeSource = serviceLocator.Resolve<DummyTimeSource>();
-                timeSource.UtcNow = DateTime.Parse("2001-01-01 01:01:01.01");
+                var timeSource = serviceLocator.Resolve<TestingTimeSource>();
+                timeSource.FreezeAt(DateTime.Parse("2001-01-01 01:01:01.01"));
                 var scenarioIndex = 1;
                 foreach(var migrationScenario in scenarios)
                 {
-                    timeSource.UtcNow += 1.Hours(); //No time collision between scenarios please.
+                    timeSource.FreezeAt(timeSource.UtcNow + 1.Hours()); //No time collision between scenarios please.
                     migrations = migrationScenario.Migrations.ToList();
                     RunScenarioWithEventStoreType(migrationScenario, serviceLocator, migrations, scenarioIndex++);
                 }
@@ -52,7 +52,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             var startingMigrations = migrations.ToList();
             migrations.Clear();
 
-            var timeSource = serviceLocator.Resolve<DummyTimeSource>();
+            var timeSource = serviceLocator.Resolve<TestingTimeSource>();
 
             IReadOnlyList<IAggregateRootEvent> eventsInStoreAtStart;
             using(serviceLocator.BeginScope()) //Why is this needed? It fails without it but I do not understand why...
@@ -63,7 +63,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             SafeConsole.WriteLine($"\n########Running Scenario {indexOfScenarioInBatch}");
 
-            var original = TestAggregate.FromEvents(DummyTimeSource.Now, scenario.AggregateId, scenario.OriginalHistory)
+            var original = TestAggregate.FromEvents(TestingTimeSource.FrozenNow, scenario.AggregateId, scenario.OriginalHistory)
                                         .History.ToList();
             SafeConsole.WriteLine("Original History: ");
             original.ForEach(e => SafeConsole.WriteLine($"      {e}"));
@@ -79,7 +79,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             expected.ForEach(e => SafeConsole.WriteLine($"      {e}"));
             SafeConsole.WriteLine();
 
-            timeSource.UtcNow += 1.Hours(); //Bump clock to ensure that times will be be wrong unless the time from the original events are used..
+            timeSource.FreezeAt(timeSource.UtcNow + 1.Hours()); //Bump clock to ensure that times will be be wrong unless the time from the original events are used..
 
             serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventStoreUpdater>()
                                                                                 .Save(initialAggregate));
@@ -186,10 +186,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
                 container =>
-                    container.RegisterSqlServerEventStoreForFlexibleTesting<ITestingEventStoreUpdater, ITestingEventStoreReader>(
-                        mode,
-                        TestWiringHelper.EventStoreConnectionStringName,
-                        migrationsfactory),
+                    container.RegisterSqlServerEventStoreForFlexibleTesting<ITestingEventStoreUpdater, ITestingEventStoreReader>(TestWiringHelper.EventStoreConnectionStringName, migrationsfactory),
                 mode);
 
             serviceLocator.Resolve<ITypeMappingRegistar>()

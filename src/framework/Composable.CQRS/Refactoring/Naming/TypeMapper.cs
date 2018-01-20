@@ -63,7 +63,7 @@ namespace Composable.Refactoring.Naming
             });
         }));
 
-        public ITypeMappingRegistar Map<TType>(Guid typeIdGuid) => InternalMap(typeof(TType), new TypeId(typeIdGuid, Guid.Empty));
+        public ITypeMappingRegistar Map<TType>(Guid typeIdGuid) => InternalMap(typeof(TType), new TypeId(typeIdGuid));
         public ITypeMappingRegistar Map<TType>(string typeGuid) => Map<TType>(Guid.Parse(typeGuid));
 
         ITypeMappingRegistar InternalMap(Type type, TypeId typeId) => _state.WithExclusiveAccess(state =>

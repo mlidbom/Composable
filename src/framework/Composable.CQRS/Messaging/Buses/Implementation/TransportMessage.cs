@@ -54,7 +54,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 var client = receivedMessage[0].ToByteArray();
                 var messageId = new Guid(receivedMessage[1].ToByteArray());
-                var messageType = new TypeId(new Guid(receivedMessage[2].ToByteArray()), new Guid(receivedMessage[3].ToByteArray()));
+                var messageType = new TypeId(new Guid(receivedMessage[2].ToByteArray()));
                 var messageBody = receivedMessage[4].ConvertToString();
 
                 return new InComing(messageBody, messageType, client, messageId);
@@ -81,7 +81,6 @@ namespace Composable.Messaging.Buses.Implementation
                 var message = new NetMQMessage(4);
                 message.Append(MessageId);
                 message.Append(_messageType.GuidValue);
-                message.Append(_messageType.ParentTypeGuidValue);
                 message.Append(_messageBody);
 
                 socket.SendMultipartMessage(message);

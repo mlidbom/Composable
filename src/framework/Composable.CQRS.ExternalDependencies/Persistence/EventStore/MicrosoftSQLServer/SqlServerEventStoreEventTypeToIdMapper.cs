@@ -92,7 +92,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                 using(var command = connection.CreateCommand())
                 {
                     var reader = command.SetCommandText($@"SELECT {EventTypeTable.Columns.Id} FROM {EventTypeTable.Name} WHERE {EventTypeTable.Columns.EventType}=@{EventTypeTable.Columns.EventType}")
-                                        .AddNVarcharParameter(EventTypeTable.Columns.EventType, 450, _typeIdMapper.GetId(newType).ToString())
+                                        .AddParameter(EventTypeTable.Columns.EventType, _typeIdMapper.GetId(newType).GuidValue)
                                         .ExecuteReader();
                     using(reader)
                     {
@@ -106,7 +106,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                 using(var command = connection.CreateCommand())
                 {
                     var insertedTypeIntegerId = command.SetCommandText($@"INSERT {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} ) OUTPUT INSERTED.{EventTypeTable.Columns.Id} VALUES( @{EventTypeTable.Columns.EventType} )")
-                                                       .AddNVarcharParameter(EventTypeTable.Columns.EventType, 450, _typeIdMapper.GetId(newType).ToString())
+                                                       .AddParameter(EventTypeTable.Columns.EventType, _typeIdMapper.GetId(newType).GuidValue)
                                                        .ExecuteScalar();
                     return new IdTypeMapping(id: (int)insertedTypeIntegerId, type: newType);
                 }
@@ -125,7 +125,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                     {
                         while(reader.Read())
                         {
-                            var eventType = TypeId.Parse(reader.GetString(1));
+                            var eventType = new TypeId(reader.GetGuid(1));
                             var eventTypeId = reader.GetInt32(0);
                             Type foundEventType = null;
 

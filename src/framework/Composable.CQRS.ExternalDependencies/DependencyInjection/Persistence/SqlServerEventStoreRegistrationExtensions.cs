@@ -39,7 +39,7 @@ namespace Composable.DependencyInjection.Persistence
 
         [UsedImplicitly] class EventStoreUpdater<TSessionInterface, TReaderInterface> : EventStoreUpdater, IEventStoreUpdater<TSessionInterface, TReaderInterface>
         {
-            public EventStoreUpdater(IInProcessServiceBus eventPublisher,
+            public EventStoreUpdater(IEventstoreEventPublisher eventPublisher,
                                      IEventStore<TSessionInterface, TReaderInterface> store,
                                      ISingleContextUseGuard usageGuard,
                                      IUtcTimeTimeSource timeSource,
@@ -65,6 +65,55 @@ namespace Composable.DependencyInjection.Persistence
 
         [UsedImplicitly] class EventCache<TUpdaterType> : EventCache
         {}
+
+        public static void RegisterSqlServerEventStore(this IDependencyInjectionContainer @this,
+                                                                                            string connectionName,
+                                                                                            IReadOnlyList<IEventMigration> migrations = null)
+        {
+              OldContract.Argument(() => connectionName)
+                    .NotNullEmptyOrWhiteSpace();
+
+            migrations = migrations ?? new List<IEventMigration>();
+
+            @this.Register(Component.For<IEnumerable<IEventMigration>>()
+                                    .UsingFactoryMethod(() => migrations)
+                                    .LifestyleSingleton());
+
+            @this.Register(Component.For<EventCache>()
+                                    .ImplementedBy<EventCache>()
+                                    .LifestyleSingleton());
+
+            if (@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
+            {
+                @this.Register(Component.For<IEventStore>()
+                                        .UsingFactoryMethod(() => new InMemoryEventStore(migrations: migrations))
+                                        .LifestyleSingleton()
+                                        .DelegateToParentServiceLocatorWhenCloning());
+            } else
+            {
+                @this.Register(
+                    Component.For<IEventStorePersistenceLayer>()
+                                .UsingFactoryMethod((ISqlConnectionProvider connectionProvider1, ITypeMapper typeIdMapper) =>
+                                                    {
+                                                        var connectionProvider = connectionProvider1.GetConnectionProvider(connectionName);
+                                                        var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
+                                                        var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, typeIdMapper);
+                                                        var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
+                                                        var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager);
+                                                        return new EventStorePersistenceLayer<IEventStoreUpdater>(schemaManager, eventReader, eventWriter);
+                                                    })
+                                .LifestyleSingleton());
+
+
+                @this.Register(Component.For<IEventStore>()
+                                        .ImplementedBy<EventStore>()
+                                        .LifestyleScoped());
+            }
+
+            @this.Register(Component.For<IEventStoreUpdater, IEventStoreReader>()
+                                    .ImplementedBy<EventStoreUpdater>()
+                                    .LifestyleScoped());
+        }
 
         public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
                                                                                             string connectionName,

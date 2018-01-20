@@ -13,7 +13,7 @@ namespace AccountManagement.Domain.Services
 
     [UsedImplicitly] class AccountRepository : AggregateRepository<Account, AccountEvent.Implementation.Root, AccountEvent.Root>, IAccountRepository
     {
-        public AccountRepository(IAccountManagementEventStoreUpdater aggregates, IAccountManagementEventStoreReader reader) : base(aggregates, reader)
+        public AccountRepository(IEventStoreUpdater aggregates, IEventStoreReader reader) : base(aggregates, reader)
         {
         }
     }

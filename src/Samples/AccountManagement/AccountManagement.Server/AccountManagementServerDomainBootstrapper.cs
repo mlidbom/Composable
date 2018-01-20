@@ -9,6 +9,7 @@ using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.SystemExtensions.Threading;
 
@@ -33,13 +34,13 @@ namespace AccountManagement
 
         static void RegisterDomainComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
-            container.RegisterSqlServerEventStore<IAccountManagementEventStoreUpdater, IAccountManagementEventStoreReader>(configuration.ConnectionStringName);
+            container.RegisterSqlServerEventStore(configuration.ConnectionStringName);
 
             container.RegisterSqlServerDocumentDb<IAccountManagementDomainDocumentDbUpdater, IAccountManagementDomainDocumentDbReader, IAccountManagementDomainDocumentDbBulkReader>(configuration.ConnectionStringName);
 
             container.Register(
                 Component.For<IAccountRepository>()
-                         .UsingFactoryMethod((IAccountManagementEventStoreUpdater aggregates, IAccountManagementEventStoreReader reader) => new AccountRepository(aggregates, reader))
+                         .UsingFactoryMethod((IEventStoreUpdater aggregates, IEventStoreReader reader) => new AccountRepository(aggregates, reader))
                          .LifestyleScoped(),
                 Component.For<IFindAccountByEmail>()
                          .UsingFactoryMethod((IAccountManagementDomainDocumentDbReader queryModels) => new FindAccountByEmail(queryModels))
@@ -57,7 +58,7 @@ namespace AccountManagement
                          .LifestyleScoped());
 
             container.Register(Component.For<AccountQueryModel.Generator>()
-                                        .UsingFactoryMethod((IAccountManagementEventStoreReader session) => new AccountQueryModel.Generator(session))
+                                        .UsingFactoryMethod((IEventStoreReader session) => new AccountQueryModel.Generator(session))
                                         .LifestyleScoped());
         }
 

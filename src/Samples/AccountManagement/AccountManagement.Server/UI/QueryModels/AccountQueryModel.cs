@@ -2,6 +2,7 @@
 using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Services;
+using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Query.Models.Generators;
 
 namespace AccountManagement.UI.QueryModels
@@ -20,10 +21,10 @@ namespace AccountManagement.UI.QueryModels
     partial class AccountQueryModel
     {
         /// <summary>Ad hoc creates an <see cref="AccountQueryModel"/> by reading and applying the events from the event store reader</summary>
-        internal class Generator : SingleAggregateQueryModelGenerator<Generator, AccountQueryModel, AccountEvent.Root, IAccountManagementEventStoreReader>
+        internal class Generator : SingleAggregateQueryModelGenerator<Generator, AccountQueryModel, AccountEvent.Root, IEventStoreReader>
         {
             //Note the use of a custom interface. This lets us keep query model generators for different systems apart in the wiring.
-            public Generator(IAccountManagementEventStoreReader session) : base(session)
+            public Generator(IEventStoreReader session) : base(session)
             {
                 RegisterHandlers()
                     .For<AccountEvent.PropertyUpdated.Email>(e => Model.Email = e.Email)

@@ -26,7 +26,7 @@ namespace Composable.Persistence.EventStore
 
         readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
 
-        protected EventStore(IEventStorePersistenceLayer persistenceLayer, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard, EventCache cache, IEnumerable<IEventMigration> migrations)
+        public EventStore(IEventStorePersistenceLayer persistenceLayer, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard, EventCache cache, IEnumerable<IEventMigration> migrations)
         {
             _serializer = serializer;
             Log.Debug("Constructor called");

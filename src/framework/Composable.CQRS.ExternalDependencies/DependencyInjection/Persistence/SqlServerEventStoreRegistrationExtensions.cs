@@ -115,7 +115,7 @@ namespace Composable.DependencyInjection.Persistence
             {
                 @this.Register(
                     Component.For<IEventStorePersistenceLayer<TSessionInterface>>()
-                                .UsingFactoryMethod((ISqlConnectionProvider connectionProvider1, ITypeIdMapper typeIdMapper) =>
+                                .UsingFactoryMethod((ISqlConnectionProvider connectionProvider1, ITypeMapper typeIdMapper) =>
                                                     {
                                                         var connectionProvider = connectionProvider1.GetConnectionProvider(connectionName);
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);

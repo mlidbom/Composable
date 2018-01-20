@@ -66,8 +66,8 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
 
     [UsedImplicitly] class AggregateTypeValidator : IAggregateTypeValidator
     {
-        readonly ITypeIdMapper _typeMapper;
-        public AggregateTypeValidator(ITypeIdMapper typeMapper) => _typeMapper = typeMapper;
+        readonly ITypeMapper _typeMapper;
+        public AggregateTypeValidator(ITypeMapper typeMapper) => _typeMapper = typeMapper;
 
         public void AssertIsValid<TAggregate>() { ValidatorFor<TAggregate>.AssertValid(_typeMapper); }
 
@@ -76,7 +76,7 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
             // ReSharper disable once StaticMemberInGenericType (This is exactly the effect we are after...)
             static bool _validated;
 
-            internal static void AssertValid(ITypeIdMapper typeMapper)
+            internal static void AssertValid(ITypeMapper typeMapper)
             {
                 if(_validated) return;
 
@@ -85,7 +85,7 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
                 _validated = true;
             }
 
-            static void AssertValidInternal(ITypeIdMapper typeMapper)
+            static void AssertValidInternal(ITypeMapper typeMapper)
             {
                 var classInheritanceChain = typeof(TAggregate).ClassInheritanceChain().ToList();
                 var inheritedAggregateRootType = classInheritanceChain.Where(baseClass => baseClass.IsConstructedGenericType && baseClass.GetGenericTypeDefinition() == typeof(AggregateRoot<,,>)).Single();

@@ -12,9 +12,9 @@ namespace Composable.Messaging.Buses.Implementation
         public partial class MessageStorage
         {
             readonly ISqlConnection _connectionFactory;
-            readonly ITypeIdMapper _typeMapper;
+            readonly ITypeMapper _typeMapper;
 
-            public MessageStorage(ISqlConnection connectionFactory, ITypeIdMapper typeMapper)
+            public MessageStorage(ISqlConnection connectionFactory, ITypeMapper typeMapper)
             {
                 _connectionFactory = connectionFactory;
                 _typeMapper = typeMapper;

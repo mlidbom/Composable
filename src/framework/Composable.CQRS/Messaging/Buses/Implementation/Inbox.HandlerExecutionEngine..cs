@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses.Implementation
             readonly IMessageHandlerRegistry _handlerRegistry;
             readonly IServiceLocator _serviceLocator;
             readonly MessageStorage _storage;
-            readonly ITypeIdMapper _typeMapper;
+            readonly ITypeMapper _typeMapper;
             readonly Thread _messagePumpThread;
             CancellationTokenSource _cancellationTokenSource;
 
@@ -32,7 +32,7 @@ namespace Composable.Messaging.Buses.Implementation
                                           IMessageHandlerRegistry handlerRegistry,
                                           IServiceLocator serviceLocator,
                                           MessageStorage storage,
-                                          ITypeIdMapper typeMapper)
+                                          ITypeMapper typeMapper)
             {
                 _handlerRegistry = handlerRegistry;
                 _serviceLocator = serviceLocator;

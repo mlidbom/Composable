@@ -65,7 +65,7 @@ namespace Composable.Messaging.Buses.Implementation
                                 NetMQPoller poller,
                                 IUtcTimeTimeSource timeSource,
                                 InterprocessTransport.MessageStorage messageStorage,
-                                ITypeIdMapper typeMapper)
+                                ITypeMapper typeMapper)
         {
             _state.WithExclusiveAccess(state =>
             {
@@ -125,7 +125,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal IUtcTimeTimeSource TimeSource { get; set; }
             internal InterprocessTransport.MessageStorage MessageStorage { get; set; }
             public EndpointId RemoteEndpointId { get; set; }
-            public ITypeIdMapper TypeMapper { get; set; }
+            public ITypeMapper TypeMapper { get; set; }
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());

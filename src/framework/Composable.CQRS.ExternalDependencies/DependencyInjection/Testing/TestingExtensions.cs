@@ -38,9 +38,9 @@ namespace Composable.DependencyInjection.Testing
                          .UsingFactoryMethod(() => new GlobalBusStateTracker())
                          .LifestyleSingleton(),
                 Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>()
-                         .UsingFactoryMethod((ITypeIdMapper typeMapper) => new MessageHandlerRegistry(typeMapper))
+                         .UsingFactoryMethod((ITypeMapper typeMapper) => new MessageHandlerRegistry(typeMapper))
                          .LifestyleSingleton(),
-                Component.For<ITypeIdMapper, ITypeMappingRegistar, TypeMapper>()
+                Component.For<ITypeMapper, ITypeMappingRegistar, TypeMapper>()
                          .ImplementedBy<TypeMapper>()
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning(),

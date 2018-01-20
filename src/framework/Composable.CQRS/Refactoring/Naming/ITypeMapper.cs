@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Composable.Refactoring.Naming
 {
-    interface ITypeIdMapper
+    interface ITypeMapper
     {
         TypeId GetId(Type type);
         Type GetType(TypeId eventTypeId);

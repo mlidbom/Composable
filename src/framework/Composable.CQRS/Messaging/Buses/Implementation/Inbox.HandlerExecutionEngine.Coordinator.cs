@@ -15,13 +15,13 @@ namespace Composable.Messaging.Buses.Implementation
             class Coordinator
             {
                 readonly IGlobalBusStateTracker _globalStateTracker;
-                readonly ITypeIdMapper _typeMapper;
+                readonly ITypeMapper _typeMapper;
                 readonly List<QueuedMessage>    _messagesWaitingToExecute = new List<QueuedMessage>();
 
                 //Todo: It is never OK for this class to block for a significant amount of time. So make that explicit with a really strict timeout on all operations waiting for access.
                 //Currently we cannot make the timeout really strict because it does time out....
                 readonly IResourceGuard _guard = ResourceGuard.WithTimeout(100.Milliseconds());
-                public Coordinator(IGlobalBusStateTracker globalStateTracker, ITypeIdMapper typeMapper)
+                public Coordinator(IGlobalBusStateTracker globalStateTracker, ITypeMapper typeMapper)
                 {
                     _globalStateTracker = globalStateTracker;
                     _typeMapper = typeMapper;
@@ -92,7 +92,7 @@ namespace Composable.Messaging.Buses.Implementation
                         });
                     }
 
-                    public QueuedMessage(TransportMessage.InComing message, Coordinator coordinator, Action messageTask, ITypeIdMapper typeMapper)
+                    public QueuedMessage(TransportMessage.InComing message, Coordinator coordinator, Action messageTask, ITypeMapper typeMapper)
                     {
                         MessageId    = message.MessageId;
                         _coordinator = coordinator;

@@ -10,12 +10,12 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class HandlerStorage
         {
-            readonly ITypeIdMapper _typeMapper;
+            readonly ITypeMapper _typeMapper;
             readonly Dictionary<TypeId, EndpointId> _commandHandlerMap = new Dictionary<TypeId, EndpointId>();
             readonly Dictionary<TypeId, EndpointId> _queryHandlerMap = new Dictionary<TypeId, EndpointId>();
             readonly List<(TypeId EventType, EndpointId EndPointId)> _eventHandlerRegistrations = new List<(TypeId EventType, EndpointId EndPointId)>();
 
-            public HandlerStorage(ITypeIdMapper typeMapper) => _typeMapper = typeMapper;
+            public HandlerStorage(ITypeMapper typeMapper) => _typeMapper = typeMapper;
 
             internal void AddRegistrations(EndpointId endpointId, ISet<TypeId> handledTypeIds)
             {

@@ -11,7 +11,7 @@ namespace Composable.Messaging.Buses
 {
     class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry
     {
-        readonly ITypeIdMapper _typeMapper;
+        readonly ITypeMapper _typeMapper;
         readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
         readonly Dictionary<Type, List<Action<ITransactionalExactlyOnceDeliveryEvent>>> _eventHandlers = new Dictionary<Type, List<Action<ITransactionalExactlyOnceDeliveryEvent>>>();
         readonly Dictionary<Type, Func<object, object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
@@ -20,7 +20,7 @@ namespace Composable.Messaging.Buses
 
         readonly object _lock = new object();
 
-        public MessageHandlerRegistry(ITypeIdMapper typeMapper) => _typeMapper = typeMapper;
+        public MessageHandlerRegistry(ITypeMapper typeMapper) => _typeMapper = typeMapper;
 
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForEvent<TEvent>(Action<TEvent> handler)
         {

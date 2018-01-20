@@ -25,12 +25,12 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly NetMQPoller Poller = new NetMQPoller();
             public IUtcTimeTimeSource TimeSource { get; set; }
             public MessageStorage MessageStorage { get; set; }
-            public ITypeIdMapper TypeMapper { get; set; }
+            public ITypeMapper TypeMapper { get; set; }
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeIdMapper typeMapper) => _state.WithExclusiveAccess(@this =>
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeMapper typeMapper) => _state.WithExclusiveAccess(@this =>
         {
             @this.HandlerStorage = new HandlerStorage(typeMapper);
             @this.TypeMapper = typeMapper;

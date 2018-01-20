@@ -28,7 +28,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             IMessage _message;
 
-            public IMessage DeserializeMessageAndCacheForNextCall(ITypeIdMapper typeMapper)
+            public IMessage DeserializeMessageAndCacheForNextCall(ITypeMapper typeMapper)
             {
                 if(_message == null)
                 {
@@ -86,7 +86,7 @@ namespace Composable.Messaging.Buses.Implementation
                 socket.SendMultipartMessage(message);
             }
 
-            public static OutGoing Create(IMessage message, ITypeIdMapper typeMapper)
+            public static OutGoing Create(IMessage message, ITypeMapper typeMapper)
             {
                 var messageId = (message as ITransactionalExactlyOnceDeliveryMessage)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);

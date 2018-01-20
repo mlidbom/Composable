@@ -9,12 +9,12 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     class SqlServerEventStoreEventTypeToIdMapper : IEventTypeToIdMapper
     {
-        readonly ITypeIdMapper _typeIdMapper;
+        readonly ITypeMapper _typeMapper;
 
         readonly SqlServerEventStoreConnectionManager _connectionManager;
-        public SqlServerEventStoreEventTypeToIdMapper(ISqlConnection connection, ITypeIdMapper typeIdMapper)
+        public SqlServerEventStoreEventTypeToIdMapper(ISqlConnection connection, ITypeMapper typeMapper)
         {
-            _typeIdMapper = typeIdMapper;
+            _typeMapper = typeMapper;
             _connectionManager = new SqlServerEventStoreConnectionManager(connection);
         }
 
@@ -92,7 +92,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                 using(var command = connection.CreateCommand())
                 {
                     var reader = command.SetCommandText($@"SELECT {EventTypeTable.Columns.Id} FROM {EventTypeTable.Name} WHERE {EventTypeTable.Columns.EventType}=@{EventTypeTable.Columns.EventType}")
-                                        .AddParameter(EventTypeTable.Columns.EventType, _typeIdMapper.GetId(newType).GuidValue)
+                                        .AddParameter(EventTypeTable.Columns.EventType, _typeMapper.GetId(newType).GuidValue)
                                         .ExecuteReader();
                     using(reader)
                     {
@@ -106,7 +106,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                 using(var command = connection.CreateCommand())
                 {
                     var insertedTypeIntegerId = command.SetCommandText($@"INSERT {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} ) OUTPUT INSERTED.{EventTypeTable.Columns.Id} VALUES( @{EventTypeTable.Columns.EventType} )")
-                                                       .AddParameter(EventTypeTable.Columns.EventType, _typeIdMapper.GetId(newType).GuidValue)
+                                                       .AddParameter(EventTypeTable.Columns.EventType, _typeMapper.GetId(newType).GuidValue)
                                                        .ExecuteScalar();
                     return new IdTypeMapping(id: (int)insertedTypeIntegerId, type: newType);
                 }
@@ -131,7 +131,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
                             try
                             {
-                                foundEventType = _typeIdMapper.GetType(eventType);
+                                foundEventType = _typeMapper.GetType(eventType);
                             }
                             catch(CouldNotFindTypeForTypeIdException)
                             {

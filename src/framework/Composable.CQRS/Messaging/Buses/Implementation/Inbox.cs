@@ -12,7 +12,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class Inbox : IInbox, IDisposable
     {
-        readonly ITypeIdMapper _typeMapper;
+        readonly ITypeMapper _typeMapper;
         readonly IResourceGuard _resourceGuard = ResourceGuard.WithTimeout(1.Seconds());
 
         bool _running;
@@ -26,7 +26,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly MessageStorage _storage;
         readonly HandlerExecutionEngine _handlerExecutionEngine;
 
-        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory, ITypeIdMapper typeMapper)
+        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory, ITypeMapper typeMapper)
         {
             _typeMapper = typeMapper;
             _address = configuration.Address;

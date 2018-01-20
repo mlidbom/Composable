@@ -100,6 +100,15 @@ namespace Composable.System.Reflection
             }
         }
 
+        public static IEnumerable<Type> ClassInheritanceChain(this Type me)
+        {
+            while (me != null)
+            {
+                yield return me;
+                me = me.BaseType;
+            }
+        }
+
         ///<summary>Thrown if there is more than one type that matches the string passed to <see cref="TypeExtensions.AsType"/></summary>
         class MultipleMatchingTypesException : Exception
         {

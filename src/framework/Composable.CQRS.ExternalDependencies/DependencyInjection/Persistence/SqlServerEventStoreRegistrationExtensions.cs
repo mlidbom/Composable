@@ -42,7 +42,8 @@ namespace Composable.DependencyInjection.Persistence
             public EventStoreUpdater(IInProcessServiceBus inprocessBus,
                                      IEventStore<TSessionInterface, TReaderInterface> store,
                                      ISingleContextUseGuard usageGuard,
-                                     IUtcTimeTimeSource timeSource) : base(inprocessBus, store, usageGuard, timeSource) {}
+                                     IUtcTimeTimeSource timeSource,
+                                     IAggregateTypeValidator aggregateTypeValidator) : base(inprocessBus, store, usageGuard, timeSource, aggregateTypeValidator) {}
         }
 
         interface IEventStorePersistenceLayer<TUpdater> : IEventStorePersistenceLayer
@@ -118,7 +119,7 @@ namespace Composable.DependencyInjection.Persistence
                                                     {
                                                         var connectionProvider = connectionProvider1.GetConnectionProvider(connectionName);
 
-                                                        ITypeIdMapper typeIdMapper = new TypeIdAttributeTypeIdMapper();
+                                                        ITypeIdMapper typeIdMapper = new TypeMapper();
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
                                                         var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, typeIdMapper);
                                                         var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);

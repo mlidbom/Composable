@@ -17,12 +17,13 @@ namespace Composable.Persistence.EventStore
     {
         readonly IInProcessServiceBus _inprocessBus;
         readonly IEventStore _store;
+        readonly IAggregateTypeValidator _aggregateTypeValidator;
         readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         readonly ISingleContextUseGuard _usageGuard;
         readonly List<IDisposable> _disposableResources = new List<IDisposable>();
         IUtcTimeTimeSource TimeSource { get; set; }
 
-        public EventStoreUpdater(IInProcessServiceBus inprocessBus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
+        public EventStoreUpdater(IInProcessServiceBus inprocessBus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator)
         {
             OldContract.Argument(() => inprocessBus, () => store, () => usageGuard, () => timeSource)
                         .NotNull();
@@ -30,11 +31,13 @@ namespace Composable.Persistence.EventStore
             _usageGuard = new CombinationUsageGuard(usageGuard, new SingleTransactionUsageGuard());
             _inprocessBus = inprocessBus;
             _store = store;
+            _aggregateTypeValidator = aggregateTypeValidator;
             TimeSource = timeSource ?? DateTimeNowTimeSource.Instance;
         }
 
         public TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored
         {
+            _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
             if (!DoTryGet(aggregateId, out TAggregate result))
             {
@@ -45,12 +48,14 @@ namespace Composable.Persistence.EventStore
 
         public bool TryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
         {
+            _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
             return DoTryGet(aggregateId, out aggregate);
         }
 
         public TAggregate LoadSpecificVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : IEventStored
         {
+            _aggregateTypeValidator.AssertIsValid<TAggregate>();
             OldContract.Assert.That(version > 0, "version > 0");
 
             _usageGuard.AssertNoContextChangeOccurred(this);
@@ -66,6 +71,7 @@ namespace Composable.Persistence.EventStore
 
         public void Save<TAggregate>(TAggregate aggregate) where TAggregate : IEventStored
         {
+            _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
             var changes = aggregate.GetChanges().ToList();
             if (aggregate.Version > 0 && changes.None() || changes.Any() && changes.Min(e => e.AggregateRootVersion) > 1)

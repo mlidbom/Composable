@@ -2,7 +2,9 @@
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.AggregateRoots;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
+using Composable.Refactoring.Naming;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.SystemExtensions.Threading;
@@ -14,10 +16,12 @@ namespace Composable.Messaging.Buses
         static readonly ISqlConnection MasterDbConnection = new AppConfigSqlConnectionProvider().GetConnectionProvider(parameterName: "MasterDB");
 
         readonly IDependencyInjectionContainer _container;
+        TypeMapper _typeMapper;
 
         public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, string name)
         {
             _container = container;
+            _typeMapper = new TypeMapper();
 
             Configuration = new EndpointConfiguration(name)
                                 {};
@@ -25,6 +29,13 @@ namespace Composable.Messaging.Buses
             _container.Register(
                 Component.For<EndpointConfiguration>()
                          .UsingFactoryMethod(() => Configuration)
+                         .LifestyleSingleton(),
+                Component.For<ITypeMappingRegistar, ITypeIdMapper>()
+                         .UsingFactoryMethod(() => _typeMapper)
+                         .LifestyleSingleton()
+                         .DelegateToParentServiceLocatorWhenCloning(),
+                Component.For<IAggregateTypeValidator>()
+                         .ImplementedBy<AggregateTypeValidator>()
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
                          .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider) =>
@@ -65,6 +76,7 @@ namespace Composable.Messaging.Buses
         }
 
         public IDependencyInjectionContainer Container => _container;
+        public ITypeMappingRegistar TypeMapper => _typeMapper;
         public EndpointConfiguration Configuration { get; }
 
         public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers =>

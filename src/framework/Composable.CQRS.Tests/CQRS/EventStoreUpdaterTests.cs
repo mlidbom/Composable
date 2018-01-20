@@ -6,6 +6,7 @@ using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
+using Composable.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
@@ -30,6 +31,16 @@ namespace Composable.Tests.CQRS
         [SetUp] public void SetupBus()
         {
             ServiceLocator = CreateServiceLocator();
+            ServiceLocator.Resolve<ITypeMappingRegistar>()
+                          .Map<Composable.Tests.CQRS.User>("2cfabb11-5e5a-494d-898f-8bfc654544eb")
+                          .Map<Composable.Tests.CQRS.IUserEvent>("0727c209-2f49-46ab-a56b-a1332415a895")
+                          .Map<Composable.Tests.CQRS.MigratedAfterUserChangedEmailEvent>("9ff42a12-f28c-447a-8aa1-79e6f685fa41")
+                          .Map<Composable.Tests.CQRS.MigratedBeforeUserRegisteredEvent>("3338e1d4-3839-4f63-9248-ea4dd30c8348")
+                          .Map<Composable.Tests.CQRS.MigratedReplaceUserChangedPasswordEvent>("45db6370-f7e7-4eb8-b792-845485d86295")
+                          .Map<Composable.Tests.CQRS.UserChangedEmail>("40ae1f6d-5f95-4c60-ac5f-21a3d1c85de9")
+                          .Map<Composable.Tests.CQRS.UserChangedPassword>("0b3b57f6-fd69-4da1-bb52-15033495f044")
+                          .Map<Composable.Tests.CQRS.UserEvent>("fa71e035-571d-4231-bd65-e667c138ec36")
+                          .Map<Composable.Tests.CQRS.UserRegistered>("03265864-8e1d-4eb7-a7a9-63dfc2b965de");
         }
 
         [TearDown] public void TearDownTask()

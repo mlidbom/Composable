@@ -23,7 +23,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                 where TNestedComponentBaseEventClass : TComponentBaseEventClass, TNestedComponentBaseEventInterface
                 where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
             {
-                static NestedComponent() => AggregateTypeValidator<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>.Validate();
+                static NestedComponent() => AggregateTypeValidator<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>.AssertStaticStructureIsValid();
 
                 protected NestedComponent(TComponent parent)
                     : base(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers(), registerEventAppliers: true) {}

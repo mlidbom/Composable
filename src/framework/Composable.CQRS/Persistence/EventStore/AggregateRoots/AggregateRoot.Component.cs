@@ -14,7 +14,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
-            static Component() => AggregateTypeValidator<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>.Validate();
+            static Component() => AggregateTypeValidator<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>.AssertStaticStructureIsValid();
 
             readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();

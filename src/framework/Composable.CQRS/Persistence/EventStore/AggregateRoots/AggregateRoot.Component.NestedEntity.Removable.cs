@@ -40,7 +40,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                                     TEntityCreatedEventInterface,
                                     TEventEntityIdSetterGetter>
             {
-                static NestedEntity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.Validate();
+                static NestedEntity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.AssertStaticStructureIsValid();
 
                 protected NestedEntity(TComponent parent) : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers())
                 {

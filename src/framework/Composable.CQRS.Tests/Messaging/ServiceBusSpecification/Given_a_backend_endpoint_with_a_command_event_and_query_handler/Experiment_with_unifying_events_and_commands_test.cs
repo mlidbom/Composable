@@ -9,6 +9,7 @@ using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Refactoring.Naming;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -44,9 +45,21 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                                 store.Save(UserAggregate.Register(command));
                                                 return new RegisterUserResult(command.UserId);
                                             });
+
+                                     builder.TypeMapper
+                                            .Map<UserAggregate>("4281ba68-a3ce-4a9a-82fc-be71d6155fbc")
+                                            .Map<UserRegistrarAggregate>("732f0613-ee94-4d03-a479-9e5b69dc0e69")
+                                            .Map<UserRegistrarEvent.Implementation.Created>("0e97953f-57f5-4252-8dec-a31c9a387dac")
+                                            .Map<UserRegistrarEvent.Implementation.Root>("1849d406-9af4-481f-a475-395e9112ac4a")
+                                            .Map<UserRegistrarEvent.IRoot>("20033612-88c5-422b-9632-d4d3cbcaff45")
+                                            .Map<UserEvent.Implementation.Root>("05f0f69f-c29a-49c0-8cea-62286f5a1816")
+                                            .Map<UserEvent.Implementation.UserRegisteredEvent>("5eac2b7a-014a-4783-9b19-4f0f975028f4")
+                                            .Map<UserEvent.IRoot>("ff9f3cae-7377-4865-a623-f11436dad926")
+                                            .Map<UserEvent.UserRegistered>("1b5e0128-ab76-4026-a6d7-4f2ffa4d82cd");
                                  }));
 
             _userDomainServiceLocator = _userManagementDomainEndpoint.ServiceLocator;
+
             _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() => _userDomainServiceLocator.Resolve<IUserEventStoreUpdater>().Save(UserRegistrarAggregate.Create()));
         }
 
@@ -85,7 +98,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
                 }
 
-                [TypeId("3210D879-0D81-4DAB-9254-CA85B9D70F69")]public class UserRegisteredEvent : Root, UserEvent.UserRegistered
+                [TypeId("3210D879-0D81-4DAB-9254-CA85B9D70F69")]public class UserRegisteredEvent : Root, UserRegistered
                 {
                     public UserRegisteredEvent(Guid userId) : base(userId) {}
                 }
@@ -146,7 +159,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 => RegisterEventAppliers()
                     .IgnoreUnhandled<UserEvent.IRoot>();
 
-            internal static IEventStored Register(UserRegistrarCommand.RegisterUserCommand command)
+            internal static UserAggregate Register(UserRegistrarCommand.RegisterUserCommand command)
             {
                 var registered = new UserAggregate();
                 registered.Publish(new UserEvent.Implementation.UserRegisteredEvent(command.UserId));

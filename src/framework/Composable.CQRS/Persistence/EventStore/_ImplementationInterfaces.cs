@@ -24,6 +24,10 @@ namespace Composable.Persistence.EventStore
         void DeleteAggregate(Guid aggregateId);
     }
 
+    interface IAggregateTypeValidator
+    {
+        void AssertIsValid<TAggregate>();
+    }
 
     interface IEventStorePersistenceLayer
     {

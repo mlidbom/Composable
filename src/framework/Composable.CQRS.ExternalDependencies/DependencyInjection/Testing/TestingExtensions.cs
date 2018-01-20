@@ -7,7 +7,9 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.AggregateRoots;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
+using Composable.Refactoring.Naming;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
@@ -37,6 +39,13 @@ namespace Composable.DependencyInjection.Testing
                          .LifestyleSingleton(),
                 Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>()
                          .UsingFactoryMethod(() => new MessageHandlerRegistry())
+                         .LifestyleSingleton(),
+                Component.For<ITypeIdMapper, ITypeMappingRegistar>()
+                         .ImplementedBy<TypeMapper>()
+                         .LifestyleSingleton()
+                         .DelegateToParentServiceLocatorWhenCloning(),
+                Component.For<IAggregateTypeValidator>()
+                         .ImplementedBy<AggregateTypeValidator>()
                          .LifestyleSingleton(),
                 Component.For<IEventStoreEventSerializer>()
                          .ImplementedBy<NewtonSoftEventStoreEventSerializer>()

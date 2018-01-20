@@ -6,6 +6,7 @@ using Composable.DDD;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Messaging.Events;
+using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses
 {
@@ -86,6 +87,7 @@ namespace Composable.Messaging.Buses
     public interface IEndpointBuilder
     {
         IDependencyInjectionContainer Container { get; }
+        ITypeMappingRegistar TypeMapper { get; }
         EndpointConfiguration Configuration { get; }
         MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers { get; }
     }

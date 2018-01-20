@@ -34,11 +34,6 @@ namespace Composable.Messaging.Buses
         TResult Query<TResult>(IQuery<TResult> query);
     }
 
-    public interface IMessageSpy
-    {
-        IEnumerable<object> DispatchedMessages { get; }
-    }
-
     interface IMessageHandlerRegistry
     {
         Action<object> GetCommandHandler(ITransactionalExactlyOnceDeliveryCommand message);

@@ -54,7 +54,7 @@ namespace Composable.DependencyInjection.Testing
                          .UsingFactoryMethod(() => DummyTimeSource.Now)
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning(),
-                Component.For<IInProcessServiceBus, IMessageSpy>()
+                Component.For<IInProcessServiceBus>()
                          .UsingFactoryMethod((IMessageHandlerRegistry registry) => new InProcessServiceBus(registry))
                          .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()

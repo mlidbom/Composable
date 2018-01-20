@@ -1,4 +1,5 @@
-﻿using AccountManagement.API;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
@@ -7,10 +8,17 @@ using NUnit.Framework;
 
 namespace AccountManagement.Tests.Domain
 {
+    public class EventSpy
+    {
+        public IEnumerable<ITransactionalExactlyOnceDeliveryEvent> DispatchedMessages => _events.ToList();
+        public void Receive(ITransactionalExactlyOnceDeliveryEvent @event) { _events.Add(@event); }
+        List<ITransactionalExactlyOnceDeliveryEvent> _events = new List<ITransactionalExactlyOnceDeliveryEvent>();
+    }
+
     [TestFixture] public abstract class DomainTestBase
     {
         protected IServiceLocator ServiceLocator { get; private set; }
-        protected IMessageSpy MessageSpy => ServiceLocator.Lease<IMessageSpy>().Instance;
+        protected EventSpy EventSpy;
 
         StrictAggregateDisposable _managedResources;
         protected ITestingEndpointHost Host;
@@ -19,8 +27,11 @@ namespace AccountManagement.Tests.Domain
 
         [SetUp] public void SetupContainerAndBeginScope()
         {
+            EventSpy = new EventSpy();
             Host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
             _domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(Host);
+            _domainEndpoint.ServiceLocator.Resolve<IMessageHandlerRegistrar>()
+                           .ForEvent<ITransactionalExactlyOnceDeliveryEvent>(EventSpy.Receive);
 
             ServiceLocator = _domainEndpoint.ServiceLocator;
 

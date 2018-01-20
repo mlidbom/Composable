@@ -20,7 +20,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
             _result.Should().Be(AccountResource.Command.Register.RegistrationAttemptResult.Successful);
         }
 
-        [Test] public void An_IUserRegisteredAccountEvent_is_published() => MessageSpy.DispatchedMessages.OfType<AccountEvent.UserRegistered>().ToList().Should().HaveCount(1);
+        [Test] public void An_IUserRegisteredAccountEvent_is_published() => EventSpy.DispatchedMessages.OfType<AccountEvent.UserRegistered>().ToList().Should().HaveCount(1);
 
         [Test] public void AccountEmail_is_the_one_used_for_registration() => Assert.That(_registeredAccount.Email.ToString(), Is.EqualTo(_registerAccountScenario.Email));
 

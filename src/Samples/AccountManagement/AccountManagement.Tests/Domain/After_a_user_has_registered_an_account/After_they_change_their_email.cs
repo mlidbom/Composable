@@ -18,12 +18,12 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         }
 
         [Test] public void an_IUserChangedAccountEmailEvent_is_published_on_the_bus() =>
-            MessageSpy.DispatchedMessages
+            EventSpy.DispatchedMessages
                       .OfType<AccountEvent.UserChangedEmail>()
                       .Should().HaveCount(1);
 
         [Test] public void Raised_event_contains_the_supplied_email() =>
-            MessageSpy.DispatchedMessages
+            EventSpy.DispatchedMessages
                       .OfType<AccountEvent.UserChangedEmail>().Single()
                       .Email.Should().Be(_changeEmailScenario.NewEmail);
 

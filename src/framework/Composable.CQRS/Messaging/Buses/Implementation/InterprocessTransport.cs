@@ -53,6 +53,7 @@ namespace Composable.Messaging.Buses.Implementation
             state.Running = false;
             state.Poller.Dispose();
             state.EndpointConnections.Values.ForEach(socket => socket.Dispose());
+            state.Poller = null;
         });
 
         public void Start() => _state.WithExclusiveAccess(state =>

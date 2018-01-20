@@ -21,7 +21,7 @@ namespace AccountManagement.Domain.Events
 
             [TypeId("CB7B686A-BF1A-4215-8081-98EF01135D6D")]public class UserRegistered : Root, AccountEvent.UserRegistered
             {
-                [UsedImplicitly] UserRegistered() {} //ncrunch: no coverage
+                [UsedImplicitly] UserRegistered() {}
 
                 ///<summary>
                 /// The constructor should guarantee that the event is correctly created.

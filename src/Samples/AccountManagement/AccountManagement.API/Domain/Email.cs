@@ -12,12 +12,12 @@ namespace AccountManagement.Domain
     /// </summary>
     public class Email : ValueObject<Email>
     {
-        [JsonProperty]string Value { get; }
+        static readonly Regex BasicEmailValidationRegex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
+        [JsonProperty] string Value { get; }
 
         public override string ToString() => Value;
 
-
-        [JsonConstructor]Email(string value)
+        [JsonConstructor] Email(string value)
         {
             AssertIsValid(value);
             Value = value;
@@ -25,28 +25,11 @@ namespace AccountManagement.Domain
 
         public static bool IsValidEmail(string emailAddress)
         {
-            if(string.IsNullOrWhiteSpace(emailAddress))
-            {
-                return false;
-            }
+            if(string.IsNullOrWhiteSpace(emailAddress)) return false;
+            if(!BasicEmailValidationRegex.IsMatch(emailAddress)) return false;
+            if(emailAddress.Contains("..")) return false;
+            if(emailAddress.Contains("@.") || emailAddress.Contains(".@")) return false;
 
-            var regex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
-            var isMatch = regex.IsMatch(emailAddress);
-
-            if(!isMatch)
-            {
-                return false;
-            }
-
-            if(emailAddress.Contains(".."))
-            {
-                return false;
-            }
-
-            if(emailAddress.Contains("@.") || emailAddress.Contains(".@"))
-            {
-                return false;
-            }
             return true;
         }
 

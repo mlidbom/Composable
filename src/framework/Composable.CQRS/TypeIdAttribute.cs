@@ -8,6 +8,7 @@ namespace Composable
     {
         internal readonly Guid GuidValue;
 
+        // ReSharper disable once ImpureMethodCallOnReadonlyValueField
         public override string ToString() => GuidValue.ToString();
 
         internal TypeId(Guid guidValue)

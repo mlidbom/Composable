@@ -37,7 +37,7 @@ namespace Composable.DependencyInjection.Testing
             EndpointBuilder.DefaultWiring(globalBusStateTracker, @this, endpointId, configuration, new TypeMapper());
         }
 
-        static readonly IReadOnlyList<Type> TypesThatReferenceTheContainer = Seq.OfTypes<IDependencyInjectionContainer, IServiceLocator, SimpleInjectorDependencyInjectionContainer, WindsorDependencyInjectionContainer>()
+        static readonly IReadOnlyList<Type> TypesThatAreFacadesForTheContainer = Seq.OfTypes<IDependencyInjectionContainer, IServiceLocator, SimpleInjectorDependencyInjectionContainer, WindsorDependencyInjectionContainer>()
                                                          .ToList();
 
         public static IServiceLocator Clone(this IServiceLocator @this)
@@ -47,7 +47,7 @@ namespace Composable.DependencyInjection.Testing
             var cloneContainer = DependencyInjectionContainer.Create();
 
             sourceContainer.RegisteredComponents()
-                           .Where(component => TypesThatReferenceTheContainer.None(type => component.ServiceTypes.Contains(type)))
+                           .Where(component => TypesThatAreFacadesForTheContainer.None(facadeForTheContainer => component.ServiceTypes.Contains(facadeForTheContainer)))
                            .ForEach(action: componentRegistration => cloneContainer.Register(componentRegistration.CreateCloneRegistration(@this)));
 
             return cloneContainer.CreateServiceLocator();

@@ -28,7 +28,7 @@ namespace Composable.Refactoring.Naming
                 return type;
             }
 
-            return typeId.GetRuntimeType();
+            throw new Exception($"Could not find type for {nameof(TypeId)}: {typeId}");
         });
 
         public void AssertMappingsExistFor(IEnumerable<Type> typesThatRequireMappings) => _state.WithExclusiveAccess(state =>

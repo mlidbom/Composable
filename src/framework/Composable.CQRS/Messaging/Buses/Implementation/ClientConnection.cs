@@ -157,7 +157,7 @@ namespace Composable.Messaging.Buses.Implementation
                             break;
                         case TransportMessage.Response.ResponseType.Failure:
                             var failureResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
-                            failureResponse.SetException(new MessageDispatchingFailedException());
+                            failureResponse.SetException(new MessageDispatchingFailedException(response.Body));
                             break;
                         case TransportMessage.Response.ResponseType.Received:
                             Contract.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));

@@ -60,7 +60,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return new InComing(messageBody, messageType, client, messageId);
             }
 
-            public Response.Outgoing CreateFailureResponse(Exception exception) => Response.Outgoing.Failure(this, exception);
+            public Response.Outgoing CreateFailureResponse(AggregateException exception) => Response.Outgoing.Failure(this, exception);
 
             public Response.Outgoing CreateSuccessResponse(object response) => Response.Outgoing.Success(this, response);
 
@@ -159,13 +159,21 @@ namespace Composable.Messaging.Buses.Implementation
                     return new Outgoing(responseMessage);
                 }
 
-                public static Outgoing Failure(TransportMessage.InComing incoming, Exception failure)
+                public static Outgoing Failure(TransportMessage.InComing incoming, AggregateException failure)
                 {
                     var response = new NetMQMessage();
 
                     response.Append(incoming.Client);
                     response.Append(incoming.MessageId);
                     response.Append((int)ResponseType.Failure);
+
+                    if(failure.InnerExceptions.Count == 1)
+                    {
+                        response.Append(failure.InnerException.ToString());
+                    } else
+                    {
+                        response.Append(failure.ToString());
+                    }
 
                     return new Outgoing(response);
                 }
@@ -183,7 +191,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal class Incoming
             {
-                readonly string _resultJson;
+                internal readonly string Body;
                 readonly string _responseType;
                 object _result;
                 internal ResponseType ResponseType { get; }
@@ -193,11 +201,11 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     if(_result == null)
                     {
-                        if(_resultJson == Constants.NullString)
+                        if(Body == Constants.NullString)
                         {
                             return null;
                         }
-                        _result = JsonConvert.DeserializeObject(_resultJson, _responseType.AsType(), JsonSettings.JsonSerializerSettings);
+                        _result = JsonConvert.DeserializeObject(Body, _responseType.AsType(), JsonSettings.JsonSerializerSettings);
                     }
                     return _result;
                 }
@@ -223,19 +231,19 @@ namespace Composable.Messaging.Buses.Implementation
                         case ResponseType.Success:
                             var responseType = message[2].ConvertToString();
                             var responseBody = message[3].ConvertToString();
-                            return new Incoming(type: type, respondingToMessageId: messageId, resultJson: responseBody, responseType: responseType);
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: responseBody, responseType: responseType);
                         case ResponseType.Failure:
-                            return new Incoming(type: type, respondingToMessageId: messageId, resultJson: null, responseType: null);
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: message[2].ConvertToString(), responseType: null);
                         case ResponseType.Received:
-                            return new Incoming(type: type, respondingToMessageId: messageId, resultJson: null, responseType: null);
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: null, responseType: null);
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
                 }
 
-                Incoming(ResponseType type, Guid respondingToMessageId, string resultJson, string responseType)
+                Incoming(ResponseType type, Guid respondingToMessageId, string body, string responseType)
                 {
-                    _resultJson = resultJson;
+                    Body = body;
                     _responseType = responseType;
                     ResponseType = type;
                     RespondingToMessageId = respondingToMessageId;

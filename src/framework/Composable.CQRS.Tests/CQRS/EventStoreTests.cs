@@ -2,6 +2,7 @@
 using System.Linq;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
+using Composable.Refactoring.Naming;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
@@ -31,6 +32,8 @@ namespace Composable.Tests.CQRS
         [SetUp] public void SetupTask()
         {
             _serviceLocator = CreateServiceLocator();
+            _serviceLocator.Resolve<ITypeMappingRegistar>()
+                           .Map<Composable.Tests.CQRS.SomeEvent>("9e71c8cb-397a-489c-8ff7-15805a7509e8");
             _scope = _serviceLocator.BeginScope();
             _eventStore = _serviceLocator.EventStore();
         }

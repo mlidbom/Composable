@@ -18,11 +18,7 @@ namespace Composable.Refactoring.Naming
                 return typeId;
             }
 
-            //            throw new Exception($@"Missing type mapping for type {type.FullName}. You probably want to add this line to your endpoint configuration: 
-            //{StartOfMappingList}{MapMethodCallforType(type)}
-            //");
-
-            return TypeId.FromType(type);
+            throw BuildExceptionDescribingHowToAddMissingMappings(new List<Type> {type});
         });
 
         public Type GetType(TypeId typeId) => _state.WithExclusiveAccess(state =>
@@ -40,25 +36,7 @@ namespace Composable.Refactoring.Naming
             var typesWithMissingMappings = typesThatRequireMappings.Where(type => !state.TypeToTypeIdMap.ContainsKey(type)).ToList();
             if(typesWithMissingMappings.Any())
             {
-                ThrowExceptionDescribingHowToAddMissingMappings();
-            }
-
-            void ThrowExceptionDescribingHowToAddMissingMappings()
-            {
-                typesWithMissingMappings = typesWithMissingMappings.Distinct().OrderBy(type => type.FullName).ToList();
-
-                var fixMessage = new StringBuilder();
-                fixMessage.AppendLine($@"
-In order to allow you to freely rename and move your types without breaking your persisted data you are required to map your types to Guid values that are used in place of your type names in the persisted data.
-Some such required type mappings are missing. 
-You should map them in your endpoint configuration by using {typeof(IEndpointBuilder)}.{nameof(IEndpointBuilder.TypeMapper)}")
-                          .Append(StartOfMappingList);
-
-                typesWithMissingMappings.ForEach(type => fixMessage.Append($"{Environment.NewLine}   .{MapMethodCallforType(type)}"));
-
-                fixMessage.Append(";").AppendLine().AppendLine();
-
-                throw new Exception(fixMessage.ToString());
+                BuildExceptionDescribingHowToAddMissingMappings(typesWithMissingMappings);
             }
         });
 
@@ -75,6 +53,24 @@ You should map them in your endpoint configuration by using {typeof(IEndpointBui
 
             return this;
         });
+
+        Exception BuildExceptionDescribingHowToAddMissingMappings(List<Type> typesWithMissingMappings)
+        {
+            typesWithMissingMappings = typesWithMissingMappings.Distinct().OrderBy(type => type.FullName).ToList();
+
+            var fixMessage = new StringBuilder();
+            fixMessage.AppendLine($@"
+In order to allow you to freely rename and move your types without breaking your persisted data you are required to map your types to Guid values that are used in place of your type names in the persisted data.
+Some such required type mappings are missing. 
+You should map them in your endpoint configuration by using {typeof(IEndpointBuilder)}.{nameof(IEndpointBuilder.TypeMapper)}")
+                      .Append(StartOfMappingList);
+
+            typesWithMissingMappings.ForEach(type => fixMessage.Append($"{Environment.NewLine}   .{MapMethodCallforType(type)}"));
+
+            fixMessage.Append(";").AppendLine().AppendLine();
+
+            return new Exception(fixMessage.ToString());
+        }
 
         class State
         {

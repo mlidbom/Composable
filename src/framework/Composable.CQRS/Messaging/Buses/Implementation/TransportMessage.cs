@@ -55,7 +55,7 @@ namespace Composable.Messaging.Buses.Implementation
                 var client = receivedMessage[0].ToByteArray();
                 var messageId = new Guid(receivedMessage[1].ToByteArray());
                 var messageType = new TypeId(new Guid(receivedMessage[2].ToByteArray()));
-                var messageBody = receivedMessage[4].ConvertToString();
+                var messageBody = receivedMessage[3].ConvertToString();
 
                 return new InComing(messageBody, messageType, client, messageId);
             }

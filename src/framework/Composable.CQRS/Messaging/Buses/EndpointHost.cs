@@ -42,11 +42,11 @@ namespace Composable.Messaging.Buses
 
         public IEndpoint RegisterAndStartEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
         {
-            var builder = new EndpointBuilder(_globalBusStateTracker, _containerFactory(_mode), name);
+            var builder = new EndpointBuilder(_globalBusStateTracker, _containerFactory(_mode), name, id);
 
             setup(builder);
 
-            var endpoint = builder.Build(name, id);
+            var endpoint = builder.Build();
 
             var existingEndpoints = Endpoints.ToList();
 

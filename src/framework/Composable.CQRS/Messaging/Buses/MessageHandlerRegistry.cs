@@ -76,16 +76,27 @@ namespace Composable.Messaging.Buses
 
         Action<object> IMessageHandlerRegistry.GetCommandHandler(ITransactionalExactlyOnceDeliveryCommand message)
         {
-            try
+            if(TryGetCommandHandler(message, out var handler))
             {
-                lock(_lock)
-                {
-                    return _commandHandlers[message.GetType()];
-                }
+                return handler;
             }
-            catch(KeyNotFoundException)
+
+            throw new NoHandlerException(message.GetType());
+        }
+
+        public bool TryGetCommandHandler(ITransactionalExactlyOnceDeliveryCommand message, out Action<object> handler)
+        {
+            lock(_lock)
             {
-                throw new NoHandlerException(message.GetType());
+                return _commandHandlers.TryGetValue(message.GetType(), out handler);
+            }
+        }
+
+        public bool TryGetCommandHandlerWithResult(ITransactionalExactlyOnceDeliveryCommand message, out Func<object, object> handler)
+        {
+            lock(_lock)
+            {
+                return _commandHandlersReturningResults.TryGetValue(message.GetType(), out handler);
             }
         }
 

@@ -67,7 +67,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Can_register_user_and_fetch_user_resource()
         {
-            var registrationResult = UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>());
+            var registrationResult = _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() =>  UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>()));
 
             var user = _host.ClientBus.Query(registrationResult.UserLink);
 

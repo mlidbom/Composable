@@ -30,6 +30,10 @@ namespace Composable.DependencyInjection.Testing
                 MasterDbConnection.UseConnection(action: _ => {}); //evaluate lazy here in order to not pollute profiler timings of component resolution or registering.
             }
 
+            var globalBusStateTracker = new GlobalBusStateTracker();
+            var endpointId = new EndpointId(Guid.NewGuid());
+            var Configuration = new EndpointConfiguration(endpointId.ToString());
+
             @this.Register(
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
@@ -44,9 +48,6 @@ namespace Composable.DependencyInjection.Testing
                          .ImplementedBy<TypeMapper>()
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning(),
-                Component.For<IAggregateTypeValidator>()
-                         .ImplementedBy<AggregateTypeValidator>()
-                         .LifestyleSingleton(),
                 Component.For<IEventStoreEventSerializer>()
                          .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
                          .LifestyleScoped(),
@@ -54,8 +55,25 @@ namespace Composable.DependencyInjection.Testing
                          .UsingFactoryMethod(() => DummyTimeSource.Now)
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning(),
-                Component.For<IInProcessServiceBus>()
-                         .UsingFactoryMethod((IMessageHandlerRegistry registry) => new InProcessServiceBus(registry))
+                Component.For<EndpointId>().UsingFactoryMethod(() => endpointId).LifestyleSingleton(),
+                Component.For<EndpointConfiguration>()
+                         .UsingFactoryMethod(() => Configuration)
+                         .LifestyleSingleton(),
+                Component.For<IAggregateTypeValidator>()
+                         .ImplementedBy<AggregateTypeValidator>()
+                         .LifestyleSingleton(),
+                Component.For<CommandScheduler>()
+                         .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))
+                         .LifestyleSingleton(),
+                Component.For<IInbox>()
+                         .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), k.Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName), k.Resolve<ITypeMapper>()))
+                         .LifestyleSingleton(),
+                Component.For<IInterprocessTransport>()
+                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, EndpointId id, ITypeMapper typeMapper) =>
+                                                 new InterprocessTransport(globalBusStateTracker, timeSource, connectionProvider.GetConnectionProvider(Configuration.ConnectionStringName), typeMapper, id))
+                         .LifestyleSingleton(),
+                Component.For<IServiceBus, IServiceBusControl, IInProcessServiceBus>()
+                         .UsingFactoryMethod((IInterprocessTransport transport, IInbox inbox, CommandScheduler scheduler, IMessageHandlerRegistry handlerRegistry) => new ServiceBus(transport, inbox, scheduler, handlerRegistry))
                          .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()
                          .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))

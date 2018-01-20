@@ -14,9 +14,9 @@ namespace Composable.Messaging.Buses
     public interface IInProcessServiceBus
     {
         void Publish(ITransactionalExactlyOnceDeliveryEvent anEvent);
-        TResult Query<TResult>(IQuery<TResult> query);
-        TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
-        void Send(ITransactionalExactlyOnceDeliveryCommand message);
+        TResult QueryInProcess<TResult>(IQuery<TResult> query);
+        TResult SendInProcess<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
+        void SendInProcess(ITransactionalExactlyOnceDeliveryCommand message);
     }
 
 
@@ -37,6 +37,10 @@ namespace Composable.Messaging.Buses
     interface IMessageHandlerRegistry
     {
         Action<object> GetCommandHandler(ITransactionalExactlyOnceDeliveryCommand message);
+
+        bool TryGetCommandHandler(ITransactionalExactlyOnceDeliveryCommand message, out Action<object> handler);
+
+        bool TryGetCommandHandlerWithResult(ITransactionalExactlyOnceDeliveryCommand message, out Func<object, object> handler);
 
         Func<ITransactionalExactlyOnceDeliveryCommand, object> GetCommandHandler(Type commandType);
         Func<IQuery, object> GetQueryHandler(Type commandType);

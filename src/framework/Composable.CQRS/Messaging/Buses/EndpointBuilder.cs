@@ -16,17 +16,21 @@ namespace Composable.Messaging.Buses
         static readonly ISqlConnection MasterDbConnection = new AppConfigSqlConnectionProvider().GetConnectionProvider(parameterName: "MasterDB");
 
         readonly IDependencyInjectionContainer _container;
+        readonly string _name;
         TypeMapper _typeMapper;
+        EndpointId _endpointId;
 
-        public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, string name)
+        public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, string name, EndpointId endpointId)
         {
             _container = container;
+            _name = name;
+            _endpointId = endpointId;
             _typeMapper = new TypeMapper();
 
-            Configuration = new EndpointConfiguration(name)
-                                {};
+            Configuration = new EndpointConfiguration(name);
 
             _container.Register(
+                Component.For<EndpointId>().UsingFactoryMethod(() => _endpointId).LifestyleSingleton(),
                 Component.For<EndpointConfiguration>()
                          .UsingFactoryMethod(() => Configuration)
                          .LifestyleSingleton(),
@@ -38,8 +42,8 @@ namespace Composable.Messaging.Buses
                          .ImplementedBy<AggregateTypeValidator>()
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
-                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, ITypeMapper typeMapper) =>
-                                                 new InterprocessTransport(globalStateTracker, timeSource, connectionProvider.GetConnectionProvider(Configuration.ConnectionStringName), typeMapper))
+                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, ITypeMapper typeMapper, EndpointId id) =>
+                                                 new InterprocessTransport(globalStateTracker, timeSource, connectionProvider.GetConnectionProvider(Configuration.ConnectionStringName), typeMapper, id))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
@@ -57,17 +61,14 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod(() => new DateTimeNowTimeSource())
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning(),
-                Component.For<IInProcessServiceBus>()
-                         .UsingFactoryMethod((IMessageHandlerRegistry registry) => new InProcessServiceBus(registry))
-                         .LifestyleSingleton(),
                 Component.For<IInbox>()
                          .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), k.Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName), k.Resolve<ITypeMapper>()))
                          .LifestyleSingleton(),
                 Component.For<CommandScheduler>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))
                          .LifestyleSingleton(),
-                Component.For<IServiceBus, IServiceBusControl>()
-                         .UsingFactoryMethod((IInterprocessTransport transport, IInbox inbox, CommandScheduler scheduler) => new ServiceBus(transport, inbox, scheduler))
+                Component.For<IServiceBus, IServiceBusControl, IInProcessServiceBus>()
+                         .UsingFactoryMethod((IInterprocessTransport transport, IInbox inbox, CommandScheduler scheduler, IMessageHandlerRegistry handlerRegistry) => new ServiceBus(transport, inbox, scheduler, handlerRegistry))
                          .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()
                          .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
@@ -82,6 +83,9 @@ namespace Composable.Messaging.Buses
         public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers =>
             new MessageHandlerRegistrarWithDependencyInjectionSupport(_container.CreateServiceLocator().Resolve<IMessageHandlerRegistrar>(), _container.CreateServiceLocator());
 
-        public IEndpoint Build(string name, EndpointId id) => new Endpoint(_container.CreateServiceLocator(), id, name);
+        public IEndpoint Build()
+        {
+            return new Endpoint(_container.CreateServiceLocator(), _endpointId, _name);
+        }
     }
 }

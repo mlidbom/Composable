@@ -30,9 +30,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                     builder =>
                     {
                         builder.RegisterHandlers
-                               .ForCommand((MyCommand                     command) => CommandHandlerThreadGate.AwaitPassthrough())
-                               .ForEvent((MyEvent                         myEvent) => EventHandlerThreadGate.AwaitPassthrough())
-                               .ForQuery((MyQuery                         query) => QueryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
+                               .ForCommand((MyCommand command) => CommandHandlerThreadGate.AwaitPassthrough())
+                               .ForEvent((MyEvent myEvent) => EventHandlerThreadGate.AwaitPassthrough())
+                               .ForQuery((MyQuery query) => QueryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
                                .ForCommandWithResult((MyCommandWithResult command) => CommandHandlerWithResultThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()));
 
                         builder.TypeMapper.Map<MyCommand>("0ddefcaa-4d4d-48b2-9e1a-762c0b835275")

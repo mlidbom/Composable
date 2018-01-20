@@ -26,12 +26,14 @@ namespace Composable.Messaging.Buses.Implementation
             public IUtcTimeTimeSource TimeSource { get; set; }
             public MessageStorage MessageStorage { get; set; }
             public ITypeMapper TypeMapper { get; set; }
+            public EndpointId EndpointId;
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeMapper typeMapper) => _state.WithExclusiveAccess(@this =>
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeMapper typeMapper, EndpointId endpointId) => _state.WithExclusiveAccess(@this =>
         {
+            @this.EndpointId = endpointId;
             @this.HandlerStorage = new HandlerStorage(typeMapper);
             @this.TypeMapper = typeMapper;
             @this.MessageStorage = new MessageStorage(connectionFactory, typeMapper);
@@ -65,7 +67,9 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(@event);
 
-            var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToArray();
+            var connections = eventHandlerEndpointIds.Where(id => id != state.EndpointId)//We dispatch events to ourself synchronously so don't go doing it again here.
+                                                     .Select(endpointId => state.EndpointConnections[endpointId])
+                                                     .ToArray();
 
             if(connections.Any())//Don't waste time persisting if there are no receivers
             {

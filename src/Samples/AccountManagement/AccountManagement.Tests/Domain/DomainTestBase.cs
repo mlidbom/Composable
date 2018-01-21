@@ -12,7 +12,7 @@ namespace AccountManagement.Tests.Domain
     {
         public IEnumerable<ITransactionalExactlyOnceDeliveryEvent> DispatchedMessages => _events.ToList();
         public void Receive(ITransactionalExactlyOnceDeliveryEvent @event) { _events.Add(@event); }
-        List<ITransactionalExactlyOnceDeliveryEvent> _events = new List<ITransactionalExactlyOnceDeliveryEvent>();
+        readonly List<ITransactionalExactlyOnceDeliveryEvent> _events = new List<ITransactionalExactlyOnceDeliveryEvent>();
     }
 
     [TestFixture] public abstract class DomainTestBase
@@ -20,24 +20,21 @@ namespace AccountManagement.Tests.Domain
         protected IServiceLocator ServiceLocator { get; private set; }
         protected EventSpy EventSpy;
 
-        StrictAggregateDisposable _managedResources;
         protected ITestingEndpointHost Host;
-        IEndpoint _domainEndpoint;
-        protected IServiceBusSession ServerBusSession => _domainEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
+        protected IEndpoint DomainEndpoint;
 
         [SetUp] public void SetupContainerAndBeginScope()
         {
             EventSpy = new EventSpy();
             Host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
-            _domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(Host);
-            _domainEndpoint.ServiceLocator.Resolve<IMessageHandlerRegistrar>()
+            DomainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(Host);
+            DomainEndpoint.ServiceLocator.Resolve<IMessageHandlerRegistrar>()
                            .ForEvent<ITransactionalExactlyOnceDeliveryEvent>(EventSpy.Receive);
 
-            ServiceLocator = _domainEndpoint.ServiceLocator;
+            ServiceLocator = DomainEndpoint.ServiceLocator;
 
-            _managedResources = StrictAggregateDisposable.Create(ServiceLocator.BeginScope(), Host);
         }
 
-        [TearDown] public void DisposeScopeAndContainer() { _managedResources.Dispose(); }
+        [TearDown] public void DisposeScopeAndContainer() => Host.Dispose();
     }
 }

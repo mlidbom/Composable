@@ -32,7 +32,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        internal static TResult ExecuteInIsolatedScope<TResult>(this IServiceLocator me, [InstantHandle]Func<TResult> function)
+        public static TResult ExecuteInIsolatedScope<TResult>(this IServiceLocator me, [InstantHandle]Func<TResult> function)
         {
             using (me.BeginScope())
             {

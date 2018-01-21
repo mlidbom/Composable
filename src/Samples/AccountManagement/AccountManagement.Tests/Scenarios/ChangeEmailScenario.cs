@@ -1,5 +1,6 @@
 ﻿using AccountManagement.API;
 using AccountManagement.Domain;
+using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 
@@ -7,18 +8,18 @@ namespace AccountManagement.Tests.Scenarios
 {
     class ChangeAccountEmailScenario
     {
-        readonly IServiceBusSession _clientBusSession;
+        readonly IEndpoint _domainEndpoint;
 
         public Email NewEmail = TestData.Email.CreateValidEmail();
         public readonly Email OldEmail;
         public AccountResource Account { get; private set; }
 
-        public static ChangeAccountEmailScenario Create(IServiceBusSession clientBusSession)
-            => new ChangeAccountEmailScenario(clientBusSession, new RegisterAccountScenario(clientBusSession).Execute().Account);
+        public static ChangeAccountEmailScenario Create(IEndpoint domainEndpoint)
+            => new ChangeAccountEmailScenario(domainEndpoint, new RegisterAccountScenario(domainEndpoint).Execute().Account);
 
-        public ChangeAccountEmailScenario(IServiceBusSession clientBusSession, AccountResource account)
+        public ChangeAccountEmailScenario(IEndpoint domainEndpoint, AccountResource account)
         {
-            _clientBusSession = clientBusSession;
+            _domainEndpoint = domainEndpoint;
             Account = account;
             OldEmail = Account.Email;
         }
@@ -28,11 +29,11 @@ namespace AccountManagement.Tests.Scenarios
             var command = Account.CommandsCollections.ChangeEmail;
             command.Email = NewEmail.ToString();
 
-            _clientBusSession.PostRemote(command);
+            _domainEndpoint.ExecuteRequest(session => session.PostRemote(command));
 
-            Account = _clientBusSession.Execute(NavigationSpecification
+            Account = _domainEndpoint.ExecuteRequest(session => session.Execute(NavigationSpecification
                       .GetRemote(AccountApi.Start)
-                      .GetRemote(start => start.Queries.AccountById.WithId(Account.Id)));
+                      .GetRemote(start => start.Queries.AccountById.WithId(Account.Id))));
 
         }
     }

@@ -11,7 +11,7 @@ namespace AccountManagement.Tests.Domain.When_a_user_registers_an_account
     {
         RegisterAccountScenario _registerAccountScenario;
 
-        [SetUp] public void SetupWiringAndCreateRepositoryAndScope() { _registerAccountScenario = new RegisterAccountScenario(ServerBusSession); }
+        [SetUp] public void SetupWiringAndCreateRepositoryAndScope() { _registerAccountScenario = new RegisterAccountScenario(DomainEndpoint); }
 
 
         [Test] public void  CommandValidationFailureException_is_thrown_if_Password_is_null() =>

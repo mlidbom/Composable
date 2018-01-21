@@ -19,6 +19,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
 
+        protected IServiceBus ClientBus => Host.ClientBus;
+
         protected Fixture()
         {
             Host = EndpointHost.Testing.BuildHost(

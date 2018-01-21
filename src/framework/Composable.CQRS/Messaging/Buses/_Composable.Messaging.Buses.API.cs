@@ -158,7 +158,7 @@ namespace Composable.Messaging.Buses
     public class SelfGeneratingResourceQuery<TResource> : ICreateMyOwnResultQuery<TResource> where TResource : new()
     {
         SelfGeneratingResourceQuery() {}
-        public static SelfGeneratingResourceQuery<TResource> Instance = new SelfGeneratingResourceQuery<TResource>();
+        public static readonly SelfGeneratingResourceQuery<TResource> Instance = new SelfGeneratingResourceQuery<TResource>();
         public TResource CreateResult() => new TResource();
     }
 

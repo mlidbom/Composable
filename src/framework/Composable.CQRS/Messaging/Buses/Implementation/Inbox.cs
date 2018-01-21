@@ -25,7 +25,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         readonly NetMQQueue<TransportMessage.Response.Outgoing> _responseQueue = new NetMQQueue<TransportMessage.Response.Outgoing>();
 
-        RouterSocket _responseSocket;
+        RouterSocket _serverSocket;
 
         NetMQPoller _poller;
         readonly BlockingCollection<IReadOnlyList<TransportMessage.InComing>> _receivedMessageBatches = new BlockingCollection<IReadOnlyList<TransportMessage.InComing>>();
@@ -50,21 +50,21 @@ namespace Composable.Messaging.Buses.Implementation
             Contract.Invariant.Assert(!_running);
             _running = true;
 
-            _responseSocket = new RouterSocket();
+            _serverSocket = new RouterSocket();
             //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
-            _responseSocket.Options.SendHighWatermark = int.MaxValue;
-            _responseSocket.Options.ReceiveHighWatermark = int.MaxValue;
+            _serverSocket.Options.SendHighWatermark = int.MaxValue;
+            _serverSocket.Options.ReceiveHighWatermark = int.MaxValue;
 
             //We guarantee delivery upon restart in other ways. When we shut down, just do it.
-            _responseSocket.Options.Linger = 0.Milliseconds();
+            _serverSocket.Options.Linger = 0.Milliseconds();
 
-            _address = _responseSocket.BindAndReturnActualAddress(_address);
-            _responseSocket.ReceiveReady += HandleIncomingMessage;
+            _address = _serverSocket.BindAndReturnActualAddress(_address);
+            _serverSocket.ReceiveReady += HandleIncomingMessage;
 
             _responseQueue.ReceiveReady += SendResponseMessage;
 
             _cancellationTokenSource = new CancellationTokenSource();
-            _poller = new NetMQPoller() {_responseSocket, _responseQueue};
+            _poller = new NetMQPoller() {_serverSocket, _responseQueue};
             _poller.RunAsync();
 
             _messagePumpThread = new Thread(MessageReceiverThread){Name = $"{_configuration.Name}_{nameof(Inbox)}_{nameof(MessageReceiverThread)}"};
@@ -119,14 +119,14 @@ namespace Composable.Messaging.Buses.Implementation
         {
             while(e.Queue.TryDequeue(out var response, TimeSpan.Zero))
             {
-                _responseSocket.Send(response);
+                _serverSocket.Send(response);
             }
         }
 
         void HandleIncomingMessage(object sender, NetMQSocketEventArgs e)
         {
             Contract.Argument.Assert(e.IsReadyToReceive);
-            _receivedMessageBatches.Add(TransportMessage.InComing.ReceiveBatch(_responseSocket));
+            _receivedMessageBatches.Add(TransportMessage.InComing.ReceiveBatch(_serverSocket));
         }
 
         public void Stop()
@@ -135,8 +135,8 @@ namespace Composable.Messaging.Buses.Implementation
             _running = false;
             _messagePumpThread.InterruptAndJoin();
             _poller.Dispose();
-            _responseSocket.Close();
-            _responseSocket.Dispose();
+            _serverSocket.Close();
+            _serverSocket.Dispose();
             _handlerExecutionEngine.Stop();
         }
 

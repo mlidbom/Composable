@@ -61,13 +61,6 @@ namespace Composable.Messaging.Buses
         void IServiceBus.PostRemote(ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
-
-            if(_handlerRegistry.TryGetCommandHandler(command, out var handler))
-            {
-                handler(command);
-                return;
-            }
-
             _transport.DispatchIfTransactionCommits(command);
         });
 
@@ -80,12 +73,6 @@ namespace Composable.Messaging.Buses
         Task<TResult> IServiceBus.PostRemoteAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
-
-            if(_handlerRegistry.TryGetCommandHandlerWithResult(command, out var handler))
-            {
-                return Task.FromResult((TResult)handler(command));
-            }
-
             return _transport.DispatchIfTransactionCommitsAsync(command);
         });
 

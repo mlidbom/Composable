@@ -10,24 +10,24 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
 
         [SetUp] public void RegisterAccount()
         {
-            _registerAccountScenario = new RegisterAccountScenario(ClientBus);
+            _registerAccountScenario = new RegisterAccountScenario(ServerBus);
             _registerAccountScenario.Execute();
         }
 
         [Test] public void with_the_correct_email_and_password_succeeds_returning_non_null_and_nonEmpty_authenticationToken()
         {
-            var result = new LoginScenario(ClientBus, _registerAccountScenario.Email, _registerAccountScenario.Password).Execute();
+            var result = new LoginScenario(ServerBus, _registerAccountScenario.Email, _registerAccountScenario.Password).Execute();
 
             result.Succeeded.Should().Be(true);
             result.AuthenticationToken.Should().NotBe(null).And.NotBe(string.Empty);
         }
 
         [Test] public void with_the_correct_email_but_wrong_password_fails()
-            => new LoginScenario(ClientBus, _registerAccountScenario.Email, "SomeOtherPassword").Execute()
+            => new LoginScenario(ServerBus, _registerAccountScenario.Email, "SomeOtherPassword").Execute()
                .Succeeded.Should().Be(false);
 
         [Test] public void with_the_wrong_email_but_correct_password_fails()
-            => new LoginScenario(ClientBus, "some_other@email.com", _registerAccountScenario.Password).Execute()
+            => new LoginScenario(ServerBus, "some_other@email.com", _registerAccountScenario.Password).Execute()
                .Succeeded.Should().Be(false);
     }
 }

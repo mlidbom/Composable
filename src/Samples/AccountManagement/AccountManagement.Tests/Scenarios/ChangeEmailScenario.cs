@@ -28,7 +28,7 @@ namespace AccountManagement.Tests.Scenarios
             var command = Account.CommandsCollections.ChangeEmail;
             command.Email = NewEmail.ToString();
 
-            _clientBus.Send(command);
+            _clientBus.Post(command);
 
             Account = _clientBus.Execute(NavigationSpecification
                       .Get(AccountApi.Start)

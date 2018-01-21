@@ -15,7 +15,7 @@ namespace AccountManagement.UI.MVC.Views.Register
         {
             if(!ModelState.IsValid) return View("RegistrationForm");
 
-            var result = _serviceBus.Send(registrationCommand);
+            var result = _serviceBus.Post(registrationCommand);
             switch(result)
             {
                 case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
@@ -28,6 +28,6 @@ namespace AccountManagement.UI.MVC.Views.Register
             }
         }
 
-        public IActionResult RegistrationForm() => View("RegistrationForm", (_serviceBus.Query(AccountApi.Start)).Commands.Register);
+        public IActionResult RegistrationForm() => View("RegistrationForm", (_serviceBus.Get(AccountApi.Start)).Commands.Register);
     }
 }

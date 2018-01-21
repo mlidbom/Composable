@@ -51,7 +51,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_get_command_result()
             {
-                var commandResult1 = Host.ClientBus.Send(new RegisterUserCommand("new-user-name"));
+                var commandResult1 = Host.ClientBus.Post(new RegisterUserCommand("new-user-name"));
                 commandResult1.Name.Should().Be("new-user-name");
             }
 

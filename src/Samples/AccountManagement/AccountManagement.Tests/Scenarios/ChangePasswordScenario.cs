@@ -34,7 +34,7 @@ namespace AccountManagement.Tests.Scenarios
             command.NewPassword = NewPasswordAsString;
             command.OldPassword = OldPassword;
 
-            _bus.Send(command);
+            _bus.Post(command);
             Account = _bus.Execute(NavigationSpecification
                       .Get(AccountApi.Start)
                       .Get(start => start.Queries.AccountById.WithId(Account.Id)));

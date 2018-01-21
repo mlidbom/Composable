@@ -44,12 +44,12 @@ namespace Composable.Messaging.Buses
         }
 
         //Todo: if(inprocessTransport.TryDispatchSynchronously(out var response)
-        public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) =>
+        public async Task<TResult> GetAsync<TResult>(IQuery<TResult> query) =>
             query is ICreateMyOwnResultQuery<TResult> selfCreating
                 ? selfCreating.CreateResult()
                 : await _transport.DispatchAsync(query).NoMarshalling();
 
-        public TResult Query<TResult>(IQuery<TResult> query) => QueryAsync(query).ResultUnwrappingException();
+        public TResult Get<TResult>(IQuery<TResult> query) => GetAsync(query).ResultUnwrappingException();
 
         //Todo: inprocessTransport.Publish
         public void Publish(ITransactionalExactlyOnceDeliveryEvent @event) => TransactionScopeCe.Execute(() =>
@@ -58,7 +58,7 @@ namespace Composable.Messaging.Buses
             _transport.DispatchIfTransactionCommits(@event);
         });
 
-        public void Send(ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
+        public void Post(ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
 
@@ -71,13 +71,13 @@ namespace Composable.Messaging.Buses
             _transport.DispatchIfTransactionCommits(command);
         });
 
-        public void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
+        public void PostAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
             _commandScheduler.Schedule(sendAt, command);
         });
 
-        public Task<TResult> SendAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => TransactionScopeCe.Execute(() =>
+        public Task<TResult> PostAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
 
@@ -89,13 +89,13 @@ namespace Composable.Messaging.Buses
             return _transport.DispatchIfTransactionCommitsAsync(command);
         });
 
-        public TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => SendAsync(command).ResultUnwrappingException();
+        public TResult Post<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => PostAsync(command).ResultUnwrappingException();
 
-        public TResult SendInProcess<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => _handlerRegistry.GetCommandHandler(command).Invoke(command);
+        public TResult PostInProcess<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => _handlerRegistry.GetCommandHandler(command).Invoke(command);
 
-        void IInProcessServiceBus.SendInProcess(ITransactionalExactlyOnceDeliveryCommand message) => _handlerRegistry.GetCommandHandler(message).Invoke(message);
+        void IInProcessServiceBus.PostInProcess(ITransactionalExactlyOnceDeliveryCommand message) => _handlerRegistry.GetCommandHandler(message).Invoke(message);
 
-        TResult IInProcessServiceBus.QueryInProcess<TResult>(IQuery<TResult> query) => _handlerRegistry.GetQueryHandler(query).Invoke(query);
+        TResult IInProcessServiceBus.GetInProcess<TResult>(IQuery<TResult> query) => _handlerRegistry.GetQueryHandler(query).Invoke(query);
 
         public void Dispose() { Contract.State.Assert(!_started); }
     }

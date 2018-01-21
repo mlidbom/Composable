@@ -28,8 +28,8 @@ namespace Composable.Messaging
 
             internal StartQuery(IQuery<TResult> start) => _start = start;
 
-            internal override TResult Execute(IServiceBus bus) => bus.Query(_start);
-            internal override Task<TResult> ExecuteAsync(IServiceBus bus) => bus.QueryAsync(_start);
+            internal override TResult Execute(IServiceBus bus) => bus.Get(_start);
+            internal override Task<TResult> ExecuteAsync(IServiceBus bus) => bus.GetAsync(_start);
         }
 
         internal class StartCommand : NavigationSpecification<TResult>
@@ -38,8 +38,8 @@ namespace Composable.Messaging
 
             internal StartCommand(ITransactionalExactlyOnceDeliveryCommand<TResult> start) => _start = start;
 
-            internal override TResult Execute(IServiceBus bus) => bus.Send(_start);
-            internal override Task<TResult> ExecuteAsync(IServiceBus bus) => bus.SendAsync(_start);
+            internal override TResult Execute(IServiceBus bus) => bus.Post(_start);
+            internal override Task<TResult> ExecuteAsync(IServiceBus bus) => bus.PostAsync(_start);
         }
 
         class ContinuationQuery<TPrevious> : NavigationSpecification<TResult>
@@ -57,14 +57,14 @@ namespace Composable.Messaging
             {
                 var previousResult = _previous.Execute(bus);
                 var currentQuery = _nextQuery(previousResult);
-                return bus.Query(currentQuery);
+                return bus.Get(currentQuery);
             }
 
             internal override async Task<TResult> ExecuteAsync(IServiceBus bus)
             {
                 var previousResult = await _previous.ExecuteAsync(bus);
                 var currentQuery = _nextQuery(previousResult);
-                return await bus.QueryAsync(currentQuery);
+                return await bus.GetAsync(currentQuery);
             }
         }
 
@@ -82,14 +82,14 @@ namespace Composable.Messaging
             {
                 var previousResult = _previous.Execute(bus);
                 var currentCommand = _next(previousResult);
-                return bus.Send(currentCommand);
+                return bus.Post(currentCommand);
             }
 
             internal override async Task<TResult> ExecuteAsync(IServiceBus bus)
             {
                 var previousResult = await _previous.ExecuteAsync(bus);
                 var currentCommand = _next(previousResult);
-                return await bus.SendAsync(currentCommand);
+                return await bus.PostAsync(currentCommand);
             }
         }
 
@@ -107,14 +107,14 @@ namespace Composable.Messaging
             {
                 var previousResult = _previous.Execute(bus);
                 var currentCommand = _next(previousResult);
-                bus.Send(currentCommand);
+                bus.Post(currentCommand);
             }
 
             internal override async Task ExecuteAsync(IServiceBus bus)
             {
                 var previousResult = await _previous.ExecuteAsync(bus);
                 var currentCommand = _next(previousResult);
-                bus.Send(currentCommand);
+                bus.Post(currentCommand);
             }
         }
     }

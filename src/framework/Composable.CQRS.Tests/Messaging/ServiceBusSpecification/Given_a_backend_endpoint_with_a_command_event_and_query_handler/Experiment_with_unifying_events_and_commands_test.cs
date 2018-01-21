@@ -68,7 +68,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             var registrationResult = _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() =>  UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>()));
 
-            var user = _host.ClientBus.Query(registrationResult.UserLink);
+            var user = _host.ClientBus.Get(registrationResult.UserLink);
 
             user.Should().NotBe(null);
             user.History.Count().Should().Be(1);
@@ -151,7 +151,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 => RegisterEventAppliers()
                     .IgnoreUnhandled<UserRegistrarEvent.IRoot>();
 
-            internal static RegisterUserResult RegisterUser(IServiceBus bus) => bus.Send(new UserRegistrarCommand.RegisterUserCommand());
+            internal static RegisterUserResult RegisterUser(IServiceBus bus) => bus.Post(new UserRegistrarCommand.RegisterUserCommand());
         }
 
         public class UserAggregate : AggregateRoot<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>

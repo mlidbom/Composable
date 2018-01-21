@@ -16,14 +16,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void If_command_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             CommandHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            Host.ClientBus.Send(new MyCommand());
+            Host.ClientBus.Post(new MyCommand());
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
         [Fact] public async Task If_command_handler_with_result_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception_and_SendAsync_throws_MessageDispatchingFailedException()
         {
             CommandHandlerWithResultThreadGate.ThrowOnPassThrough(_thrownException);
-            await AssertThrows.Async<MessageDispatchingFailedException>(async () => await Host.ClientBus.SendAsync(new MyCommandWithResult()));
+            await AssertThrows.Async<MessageDispatchingFailedException>(async () => await Host.ClientBus.PostAsync(new MyCommandWithResult()));
 
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
@@ -38,7 +38,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public async Task If_query_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception_and_SendAsync_throws_MessageDispatchingFailedException()
         {
             QueryHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            await AssertThrows.Async<MessageDispatchingFailedException>(() => Host.ClientBus.QueryAsync(new MyQuery()));
+            await AssertThrows.Async<MessageDispatchingFailedException>(() => Host.ClientBus.GetAsync(new MyQuery()));
 
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }

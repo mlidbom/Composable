@@ -13,7 +13,7 @@ namespace AccountManagement.UI.MVC.Views.Login
         {
             if(!ModelState.IsValid) return View("LoginForm");
 
-            var result = _serviceBus.Send(loginCommand);
+            var result = _serviceBus.Post(loginCommand);
             if(result.Succeeded)
             {
                 return View("LoggedIn");
@@ -23,6 +23,6 @@ namespace AccountManagement.UI.MVC.Views.Login
             return View("LoginForm");
         }
 
-        public IActionResult LoginForm() => View("LoginForm", (_serviceBus.Query(AccountApi.Start)).Commands.Login);
+        public IActionResult LoginForm() => View("LoginForm", (_serviceBus.Get(AccountApi.Start)).Commands.Login);
     }
 }

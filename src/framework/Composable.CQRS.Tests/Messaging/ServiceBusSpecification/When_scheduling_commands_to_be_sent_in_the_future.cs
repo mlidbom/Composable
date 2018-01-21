@@ -43,7 +43,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + .1.Seconds(), inOneHour);
+            _bus.PostAtTime(now + .1.Seconds(), inOneHour);
 
             _receivedCommandGate.AwaitPassedThroughCountEqualTo(1, timeout: .5.Seconds());
         }
@@ -52,7 +52,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + TimeSpanExtensions.Seconds(2), inOneHour);
+            _bus.PostAtTime(now + TimeSpanExtensions.Seconds(2), inOneHour);
 
             _receivedCommandGate.TryAwaitPassededThroughCountEqualTo(1, timeout: .5.Seconds())
                                 .Should().Be(false);

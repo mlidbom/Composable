@@ -17,22 +17,22 @@ namespace Composable.Messaging.Buses
     ///<summary>Dispatches messages within a process.</summary>
     public interface IInProcessServiceBus : IEventstoreEventPublisher
     {
-        TResult QueryInProcess<TResult>(IQuery<TResult> query);
-        TResult SendInProcess<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
-        void SendInProcess(ITransactionalExactlyOnceDeliveryCommand message);
+        TResult GetInProcess<TResult>(IQuery<TResult> query);
+        TResult PostInProcess<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
+        void PostInProcess(ITransactionalExactlyOnceDeliveryCommand message);
     }
 
 
     ///<summary>Dispatches messages between processes.</summary>
     public interface IServiceBus : IEventstoreEventPublisher
     {
-        void Send(ITransactionalExactlyOnceDeliveryCommand command);
-        void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command);
-        TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
-        Task<TResult> SendAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
+        void Post(ITransactionalExactlyOnceDeliveryCommand command);
+        void PostAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command);
+        TResult Post<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
+        Task<TResult> PostAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
 
-        Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
-        TResult Query<TResult>(IQuery<TResult> query);
+        Task<TResult> GetAsync<TResult>(IQuery<TResult> query);
+        TResult Get<TResult>(IQuery<TResult> query);
     }
 
     interface IMessageHandlerRegistry

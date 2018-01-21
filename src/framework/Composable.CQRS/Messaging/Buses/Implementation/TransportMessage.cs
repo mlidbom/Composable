@@ -48,16 +48,21 @@ namespace Composable.Messaging.Buses.Implementation
                 MessageId = messageId;
             }
 
-            public static InComing Receive(RouterSocket socket)
+            public static IReadOnlyList<InComing> ReceiveBatch(RouterSocket socket)
             {
-                var receivedMessage = socket.ReceiveMultipartMessage();
+                var result = new List<TransportMessage.InComing>();
+                NetMQMessage receivedMessage = null;
+                while(socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref receivedMessage))
+                {
 
-                var client = receivedMessage[0].ToByteArray();
-                var messageId = new Guid(receivedMessage[1].ToByteArray());
-                var messageType = new TypeId(new Guid(receivedMessage[2].ToByteArray()));
-                var messageBody = receivedMessage[3].ConvertToString();
+                    var client = receivedMessage[0].ToByteArray();
+                    var messageId = new Guid(receivedMessage[1].ToByteArray());
+                    var messageType = new TypeId(new Guid(receivedMessage[2].ToByteArray()));
+                    var messageBody = receivedMessage[3].ConvertToString();
 
-                return new InComing(messageBody, messageType, client, messageId);
+                    result.Add(new InComing(messageBody, messageType, client, messageId));
+                }
+                return result;
             }
 
             public Response.Outgoing CreateFailureResponse(AggregateException exception) => Response.Outgoing.Failure(this, exception);

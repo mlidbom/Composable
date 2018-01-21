@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Data.SqlClient;
+using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using NetMQ;
 using NetMQ.Sockets;
@@ -12,6 +16,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class Inbox : IInbox, IDisposable
     {
+        readonly EndpointConfiguration _configuration;
         readonly ITypeMapper _typeMapper;
         readonly IResourceGuard _resourceGuard = ResourceGuard.WithTimeout(1.Seconds());
 
@@ -23,11 +28,15 @@ namespace Composable.Messaging.Buses.Implementation
         RouterSocket _responseSocket;
 
         NetMQPoller _poller;
+        readonly BlockingCollection<IReadOnlyList<TransportMessage.InComing>> _receivedMessageBatches = new BlockingCollection<IReadOnlyList<TransportMessage.InComing>>();
         readonly MessageStorage _storage;
         readonly HandlerExecutionEngine _handlerExecutionEngine;
+        Thread _messagePumpThread;
+        CancellationTokenSource _cancellationTokenSource;
 
         public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory, ITypeMapper typeMapper)
         {
+            _configuration = configuration;
             _typeMapper = typeMapper;
             _address = configuration.Address;
             _storage = new MessageStorage(connectionFactory);
@@ -54,12 +63,57 @@ namespace Composable.Messaging.Buses.Implementation
 
             _responseQueue.ReceiveReady += SendResponseMessage;
 
+            _cancellationTokenSource = new CancellationTokenSource();
             _poller = new NetMQPoller() {_responseSocket, _responseQueue};
             _poller.RunAsync();
+
+            _messagePumpThread = new Thread(MessageReceiverThread){Name = $"{_configuration.Name}_{nameof(Inbox)}_{nameof(MessageReceiverThread)}"};
+            _messagePumpThread.Start();
 
             _handlerExecutionEngine.Start();
             _storage.Start();
         });
+
+        void MessageReceiverThread()
+        {
+            while(!_cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                try
+                {
+                    var transportMessageBatch = _receivedMessageBatches.Take(_cancellationTokenSource.Token);
+                    foreach(var transportMessage in transportMessageBatch)
+                    {
+                        var innerMessage = transportMessage.DeserializeMessageAndCacheForNextCall(_typeMapper);
+                        if(innerMessage is ITransactionalExactlyOnceDeliveryMessage)
+                        {
+                            _storage.SaveMessage(transportMessage);
+                            _responseQueue.Enqueue(transportMessage.CreatePersistedResponse());
+                        }
+
+                        var dispatchTask = _handlerExecutionEngine.Enqueue(transportMessage);
+
+                        dispatchTask.ContinueWith(dispatchResult =>
+                        {
+                            var message = transportMessage.DeserializeMessageAndCacheForNextCall(_typeMapper);
+                            if(message.RequiresResponse())
+                            {
+                                if(dispatchResult.IsFaulted)
+                                {
+                                    _responseQueue.Enqueue(transportMessage.CreateFailureResponse(dispatchResult.Exception));
+                                } else if(dispatchResult.IsCompleted)
+                                {
+                                    _responseQueue.Enqueue(transportMessage.CreateSuccessResponse(dispatchResult.Result));
+                                }
+                            }
+                        });
+                    }
+                }
+                catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException)
+                {
+                    return;
+                }
+            }
+        }
 
         void SendResponseMessage(object sender, NetMQQueueEventArgs<TransportMessage.Response.Outgoing> e)
         {
@@ -72,37 +126,14 @@ namespace Composable.Messaging.Buses.Implementation
         void HandleIncomingMessage(object sender, NetMQSocketEventArgs e)
         {
             Contract.Argument.Assert(e.IsReadyToReceive);
-            var transportMessage = TransportMessage.InComing.Receive(_responseSocket);
-
-            var innerMessage = transportMessage.DeserializeMessageAndCacheForNextCall(_typeMapper);
-            if(innerMessage is ITransactionalExactlyOnceDeliveryMessage)
-            {
-                _storage.SaveMessage(transportMessage);
-                _responseQueue.Enqueue(transportMessage.CreatePersistedResponse());
-            }
-
-            var dispatchTask = _handlerExecutionEngine.Enqueue(transportMessage);
-
-            dispatchTask.ContinueWith(dispatchResult =>
-            {
-                var message = transportMessage.DeserializeMessageAndCacheForNextCall(_typeMapper);
-                if(message.RequiresResponse())
-                {
-                    if(dispatchResult.IsFaulted)
-                    {
-                        _responseQueue.Enqueue(transportMessage.CreateFailureResponse(dispatchResult.Exception));
-                    } else if(dispatchResult.IsCompleted)
-                    {
-                        _responseQueue.Enqueue(transportMessage.CreateSuccessResponse(dispatchResult.Result));
-                    }
-                }
-            });
+            _receivedMessageBatches.Add(TransportMessage.InComing.ReceiveBatch(_responseSocket));
         }
 
         public void Stop()
         {
             Contract.Invariant.Assert(_running);
             _running = false;
+            _messagePumpThread.InterruptAndJoin();
             _poller.Dispose();
             _responseSocket.Close();
             _responseSocket.Dispose();

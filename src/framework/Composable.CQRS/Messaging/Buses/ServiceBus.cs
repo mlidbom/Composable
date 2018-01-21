@@ -7,6 +7,8 @@ using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses
 {
+    //Todo: Refactor responsibility for managing transactions somehow.
+    //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
     partial class ServiceBus : IServiceBus, IServiceBusControl, IInProcessServiceBus, IEventstoreEventPublisher
     {
         readonly IInterprocessTransport _transport;
@@ -43,7 +45,6 @@ namespace Composable.Messaging.Buses
             _inbox.Stop();
         }
 
-        //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for one optimization here with duplication across the class.
         async Task<TResult> IServiceBus.GetRemoteAsync<TResult>(IQuery<TResult> query) =>
             query is ICreateMyOwnResultQuery<TResult> selfCreating
                 ? selfCreating.CreateResult()
@@ -77,19 +78,18 @@ namespace Composable.Messaging.Buses
 
         TResult IServiceBus.PostRemote<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => ((IServiceBus)this).PostRemoteAsync(command).ResultUnwrappingException();
 
-        TResult IInProcessServiceBus.Post<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command)
+        TResult IInProcessServiceBus.Post<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
             return _handlerRegistry.GetCommandHandler(command).Invoke(command);
-        }
+        });
 
-        void IInProcessServiceBus.Post(ITransactionalExactlyOnceDeliveryCommand command)
+        void IInProcessServiceBus.Post(ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
             _handlerRegistry.GetCommandHandler(command).Invoke(command);
-        }
+        });
 
-        //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for one optimization here with duplication across the class.
         TResult IInProcessServiceBus.Get<TResult>(IQuery<TResult> query) =>
             query is ICreateMyOwnResultQuery<TResult> selfCreating
                 ? selfCreating.CreateResult()

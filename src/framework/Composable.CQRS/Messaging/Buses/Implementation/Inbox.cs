@@ -32,6 +32,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly MessageStorage _storage;
         readonly HandlerExecutionEngine _handlerExecutionEngine;
         Thread _messagePumpThread;
+        Thread _pollerThread;
         CancellationTokenSource _cancellationTokenSource;
 
         public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory, ITypeMapper typeMapper)
@@ -65,7 +66,8 @@ namespace Composable.Messaging.Buses.Implementation
 
             _cancellationTokenSource = new CancellationTokenSource();
             _poller = new NetMQPoller() {_serverSocket, _responseQueue};
-            _poller.RunAsync();
+            _pollerThread = new Thread(() => _poller.Run()){Name = $"{_configuration.Name}_{nameof(Inbox)}_{nameof(_pollerThread)}"};
+            _pollerThread.Start();
 
             _messagePumpThread = new Thread(MessageReceiverThread){Name = $"{_configuration.Name}_{nameof(Inbox)}_{nameof(MessageReceiverThread)}"};
             _messagePumpThread.Start();
@@ -73,6 +75,19 @@ namespace Composable.Messaging.Buses.Implementation
             _handlerExecutionEngine.Start();
             _storage.Start();
         });
+
+        public void Stop()
+        {
+            Contract.Invariant.Assert(_running);
+            _running = false;
+            _messagePumpThread.InterruptAndJoin();
+            _poller.StopAsync();
+            _pollerThread.Join();
+            _poller.Dispose();
+            _serverSocket.Close();
+            _serverSocket.Dispose();
+            _handlerExecutionEngine.Stop();
+        }
 
         void MessageReceiverThread()
         {
@@ -108,7 +123,7 @@ namespace Composable.Messaging.Buses.Implementation
                         });
                     }
                 }
-                catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException)
+                catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException || exception is ThreadAbortException)
                 {
                     return;
                 }
@@ -127,17 +142,6 @@ namespace Composable.Messaging.Buses.Implementation
         {
             Contract.Argument.Assert(e.IsReadyToReceive);
             _receivedMessageBatches.Add(TransportMessage.InComing.ReceiveBatch(_serverSocket));
-        }
-
-        public void Stop()
-        {
-            Contract.Invariant.Assert(_running);
-            _running = false;
-            _messagePumpThread.InterruptAndJoin();
-            _poller.Dispose();
-            _serverSocket.Close();
-            _serverSocket.Dispose();
-            _handlerExecutionEngine.Stop();
         }
 
         public void Dispose()

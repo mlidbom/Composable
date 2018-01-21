@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
@@ -27,6 +28,7 @@ namespace Composable.Messaging.Buses.Implementation
             public MessageStorage MessageStorage { get; set; }
             public ITypeMapper TypeMapper { get; set; }
             public EndpointId EndpointId;
+            public Thread PollerThread;
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
@@ -47,22 +49,26 @@ namespace Composable.Messaging.Buses.Implementation
             @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypeIds());
         });
 
+        public void Start() => _state.WithExclusiveAccess(state =>
+        {
+            Contract.State.Assert(!state.Running);
+            state.Running = true;
+            state.MessageStorage.Start();
+
+            state.Poller = new NetMQPoller();
+            state.PollerThread =  new Thread(() => state.Poller.Run()){Name = $"{nameof(InterprocessTransport)}_{nameof(state.PollerThread)}"};
+            state.PollerThread.Start();
+        });
+
         public void Stop() => _state.WithExclusiveAccess(state =>
         {
             Contract.State.Assert(state.Running);
             state.Running = false;
+            state.Poller.StopAsync();
+            state.PollerThread.Join();
             state.Poller.Dispose();
             state.EndpointConnections.Values.ForEach(socket => socket.Dispose());
             state.Poller = null;
-        });
-
-        public void Start() => _state.WithExclusiveAccess(state =>
-        {
-            Contract.State.Assert(!state.Running);
-            state.Poller = new NetMQPoller();
-            state.Running = true;
-            state.MessageStorage.Start();
-            state.Poller.RunAsync();
         });
 
         public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event) => _state.WithExclusiveAccess(state =>

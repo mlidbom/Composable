@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Composable.Contracts;
 using Composable.Messaging.Buses.Implementation;
 using Composable.System.Threading;
 using Composable.System.Transactions;

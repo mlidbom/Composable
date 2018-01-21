@@ -10,7 +10,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
     {
         [Fact] void Command_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            Host.ClientBus.PostRemote(new MyCommand());
+            Host.ClientBusSession.PostRemote(new MyCommand());
 
             var transaction = CommandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                        .PassedThrough.Single().Transaction;
@@ -20,7 +20,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Command_handler_with_result_runs_in_transaction_with_isolation_level_Serializable()
         {
-            var commandResult = Host.ClientBus.PostRemote(new MyCommandWithResult());
+            var commandResult = Host.ClientBusSession.PostRemote(new MyCommandWithResult());
 
             commandResult.Should().NotBe(null);
 
@@ -32,7 +32,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Event_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            Host.ClientBus.Publish(new MyEvent());
+            Host.ClientBusSession.Publish(new MyEvent());
 
             var transaction = EventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                      .PassedThrough.Single().Transaction;
@@ -42,7 +42,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Query_handler_does_not_run_in_transaction()
         {
-            Host.ClientBus.GetRemote(new MyQuery());
+            Host.ClientBusSession.GetRemote(new MyQuery());
 
             QueryHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                    .PassedThrough.Single().Transaction.Should().Be(null);

@@ -12,7 +12,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [SetUp]
         public void RegisterAccount()
         {
-            _changeEmail = ChangeAccountEmailScenario.Create(ServerBus);
+            _changeEmail = ChangeAccountEmailScenario.Create(ServerBusSession);
         }
 
         [Test]

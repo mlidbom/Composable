@@ -15,9 +15,9 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
 
         [SetUp] public void RegisterAccount()
         {
-            _registerAccountScenario = new RegisterAccountScenario(ServerBus);
+            _registerAccountScenario = new RegisterAccountScenario(ServerBusSession);
             _registerAccountScenario.Execute();
-            _changePasswordScenario = ChangePasswordScenario.Create(ServerBus);
+            _changePasswordScenario = ChangePasswordScenario.Create(ServerBusSession);
         }
 
         [Test] public void Password_is_null()

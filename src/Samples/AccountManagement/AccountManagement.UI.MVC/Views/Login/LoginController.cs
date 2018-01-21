@@ -6,14 +6,14 @@ namespace AccountManagement.UI.MVC.Views.Login
 {
     public class LoginController : Controller
     {
-        readonly IServiceBus _serviceBus;
-        public LoginController(IServiceBus serviceBus) => _serviceBus = serviceBus;
+        readonly IRemoteServiceBusSession _remoteServiceBusSession;
+        public LoginController(IRemoteServiceBusSession remoteServiceBusSession) => _remoteServiceBusSession = remoteServiceBusSession;
 
         public IActionResult Login(AccountResource.Command.LogIn.UI loginCommand)
         {
             if(!ModelState.IsValid) return View("LoginForm");
 
-            var result = _serviceBus.PostRemote(loginCommand);
+            var result = _remoteServiceBusSession.PostRemote(loginCommand);
             if(result.Succeeded)
             {
                 return View("LoggedIn");
@@ -23,6 +23,6 @@ namespace AccountManagement.UI.MVC.Views.Login
             return View("LoginForm");
         }
 
-        public IActionResult LoginForm() => View("LoginForm", (_serviceBus.GetRemote(AccountApi.Start)).Commands.Login);
+        public IActionResult LoginForm() => View("LoginForm", (_remoteServiceBusSession.GetRemote(AccountApi.Start)).Commands.Login);
     }
 }

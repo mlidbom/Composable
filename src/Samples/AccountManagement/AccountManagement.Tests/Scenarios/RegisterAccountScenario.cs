@@ -8,15 +8,15 @@ namespace AccountManagement.Tests.Scenarios
 {
     class RegisterAccountScenario
     {
-        readonly IServiceBus _bus;
+        readonly IRemoteServiceBusSession _busSession;
 
         public Guid AccountId;
         public String Email;
         public string Password;
 
-        public RegisterAccountScenario(IServiceBus bus, string email = null, string password = null)
+        public RegisterAccountScenario(IRemoteServiceBusSession busSession, string email = null, string password = null)
         {
-            _bus = bus;
+            _busSession = busSession;
             AccountId = Guid.NewGuid();
             Password = password ?? TestData.Password.CreateValidPasswordString();
             Email = email ?? TestData.Email.CreateValidEmail().ToString();
@@ -24,7 +24,7 @@ namespace AccountManagement.Tests.Scenarios
 
         public (AccountResource.Command.Register.RegistrationAttemptResult Result, AccountResource Account) Execute()
         {
-            var result = _bus.Execute(NavigationSpecification.GetRemote(AccountApi.Start)
+            var result = _busSession.Execute(NavigationSpecification.GetRemote(AccountApi.Start)
                                                 .PostRemote(start => start.Commands.Register.Mutate(@this =>
                                                 {
                                                     @this.AccountId = AccountId;
@@ -35,7 +35,7 @@ namespace AccountManagement.Tests.Scenarios
             switch(result)
             {
                 case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
-                    return (result, _bus.Execute(NavigationSpecification.GetRemote(AccountApi.Start).GetRemote(start => start.Queries.AccountById.WithId(AccountId))));
+                    return (result, _busSession.Execute(NavigationSpecification.GetRemote(AccountApi.Start).GetRemote(start => start.Queries.AccountById.WithId(AccountId))));
                 case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     return (result, null);
                 default:

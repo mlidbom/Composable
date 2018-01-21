@@ -6,23 +6,23 @@ namespace AccountManagement.Tests.Scenarios
 {
     class ChangePasswordScenario
     {
-        readonly IServiceBus _bus;
+        readonly IRemoteServiceBusSession _busSession;
 
         public string OldPassword;
         public string NewPasswordAsString;
         public AccountResource Account { get; private set; }
 
-        public static ChangePasswordScenario Create(IServiceBus bus)
+        public static ChangePasswordScenario Create(IRemoteServiceBusSession busSession)
         {
-            var registerAccountScenario = new RegisterAccountScenario(bus);
+            var registerAccountScenario = new RegisterAccountScenario(busSession);
             var account = registerAccountScenario.Execute().Account;
 
-            return new ChangePasswordScenario(bus, account, registerAccountScenario.Password);
+            return new ChangePasswordScenario(busSession, account, registerAccountScenario.Password);
         }
 
-        public ChangePasswordScenario(IServiceBus bus, AccountResource account, string oldPassword, string newPassword = null)
+        public ChangePasswordScenario(IRemoteServiceBusSession busSession, AccountResource account, string oldPassword, string newPassword = null)
         {
-            _bus = bus;
+            _busSession = busSession;
             Account = account;
             OldPassword = oldPassword;
             NewPasswordAsString = newPassword ?? TestData.Password.CreateValidPasswordString();
@@ -34,8 +34,8 @@ namespace AccountManagement.Tests.Scenarios
             command.NewPassword = NewPasswordAsString;
             command.OldPassword = OldPassword;
 
-            _bus.PostRemote(command);
-            Account = _bus.Execute(NavigationSpecification
+            _busSession.PostRemote(command);
+            Account = _busSession.Execute(NavigationSpecification
                       .GetRemote(AccountApi.Start)
                       .GetRemote(start => start.Queries.AccountById.WithId(Account.Id)));
         }

@@ -68,8 +68,8 @@ namespace Composable.Messaging.Buses
                 Component.For<CommandScheduler>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))
                          .LifestyleSingleton(),
-                Component.For<IServiceBus, IServiceBusControl, IInProcessServiceBus, IEventstoreEventPublisher>()
-                         .UsingFactoryMethod((IInterprocessTransport transport, IInbox inbox, CommandScheduler scheduler, IMessageHandlerRegistry handlerRegistry) => new ServiceBus(transport, inbox, scheduler, handlerRegistry))
+                Component.For<IRemoteServiceBusSession, IServiceBusControl, ILocalServiceBusSession, IEventstoreEventPublisher>()
+                         .UsingFactoryMethod((IInterprocessTransport transport, IInbox inbox, CommandScheduler scheduler, IMessageHandlerRegistry handlerRegistry) => new ServiceBusSession(transport, inbox, scheduler, handlerRegistry))
                          .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()
                          .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))

@@ -12,8 +12,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             QueryHandlerThreadGate.Close();
 
-            var result1 = Host.ClientBus.GetRemoteAsync(test); //awaiting later
-            var result2 = Host.ClientBus.GetRemoteAsync(test); //awaiting later
+            var result1 = Host.ClientBusSession.GetRemoteAsync(test); //awaiting later
+            var result2 = Host.ClientBusSession.GetRemoteAsync(test); //awaiting later
 
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(length: 2);
             QueryHandlerThreadGate.Open();

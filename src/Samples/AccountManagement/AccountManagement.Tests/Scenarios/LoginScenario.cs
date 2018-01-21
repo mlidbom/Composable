@@ -7,29 +7,29 @@ namespace AccountManagement.Tests.Scenarios
 {
     class LoginScenario
     {
-        readonly IServiceBus _bus;
+        readonly IRemoteServiceBusSession _busSession;
         public string Password { get; set; }
         public string Email { get; set; }
 
-        public static LoginScenario Create(IServiceBus bus)
+        public static LoginScenario Create(IRemoteServiceBusSession busSession)
         {
-            var registerAccountScenario = new RegisterAccountScenario(bus);
+            var registerAccountScenario = new RegisterAccountScenario(busSession);
             registerAccountScenario.Execute();
-            return new LoginScenario(bus, registerAccountScenario.Email, registerAccountScenario.Password);
+            return new LoginScenario(busSession, registerAccountScenario.Email, registerAccountScenario.Password);
         }
 
-        public LoginScenario(IServiceBus bus, AccountResource account, string password) : this(bus, account.Email.ToString(), password) {}
+        public LoginScenario(IRemoteServiceBusSession busSession, AccountResource account, string password) : this(busSession, account.Email.ToString(), password) {}
 
-        public LoginScenario(IServiceBus bus, string email, string password)
+        public LoginScenario(IRemoteServiceBusSession busSession, string email, string password)
         {
             Email = email;
             Password = password;
-            _bus = bus;
+            _busSession = busSession;
         }
 
         public AccountResource.Command.LogIn.LoginAttemptResult Execute()
         {
-            return _bus.Execute(NavigationSpecification.GetRemote(AccountApi.Start)
+            return _busSession.Execute(NavigationSpecification.GetRemote(AccountApi.Start)
                                           .PostRemote(start => start.Commands.Login.Mutate(@this =>
                                           {
                                               @this.Email = Email;

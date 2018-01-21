@@ -13,9 +13,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             var navigationSpecification = NavigationSpecification.Get(new MyQuery());
 
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerBus.Execute(navigationSpecification), iterations: 10, maxDegreeOfParallelism: 30);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerBusSession.Execute(navigationSpecification), iterations: 10, maxDegreeOfParallelism: 30);
 
-            TimeAsserter.ExecuteThreaded(action: () => ServerBus.Execute(navigationSpecification), iterations: 100, maxTotal: 1.Milliseconds(), maxDegreeOfParallelism: 30);
+            TimeAsserter.ExecuteThreaded(action: () => ServerBusSession.Execute(navigationSpecification), iterations: 100, maxTotal: 1.Milliseconds(), maxDegreeOfParallelism: 30);
         }
 
         [Test] public void Given_1_client_thread_Runs_100_local_queries_in_1_milliseconds()
@@ -23,9 +23,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             var navigationSpecification = NavigationSpecification.Get(new MyQuery());
 
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerBus.Execute(navigationSpecification), iterations: 10, maxDegreeOfParallelism: 30);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerBusSession.Execute(navigationSpecification), iterations: 10, maxDegreeOfParallelism: 30);
 
-            TimeAsserter.Execute(action: () => ServerBus.Execute(navigationSpecification), iterations: 100, maxTotal: 1.Milliseconds());
+            TimeAsserter.Execute(action: () => ServerBusSession.Execute(navigationSpecification), iterations: 100, maxTotal: 1.Milliseconds());
         }
     }
 }

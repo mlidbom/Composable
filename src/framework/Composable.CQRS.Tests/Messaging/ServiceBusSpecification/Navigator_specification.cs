@@ -35,7 +35,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                                    .ForEvent((UserRegisteredEvent             myEvent) => queryResults.Add(new UserResource(myEvent.Name)))
                                    .ForQuery((GetUserQuery                    query) => queryResults.Single(result => result.Name == query.Name))
                                    .ForQuery((UserApiStartPageQuery           query) => new UserApiStartPage())
-                                   .ForCommandWithResult((RegisterUserCommand command, IServiceBus bus) =>
+                                   .ForCommandWithResult((RegisterUserCommand command, IRemoteServiceBusSession bus) =>
                                     {
                                         bus.Publish(new UserRegisteredEvent(command.Name));
                                         return new UserRegisteredConfirmationResource(command.Name);
@@ -51,13 +51,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_get_command_result()
             {
-                var commandResult1 = Host.ClientBus.PostRemote(new RegisterUserCommand("new-user-name"));
+                var commandResult1 = Host.ClientBusSession.PostRemote(new RegisterUserCommand("new-user-name"));
                 commandResult1.Name.Should().Be("new-user-name");
             }
 
             [Fact] void Can_navigate_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = Host.ClientBus.Execute(NavigationSpecification.GetRemote(UserApiStartPage.Self)
+                var userResource = Host.ClientBusSession.Execute(NavigationSpecification.GetRemote(UserApiStartPage.Self)
                                                                                  .PostRemote(startpage => startpage.RegisterUser("new-user-name"))
                                                                                  .GetRemote(registerUserResult => registerUserResult.User));
 
@@ -69,7 +69,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 var userResource = NavigationSpecification.GetRemote(UserApiStartPage.Self)
                                                           .PostRemote(startpage => startpage.RegisterUser("new-user-name"))
                                                           .GetRemote(registerUserResult => registerUserResult.User)
-                                                          .ExecuteAsync(Host.ClientBus);
+                                                          .ExecuteAsync(Host.ClientBusSession);
 
                 (await userResource).Name.Should().Be("new-user-name");
             }

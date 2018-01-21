@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Composable.Refactoring.Naming;
-using Composable.System;
 using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Messaging.Buses.Implementation
@@ -14,59 +13,77 @@ namespace Composable.Messaging.Buses.Implementation
         {
             class Coordinator
             {
-                readonly IGlobalBusStateTracker _globalStateTracker;
-                readonly ITypeMapper _typeMapper;
-                readonly List<QueuedMessage>    _messagesWaitingToExecute = new List<QueuedMessage>();
+               readonly AwaitableOptimizedThreadShared<NonThreadsafeImplementation> _implementation;
 
-                //Todo: It is never OK for this class to block for a significant amount of time. So make that explicit with a really strict timeout on all operations waiting for access.
-                //Currently we cannot make the timeout really strict because it does time out....
-                readonly IResourceGuard _guard = ResourceGuard.WithTimeout(100.Milliseconds());
-                public Coordinator(IGlobalBusStateTracker globalStateTracker, ITypeMapper typeMapper)
-                {
-                    _globalStateTracker = globalStateTracker;
-                    _typeMapper = typeMapper;
-                }
+                public Coordinator(IGlobalBusStateTracker globalStateTracker, ITypeMapper typeMapper) =>
+                    _implementation = new AwaitableOptimizedThreadShared<NonThreadsafeImplementation>(new NonThreadsafeImplementation(globalStateTracker, typeMapper));
 
                 internal QueuedMessage AwaitDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
                 {
-                    using(var @lock = _guard.AwaitExclusiveLock())
+                    QueuedMessage message = null;
+                    _implementation.Await(implementation => implementation.TryGetDispatchableMessage(dispatchingRules, out message));
+                    return message;
+                }
+
+                public void EnqueueMessageTask(TransportMessage.InComing message, Action messageTask) => _implementation.Update(implementation =>
+                {
+                    var inflightMessage = new QueuedMessage(message, this, messageTask, implementation.TypeMapper);
+                    implementation.EnqueueMessageTask(inflightMessage);
+                });
+
+                void Succeeded(QueuedMessage queuedMessageInformation) => _implementation.Update(implementation => implementation.Succeeded(queuedMessageInformation));
+
+                void Failed(QueuedMessage queuedMessageInformation, Exception exception) => _implementation.Update(implementation => implementation.Failed(queuedMessageInformation, exception));
+
+
+
+                class NonThreadsafeImplementation
+                {
+                    const int MaxConcurrentlyExecutingHandlers = 20;
+                    readonly IGlobalBusStateTracker _globalStateTracker;
+                    internal readonly ITypeMapper TypeMapper;
+                    readonly List<IMessage> _executingMessages = new List<IMessage>();
+                    readonly List<QueuedMessage> _messagesWaitingToExecute = new List<QueuedMessage>();
+                    public NonThreadsafeImplementation(IGlobalBusStateTracker globalStateTracker, ITypeMapper typeMapper)
                     {
-                        QueuedMessage result;
-                        do
+                        _globalStateTracker = globalStateTracker;
+                        TypeMapper = typeMapper;
+                    }
+
+                    internal bool TryGetDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules, out QueuedMessage dispatchable)
+                    {
+                        dispatchable = null;
+                        if(_executingMessages.Count >= MaxConcurrentlyExecutingHandlers)
                         {
-                            var executingMessages = _messagesWaitingToExecute.Where(@this => @this.IsExecuting).Select(queued => queued.Message).ToList();
+                            return false;
+                        }
 
-                            result = _messagesWaitingToExecute
-                                    .Where(queuedMessage => !queuedMessage.IsExecuting)
-                                    .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(executingMessages, queuedTask.Message)));
+                        dispatchable = _messagesWaitingToExecute
+                                .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(_executingMessages, queuedTask.Message)));
 
-                            if(result == null)
-                            {
-                                @lock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
-                            }
-                        } while(result == null);
+                        if(dispatchable == null)
+                        {
+                            return false;
+                        }
 
-                        result.SetIsExecuting();
-                        return result;
+                        _executingMessages.Add(dispatchable.Message);
+                        _messagesWaitingToExecute.Remove(dispatchable);
+                        return true;
+                    }
+
+                    public void EnqueueMessageTask(QueuedMessage message) => _messagesWaitingToExecute.Add(message);
+
+                    internal void Succeeded(QueuedMessage queuedMessageInformation) => DoneDispatching(queuedMessageInformation);
+
+                    internal void Failed(QueuedMessage queuedMessageInformation, Exception exception) => DoneDispatching(queuedMessageInformation, exception);
+
+                    void DoneDispatching(QueuedMessage queuedMessageInformation, Exception exception = null)
+                    {
+                        _executingMessages.Remove(queuedMessageInformation.Message);
+                        _globalStateTracker.DoneWith(queuedMessageInformation.MessageId, exception);
                     }
                 }
 
-                public void EnqueueMessageTask(TransportMessage.InComing message, Action messageTask) => _guard.Update(() =>
-                {
-                    var inflightMessage = new QueuedMessage(message, this, messageTask, _typeMapper);
-                    _messagesWaitingToExecute.Add(inflightMessage);
-                    return inflightMessage;
-                });
-
-                void Succeeded(QueuedMessage queuedMessageInformation) => _guard.Update(() => DoneDispatching(queuedMessageInformation));
-
-                void Failed(QueuedMessage queuedMessageInformation, Exception exception) => _guard.Update(() => DoneDispatching(queuedMessageInformation, exception));
-
-                void DoneDispatching(QueuedMessage queuedMessageInformation, Exception exception = null)
-                {
-                    _globalStateTracker.DoneWith(queuedMessageInformation.MessageId, exception);
-                    _messagesWaitingToExecute.Remove(queuedMessageInformation);
-                }
 
                 internal class QueuedMessage
                 {
@@ -74,7 +91,6 @@ namespace Composable.Messaging.Buses.Implementation
                     readonly Action      _messageTask;
                     public   IMessage    Message     { get; }
                     public   Guid        MessageId   { get; }
-                    public   bool        IsExecuting { get; private set; }
 
                     public void Run()
                     {
@@ -99,8 +115,6 @@ namespace Composable.Messaging.Buses.Implementation
                         _messageTask = messageTask;
                         Message      = message.DeserializeMessageAndCacheForNextCall(typeMapper);
                     }
-
-                    public void SetIsExecuting() => IsExecuting = true;
                 }
             }
         }

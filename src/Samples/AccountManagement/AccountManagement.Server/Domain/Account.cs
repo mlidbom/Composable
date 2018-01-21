@@ -46,7 +46,7 @@ namespace AccountManagement.Domain
             OldContract.Argument(() => command, () => repository, () => bus).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
-            if(bus.GetInProcess(PrivateApi.Account.Queries.TryGetByEmail(command.Email)).HasValue)
+            if(bus.Get(PrivateApi.Account.Queries.TryGetByEmail(command.Email)).HasValue)
             {
                 return AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
             }
@@ -88,7 +88,7 @@ namespace AccountManagement.Domain
         }
 
         static AccountResource.Command.LogIn.LoginAttemptResult Login(Command.Login logIn, IInProcessServiceBus bus) =>
-            bus.GetInProcess(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email)) is Option<Account>.Some account
+            bus.Get(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email)) is Option<Account>.Some account
                 ? account.Value.Login(logIn.Password)
                 : AccountResource.Command.LogIn.LoginAttemptResult.Failure();
     }

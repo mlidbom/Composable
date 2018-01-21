@@ -11,19 +11,19 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public async Task If_command_handler_with_result_throws_awaiting_SendAsync_throws()
         {
             CommandHandlerWithResultThreadGate.ThrowOnPassThrough(_thrownException);
-            await AssertThrows.Async<Exception>(async () => await Host.ClientBus.PostAsync(new MyCommandWithResult()));
+            await AssertThrows.Async<Exception>(async () => await Host.ClientBus.PostRemoteAsync(new MyCommandWithResult()));
         }
 
         [Fact] public async Task If_query_handler_throws_awaiting_QueryAsync_throws()
         {
             QueryHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            await AssertThrows.Async<Exception>(() => Host.ClientBus.GetAsync(new MyQuery()));
+            await AssertThrows.Async<Exception>(() => Host.ClientBus.GetRemoteAsync(new MyQuery()));
         }
 
         [Fact] public void If_query_handler_throws_Query_throws()
         {
             QueryHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            Assert.ThrowsAny<Exception>(() => Host.ClientBus.Get(new MyQuery()));
+            Assert.ThrowsAny<Exception>(() => Host.ClientBus.GetRemote(new MyQuery()));
         }
 
         public override void Dispose()

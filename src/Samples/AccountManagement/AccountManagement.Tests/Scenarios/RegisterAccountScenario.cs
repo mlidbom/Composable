@@ -24,8 +24,8 @@ namespace AccountManagement.Tests.Scenarios
 
         public (AccountResource.Command.Register.RegistrationAttemptResult Result, AccountResource Account) Execute()
         {
-            var result = _bus.Execute(NavigationSpecification.Get(AccountApi.Start)
-                                                .Post(start => start.Commands.Register.Mutate(@this =>
+            var result = _bus.Execute(NavigationSpecification.GetRemote(AccountApi.Start)
+                                                .PostRemote(start => start.Commands.Register.Mutate(@this =>
                                                 {
                                                     @this.AccountId = AccountId;
                                                     @this.Email = Email;
@@ -35,7 +35,7 @@ namespace AccountManagement.Tests.Scenarios
             switch(result)
             {
                 case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
-                    return (result, _bus.Execute(NavigationSpecification.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(AccountId))));
+                    return (result, _bus.Execute(NavigationSpecification.GetRemote(AccountApi.Start).GetRemote(start => start.Queries.AccountById.WithId(AccountId))));
                 case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     return (result, null);
                 default:

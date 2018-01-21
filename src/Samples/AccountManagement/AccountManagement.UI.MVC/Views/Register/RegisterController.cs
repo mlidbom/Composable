@@ -15,11 +15,11 @@ namespace AccountManagement.UI.MVC.Views.Register
         {
             if(!ModelState.IsValid) return View("RegistrationForm");
 
-            var result = _serviceBus.Post(registrationCommand);
+            var result = _serviceBus.PostRemote(registrationCommand);
             switch(result)
             {
                 case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
-                    return View("ValidateYourEmail", _serviceBus.Execute(NavigationSpecification.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(registrationCommand.AccountId))));
+                    return View("ValidateYourEmail", _serviceBus.Execute(NavigationSpecification.GetRemote(AccountApi.Start).GetRemote(start => start.Queries.AccountById.WithId(registrationCommand.AccountId))));
                 case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
                     return View("RegistrationForm");
@@ -28,6 +28,6 @@ namespace AccountManagement.UI.MVC.Views.Register
             }
         }
 
-        public IActionResult RegistrationForm() => View("RegistrationForm", (_serviceBus.Get(AccountApi.Start)).Commands.Register);
+        public IActionResult RegistrationForm() => View("RegistrationForm", (_serviceBus.GetRemote(AccountApi.Start)).Commands.Register);
     }
 }

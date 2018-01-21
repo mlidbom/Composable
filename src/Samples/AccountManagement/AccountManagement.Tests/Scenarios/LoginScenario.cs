@@ -29,8 +29,8 @@ namespace AccountManagement.Tests.Scenarios
 
         public AccountResource.Command.LogIn.LoginAttemptResult Execute()
         {
-            return _bus.Execute(NavigationSpecification.Get(AccountApi.Start)
-                                          .Post(start => start.Commands.Login.Mutate(@this =>
+            return _bus.Execute(NavigationSpecification.GetRemote(AccountApi.Start)
+                                          .PostRemote(start => start.Commands.Login.Mutate(@this =>
                                           {
                                               @this.Email = Email;
                                               @this.Password = Password;

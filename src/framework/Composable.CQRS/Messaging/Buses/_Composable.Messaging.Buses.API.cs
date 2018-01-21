@@ -14,25 +14,41 @@ namespace Composable.Messaging.Buses
     {
         void Publish(ITransactionalExactlyOnceDeliveryEvent anEvent);
     }
+
     ///<summary>Dispatches messages within a process.</summary>
     public interface IInProcessServiceBus : IEventstoreEventPublisher
     {
-        TResult GetInProcess<TResult>(IQuery<TResult> query);
-        TResult PostInProcess<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
-        void PostInProcess(ITransactionalExactlyOnceDeliveryCommand message);
+        ///<summary>Syncronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
+        TResult Get<TResult>(IQuery<TResult> query);
+
+        ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
+        TResult Post<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
+
+        ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
+        void Post(ITransactionalExactlyOnceDeliveryCommand command);
     }
 
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IServiceBus : IEventstoreEventPublisher
+    public interface IServiceBus : IInProcessServiceBus, IEventstoreEventPublisher
     {
-        void Post(ITransactionalExactlyOnceDeliveryCommand command);
-        void PostAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command);
-        TResult Post<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
-        Task<TResult> PostAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
+        ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
+        void PostRemote(ITransactionalExactlyOnceDeliveryCommand command);
 
-        Task<TResult> GetAsync<TResult>(IQuery<TResult> query);
-        TResult Get<TResult>(IQuery<TResult> query);
+        ///<summary>Schedules a command to be sent later if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
+        void SchedulePostRemote(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command);
+
+        ///<summary>Syncronous wrapper for <see cref="PostRemoteAsync{TResult}"/>. Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver. NOTE: The result CANNOT be awaited within the sending transaction since it has not been sent yet.</summary>
+        TResult PostRemote<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
+
+        ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver. NOTE: The result CANNOT be awaited within the sending transaction since it has not been sent yet.</summary>
+        Task<TResult> PostRemoteAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
+
+        ///<summary>Syncronous wrapper for: <see cref="GetRemoteAsync{TResult}"/>. Gets the result of a handler somewhere on the bus handling the <paramref name="query"/>.</summary>
+        TResult GetRemote<TResult>(IQuery<TResult> query);
+
+        ///<summary>Gets the result of a handler somewhere on the bus handling the <paramref name="query"/></summary>
+        Task<TResult> GetRemoteAsync<TResult>(IQuery<TResult> query);
     }
 
     interface IMessageHandlerRegistry
@@ -142,7 +158,7 @@ namespace Composable.Messaging.Buses
     public class SelfGeneratingResourceQuery<TResource> : ICreateMyOwnResultQuery<TResource> where TResource : new()
     {
         SelfGeneratingResourceQuery() {}
-        public static SelfGeneratingResourceQuery<TResource> Instance = new SelfGeneratingResourceQuery<TResource>();
+        public static readonly SelfGeneratingResourceQuery<TResource> Instance = new SelfGeneratingResourceQuery<TResource>();
         public TResource CreateResult() => new TResource();
     }
 

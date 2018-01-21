@@ -34,10 +34,10 @@ namespace AccountManagement.Tests.Scenarios
             command.NewPassword = NewPasswordAsString;
             command.OldPassword = OldPassword;
 
-            _bus.Post(command);
+            _bus.PostRemote(command);
             Account = _bus.Execute(NavigationSpecification
-                      .Get(AccountApi.Start)
-                      .Get(start => start.Queries.AccountById.WithId(Account.Id)));
+                      .GetRemote(AccountApi.Start)
+                      .GetRemote(start => start.Queries.AccountById.WithId(Account.Id)));
         }
     }
 }

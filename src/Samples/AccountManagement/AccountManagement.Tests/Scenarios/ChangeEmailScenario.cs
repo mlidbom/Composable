@@ -28,11 +28,11 @@ namespace AccountManagement.Tests.Scenarios
             var command = Account.CommandsCollections.ChangeEmail;
             command.Email = NewEmail.ToString();
 
-            _clientBus.Post(command);
+            _clientBus.PostRemote(command);
 
             Account = _clientBus.Execute(NavigationSpecification
-                      .Get(AccountApi.Start)
-                      .Get(start => start.Queries.AccountById.WithId(Account.Id)));
+                      .GetRemote(AccountApi.Start)
+                      .GetRemote(start => start.Queries.AccountById.WithId(Account.Id)));
 
         }
     }

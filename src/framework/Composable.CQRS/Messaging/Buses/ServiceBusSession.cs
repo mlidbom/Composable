@@ -9,40 +9,17 @@ namespace Composable.Messaging.Buses
 {
     //Todo: Refactor responsibility for managing transactions somehow.
     //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
-    partial class ServiceBusSession : IServiceBusSession, IServiceBusControl
+    partial class ServiceBusSession : IServiceBusSession
     {
         readonly IInterprocessTransport _transport;
-        readonly IInbox _inbox;
         readonly CommandScheduler _commandScheduler;
         readonly IMessageHandlerRegistry _handlerRegistry;
-        bool _started;
 
-        public ServiceBusSession(IInterprocessTransport transport, IInbox inbox, CommandScheduler commandScheduler, IMessageHandlerRegistry handlerRegistry)
+        public ServiceBusSession(IInterprocessTransport transport, CommandScheduler commandScheduler, IMessageHandlerRegistry handlerRegistry)
         {
             _transport = transport;
-            _inbox = inbox;
             _commandScheduler = commandScheduler;
             _handlerRegistry = handlerRegistry;
-        }
-
-        void IServiceBusControl.Start()
-        {
-            Contract.State.Assert(!_started);
-
-            _started = true;
-
-            _inbox.Start();
-            _transport.Start();
-            _commandScheduler.Start();
-        }
-
-        void IServiceBusControl.Stop()
-        {
-            Contract.State.Assert(_started);
-            _started = false;
-            _commandScheduler.Stop();
-            _transport.Stop();
-            _inbox.Stop();
         }
 
         async Task<TResult> IRemoteServiceBusSession.GetRemoteAsync<TResult>(IQuery<TResult> query) =>
@@ -94,7 +71,5 @@ namespace Composable.Messaging.Buses
             query is ICreateMyOwnResultQuery<TResult> selfCreating
                 ? selfCreating.CreateResult()
                 : _handlerRegistry.GetQueryHandler(query).Invoke(query);
-
-        public void Dispose() { Contract.State.Assert(!_started); }
     }
 }

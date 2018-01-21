@@ -8,7 +8,6 @@ using Composable.SystemExtensions.Threading;
 
 namespace Composable.Messaging.Buses
 {
-    //Todo: Refactor responsibility for managing transactions somehow.
     //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
     partial class ServiceBusSession : IServiceBusSession
     {

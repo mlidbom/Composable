@@ -8,18 +8,18 @@ namespace AccountManagement.UI.MVC.Views.Register
 {
     public class RegisterController : Controller
     {
-        readonly IServiceBus _serviceBus;
-        public RegisterController(IServiceBus serviceBus) => _serviceBus = serviceBus;
+        readonly IServiceBusSession _remoteServiceBusSession;
+        public RegisterController(IServiceBusSession remoteServiceBusSession) => _remoteServiceBusSession = remoteServiceBusSession;
 
         public IActionResult Register(AccountResource.Command.Register registrationCommand)
         {
             if(!ModelState.IsValid) return View("RegistrationForm");
 
-            var result = _serviceBus.PostRemote(registrationCommand);
+            var result = _remoteServiceBusSession.PostRemote(registrationCommand);
             switch(result)
             {
                 case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
-                    return View("ValidateYourEmail", _serviceBus.Execute(NavigationSpecification.GetRemote(AccountApi.Start).GetRemote(start => start.Queries.AccountById.WithId(registrationCommand.AccountId))));
+                    return View("ValidateYourEmail", _remoteServiceBusSession.Execute(NavigationSpecification.GetRemote(AccountApi.Start).GetRemote(start => start.Queries.AccountById.WithId(registrationCommand.AccountId))));
                 case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
                     return View("RegistrationForm");
@@ -28,6 +28,6 @@ namespace AccountManagement.UI.MVC.Views.Register
             }
         }
 
-        public IActionResult RegistrationForm() => View("RegistrationForm", (_serviceBus.GetRemote(AccountApi.Start)).Commands.Register);
+        public IActionResult RegistrationForm() => View("RegistrationForm", (_remoteServiceBusSession.GetRemote(AccountApi.Start)).Commands.Register);
     }
 }

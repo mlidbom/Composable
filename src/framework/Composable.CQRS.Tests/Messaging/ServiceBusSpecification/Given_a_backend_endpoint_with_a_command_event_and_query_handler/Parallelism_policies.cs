@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading;
+using Composable.Messaging.Buses;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -10,7 +11,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
     {
         [Fact] public void Command_handler_executes_on_different_thread_from_client_sending_command()
         {
-            Host.ClientBus.PostRemote(new MyCommand());
+            ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyCommand()));
 
             CommandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1);
             CommandHandlerThreadGate.PassedThrough.Single().Should().NotBe(Thread.CurrentThread);
@@ -18,7 +19,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] public void Event_handler_executes_on_different_thread_from_client_publishing_event()
         {
-            Host.ClientBus.Publish(new MyEvent());
+            ClientEndpoint.ExecuteRequest(session => session.Publish(new MyEvent()));
 
             EventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1);
             EventHandlerThreadGate.PassedThrough.Single().Should().NotBe(Thread.CurrentThread);
@@ -26,7 +27,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] public void Query_handler_executes_on_different_thread_from_client_sending_query()
         {
-            Host.ClientBus.GetRemote(new MyQuery());
+            ClientEndpoint.ExecuteRequest(session => session.GetRemote(new MyQuery()));
 
             QueryHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                   .PassedThrough.Single().Should().NotBe(Thread.CurrentThread);
@@ -35,7 +36,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void Five_query_handlers_can_execute_in_parallel_when_using_QueryAsync()
         {
             CloseGates();
-            TaskRunner.StartTimes(5, () => Host.ClientBus.GetRemoteAsync(new MyQuery()));
+            TaskRunner.StartTimes(5, () => ClientEndpoint.ExecuteRequestAsync(session => session.GetRemoteAsync(new MyQuery())));
 
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(5);
         }
@@ -43,7 +44,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void Five_query_handlers_can_execute_in_parallel_when_using_Query()
         {
             CloseGates();
-            TaskRunner.StartTimes(5, () => Host.ClientBus.GetRemote(new MyQuery()));
+            TaskRunner.StartTimes(5, () => ClientEndpoint.ExecuteRequest(session => session.GetRemote(new MyQuery())));
 
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(5);
         }
@@ -51,8 +52,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void Two_event_handlers_cannot_execute_in_parallel()
         {
             CloseGates();
-            Host.ClientBus.Publish(new MyEvent());
-            Host.ClientBus.Publish(new MyEvent());
+            ClientEndpoint.ExecuteRequest(session => session.Publish(new MyEvent()));
+            ClientEndpoint.ExecuteRequest(session => session.Publish(new MyEvent()));
 
             EventHandlerThreadGate.AwaitQueueLengthEqualTo(1)
                                   .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
@@ -61,8 +62,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void Two_command_handlers_cannot_execute_in_parallel()
         {
             CloseGates();
-            Host.ClientBus.PostRemote(new MyCommand());
-            Host.ClientBus.PostRemote(new MyCommand());
+
+            ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyCommand()));
+            ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyCommand()));
 
             CommandHandlerThreadGate.AwaitQueueLengthEqualTo(1)
                                     .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
@@ -72,10 +74,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             CloseGates();
 
-            Host.ClientBus.Publish(new MyEvent());
+            ClientEndpoint.ExecuteRequest(session => session.Publish(new MyEvent()));
             EventHandlerThreadGate.AwaitQueueLengthEqualTo(1);
 
-            Host.ClientBus.PostRemote(new MyCommand());
+            ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyCommand()));
 
             CommandHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds()).Should().Be(false);
         }
@@ -83,10 +85,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void Command_handler_with_result_cannot_execute_if_event_handler_is_executing()
         {
             CloseGates();
-            Host.ClientBus.Publish(new MyEvent());
+            ClientEndpoint.ExecuteRequest(session => session.Publish(new MyEvent()));
             EventHandlerThreadGate.AwaitQueueLengthEqualTo(1);
 
-            var resultTask = Host.ClientBus.PostRemoteAsync(new MyCommandWithResult()); //awaiting later
+            var resultTask = ClientEndpoint.ExecuteRequestAsync(session => session.PostRemoteAsync(new MyCommandWithResult())); //awaiting later
             CommandHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds()).Should().Be(false);
 
             OpenGates();
@@ -96,10 +98,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void Event_handler_cannot_execute_if_command_handler_is_executing()
         {
             CloseGates();
-            Host.ClientBus.PostRemote(new MyCommand());
+            ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyCommand()));
             CommandHandlerThreadGate.AwaitQueueLengthEqualTo(1);
 
-            Host.ClientBus.Publish(new MyEvent());
+            ClientEndpoint.ExecuteRequest(session => session.Publish(new MyEvent()));
             EventHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds()).Should().Be(false);
         }
 
@@ -107,10 +109,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             CloseGates();
 
-            var resultTask = Host.ClientBus.PostRemoteAsync(new MyCommandWithResult()); //awaiting later
+            var resultTask = ClientEndpoint.ExecuteRequestAsync(session => session.PostRemoteAsync(new MyCommandWithResult())); //awaiting later
             CommandHandlerWithResultThreadGate.AwaitQueueLengthEqualTo(1);
 
-            Host.ClientBus.Publish(new MyEvent());
+            ClientEndpoint.ExecuteRequest(session => session.Publish(new MyEvent()));
             EventHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds()).Should().Be(false);
 
             OpenGates();

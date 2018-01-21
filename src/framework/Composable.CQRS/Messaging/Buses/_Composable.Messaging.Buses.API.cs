@@ -16,7 +16,7 @@ namespace Composable.Messaging.Buses
     }
 
     ///<summary>Dispatches messages within a process.</summary>
-    public interface IInProcessServiceBus : IEventstoreEventPublisher
+    public interface ILocalServiceBusSession : IEventstoreEventPublisher
     {
         ///<summary>Syncronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
         TResult Get<TResult>(IQuery<TResult> query);
@@ -28,9 +28,7 @@ namespace Composable.Messaging.Buses
         void Post(ITransactionalExactlyOnceDeliveryCommand command);
     }
 
-
-    ///<summary>Dispatches messages between processes.</summary>
-    public interface IServiceBus : IInProcessServiceBus, IEventstoreEventPublisher
+    public interface IRemoteServiceBusSession
     {
         ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
         void PostRemote(ITransactionalExactlyOnceDeliveryCommand command);
@@ -49,6 +47,11 @@ namespace Composable.Messaging.Buses
 
         ///<summary>Gets the result of a handler somewhere on the bus handling the <paramref name="query"/></summary>
         Task<TResult> GetRemoteAsync<TResult>(IQuery<TResult> query);
+    }
+
+    ///<summary>Dispatches messages between processes.</summary>
+    public interface IServiceBusSession : ILocalServiceBusSession, IRemoteServiceBusSession
+    {
     }
 
     interface IMessageHandlerRegistry
@@ -120,7 +123,9 @@ namespace Composable.Messaging.Buses
 
         TException AssertThrown<TException>() where TException : Exception;
 
-        IServiceBus ClientBus { get; }
+        IEndpoint ClientEndpoint { get; }
+
+        IServiceBusSession ClientBusSession { get; }
     }
 
     interface IMessageDispatchingRule

@@ -20,7 +20,7 @@ namespace Composable.Messaging.Buses
         public IServiceLocator ServiceLocator { get; }
         public EndPointAddress Address => Inbox.Address;
 
-        IServiceBusControl BusControl => ServiceLocator.Resolve<IServiceBusControl>();
+        IServiceBus Bus => ServiceLocator.Resolve<IServiceBus>();
 
         public void Start()
         {
@@ -28,7 +28,7 @@ namespace Composable.Messaging.Buses
 
             _running = true;
 
-            BusControl.Start();
+            Bus.Start();
         }
 
 
@@ -36,7 +36,7 @@ namespace Composable.Messaging.Buses
         {
             Contract.State.Assert(_running);
             _running = false;
-            BusControl.Stop();
+            Bus.Stop();
         }
 
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) => GlobalStateTracker.AwaitNoMessagesInFlight(timeoutOverride);

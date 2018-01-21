@@ -12,10 +12,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 {
     public class When_scheduling_commands_to_be_sent_in_the_future : IDisposable
     {
-        readonly IServiceBus _bus;
+        readonly IServiceBusSession _busSession;
         readonly IUtcTimeTimeSource _timeSource;
         readonly IThreadGate _receivedCommandGate;
         readonly ITestingEndpointHost _host;
+        IDisposable _scope;
 
         public When_scheduling_commands_to_be_sent_in_the_future()
         {
@@ -36,14 +37,15 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             _receivedCommandGate = ThreadGate.CreateOpenWithTimeout(TimeSpanExtensions.Seconds(1));
 
             _timeSource = serviceLocator.Resolve<IUtcTimeTimeSource>();
-            _bus = serviceLocator.Resolve<IServiceBus>();
+            _scope = serviceLocator.BeginScope();
+            _busSession = serviceLocator.Resolve<IServiceBusSession>();
         }
 
         [Fact] public void Messages_whose_due_time_has_passed_are_delivered()
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SchedulePostRemote(now + .1.Seconds(), inOneHour);
+            _busSession.SchedulePostRemote(now + .1.Seconds(), inOneHour);
 
             _receivedCommandGate.AwaitPassedThroughCountEqualTo(1, timeout: .5.Seconds());
         }
@@ -52,13 +54,17 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SchedulePostRemote(now + TimeSpanExtensions.Seconds(2), inOneHour);
+            _busSession.SchedulePostRemote(now + TimeSpanExtensions.Seconds(2), inOneHour);
 
             _receivedCommandGate.TryAwaitPassededThroughCountEqualTo(1, timeout: .5.Seconds())
                                 .Should().Be(false);
         }
 
-        public void Dispose() { _host.Dispose(); }
+        public void Dispose()
+        {
+            _scope.Dispose();
+            _host.Dispose();
+        }
 
         class ScheduledCommand : TransactionalExactlyOnceDeliveryCommand {}
     }

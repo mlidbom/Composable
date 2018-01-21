@@ -15,21 +15,30 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
     public class InProcessBusSpecification : IDisposable
     {
         readonly IServiceLocator _container;
+        IDisposable _scope;
 
         IMessageHandlerRegistrar Registrar => _container.Resolve<IMessageHandlerRegistrar>();
-        IInProcessServiceBus Bus => _container.Resolve<IInProcessServiceBus>();
+        ILocalServiceBusSession BusSession => _container.Resolve<ILocalServiceBusSession>();
 
-        InProcessBusSpecification() => _container = DependencyInjectionContainer.CreateServiceLocatorForTesting(_ => {});
+        InProcessBusSpecification()
+        {
+            _container = DependencyInjectionContainer.CreateServiceLocatorForTesting(_ => {});
+            _scope = _container.BeginScope();
+        }
 
-        public void Dispose() { _container.Dispose(); }
+        public void Dispose()
+        {
+            _scope.Dispose();
+            _container.Dispose();
+        }
 
         public class Given_a_bus : InProcessBusSpecification
         {
             public class With_no_registered_handlers : Given_a_bus
             {
-                [Fact] public void Send_new_ACommand_throws_an_Exception() => Bus.Invoking(_ => Bus.Post(new ACommand())).ShouldThrow<NoHandlerException>();
-                [Fact] public void Get_new_AQuery_throws_an_Exception() => Bus.Invoking(_ => Bus.Post(new ACommand())).ShouldThrow<NoHandlerException>();
-                [Fact] public void Publish_new_AnEvent_throws_no_exception() => Bus.Publish(new AnEvent());
+                [Fact] public void Send_new_ACommand_throws_an_Exception() => BusSession.Invoking(_ => BusSession.Post(new ACommand())).ShouldThrow<NoHandlerException>();
+                [Fact] public void Get_new_AQuery_throws_an_Exception() => BusSession.Invoking(_ => BusSession.Post(new ACommand())).ShouldThrow<NoHandlerException>();
+                [Fact] public void Publish_new_AnEvent_throws_no_exception() => BusSession.Publish(new AnEvent());
             }
 
             public class With_registered_handler_for_ACommand : Given_a_bus
@@ -43,7 +52,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
                 [Fact] public void Sending_new_ACommand_calls_the_handler()
                 {
-                    Bus.Post(new ACommand());
+                    BusSession.Post(new ACommand());
                     _commandHandled.Should().Be(true);
                 }
             }
@@ -57,7 +66,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                     Registrar.ForQuery((AQuery query) => _aQueryResult);
                 }
 
-                [Fact] public void Getting_new_AQuery_returns_the_instance_returned_by_the_handler() => Bus.Get(new AQuery()).Should().Be(_aQueryResult);
+                [Fact] public void Getting_new_AQuery_returns_the_instance_returned_by_the_handler() => BusSession.Get(new AQuery()).Should().Be(_aQueryResult);
             }
 
             public class With_one_registered_handler_for_AnEvent : Given_a_bus
@@ -71,7 +80,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
                 [Fact] public void Publishing_new_AnEvent_calls_the_handler()
                 {
-                    Bus.Publish(new AnEvent());
+                    BusSession.Publish(new AnEvent());
                     _eventHandler1Called.Should().BeTrue();
                 }
             }
@@ -91,7 +100,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
                 [Fact] public void Publishing_new_AnEvent_calls_both_handlers()
                 {
-                    Bus.Publish(new AnEvent());
+                    BusSession.Publish(new AnEvent());
 
                     _eventHandler1Called.Should().BeTrue();
                     _eventHandler2Called.Should().BeTrue();

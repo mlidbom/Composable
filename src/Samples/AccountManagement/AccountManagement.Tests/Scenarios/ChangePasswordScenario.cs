@@ -6,23 +6,23 @@ namespace AccountManagement.Tests.Scenarios
 {
     class ChangePasswordScenario
     {
-        readonly IServiceBus _bus;
+        readonly IEndpoint _domainEndpoint;
 
         public string OldPassword;
         public string NewPasswordAsString;
         public AccountResource Account { get; private set; }
 
-        public static ChangePasswordScenario Create(IServiceBus bus)
+        public static ChangePasswordScenario Create(IEndpoint domainEndpoint)
         {
-            var registerAccountScenario = new RegisterAccountScenario(bus);
+            var registerAccountScenario = new RegisterAccountScenario(domainEndpoint);
             var account = registerAccountScenario.Execute().Account;
 
-            return new ChangePasswordScenario(bus, account, registerAccountScenario.Password);
+            return new ChangePasswordScenario(domainEndpoint, account, registerAccountScenario.Password);
         }
 
-        public ChangePasswordScenario(IServiceBus bus, AccountResource account, string oldPassword, string newPassword = null)
+        public ChangePasswordScenario(IEndpoint domainEndpoint, AccountResource account, string oldPassword, string newPassword = null)
         {
-            _bus = bus;
+            _domainEndpoint = domainEndpoint;
             Account = account;
             OldPassword = oldPassword;
             NewPasswordAsString = newPassword ?? TestData.Password.CreateValidPasswordString();
@@ -34,10 +34,11 @@ namespace AccountManagement.Tests.Scenarios
             command.NewPassword = NewPasswordAsString;
             command.OldPassword = OldPassword;
 
-            _bus.PostRemote(command);
-            Account = _bus.Execute(NavigationSpecification
+            _domainEndpoint.ExecuteRequest(session => session.PostRemote(command));
+
+            Account = _domainEndpoint.ExecuteRequest(session => session.Execute(NavigationSpecification
                       .GetRemote(AccountApi.Start)
-                      .GetRemote(start => start.Queries.AccountById.WithId(Account.Id)));
+                      .GetRemote(start => start.Queries.AccountById.WithId(Account.Id))));
         }
     }
 }

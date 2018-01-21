@@ -13,7 +13,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [SetUp]
         public void RegisterAccount()
         {
-            _changePasswordScenario = ChangePasswordScenario.Create(ServerBus);
+            _changePasswordScenario = ChangePasswordScenario.Create(DomainEndpoint);
             _changePasswordScenario.Execute();
         }
 

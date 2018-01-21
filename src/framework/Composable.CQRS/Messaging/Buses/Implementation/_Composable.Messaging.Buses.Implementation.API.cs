@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    interface IServiceBusControl
+    interface IServiceBus
     {
         void Start();
         void Stop();

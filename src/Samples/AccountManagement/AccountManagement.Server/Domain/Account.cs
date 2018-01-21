@@ -39,14 +39,14 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        static AccountResource.Command.Register.RegistrationAttemptResult Register(Command.Register command, IAccountRepository repository, IInProcessServiceBus bus)
+        static AccountResource.Command.Register.RegistrationAttemptResult Register(Command.Register command, IAccountRepository repository, ILocalServiceBusSession busSession)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
-            OldContract.Argument(() => command, () => repository, () => bus).NotNullOrDefault();
+            OldContract.Argument(() => command, () => repository, () => busSession).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
-            if(bus.Get(PrivateApi.Account.Queries.TryGetByEmail(command.Email)).HasValue)
+            if(busSession.Get(PrivateApi.Account.Queries.TryGetByEmail(command.Email)).HasValue)
             {
                 return AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
             }
@@ -87,8 +87,8 @@ namespace AccountManagement.Domain
             return AccountResource.Command.LogIn.LoginAttemptResult.Failure();
         }
 
-        static AccountResource.Command.LogIn.LoginAttemptResult Login(Command.Login logIn, IInProcessServiceBus bus) =>
-            bus.Get(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email)) is Option<Account>.Some account
+        static AccountResource.Command.LogIn.LoginAttemptResult Login(Command.Login logIn, ILocalServiceBusSession busSession) =>
+            busSession.Get(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email)) is Option<Account>.Some account
                 ? account.Value.Login(logIn.Password)
                 : AccountResource.Command.LogIn.LoginAttemptResult.Failure();
     }

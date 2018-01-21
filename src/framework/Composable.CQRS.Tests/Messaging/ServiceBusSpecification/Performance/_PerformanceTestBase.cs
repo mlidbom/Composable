@@ -11,14 +11,16 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
     public class PerformanceTestBase
     {
         protected ITestingEndpointHost Host;
-        protected IEndpoint _serverEndpoint;
-        protected IServiceBus ClientBus => Host.ClientBus;
-        protected IServiceBus ServerBus => _serverEndpoint.ServiceLocator.Resolve<IServiceBus>();
+        protected IEndpoint ServerEndpoint;
+        public IEndpoint ClientEndpoint;
+        protected IServiceBusSession ClientBusSession => Host.ClientBusSession;
+        protected IServiceBusSession ServerBusSession => ServerEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
 
         [SetUp] public void Setup()
         {
             Host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
-            _serverEndpoint = Host.RegisterAndStartEndpoint(
+            ClientEndpoint = Host.ClientEndpoint;
+            ServerEndpoint = Host.RegisterAndStartEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
                 builder =>

@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses
 
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IServiceBus : IEventstoreEventPublisher
+    public interface IServiceBus : IInProcessServiceBus, IEventstoreEventPublisher
     {
         ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
         void PostRemote(ITransactionalExactlyOnceDeliveryCommand command);

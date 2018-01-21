@@ -21,7 +21,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             {
                 TransactionScopeCe.Execute(() =>
                 {
-                    commandResultTask = Host.ClientBus.PostAsync(new MyCommandWithResult());
+                    commandResultTask = Host.ClientBus.PostRemoteAsync(new MyCommandWithResult());
                     throw new Exception("MyException");
                 });
             }
@@ -40,7 +40,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             {
                 TransactionScopeCe.Execute(() =>
                 {
-                    Host.ClientBus.Post(new MyCommand());
+                    Host.ClientBus.PostRemote(new MyCommand());
                     throw new Exception("MyException");
                 });
             }

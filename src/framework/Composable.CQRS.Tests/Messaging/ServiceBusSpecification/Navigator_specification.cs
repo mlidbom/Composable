@@ -51,24 +51,24 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_get_command_result()
             {
-                var commandResult1 = Host.ClientBus.Post(new RegisterUserCommand("new-user-name"));
+                var commandResult1 = Host.ClientBus.PostRemote(new RegisterUserCommand("new-user-name"));
                 commandResult1.Name.Should().Be("new-user-name");
             }
 
             [Fact] void Can_navigate_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = Host.ClientBus.Execute(NavigationSpecification.Get(UserApiStartPage.Self)
-                                                                                 .Post(startpage => startpage.RegisterUser("new-user-name"))
-                                                                                 .Get(registerUserResult => registerUserResult.User));
+                var userResource = Host.ClientBus.Execute(NavigationSpecification.GetRemote(UserApiStartPage.Self)
+                                                                                 .PostRemote(startpage => startpage.RegisterUser("new-user-name"))
+                                                                                 .GetRemote(registerUserResult => registerUserResult.User));
 
                 userResource.Name.Should().Be("new-user-name");
             }
 
             [Fact] async Task Can_navigate_async_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
-                                                          .Post(startpage => startpage.RegisterUser("new-user-name"))
-                                                          .Get(registerUserResult => registerUserResult.User)
+                var userResource = NavigationSpecification.GetRemote(UserApiStartPage.Self)
+                                                          .PostRemote(startpage => startpage.RegisterUser("new-user-name"))
+                                                          .GetRemote(registerUserResult => registerUserResult.User)
                                                           .ExecuteAsync(Host.ClientBus);
 
                 (await userResource).Name.Should().Be("new-user-name");

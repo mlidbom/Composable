@@ -23,7 +23,7 @@ namespace Composable.Messaging.Buses
             _handlerRegistry = handlerRegistry;
         }
 
-        public void Start()
+        void IServiceBusControl.Start()
         {
             Contract.State.Assert(!_started);
 
@@ -34,7 +34,7 @@ namespace Composable.Messaging.Buses
             _commandScheduler.Start();
         }
 
-        public void Stop()
+        void IServiceBusControl.Stop()
         {
             Contract.State.Assert(_started);
             _started = false;
@@ -44,21 +44,21 @@ namespace Composable.Messaging.Buses
         }
 
         //Todo: if(inprocessTransport.TryDispatchSynchronously(out var response)
-        public async Task<TResult> GetAsync<TResult>(IQuery<TResult> query) =>
+        async Task<TResult> IServiceBus.GetRemoteAsync<TResult>(IQuery<TResult> query) =>
             query is ICreateMyOwnResultQuery<TResult> selfCreating
                 ? selfCreating.CreateResult()
                 : await _transport.DispatchAsync(query).NoMarshalling();
 
-        public TResult Get<TResult>(IQuery<TResult> query) => GetAsync(query).ResultUnwrappingException();
+        TResult IServiceBus.GetRemote<TResult>(IQuery<TResult> query) => ((IServiceBus)this).GetRemoteAsync(query).ResultUnwrappingException();
 
         //Todo: inprocessTransport.Publish
-        public void Publish(ITransactionalExactlyOnceDeliveryEvent @event) => TransactionScopeCe.Execute(() =>
+        void IEventstoreEventPublisher.Publish(ITransactionalExactlyOnceDeliveryEvent @event) => TransactionScopeCe.Execute(() =>
         {
             _handlerRegistry.CreateEventDispatcher().Dispatch(@event);
             _transport.DispatchIfTransactionCommits(@event);
         });
 
-        public void Post(ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
+        void IServiceBus.PostRemote(ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
 
@@ -71,13 +71,13 @@ namespace Composable.Messaging.Buses
             _transport.DispatchIfTransactionCommits(command);
         });
 
-        public void PostAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
+        void IServiceBus.SchedulePostRemote(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
             _commandScheduler.Schedule(sendAt, command);
         });
 
-        public Task<TResult> PostAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => TransactionScopeCe.Execute(() =>
+        Task<TResult> IServiceBus.PostRemoteAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             CommandValidator.AssertCommandIsValid(command);
 
@@ -89,13 +89,13 @@ namespace Composable.Messaging.Buses
             return _transport.DispatchIfTransactionCommitsAsync(command);
         });
 
-        public TResult Post<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => PostAsync(command).ResultUnwrappingException();
+        TResult IServiceBus.PostRemote<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => ((IServiceBus)this).PostRemoteAsync(command).ResultUnwrappingException();
 
-        public TResult PostInProcess<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => _handlerRegistry.GetCommandHandler(command).Invoke(command);
+        TResult IInProcessServiceBus.Post<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => _handlerRegistry.GetCommandHandler(command).Invoke(command);
 
-        void IInProcessServiceBus.PostInProcess(ITransactionalExactlyOnceDeliveryCommand message) => _handlerRegistry.GetCommandHandler(message).Invoke(message);
+        void IInProcessServiceBus.Post(ITransactionalExactlyOnceDeliveryCommand command) => _handlerRegistry.GetCommandHandler(command).Invoke(command);
 
-        TResult IInProcessServiceBus.GetInProcess<TResult>(IQuery<TResult> query) => _handlerRegistry.GetQueryHandler(query).Invoke(query);
+        TResult IInProcessServiceBus.Get<TResult>(IQuery<TResult> query) => _handlerRegistry.GetQueryHandler(query).Invoke(query);
 
         public void Dispose() { Contract.State.Assert(!_started); }
     }

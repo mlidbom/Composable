@@ -19,6 +19,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         public class Fixture : IDisposable
         {
             readonly ITestingEndpointHost Host;
+            IDisposable _scope;
 
             public Fixture()
             {
@@ -47,6 +48,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                                    .Map<UserApiStartPageQuery>("4367ec6e-ddbc-42ea-91ad-9af1e6e4e29a")
                                    .Map<UserRegisteredEvent>("8a42968e-f18f-4126-9743-1a97cdd2ccab");
                         }));
+
+                _scope = Host.ClientEndpoint.ServiceLocator.BeginScope();
             }
 
             [Fact] void Can_get_command_result()
@@ -74,7 +77,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 (await userResource).Name.Should().Be("new-user-name");
             }
 
-            public void Dispose() { Host.Dispose(); }
+            public void Dispose()
+            {
+                _scope.Dispose();
+                Host.Dispose();
+            }
 
             class UserApiStartPage : QueryResult
             {

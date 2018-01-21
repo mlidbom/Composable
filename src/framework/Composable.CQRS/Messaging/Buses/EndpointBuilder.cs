@@ -72,8 +72,8 @@ namespace Composable.Messaging.Buses
                          .ImplementedBy<ServiceBus>()
                          .LifestyleSingleton(),
                 Component.For<IServiceBusSession, ILocalServiceBusSession, IEventstoreEventPublisher>()
-                         .UsingFactoryMethod((IInterprocessTransport transport, CommandScheduler scheduler, IMessageHandlerRegistry handlerRegistry) => new ServiceBusSession(transport, scheduler, handlerRegistry))
-                         .LifestyleSingleton(),
+                         .ImplementedBy<ServiceBusSession>()
+                         .LifestyleScoped(),
                 Component.For<ISqlConnectionProvider>()
                          .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
                          .LifestyleSingleton()

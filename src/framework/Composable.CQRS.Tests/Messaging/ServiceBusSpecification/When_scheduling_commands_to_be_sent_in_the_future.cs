@@ -16,6 +16,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         readonly IUtcTimeTimeSource _timeSource;
         readonly IThreadGate _receivedCommandGate;
         readonly ITestingEndpointHost _host;
+        IDisposable _scope;
 
         public When_scheduling_commands_to_be_sent_in_the_future()
         {
@@ -36,6 +37,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             _receivedCommandGate = ThreadGate.CreateOpenWithTimeout(TimeSpanExtensions.Seconds(1));
 
             _timeSource = serviceLocator.Resolve<IUtcTimeTimeSource>();
+            _scope = serviceLocator.BeginScope();
             _busSession = serviceLocator.Resolve<IServiceBusSession>();
         }
 
@@ -58,7 +60,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                                 .Should().Be(false);
         }
 
-        public void Dispose() { _host.Dispose(); }
+        public void Dispose()
+        {
+            _scope.Dispose();
+            _host.Dispose();
+        }
 
         class ScheduledCommand : TransactionalExactlyOnceDeliveryCommand {}
     }

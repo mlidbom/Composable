@@ -18,8 +18,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         internal readonly IThreadGate QueryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(5.Seconds());
 
         protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
-
-        protected IServiceBusSession ClientBusSession => Host.ClientBusSession;
+        IDisposable _scope;
 
         protected Fixture()
         {
@@ -41,11 +40,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                .Map<MyEvent>("2fdde21f-c6d4-46a2-95e5-3429b820dfc3")
                                .Map<MyQuery>("b9d62f22-514b-4e3c-9ac1-66940a7a8144");
                     }));
+
+            _scope = Host.ClientEndpoint.ServiceLocator.BeginScope();
         }
 
         public virtual void Dispose()
         {
             OpenGates();
+            _scope.Dispose();
             TaskRunner.Dispose();
             Host.Dispose();
         }

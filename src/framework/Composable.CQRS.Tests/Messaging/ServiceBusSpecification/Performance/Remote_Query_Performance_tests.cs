@@ -1,4 +1,5 @@
-﻿using Composable.Messaging;
+﻿using Composable.DependencyInjection;
+using Composable.Messaging;
 using Composable.System.Diagnostics;
 using Composable.Testing.Performance;
 using FluentAssertions;
@@ -13,9 +14,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             var navigationSpecification = NavigationSpecification.GetRemote(new MyQuery());
 
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientBusSession.Execute(navigationSpecification), iterations: 10, maxDegreeOfParallelism: 30);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ClientBusSession.Execute(navigationSpecification)), iterations: 10, maxDegreeOfParallelism: 30);
 
-            TimeAsserter.ExecuteThreaded(action: () => ClientBusSession.Execute(navigationSpecification), iterations: 100, maxTotal: 30.Milliseconds(), maxDegreeOfParallelism: 30);
+            TimeAsserter.ExecuteThreaded(action: () =>ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ClientBusSession.Execute(navigationSpecification)), iterations: 100, maxTotal: 30.Milliseconds(), maxDegreeOfParallelism: 30);
         }
 
         [Test] public void Given_1_client_thread_Runs_100_remote_queries_in_100_milliseconds()
@@ -23,9 +24,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             var navigationSpecification = NavigationSpecification.GetRemote(new MyQuery());
 
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientBusSession.Execute(navigationSpecification), iterations: 10, maxDegreeOfParallelism: 30);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ClientBusSession.Execute(navigationSpecification)), iterations: 10, maxDegreeOfParallelism: 30);
 
-            TimeAsserter.Execute(action: () => ClientBusSession.Execute(navigationSpecification), iterations: 100, maxTotal: 100.Milliseconds());
+            TimeAsserter.Execute(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ClientBusSession.Execute(navigationSpecification)), iterations: 100, maxTotal: 100.Milliseconds());
         }
     }
 }

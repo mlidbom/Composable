@@ -123,6 +123,8 @@ namespace Composable.Messaging.Buses
 
         TException AssertThrown<TException>() where TException : Exception;
 
+        IEndpoint ClientEndpoint { get; }
+
         IServiceBusSession ClientBusSession { get; }
     }
 

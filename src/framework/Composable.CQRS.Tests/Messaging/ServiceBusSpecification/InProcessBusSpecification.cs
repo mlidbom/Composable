@@ -15,13 +15,22 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
     public class InProcessBusSpecification : IDisposable
     {
         readonly IServiceLocator _container;
+        IDisposable _scope;
 
         IMessageHandlerRegistrar Registrar => _container.Resolve<IMessageHandlerRegistrar>();
         ILocalServiceBusSession BusSession => _container.Resolve<ILocalServiceBusSession>();
 
-        InProcessBusSpecification() => _container = DependencyInjectionContainer.CreateServiceLocatorForTesting(_ => {});
+        InProcessBusSpecification()
+        {
+            _container = DependencyInjectionContainer.CreateServiceLocatorForTesting(_ => {});
+            _scope = _container.BeginScope();
+        }
 
-        public void Dispose() { _container.Dispose(); }
+        public void Dispose()
+        {
+            _scope.Dispose();
+            _container.Dispose();
+        }
 
         public class Given_a_bus : InProcessBusSpecification
         {

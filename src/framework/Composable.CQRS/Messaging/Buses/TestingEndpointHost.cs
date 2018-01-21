@@ -28,7 +28,7 @@ namespace Composable.Messaging.Buses
             return matchingException;
         }
 
-        public IRemoteServiceBusSession ClientBusSession => _clientEndpoint.ServiceLocator.Resolve<IRemoteServiceBusSession>();
+        public IServiceBusSession ClientBusSession => _clientEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
 
         protected override void InternalDispose()
         {

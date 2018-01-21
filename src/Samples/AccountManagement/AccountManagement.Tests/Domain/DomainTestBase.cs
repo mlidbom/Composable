@@ -23,7 +23,7 @@ namespace AccountManagement.Tests.Domain
         StrictAggregateDisposable _managedResources;
         protected ITestingEndpointHost Host;
         IEndpoint _domainEndpoint;
-        protected IRemoteServiceBusSession ServerBusSession => _domainEndpoint.ServiceLocator.Resolve<IRemoteServiceBusSession>();
+        protected IServiceBusSession ServerBusSession => _domainEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
 
         [SetUp] public void SetupContainerAndBeginScope()
         {

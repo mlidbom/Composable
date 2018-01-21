@@ -12,8 +12,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
     {
         protected ITestingEndpointHost Host;
         protected IEndpoint _serverEndpoint;
-        protected IRemoteServiceBusSession ClientBusSession => Host.ClientBusSession;
-        protected IRemoteServiceBusSession ServerBusSession => _serverEndpoint.ServiceLocator.Resolve<IRemoteServiceBusSession>();
+        protected IServiceBusSession ClientBusSession => Host.ClientBusSession;
+        protected IServiceBusSession ServerBusSession => _serverEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
 
         [SetUp] public void Setup()
         {

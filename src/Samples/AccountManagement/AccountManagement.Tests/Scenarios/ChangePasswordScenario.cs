@@ -6,13 +6,13 @@ namespace AccountManagement.Tests.Scenarios
 {
     class ChangePasswordScenario
     {
-        readonly IRemoteServiceBusSession _busSession;
+        readonly IServiceBusSession _busSession;
 
         public string OldPassword;
         public string NewPasswordAsString;
         public AccountResource Account { get; private set; }
 
-        public static ChangePasswordScenario Create(IRemoteServiceBusSession busSession)
+        public static ChangePasswordScenario Create(IServiceBusSession busSession)
         {
             var registerAccountScenario = new RegisterAccountScenario(busSession);
             var account = registerAccountScenario.Execute().Account;
@@ -20,7 +20,7 @@ namespace AccountManagement.Tests.Scenarios
             return new ChangePasswordScenario(busSession, account, registerAccountScenario.Password);
         }
 
-        public ChangePasswordScenario(IRemoteServiceBusSession busSession, AccountResource account, string oldPassword, string newPassword = null)
+        public ChangePasswordScenario(IServiceBusSession busSession, AccountResource account, string oldPassword, string newPassword = null)
         {
             _busSession = busSession;
             Account = account;

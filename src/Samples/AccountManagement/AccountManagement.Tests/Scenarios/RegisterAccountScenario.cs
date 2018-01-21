@@ -8,13 +8,13 @@ namespace AccountManagement.Tests.Scenarios
 {
     class RegisterAccountScenario
     {
-        readonly IRemoteServiceBusSession _busSession;
+        readonly IServiceBusSession _busSession;
 
         public Guid AccountId;
         public String Email;
         public string Password;
 
-        public RegisterAccountScenario(IRemoteServiceBusSession busSession, string email = null, string password = null)
+        public RegisterAccountScenario(IServiceBusSession busSession, string email = null, string password = null)
         {
             _busSession = busSession;
             AccountId = Guid.NewGuid();

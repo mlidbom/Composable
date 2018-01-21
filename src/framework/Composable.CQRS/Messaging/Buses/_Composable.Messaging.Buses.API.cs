@@ -28,9 +28,7 @@ namespace Composable.Messaging.Buses
         void Post(ITransactionalExactlyOnceDeliveryCommand command);
     }
 
-
-    ///<summary>Dispatches messages between processes.</summary>
-    public interface IRemoteServiceBusSession : ILocalServiceBusSession
+    public interface IRemoteServiceBusSession
     {
         ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
         void PostRemote(ITransactionalExactlyOnceDeliveryCommand command);
@@ -49,6 +47,11 @@ namespace Composable.Messaging.Buses
 
         ///<summary>Gets the result of a handler somewhere on the bus handling the <paramref name="query"/></summary>
         Task<TResult> GetRemoteAsync<TResult>(IQuery<TResult> query);
+    }
+
+    ///<summary>Dispatches messages between processes.</summary>
+    public interface IServiceBusSession : ILocalServiceBusSession, IRemoteServiceBusSession
+    {
     }
 
     interface IMessageHandlerRegistry
@@ -120,7 +123,7 @@ namespace Composable.Messaging.Buses
 
         TException AssertThrown<TException>() where TException : Exception;
 
-        IRemoteServiceBusSession ClientBusSession { get; }
+        IServiceBusSession ClientBusSession { get; }
     }
 
     interface IMessageDispatchingRule

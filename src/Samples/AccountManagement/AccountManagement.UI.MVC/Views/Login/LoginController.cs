@@ -6,8 +6,8 @@ namespace AccountManagement.UI.MVC.Views.Login
 {
     public class LoginController : Controller
     {
-        readonly IRemoteServiceBusSession _remoteServiceBusSession;
-        public LoginController(IRemoteServiceBusSession remoteServiceBusSession) => _remoteServiceBusSession = remoteServiceBusSession;
+        readonly IServiceBusSession _remoteServiceBusSession;
+        public LoginController(IServiceBusSession remoteServiceBusSession) => _remoteServiceBusSession = remoteServiceBusSession;
 
         public IActionResult Login(AccountResource.Command.LogIn.UI loginCommand)
         {

@@ -7,16 +7,16 @@ namespace AccountManagement.Tests.Scenarios
 {
     class ChangeAccountEmailScenario
     {
-        readonly IRemoteServiceBusSession _clientBusSession;
+        readonly IServiceBusSession _clientBusSession;
 
         public Email NewEmail = TestData.Email.CreateValidEmail();
         public readonly Email OldEmail;
         public AccountResource Account { get; private set; }
 
-        public static ChangeAccountEmailScenario Create(IRemoteServiceBusSession clientBusSession)
+        public static ChangeAccountEmailScenario Create(IServiceBusSession clientBusSession)
             => new ChangeAccountEmailScenario(clientBusSession, new RegisterAccountScenario(clientBusSession).Execute().Account);
 
-        public ChangeAccountEmailScenario(IRemoteServiceBusSession clientBusSession, AccountResource account)
+        public ChangeAccountEmailScenario(IServiceBusSession clientBusSession, AccountResource account)
         {
             _clientBusSession = clientBusSession;
             Account = account;

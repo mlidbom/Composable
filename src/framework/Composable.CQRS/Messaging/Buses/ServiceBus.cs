@@ -9,7 +9,7 @@ namespace Composable.Messaging.Buses
 {
     //Todo: Refactor responsibility for managing transactions somehow.
     //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
-    partial class ServiceBusSession : IRemoteServiceBusSession, IServiceBusControl, ILocalServiceBusSession, IEventstoreEventPublisher
+    partial class ServiceBusSession : IServiceBusSession, IServiceBusControl
     {
         readonly IInterprocessTransport _transport;
         readonly IInbox _inbox;

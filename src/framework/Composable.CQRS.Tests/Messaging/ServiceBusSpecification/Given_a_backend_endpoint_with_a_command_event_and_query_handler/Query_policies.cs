@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Composable.Messaging.Buses;
 using Composable.Testing.Threading;
 using Xunit;
 
@@ -12,8 +13,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             QueryHandlerThreadGate.Close();
 
-            var result1 = Host.ClientBusSession.GetRemoteAsync(test); //awaiting later
-            var result2 = Host.ClientBusSession.GetRemoteAsync(test); //awaiting later
+            var(result1, result2) = ClientEndpoint.ExecuteRequest(session => (Host.ClientBusSession.GetRemoteAsync(test), Host.ClientBusSession.GetRemoteAsync(test)));
 
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(length: 2);
             QueryHandlerThreadGate.Open();

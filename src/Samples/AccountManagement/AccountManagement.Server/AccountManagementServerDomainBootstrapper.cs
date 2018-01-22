@@ -66,7 +66,7 @@ namespace AccountManagement
         {
             EmailToAccountIdQueryModel.RegisterHandlers(registrar);
 
-            Account.MessageHandlers.RegisterHandlers(registrar);
+            Account.UIAdapter.RegisterHandlers(registrar);
         }
 
         static void MapTypes(ITypeMappingRegistar typeMapper)

@@ -7,7 +7,7 @@ namespace AccountManagement.Domain
 {
     partial class Account
     {
-        internal static class MessageHandlers
+        internal static class UIAdapter
         {
             public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
             {

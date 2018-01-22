@@ -138,14 +138,7 @@ namespace Composable.Persistence.EventStore
                               ? _store.GetAggregateHistoryForUpdate(aggregateId)
                               : _store.GetAggregateHistory(aggregateId);
 
-            var version = 1;
-            foreach (var aggregateRootEvent in history)
-            {
-                if (aggregateRootEvent.AggregateRootVersion != version++)
-                {
-                    throw new InvalidHistoryException(aggregateId);
-                }
-            }
+            AggregateHistoryValidator.ValidateHistory(aggregateId, history);
             return history;
         }
 

@@ -5,7 +5,7 @@ namespace Composable.SystemExtensions.TransactionsCE
 {
     static class TransactionCE
     {
-        internal static void OnCommit(this Transaction @this, Action action)
+        internal static void OnCommittedSuccessfully(this Transaction @this, Action action)
         {
             @this.TransactionCompleted += (sender, args) =>
             {

@@ -4,6 +4,7 @@ using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.System.Linq;
+using Composable.System.Transactions;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -47,8 +48,8 @@ namespace Composable.Tests.CQRS
         [Test] public void StreamEventsSinceReturnsWholeEventLogWhenFromEventIdIsNull()
         {
             var aggregateId = Guid.NewGuid();
-            _eventStore.SaveEvents(1.Through(10)
-                                   .Select(i => new SomeEvent(aggregateId, i)));
+            TransactionScopeCe.Execute(() =>_eventStore.SaveEvents(1.Through(10)
+                                   .Select(i => new SomeEvent(aggregateId, i))));
             var stream = _eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
 
             stream.Should()
@@ -87,7 +88,7 @@ namespace Composable.Tests.CQRS
                                                                   .ToList();
                                                       });
 
-            _eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
+            TransactionScopeCe.Execute(()=> _eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value)));
             var toRemove = aggregatesWithEvents[2][0]
                 .AggregateRootId;
             aggregatesWithEvents.Remove(2);
@@ -118,7 +119,7 @@ namespace Composable.Tests.CQRS
                                                                   .ToList();
                                                       });
 
-            _eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
+            TransactionScopeCe.Execute(() =>_eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value)));
             var allAggregateIds = _eventStore.StreamAggregateIdsInCreationOrder()
                                             .ToList();
             Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count);
@@ -136,7 +137,7 @@ namespace Composable.Tests.CQRS
                                                                   .ToList();
                                                       });
 
-            _eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
+            TransactionScopeCe.Execute(() =>_eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value)));
             var allAggregateIds = _eventStore.StreamAggregateIdsInCreationOrder<ISomeEvent>()
                                             .ToList();
             Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count);

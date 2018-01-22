@@ -17,9 +17,9 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
-        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper))));
+        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper))));
 
-        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command) => Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
+        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
 
         public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
         {
@@ -27,7 +27,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper);
 
-            Transaction.Current.OnCommit(() => _state.WithExclusiveAccess(innerState =>
+            Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(innerState =>
             {
                 innerState.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
                 DispatchMessage(innerState, outGoingMessage);

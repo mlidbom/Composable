@@ -10,7 +10,6 @@ namespace AccountManagement.UI.MVC
     public class Startup
     {
         ITestingEndpointHost _host;
-        IEndpoint _domainEndpoint;
 
         public Startup(IConfiguration configuration)
         {
@@ -25,7 +24,7 @@ namespace AccountManagement.UI.MVC
             services.AddMvc();
 
             _host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
-            _domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(_host);
+            AccountManagementServerDomainBootstrapper.RegisterWith(_host);
             services.AddScoped(_ => _host.ClientEndpoint.ServiceLocator.Resolve<IServiceBusSession>());
         }
 

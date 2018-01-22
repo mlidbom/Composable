@@ -14,7 +14,7 @@ namespace AccountManagement.UI.MVC.Views.Login
         {
             if(!ModelState.IsValid) return View("LoginForm");
 
-            var result = loginCommand.PostRemoteOn(_bus);
+            var result = loginCommand.PostOn(_bus);
             if(result.Succeeded)
             {
                 return View("LoggedIn");

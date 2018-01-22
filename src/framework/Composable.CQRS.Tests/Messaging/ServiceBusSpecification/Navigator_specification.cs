@@ -60,18 +60,18 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_navigate_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = NavigationSpecification.GetRemote(UserApiStartPage.Self)
-                                                          .PostRemote(startpage => startpage.RegisterUser("new-user-name"))
-                                                          .GetRemote(registerUserResult => registerUserResult.User).ExecuteOn(Host.ClientBusSession);
+                var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
+                                                          .Post(startpage => startpage.RegisterUser("new-user-name"))
+                                                          .Get(registerUserResult => registerUserResult.User).ExecuteOn(Host.ClientBusSession);
 
                 userResource.Name.Should().Be("new-user-name");
             }
 
             [Fact] async Task Can_navigate_async_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = NavigationSpecification.GetRemote(UserApiStartPage.Self)
-                                                          .PostRemote(startpage => startpage.RegisterUser("new-user-name"))
-                                                          .GetRemote(registerUserResult => registerUserResult.User)
+                var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
+                                                          .Post(startpage => startpage.RegisterUser("new-user-name"))
+                                                          .Get(registerUserResult => registerUserResult.User)
                                                           .ExecuteAsyncOn(Host.ClientBusSession);
 
                 (await userResource).Name.Should().Be("new-user-name");

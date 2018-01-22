@@ -8,7 +8,7 @@ using Composable.SystemExtensions.Threading;
 namespace Composable.Messaging.Buses
 {
     //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
-    partial class ServiceBusSession : IServiceBusSession
+    partial class ServiceBusSession : IServiceBusSession, ILocalServiceBusSession
     {
         readonly IInterprocessTransport _transport;
         readonly CommandScheduler _commandScheduler;

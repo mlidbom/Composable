@@ -11,22 +11,18 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
     {
         [Test] public void Given_30_client_threads_Runs_100_local_queries_in_2_milliSecond()
         {
-            var navigationSpecification = NavigationSpecification.Get(new MyQuery());
-
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.ExecuteOn(ServerBusSession)), iterations: 10, maxDegreeOfParallelism: 30);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Get(new MyQuery())), iterations: 10, maxDegreeOfParallelism: 30);
 
-            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.ExecuteOn(ServerBusSession)), iterations: 100, maxTotal: 2.Milliseconds(), maxDegreeOfParallelism: 30);
+            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Get(new MyQuery())), iterations: 100, maxTotal: 2.Milliseconds(), maxDegreeOfParallelism: 30);
         }
 
         [Test] public void Given_1_client_thread_Runs_100_local_queries_in_1_milliseconds()
         {
-            var navigationSpecification = NavigationSpecification.Get(new MyQuery());
-
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.ExecuteOn(ServerBusSession)), iterations: 10, maxDegreeOfParallelism: 30);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Get(new MyQuery())), iterations: 10, maxDegreeOfParallelism: 30);
 
-            TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.ExecuteOn(ServerBusSession)), iterations: 100, maxTotal: 1.Milliseconds());
+            TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Get(new MyQuery())), iterations: 100, maxTotal: 1.Milliseconds());
         }
     }
 }

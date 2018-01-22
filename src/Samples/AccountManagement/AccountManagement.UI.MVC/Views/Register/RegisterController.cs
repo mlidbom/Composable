@@ -15,7 +15,7 @@ namespace AccountManagement.UI.MVC.Views.Register
         {
             if(!ModelState.IsValid) return View("RegistrationForm");
 
-            var result = registrationCommand.PostRemoteOn(_bus);
+            var result = registrationCommand.PostOn(_bus);
             switch(result)
             {
                 case AccountResource.Commands.Register.RegistrationAttemptResult.Successful:

@@ -47,8 +47,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                             $@"
 INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
 (       {EventTable.Columns.AggregateId},  {EventTable.Columns.InsertedVersion},  {EventTable.Columns.ManualVersion}, {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.UtcTimeStamp},  {EventTable.Columns.Event}) 
-VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.ManualVersion}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.UtcTimeStamp}, @{EventTable.Columns.Event})
-SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
+VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.ManualVersion}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.UtcTimeStamp}, @{EventTable.Columns.Event})";
 
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = @event.AggregateRootId });
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.InsertedVersion, SqlDbType.Int) { Value = @event.InsertedVersion });
@@ -60,13 +59,6 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
                         command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.ManualVersion, SqlDbType.Int) {Value = @event.ManualVersion}));
 
-                        var identityParameter = new SqlParameter(EventTable.Columns.InsertionOrder, SqlDbType.BigInt)
-                                                {
-                                                    Direction = ParameterDirection.Output
-                                                };
-
-                        command.Parameters.Add(identityParameter);
-
                         try
                         {
                             command.ExecuteNonQuery();
@@ -75,8 +67,6 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                         {
                             throw new EventStoreOptimisticConcurrencyException(e);
                         }
-
-                        data.InsertionOrder = @event.InsertionOrder = (long)identityParameter.Value;
                     }
                 }
             }

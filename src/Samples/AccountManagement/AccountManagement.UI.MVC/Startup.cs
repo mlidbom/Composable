@@ -26,7 +26,7 @@ namespace AccountManagement.UI.MVC
 
             _host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
             _domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(_host);
-            services.AddSingleton(_ => _domainEndpoint.ServiceLocator.Resolve<IServiceBusSession>());
+            services.AddScoped(_ => _host.ClientEndpoint.ServiceLocator.Resolve<IServiceBusSession>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,6 +43,14 @@ namespace AccountManagement.UI.MVC
             }
 
             app.UseStaticFiles();
+
+            app.Use(async (context, next) =>
+            {
+                using(_host.ClientEndpoint.ServiceLocator.BeginScope())
+                {
+                    await next.Invoke();
+                }
+            });
 
             app.UseMvc(routes =>
             {

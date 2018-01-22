@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Transactions;
 using Composable.System;
+using Composable.System.Threading.ResourceAccess;
 using Composable.SystemExtensions.TransactionsCE;
 #if NET461
 using System.Runtime.Caching;
@@ -20,28 +21,26 @@ namespace Composable.Persistence.EventStore
             readonly EventCache _parent;
             readonly object _lock = new object();
 
-            readonly Dictionary<string, Dictionary<Guid, Entry>> _overlays = new Dictionary<string, Dictionary<Guid, Entry>>();
+            IThreadShared<Dictionary<string, Dictionary<Guid, Entry>>> _overlays = ThreadShared<Dictionary<string, Dictionary<Guid, Entry>>>.Optimized();
 
             Dictionary<Guid, Entry> CurrentOverlay
             {
                 get
                 {
                     var transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
-                    if(_overlays.TryGetValue(transactionId, out var overlay))
+                    Dictionary<Guid, Entry> overlay = null;
+
+                    if(_overlays.WithExclusiveAccess(@this => @this.TryGetValue(transactionId, out overlay)))
                     {
                         return overlay;
                     }
 
                     overlay = new Dictionary<Guid, Entry>();
 
-                    _overlays.Add(transactionId, overlay);
+                    _overlays.WithExclusiveAccess(@this => @this.Add(transactionId, overlay));
 
-                    Transaction.Current.OnAbort(() => _overlays.Remove(transactionId));
-                    Transaction.Current.OnCommittedSuccessfully(() =>
-                    {
-                        _parent.AcceptTransactionResult(overlay);
-                        _overlays.Remove(transactionId);
-                    });
+                    Transaction.Current.OnCommittedSuccessfully(() => _parent.AcceptTransactionResult(overlay));
+                    Transaction.Current.OnCompleted(() => _overlays.WithExclusiveAccess(@this => @this.Remove(transactionId)));
 
                     return overlay;
                 }

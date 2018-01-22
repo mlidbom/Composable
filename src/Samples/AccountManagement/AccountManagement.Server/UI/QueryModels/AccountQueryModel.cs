@@ -1,7 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Services;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Query.Models.Generators;

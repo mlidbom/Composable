@@ -1,6 +1,5 @@
 ﻿using System;
 using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Services;
 using Composable.Contracts;
 using Composable.Functional;
 using Composable.Messaging.Buses;
@@ -26,15 +25,15 @@ namespace AccountManagement.Domain.QueryModels
         [JsonProperty]Guid AccountId { get; set; }
 
         internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (PrivateApi.Account.Queries.TryGetByEmailQuery tryGetAccount, IDocumentDbReader documentDb, IAccountRepository accountRepository) =>
-                documentDb.TryGet(tryGetAccount.Email, out EmailToAccountIdQueryModel map) ? Option.Some(accountRepository.Get(map.AccountId)) : Option.None<Account>());
+            (PrivateAccountApi.Query.TryGetByEmailQuery tryGetAccount, IDocumentDbReader documentDb, ILocalServiceBusSession bus) =>
+                documentDb.TryGet(tryGetAccount.Email, out EmailToAccountIdQueryModel map) ? Option.Some(bus.Get(PrivateAccountApi.Queries.ById(map.AccountId))) : Option.None<Account>());
 
         internal static void UpdateQueryModelWhenEmailChanges(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
-            (AccountEvent.PropertyUpdated.Email message, IDocumentDbUpdater queryModels, IAccountRepository repository) =>
+            (AccountEvent.PropertyUpdated.Email message, IDocumentDbUpdater queryModels, ILocalServiceBusSession bus) =>
             {
                 if(message.AggregateRootVersion > 1)
                 {
-                    var previousAccountVersion = repository.GetReadonlyCopyOfVersion(message.AggregateRootId, message.AggregateRootVersion - 1);
+                    var previousAccountVersion = bus.Get(PrivateAccountApi.Queries.ReadOnlyCopyOfVersion(message.AggregateRootId, message.AggregateRootVersion -1));
                     var previousEmail = previousAccountVersion.Email;
 
                     if(previousEmail != null)

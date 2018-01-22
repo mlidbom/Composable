@@ -118,7 +118,7 @@ namespace Composable.Tests.CQRS
 
             Assert.Throws<MultiThreadedUseException>(() => updater.Get<User>(Guid.NewGuid()));
             Assert.Throws<MultiThreadedUseException>(() => updater.Dispose());
-            Assert.Throws<MultiThreadedUseException>(() => reader.LoadSpecificVersion<User>(Guid.NewGuid(), 1));
+            Assert.Throws<MultiThreadedUseException>(() => reader.GetReadonlyCopyOfVersion<User>(Guid.NewGuid(), 1));
             Assert.Throws<MultiThreadedUseException>(() => updater.Save(new User()));
             Assert.Throws<MultiThreadedUseException>(() => updater.TryGet(Guid.NewGuid(), out User _));
 
@@ -137,17 +137,17 @@ namespace Composable.Tests.CQRS
             UseInScope(session =>
                        {
                            var reader = ServiceLocator.Resolve<ITestingEventStoreReader>();
-                           var loadedUser = reader.LoadSpecificVersion<User>(user.Id, 1);
+                           var loadedUser = reader.GetReadonlyCopyOfVersion<User>(user.Id, 1);
                            Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                            Assert.That(loadedUser.Email, Is.EqualTo("email@email.se"));
                            Assert.That(loadedUser.Password, Is.EqualTo("password"));
 
-                           loadedUser = reader.LoadSpecificVersion<User>(user.Id, 2);
+                           loadedUser = reader.GetReadonlyCopyOfVersion<User>(user.Id, 2);
                            Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                            Assert.That(loadedUser.Email, Is.EqualTo("email@email.se"));
                            Assert.That(loadedUser.Password, Is.EqualTo("NewPassword"));
 
-                           loadedUser = reader.LoadSpecificVersion<User>(user.Id, 3);
+                           loadedUser = reader.GetReadonlyCopyOfVersion<User>(user.Id, 3);
                            Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                            Assert.That(loadedUser.Email, Is.EqualTo("NewEmail"));
                            Assert.That(loadedUser.Password, Is.EqualTo("NewPassword"));
@@ -218,7 +218,7 @@ namespace Composable.Tests.CQRS
 
             UseInTransactionalScope(session =>
                                     {
-                                        var loadedUser = ServiceLocator.Resolve<ITestingEventStoreReader>().LoadSpecificVersion<User>(user.Id, 1);
+                                        var loadedUser = ServiceLocator.Resolve<ITestingEventStoreReader>().GetReadonlyCopyOfVersion<User>(user.Id, 1);
                                         loadedUser.ChangeEmail("NewEmail");
                                     });
 
@@ -375,7 +375,7 @@ namespace Composable.Tests.CQRS
             UseInScope(session =>
                        {
                            var history = ((IEventStoreReader)session).GetHistory(userId);
-                           Assert.That(history.Count(), Is.EqualTo(2));
+                           Assert.That(history.Count, Is.EqualTo(2));
                        });
         }
 
@@ -396,7 +396,7 @@ namespace Composable.Tests.CQRS
             UseInScope(session =>
                        {
                            var history = ((IEventStoreReader)session).GetHistory(userId);
-                           Assert.That(history.Count(), Is.EqualTo(0));
+                           Assert.That(history.Count, Is.EqualTo(0));
                        });
         }
 
@@ -421,7 +421,7 @@ namespace Composable.Tests.CQRS
             UseInScope(session =>
                        {
                            var history = ((IEventStoreReader)session).GetHistory(userId);
-                           Assert.That(history.Count(), Is.EqualTo(0));
+                           Assert.That(history.Count, Is.EqualTo(0));
                        });
         }
 

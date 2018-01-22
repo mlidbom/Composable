@@ -1,10 +1,10 @@
 ﻿using System;
 using AccountManagement.API;
 using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Services;
 using Composable.Contracts;
 using Composable.Functional;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore.AggregateRoots;
 
@@ -39,21 +39,22 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        static AccountResource.Commands.Register.RegistrationAttemptResult Register(Guid accountId, Email email ,Password password, IAccountRepository repository, ILocalServiceBusSession busSession)
+        static AccountResource.Commands.Register.RegistrationAttemptResult Register(Guid accountId, Email email ,Password password, ILocalServiceBusSession busSession)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
-            OldContract.Argument(() => accountId, () => email, () => password, () => repository, () => busSession).NotNullOrDefault();
+            OldContract.Argument(() => accountId, () => email, () => password, () => busSession).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
-            if(busSession.Get(PrivateApi.Account.Queries.TryGetByEmail(email)).HasValue)
+            if(busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)).HasValue)
             {
                 return AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
             }
 
             var newAccount = new Account();
             newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
-            repository.Add(newAccount);
+
+            busSession.Post(PrivateAccountApi.Commands.SaveNew(newAccount));
 
             return AccountResource.Commands.Register.RegistrationAttemptResult.Successful;
         }
@@ -88,7 +89,7 @@ namespace AccountManagement.Domain
         }
 
         static AccountResource.Commands.LogIn.LoginAttemptResult Login(Email email, string password, ILocalServiceBusSession busSession) =>
-            busSession.Get(PrivateApi.Account.Queries.TryGetByEmail(email)) is Option<Account>.Some account
+            busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)) is Option<Account>.Some account
                 ? account.Value.Login(password)
                 : AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
     }

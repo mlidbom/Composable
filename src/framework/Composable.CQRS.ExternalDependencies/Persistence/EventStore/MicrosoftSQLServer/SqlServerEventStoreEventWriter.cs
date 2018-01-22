@@ -37,6 +37,8 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                 foreach(var data in events)
                 {
                     var @event = data.Event;
+                    @event.InsertedVersion = @event.InsertedVersion > @event.AggregateRootVersion ? @event.InsertedVersion : @event.AggregateRootVersion;
+
                     using(var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
@@ -44,26 +46,19 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                         command.CommandText +=
                             $@"
 INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
-(       {EventTable.Columns.AggregateId},  {EventTable.Columns.InsertedVersion},  {EventTable.Columns.ManualVersion}, {EventTable.Columns.ManualReadOrder}, {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.UtcTimeStamp},  {EventTable.Columns.Event},  {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore},  {EventTable.Columns.Replaces}) 
-VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.ManualVersion}, @{EventTable.Columns.ManualReadOrder}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.UtcTimeStamp}, @{EventTable.Columns.Event}, @{EventTable.Columns.InsertAfter},@{EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces})
+(       {EventTable.Columns.AggregateId},  {EventTable.Columns.InsertedVersion},  {EventTable.Columns.ManualVersion}, {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.UtcTimeStamp},  {EventTable.Columns.Event}) 
+VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.ManualVersion}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.UtcTimeStamp}, @{EventTable.Columns.Event})
 SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = data.AggregateRootId });
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.InsertedVersion, SqlDbType.Int)
-                                               {
-                                                   Value = data.InsertedVersion > data.AggregateRootVersion ? data.InsertedVersion : data.AggregateRootVersion
-                                               });
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = @event.AggregateRootId });
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.InsertedVersion, SqlDbType.Int) { Value = @event.InsertedVersion });
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType,SqlDbType.Int){Value = eventTypeToId[@event.GetType()] });
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = data.EventId});
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.UtcTimeStamp, SqlDbType.DateTime2) {Value = data.UtcTimeStamp});
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.ManualReadOrder, SqlDbType.Decimal) {Value = data.ManualReadOrder});
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = @event.EventId});
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.UtcTimeStamp, SqlDbType.DateTime2) {Value = @event.UtcTimeStamp});
 
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, SqlDbType.NVarChar, -1) {Value = data.EventJson});
 
-                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.ManualVersion, SqlDbType.Int) {Value = data.ManualVersion}));
-                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertAfter, SqlDbType.BigInt) {Value = data.InsertAfter}));
-                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertBefore, SqlDbType.BigInt) {Value = data.InsertBefore}));
-                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.Replaces, SqlDbType.BigInt) {Value = data.Replaces}));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.ManualVersion, SqlDbType.Int) {Value = @event.ManualVersion}));
 
                         var identityParameter = new SqlParameter(EventTable.Columns.InsertionOrder, SqlDbType.BigInt)
                                                 {
@@ -149,7 +144,63 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                                                                             (eventDataRow, index) => new EventWriteDataRow(source: eventDataRow, manualReadOrder: rangeStart + (index + 1) * increment))
                                                                         .ToList();
 
-            Insert(eventsToPersist);
+            //Pull types out here so that we do not open nested connections by calling into the IdMapper below. This will force DTC escalation of the transaction...
+            var eventTypeToId = eventsToPersist.Select(@this => @this.Event.GetType())
+                  .Distinct()
+                  .ToDictionary(keySelector: @this => @this, elementSelector: @this => IdMapper.GetId(@this));
+
+            using(var connection = _connectionManager.OpenConnection())
+            {
+                foreach(var data in eventsToPersist)
+                {
+                    var @event = data.Event;
+                    @event.InsertedVersion = data.InsertedVersion > data.AggregateRootVersion ? data.InsertedVersion : data.AggregateRootVersion;
+
+                    using(var command = connection.CreateCommand())
+                    {
+                        command.CommandType = CommandType.Text;
+
+                        command.CommandText +=
+                            $@"
+INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
+(       {EventTable.Columns.AggregateId},  {EventTable.Columns.InsertedVersion},  {EventTable.Columns.ManualVersion}, {EventTable.Columns.ManualReadOrder}, {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.UtcTimeStamp},  {EventTable.Columns.Event},  {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore},  {EventTable.Columns.Replaces}) 
+VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.ManualVersion}, @{EventTable.Columns.ManualReadOrder}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.UtcTimeStamp}, @{EventTable.Columns.Event}, @{EventTable.Columns.InsertAfter},@{EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces})
+SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
+
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = data.AggregateRootId });
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.InsertedVersion, SqlDbType.Int) { Value = @event.InsertedVersion });
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType,SqlDbType.Int){Value = eventTypeToId[@event.GetType()] });
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = data.EventId});
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.UtcTimeStamp, SqlDbType.DateTime2) {Value = data.UtcTimeStamp});
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.ManualReadOrder, SqlDbType.Decimal) {Value = data.ManualReadOrder});
+
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, SqlDbType.NVarChar, -1) {Value = data.EventJson});
+
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.ManualVersion, SqlDbType.Int) {Value = data.ManualVersion}));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertAfter, SqlDbType.BigInt) {Value = data.InsertAfter}));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertBefore, SqlDbType.BigInt) {Value = data.InsertBefore}));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.Replaces, SqlDbType.BigInt) {Value = data.Replaces}));
+
+                        var identityParameter = new SqlParameter(EventTable.Columns.InsertionOrder, SqlDbType.BigInt)
+                                                {
+                                                    Direction = ParameterDirection.Output
+                                                };
+
+                        command.Parameters.Add(identityParameter);
+
+                        try
+                        {
+                            command.ExecuteNonQuery();
+                        }
+                        catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
+                        {
+                            throw new EventStoreOptimisticConcurrencyException(e);
+                        }
+
+                        data.InsertionOrder = @event.InsertionOrder = (long)identityParameter.Value;
+                    }
+                }
+            }
         }
 
         void FixManualVersions(Guid aggregateId)

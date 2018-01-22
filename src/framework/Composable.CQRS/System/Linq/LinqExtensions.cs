@@ -32,6 +32,12 @@ namespace Composable.System.Linq
             return !me.Any();
         }
 
+        //Add these so that we don't waste effort enumerating these types to check if any entries exist.
+        public static bool None<T>(this List<T> me) => me.Count == 0;
+        public static bool None<T>(this IList<T> me) => me.Count == 0;
+        public static bool None<T>(this IReadOnlyList<T> me) => me.Count == 0;
+        public static bool None<T>(this T[] me) => me.Length == 0;
+
         /// <summary>
         /// <para>The inversion of Enumerable.Any() .</para>
         /// <para>Returns true if <paramref name="me"/> contains no elements.</para>

@@ -1,7 +1,7 @@
 ﻿using System;
 using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Services;
+using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Query.Models.Generators;
 
@@ -29,6 +29,14 @@ namespace AccountManagement.UI.QueryModels
                 RegisterHandlers()
                     .For<AccountEvent.PropertyUpdated.Email>(e => Model.Email = e.Email)
                     .For<AccountEvent.PropertyUpdated.Password>(e => Model.Password = e.Password);
+            }
+
+
+            public static void RegisterWith(IDependencyInjectionContainer container)
+            {
+                container.Register(Component.For<Generator>()
+                                            .UsingFactoryMethod((IEventStoreReader session) => new Generator(session))
+                                            .LifestyleScoped());
             }
         }
     }

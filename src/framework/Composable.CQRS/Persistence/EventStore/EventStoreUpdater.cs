@@ -53,7 +53,12 @@ namespace Composable.Persistence.EventStore
             return DoTryGet(aggregateId, out aggregate);
         }
 
-        public TAggregate LoadSpecificVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : IEventStored
+        public TAggregate GetReadonlyCopy<TAggregate>(Guid aggregateId) where TAggregate : IEventStored => LoadSpecificVersionInternal<TAggregate>(aggregateId, int.MaxValue, verifyVersion: false);
+
+        public TAggregate GetReadonlyCopyOfVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : IEventStored => LoadSpecificVersionInternal<TAggregate>(aggregateId, version);
+
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+        TAggregate LoadSpecificVersionInternal<TAggregate>(Guid aggregateId, int version, bool verifyVersion = true) where TAggregate : IEventStored
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             OldContract.Assert.That(version > 0, "version > 0");
@@ -61,10 +66,16 @@ namespace Composable.Persistence.EventStore
             _usageGuard.AssertNoContextChangeOccurred(this);
             var aggregate = CreateInstance<TAggregate>();
             var history = GetHistory(aggregateId);
-            if (history.None())
+            if(history.None())
             {
                 throw new AggregateRootNotFoundException(aggregateId);
             }
+
+            if(verifyVersion && history.Count < version - 1)
+            {
+                throw new Exception($"Requested version: {version} not found. Current version: {history.Count}");
+            }
+
             aggregate.LoadFromHistory(history.Where(e => e.AggregateRootVersion <= version));
             return aggregate;
         }
@@ -119,13 +130,13 @@ namespace Composable.Persistence.EventStore
         public override string ToString() => $"{_id}: {GetType().FullName}";
         readonly Guid _id = Guid.NewGuid();
 
-        public IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId) => GetHistoryInternal(aggregateId, takeWriteLock:false);
+        public IReadOnlyList<IAggregateRootEvent> GetHistory(Guid aggregateId) => GetHistoryInternal(aggregateId, takeWriteLock:false);
 
-        IEnumerable<IAggregateRootEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
+        IReadOnlyList<IAggregateRootEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
-            IList<IAggregateRootEvent> history = (takeWriteLock
-                                                     ? _store.GetAggregateHistoryForUpdate(aggregateId)
-                                                     : _store.GetAggregateHistory(aggregateId)).ToList();
+            var history = takeWriteLock
+                              ? _store.GetAggregateHistoryForUpdate(aggregateId)
+                              : _store.GetAggregateHistory(aggregateId);
 
             var version = 1;
             foreach (var aggregateRootEvent in history)

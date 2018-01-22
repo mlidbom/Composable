@@ -6,21 +6,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AccountManagement.UI.MVC.Views.Register
 {
-    public class RegisterController : Controller
+    public class RegisterController : ControllerBase
     {
         readonly IServiceBusSession _bus;
         public RegisterController(IServiceBusSession remoteServiceBusSession) => _bus = remoteServiceBusSession;
 
-        public IActionResult Register(AccountResource.Command.Register registrationCommand)
+        public IActionResult Register(AccountResource.Commands.Register registrationCommand)
         {
             if(!ModelState.IsValid) return View("RegistrationForm");
 
-            var result = _bus.PostRemote(registrationCommand);
+            var result = registrationCommand.PostRemoteOn(_bus);
             switch(result)
             {
-                case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
-                    return View("ValidateYourEmail", _bus.Execute(NavigationSpecification.GetRemote(AccountApi.Start).GetRemote(start => start.Queries.AccountById.WithId(registrationCommand.AccountId))));
-                case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
+                case AccountResource.Commands.Register.RegistrationAttemptResult.Successful:
+                    return View("ValidateYourEmail", Api.Accounts.Query.AccountById(registrationCommand.AccountId).ExecuteOn(_bus));
+                case AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
                     return View("RegistrationForm");
                 default:
@@ -28,6 +28,6 @@ namespace AccountManagement.UI.MVC.Views.Register
             }
         }
 
-        public IActionResult RegistrationForm() => View("RegistrationForm", (_bus.GetRemote(AccountApi.Start)).Commands.Register);
+        public IActionResult RegistrationForm() => View("RegistrationForm", Api.Accounts.Command.Register().ExecuteOn(_bus));
     }
 }

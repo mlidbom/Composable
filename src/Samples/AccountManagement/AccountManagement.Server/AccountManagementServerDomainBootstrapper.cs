@@ -1,7 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain;
 using AccountManagement.Domain.QueryModels;
-using AccountManagement.Domain.Services;
 using AccountManagement.UI.QueryModels;
 using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Services.Implementation;
@@ -9,10 +8,7 @@ using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Persistence.DocumentDb;
-using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
-using Composable.SystemExtensions.Threading;
 
 namespace AccountManagement
 {
@@ -37,47 +33,34 @@ namespace AccountManagement
         {
             container.RegisterSqlServerEventStore(configuration.ConnectionStringName);
             container.RegisterSqlServerDocumentDb(configuration.ConnectionStringName);
-
-            container.Register(
-                Component.For<IAccountRepository>()
-                         .UsingFactoryMethod((IEventStoreUpdater aggregates, IEventStoreReader reader) => new AccountRepository(aggregates, reader))
-                         .LifestyleScoped(),
-                Component.For<IFindAccountByEmail>()
-                         .UsingFactoryMethod((IDocumentDbReader queryModels) => new FindAccountByEmail(queryModels))
-                         .LifestyleScoped());
         }
 
         static void RegisterUserInterfaceComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
             container.RegisterSqlServerDocumentDb<IAccountManagementUiDocumentDbUpdater, IAccountManagementUiDocumentDbReader, IAccountManagementUiDocumentDbBulkReader>(configuration.ConnectionStringName);
 
-            container.Register(
-                Component.For<AccountManagementQueryModelReader>()
-                         .UsingFactoryMethod((IAccountManagementUiDocumentDbReader documentDbQueryModels, AccountQueryModel.Generator accountQueryModelGenerator, ISingleContextUseGuard usageGuard) =>
-                                                 new AccountManagementQueryModelReader(documentDbQueryModels, accountQueryModelGenerator, usageGuard))
-                         .LifestyleScoped());
-
-            container.Register(Component.For<AccountQueryModel.Generator>()
-                                        .UsingFactoryMethod((IEventStoreReader session) => new AccountQueryModel.Generator(session))
-                                        .LifestyleScoped());
+            AccountManagementQueryModelReader.RegisterWith(container);
+            AccountQueryModel.Generator.RegisterWith(container);
         }
 
         static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            EmailToAccountIdQueryModel.RegisterHandlers(registrar);
+            EmailToAccountIdQueryModel.UpdateQueryModelWhenEmailChanges(registrar);
+            EmailToAccountIdQueryModel.TryGetAccountByEmail(registrar);
 
-            Account.MessageHandlers.RegisterHandlers(registrar);
+            Account.UIAdapter.RegisterHandlers(registrar);
+            Account.InternalServices.RegisterHandlers(registrar);
         }
 
         static void MapTypes(ITypeMappingRegistar typeMapper)
         {
             typeMapper
-               .Map<AccountManagement.API.AccountResource.Command.ChangeEmail>("f38f0473-e0cc-4ef7-9ff6-4e99da03a39e")
-               .Map<AccountManagement.API.AccountResource.Command.Register>("1C8342B3-1302-40D1-BD54-1333A47F756F")
-               .Map<AccountManagement.API.AccountResource.Command.ChangePassword>("077F075B-64A3-4E02-B435-F04B19F6C98D")
-               .Map<AccountManagement.API.AccountResource.Command.LogIn.UI>("90689406-de88-43da-be17-0fb93692f6ad")
+               .Map<AccountManagement.API.AccountResource.Commands.ChangeEmail>("f38f0473-e0cc-4ef7-9ff6-4e99da03a39e")
+               .Map<AccountManagement.API.AccountResource.Commands.Register>("1C8342B3-1302-40D1-BD54-1333A47F756F")
+               .Map<AccountManagement.API.AccountResource.Commands.ChangePassword>("077F075B-64A3-4E02-B435-F04B19F6C98D")
+               .Map<AccountManagement.API.AccountResource.Commands.LogIn.UI>("90689406-de88-43da-be17-0fb93692f6ad")
                .Map<Composable.Messaging.EntityByIdQuery<AccountManagement.API.AccountResource>>("bc9a5aa6-bbbc-4e0f-841f-ad77d40a483f")
-               .Map<AccountManagement.PrivateApi.Account.Queries.TryGetByEmailQuery>("4cf7d647-e5cf-4961-989c-e9f128207a9e")
+               .Map<AccountManagement.PrivateAccountApi.Query.TryGetByEmailQuery>("4cf7d647-e5cf-4961-989c-e9f128207a9e")
                .Map<AccountManagement.Domain.Account>("c2ca53e0-ee6d-4725-8bf8-c13b680d0ac5")
                .Map<AccountManagement.Domain.Events.AccountEvent.Created>("3eb16cfa-ee90-4bec-a4fd-d6c52ebe0bbf")
                .Map<AccountManagement.Domain.Events.AccountEvent.Implementation.LoggedIn>("e4cb1903-4e51-44f2-b866-43891d86cf94")
@@ -93,7 +76,13 @@ namespace AccountManagement
                .Map<AccountManagement.Domain.Events.AccountEvent.Root>("86a2ff9c-c558-43ce-8a87-efaf49915275")
                .Map<AccountManagement.Domain.Events.AccountEvent.UserChangedEmail>("1fe10abb-25b5-4243-b148-439b435002a5")
                .Map<AccountManagement.Domain.Events.AccountEvent.UserChangedPassword>("0f7e4685-20d6-4f3e-ab32-9d153bbdbfee")
-               .Map<AccountManagement.Domain.Events.AccountEvent.UserRegistered>("2c648c9f-4860-46e3-a672-6d81ea35cd3f");
+               .Map<AccountManagement.Domain.Events.AccountEvent.UserRegistered>("2c648c9f-4860-46e3-a672-6d81ea35cd3f")
+
+               //todo: Having to do this for interal stuff makes no sense at all.
+               .Map<Composable.Messaging.EntityByIdQuery<AccountManagement.Domain.Account>>("e5648606-0d8b-450e-8eec-a66899b7e12a")
+               .Map<Composable.Messaging.PersistEntityCommand<AccountManagement.Domain.Account>>("01b66bcb-1a39-4bb0-8344-444349ee0790")
+               .Map<Composable.Messaging.ReadonlyCopyOfEntityByIdQuery<AccountManagement.Domain.Account>>("b57e938c-254e-4f0a-9afd-b4cfef228189")
+               .Map<Composable.Messaging.ReadonlyCopyOfEntityVersionByIdQuery<AccountManagement.Domain.Account>>("9b5ef7b2-cbc6-46a5-a1d0-2400b1cc0951");
         }
     }
 }

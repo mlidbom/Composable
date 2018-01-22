@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
 using Composable.Messaging.Commands;
+// ReSharper disable MemberCanBeMadeStatic.Global
 
 namespace AccountManagement.API
 {
     public partial class AccountResource
     {
-        public static partial class Command
+        public static partial class Commands
         {
             public static class LogIn
             {
@@ -14,6 +15,12 @@ namespace AccountManagement.API
                 {
                     [Required] [Email] public string Email { get; set; }
                     [Required] public string Password { get; set; }
+
+                    internal UI WithValues(string email, string password) => new UI
+                                                                           {
+                                                                               Email = email,
+                                                                               Password = password
+                                                                           };
                 }
 
                 public class LoginAttemptResult

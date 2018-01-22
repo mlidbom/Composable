@@ -1,14 +1,13 @@
 ﻿using AccountManagement.API;
 using AccountManagement.Domain;
-using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
 {
-    class ChangeAccountEmailScenario
+    class ChangeAccountEmailScenario : ScenarioBase
     {
-        readonly IEndpoint _domainEndpoint;
+        readonly IEndpoint _clientEndpoint;
 
         public Email NewEmail = TestData.Email.CreateValidEmail();
         public readonly Email OldEmail;
@@ -17,24 +16,18 @@ namespace AccountManagement.Tests.Scenarios
         public static ChangeAccountEmailScenario Create(IEndpoint domainEndpoint)
             => new ChangeAccountEmailScenario(domainEndpoint, new RegisterAccountScenario(domainEndpoint).Execute().Account);
 
-        public ChangeAccountEmailScenario(IEndpoint domainEndpoint, AccountResource account)
+        public ChangeAccountEmailScenario(IEndpoint clientEndpoint, AccountResource account)
         {
-            _domainEndpoint = domainEndpoint;
+            _clientEndpoint = clientEndpoint;
             Account = account;
             OldEmail = Account.Email;
         }
 
         public void Execute()
         {
-            var command = Account.CommandsCollections.ChangeEmail;
-            command.Email = NewEmail.ToString();
+            Account.Command.ChangeEmail.WithEmail(NewEmail.ToString()).PostRemote().ExecuteAsRequestOn(_clientEndpoint);
 
-            _domainEndpoint.ExecuteRequest(session => session.PostRemote(command));
-
-            Account = _domainEndpoint.ExecuteRequest(session => session.Execute(NavigationSpecification
-                      .GetRemote(AccountApi.Start)
-                      .GetRemote(start => start.Queries.AccountById.WithId(Account.Id))));
-
+            Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
         }
     }
 }

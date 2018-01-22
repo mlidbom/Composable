@@ -17,22 +17,20 @@ namespace AccountManagement.Tests.Domain
 
     [TestFixture] public abstract class DomainTestBase
     {
-        protected IServiceLocator ServiceLocator { get; private set; }
         protected EventSpy EventSpy;
 
         protected ITestingEndpointHost Host;
-        protected IEndpoint DomainEndpoint;
+        protected IEndpoint ClientEndpoint;
 
         [SetUp] public void SetupContainerAndBeginScope()
         {
             EventSpy = new EventSpy();
             Host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
-            DomainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(Host);
-            DomainEndpoint.ServiceLocator.Resolve<IMessageHandlerRegistrar>()
+            ClientEndpoint = Host.ClientEndpoint;
+
+            var domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(Host);
+            domainEndpoint.ServiceLocator.Resolve<IMessageHandlerRegistrar>()
                            .ForEvent<ITransactionalExactlyOnceDeliveryEvent>(EventSpy.Receive);
-
-            ServiceLocator = DomainEndpoint.ServiceLocator;
-
         }
 
         [TearDown] public void DisposeScopeAndContainer() => Host.Dispose();

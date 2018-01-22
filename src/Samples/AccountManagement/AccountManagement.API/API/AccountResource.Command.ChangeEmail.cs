@@ -8,7 +8,7 @@ namespace AccountManagement.API
 {
     public partial class AccountResource
     {
-        public static partial class Command
+        public static partial class Commands
         {
             public class ChangeEmail : TransactionalExactlyOnceDeliveryCommand
             {
@@ -17,6 +17,11 @@ namespace AccountManagement.API
 
                 [Required] [EntityId] public Guid AccountId { get; set; }
                 [Required] [Email] public string Email { get; set; }
+
+                public ChangeEmail WithEmail(string email) => new ChangeEmail(AccountId)
+                                                              {
+                                                                  Email = email
+                                                              };
             }
         }
     }

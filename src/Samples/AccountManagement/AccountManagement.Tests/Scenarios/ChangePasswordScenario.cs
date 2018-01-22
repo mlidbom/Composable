@@ -6,7 +6,7 @@ namespace AccountManagement.Tests.Scenarios
 {
     class ChangePasswordScenario
     {
-        readonly IEndpoint _domainEndpoint;
+        readonly IEndpoint _clientEndpoint;
 
         public string OldPassword;
         public string NewPasswordAsString;
@@ -20,9 +20,9 @@ namespace AccountManagement.Tests.Scenarios
             return new ChangePasswordScenario(domainEndpoint, account, registerAccountScenario.Password);
         }
 
-        public ChangePasswordScenario(IEndpoint domainEndpoint, AccountResource account, string oldPassword, string newPassword = null)
+        public ChangePasswordScenario(IEndpoint clientEndpoint, AccountResource account, string oldPassword, string newPassword = null)
         {
-            _domainEndpoint = domainEndpoint;
+            _clientEndpoint = clientEndpoint;
             Account = account;
             OldPassword = oldPassword;
             NewPasswordAsString = newPassword ?? TestData.Password.CreateValidPasswordString();
@@ -30,13 +30,9 @@ namespace AccountManagement.Tests.Scenarios
 
         public void Execute()
         {
-            var command = Account.CommandsCollections.ChangePassword;
-            command.NewPassword = NewPasswordAsString;
-            command.OldPassword = OldPassword;
+            Account.Command.ChangePassword.WithValues(OldPassword, NewPasswordAsString).PostRemote().ExecuteAsRequestOn(_clientEndpoint);
 
-            _domainEndpoint.ExecuteRequest(session => session.PostRemote(command));
-
-            Account = _domainEndpoint.ExecuteRequest(AccountApi.Query.AccountById(Account.Id));
+            Account = AccountApi.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
         }
     }
 }

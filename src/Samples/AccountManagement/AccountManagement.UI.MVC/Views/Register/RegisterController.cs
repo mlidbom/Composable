@@ -11,16 +11,16 @@ namespace AccountManagement.UI.MVC.Views.Register
         readonly IServiceBusSession _bus;
         public RegisterController(IServiceBusSession remoteServiceBusSession) => _bus = remoteServiceBusSession;
 
-        public IActionResult Register(AccountResource.Command.Register registrationCommand)
+        public IActionResult Register(AccountResource.Commands.Register registrationCommand)
         {
             if(!ModelState.IsValid) return View("RegistrationForm");
 
             var result = _bus.PostRemote(registrationCommand);
             switch(result)
             {
-                case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
+                case AccountResource.Commands.Register.RegistrationAttemptResult.Successful:
                     return View("ValidateYourEmail", AccountApi.Query.AccountById(registrationCommand.AccountId).ExecuteOn(_bus));
-                case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
+                case AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
                     return View("RegistrationForm");
                 default:

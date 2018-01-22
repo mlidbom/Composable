@@ -9,7 +9,7 @@ namespace AccountManagement.API
 {
     public partial class AccountResource
     {
-        public static partial class Command
+        public static partial class Commands
         {
             public class ChangePassword : TransactionalExactlyOnceDeliveryCommand, IValidatableObject
             {
@@ -20,6 +20,12 @@ namespace AccountManagement.API
                 [Required] public string NewPassword { get; set; }
 
                 public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Password.Validate(NewPassword, this, () => NewPassword);
+
+                public ChangePassword WithValues(string oldPassword, string newPassword) => new ChangePassword(AccountId)
+                                                                                   {
+                                                                                       OldPassword = oldPassword,
+                                                                                       NewPassword = newPassword
+                                                                                   };
             }
         }
     }

@@ -38,8 +38,11 @@ namespace AccountManagement.API
         {
             static readonly NavigationSpecification<StartResource.Command> Commands = Start.Select(start => start.Commands);
 
-            public static NavigationSpecification<AccountResource.Command.Register> Register() => Commands.Select(@this => @this.Register);
-            public static NavigationSpecification<AccountResource.Command.Register.RegistrationAttemptResult> Register(Guid accountId, string email, string password) => Commands.Post(_ => new AccountResource.Command.Register(accountId, email, password));
+            public static NavigationSpecification<AccountResource.Commands.Register> Register() => Commands.Select(@this => @this.Register);
+            public static NavigationSpecification<AccountResource.Commands.Register.RegistrationAttemptResult> Register(Guid accountId, string email, string password) => Commands.PostRemote(@this =>  @this.Register.WithValues(accountId, email, password));
+
+
+            public static NavigationSpecification<AccountResource.Commands.LogIn.LoginAttemptResult> Login(string email, string password) => Commands.PostRemote(commands => commands.Login.WithValues(email, password));
         }
     }
 }

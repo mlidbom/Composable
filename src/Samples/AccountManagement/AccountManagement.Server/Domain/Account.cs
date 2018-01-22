@@ -39,7 +39,7 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        static AccountResource.Command.Register.RegistrationAttemptResult Register(Command.Register command, IAccountRepository repository, ILocalServiceBusSession busSession)
+        static AccountResource.Commands.Register.RegistrationAttemptResult Register(Command.Register command, IAccountRepository repository, ILocalServiceBusSession busSession)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
@@ -48,14 +48,14 @@ namespace AccountManagement.Domain
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
             if(busSession.Get(PrivateApi.Account.Queries.TryGetByEmail(command.Email)).HasValue)
             {
-                return AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
+                return AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
             }
 
             var newAccount = new Account();
             newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: command.AccountId, email: command.Email, password: command.Password));
             repository.Add(newAccount);
 
-            return AccountResource.Command.Register.RegistrationAttemptResult.Successful;
+            return AccountResource.Commands.Register.RegistrationAttemptResult.Successful;
         }
 
         void ChangePassword(Command.ChangePassword command)
@@ -74,22 +74,22 @@ namespace AccountManagement.Domain
             Publish(new AccountEvent.Implementation.UserChangedEmail(command.Email));
         }
 
-        AccountResource.Command.LogIn.LoginAttemptResult Login(string logInPassword)
+        AccountResource.Commands.LogIn.LoginAttemptResult Login(string logInPassword)
         {
             if(Password.IsCorrectPassword(logInPassword))
             {
                 var authenticationToken = Guid.NewGuid().ToString();
                 Publish(new AccountEvent.Implementation.LoggedIn(authenticationToken));
-                return AccountResource.Command.LogIn.LoginAttemptResult.Success(authenticationToken);
+                return AccountResource.Commands.LogIn.LoginAttemptResult.Success(authenticationToken);
             }
 
             Publish(new AccountEvent.Implementation.LoginFailed());
-            return AccountResource.Command.LogIn.LoginAttemptResult.Failure();
+            return AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
         }
 
-        static AccountResource.Command.LogIn.LoginAttemptResult Login(Command.Login logIn, ILocalServiceBusSession busSession) =>
+        static AccountResource.Commands.LogIn.LoginAttemptResult Login(Command.Login logIn, ILocalServiceBusSession busSession) =>
             busSession.Get(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email)) is Option<Account>.Some account
                 ? account.Value.Login(logIn.Password)
-                : AccountResource.Command.LogIn.LoginAttemptResult.Failure();
+                : AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
     }
 }

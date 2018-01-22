@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
+using Composable.Messaging;
 using Composable.Messaging.Commands;
 using JetBrains.Annotations;
+// ReSharper disable MemberCanBeMadeStatic.Global Because we want these members to be accessed through the fluent API we don't want to make them static.
 
 namespace AccountManagement.API
 {
     public partial class AccountResource
     {
-        public static partial class Command
+        public static partial class Commands
         {
             public class Register : TransactionalExactlyOnceDeliveryCommand<Register.RegistrationAttemptResult>, IValidatableObject
             {
@@ -40,6 +42,8 @@ namespace AccountManagement.API
                     Successful = 1,
                     EmailAlreadyRegistered = 2
                 }
+
+                internal ITransactionalExactlyOnceDeliveryCommand<RegistrationAttemptResult> WithValues(Guid accountId, string email, string password) => new Register(accountId, email, password);
             }
         }
     }

@@ -11,7 +11,7 @@ namespace AccountManagement.Domain
     {
         internal static class Command
         {
-            internal class Register : TransactionalExactlyOnceDeliveryCommand<AccountResource.Command.Register.RegistrationAttemptResult>
+            internal class Register : TransactionalExactlyOnceDeliveryCommand<AccountResource.Commands.Register.RegistrationAttemptResult>
             {
                 [UsedImplicitly] Register() { }
                 internal Register(Guid accountId, Password password, Email email)
@@ -37,7 +37,7 @@ namespace AccountManagement.Domain
                     AccountId = accountId;
                     Email = email;
                 }
-                public ChangeEmail(AccountResource.Command.ChangeEmail uiCommand):this(uiCommand.AccountId, Email.Parse(uiCommand.Email)){}
+                public ChangeEmail(AccountResource.Commands.ChangeEmail uiCommand):this(uiCommand.AccountId, Email.Parse(uiCommand.Email)){}
 
                 public Guid AccountId { get; private set; }
                 public Email Email { get; private set; }
@@ -61,7 +61,7 @@ namespace AccountManagement.Domain
                 public Password NewPassword { get; private set; }
             }
 
-            internal class Login : TransactionalExactlyOnceDeliveryCommand<AccountResource.Command.LogIn.LoginAttemptResult>
+            internal class Login : TransactionalExactlyOnceDeliveryCommand<AccountResource.Commands.LogIn.LoginAttemptResult>
             {
                 internal Login(Email email, string password)
                 {

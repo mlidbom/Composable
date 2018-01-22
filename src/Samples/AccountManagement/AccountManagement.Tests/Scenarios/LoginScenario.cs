@@ -1,13 +1,11 @@
 ﻿using AccountManagement.API;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.System.Linq;
 
 namespace AccountManagement.Tests.Scenarios
 {
     class LoginScenario
     {
-        readonly IEndpoint _domainEndpoint;
+        readonly IEndpoint _clientEndpoint;
         public string Password { get; set; }
         public string Email { get; set; }
 
@@ -18,23 +16,15 @@ namespace AccountManagement.Tests.Scenarios
             return new LoginScenario(domainEndpoint, registerAccountScenario.Email, registerAccountScenario.Password);
         }
 
-        public LoginScenario(IEndpoint domainEndpoint, AccountResource account, string password) : this(domainEndpoint, account.Email.ToString(), password) {}
+        public LoginScenario(IEndpoint clientEndpoint, AccountResource account, string password) : this(clientEndpoint, account.Email.ToString(), password) {}
 
-        public LoginScenario(IEndpoint domainEndpoint, string email, string password)
+        public LoginScenario(IEndpoint clientEndpoint, string email, string password)
         {
             Email = email;
             Password = password;
-            _domainEndpoint = domainEndpoint;
+            _clientEndpoint = clientEndpoint;
         }
 
-        public AccountResource.Command.LogIn.LoginAttemptResult Execute()
-        {
-            return _domainEndpoint.ExecuteRequest(session => NavigationSpecification.GetRemote(AccountWebClientApi.Start)
-                                                                                    .PostRemote(start => start.Commands.Login.Mutate(@this =>
-                                                                                     {
-                                                                                         @this.Email = Email;
-                                                                                         @this.Password = Password;
-                                                                                     })).ExecuteOn(session));
-        }
+        public AccountResource.Commands.LogIn.LoginAttemptResult Execute() => AccountApi.Command.Login(Email, Password).ExecuteAsRequestOn(_clientEndpoint);
     }
 }

@@ -14,13 +14,13 @@ namespace AccountManagement.Domain
                 registrar.ForQuery((EntityByIdQuery<AccountResource> accountQuery, IAccountRepository repository) =>
                                        new AccountResource(repository.GetReadonlyCopy(accountQuery.Id)))
                          .ForCommandWithResult((AccountResource.Commands.Register command, ILocalServiceBusSession bus, IAccountRepository repository) =>
-                                                   Account.Register(new Account.Command.Register(command.AccountId, new Password(command.Password), Email.Parse(command.Email)), repository, bus))
+                                                   Account.Register(command.AccountId, Email.Parse(command.Email), new Password(command.Password), repository, bus))
                          .ForCommand((AccountResource.Commands.ChangeEmail command, IAccountRepository repository) =>
-                                         repository.Get(command.AccountId).ChangeEmail(new Account.Command.ChangeEmail(command)))
+                                         repository.Get(command.AccountId).ChangeEmail(Email.Parse(command.Email)))
                          .ForCommand((AccountResource.Commands.ChangePassword command, IAccountRepository repository) =>
-                                         repository.Get(command.AccountId).ChangePassword(new Account.Command.ChangePassword(command.AccountId, command.OldPassword, new Password(command.NewPassword))))
+                                         repository.Get(command.AccountId).ChangePassword(command.OldPassword, new Password(command.NewPassword)))
                          .ForCommandWithResult((AccountResource.Commands.LogIn.UI logIn, ILocalServiceBusSession bus) =>
-                                                   Account.Login(new Account.Command.Login(Domain.Email.Parse(logIn.Email), logIn.Password), bus));
+                                                   Account.Login(Email.Parse(logIn.Email), logIn.Password, bus));
             }
         }
     }

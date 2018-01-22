@@ -39,39 +39,39 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        static AccountResource.Commands.Register.RegistrationAttemptResult Register(Command.Register command, IAccountRepository repository, ILocalServiceBusSession busSession)
+        static AccountResource.Commands.Register.RegistrationAttemptResult Register(Guid accountId, Email email ,Password password, IAccountRepository repository, ILocalServiceBusSession busSession)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
-            OldContract.Argument(() => command, () => repository, () => busSession).NotNullOrDefault();
+            OldContract.Argument(() => accountId, () => email, () => password, () => repository, () => busSession).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
-            if(busSession.Get(PrivateApi.Account.Queries.TryGetByEmail(command.Email)).HasValue)
+            if(busSession.Get(PrivateApi.Account.Queries.TryGetByEmail(email)).HasValue)
             {
                 return AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
             }
 
             var newAccount = new Account();
-            newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: command.AccountId, email: command.Email, password: command.Password));
+            newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
             repository.Add(newAccount);
 
             return AccountResource.Commands.Register.RegistrationAttemptResult.Successful;
         }
 
-        void ChangePassword(Command.ChangePassword command)
+        void ChangePassword(string oldPassword, Password newPassword)
         {
-            OldContract.Argument(() => command).NotNullOrDefault();
+            OldContract.Argument(() => oldPassword, () => newPassword).NotNullOrDefault();
 
-            Password.AssertIsCorrectPassword(command.OldPassword);
+            Password.AssertIsCorrectPassword(oldPassword);
 
-            Publish(new AccountEvent.Implementation.UserChangedPassword(command.NewPassword));
+            Publish(new AccountEvent.Implementation.UserChangedPassword(newPassword));
         }
 
-        void ChangeEmail(Command.ChangeEmail command)
+        void ChangeEmail(Email email)
         {
-            OldContract.Argument(() => command).NotNullOrDefault();
+            OldContract.Argument(() => email).NotNullOrDefault();
 
-            Publish(new AccountEvent.Implementation.UserChangedEmail(command.Email));
+            Publish(new AccountEvent.Implementation.UserChangedEmail(email));
         }
 
         AccountResource.Commands.LogIn.LoginAttemptResult Login(string logInPassword)
@@ -87,9 +87,9 @@ namespace AccountManagement.Domain
             return AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
         }
 
-        static AccountResource.Commands.LogIn.LoginAttemptResult Login(Command.Login logIn, ILocalServiceBusSession busSession) =>
-            busSession.Get(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email)) is Option<Account>.Some account
-                ? account.Value.Login(logIn.Password)
+        static AccountResource.Commands.LogIn.LoginAttemptResult Login(Email email, string password, ILocalServiceBusSession busSession) =>
+            busSession.Get(PrivateApi.Account.Queries.TryGetByEmail(email)) is Option<Account>.Some account
+                ? account.Value.Login(password)
                 : AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
     }
 }

@@ -9,10 +9,7 @@ using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Persistence.DocumentDb;
-using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
-using Composable.SystemExtensions.Threading;
 
 namespace AccountManagement
 {
@@ -38,30 +35,21 @@ namespace AccountManagement
             container.RegisterSqlServerEventStore(configuration.ConnectionStringName);
             container.RegisterSqlServerDocumentDb(configuration.ConnectionStringName);
 
-            container.Register(
-                Component.For<IAccountRepository>()
-                         .UsingFactoryMethod((IEventStoreUpdater aggregates, IEventStoreReader reader) => new AccountRepository(aggregates, reader))
-                         .LifestyleScoped());
+            AccountRepository.RegisterWith(container);
         }
 
         static void RegisterUserInterfaceComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
             container.RegisterSqlServerDocumentDb<IAccountManagementUiDocumentDbUpdater, IAccountManagementUiDocumentDbReader, IAccountManagementUiDocumentDbBulkReader>(configuration.ConnectionStringName);
 
-            container.Register(
-                Component.For<AccountManagementQueryModelReader>()
-                         .UsingFactoryMethod((IAccountManagementUiDocumentDbReader documentDbQueryModels, AccountQueryModel.Generator accountQueryModelGenerator, ISingleContextUseGuard usageGuard) =>
-                                                 new AccountManagementQueryModelReader(documentDbQueryModels, accountQueryModelGenerator, usageGuard))
-                         .LifestyleScoped());
-
-            container.Register(Component.For<AccountQueryModel.Generator>()
-                                        .UsingFactoryMethod((IEventStoreReader session) => new AccountQueryModel.Generator(session))
-                                        .LifestyleScoped());
+            AccountManagementQueryModelReader.RegisterWith(container);
+            AccountQueryModel.Generator.RegisterWith(container);
         }
 
         static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            EmailToAccountIdQueryModel.RegisterHandlers(registrar);
+            EmailToAccountIdQueryModel.UpdateQueryModelWhenEmailChanges(registrar);
+            EmailToAccountIdQueryModel.TryGetAccountByEmail(registrar);
 
             Account.UIAdapter.RegisterHandlers(registrar);
         }

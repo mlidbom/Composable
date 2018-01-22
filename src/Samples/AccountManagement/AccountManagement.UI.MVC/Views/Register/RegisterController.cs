@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AccountManagement.UI.MVC.Views.Register
 {
-    public class RegisterController : Controller
+    public class RegisterController : ControllerBase
     {
         readonly IServiceBusSession _bus;
         public RegisterController(IServiceBusSession remoteServiceBusSession) => _bus = remoteServiceBusSession;
@@ -15,11 +15,11 @@ namespace AccountManagement.UI.MVC.Views.Register
         {
             if(!ModelState.IsValid) return View("RegistrationForm");
 
-            var result = _bus.PostRemote(registrationCommand);
+            var result = registrationCommand.PostRemoteOn(_bus);
             switch(result)
             {
                 case AccountResource.Commands.Register.RegistrationAttemptResult.Successful:
-                    return View("ValidateYourEmail", AccountApi.Query.AccountById(registrationCommand.AccountId).ExecuteOn(_bus));
+                    return View("ValidateYourEmail", Api.Accounts.Query.AccountById(registrationCommand.AccountId).ExecuteOn(_bus));
                 case AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
                     return View("RegistrationForm");
@@ -28,6 +28,6 @@ namespace AccountManagement.UI.MVC.Views.Register
             }
         }
 
-        public IActionResult RegistrationForm() => View("RegistrationForm", AccountApi.Command.Register().ExecuteOn(_bus));
+        public IActionResult RegistrationForm() => View("RegistrationForm", Api.Accounts.Command.Register().ExecuteOn(_bus));
     }
 }

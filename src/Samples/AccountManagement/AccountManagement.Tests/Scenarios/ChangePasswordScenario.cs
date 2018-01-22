@@ -4,7 +4,7 @@ using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
 {
-    class ChangePasswordScenario
+    class ChangePasswordScenario : ScenarioBase
     {
         readonly IEndpoint _clientEndpoint;
 
@@ -32,7 +32,7 @@ namespace AccountManagement.Tests.Scenarios
         {
             Account.Command.ChangePassword.WithValues(OldPassword, NewPasswordAsString).PostRemote().ExecuteAsRequestOn(_clientEndpoint);
 
-            Account = AccountApi.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
+            Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
         }
     }
 }

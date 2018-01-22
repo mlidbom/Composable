@@ -3,7 +3,7 @@ using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
 {
-    class LoginScenario
+    class LoginScenario : ScenarioBase
     {
         readonly IEndpoint _clientEndpoint;
         public string Password { get; set; }
@@ -25,6 +25,6 @@ namespace AccountManagement.Tests.Scenarios
             _clientEndpoint = clientEndpoint;
         }
 
-        public AccountResource.Commands.LogIn.LoginAttemptResult Execute() => AccountApi.Command.Login(Email, Password).ExecuteAsRequestOn(_clientEndpoint);
+        public AccountResource.Commands.LogIn.LoginAttemptResult Execute() => Api.Command.Login(Email, Password).ExecuteAsRequestOn(_clientEndpoint);
     }
 }

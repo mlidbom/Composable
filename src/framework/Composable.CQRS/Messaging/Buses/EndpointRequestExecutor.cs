@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses
 
         //Leverage the manual implementations above to enable running navigation specifications as requests
         public static TResult ExecuteRequest<TResult>(this IEndpoint @this, NavigationSpecification<TResult> navigation) => @this.ExecuteRequest(navigation.ExecuteOn);
-        public static void ExecuteRequest(this IEndpoint @this, NavigationSpecification navigation) => @this.ExecuteRequest(navigation.ExecuteOn);
+        public static void ExecuteRequest(this IEndpoint @this, NavigationSpecification navigation) => @this.ExecuteRequest(busSession => navigation.ExecuteOn(busSession));
         public static async Task<TResult> ExecuteRequestAsync<TResult>(this IEndpoint endpoint, NavigationSpecification<TResult> navigation) => await endpoint.ExecuteRequestAsync(navigation.ExecuteAsyncOn);
         public static async Task ExecuteRequestAsync(this IEndpoint endpoint, NavigationSpecification navigation) => await endpoint.ExecuteRequestAsync(navigation.ExecuteAsyncOn);
 

@@ -5,7 +5,7 @@ using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
 {
-    class ChangeAccountEmailScenario
+    class ChangeAccountEmailScenario : ScenarioBase
     {
         readonly IEndpoint _clientEndpoint;
 
@@ -27,7 +27,7 @@ namespace AccountManagement.Tests.Scenarios
         {
             Account.Command.ChangeEmail.WithEmail(NewEmail.ToString()).PostRemote().ExecuteAsRequestOn(_clientEndpoint);
 
-            Account = AccountApi.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
+            Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
         }
     }
 }

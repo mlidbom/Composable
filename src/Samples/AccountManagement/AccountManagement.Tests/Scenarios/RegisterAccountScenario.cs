@@ -4,7 +4,7 @@ using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
 {
-    class RegisterAccountScenario
+    class RegisterAccountScenario : ScenarioBase
     {
         readonly IEndpoint _clientEndpoint;
 
@@ -22,12 +22,12 @@ namespace AccountManagement.Tests.Scenarios
 
         public (AccountResource.Commands.Register.RegistrationAttemptResult Result, AccountResource Account) Execute()
         {
-            var result = _clientEndpoint.ExecuteRequest(AccountApi.Command.Register(AccountId, Email, Password));
+            var result = _clientEndpoint.ExecuteRequest(Api.Command.Register(AccountId, Email, Password));
 
             switch(result)
             {
                 case AccountResource.Commands.Register.RegistrationAttemptResult.Successful:
-                    return (result, AccountApi.Query.AccountById(AccountId).ExecuteAsRequestOn(_clientEndpoint));
+                    return (result, Api.Query.AccountById(AccountId).ExecuteAsRequestOn(_clientEndpoint));
                 case AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     return (result, null);
                 default:

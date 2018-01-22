@@ -1,10 +1,9 @@
-﻿
-
-// ReSharper disable MemberCanBeMadeStatic.Global
-
+﻿// ReSharper disable MemberCanBeMadeStatic.Global we want the fluid navigation to be composable with other APIs (AccountApi as a member property in a composite API for a composite UI etc) so static navigation is out.
+// ReSharper disable MemberCanBeMadeStatic.Local
 using System;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+
 
 namespace AccountManagement.API
 {
@@ -23,26 +22,31 @@ namespace AccountManagement.API
     /// <summary>
     /// This is the entry point to the API for all .Net clients. It provides a simple intuitive fluent API for accessing all of the functionality in the AccountManagement application.
     /// </summary>
-    public static class AccountApi
+    public class AccountApi
     {
-        static readonly NavigationSpecification<StartResource> Start = NavigationSpecification.Get(AccountWebClientApi.Start);
+        public static AccountApi Instance => new AccountApi();
 
-        public static class Query
+        NavigationSpecification<StartResource> Start => NavigationSpecification.Get(AccountWebClientApi.Start);
+
+        public QuerySection Query => new QuerySection();
+        public CommandsSection Command => new CommandsSection();
+
+        public class QuerySection
         {
-            static readonly NavigationSpecification<StartResource.Query> Queries = Start.Select(start => start.Queries);
+            static readonly NavigationSpecification<StartResource.Query> Queries = Instance.Start.Select(start => start.Queries);
 
-            public static NavigationSpecification<AccountResource> AccountById(Guid accountId) => Queries.GetRemote(@this => @this.AccountById.WithId(accountId));
+            public NavigationSpecification<AccountResource> AccountById(Guid accountId) => Queries.GetRemote(@this => @this.AccountById.WithId(accountId));
         }
 
-        public static class Command
+        public class CommandsSection
         {
-            static readonly NavigationSpecification<StartResource.Command> Commands = Start.Select(start => start.Commands);
+            static NavigationSpecification<StartResource.Command> Commands => Instance.Start.Select(start => start.Commands);
 
-            public static NavigationSpecification<AccountResource.Commands.Register> Register() => Commands.Select(@this => @this.Register);
-            public static NavigationSpecification<AccountResource.Commands.Register.RegistrationAttemptResult> Register(Guid accountId, string email, string password) => Commands.PostRemote(@this =>  @this.Register.WithValues(accountId, email, password));
+            public NavigationSpecification<AccountResource.Commands.Register> Register() => Commands.Select(@this => @this.Register);
+            public NavigationSpecification<AccountResource.Commands.Register.RegistrationAttemptResult> Register(Guid accountId, string email, string password) => Commands.PostRemote(@this =>  @this.Register.WithValues(accountId, email, password));
 
-
-            public static NavigationSpecification<AccountResource.Commands.LogIn.LoginAttemptResult> Login(string email, string password) => Commands.PostRemote(commands => commands.Login.WithValues(email, password));
+            public NavigationSpecification<AccountResource.Commands.LogIn.UI> Login() => Commands.Select(commands => commands.Login);
+            public NavigationSpecification<AccountResource.Commands.LogIn.LoginAttemptResult> Login(string email, string password) => Commands.PostRemote(commands => commands.Login.WithValues(email, password));
         }
     }
 }

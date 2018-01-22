@@ -58,10 +58,12 @@ namespace Composable.Persistence.EventStore
                 return cachedAggregateHistory.Events;
             }
 
-            var newerMigratedEventsExist = newEventsFromPersistenceLayer.Where(IsRefactoringEvent)
-                                                                        .Any();
+            var newerMigratedEventsExist = newEventsFromPersistenceLayer.Where(IsRefactoringEvent).Any();
+
             var cachedMigratedHistoryExists = cachedAggregateHistory.MaxSeenInsertedVersion > 0;
-            if(cachedMigratedHistoryExists && newerMigratedEventsExist)
+
+            var migrationsHaveBeenPersistedWhileWeHeldEventsInCache = cachedMigratedHistoryExists && newerMigratedEventsExist;
+            if(migrationsHaveBeenPersistedWhileWeHeldEventsInCache)
             {
                 _cache.Remove(aggregateId);
                 // ReSharper disable once TailRecursiveCall clarity over micro optimizations any day.

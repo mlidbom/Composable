@@ -41,9 +41,6 @@ namespace AccountManagement
             container.Register(
                 Component.For<IAccountRepository>()
                          .UsingFactoryMethod((IEventStoreUpdater aggregates, IEventStoreReader reader) => new AccountRepository(aggregates, reader))
-                         .LifestyleScoped(),
-                Component.For<IFindAccountByEmail>()
-                         .UsingFactoryMethod((IDocumentDbReader queryModels) => new FindAccountByEmail(queryModels))
                          .LifestyleScoped());
         }
 

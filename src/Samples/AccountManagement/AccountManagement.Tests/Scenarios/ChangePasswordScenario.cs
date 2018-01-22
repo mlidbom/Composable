@@ -36,9 +36,7 @@ namespace AccountManagement.Tests.Scenarios
 
             _domainEndpoint.ExecuteRequest(session => session.PostRemote(command));
 
-            Account = _domainEndpoint.ExecuteRequest(session => session.Execute(NavigationSpecification
-                      .GetRemote(AccountApi.Start)
-                      .GetRemote(start => start.Queries.AccountById.WithId(Account.Id))));
+            Account = _domainEndpoint.ExecuteRequest(AccountApi.Query.AccountById(Account.Id));
         }
     }
 }

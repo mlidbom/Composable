@@ -24,18 +24,12 @@ namespace AccountManagement.Tests.Scenarios
 
         public (AccountResource.Command.Register.RegistrationAttemptResult Result, AccountResource Account) Execute()
         {
-            var result = _domainEndpoint.ExecuteRequest(session => session.Execute(NavigationSpecification.GetRemote(AccountApi.Start)
-                                                .PostRemote(start => start.Commands.Register.Mutate(@this =>
-                                                {
-                                                    @this.AccountId = AccountId;
-                                                    @this.Email = Email;
-                                                    @this.Password = Password;
-                                                }))));
+            var result = _domainEndpoint.ExecuteRequest(AccountApi.Command.Register(AccountId, Email, Password));
 
             switch(result)
             {
                 case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
-                    return (result, _domainEndpoint.ExecuteRequest(session => session.Execute(NavigationSpecification.GetRemote(AccountApi.Start).GetRemote(start => start.Queries.AccountById.WithId(AccountId)))));
+                    return (result, _domainEndpoint.ExecuteRequest(AccountApi.Query.AccountById(AccountId)));
                 case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     return (result, null);
                 default:

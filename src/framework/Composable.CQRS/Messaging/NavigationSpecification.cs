@@ -6,8 +6,8 @@ namespace Composable.Messaging
 {
     public abstract class NavigationSpecification
     {
-        internal abstract void Execute(IServiceBusSession busSession);
-        internal abstract Task ExecuteAsync(IServiceBusSession busSession);
+        public abstract void ExecuteOn(IServiceBusSession busSession);
+        public abstract Task ExecuteAsyncOn(IServiceBusSession busSession);
 
         public static NavigationSpecification<TResult> Get<TResult>(IQuery<TResult> query) => new NavigationSpecification<TResult>.Local.StartQuery(query);
         public static NavigationSpecification<TResult> Post<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => new NavigationSpecification<TResult>.Local.StartCommand(command);
@@ -18,8 +18,11 @@ namespace Composable.Messaging
 
     public abstract class NavigationSpecification<TResult>
     {
-        internal abstract TResult Execute(IServiceBusSession busSession);
-        internal abstract Task<TResult> ExecuteAsync(IServiceBusSession busSession);
+        public abstract TResult ExecuteOn(IServiceBusSession busSession);
+        public abstract Task<TResult> ExecuteAsyncOn(IServiceBusSession busSession);
+
+
+        public NavigationSpecification<TNext> Select<TNext>(Func<TResult, TNext> select) => new NavigationSpecification<TNext>.SelectQuery<TResult>(this, select);
 
         public NavigationSpecification<TNext> Get<TNext>(Func<TResult, IQuery<TNext>> next) => new NavigationSpecification<TNext>.Local.ContinuationQuery<TResult>(this, next);
         public NavigationSpecification<TNext> Post<TNext>(Func<TResult, ITransactionalExactlyOnceDeliveryCommand<TNext>> next) => new NavigationSpecification<TNext>.Local.PostCommand<TResult>(this, next);
@@ -28,6 +31,26 @@ namespace Composable.Messaging
         public NavigationSpecification<TNext> GetRemote<TNext>(Func<TResult, IQuery<TNext>> next) => new NavigationSpecification<TNext>.Remote.ContinuationQuery<TResult>(this, next);
         public NavigationSpecification<TNext> PostRemote<TNext>(Func<TResult, ITransactionalExactlyOnceDeliveryCommand<TNext>> next) => new NavigationSpecification<TNext>.Remote.PostCommand<TResult>(this, next);
         public NavigationSpecification PostRemote(Func<TResult, ITransactionalExactlyOnceDeliveryCommand> next) => new Remote.PostVoidCommand<TResult>(this, next);
+
+        class SelectQuery<TPrevious> : NavigationSpecification<TResult>
+        {
+            readonly NavigationSpecification<TPrevious> _previous;
+            readonly Func<TPrevious, TResult> _select;
+
+            internal SelectQuery(NavigationSpecification<TPrevious> previous, Func<TPrevious, TResult> select)
+            {
+                _previous = previous;
+                _select = select;
+            }
+
+            public override TResult ExecuteOn(IServiceBusSession busSession)
+            {
+                var previousResult = _previous.ExecuteOn(busSession);
+                return _select(previousResult);
+            }
+
+            public override Task<TResult> ExecuteAsyncOn(IServiceBusSession busSession) => Task.FromResult(ExecuteOn(busSession));
+        }
 
 
         internal static class Local
@@ -38,8 +61,8 @@ namespace Composable.Messaging
 
                 internal StartQuery(IQuery<TResult> start) => _start = start;
 
-                internal override TResult Execute(IServiceBusSession busSession) => busSession.Get(_start);
-                internal override Task<TResult> ExecuteAsync(IServiceBusSession busSession) => Task.FromResult(Execute(busSession));
+                public override TResult ExecuteOn(IServiceBusSession busSession) => busSession.Get(_start);
+                public override Task<TResult> ExecuteAsyncOn(IServiceBusSession busSession) => Task.FromResult(ExecuteOn(busSession));
             }
 
             internal class StartCommand : NavigationSpecification<TResult>
@@ -48,8 +71,8 @@ namespace Composable.Messaging
 
                 internal StartCommand(ITransactionalExactlyOnceDeliveryCommand<TResult> start) => _start = start;
 
-                internal override TResult Execute(IServiceBusSession busSession) => busSession.Post(_start);
-                internal override Task<TResult> ExecuteAsync(IServiceBusSession busSession) => Task.FromResult(Execute(busSession));
+                public override TResult ExecuteOn(IServiceBusSession busSession) => busSession.Post(_start);
+                public override Task<TResult> ExecuteAsyncOn(IServiceBusSession busSession) => Task.FromResult(ExecuteOn(busSession));
             }
 
             internal class ContinuationQuery<TPrevious> : NavigationSpecification<TResult>
@@ -63,14 +86,14 @@ namespace Composable.Messaging
                     _nextQuery = nextQuery;
                 }
 
-                internal override TResult Execute(IServiceBusSession busSession)
+                public override TResult ExecuteOn(IServiceBusSession busSession)
                 {
-                    var previousResult = _previous.Execute(busSession);
+                    var previousResult = _previous.ExecuteOn(busSession);
                     var currentQuery = _nextQuery(previousResult);
                     return busSession.Get(currentQuery);
                 }
 
-                internal override Task<TResult> ExecuteAsync(IServiceBusSession busSession) => Task.FromResult(Execute(busSession));
+                public override Task<TResult> ExecuteAsyncOn(IServiceBusSession busSession) => Task.FromResult(ExecuteOn(busSession));
             }
 
             internal class PostCommand<TPrevious> : NavigationSpecification<TResult>
@@ -83,14 +106,14 @@ namespace Composable.Messaging
                     _next = next;
                 }
 
-                internal override TResult Execute(IServiceBusSession busSession)
+                public override TResult ExecuteOn(IServiceBusSession busSession)
                 {
-                    var previousResult = _previous.Execute(busSession);
+                    var previousResult = _previous.ExecuteOn(busSession);
                     var currentCommand = _next(previousResult);
                     return busSession.Post(currentCommand);
                 }
 
-                internal override Task<TResult> ExecuteAsync(IServiceBusSession busSession) => Task.FromResult(Execute(busSession));
+                public override Task<TResult> ExecuteAsyncOn(IServiceBusSession busSession) => Task.FromResult(ExecuteOn(busSession));
             }
 
             internal class PostVoidCommand<TPrevious> : NavigationSpecification
@@ -103,16 +126,16 @@ namespace Composable.Messaging
                     _next = next;
                 }
 
-                internal override void Execute(IServiceBusSession busSession)
+                public override void ExecuteOn(IServiceBusSession busSession)
                 {
-                    var previousResult = _previous.Execute(busSession);
+                    var previousResult = _previous.ExecuteOn(busSession);
                     var currentCommand = _next(previousResult);
                     busSession.Post(currentCommand);
                 }
 
-                internal override Task ExecuteAsync(IServiceBusSession busSession)
+                public override Task ExecuteAsyncOn(IServiceBusSession busSession)
                 {
-                    Execute(busSession);
+                    ExecuteOn(busSession);
                     return Task.CompletedTask;
                 }
             }
@@ -126,8 +149,8 @@ namespace Composable.Messaging
 
                 internal StartQuery(IQuery<TResult> start) => _start = start;
 
-                internal override TResult Execute(IServiceBusSession busSession) => busSession.GetRemote(_start);
-                internal override Task<TResult> ExecuteAsync(IServiceBusSession busSession) => busSession.GetRemoteAsync(_start);
+                public override TResult ExecuteOn(IServiceBusSession busSession) => busSession.GetRemote(_start);
+                public override Task<TResult> ExecuteAsyncOn(IServiceBusSession busSession) => busSession.GetRemoteAsync(_start);
             }
 
             internal class StartCommand : NavigationSpecification<TResult>
@@ -136,8 +159,8 @@ namespace Composable.Messaging
 
                 internal StartCommand(ITransactionalExactlyOnceDeliveryCommand<TResult> start) => _start = start;
 
-                internal override TResult Execute(IServiceBusSession busSession) => busSession.PostRemote(_start);
-                internal override Task<TResult> ExecuteAsync(IServiceBusSession busSession) => busSession.PostRemoteAsync(_start);
+                public override TResult ExecuteOn(IServiceBusSession busSession) => busSession.PostRemote(_start);
+                public override Task<TResult> ExecuteAsyncOn(IServiceBusSession busSession) => busSession.PostRemoteAsync(_start);
             }
 
             internal class ContinuationQuery<TPrevious> : NavigationSpecification<TResult>
@@ -151,16 +174,16 @@ namespace Composable.Messaging
                     _nextQuery = nextQuery;
                 }
 
-                internal override TResult Execute(IServiceBusSession busSession)
+                public override TResult ExecuteOn(IServiceBusSession busSession)
                 {
-                    var previousResult = _previous.Execute(busSession);
+                    var previousResult = _previous.ExecuteOn(busSession);
                     var currentQuery = _nextQuery(previousResult);
                     return busSession.GetRemote(currentQuery);
                 }
 
-                internal override async Task<TResult> ExecuteAsync(IServiceBusSession busSession)
+                public override async Task<TResult> ExecuteAsyncOn(IServiceBusSession busSession)
                 {
-                    var previousResult = await _previous.ExecuteAsync(busSession);
+                    var previousResult = await _previous.ExecuteAsyncOn(busSession);
                     var currentQuery = _nextQuery(previousResult);
                     return await busSession.GetRemoteAsync(currentQuery);
                 }
@@ -176,16 +199,16 @@ namespace Composable.Messaging
                     _next = next;
                 }
 
-                internal override TResult Execute(IServiceBusSession busSession)
+                public override TResult ExecuteOn(IServiceBusSession busSession)
                 {
-                    var previousResult = _previous.Execute(busSession);
+                    var previousResult = _previous.ExecuteOn(busSession);
                     var currentCommand = _next(previousResult);
                     return busSession.PostRemote(currentCommand);
                 }
 
-                internal override async Task<TResult> ExecuteAsync(IServiceBusSession busSession)
+                public override async Task<TResult> ExecuteAsyncOn(IServiceBusSession busSession)
                 {
-                    var previousResult = await _previous.ExecuteAsync(busSession);
+                    var previousResult = await _previous.ExecuteAsyncOn(busSession);
                     var currentCommand = _next(previousResult);
                     return await busSession.PostRemoteAsync(currentCommand);
                 }
@@ -201,29 +224,20 @@ namespace Composable.Messaging
                     _next = next;
                 }
 
-                internal override void Execute(IServiceBusSession busSession)
+                public override void ExecuteOn(IServiceBusSession busSession)
                 {
-                    var previousResult = _previous.Execute(busSession);
+                    var previousResult = _previous.ExecuteOn(busSession);
                     var currentCommand = _next(previousResult);
                     busSession.PostRemote(currentCommand);
                 }
 
-                internal override async Task ExecuteAsync(IServiceBusSession busSession)
+                public override async Task ExecuteAsyncOn(IServiceBusSession busSession)
                 {
-                    var previousResult = await _previous.ExecuteAsync(busSession);
+                    var previousResult = await _previous.ExecuteAsyncOn(busSession);
                     var currentCommand = _next(previousResult);
                     busSession.PostRemote(currentCommand);
                 }
             }
         }
-    }
-
-    public static class NavigationSpecificationExtensions
-    {
-        public static TResult Execute<TResult>(this IServiceBusSession @this, NavigationSpecification<TResult> specification) => specification.Execute(@this);
-        public static async Task<TResult> ExecuteAsync<TResult>(this IServiceBusSession @this, NavigationSpecification<TResult> specification) => await specification.ExecuteAsync(@this);
-
-        public static void Execute(this IServiceBusSession @this, NavigationSpecification specification) => specification.Execute(@this);
-        public static async Task ExecuteAsync(this IServiceBusSession @this, NavigationSpecification specification) => await specification.ExecuteAsync(@this);
     }
 }

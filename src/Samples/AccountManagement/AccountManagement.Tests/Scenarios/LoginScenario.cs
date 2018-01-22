@@ -29,12 +29,12 @@ namespace AccountManagement.Tests.Scenarios
 
         public AccountResource.Command.LogIn.LoginAttemptResult Execute()
         {
-            return _domainEndpoint.ExecuteRequest(session => session.Execute(NavigationSpecification.GetRemote(AccountApi.Start)
-                                          .PostRemote(start => start.Commands.Login.Mutate(@this =>
-                                          {
-                                              @this.Email = Email;
-                                              @this.Password = Password;
-                                          }))));
+            return _domainEndpoint.ExecuteRequest(session => NavigationSpecification.GetRemote(AccountWebClientApi.Start)
+                                                                                    .PostRemote(start => start.Commands.Login.Mutate(@this =>
+                                                                                     {
+                                                                                         @this.Email = Email;
+                                                                                         @this.Password = Password;
+                                                                                     })).ExecuteOn(session));
         }
     }
 }

@@ -37,5 +37,37 @@ namespace Composable.Messaging.Buses
                 await request(@this.ServiceLocator.Resolve<IServiceBusSession>());
             }
         }
+
+        public static TResult ExecuteRequest<TResult>(this IEndpoint @this, NavigationSpecification<TResult> navigation)
+        {
+            using(@this.ServiceLocator.BeginScope())
+            {
+                return navigation.ExecuteOn(@this.ServiceLocator.Resolve<IServiceBusSession>());
+            }
+        }
+
+        public static void ExecuteRequest(this IEndpoint @this, NavigationSpecification navigation)
+        {
+            using(@this.ServiceLocator.BeginScope())
+            {
+                navigation.ExecuteOn(@this.ServiceLocator.Resolve<IServiceBusSession>());
+            }
+        }
+
+        public static async Task<TResult> ExecuteRequestAsync<TResult>(this IEndpoint @this, NavigationSpecification<TResult> navigation)
+        {
+            using(@this.ServiceLocator.BeginScope())
+            {
+                return await navigation.ExecuteAsyncOn(@this.ServiceLocator.Resolve<IServiceBusSession>());
+            }
+        }
+
+        public static async Task ExecuteRequestAsync(this IEndpoint @this, NavigationSpecification request)
+        {
+            using(@this.ServiceLocator.BeginScope())
+            {
+                await request.ExecuteAsyncOn(@this.ServiceLocator.Resolve<IServiceBusSession>());
+            }
+        }
     }
 }

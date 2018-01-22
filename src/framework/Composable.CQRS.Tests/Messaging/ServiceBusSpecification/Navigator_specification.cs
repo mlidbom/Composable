@@ -60,9 +60,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_navigate_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = Host.ClientBusSession.Execute(NavigationSpecification.GetRemote(UserApiStartPage.Self)
-                                                                                 .PostRemote(startpage => startpage.RegisterUser("new-user-name"))
-                                                                                 .GetRemote(registerUserResult => registerUserResult.User));
+                var userResource = NavigationSpecification.GetRemote(UserApiStartPage.Self)
+                                                          .PostRemote(startpage => startpage.RegisterUser("new-user-name"))
+                                                          .GetRemote(registerUserResult => registerUserResult.User).ExecuteOn(Host.ClientBusSession);
 
                 userResource.Name.Should().Be("new-user-name");
             }
@@ -72,7 +72,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 var userResource = NavigationSpecification.GetRemote(UserApiStartPage.Self)
                                                           .PostRemote(startpage => startpage.RegisterUser("new-user-name"))
                                                           .GetRemote(registerUserResult => registerUserResult.User)
-                                                          .ExecuteAsync(Host.ClientBusSession);
+                                                          .ExecuteAsyncOn(Host.ClientBusSession);
 
                 (await userResource).Name.Should().Be("new-user-name");
             }

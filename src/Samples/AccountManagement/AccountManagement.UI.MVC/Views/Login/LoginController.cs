@@ -23,6 +23,6 @@ namespace AccountManagement.UI.MVC.Views.Login
             return View("LoginForm");
         }
 
-        public IActionResult LoginForm() => View("LoginForm", (_bus.GetRemote(AccountApi.Start)).Commands.Login);
+        public IActionResult LoginForm() => View("LoginForm", (_bus.GetRemote(AccountWebClientApi.Start)).Commands.Login);
     }
 }

@@ -289,6 +289,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 AssertStreamsAreIdentical(initialHistory, firstSavedHistory, "first saved history");
 
                 migrations = Seq.Create(Replace<E1>.With<E5>()).ToList();
+                ClearCache(serviceLocator);
 
                 var migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 var expectedAfterReplacingE1WithE5 =
@@ -366,6 +367,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 AssertStreamsAreIdentical(initialHistory, firstSavedHistory, "first saved history");
 
                 migrations = Seq.Create(Replace<E1>.With<E5>()).ToList();
+                ClearCache(serviceLocator);
 
                 var migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 var expectedAfterReplacingE1WithE5 =
@@ -497,6 +499,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Save(initialAggregate));
                 migrations = firstMigration;
+                ClearCache(serviceLocator);
                 var historyWithFirstMigrationUnPersisted = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
 
                 serviceLocator.ExecuteTransactionInIsolatedScope(() => EventStore().PersistMigrations());
@@ -543,6 +546,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Save(initialAggregate));
                 migrations = firstMigration;
+                ClearCache(serviceLocator);
                 var historyWithFirstMigrationUnPersisted = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
 
                 serviceLocator.ExecuteTransactionInIsolatedScope(() => EventStore().PersistMigrations());

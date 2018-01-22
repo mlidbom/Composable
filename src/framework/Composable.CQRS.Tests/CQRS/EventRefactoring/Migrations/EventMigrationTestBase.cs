@@ -84,6 +84,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventStoreUpdater>()
                                                                                 .Save(initialAggregate));
             migrations.AddRange(startingMigrations);
+            ClearCache(serviceLocator);
+
             var migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventStoreUpdater>()
                                                                                                       .Get<TestAggregate>(initialAggregate.Id))
                                                 .History;
@@ -166,6 +168,16 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                                                                                         .ToList());
                 AssertStreamsAreIdentical(expectedCompleteEventStoreStream, streamedEvents, "Streaming all events in store");
             }
+        }
+        protected static void ClearCache(IServiceLocator serviceLocator)
+        {
+            serviceLocator.ExecuteInIsolatedScope(() =>
+            {
+                if(serviceLocator.Resolve<ITestingEventStore>() is EventStore)
+                {
+                    serviceLocator.Resolve<SqlServerEventStoreRegistrationExtensions.EventCache<ITestingEventStoreUpdater>>().Clear();
+                }
+            });
         }
 
         protected static IServiceLocator CreateServiceLocatorForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType)

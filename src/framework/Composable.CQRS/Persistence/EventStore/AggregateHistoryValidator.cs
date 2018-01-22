@@ -1,16 +1,20 @@
 using System;
 using System.Collections.Generic;
-using Composable.Persistence.EventStore;
+// ReSharper disable LoopCanBeConvertedToQuery
 
-static internal class AggregateHistoryValidator {
-    public static void ValidateHistory(Guid aggregateId, IReadOnlyList<IAggregateRootEvent> history)
+namespace Composable.Persistence.EventStore
+{
+    static class AggregateHistoryValidator
     {
-        int version = 1;
-        foreach(var aggregateRootEvent in history)
+        public static void ValidateHistory(Guid aggregateId, IReadOnlyList<IAggregateRootEvent> history)
         {
-            if(aggregateRootEvent.AggregateRootVersion != version++)
+            int version = 1;
+            foreach(var aggregateRootEvent in history)
             {
-                throw new InvalidHistoryException(aggregateId);
+                if(aggregateRootEvent.AggregateRootVersion != version++)
+                {
+                    throw new InvalidHistoryException(aggregateId);
+                }
             }
         }
     }

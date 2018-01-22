@@ -24,8 +24,6 @@ namespace Composable.Persistence.EventStore
         readonly IEventStoreSchemaManager _schemaManager;
         readonly IReadOnlyList<IEventMigration> _migrationFactories;
 
-        readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
-
         public EventStore(IEventStorePersistenceLayer persistenceLayer, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard, EventCache cache, IEnumerable<IEventMigration> migrations)
         {
             _serializer = serializer;
@@ -81,15 +79,8 @@ namespace Composable.Persistence.EventStore
                 SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, newAggregateHistory);
             }
 
-            //Should - within a transaction - a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
-            if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
-            {
-                var maxSeenInsertedVersion =  newEventsFromPersistenceLayer.Max(@event => @event.InsertedVersion);
-
-                _cache.Store(
-                    aggregateId,
-                    new EventCache.Entry(events: newAggregateHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
-            }
+            var maxSeenInsertedVersion =  newEventsFromPersistenceLayer.Max(@event => @event.InsertedVersion);
+            _cache.Store(aggregateId, new EventCache.Entry(events: newAggregateHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
 
             return newAggregateHistory;
         }
@@ -149,7 +140,6 @@ namespace Composable.Persistence.EventStore
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
             events = events.ToList();
             var updatedAggregates = events.Select(@event => @event.AggregateRootId).Distinct().ToList();
-            _aggregatesWithEventsAddedByThisInstance.AddRange(updatedAggregates);
 
             var eventRows = events.Cast<AggregateRootEvent>()
                                   .Select(@this => new EventWriteDataRow(@event: @this, eventAsJson: _serializer.Serialize(@this)))
@@ -163,6 +153,8 @@ namespace Composable.Persistence.EventStore
                                                      .Cast<AggregateRootEvent>()
                                                      .ToArray();
                 SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);
+
+                _cache.Store(aggregateId, new EventCache.Entry(completeAggregateHistory, completeAggregateHistory.Max(@event => @event.InsertedVersion)));
             }
         }
 

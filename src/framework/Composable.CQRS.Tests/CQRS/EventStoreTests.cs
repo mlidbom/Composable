@@ -125,7 +125,7 @@ namespace Composable.Tests.CQRS
             Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count);
         }
 
-        [Test] public void GetListOfAggregateIdsUsingBaseEventType()
+        [Test] public void GetListOfAggregateIdsUsingEventType()
         {
             var aggregatesWithEvents = 1.Through(10)
                                         .ToDictionary(i => i,

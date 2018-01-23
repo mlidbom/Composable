@@ -1,11 +1,10 @@
-﻿using System;
-using Composable.GenericAbstractions.Time;
+﻿using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 using Composable.Persistence.EventStore.AggregateRoots;
 
 // ReSharper disable UnusedMember.Global todo:tests
 
-namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
+namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
     public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
@@ -42,37 +41,14 @@ namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
                                                         TEntityBaseEventClass,
                                                         TEntityBaseEventInterface>, new()
             {
-                static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
-
-                protected SlavedNestedEntity(TComponent parent)
-                    : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers()) { }
+                protected SlavedNestedEntity(TComponent parent) : this(parent.TimeSource, parent.RegisterEventAppliers()) { }
 
                 protected SlavedNestedEntity
-                    (IUtcTimeTimeSource timeSource,
-                     Action<TEntityBaseEventClass> raiseEventThroughParent,
-                     IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                    : base(timeSource, raiseEventThroughParent, appliersRegistrar, registerEventAppliers: false)
+                    (IUtcTimeTimeSource timeSource, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                    : base(timeSource, appliersRegistrar, registerEventAppliers: false)
                 {
                     RegisterEventAppliers()
                         .IgnoreUnhandled<TEntityBaseEventInterface>();
-                }
-
-                protected override void Publish(TEntityBaseEventClass @event)
-                {
-                    if(object.Equals(Id, default(TEntityId)))
-                    {
-                        throw new Exception("You must assign Id before calling RaiseEvent");
-                    }
-                    var id = IdGetterSetter.GetId(@event);
-                    if (Equals(id, default(TEntityId)))
-                    {
-                        IdGetterSetter.SetEntityId(@event, Id);
-                    }
-                    else if (!Equals(id, Id))
-                    {
-                        throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");
-                    }
-                    base.Publish(@event);
                 }
 
                 // ReSharper disable once MemberCanBePrivate.Global

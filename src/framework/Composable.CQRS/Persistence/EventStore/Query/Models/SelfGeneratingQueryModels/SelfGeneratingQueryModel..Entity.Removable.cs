@@ -1,8 +1,7 @@
-﻿using System;
-using Composable.Messaging.Events;
+﻿using Composable.Messaging.Events;
 using Composable.Persistence.EventStore.AggregateRoots;
 
-namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
+namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
     public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
@@ -44,7 +43,6 @@ namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
                 =>
                     new CollectionManager(
                         parent: parent,
-                        raiseEventThroughParent: parent.Publish,
                         appliersRegistrar: parent.RegisterEventAppliers());
 
             internal new class CollectionManager : EntityCollectionManager<TAggregateRoot,
@@ -56,10 +54,8 @@ namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
                                                      TEntityRemovedEventInterface,
                                                      TEventEntityIdSetterGetter>
             {
-                internal CollectionManager
-                    (TAggregateRoot parent,
-                     Action<TEntityBaseEventClass> raiseEventThroughParent,
-                     IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, raiseEventThroughParent, appliersRegistrar) {}
+                internal CollectionManager(TAggregateRoot parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) 
+                    : base(parent, appliersRegistrar) {}
             }
         }
     }

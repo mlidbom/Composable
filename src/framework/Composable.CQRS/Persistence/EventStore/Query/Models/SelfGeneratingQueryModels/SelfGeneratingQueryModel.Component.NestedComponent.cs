@@ -1,9 +1,8 @@
-﻿using System;
-using Composable.GenericAbstractions.Time;
+﻿using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 using JetBrains.Annotations;
 
-namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
+namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
     public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
@@ -24,13 +23,11 @@ namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
                 where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
             {
                 protected NestedComponent(TComponent parent)
-                    : base(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers(), registerEventAppliers: true) {}
+                    : base(parent.TimeSource, parent.RegisterEventAppliers(), registerEventAppliers: true) {}
 
-                protected NestedComponent
-                    (IUtcTimeTimeSource timeSource,
-                     Action<TNestedComponentBaseEventClass> raiseEventThroughParent,
-                     IEventHandlerRegistrar<TNestedComponentBaseEventInterface> appliersRegistrar,
-                     bool registerEventAppliers) : base(timeSource, raiseEventThroughParent, appliersRegistrar, registerEventAppliers) {}
+                protected NestedComponent(IUtcTimeTimeSource timeSource, 
+                                          IEventHandlerRegistrar<TNestedComponentBaseEventInterface> appliersRegistrar,
+                                          bool registerEventAppliers) : base(timeSource, appliersRegistrar, registerEventAppliers) {}
             }
         }
     }

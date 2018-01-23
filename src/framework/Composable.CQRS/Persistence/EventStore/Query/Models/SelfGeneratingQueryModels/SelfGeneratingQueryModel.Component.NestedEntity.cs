@@ -1,9 +1,8 @@
-﻿using System;
-using Composable.GenericAbstractions.Time;
+﻿using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 using Composable.Persistence.EventStore.AggregateRoots;
 
-namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
+namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
     public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
@@ -40,30 +39,14 @@ namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
 
                 // ReSharper disable once UnusedMember.Global todo: coverage
                 protected NestedEntity(TComponent parent)
-                    : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers()) { }
+                    : this(parent.TimeSource, parent.RegisterEventAppliers()) { }
 
                 protected NestedEntity
-                    (IUtcTimeTimeSource timeSource,
-                     Action<TEntityBaseEventClass> raiseEventThroughParent,
-                     IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                    : base(timeSource, raiseEventThroughParent, appliersRegistrar, registerEventAppliers: false)
+                    (IUtcTimeTimeSource timeSource, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                    : base(timeSource, appliersRegistrar, registerEventAppliers: false)
                 {
                     RegisterEventAppliers()
                         .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e));
-                }
-
-                protected override void Publish(TEntityBaseEventClass @event)
-                {
-                    var id = IdGetterSetter.GetId(@event);
-                    if (Equals(id, default(TEntityId)))
-                    {
-                        IdGetterSetter.SetEntityId(@event, Id);
-                    }
-                    else if (!Equals(id, Id))
-                    {
-                        throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");
-                    }
-                    base.Publish(@event);
                 }
 
                 internal TEntityId Id { get; private set; }
@@ -73,7 +56,6 @@ namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
                   =>
                       new CollectionManager(
                           parent: parent,
-                          raiseEventThroughParent: parent.Publish,
                           appliersRegistrar: parent.RegisterEventAppliers());
 
                 public class CollectionManager : EntityCollectionManager<TComponent,
@@ -86,9 +68,8 @@ namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
                 {
                     internal CollectionManager
                         (TComponent parent,
-                         Action<TEntityBaseEventClass> raiseEventThroughParent,
                          IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                        : base(parent, raiseEventThroughParent, appliersRegistrar)
+                        : base(parent, appliersRegistrar)
                     { }
                 }
             }

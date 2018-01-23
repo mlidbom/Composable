@@ -1,8 +1,7 @@
-﻿using System;
-using Composable.GenericAbstractions.Time;
+﻿using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 
-namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
+namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
     public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
@@ -18,7 +17,6 @@ namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
             readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventHandlersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
-            readonly Action<TComponentBaseEventClass> _raiseEventThroughParent;
 
             IUtcTimeTimeSource TimeSource { get; set; }
 
@@ -30,15 +28,13 @@ namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
             protected Component(TAggregateRoot aggregateRoot)
                 : this(
                     timeSource: aggregateRoot.TimeSource,
-                    raiseEventThroughParent: aggregateRoot.Publish,
                     appliersRegistrar: aggregateRoot.RegisterEventAppliers(),
                     registerEventAppliers: true)
             {}
 
-            internal Component(IUtcTimeTimeSource timeSource, Action<TComponentBaseEventClass> raiseEventThroughParent, IEventHandlerRegistrar<TComponentBaseEventInterface> appliersRegistrar, bool registerEventAppliers)
+            internal Component(IUtcTimeTimeSource timeSource, IEventHandlerRegistrar<TComponentBaseEventInterface> appliersRegistrar, bool registerEventAppliers)
             {
                 TimeSource = timeSource;
-                _raiseEventThroughParent = raiseEventThroughParent;
                 _eventHandlersEventDispatcher.Register()
                                             .IgnoreUnhandled<TComponentBaseEventInterface>();
 
@@ -47,12 +43,6 @@ namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
                     appliersRegistrar
                                  .For<TComponentBaseEventInterface>(ApplyEvent);
                 }
-            }
-
-            protected virtual void Publish(TComponentBaseEventClass @event)
-            {
-                _raiseEventThroughParent(@event);
-                _eventHandlersEventDispatcher.Dispatch(@event);
             }
 
             protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventAppliers() => _eventAppliersEventDispatcher.Register();

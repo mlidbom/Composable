@@ -1,9 +1,8 @@
-﻿using System;
-using Composable.GenericAbstractions.Time;
+﻿using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 using Composable.Persistence.EventStore.AggregateRoots;
 
-namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
+namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
     public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
@@ -41,26 +40,21 @@ namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
                                     TEntityCreatedEventInterface,
                                     TEventEntityIdSetterGetter>
             {
-                protected NestedEntity(TComponent parent) : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers())
+                protected NestedEntity(TComponent parent) : this(parent.TimeSource, parent.RegisterEventAppliers())
                 {
                 }
 
                 NestedEntity
                 (IUtcTimeTimeSource timeSource,
-                 Action<TEntityBaseEventClass> raiseEventThroughParent,
                  IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                    : base(timeSource, raiseEventThroughParent, appliersRegistrar)
+                    : base(timeSource, appliersRegistrar)
                 {
                     RegisterEventAppliers()
                         .IgnoreUnhandled<TEntityRemovedEventInterface>();
                 }
 
-                internal new static CollectionManager CreateSelfManagingCollection(TComponent parent)
-                    =>
-                        new CollectionManager(
-                            parent: parent,
-                            raiseEventThroughParent: parent.Publish,
-                            appliersRegistrar: parent.RegisterEventAppliers());
+                internal new static CollectionManager CreateSelfManagingCollection(TComponent parent) =>
+                        new CollectionManager(parent: parent, appliersRegistrar: parent.RegisterEventAppliers());
 
                 internal new class CollectionManager : EntityCollectionManager<TComponent,
                                                          TEntity,
@@ -72,10 +66,7 @@ namespace Composable.Persistence.EventStore.Query.Models.AggregateRoots
                                                          TEventEntityIdSetterGetter>
                 {
                     internal CollectionManager
-                        (TComponent parent,
-                         Action<TEntityBaseEventClass> raiseEventThroughParent,
-                         IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                        : base(parent, raiseEventThroughParent, appliersRegistrar) {}
+                        (TComponent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, appliersRegistrar) {}
                 }
             }
         }

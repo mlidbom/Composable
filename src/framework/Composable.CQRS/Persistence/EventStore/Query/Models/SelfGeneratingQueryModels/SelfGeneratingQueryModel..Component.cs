@@ -12,8 +12,6 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
         {
             readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
-            readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventHandlersEventDispatcher =
-                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
 
             void ApplyEvent(TComponentBaseEventInterface @event)
             {
@@ -28,9 +26,6 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
             internal Component(IEventHandlerRegistrar<TComponentBaseEventInterface> appliersRegistrar, bool registerEventAppliers)
             {
-                _eventHandlersEventDispatcher.Register()
-                                            .IgnoreUnhandled<TComponentBaseEventInterface>();
-
                 if(registerEventAppliers)
                 {
                     appliersRegistrar
@@ -39,9 +34,6 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             }
 
             protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventAppliers() => _eventAppliersEventDispatcher.Register();
-
-            // ReSharper disable once UnusedMember.Global todo: tests
-            protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventHandlers() => _eventHandlersEventDispatcher.Register();
         }
     }
 }

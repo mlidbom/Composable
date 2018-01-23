@@ -37,9 +37,9 @@ namespace Composable.Messaging
     public interface IUserInterfaceCommand<TResult> : ICommand<TResult>, IUserInterfaceMessage  { }
     public interface IUserInterfaceQuery<TResult> : IQuery<TResult>, IUserInterfaceMessage { }
 
-    public interface IRequireTransactionalSend : ISupportRemoteDelivery{ }
-    public interface IRequireTransactionalHandlerExecution : ISupportRemoteDelivery { }
-    public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSend, IRequireTransactionalHandlerExecution {}
+    public interface IRequireTransactionalSending : ISupportRemoteDelivery{ }
+    public interface IRequireTransactionalHandling : ISupportRemoteDelivery { }
+    public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSending, IRequireTransactionalHandling {}
 
     public interface IExactlyOnceMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId {}
 

@@ -53,7 +53,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 internal new static CollectionManager CreateSelfManagingCollection(TComponent parent) =>
                         new CollectionManager(parent: parent, appliersRegistrar: parent.RegisterEventAppliers());
 
-                internal new class CollectionManager : EntityCollectionManager<TComponent,
+                internal new class CollectionManager : QueryModelEntityCollectionManager<TComponent,
                                                          TEntity,
                                                          TEntityId,
                                                          TEntityBaseEventClass,

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public interface IReadOnlyEntityCollection<TEntity, in TEntityId> : IEnumerable<TEntity>
+    public interface IReadonlyQueryModelEntityCollection<TEntity, in TEntityId> : IEnumerable<TEntity>
     {
         IReadOnlyList<TEntity> InCreationOrder { get; }
         // ReSharper disable once UnusedMember.Global todo:write test
@@ -12,10 +12,8 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
         TEntity this[TEntityId id] { get; }
     }
 
-    interface IEntityCollectionManager<TEntity, in TEntityId, in TEventClass, in TEntityCreationInterface>
+    interface IQueryModelEntityCollectionManager<TEntity, in TEntityId>
     {
-        IReadOnlyEntityCollection<TEntity, TEntityId> Entities { get; }
-        TEntity AddByPublishing<TCreationEvent>(TCreationEvent creationEvent)
-            where TCreationEvent : TEventClass, TEntityCreationInterface;
+        IReadonlyQueryModelEntityCollection<TEntity, TEntityId> Entities { get; }
     }
 }

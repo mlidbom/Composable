@@ -46,7 +46,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             public static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent)
                 => new CollectionManager(parent, parent.RegisterEventAppliers());
 
-            public class CollectionManager : EntityCollectionManager<
+            public class CollectionManager : QueryModelEntityCollectionManager<
                                                  TAggregateRoot,
                                                  TEntity,
                                                  TEntityId,

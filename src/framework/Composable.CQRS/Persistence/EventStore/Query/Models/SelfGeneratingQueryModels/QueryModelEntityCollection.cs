@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public class EntityCollection<TEntity, TEntityId> : IReadOnlyEntityCollection<TEntity, TEntityId>
+    public class QueryModelEntityCollection<TEntity, TEntityId> : IReadonlyQueryModelEntityCollection<TEntity, TEntityId>
     {
         readonly Dictionary<TEntityId, TEntity> _entities = new Dictionary<TEntityId, TEntity>();
         readonly List<TEntity> _entitiesInCreationOrder = new List<TEntity>();

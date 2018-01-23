@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Composable.Messaging.Events;
+﻿using Composable.Messaging.Events;
 using Composable.Persistence.EventStore.AggregateRoots;
 using Composable.System.Reflection;
 
@@ -16,16 +14,13 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
-            public class EntityCollectionManager<TParent,
+            public class QueryModelEntityCollectionManager<TParent,
                                                  TEntity,
                                                  TEntityId,
                                                  TEntityBaseEventClass,
                                                  TEntityBaseEventInterface,
                                                  TEntityCreatedEventInterface,
-                                                 TEventEntityIdSetterGetter> : IEntityCollectionManager<TEntity,
-                                                                                   TEntityId,
-                                                                                   TEntityBaseEventClass,
-                                                                                   TEntityCreatedEventInterface>
+                                                 TEventEntityIdSetterGetter> : IQueryModelEntityCollectionManager<TEntity, TEntityId>
                 where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
                 where TEntityBaseEventClass : TEntityBaseEventInterface, TAggregateRootBaseEventClass
@@ -34,11 +29,10 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             {
                 protected static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
 
-                protected readonly EntityCollection<TEntity, TEntityId> ManagedEntities;
-                readonly Action<TEntityBaseEventClass> _raiseEventThroughParent;
-                protected EntityCollectionManager(TParent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                protected readonly QueryModelEntityCollection<TEntity, TEntityId> ManagedEntities;
+                protected QueryModelEntityCollectionManager(TParent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
                 {
-                    ManagedEntities = new EntityCollection<TEntity, TEntityId>();
+                    ManagedEntities = new QueryModelEntityCollection<TEntity, TEntityId>();
                     appliersRegistrar
                         .For<TEntityCreatedEventInterface>(
                             e =>
@@ -49,16 +43,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                         .For<TEntityBaseEventInterface>(e => ManagedEntities[IdGetter.GetId(e)].ApplyEvent(e));
                 }
 
-                public IReadOnlyEntityCollection<TEntity, TEntityId> Entities => ManagedEntities;
-
-                public TEntity AddByPublishing<TCreationEvent>(TCreationEvent creationEvent)
-                    where TCreationEvent : TEntityBaseEventClass, TEntityCreatedEventInterface
-                {
-                    _raiseEventThroughParent(creationEvent);
-                    var result = ManagedEntities.InCreationOrder.Last();
-                    result._eventHandlersEventDispatcher.Dispatch(creationEvent);
-                    return result;
-                }
+                public IReadonlyQueryModelEntityCollection<TEntity, TEntityId> Entities => ManagedEntities;
             }
         }
     }

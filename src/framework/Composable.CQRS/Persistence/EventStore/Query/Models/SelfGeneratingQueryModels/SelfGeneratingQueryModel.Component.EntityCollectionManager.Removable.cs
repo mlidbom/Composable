@@ -13,14 +13,14 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
-            internal class EntityCollectionManager<TParent,
+            internal class QueryModelEntityCollectionManager<TParent,
                                                  TEntity,
                                                  TEntityId,
                                                  TEntityBaseEventClass,
                                                  TEntityBaseEventInterface,
                                                  TEntityCreatedEventInterface,
                                                  TEntityRemovedEventInterface,
-                                                 TEventEntityIdSetterGetter> : EntityCollectionManager<TParent,
+                                                 TEventEntityIdSetterGetter> : QueryModelEntityCollectionManager<TParent,
                                                                                    TEntity,
                                                                                    TEntityId,
                                                                                    TEntityBaseEventClass,
@@ -34,7 +34,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 where TEntity : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
                 where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
             {
-                protected EntityCollectionManager (TParent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, appliersRegistrar)
+                protected QueryModelEntityCollectionManager (TParent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, appliersRegistrar)
                 {
                     appliersRegistrar.For<TEntityRemovedEventInterface>(
                         e =>

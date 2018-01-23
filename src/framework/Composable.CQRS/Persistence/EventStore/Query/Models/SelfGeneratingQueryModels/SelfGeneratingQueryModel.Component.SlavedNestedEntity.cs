@@ -57,16 +57,16 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 {
                     static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
 
-                    readonly EntityCollection<TEntity, TEntityId> _managedEntities;
+                    readonly QueryModelEntityCollection<TEntity, TEntityId> _managedEntities;
                     protected EntityCollectionManagerBase
                         (IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
                     {
-                        _managedEntities = new EntityCollection<TEntity, TEntityId>();
+                        _managedEntities = new QueryModelEntityCollection<TEntity, TEntityId>();
                         appliersRegistrar
                             .For<TEntityBaseEventInterface>(e => _managedEntities[IdGetter.GetId(e)].ApplyEvent(e));
                     }
 
-                    public IReadOnlyEntityCollection<TEntity, TEntityId> Entities => _managedEntities;
+                    public IReadonlyQueryModelEntityCollection<TEntity, TEntityId> Entities => _managedEntities;
                 }
             }
         }

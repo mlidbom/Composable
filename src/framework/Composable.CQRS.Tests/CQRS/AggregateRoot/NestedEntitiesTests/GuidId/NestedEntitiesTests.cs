@@ -178,41 +178,67 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId
         public void EntityNestedInEntityWorks()
         {
             var agRootEntity = Ag.AddEntity("RootEntityName");
+            var qmRootEntity = Qm.Entities.InCreationOrder[0];
 
-            var entity1 = agRootEntity.AddEntity("entity1");
-            entity1.Name.Should().Be("entity1");
+            var agNestedEntity1 = agRootEntity.AddEntity("entity1");
+            var qmNestedEntity1 = qmRootEntity.Entities.InCreationOrder[0];
+            qmNestedEntity1.Id.Should().Be(agNestedEntity1.Id);
+            agNestedEntity1.Name.Should().Be("entity1");
+            qmNestedEntity1.Name.Should().Be("entity1");
             agRootEntity.Entities.InCreationOrder.Count.Should().Be(1);
-            agRootEntity.Entities.Exists(entity1.Id).Should().Be(true);
-            agRootEntity.Entities.Get(entity1.Id).Should().Be(entity1);
-            agRootEntity.Entities[entity1.Id].Should().Be(entity1);
+            qmRootEntity.Entities.InCreationOrder.Count.Should().Be(1);
+            agRootEntity.Entities.Exists(agNestedEntity1.Id).Should().Be(true);
+            qmRootEntity.Entities.Exists(agNestedEntity1.Id).Should().Be(true);
+            agRootEntity.Entities.Get(agNestedEntity1.Id).Should().Be(agNestedEntity1);
+            qmRootEntity.Entities.Get(agNestedEntity1.Id).Should().Be(qmNestedEntity1);
+            agRootEntity.Entities[agNestedEntity1.Id].Should().Be(agNestedEntity1);
+            qmRootEntity.Entities[agNestedEntity1.Id].Should().Be(qmNestedEntity1);
 
-            var entity2 = agRootEntity.AddEntity("entity2");
-            entity2.Name.Should().Be("entity2");
+            var agNestedEntity2 = agRootEntity.AddEntity("entity2");
+            var qmNestedEntity2 = qmRootEntity.Entities.InCreationOrder[1];
+            agNestedEntity2.Name.Should().Be("entity2");
+            qmNestedEntity2.Name.Should().Be("entity2");
             agRootEntity.Entities.InCreationOrder.Count.Should().Be(2);
-            agRootEntity.Entities.Exists(entity2.Id).Should().Be(true);
-            agRootEntity.Entities[entity2.Id].Should().Be(entity2);
+            qmRootEntity.Entities.InCreationOrder.Count.Should().Be(2);
+            agRootEntity.Entities.Exists(agNestedEntity2.Id).Should().Be(true);
+            qmRootEntity.Entities.Exists(agNestedEntity2.Id).Should().Be(true);
+            agRootEntity.Entities[agNestedEntity2.Id].Should().Be(agNestedEntity2);
+            qmRootEntity.Entities[agNestedEntity2.Id].Should().Be(qmNestedEntity2);
 
-            entity1.Rename("newName");
-            entity1.Name.Should().Be("newName");
-            entity2.Name.Should().Be("entity2");
+            agNestedEntity1.Rename("newName");
+            agNestedEntity1.Name.Should().Be("newName");
+            qmNestedEntity1.Name.Should().Be("newName");
+            agNestedEntity2.Name.Should().Be("entity2");
+            qmNestedEntity2.Name.Should().Be("entity2");
 
-            entity2.Rename("newName2");
-            entity2.Name.Should().Be("newName2");
-            entity1.Name.Should().Be("newName");
+            agNestedEntity2.Rename("newName2");
+            agNestedEntity2.Name.Should().Be("newName2");
+            qmNestedEntity2.Name.Should().Be("newName2");
+            agNestedEntity1.Name.Should().Be("newName");
+            qmNestedEntity1.Name.Should().Be("newName");
 
             agRootEntity.Entities.InCreationOrder.Count.Should().Be(2);
+            qmRootEntity.Entities.InCreationOrder.Count.Should().Be(2);
 
-            entity2.Remove();
-            agRootEntity.Entities.Exists(entity2.Id).Should().Be(false);
+            agNestedEntity2.Remove();
+            agRootEntity.Entities.Exists(agNestedEntity2.Id).Should().Be(false);
+            qmRootEntity.Entities.Exists(agNestedEntity2.Id).Should().Be(false);
             agRootEntity.Entities.InCreationOrder.Count.Should().Be(1);
-            agRootEntity.Invoking(_ => agRootEntity.Entities.Get(entity2.Id)).ShouldThrow<Exception>();
-            agRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[entity2.Id]; }).ShouldThrow<Exception>();
+            qmRootEntity.Entities.InCreationOrder.Count.Should().Be(1);
+            agRootEntity.Invoking(_ => agRootEntity.Entities.Get(agNestedEntity2.Id)).ShouldThrow<Exception>();
+            qmRootEntity.Invoking(_ => agRootEntity.Entities.Get(agNestedEntity2.Id)).ShouldThrow<Exception>();
+            agRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[agNestedEntity2.Id]; }).ShouldThrow<Exception>();
+            qmRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[agNestedEntity2.Id]; }).ShouldThrow<Exception>();
 
-            entity1.Remove();
-            agRootEntity.Entities.Exists(entity1.Id).Should().Be(false);
+            agNestedEntity1.Remove();
+            agRootEntity.Entities.Exists(agNestedEntity1.Id).Should().Be(false);
+            qmRootEntity.Entities.Exists(agNestedEntity1.Id).Should().Be(false);
             agRootEntity.Entities.InCreationOrder.Count.Should().Be(0);
-            agRootEntity.Invoking(_ => agRootEntity.Entities.Get(entity1.Id)).ShouldThrow<Exception>();
-            agRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[entity1.Id]; }).ShouldThrow<Exception>();
+            qmRootEntity.Entities.InCreationOrder.Count.Should().Be(0);
+            agRootEntity.Invoking(_ => agRootEntity.Entities.Get(agNestedEntity1.Id)).ShouldThrow<Exception>();
+            qmRootEntity.Invoking(_ => agRootEntity.Entities.Get(agNestedEntity1.Id)).ShouldThrow<Exception>();
+            agRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[agNestedEntity1.Id]; }).ShouldThrow<Exception>();
+            qmRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[agNestedEntity1.Id]; }).ShouldThrow<Exception>();
         }
 
     }

@@ -42,8 +42,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                     static readonly TEventEntityIdGetter IdGetter = new TEventEntityIdGetter();
 
                     readonly QueryModelEntityCollection<TEntity, TEntityId> _managedEntities;
-                    protected EntityCollectionManagerBase
-                        (IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)
+                    protected EntityCollectionManagerBase(IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)
                     {
                         _managedEntities = new QueryModelEntityCollection<TEntity, TEntityId>();
                         appliersRegistrar

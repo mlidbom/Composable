@@ -16,22 +16,21 @@ namespace Composable.Persistence.EventStore.Aggregates
             where TComponent : Component<TComponent, TComponentEventImplementation, TComponentEvent>
         {
             [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
-            public abstract class NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface> :
-                Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>.
-                    Component<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
-                where TNestedComponentBaseEventInterface : class, TComponentEvent
-                where TNestedComponentBaseEventClass : TComponentEventImplementation, TNestedComponentBaseEventInterface
-                where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
+            public abstract class NestedComponent<TNestedComponent, TNestedComponentEventImplementation, TNestedComponentEvent> :
+                    Component<TNestedComponent, TNestedComponentEventImplementation, TNestedComponentEvent>
+                where TNestedComponentEvent : class, TComponentEvent
+                where TNestedComponentEventImplementation : TComponentEventImplementation, TNestedComponentEvent
+                where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentEventImplementation, TNestedComponentEvent>
             {
-                static NestedComponent() => AggregateTypeValidator<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>.AssertStaticStructureIsValid();
+                static NestedComponent() => AggregateTypeValidator<TNestedComponent, TNestedComponentEventImplementation, TNestedComponentEvent>.AssertStaticStructureIsValid();
 
                 protected NestedComponent(TComponent parent)
                     : base(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers(), registerEventAppliers: true) {}
 
                 protected NestedComponent
                     (IUtcTimeTimeSource timeSource,
-                     Action<TNestedComponentBaseEventClass> raiseEventThroughParent,
-                     IEventHandlerRegistrar<TNestedComponentBaseEventInterface> appliersRegistrar,
+                     Action<TNestedComponentEventImplementation> raiseEventThroughParent,
+                     IEventHandlerRegistrar<TNestedComponentEvent> appliersRegistrar,
                      bool registerEventAppliers) : base(timeSource, raiseEventThroughParent, appliersRegistrar, registerEventAppliers) {}
             }
         }

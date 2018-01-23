@@ -4,24 +4,24 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregate, TAggregateBaseEventInterface>
-        where TAggregate : SelfGeneratingQueryModel<TAggregate, TAggregateBaseEventInterface>
-        where TAggregateBaseEventInterface : class, IAggregateRootEvent
+    public abstract partial class SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
+        where TAggregate : SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateRootEvent
     {
         [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
         public abstract class Entity<TEntity,
                                      TEntityId,
-                                     TEntityBaseEventInterface,
-                                     TEntityCreatedEventInterface,
-                                     TEventEntityIdGetter> : Component<TEntity, TEntityBaseEventInterface>
-            where TEntityBaseEventInterface : class, TAggregateBaseEventInterface
-            where TEntityCreatedEventInterface : TEntityBaseEventInterface
+                                     TEntityEvent,
+                                     TEntityCreatedEvent,
+                                     TEventEntityIdGetter> : Component<TEntity, TEntityEvent>
+            where TEntityEvent : class, TAggregateEvent
+            where TEntityCreatedEvent : TEntityEvent
             where TEntity : Entity<TEntity,
                                 TEntityId,
-                                TEntityBaseEventInterface,
-                                TEntityCreatedEventInterface,
+                                TEntityEvent,
+                                TEntityCreatedEvent,
                                 TEventEntityIdGetter>
-            where TEventEntityIdGetter : IGeTAggregateEntityEventEntityId<TEntityBaseEventInterface, TEntityId>,
+            where TEventEntityIdGetter : IGeTAggregateEntityEventEntityId<TEntityEvent, TEntityId>,
                 new()
         {
             static readonly TEventEntityIdGetter IdGetter = new TEventEntityIdGetter();
@@ -31,10 +31,10 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             protected Entity(TAggregate aggregateRoot) : this(aggregateRoot.RegisterEventAppliers()) {}
 
             Entity
-                (IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
+                (IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
             {
                 RegisterEventAppliers()
-                    .For<TEntityCreatedEventInterface>(e => Id = IdGetter.GetId(e));
+                    .For<TEntityCreatedEvent>(e => Id = IdGetter.GetId(e));
             }
 
             public static CollectionManager CreateSelfManagingCollection(TAggregate parent) => new CollectionManager(parent, parent.RegisterEventAppliers());
@@ -43,12 +43,12 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                  TAggregate,
                                                  TEntity,
                                                  TEntityId,
-                                                 TEntityBaseEventInterface,
-                                                 TEntityCreatedEventInterface,
+                                                 TEntityEvent,
+                                                 TEntityCreatedEvent,
                                                  TEventEntityIdGetter>
             {
                 internal CollectionManager
-                    (TAggregate parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, appliersRegistrar) {}
+                    (TAggregate parent, IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(parent, appliersRegistrar) {}
             }
         }
     }

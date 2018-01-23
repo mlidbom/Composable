@@ -4,27 +4,27 @@ using Composable.Messaging.Events;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public abstract partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregateBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
+    public abstract partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateRootEvent
+        where TAggregateEventImplementation : AggregateRootEvent, TAggregateEvent
     {
-        public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateBaseEventInterface
-            where TComponentBaseEventClass : TAggregateBaseEventClass, TComponentBaseEventInterface
-            where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+        public abstract partial class Component<TComponent, TComponentEventImplementation, TComponentEvent>
+            where TComponentEvent : class, TAggregateEvent
+            where TComponentEventImplementation : TAggregateEventImplementation, TComponentEvent
+            where TComponent : Component<TComponent, TComponentEventImplementation, TComponentEvent>
         {
-            static Component() => AggregateTypeValidator<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>.AssertStaticStructureIsValid();
+            static Component() => AggregateTypeValidator<TComponent, TComponentEventImplementation, TComponentEvent>.AssertStaticStructureIsValid();
 
-            readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
-                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
-            readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventHandlersEventDispatcher =
-                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
-            readonly Action<TComponentBaseEventClass> _raiseEventThroughParent;
+            readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentEvent> _eventAppliersEventDispatcher =
+                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentEvent>();
+            readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentEvent> _eventHandlersEventDispatcher =
+                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentEvent>();
+            readonly Action<TComponentEventImplementation> _raiseEventThroughParent;
 
             IUtcTimeTimeSource TimeSource { get; set; }
 
-            void ApplyEvent(TComponentBaseEventInterface @event)
+            void ApplyEvent(TComponentEvent @event)
             {
                 _eventAppliersEventDispatcher.Dispatch(@event);
             }
@@ -37,30 +37,30 @@ namespace Composable.Persistence.EventStore.Aggregates
                     registerEventAppliers: true)
             {}
 
-            internal Component(IUtcTimeTimeSource timeSource, Action<TComponentBaseEventClass> raiseEventThroughParent, IEventHandlerRegistrar<TComponentBaseEventInterface> appliersRegistrar, bool registerEventAppliers)
+            internal Component(IUtcTimeTimeSource timeSource, Action<TComponentEventImplementation> raiseEventThroughParent, IEventHandlerRegistrar<TComponentEvent> appliersRegistrar, bool registerEventAppliers)
             {
                 TimeSource = timeSource;
                 _raiseEventThroughParent = raiseEventThroughParent;
                 _eventHandlersEventDispatcher.Register()
-                                            .IgnoreUnhandled<TComponentBaseEventInterface>();
+                                            .IgnoreUnhandled<TComponentEvent>();
 
                 if(registerEventAppliers)
                 {
                     appliersRegistrar
-                                 .For<TComponentBaseEventInterface>(ApplyEvent);
+                                 .For<TComponentEvent>(ApplyEvent);
                 }
             }
 
-            protected virtual void Publish(TComponentBaseEventClass @event)
+            protected virtual void Publish(TComponentEventImplementation @event)
             {
                 _raiseEventThroughParent(@event);
                 _eventHandlersEventDispatcher.Dispatch(@event);
             }
 
-            protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventAppliers() => _eventAppliersEventDispatcher.Register();
+            protected IEventHandlerRegistrar<TComponentEvent> RegisterEventAppliers() => _eventAppliersEventDispatcher.Register();
 
             // ReSharper disable once UnusedMember.Global todo: tests
-            protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventHandlers() => _eventHandlersEventDispatcher.Register();
+            protected IEventHandlerRegistrar<TComponentEvent> RegisterEventHandlers() => _eventHandlersEventDispatcher.Register();
         }
     }
 }

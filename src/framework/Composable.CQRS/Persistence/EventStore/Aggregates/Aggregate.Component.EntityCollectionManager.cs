@@ -5,57 +5,57 @@ using Composable.System.Reflection;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public abstract partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregateBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
+    public abstract partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateRootEvent
+        where TAggregateEventImplementation : AggregateRootEvent, TAggregateEvent
     {
-        public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateBaseEventInterface
-            where TComponentBaseEventClass : TAggregateBaseEventClass, TComponentBaseEventInterface
-            where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+        public abstract partial class Component<TComponent, TComponentEventImplementation, TComponentEvent>
+            where TComponentEvent : class, TAggregateEvent
+            where TComponentEventImplementation : TAggregateEventImplementation, TComponentEvent
+            where TComponent : Component<TComponent, TComponentEventImplementation, TComponentEvent>
         {
             public class EntityCollectionManager<TParent,
                                                  TEntity,
                                                  TEntityId,
-                                                 TEntityBaseEventClass,
-                                                 TEntityBaseEventInterface,
-                                                 TEntityCreatedEventInterface,
-                                                 TEventEntityIdSetterGetter> : IEntityCollectionManager<TEntity,
+                                                 TEntityEventImplementation,
+                                                 TEntityEvent,
+                                                 TEntityCreatedEvent,
+                                                 TEntityEventIdGetterSetter> : IEntityCollectionManager<TEntity,
                                                                                    TEntityId,
-                                                                                   TEntityBaseEventClass,
-                                                                                   TEntityCreatedEventInterface>
-                where TEntityBaseEventInterface : class, TAggregateBaseEventInterface
-                where TEntityCreatedEventInterface : TEntityBaseEventInterface
-                where TEntityBaseEventClass : TEntityBaseEventInterface, TAggregateBaseEventClass
-                where TEntity : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
-                where TEventEntityIdSetterGetter : IGeTAggregateEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
+                                                                                   TEntityEventImplementation,
+                                                                                   TEntityCreatedEvent>
+                where TEntityEvent : class, TAggregateEvent
+                where TEntityCreatedEvent : TEntityEvent
+                where TEntityEventImplementation : TEntityEvent, TAggregateEventImplementation
+                where TEntity : Component<TEntity, TEntityEventImplementation, TEntityEvent>
+                where TEntityEventIdGetterSetter : IGeTAggregateEntityEventEntityId<TEntityEvent, TEntityId>, new()
             {
-                protected static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
+                protected static readonly TEntityEventIdGetterSetter IdGetter = new TEntityEventIdGetterSetter();
 
                 protected readonly EntityCollection<TEntity, TEntityId> ManagedEntities;
-                readonly Action<TEntityBaseEventClass> _raiseEventThroughParent;
+                readonly Action<TEntityEventImplementation> _raiseEventThroughParent;
                 protected EntityCollectionManager
                     (TParent parent,
-                     Action<TEntityBaseEventClass> raiseEventThroughParent,
-                     IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                     Action<TEntityEventImplementation> raiseEventThroughParent,
+                     IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)
                 {
                     ManagedEntities = new EntityCollection<TEntity, TEntityId>();
                     _raiseEventThroughParent = raiseEventThroughParent;
                     appliersRegistrar
-                        .For<TEntityCreatedEventInterface>(
+                        .For<TEntityCreatedEvent>(
                             e =>
                             {
                                 var entity = ObjectFactory<TEntity>.CreateInstance(parent);
                                 ManagedEntities.Add(entity, IdGetter.GetId(e));
                             })
-                        .For<TEntityBaseEventInterface>(e => ManagedEntities[IdGetter.GetId(e)].ApplyEvent(e));
+                        .For<TEntityEvent>(e => ManagedEntities[IdGetter.GetId(e)].ApplyEvent(e));
                 }
 
                 public IReadOnlyEntityCollection<TEntity, TEntityId> Entities => ManagedEntities;
 
                 public TEntity AddByPublishing<TCreationEvent>(TCreationEvent creationEvent)
-                    where TCreationEvent : TEntityBaseEventClass, TEntityCreatedEventInterface
+                    where TCreationEvent : TEntityEventImplementation, TEntityCreatedEvent
                 {
                     _raiseEventThroughParent(creationEvent);
                     var result = ManagedEntities.InCreationOrder.Last();

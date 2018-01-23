@@ -5,22 +5,22 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public abstract partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregateBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
+    public abstract partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateRootEvent
+        where TAggregateEventImplementation : AggregateRootEvent, TAggregateEvent
     {
-        public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateBaseEventInterface
-            where TComponentBaseEventClass : TAggregateBaseEventClass, TComponentBaseEventInterface
-            where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+        public abstract partial class Component<TComponent, TComponentEventImplementation, TComponentEvent>
+            where TComponentEvent : class, TAggregateEvent
+            where TComponentEventImplementation : TAggregateEventImplementation, TComponentEvent
+            where TComponent : Component<TComponent, TComponentEventImplementation, TComponentEvent>
         {
             [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
             public abstract class NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface> :
-                Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>.
+                Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>.
                     Component<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
-                where TNestedComponentBaseEventInterface : class, TComponentBaseEventInterface
-                where TNestedComponentBaseEventClass : TComponentBaseEventClass, TNestedComponentBaseEventInterface
+                where TNestedComponentBaseEventInterface : class, TComponentEvent
+                where TNestedComponentBaseEventClass : TComponentEventImplementation, TNestedComponentBaseEventInterface
                 where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
             {
                 static NestedComponent() => AggregateTypeValidator<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>.AssertStaticStructureIsValid();

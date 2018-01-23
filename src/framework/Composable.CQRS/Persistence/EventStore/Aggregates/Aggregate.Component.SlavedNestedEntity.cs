@@ -4,15 +4,15 @@ using Composable.Messaging.Events;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public abstract partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregateBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
+    public abstract partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateRootEvent
+        where TAggregateEventImplementation : AggregateRootEvent, TAggregateEvent
     {
-        public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateBaseEventInterface
-            where TComponentBaseEventClass : TAggregateBaseEventClass, TComponentBaseEventInterface
-            where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+        public abstract partial class Component<TComponent, TComponentEventImplementation, TComponentEvent>
+            where TComponentEvent : class, TAggregateEvent
+            where TComponentEventImplementation : TAggregateEventImplementation, TComponentEvent
+            where TComponent : Component<TComponent, TComponentEventImplementation, TComponentEvent>
         {
             ///<summary>
             /// An entity that is not created and removed through raising events.
@@ -23,40 +23,40 @@ namespace Composable.Persistence.EventStore.Aggregates
             /// </summary>
             public abstract class SlavedNestedEntity<TEntity,
                                                TEntityId,
-                                               TEntityBaseEventClass,
-                                               TEntityBaseEventInterface,
-                                               TEventEntityIdSetterGetter> : NestedComponent<TEntity,
-                                                                                 TEntityBaseEventClass,
-                                                                                 TEntityBaseEventInterface>
-                where TEntityBaseEventInterface : class, TComponentBaseEventInterface
-                where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
+                                               TEntityEventImplementation,
+                                               TEntityEvent,
+                                               TEntityEventIdGetterSetter> : NestedComponent<TEntity,
+                                                                                 TEntityEventImplementation,
+                                                                                 TEntityEvent>
+                where TEntityEvent : class, TComponentEvent
+                where TEntityEventImplementation : TComponentEventImplementation, TEntityEvent
                 where TEntity : SlavedNestedEntity<TEntity,
                                     TEntityId,
-                                    TEntityBaseEventClass,
-                                    TEntityBaseEventInterface,
-                                    TEventEntityIdSetterGetter>
-                where TEventEntityIdSetterGetter : IGetSeTAggregateEntityEventEntityId<TEntityId,
-                                                       TEntityBaseEventClass,
-                                                       TEntityBaseEventInterface>, new()
+                                    TEntityEventImplementation,
+                                    TEntityEvent,
+                                    TEntityEventIdGetterSetter>
+                where TEntityEventIdGetterSetter : IGetSeTAggregateEntityEventEntityId<TEntityId,
+                                                       TEntityEventImplementation,
+                                                       TEntityEvent>, new()
             {
-                static SlavedNestedEntity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.AssertStaticStructureIsValid();
+                static SlavedNestedEntity() => AggregateTypeValidator<TEntity, TEntityEventImplementation, TEntityEvent>.AssertStaticStructureIsValid();
 
-                static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
+                static readonly TEntityEventIdGetterSetter IdGetterSetter = new TEntityEventIdGetterSetter();
 
                 protected SlavedNestedEntity(TComponent parent)
                     : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers()) { }
 
                 protected SlavedNestedEntity
                     (IUtcTimeTimeSource timeSource,
-                     Action<TEntityBaseEventClass> raiseEventThroughParent,
-                     IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                     Action<TEntityEventImplementation> raiseEventThroughParent,
+                     IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)
                     : base(timeSource, raiseEventThroughParent, appliersRegistrar, registerEventAppliers: false)
                 {
                     RegisterEventAppliers()
-                        .IgnoreUnhandled<TEntityBaseEventInterface>();
+                        .IgnoreUnhandled<TEntityEvent>();
                 }
 
-                protected override void Publish(TEntityBaseEventClass @event)
+                protected override void Publish(TEntityEventImplementation @event)
                 {
                     if(object.Equals(Id, default(TEntityId)))
                     {
@@ -81,15 +81,15 @@ namespace Composable.Persistence.EventStore.Aggregates
 
                 public abstract class EntityCollectionManagerBase
                 {
-                    static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
+                    static readonly TEntityEventIdGetterSetter IdGetter = new TEntityEventIdGetterSetter();
 
                     readonly EntityCollection<TEntity, TEntityId> _managedEntities;
                     protected EntityCollectionManagerBase
-                        (IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                        (IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)
                     {
                         _managedEntities = new EntityCollection<TEntity, TEntityId>();
                         appliersRegistrar
-                            .For<TEntityBaseEventInterface>(e => _managedEntities[IdGetter.GetId(e)].ApplyEvent(e));
+                            .For<TEntityEvent>(e => _managedEntities[IdGetter.GetId(e)].ApplyEvent(e));
                     }
 
                     public IReadOnlyEntityCollection<TEntity, TEntityId> Entities => _managedEntities;

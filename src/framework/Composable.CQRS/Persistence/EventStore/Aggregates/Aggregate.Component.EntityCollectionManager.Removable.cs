@@ -3,45 +3,45 @@ using Composable.Messaging.Events;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public abstract partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregateBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
+    public abstract partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateRootEvent
+        where TAggregateEventImplementation : AggregateRootEvent, TAggregateEvent
     {
-        public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateBaseEventInterface
-            where TComponentBaseEventClass : TAggregateBaseEventClass, TComponentBaseEventInterface
-            where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+        public abstract partial class Component<TComponent, TComponentEventImplementation, TComponentEvent>
+            where TComponentEvent : class, TAggregateEvent
+            where TComponentEventImplementation : TAggregateEventImplementation, TComponentEvent
+            where TComponent : Component<TComponent, TComponentEventImplementation, TComponentEvent>
         {
             internal class EntityCollectionManager<TParent,
                                                  TEntity,
                                                  TEntityId,
-                                                 TEntityBaseEventClass,
-                                                 TEntityBaseEventInterface,
-                                                 TEntityCreatedEventInterface,
-                                                 TEntityRemovedEventInterface,
-                                                 TEventEntityIdSetterGetter> : EntityCollectionManager<TParent,
+                                                 TEntityEventImplementation,
+                                                 TEntityEvent,
+                                                 TEntityCreatedEvent,
+                                                 TEntityRemovedEvent,
+                                                 TEntityEventIdGetterSetter> : EntityCollectionManager<TParent,
                                                                                    TEntity,
                                                                                    TEntityId,
-                                                                                   TEntityBaseEventClass,
-                                                                                   TEntityBaseEventInterface,
-                                                                                   TEntityCreatedEventInterface,
-                                                                                   TEventEntityIdSetterGetter>
-                where TEntityBaseEventInterface : class, TAggregateBaseEventInterface
-                where TEntityCreatedEventInterface : TEntityBaseEventInterface
-                where TEntityRemovedEventInterface : TEntityBaseEventInterface
-                where TEntityBaseEventClass : TEntityBaseEventInterface, TAggregateBaseEventClass
-                where TEntity : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
-                where TEventEntityIdSetterGetter :
-                    IGetSeTAggregateEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
+                                                                                   TEntityEventImplementation,
+                                                                                   TEntityEvent,
+                                                                                   TEntityCreatedEvent,
+                                                                                   TEntityEventIdGetterSetter>
+                where TEntityEvent : class, TAggregateEvent
+                where TEntityCreatedEvent : TEntityEvent
+                where TEntityRemovedEvent : TEntityEvent
+                where TEntityEventImplementation : TEntityEvent, TAggregateEventImplementation
+                where TEntity : Component<TEntity, TEntityEventImplementation, TEntityEvent>
+                where TEntityEventIdGetterSetter :
+                    IGetSeTAggregateEntityEventEntityId<TEntityId, TEntityEventImplementation, TEntityEvent>, new()
             {
                 protected EntityCollectionManager
                     (TParent parent,
-                     Action<TEntityBaseEventClass> raiseEventThroughParent,
-                     IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                     Action<TEntityEventImplementation> raiseEventThroughParent,
+                     IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)
                     : base(parent, raiseEventThroughParent, appliersRegistrar)
                 {
-                    appliersRegistrar.For<TEntityRemovedEventInterface>(
+                    appliersRegistrar.For<TEntityRemovedEvent>(
                         e =>
                         {
                             var id = IdGetter.GetId(e);

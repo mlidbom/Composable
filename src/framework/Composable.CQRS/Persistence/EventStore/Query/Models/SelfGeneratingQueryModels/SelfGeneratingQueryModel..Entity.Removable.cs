@@ -3,36 +3,36 @@ using Composable.Persistence.EventStore.Aggregates;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregate, TAggregateBaseEventInterface>
-        where TAggregate : SelfGeneratingQueryModel<TAggregate, TAggregateBaseEventInterface>
-        where TAggregateBaseEventInterface : class, IAggregateRootEvent
+    public abstract partial class SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
+        where TAggregate : SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateRootEvent
     {
         public abstract class Entity<TEntity,
                                      TEntityId,
-                                     TEntityBaseEventInterface,
-                                     TEntityCreatedEventInterface,
-                                     TEntityRemovedEventInterface,
+                                     TEntityEvent,
+                                     TEntityCreatedEvent,
+                                     TEntityRemovedEvent,
                                      TEventEntityIdGetter> : Entity<TEntity,
                                                                        TEntityId,
-                                                                       TEntityBaseEventInterface,
-                                                                       TEntityCreatedEventInterface,
+                                                                       TEntityEvent,
+                                                                       TEntityCreatedEvent,
                                                                        TEventEntityIdGetter>
-            where TEntityBaseEventInterface : class, TAggregateBaseEventInterface
-            where TEntityCreatedEventInterface : TEntityBaseEventInterface
-            where TEntityRemovedEventInterface : TEntityBaseEventInterface
+            where TEntityEvent : class, TAggregateEvent
+            where TEntityCreatedEvent : TEntityEvent
+            where TEntityRemovedEvent : TEntityEvent
             where TEntity : Entity<TEntity,
                                 TEntityId,
-                                TEntityBaseEventInterface,
-                                TEntityCreatedEventInterface,
-                                TEntityRemovedEventInterface,
+                                TEntityEvent,
+                                TEntityCreatedEvent,
+                                TEntityRemovedEvent,
                                 TEventEntityIdGetter>
-            where TEventEntityIdGetter : IGeTAggregateEntityEventEntityId<TEntityBaseEventInterface, TEntityId>,
+            where TEventEntityIdGetter : IGeTAggregateEntityEventEntityId<TEntityEvent, TEntityId>,
                 new()
         {
             protected Entity(TAggregate aggregateRoot) : base(aggregateRoot)
             {
                 RegisterEventAppliers()
-                    .IgnoreUnhandled<TEntityRemovedEventInterface>();
+                    .IgnoreUnhandled<TEntityRemovedEvent>();
             }
             internal new static CollectionManager CreateSelfManagingCollection(TAggregate parent) =>
                     new CollectionManager(parent: parent, appliersRegistrar: parent.RegisterEventAppliers());
@@ -40,12 +40,12 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             internal new class CollectionManager : QueryModelEntityCollectionManager<TAggregate,
                                                      TEntity,
                                                      TEntityId,
-                                                     TEntityBaseEventInterface,
-                                                     TEntityCreatedEventInterface,
-                                                     TEntityRemovedEventInterface,
+                                                     TEntityEvent,
+                                                     TEntityCreatedEvent,
+                                                     TEntityRemovedEvent,
                                                      TEventEntityIdGetter>
             {
-                internal CollectionManager(TAggregate parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar): base(parent, appliersRegistrar) {}
+                internal CollectionManager(TAggregate parent, IEventHandlerRegistrar<TEntityEvent> appliersRegistrar): base(parent, appliersRegistrar) {}
             }
         }
     }

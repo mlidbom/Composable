@@ -7,21 +7,21 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public partial class SelfGeneratingQueryModel<TAggregate, TAggregateBaseEventInterface> : VersionedPersistentEntity<TAggregate>
-        where TAggregate : SelfGeneratingQueryModel<TAggregate, TAggregateBaseEventInterface>
-        where TAggregateBaseEventInterface : class, IAggregateRootEvent
+    public partial class SelfGeneratingQueryModel<TAggregate, TAggregateEvent> : VersionedPersistentEntity<TAggregate>
+        where TAggregate : SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateRootEvent
     {
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected SelfGeneratingQueryModel() : base(Guid.Empty)
         {
-            OldContract.Assert.That(typeof(TAggregateBaseEventInterface).IsInterface, "typeof(TAggregateBaseEventInterface).IsInterface");
+            OldContract.Assert.That(typeof(TAggregateEvent).IsInterface, "typeof(TAggregateEvent).IsInterface");
         }
 
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateBaseEventInterface>();
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
 
-        protected IEventHandlerRegistrar<TAggregateBaseEventInterface> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();
+        protected IEventHandlerRegistrar<TAggregateEvent> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();
 
-        public void ApplyEvent(TAggregateBaseEventInterface theEvent)
+        public void ApplyEvent(TAggregateEvent theEvent)
         {
             if(theEvent is IAggregateRootCreatedEvent)
             {
@@ -35,7 +35,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
         public void LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
         {
             Contract.State.Assert(Version == 0);
-            history.ForEach(theEvent => ApplyEvent((TAggregateBaseEventInterface)theEvent));
+            history.ForEach(theEvent => ApplyEvent((TAggregateEvent)theEvent));
         }
     }
 }

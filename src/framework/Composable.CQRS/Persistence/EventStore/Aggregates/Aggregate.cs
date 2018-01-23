@@ -10,14 +10,14 @@ using Composable.System.Reactive;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface> : VersionedPersistentEntity<TAggregate>, IEventStored
-        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregateBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
+    public partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent> : VersionedPersistentEntity<TAggregate>, IEventStored
+        where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateRootEvent
+        where TAggregateEventImplementation : AggregateRootEvent, TAggregateEvent
     {
         IUtcTimeTimeSource TimeSource { get; set; }
 
-        static Aggregate() => AggregateTypeValidator<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>.AssertStaticStructureIsValid();
+        static Aggregate() => AggregateTypeValidator<TAggregate, TAggregateEventImplementation, TAggregateEvent>.AssertStaticStructureIsValid();
 
         [Obsolete("Only for infrastructure", true)] protected Aggregate():this(DateTimeNowTimeSource.Instance){ }
 
@@ -27,19 +27,19 @@ namespace Composable.Persistence.EventStore.Aggregates
         protected Aggregate(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
         {
             OldContract.Assert.That(timeSource != null, "timeSource != null");
-            OldContract.Assert.That(typeof(TAggregateBaseEventInterface).IsInterface, "typeof(TAggregateBaseEventInterface).IsInterface");
+            OldContract.Assert.That(typeof(TAggregateEvent).IsInterface, "typeof(TAggregateEvent).IsInterface");
             TimeSource = timeSource;
-            _eventHandlersEventDispatcher.Register().IgnoreUnhandled<TAggregateBaseEventInterface>();
+            _eventHandlersEventDispatcher.Register().IgnoreUnhandled<TAggregateEvent>();
         }
 
         readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateBaseEventInterface>();
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateBaseEventInterface>();
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
 
         int _raiseEventReentrancyLevel = 0;
-        List<TAggregateBaseEventClass> _raiseEventUnpushedEvents = new List<TAggregateBaseEventClass>();
+        List<TAggregateEventImplementation> _raiseEventUnpushedEvents = new List<TAggregateEventImplementation>();
         bool _applyingEvents;
-        protected void Publish(TAggregateBaseEventClass theEvent)
+        protected void Publish(TAggregateEventImplementation theEvent)
         {
             OldContract.Assert.That(!_applyingEvents, "You cannot raise events from within event appliers");
 
@@ -94,12 +94,12 @@ namespace Composable.Persistence.EventStore.Aggregates
             }
         }
 
-        protected IEventHandlerRegistrar<TAggregateBaseEventInterface> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();
+        protected IEventHandlerRegistrar<TAggregateEvent> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();
 
         // ReSharper disable once UnusedMember.Global todo: coverage
-        protected IEventHandlerRegistrar<TAggregateBaseEventInterface> RegisterEventHandlers() => _eventHandlersEventDispatcher.RegisterHandlers();
+        protected IEventHandlerRegistrar<TAggregateEvent> RegisterEventHandlers() => _eventHandlersEventDispatcher.RegisterHandlers();
 
-        void ApplyEvent(TAggregateBaseEventInterface theEvent)
+        void ApplyEvent(TAggregateEvent theEvent)
         {
             try
             {
@@ -121,7 +121,7 @@ namespace Composable.Persistence.EventStore.Aggregates
         {
         }
 
-        readonly SimpleObservable<TAggregateBaseEventClass> _simpleObservable = new SimpleObservable<TAggregateBaseEventClass>();
+        readonly SimpleObservable<TAggregateEventImplementation> _simpleObservable = new SimpleObservable<TAggregateEventImplementation>();
         IObservable<IAggregateRootEvent> IEventStored.EventStream => _simpleObservable;
 
         void IEventStored.AcceptChanges()
@@ -138,7 +138,7 @@ namespace Composable.Persistence.EventStore.Aggregates
 
         void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
         {
-            history.ForEach(theEvent => ApplyEvent((TAggregateBaseEventInterface)theEvent));
+            history.ForEach(theEvent => ApplyEvent((TAggregateEvent)theEvent));
             var maxInsertedVersion = history.Max(@event => ((AggregateRootEvent)@event).InsertedVersion);
             if(maxInsertedVersion != Version)
             {

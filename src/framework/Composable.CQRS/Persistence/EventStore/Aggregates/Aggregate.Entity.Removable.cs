@@ -3,43 +3,43 @@ using Composable.Messaging.Events;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public abstract partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
-        where TAggregateBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
+    public abstract partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateRootEvent
+        where TAggregateEventImplementation : AggregateRootEvent, TAggregateEvent
     {
         public abstract class RemovableEntity<TEntity,
                                      TEntityId,
-                                     TEntityBaseEventClass,
-                                     TEntityBaseEventInterface,
-                                     TEntityCreatedEventInterface,
-                                     TEntityRemovedEventInterface,
-                                     TEventEntityIdSetterGetter> : Entity<TEntity,
+                                     TEntityEventImplementation,
+                                     TEntityEvent,
+                                     TEntityCreatedEvent,
+                                     TEntityRemovedEvent,
+                                     TEntityEventIdGetterSetter> : Entity<TEntity,
                                                                        TEntityId,
-                                                                       TEntityBaseEventClass,
-                                                                       TEntityBaseEventInterface,
-                                                                       TEntityCreatedEventInterface,
-                                                                       TEventEntityIdSetterGetter>
-            where TEntityBaseEventInterface : class, TAggregateBaseEventInterface
-            where TEntityBaseEventClass : TAggregateBaseEventClass, TEntityBaseEventInterface
-            where TEntityCreatedEventInterface : TEntityBaseEventInterface
-            where TEntityRemovedEventInterface : TEntityBaseEventInterface
+                                                                       TEntityEventImplementation,
+                                                                       TEntityEvent,
+                                                                       TEntityCreatedEvent,
+                                                                       TEntityEventIdGetterSetter>
+            where TEntityEvent : class, TAggregateEvent
+            where TEntityEventImplementation : TAggregateEventImplementation, TEntityEvent
+            where TEntityCreatedEvent : TEntityEvent
+            where TEntityRemovedEvent : TEntityEvent
             where TEntity : RemovableEntity<TEntity,
                                 TEntityId,
-                                TEntityBaseEventClass,
-                                TEntityBaseEventInterface,
-                                TEntityCreatedEventInterface,
-                                TEntityRemovedEventInterface,
-                                TEventEntityIdSetterGetter>
-            where TEventEntityIdSetterGetter : IGetSeTAggregateEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>,
+                                TEntityEventImplementation,
+                                TEntityEvent,
+                                TEntityCreatedEvent,
+                                TEntityRemovedEvent,
+                                TEntityEventIdGetterSetter>
+            where TEntityEventIdGetterSetter : IGetSeTAggregateEntityEventEntityId<TEntityId, TEntityEventImplementation, TEntityEvent>,
                 new()
         {
-            static RemovableEntity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.AssertStaticStructureIsValid();
+            static RemovableEntity() => AggregateTypeValidator<TEntity, TEntityEventImplementation, TEntityEvent>.AssertStaticStructureIsValid();
 
             protected RemovableEntity(TAggregate aggregateRoot) : base(aggregateRoot)
             {
                 RegisterEventAppliers()
-                    .IgnoreUnhandled<TEntityRemovedEventInterface>();
+                    .IgnoreUnhandled<TEntityRemovedEvent>();
             }
             internal new static CollectionManager CreateSelfManagingCollection(TAggregate parent)
                 =>
@@ -51,16 +51,16 @@ namespace Composable.Persistence.EventStore.Aggregates
             internal new class CollectionManager : EntityCollectionManager<TAggregate,
                                                      TEntity,
                                                      TEntityId,
-                                                     TEntityBaseEventClass,
-                                                     TEntityBaseEventInterface,
-                                                     TEntityCreatedEventInterface,
-                                                     TEntityRemovedEventInterface,
-                                                     TEventEntityIdSetterGetter>
+                                                     TEntityEventImplementation,
+                                                     TEntityEvent,
+                                                     TEntityCreatedEvent,
+                                                     TEntityRemovedEvent,
+                                                     TEntityEventIdGetterSetter>
             {
                 internal CollectionManager
                     (TAggregate parent,
-                     Action<TEntityBaseEventClass> raiseEventThroughParent,
-                     IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, raiseEventThroughParent, appliersRegistrar) {}
+                     Action<TEntityEventImplementation> raiseEventThroughParent,
+                     IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(parent, raiseEventThroughParent, appliersRegistrar) {}
             }
         }
     }

@@ -16,22 +16,22 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                TEntityBaseEventInterface,
                                                TEntityCreatedEventInterface,
                                                TEntityRemovedEventInterface,
-                                               TEventEntityIdSetterGetter> :
+                                               TEventEntityIdGetter> :
                                                    NestedEntity<TEntity,
                                                        TEntityId,
                                                        TEntityBaseEventInterface,
                                                        TEntityCreatedEventInterface,
-                                                       TEventEntityIdSetterGetter>
+                                                       TEventEntityIdGetter>
                 where TEntityBaseEventInterface : class, TComponentBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
                 where TEntityRemovedEventInterface : TEntityBaseEventInterface
-                where TEventEntityIdSetterGetter :
+                where TEventEntityIdGetter :
                     IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
                 where TEntity : NestedEntity<TEntity,
                                     TEntityId,
                                     TEntityBaseEventInterface,
                                     TEntityCreatedEventInterface,
-                                    TEventEntityIdSetterGetter>
+                                    TEventEntityIdGetter>
             {
                 protected NestedEntity(TComponent parent) : this(parent.RegisterEventAppliers())
                 {
@@ -52,7 +52,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                          TEntityBaseEventInterface,
                                                          TEntityCreatedEventInterface,
                                                          TEntityRemovedEventInterface,
-                                                         TEventEntityIdSetterGetter>
+                                                         TEventEntityIdGetter>
                 {
                     internal CollectionManager
                         (TComponent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, appliersRegistrar) {}

@@ -15,7 +15,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                TEntityId,
                                                TEntityBaseEventInterface,
                                                TEntityCreatedEventInterface,
-                                               TEventEntityIdSetterGetter> : NestedComponent<TEntity,
+                                               TEventEntityIdGetter> : NestedComponent<TEntity,
                                                                                  TEntityBaseEventInterface>
                 where TEntityBaseEventInterface : class, TComponentBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
@@ -23,23 +23,21 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                     TEntityId,
                                     TEntityBaseEventInterface,
                                     TEntityCreatedEventInterface,
-                                    TEventEntityIdSetterGetter>
-                where TEventEntityIdSetterGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
+                                    TEventEntityIdGetter>
+                where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
             {
-                static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
+                static readonly TEventEntityIdGetter IdGetter = new TEventEntityIdGetter();
 
-                // ReSharper disable once UnusedMember.Global todo: coverage
                 protected NestedEntity(TComponent parent): this(parent.RegisterEventAppliers()) { }
 
                 protected NestedEntity(IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
                 {
                     RegisterEventAppliers()
-                        .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e));
+                        .For<TEntityCreatedEventInterface>(e => Id = IdGetter.GetId(e));
                 }
 
                 internal TEntityId Id { get; private set; }
 
-                // ReSharper disable once UnusedMember.Global todo: coverage
                 public  static CollectionManager CreateSelfManagingCollection(TComponent parent)//todo:tests
                   =>
                       new CollectionManager(
@@ -51,7 +49,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                          TEntityId,
                                                          TEntityBaseEventInterface,
                                                          TEntityCreatedEventInterface,
-                                                         TEventEntityIdSetterGetter>
+                                                         TEventEntityIdGetter>
                 {
                     internal CollectionManager
                         (TComponent parent,

@@ -12,11 +12,11 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                      TEntityBaseEventInterface,
                                      TEntityCreatedEventInterface,
                                      TEntityRemovedEventInterface,
-                                     TEventEntityIdSetterGetter> : Entity<TEntity,
+                                     TEventEntityIdGetter> : Entity<TEntity,
                                                                        TEntityId,
                                                                        TEntityBaseEventInterface,
                                                                        TEntityCreatedEventInterface,
-                                                                       TEventEntityIdSetterGetter>
+                                                                       TEventEntityIdGetter>
             where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntityRemovedEventInterface : TEntityBaseEventInterface
@@ -25,8 +25,8 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                 TEntityBaseEventInterface,
                                 TEntityCreatedEventInterface,
                                 TEntityRemovedEventInterface,
-                                TEventEntityIdSetterGetter>
-            where TEventEntityIdSetterGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>,
+                                TEventEntityIdGetter>
+            where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>,
                 new()
         {
             protected Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot)
@@ -34,11 +34,8 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 RegisterEventAppliers()
                     .IgnoreUnhandled<TEntityRemovedEventInterface>();
             }
-            internal new static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent)
-                =>
-                    new CollectionManager(
-                        parent: parent,
-                        appliersRegistrar: parent.RegisterEventAppliers());
+            internal new static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent) =>
+                    new CollectionManager(parent: parent, appliersRegistrar: parent.RegisterEventAppliers());
 
             internal new class CollectionManager : QueryModelEntityCollectionManager<TAggregateRoot,
                                                      TEntity,
@@ -46,7 +43,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                      TEntityBaseEventInterface,
                                                      TEntityCreatedEventInterface,
                                                      TEntityRemovedEventInterface,
-                                                     TEventEntityIdSetterGetter>
+                                                     TEventEntityIdGetter>
             {
                 internal CollectionManager(TAggregateRoot parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar): base(parent, appliersRegistrar) {}
             }

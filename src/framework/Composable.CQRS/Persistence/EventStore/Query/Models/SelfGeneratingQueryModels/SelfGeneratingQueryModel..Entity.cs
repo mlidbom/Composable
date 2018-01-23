@@ -13,18 +13,18 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                      TEntityId,
                                      TEntityBaseEventInterface,
                                      TEntityCreatedEventInterface,
-                                     TEventEntityIdSetterGetter> : Component<TEntity, TEntityBaseEventInterface>
+                                     TEventEntityIdGetter> : Component<TEntity, TEntityBaseEventInterface>
             where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntity : Entity<TEntity,
                                 TEntityId,
                                 TEntityBaseEventInterface,
                                 TEntityCreatedEventInterface,
-                                TEventEntityIdSetterGetter>
-            where TEventEntityIdSetterGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>,
+                                TEventEntityIdGetter>
+            where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>,
                 new()
         {
-            static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
+            static readonly TEventEntityIdGetter IdGetter = new TEventEntityIdGetter();
 
             public TEntityId Id { get; private set; }
 
@@ -34,12 +34,10 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 (IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
             {
                 RegisterEventAppliers()
-                    .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e));
+                    .For<TEntityCreatedEventInterface>(e => Id = IdGetter.GetId(e));
             }
 
-            // ReSharper disable once UnusedMember.Global todo: write tests.
-            public static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent)
-                => new CollectionManager(parent, parent.RegisterEventAppliers());
+            public static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent) => new CollectionManager(parent, parent.RegisterEventAppliers());
 
             public class CollectionManager : QueryModelEntityCollectionManager<
                                                  TAggregateRoot,
@@ -47,7 +45,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                  TEntityId,
                                                  TEntityBaseEventInterface,
                                                  TEntityCreatedEventInterface,
-                                                 TEventEntityIdSetterGetter>
+                                                 TEventEntityIdGetter>
             {
                 internal CollectionManager
                     (TAggregateRoot parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, appliersRegistrar) {}

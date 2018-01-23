@@ -18,13 +18,13 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             /// Inheritors must ensure that the Id property is initialized correctly before any calls to RaiseEvent.
             /// Usually this is implemented within a nested class that inherits from <see cref="EntityCollectionManagerBase"/>
             /// </summary>
-            public abstract class SlavedNestedEntity<TEntity, TEntityId, TEntityBaseEventInterface, TEventEntityIdSetterGetter> : NestedComponent<TEntity,TEntityBaseEventInterface>
+            public abstract class SlavedNestedEntity<TEntity, TEntityId, TEntityBaseEventInterface, TEventEntityIdGetter> : NestedComponent<TEntity,TEntityBaseEventInterface>
                 where TEntityBaseEventInterface : class, TComponentBaseEventInterface
                 where TEntity : SlavedNestedEntity<TEntity,
                                     TEntityId,
                                     TEntityBaseEventInterface,
-                                    TEventEntityIdSetterGetter>
-                where TEventEntityIdSetterGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
+                                    TEventEntityIdGetter>
+                where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
             {
                 protected SlavedNestedEntity(TComponent parent) : this(parent.RegisterEventAppliers()) { }
 
@@ -35,12 +35,11 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 }
 
                 // ReSharper disable once MemberCanBePrivate.Global
-                // ReSharper disable once UnusedAutoPropertyAccessor.Global
                 protected TEntityId Id { get; set; }
 
                 public abstract class EntityCollectionManagerBase
                 {
-                    static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
+                    static readonly TEventEntityIdGetter IdGetter = new TEventEntityIdGetter();
 
                     readonly QueryModelEntityCollection<TEntity, TEntityId> _managedEntities;
                     protected EntityCollectionManagerBase

@@ -17,17 +17,17 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                  TEntityBaseEventInterface,
                                                  TEntityCreatedEventInterface,
                                                  TEntityRemovedEventInterface,
-                                                 TEventEntityIdSetterGetter> : QueryModelEntityCollectionManager<TParent,
+                                                 TEventEntityIdGetter> : QueryModelEntityCollectionManager<TParent,
                                                                                    TEntity,
                                                                                    TEntityId,
                                                                                    TEntityBaseEventInterface,
                                                                                    TEntityCreatedEventInterface,
-                                                                                   TEventEntityIdSetterGetter>
+                                                                                   TEventEntityIdGetter>
                 where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
                 where TEntityRemovedEventInterface : TEntityBaseEventInterface
                 where TEntity : Component<TEntity, TEntityBaseEventInterface>
-                where TEventEntityIdSetterGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
+                where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
             {
                 protected QueryModelEntityCollectionManager (TParent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, appliersRegistrar)
                 {

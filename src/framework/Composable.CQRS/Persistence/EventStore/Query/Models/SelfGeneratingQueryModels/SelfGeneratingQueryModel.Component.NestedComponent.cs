@@ -12,9 +12,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             where TComponent : Component<TComponent, TComponentBaseEventInterface>
         {
             [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
-            public abstract class NestedComponent<TNestedComponent, TNestedComponentBaseEventInterface> :
-                SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>.
-                    Component<TNestedComponent, TNestedComponentBaseEventInterface>
+            public abstract class NestedComponent<TNestedComponent, TNestedComponentBaseEventInterface> : Component<TNestedComponent, TNestedComponentBaseEventInterface>
                 where TNestedComponentBaseEventInterface : class, TComponentBaseEventInterface
                 where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventInterface>
             {

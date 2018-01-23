@@ -5,8 +5,6 @@ using Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Even
 using Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryModels;
 using FluentAssertions;
 using NUnit.Framework;
-using Component = Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Component;
-
 // ReSharper disable InconsistentNaming
 
 // ReSharper disable MemberHidesStaticFromOuterClass

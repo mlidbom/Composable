@@ -21,7 +21,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
         protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();
 
-        void ApplyEvent(TAggregateRootBaseEventInterface theEvent)
+        public void ApplyEvent(TAggregateRootBaseEventInterface theEvent)
         {
             if(theEvent is IAggregateRootCreatedEvent)
             {
@@ -32,10 +32,10 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             _eventDispatcher.Dispatch(theEvent);
         }
 
-        protected virtual void AssertInvariantsAreMet()
+        public void LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
         {
+            Contract.State.Assert(Version == 0);
+            history.ForEach(theEvent => ApplyEvent((TAggregateRootBaseEventInterface)theEvent));
         }
-
-        public void LoadFromHistory(IEnumerable<IAggregateRootEvent> history) => history.ForEach(theEvent => ApplyEvent((TAggregateRootBaseEventInterface)theEvent));
     }
 }

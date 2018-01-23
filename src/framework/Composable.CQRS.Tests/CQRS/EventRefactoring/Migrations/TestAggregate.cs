@@ -4,7 +4,7 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 using JetBrains.Annotations;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations

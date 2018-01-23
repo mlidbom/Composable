@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 using FluentAssertions;
 using NUnit.Framework;
 

@@ -8,7 +8,7 @@ using Composable.System.Linq;
 using Composable.System.Reflection;
 using JetBrains.Annotations;
 
-namespace Composable.Persistence.EventStore.AggregateRoots
+namespace Composable.Persistence.EventStore.Aggregates
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class AllowPublicSettersAttribute : Attribute {}

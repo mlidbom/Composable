@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 using Composable.Tests.CQRS.EventRefactoring.Migrations;
 using JetBrains.Annotations;
 

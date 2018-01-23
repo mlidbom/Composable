@@ -1,4 +1,4 @@
-namespace Composable.Persistence.EventStore.AggregateRoots
+namespace Composable.Persistence.EventStore.Aggregates
 {
     public interface IGetAggregateRootEntityEventEntityId<in TEventInterface, out TEntityId>
     {

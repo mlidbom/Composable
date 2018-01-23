@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Composable.Persistence.EventStore.AggregateRoots
+namespace Composable.Persistence.EventStore.Aggregates
 {
     public class EntityCollection<TEntity, TEntityId> : IReadOnlyEntityCollection<TEntity, TEntityId>
     {

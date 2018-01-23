@@ -1,5 +1,5 @@
 using System;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 using Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Events;
 
 namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain

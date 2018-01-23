@@ -5,7 +5,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 using Composable.Persistence.EventStore.Query.Models.Generators;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Refactoring.Naming;

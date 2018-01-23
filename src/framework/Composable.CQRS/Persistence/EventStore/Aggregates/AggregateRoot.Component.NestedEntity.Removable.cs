@@ -2,7 +2,7 @@
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 
-namespace Composable.Persistence.EventStore.AggregateRoots
+namespace Composable.Persistence.EventStore.Aggregates
 {
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>

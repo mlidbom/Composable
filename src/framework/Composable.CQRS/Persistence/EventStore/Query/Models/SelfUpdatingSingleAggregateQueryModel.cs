@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Composable.Messaging.Events;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore.Query.Models

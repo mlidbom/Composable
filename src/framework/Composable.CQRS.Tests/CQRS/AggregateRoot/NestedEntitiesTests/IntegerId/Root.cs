@@ -1,6 +1,6 @@
 using System;
 using Composable.GenericAbstractions.Time;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 
 namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
 {

@@ -9,14 +9,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
     [TestFixture] public class RemoteQueryPerformanceTests : PerformanceTestBase
     {
-        [Test] public void Given_30_client_threads_Runs_100_remote_queries_in_30_milliSecond()
+        [Test] public void Given_30_client_threads_Runs_100_remote_queries_in_50_milliSecond()
         {
             var navigationSpecification = NavigationSpecification.Get(new MyQuery());
 
             //Warmup
             StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.ExecuteOn(ClientBusSession)), iterations: 10, maxDegreeOfParallelism: 30);
 
-            TimeAsserter.ExecuteThreaded(action: () =>ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.ExecuteOn(ClientBusSession)), iterations: 100, maxTotal: 30.Milliseconds(), maxDegreeOfParallelism: 30);
+            TimeAsserter.ExecuteThreaded(action: () =>ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.ExecuteOn(ClientBusSession)), iterations: 100, maxTotal: 50.Milliseconds(), maxDegreeOfParallelism: 30);
         }
 
         [Test] public void Given_1_client_thread_Runs_100_remote_queries_in_100_milliseconds()

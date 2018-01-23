@@ -1,5 +1,5 @@
 ﻿using Composable.Messaging.Events;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 using Composable.System.Reflection;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels

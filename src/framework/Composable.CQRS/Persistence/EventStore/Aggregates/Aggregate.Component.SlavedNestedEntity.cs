@@ -2,8 +2,6 @@
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 
-// ReSharper disable UnusedMember.Global todo:tests
-
 namespace Composable.Persistence.EventStore.Aggregates
 {
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>

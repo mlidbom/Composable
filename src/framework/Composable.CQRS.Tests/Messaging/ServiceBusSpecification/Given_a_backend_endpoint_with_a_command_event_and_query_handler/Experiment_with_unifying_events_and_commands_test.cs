@@ -89,13 +89,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserEvent
         {
-            public interface IRoot : IAggregateRootEvent {}
+            public interface IRoot : IAggregateEvent {}
 
-            public interface UserRegistered : IRoot, IAggregateRootCreatedEvent {}
+            public interface UserRegistered : IRoot, IAggregateCreatedEvent {}
 
             public static class Implementation
             {
-                public class Root : AggregateRootEvent, IRoot
+                public class Root : AggregateEvent, IRoot
                 {
                     protected Root() {}
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
@@ -123,16 +123,16 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarEvent
         {
-            public interface IRoot : IAggregateRootEvent {}
+            public interface IRoot : IAggregateEvent {}
             public static class Implementation
             {
-                public class Root : AggregateRootEvent, IRoot
+                public class Root : AggregateEvent, IRoot
                 {
                     protected Root() {}
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
                 }
 
-                public class Created : Root, IAggregateRootCreatedEvent
+                public class Created : Root, IAggregateCreatedEvent
                 {
                     public Created() : base(UserRegistrarAggregate.SingleId) {}
                 }
@@ -178,8 +178,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public class UserResource : QueryResult
         {
-            public IEnumerable<IAggregateRootEvent> History { get; }
-            public UserResource(IEnumerable<IAggregateRootEvent> history) { History = history; }
+            public IEnumerable<IAggregateEvent> History { get; }
+            public UserResource(IEnumerable<IAggregateEvent> history) { History = history; }
         }
 
         public class RegisterUserResult : Message

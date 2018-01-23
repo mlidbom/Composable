@@ -19,7 +19,7 @@ namespace Composable.Persistence.EventStore.Query.Models
         protected SelfUpdatingSingleAggregateQueryModel()
         {
             RegisterEventAppliers()
-                .ForGenericEvent<IAggregateRootCreatedEvent>(e => {});
+                .ForGenericEvent<IAggregateCreatedEvent>(e => {});
         }
 
         public void ApplyEvent(TAggregateEvent @event) { _eventAppliersEventDispatcher.Dispatch(@event); }

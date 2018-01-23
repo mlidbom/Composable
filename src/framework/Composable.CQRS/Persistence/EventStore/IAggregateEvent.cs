@@ -3,7 +3,7 @@ using Composable.Messaging;
 
 namespace Composable.Persistence.EventStore
 {
-    public interface IAggregateRootEvent : ITransactionalExactlyOnceDeliveryEvent
+    public interface IAggregateEvent : ITransactionalExactlyOnceDeliveryEvent
     {
         Guid EventId { get; }
         int AggregateRootVersion { get; }

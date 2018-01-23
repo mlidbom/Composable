@@ -15,9 +15,9 @@ namespace Composable.Tests.CQRS.AggregateRoot
     {
         public static class RootEvent
         {
-            public interface IRoot : IAggregateRootEvent { string Public1 { get; set; } }
+            public interface IRoot : IAggregateEvent { string Public1 { get; set; } }
 
-            public class Root : AggregateRootEvent, IRoot { public string Public1 { get; set; } }
+            public class Root : AggregateEvent, IRoot { public string Public1 { get; set; } }
 
             [AllowPublicSetters]
             public class Ignored : Root { public string IgnoredMember { get; set; } }

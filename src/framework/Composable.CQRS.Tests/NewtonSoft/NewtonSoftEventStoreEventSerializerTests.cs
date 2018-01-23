@@ -18,7 +18,7 @@ namespace Composable.Tests.NewtonSoft
     {
         readonly IEventStoreEventSerializer _eventSerializer = new NewtonSoftEventStoreEventSerializer();
 
-        class TestEvent : AggregateRootEvent
+        class TestEvent : AggregateEvent
         {
             [UsedImplicitly]
             public TestEvent() { }

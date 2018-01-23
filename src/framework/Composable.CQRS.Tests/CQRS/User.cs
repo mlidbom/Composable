@@ -52,10 +52,10 @@ namespace Composable.Tests.CQRS
         }
     }
 
-    interface IUserEvent : IAggregateRootEvent, IRootEvent
+    interface IUserEvent : IAggregateEvent, IRootEvent
     { }
 
-    abstract class UserEvent : AggregateRootEvent, IUserEvent
+    abstract class UserEvent : AggregateEvent, IUserEvent
     {
         protected UserEvent() {}
         protected UserEvent(Guid aggregateRootId) : base(aggregateRootId) {}
@@ -73,7 +73,7 @@ namespace Composable.Tests.CQRS
         public string Password { get; private set; }
     }
 
-    class UserRegistered : UserEvent, IAggregateRootCreatedEvent
+    class UserRegistered : UserEvent, IAggregateCreatedEvent
     {
         public UserRegistered(Guid userId, string email, string password):base(userId)
         {
@@ -85,15 +85,15 @@ namespace Composable.Tests.CQRS
         public string Password { get; private set; }
     }
 
-    [UsedImplicitly] class MigratedBeforeUserRegisteredEvent : UserEvent, IAggregateRootCreatedEvent
+    [UsedImplicitly] class MigratedBeforeUserRegisteredEvent : UserEvent, IAggregateCreatedEvent
     {
     }
 
-    [UsedImplicitly] class MigratedAfterUserChangedEmailEvent : UserEvent, IAggregateRootCreatedEvent
+    [UsedImplicitly] class MigratedAfterUserChangedEmailEvent : UserEvent, IAggregateCreatedEvent
     {
     }
 
-    [UsedImplicitly] class MigratedReplaceUserChangedPasswordEvent : UserEvent, IAggregateRootCreatedEvent
+    [UsedImplicitly] class MigratedReplaceUserChangedPasswordEvent : UserEvent, IAggregateCreatedEvent
     {
     }
 }

@@ -105,7 +105,7 @@ namespace Composable.Persistence.EventStore
             _disposableResources.Add(aggregate.EventStream.Subscribe(OnAggregateEvent));
         }
 
-        void OnAggregateEvent(IAggregateRootEvent @event)
+        void OnAggregateEvent(IAggregateEvent @event)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             OldContract.Assert.That(_idMap.ContainsKey(@event.AggregateRootId), "Got event from aggregate that is not tracked!");
@@ -130,9 +130,9 @@ namespace Composable.Persistence.EventStore
         public override string ToString() => $"{_id}: {GetType().FullName}";
         readonly Guid _id = Guid.NewGuid();
 
-        public IReadOnlyList<IAggregateRootEvent> GetHistory(Guid aggregateId) => GetHistoryInternal(aggregateId, takeWriteLock:false);
+        public IReadOnlyList<IAggregateEvent> GetHistory(Guid aggregateId) => GetHistoryInternal(aggregateId, takeWriteLock:false);
 
-        IReadOnlyList<IAggregateRootEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
+        IReadOnlyList<IAggregateEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
             var history = takeWriteLock
                               ? _store.GetAggregateHistoryForUpdate(aggregateId)

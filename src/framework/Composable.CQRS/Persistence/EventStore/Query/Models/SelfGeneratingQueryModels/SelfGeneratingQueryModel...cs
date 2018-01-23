@@ -9,7 +9,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 {
     public partial class SelfGeneratingQueryModel<TAggregate, TAggregateEvent> : VersionedPersistentEntity<TAggregate>
         where TAggregate : SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
-        where TAggregateEvent : class, IAggregateRootEvent
+        where TAggregateEvent : class, IAggregateEvent
     {
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected SelfGeneratingQueryModel() : base(Guid.Empty)
@@ -23,7 +23,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
         public void ApplyEvent(TAggregateEvent theEvent)
         {
-            if(theEvent is IAggregateRootCreatedEvent)
+            if(theEvent is IAggregateCreatedEvent)
             {
                 SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateRootId);
             }
@@ -32,7 +32,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             _eventDispatcher.Dispatch(theEvent);
         }
 
-        public void LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
+        public void LoadFromHistory(IEnumerable<IAggregateEvent> history)
         {
             Contract.State.Assert(Version == 0);
             history.ForEach(theEvent => ApplyEvent((TAggregateEvent)theEvent));

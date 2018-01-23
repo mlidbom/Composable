@@ -6,8 +6,8 @@ namespace Composable.Persistence.EventStore.Aggregates
 {
     public abstract partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
         where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
-        where TAggregateEvent : class, IAggregateRootEvent
-        where TAggregateEventImplementation : AggregateRootEvent, TAggregateEvent
+        where TAggregateEvent : class, IAggregateEvent
+        where TAggregateEventImplementation : AggregateEvent, TAggregateEvent
     {
         public abstract partial class Component<TComponent, TComponentEventImplementation, TComponentEvent>
             where TComponentEvent : class, TAggregateEvent

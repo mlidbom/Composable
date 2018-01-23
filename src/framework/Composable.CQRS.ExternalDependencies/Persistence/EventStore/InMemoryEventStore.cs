@@ -12,7 +12,7 @@ namespace Composable.Persistence.EventStore
     {
         IReadOnlyList<IEventMigration> _migrationFactories;
 
-        IList<AggregateRootEvent> _events = new List<AggregateRootEvent>();
+        IList<AggregateEvent> _events = new List<AggregateEvent>();
         int _insertionOrder;
 
         public void Dispose()
@@ -23,9 +23,9 @@ namespace Composable.Persistence.EventStore
 
         public InMemoryEventStore(IEnumerable<IEventMigration> migrations = null ) => _migrationFactories = migrations?.ToList() ?? new List<IEventMigration>();
 
-        public IReadOnlyList<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id) => GetAggregateHistory(id);
+        public IReadOnlyList<IAggregateEvent> GetAggregateHistoryForUpdate(Guid id) => GetAggregateHistory(id);
 
-        public IReadOnlyList<IAggregateRootEvent> GetAggregateHistory(Guid id)
+        public IReadOnlyList<IAggregateEvent> GetAggregateHistory(Guid id)
         {
             lock(_lockObject)
             {
@@ -34,11 +34,11 @@ namespace Composable.Persistence.EventStore
             }
         }
 
-        public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
+        public void SaveEvents(IEnumerable<IAggregateEvent> events)
         {
             lock(_lockObject)
             {
-                events.Cast<AggregateRootEvent>().ForEach(
+                events.Cast<AggregateEvent>().ForEach(
                     @event =>
                     {
                         @event.InsertionOrder = ++_insertionOrder;
@@ -47,7 +47,7 @@ namespace Composable.Persistence.EventStore
             }
         }
 
-        IEnumerable<IAggregateRootEvent> StreamEvents()
+        IEnumerable<IAggregateEvent> StreamEvents()
         {
             lock(_lockObject)
             {
@@ -56,7 +56,7 @@ namespace Composable.Persistence.EventStore
             }
         }
 
-        public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents)
+        public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateEvent>> handleEvents)
         {
             var batches = StreamEvents()
                 .ChopIntoSizesOf(batchSize)
@@ -82,11 +82,11 @@ namespace Composable.Persistence.EventStore
             }
         }
 
-        public void PersistMigrations() { _events = StreamEvents().Cast<AggregateRootEvent>().ToList(); }
+        public void PersistMigrations() { _events = StreamEvents().Cast<AggregateEvent>().ToList(); }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
-            OldContract.Assert.That(eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType),
+            OldContract.Assert.That(eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventBaseType),
                                  "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)");
 
             lock (_lockObject)

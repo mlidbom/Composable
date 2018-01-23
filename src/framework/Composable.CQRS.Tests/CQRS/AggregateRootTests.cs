@@ -57,7 +57,7 @@ namespace Composable.Tests.CQRS
         public void When_Raising_event_that_triggers_another_event_both_events_are_outputted_on_the_observable_only_after_the_triggered_event_and_in_the_raised_order()
         {
             var aggregate = new CascadingEventsAggregate();
-            var receivedEvents = new List<IAggregateRootEvent>();
+            var receivedEvents = new List<IAggregateEvent>();
             using(((IEventStored)aggregate).EventStream.Subscribe(@event =>
                                                   {
                                                       receivedEvents.Add(@event);
@@ -75,7 +75,7 @@ namespace Composable.Tests.CQRS
             receivedEvents[1].GetType().Should().Be(typeof(TriggeredEvent));
         }
 
-        class CascadingEventsAggregate : Aggregate<CascadingEventsAggregate, AggregateRootEvent, IAggregateRootEvent>
+        class CascadingEventsAggregate : Aggregate<CascadingEventsAggregate, AggregateEvent, IAggregateEvent>
         {
             public CascadingEventsAggregate():base(TestingTimeSource.FrozenUtcNow())
             {
@@ -94,12 +94,12 @@ namespace Composable.Tests.CQRS
             }
         }
 
-        class TriggeringEvent : AggregateRootEvent, IAggregateRootCreatedEvent
+        class TriggeringEvent : AggregateEvent, IAggregateCreatedEvent
         {
             public TriggeringEvent() : base(Guid.NewGuid()) {}
         }
 
-        class TriggeredEvent : AggregateRootEvent
+        class TriggeredEvent : AggregateEvent
         {
         }
     }

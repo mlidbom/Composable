@@ -7,11 +7,11 @@ namespace AccountManagement.Domain.Events
 {
     public static partial class AccountEvent
     {
-        public interface Root : IAggregateRootEvent {}
+        public interface Root : IAggregateEvent {}
 
         public interface Created :
                 Root,
-                IAggregateRootCreatedEvent
+                IAggregateCreatedEvent
             //Used in multiple places by the infrastructure and clients. Things WILL BREAK without this.
             //AggregateRoot: Sets the ID when such an event is raised.
             //Creates a viewmodel automatically when received by an SingleAggregateQueryModelUpdater

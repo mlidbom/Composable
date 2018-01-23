@@ -12,8 +12,8 @@ namespace Composable.Persistence.EventStore.Aggregates
 {
     public partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent> : VersionedPersistentEntity<TAggregate>, IEventStored
         where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
-        where TAggregateEvent : class, IAggregateRootEvent
-        where TAggregateEventImplementation : AggregateRootEvent, TAggregateEvent
+        where TAggregateEvent : class, IAggregateEvent
+        where TAggregateEventImplementation : AggregateEvent, TAggregateEvent
     {
         IUtcTimeTimeSource TimeSource { get; set; }
 
@@ -32,7 +32,7 @@ namespace Composable.Persistence.EventStore.Aggregates
             _eventHandlersEventDispatcher.Register().IgnoreUnhandled<TAggregateEvent>();
         }
 
-        readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
+        readonly IList<IAggregateEvent> _unCommittedEvents = new List<IAggregateEvent>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
 
@@ -50,13 +50,13 @@ namespace Composable.Persistence.EventStore.Aggregates
                 theEvent.UtcTimeStamp = TimeSource.UtcNow;
                 if(Version == 0)
                 {
-                    if(!(theEvent is IAggregateRootCreatedEvent))
+                    if(!(theEvent is IAggregateCreatedEvent))
                     {
-                        throw new Exception($"The first raised event type {theEvent.GetType()} did not inherit {nameof(IAggregateRootCreatedEvent)}");
+                        throw new Exception($"The first raised event type {theEvent.GetType()} did not inherit {nameof(IAggregateCreatedEvent)}");
                     }
                     if(theEvent.AggregateRootId == Guid.Empty)
                     {
-                        throw new Exception($"{nameof(IAggregateRootDeletedEvent.AggregateRootId)} was empty in {nameof(IAggregateRootCreatedEvent)}");
+                        throw new Exception($"{nameof(IAggregateDeletedEvent.AggregateRootId)} was empty in {nameof(IAggregateCreatedEvent)}");
                     }
                     theEvent.AggregateRootVersion = 1;
                 } else
@@ -104,7 +104,7 @@ namespace Composable.Persistence.EventStore.Aggregates
             try
             {
                 _applyingEvents = true;
-                if (theEvent is IAggregateRootCreatedEvent)
+                if (theEvent is IAggregateCreatedEvent)
                 {
                     SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateRootId);
                 }
@@ -122,24 +122,24 @@ namespace Composable.Persistence.EventStore.Aggregates
         }
 
         readonly SimpleObservable<TAggregateEventImplementation> _simpleObservable = new SimpleObservable<TAggregateEventImplementation>();
-        IObservable<IAggregateRootEvent> IEventStored.EventStream => _simpleObservable;
+        IObservable<IAggregateEvent> IEventStored.EventStream => _simpleObservable;
 
         void IEventStored.AcceptChanges()
         {
             _unCommittedEvents.Clear();
         }
 
-        IEnumerable<IAggregateRootEvent> IEventStored.GetChanges() => _unCommittedEvents;
+        IEnumerable<IAggregateEvent> IEventStored.GetChanges() => _unCommittedEvents;
 
         void IEventStored.SetTimeSource(IUtcTimeTimeSource timeSource)
         {
             TimeSource = timeSource;
         }
 
-        void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
+        void IEventStored.LoadFromHistory(IEnumerable<IAggregateEvent> history)
         {
             history.ForEach(theEvent => ApplyEvent((TAggregateEvent)theEvent));
-            var maxInsertedVersion = history.Max(@event => ((AggregateRootEvent)@event).InsertedVersion);
+            var maxInsertedVersion = history.Max(@event => ((AggregateEvent)@event).InsertedVersion);
             if(maxInsertedVersion != Version)
             {
                 _insertedVersionToAggregateVersionOffset = maxInsertedVersion - Version;

@@ -21,10 +21,10 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         int _aggregateVersion = 1;
 
-        public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateRootEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null) => new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
+        public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateEvent>> eventsAddedCallback = null) => new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
 
         SingleAggregateInstanceEventStreamMutator
-            (IAggregateRootEvent creationEvent, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
+            (IAggregateEvent creationEvent, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateEvent>> eventsAddedCallback)
         {
             _eventModifier = new EventModifier(eventsAddedCallback ?? (_ => { }));
             _aggregateId = creationEvent.AggregateRootId;
@@ -34,7 +34,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 .ToArray();
         }
 
-        public IEnumerable<AggregateRootEvent> Mutate(AggregateRootEvent @event)
+        public IEnumerable<AggregateEvent> Mutate(AggregateEvent @event)
         {
             OldContract.Assert.That(_aggregateId == @event.AggregateRootId, "_aggregateId == @event.AggregateRootId");
             if (_eventMigrators.Length == 0)
@@ -68,17 +68,17 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             return newHistory;
         }
 
-        public IEnumerable<AggregateRootEvent> EndOfAggregate()
+        public IEnumerable<AggregateEvent> EndOfAggregate()
         {
             return Seq.Create(new EndOfAggregateHistoryEventPlaceHolder(_aggregateId, _aggregateVersion))
                 .SelectMany(Mutate)
                 .Where(@event => @event.GetType() != typeof(EndOfAggregateHistoryEventPlaceHolder));
         }
 
-        public static AggregateRootEvent[] MutateCompleteAggregateHistory
+        public static AggregateEvent[] MutateCompleteAggregateHistory
             (IReadOnlyList<IEventMigration> eventMigrations,
-             AggregateRootEvent[] events,
-             Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
+             AggregateEvent[] events,
+             Action<IReadOnlyList<AggregateEvent>> eventsAddedCallback = null)
         {
             if (eventMigrations.None())
             {
@@ -87,7 +87,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
             if(events.None())
             {
-                return Seq.Empty<AggregateRootEvent>().ToArray();
+                return Seq.Empty<AggregateEvent>().ToArray();
             }
 
             var mutator = Create(events.First(), eventMigrations, eventsAddedCallback);
@@ -102,7 +102,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             return result;
         }
 
-        public static void AssertMigrationsAreIdempotent(IReadOnlyList<IEventMigration> eventMigrations, AggregateRootEvent[] events)
+        public static void AssertMigrationsAreIdempotent(IReadOnlyList<IEventMigration> eventMigrations, AggregateEvent[] events)
         {
             var creationEvent = events.First();
 
@@ -122,7 +122,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
         }
     }
 
-    class EndOfAggregateHistoryEventPlaceHolder : AggregateRootEvent {
+    class EndOfAggregateHistoryEventPlaceHolder : AggregateEvent {
         public EndOfAggregateHistoryEventPlaceHolder(Guid aggregateId, int i):base(aggregateId) => AggregateRootVersion = i;
     }
 }

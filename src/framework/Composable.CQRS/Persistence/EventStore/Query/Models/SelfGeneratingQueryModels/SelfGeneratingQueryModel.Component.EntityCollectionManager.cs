@@ -6,7 +6,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 {
     public abstract partial class SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
         where TAggregate : SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
-        where TAggregateEvent : class, IAggregateRootEvent
+        where TAggregateEvent : class, IAggregateEvent
     {
         public abstract partial class Component<TComponent, TComponentEvent>
             where TComponentEvent : class, TAggregateEvent

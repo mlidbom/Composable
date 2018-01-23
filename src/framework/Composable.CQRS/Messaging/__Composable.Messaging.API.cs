@@ -21,25 +21,25 @@ namespace Composable.Messaging
 
     public interface IProvidesOwnMessageId { Guid MessageId { get; } }
 
-    public interface ISupportRemoteDelivery {}
+    public interface ISupportRemoteReceiver {}
 
-    public interface IOnlyLocalDelivery {}
-    public interface ILocalEvent : IEvent, IOnlyLocalDelivery { }
-    public interface ILocalCommand : ICommand, IOnlyLocalDelivery { }
-    public interface ILocalCommand<TResult> : ICommand<TResult>, IOnlyLocalDelivery  { }
-    public interface ILocalQuery<TResult> : IOnlyLocalDelivery, IQuery<TResult> { }
+    public interface IOnlyLocalReceiver {}
+    public interface ILocalEvent : IEvent, IOnlyLocalReceiver { }
+    public interface ILocalCommand : ICommand, IOnlyLocalReceiver { }
+    public interface ILocalCommand<TResult> : ICommand<TResult>, IOnlyLocalReceiver  { }
+    public interface ILocalQuery<TResult> : IOnlyLocalReceiver, IQuery<TResult> { }
 
 
     public interface IAtMostOnceDelivery {}
     public interface IForbidTransactionalSend { }
 
-    public interface IUserInterfaceMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteDelivery {}
+    public interface IUserInterfaceMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteReceiver {}
     public interface IUserInterfaceCommand<TResult> : ICommand<TResult>, IUserInterfaceMessage  { }
     public interface IUserInterfaceQuery<TResult> : IQuery<TResult>, IUserInterfaceMessage { }
 
-    public interface IRequireTransactionalSending : ISupportRemoteDelivery{ }
-    public interface IRequireTransactionalHandling : ISupportRemoteDelivery { }
-    public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSending, IRequireTransactionalHandling {}
+    public interface IRequireTransactionalSender : ISupportRemoteReceiver{ }
+    public interface IRequireTransactionalReceiver : ISupportRemoteReceiver { }
+    public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSender, IRequireTransactionalReceiver {}
 
     public interface IExactlyOnceMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId {}
 

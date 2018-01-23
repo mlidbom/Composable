@@ -14,7 +14,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
-            internal abstract class NestedEntity<TEntity,
+            internal abstract class RemovableNestedEntity<TEntity,
                                                TEntityId,
                                                TEntityBaseEventClass,
                                                TEntityBaseEventInterface,
@@ -40,13 +40,13 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                                     TEntityCreatedEventInterface,
                                     TEventEntityIdSetterGetter>
             {
-                static NestedEntity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.AssertStaticStructureIsValid();
+                static RemovableNestedEntity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.AssertStaticStructureIsValid();
 
-                protected NestedEntity(TComponent parent) : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers())
+                protected RemovableNestedEntity(TComponent parent) : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers())
                 {
                 }
 
-                NestedEntity
+                RemovableNestedEntity
                 (IUtcTimeTimeSource timeSource,
                  Action<TEntityBaseEventClass> raiseEventThroughParent,
                  IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)

@@ -10,8 +10,12 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
             public NestedComponent(Component parent) : base(parent)
             {
                 RegisterEventAppliers()
-                    .For<RootEvent.Component.NestedComponent.PropertyUpdated.Name>(e => {});
+                   .For<RootEvent.Component.NestedComponent.PropertyUpdated.Name>(e => Name = e.Name);
             }
+
+            public string Name { get; private set; }
+
+            public void Rename(string name) => Publish(new RootEvent.Component.NestedComponent.Implementation.Renamed(name));
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Transactions;
 using Composable.Messaging;
 using Composable.Refactoring.Naming;
 using Composable.System;
@@ -123,7 +124,20 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
             }
         }
 
-        public static void AssertValid(IMessage message) => AssertTypeIsValid(message.GetType());
+        public static void AssertValidToSend(IMessage message)
+        {
+            if(message is IRequiresTransactionalSendOperationMessage && Transaction.Current == null)
+            {
+                throw new Exception($"{message.GetType().FullName} is {nameof(IRequiresTransactionalSendOperationMessage)} but there is no transaction.");
+            }
+
+            if(message is IForbidTransactionalSendOperationMessage && Transaction.Current != null)
+            {
+                throw new Exception($"{message.GetType().FullName} is {nameof(IForbidTransactionalSendOperationMessage)} but there is a transaction.");
+            }
+
+            AssertTypeIsValid(message.GetType());
+        }
 
         static void AssertTypeIsValid(Type type)
         {

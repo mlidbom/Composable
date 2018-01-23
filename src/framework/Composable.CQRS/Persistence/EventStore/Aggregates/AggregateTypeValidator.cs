@@ -13,15 +13,15 @@ namespace Composable.Persistence.EventStore.Aggregates
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public class AllowPublicSettersAttribute : Attribute {}
 
-    static class AggregateTypeValidator<TDomainClass, TEventClass, TEventInterface>
+    static class AggregateTypeValidator<TDomainClass, TEventImplementation, TEvent>
     {
         public static void AssertStaticStructureIsValid()
         {
-            List<Type> typesToInspect = Seq.OfTypes<TDomainClass, TEventClass, TEventInterface>().ToList();
+            List<Type> typesToInspect = Seq.OfTypes<TDomainClass, TEventImplementation, TEvent>().ToList();
 
             typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(typeof(TDomainClass)));
-            typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(typeof(TEventClass)));
-            typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(typeof(TEventInterface)));
+            typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(typeof(TEventImplementation)));
+            typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(typeof(TEvent)));
 
             typesToInspect = typesToInspect.Distinct().ToList();
 
@@ -89,13 +89,13 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
                 var classInheritanceChain = typeof(TAggregate).ClassInheritanceChain().ToList();
                 var inheritedAggregateType = classInheritanceChain.Where(baseClass => baseClass.IsConstructedGenericType && baseClass.GetGenericTypeDefinition() == typeof(Aggregate<,,>)).Single();
 
-                var detectedEventClassType = inheritedAggregateType.GenericTypeArguments[1];
-                var detectedEventInterfaceType = inheritedAggregateType.GenericTypeArguments[2];
+                var detectedEventImplementationType = inheritedAggregateType.GenericTypeArguments[1];
+                var detectedEventType = inheritedAggregateType.GenericTypeArguments[2];
 
-                var typesToInspect = new List<Type> {typeof(TAggregate), detectedEventInterfaceType, detectedEventClassType};
+                var typesToInspect = new List<Type> {typeof(TAggregate), detectedEventType, detectedEventImplementationType};
 
-                typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(detectedEventClassType));
-                typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(detectedEventInterfaceType));
+                typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(detectedEventImplementationType));
+                typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(detectedEventType));
 
                 typesToInspect = typesToInspect.Distinct().ToList();
 

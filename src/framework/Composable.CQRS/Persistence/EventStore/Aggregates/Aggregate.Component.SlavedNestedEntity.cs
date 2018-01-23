@@ -35,7 +35,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                                     TEntityEventImplementation,
                                     TEntityEvent,
                                     TEntityEventIdGetterSetter>
-                where TEntityEventIdGetterSetter : IGetSeTAggregateEntityEventEntityId<TEntityId,
+                where TEntityEventIdGetterSetter : IGetSetAggregateEntityEventEntityId<TEntityId,
                                                        TEntityEventImplementation,
                                                        TEntityEvent>, new()
             {

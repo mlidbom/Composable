@@ -36,7 +36,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.
                     {
                         public Guid NestedEntityId { get; protected set; }
 
-                        public new class IdGetterSetter : Root, IGetSeTAggregateEntityEventEntityId<Guid, Root, IRoot>
+                        public new class IdGetterSetter : Root, IGetSetAggregateEntityEventEntityId<Guid, Root, IRoot>
                         {
                             public void SetEntityId(Root @event, Guid id) => @event.NestedEntityId = id;
                             public Guid GetId(IRoot @event) => @event.NestedEntityId;

@@ -18,7 +18,7 @@ namespace Composable.Persistence.EventStore
 
     static class EventStoreExtensions
     {
-        public static IEnumerable<Guid> StreamAggregateIdsInCreationOrder<TBaseAggregateEventInterface>(this IEventStore @this) => @this.StreamAggregateIdsInCreationOrder(typeof(TBaseAggregateEventInterface));
+        public static IEnumerable<Guid> StreamAggregateIdsInCreationOrder<TAggregateEvent>(this IEventStore @this) => @this.StreamAggregateIdsInCreationOrder(typeof(TAggregateEvent));
     }
 
     static class EventStoreTestingExtensions

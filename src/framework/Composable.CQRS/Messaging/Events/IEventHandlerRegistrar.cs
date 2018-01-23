@@ -62,11 +62,10 @@ namespace Composable.Messaging.Events
         internal static IGenericEventHandlerRegistrar MakeGeneric<TBaseEvent>(this IEventHandlerRegistrar<TBaseEvent> @this)
             where TBaseEvent : class => new GenericEventHandlerRegistrar<TBaseEvent>(@this);
 
-        class GenericEventHandlerRegistrar<TBaseEventInterface> : IGenericEventHandlerRegistrar
-            where TBaseEventInterface : class
+        class GenericEventHandlerRegistrar<TEvent> : IGenericEventHandlerRegistrar where TEvent : class
         {
-            readonly IEventHandlerRegistrar<TBaseEventInterface> _innerRegistrar;
-            internal GenericEventHandlerRegistrar(IEventHandlerRegistrar<TBaseEventInterface> innerRegistrar) => _innerRegistrar = innerRegistrar;
+            readonly IEventHandlerRegistrar<TEvent> _innerRegistrar;
+            internal GenericEventHandlerRegistrar(IEventHandlerRegistrar<TEvent> innerRegistrar) => _innerRegistrar = innerRegistrar;
 
             public IGenericEventHandlerRegistrar ForGenericEvent<THandledEvent>(Action<THandledEvent> handler)
             {

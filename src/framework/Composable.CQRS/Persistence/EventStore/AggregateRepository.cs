@@ -3,10 +3,10 @@ using Composable.Persistence.EventStore.Aggregates;
 
 namespace Composable.Persistence.EventStore
 {
-    public class AggregateRepository<TAggregate, TBaseEventClass, TBaseEventInterface> : IAggregateRepository<TAggregate>
-        where TAggregate : Aggregate<TAggregate, TBaseEventClass, TBaseEventInterface>, IEventStored
-        where TBaseEventClass : AggregateEvent, TBaseEventInterface
-        where TBaseEventInterface : class, IAggregateEvent
+    public class AggregateRepository<TAggregate, TAggregateEventImplementation, TAggregateEvent> : IAggregateRepository<TAggregate>
+        where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>, IEventStored
+        where TAggregateEventImplementation : AggregateEvent, TAggregateEvent
+        where TAggregateEvent : class, IAggregateEvent
     {
         readonly IEventStoreReader _reader;
         readonly IEventStoreUpdater _aggregates;

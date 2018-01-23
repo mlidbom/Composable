@@ -33,7 +33,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                 where TEntityEventImplementation : TEntityEvent, TAggregateEventImplementation
                 where TEntity : Component<TEntity, TEntityEventImplementation, TEntityEvent>
                 where TEntityEventIdGetterSetter :
-                    IGetSeTAggregateEntityEventEntityId<TEntityId, TEntityEventImplementation, TEntityEvent>, new()
+                    IGetSetAggregateEntityEventEntityId<TEntityId, TEntityEventImplementation, TEntityEvent>, new()
             {
                 protected EntityCollectionManager
                     (TParent parent,

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Transactions;
+using Composable.System.Linq;
 using Composable.System.Reflection;
 
 namespace Composable.Messaging
@@ -9,13 +10,7 @@ namespace Composable.Messaging
     {
         static readonly HashSet<Type> SuccessfullyInspectedTypes = new HashSet<Type>();
 
-        internal static void AssertValid(IReadOnlyList<Type> eventTypesToInspect)
-        {
-            foreach(var type in eventTypesToInspect)
-            {
-                AssertValid(type);
-            }
-        }
+        internal static void AssertValid(IReadOnlyList<Type> eventTypesToInspect) => eventTypesToInspect.ForEach(AssertValid);
 
         internal static void AssertValid<TMessage>() => AssertValid(typeof(TMessage));
 

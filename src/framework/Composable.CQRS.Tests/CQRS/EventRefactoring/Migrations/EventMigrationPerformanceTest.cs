@@ -100,10 +100,10 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         }
 
         [Test]
-        public void When_there_are_no_migrations_uncached_loading_takes_less_than_50_milliseconds_cached_less_than_10_milliseconds()
+        public void When_there_are_no_migrations_uncached_loading_takes_less_than_50_milliseconds_cached_less_than_15_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>().ToArray();
-            AssertUncachedAggregateLoadTime(50.Milliseconds(), 10.Milliseconds(), eventMigrations);
+            AssertUncachedAggregateLoadTime(50.Milliseconds(), 15.Milliseconds(), eventMigrations);
 
         }
     }

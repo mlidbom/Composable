@@ -31,7 +31,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                 TEntityCreatedEventInterface,
                                 TEntityRemovedEventInterface,
                                 TEventEntityIdSetterGetter>
-            where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>,
+            where TEventEntityIdSetterGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>,
                 new()
         {
             protected Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot)

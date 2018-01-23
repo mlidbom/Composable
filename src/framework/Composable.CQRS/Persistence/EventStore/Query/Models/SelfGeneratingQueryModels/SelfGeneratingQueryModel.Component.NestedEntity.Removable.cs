@@ -31,7 +31,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
                 where TEntityRemovedEventInterface : TEntityBaseEventInterface
                 where TEventEntityIdSetterGetter :
-                    IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
+                    IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
                 where TEntity : NestedEntity<TEntity,
                                     TEntityId,
                                     TEntityBaseEventClass,

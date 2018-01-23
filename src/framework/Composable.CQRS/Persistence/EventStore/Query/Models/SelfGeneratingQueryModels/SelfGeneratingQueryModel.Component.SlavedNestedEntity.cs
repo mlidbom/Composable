@@ -15,7 +15,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             /// An entity that is not created and removed through raising events.
             /// Instead it is automatically created and/or removed when another entity in the Aggregate object graph is added or removed.
             /// Inheritors must implement the add/remove behavior.
-            /// Inheritors must ensure that the Id property is initialized correctly before any calls to RaiseEvent.
+            /// Inheritors must ensure that the Id property is initialized.
             /// Usually this is implemented within a nested class that inherits from <see cref="EntityCollectionManagerBase"/>
             /// </summary>
             public abstract class SlavedNestedEntity<TEntity, TEntityId, TEntityBaseEventInterface, TEventEntityIdGetter> : NestedComponent<TEntity,TEntityBaseEventInterface>

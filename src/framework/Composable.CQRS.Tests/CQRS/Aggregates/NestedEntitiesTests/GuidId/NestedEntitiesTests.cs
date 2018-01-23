@@ -205,6 +205,9 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
             var entity1Id = Guid.NewGuid();
             var agNestedEntity1 = agRootEntity.AddEntity("entity1", entity1Id);
             var qmNestedEntity1 = qmRootEntity.Entities.InCreationOrder[0];
+
+            agRootEntity.Invoking(@this => @this.AddEntity("entity2", entity1Id)).ShouldThrow<Exception>();
+
             agNestedEntity1.Id.Should().Be(entity1Id);
             qmNestedEntity1.Id.Should().Be(entity1Id);
             agNestedEntity1.Name.Should().Be("entity1");
@@ -221,6 +224,8 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
             var entity2Id = Guid.NewGuid();
             var agNestedEntity2 = agRootEntity.AddEntity("entity2", entity2Id);
             var qmNestedEntity2 = qmRootEntity.Entities.InCreationOrder[1];
+            agRootEntity.Invoking(@this => @this.AddEntity("entity3", entity2Id)).ShouldThrow<Exception>();
+
             agNestedEntity2.Id.Should().Be(entity2Id);
             qmNestedEntity2.Id.Should().Be(entity2Id);
             agNestedEntity2.Name.Should().Be("entity2");

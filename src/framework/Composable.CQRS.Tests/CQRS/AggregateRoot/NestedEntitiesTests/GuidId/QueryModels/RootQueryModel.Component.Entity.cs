@@ -7,7 +7,6 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryMo
     {
         public class Entity : Component.NestedEntity<Entity,
                                   Guid,
-                                  RootEvent.Component.Entity.Implementation.Root,
                                   RootEvent.Component.Entity.IRoot,
                                   RootEvent.Component.Entity.Created,
                                   RootEvent.Component.Entity.Removed,
@@ -19,9 +18,6 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryMo
                 RegisterEventAppliers()
                     .For<RootEvent.Component.Entity.PropertyUpdated.Name>(e => Name = e.Name);
             }
-
-            public void Rename(string name) { Publish(new RootEvent.Component.Entity.Implementation.Renamed(name)); }
-            public void Remove() => Publish(new RootEvent.Component.Entity.Implementation.Removed());
         }
     }
 }

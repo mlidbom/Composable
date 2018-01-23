@@ -4,8 +4,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryMo
 {
     partial class Component
     {
-        //todo: make sure this is actually tested..
-        public class NestedComponent : Component.NestedComponent<NestedComponent, RootEvent.Component.NestedComponent.Implementation.Root, RootEvent.Component.NestedComponent.IRoot>
+        public class NestedComponent : Component.NestedComponent<NestedComponent, RootEvent.Component.NestedComponent.IRoot>
         {
             public NestedComponent(Component parent) : base(parent)
             {

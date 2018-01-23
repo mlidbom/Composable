@@ -1,10 +1,10 @@
 using System;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels;
 using Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Events;
 
 namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryModels
 {
-    partial class Component : RootQueryModel.Component<Component, RootEvent.Component.Implementation.Root, RootEvent.Component.IRoot>
+    partial class Component : RootQueryModel.Component<Component, RootEvent.Component.IRoot>
     {
         public Component(RootQueryModel root) : base(root)
         {
@@ -19,8 +19,6 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryMo
         NestedComponent _nestedComponent;
 
         public string Name { get; private set; }
-        public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;
-        public void Rename(string name) { Publish(new RootEvent.Component.Implementation.Renamed(name)); }
-        public Component.Entity AddEntity(string name) => _entities.AddByPublishing(new RootEvent.Component.Entity.Implementation.Created(Guid.NewGuid(), name));
+        public IReadonlyQueryModelEntityCollection<Entity, Guid> Entities => _entities.Entities;
     }
 }

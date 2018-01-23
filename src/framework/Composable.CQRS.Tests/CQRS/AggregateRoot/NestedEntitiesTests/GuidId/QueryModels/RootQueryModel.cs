@@ -1,11 +1,10 @@
 using System;
-using Composable.GenericAbstractions.Time;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels;
 using Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Events;
 
 namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryModels
 {
-    class RootQueryModel : AggregateRoot<RootQueryModel, RootEvent.Implementation.Root, RootEvent.IRoot>
+    class RootQueryModel : SelfGeneratingQueryModel<RootQueryModel, RootEvent.IRoot>
     {
         public string Name { get; private set; }
         readonly Entity.CollectionManager _entities;
@@ -13,18 +12,15 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryMo
         public Component Component { get; private set; }
 #pragma warning restore 108,114
 
-        public RootQueryModel(string name) : base(new DateTimeNowTimeSource())
+        public RootQueryModel()
         {
             Component = new Component(this);
             _entities = Entity.CreateSelfManagingCollection(this);
 
             RegisterEventAppliers()
                 .For<RootEvent.PropertyUpdated.Name>(e => Name = e.Name);
-
-            Publish(new RootEvent.Implementation.Created(Guid.NewGuid(), name));
         }
 
-        public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;
-        public Entity AddEntity(string name) => _entities.AddByPublishing(new RootEvent.Entity.Implementation.Created(Guid.NewGuid(), name));
+        public IReadonlyQueryModelEntityCollection<Entity, Guid> Entities => _entities.Entities;
     }
 }

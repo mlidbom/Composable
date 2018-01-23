@@ -1,5 +1,4 @@
-﻿using Composable.GenericAbstractions.Time;
-using Composable.Messaging.Events;
+﻿using Composable.Messaging.Events;
 using Composable.Persistence.EventStore.AggregateRoots;
 
 // ReSharper disable UnusedMember.Global todo:tests

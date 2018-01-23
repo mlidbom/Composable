@@ -1,5 +1,4 @@
-﻿using Composable.GenericAbstractions.Time;
-using Composable.Messaging.Events;
+﻿using Composable.Messaging.Events;
 using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels

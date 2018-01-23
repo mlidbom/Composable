@@ -1,5 +1,4 @@
-﻿using Composable.GenericAbstractions.Time;
-using Composable.Messaging.Events;
+﻿using Composable.Messaging.Events;
 using Composable.Persistence.EventStore.AggregateRoots;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels

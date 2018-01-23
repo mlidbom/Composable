@@ -21,7 +21,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 where TEntityEvent : class, TAggregateEvent
                 where TEntityCreatedEvent : TEntityEvent
                 where TEntity : Component<TEntity, TEntityEvent>
-                where TEntityEventIdGetterSetter : IGeTAggregateEntityEventEntityId<TEntityEvent, TEntityId>, new()
+                where TEntityEventIdGetterSetter : IGetAggregateEntityEventEntityId<TEntityEvent, TEntityId>, new()
             {
                 protected static readonly TEntityEventIdGetterSetter IdGetter = new TEntityEventIdGetterSetter();
 

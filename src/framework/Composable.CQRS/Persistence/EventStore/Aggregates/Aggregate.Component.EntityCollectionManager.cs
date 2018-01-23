@@ -29,7 +29,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                 where TEntityCreatedEvent : TEntityEvent
                 where TEntityEventImplementation : TEntityEvent, TAggregateEventImplementation
                 where TEntity : Component<TEntity, TEntityEventImplementation, TEntityEvent>
-                where TEntityEventIdGetterSetter : IGeTAggregateEntityEventEntityId<TEntityEvent, TEntityId>, new()
+                where TEntityEventIdGetterSetter : IGetAggregateEntityEventEntityId<TEntityEvent, TEntityId>, new()
             {
                 protected static readonly TEntityEventIdGetterSetter IdGetter = new TEntityEventIdGetterSetter();
 

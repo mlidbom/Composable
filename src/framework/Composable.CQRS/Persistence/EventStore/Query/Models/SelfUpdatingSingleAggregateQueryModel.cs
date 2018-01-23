@@ -34,7 +34,7 @@ namespace Composable.Persistence.EventStore.Query.Models
             where TEntityEvent : class, TAggregateEvent
             where TEntityCreatedEvent : TEntityEvent
             where TEntity : Entity<TEntity, TEntityId, TEntityEventImplementation, TEntityEvent, TEntityCreatedEvent, TEventEntityIdGetter>
-            where TEventEntityIdGetter : IGeTAggregateEntityEventEntityId<TEntityEvent, TEntityId>, new()
+            where TEventEntityIdGetter : IGetAggregateEntityEventEntityId<TEntityEvent, TEntityId>, new()
         {
             readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityEvent> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityEvent>();

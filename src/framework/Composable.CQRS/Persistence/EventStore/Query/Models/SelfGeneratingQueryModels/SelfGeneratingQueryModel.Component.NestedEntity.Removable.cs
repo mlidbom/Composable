@@ -40,14 +40,11 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                     TEntityCreatedEventInterface,
                                     TEventEntityIdSetterGetter>
             {
-                protected NestedEntity(TComponent parent) : this(parent.TimeSource, parent.RegisterEventAppliers())
+                protected NestedEntity(TComponent parent) : this(parent.RegisterEventAppliers())
                 {
                 }
 
-                NestedEntity
-                (IUtcTimeTimeSource timeSource,
-                 IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                    : base(timeSource, appliersRegistrar)
+                NestedEntity(IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar): base(appliersRegistrar)
                 {
                     RegisterEventAppliers()
                         .IgnoreUnhandled<TEntityRemovedEventInterface>();

@@ -18,8 +18,6 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventHandlersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
 
-            IUtcTimeTimeSource TimeSource { get; set; }
-
             void ApplyEvent(TComponentBaseEventInterface @event)
             {
                 _eventAppliersEventDispatcher.Dispatch(@event);
@@ -27,14 +25,12 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
             protected Component(TAggregateRoot aggregateRoot)
                 : this(
-                    timeSource: aggregateRoot.TimeSource,
                     appliersRegistrar: aggregateRoot.RegisterEventAppliers(),
                     registerEventAppliers: true)
             {}
 
-            internal Component(IUtcTimeTimeSource timeSource, IEventHandlerRegistrar<TComponentBaseEventInterface> appliersRegistrar, bool registerEventAppliers)
+            internal Component(IEventHandlerRegistrar<TComponentBaseEventInterface> appliersRegistrar, bool registerEventAppliers)
             {
-                TimeSource = timeSource;
                 _eventHandlersEventDispatcher.Register()
                                             .IgnoreUnhandled<TComponentBaseEventInterface>();
 

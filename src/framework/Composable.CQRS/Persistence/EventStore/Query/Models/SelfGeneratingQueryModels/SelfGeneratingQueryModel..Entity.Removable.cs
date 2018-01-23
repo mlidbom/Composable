@@ -54,8 +54,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                      TEntityRemovedEventInterface,
                                                      TEventEntityIdSetterGetter>
             {
-                internal CollectionManager(TAggregateRoot parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) 
-                    : base(parent, appliersRegistrar) {}
+                internal CollectionManager(TAggregateRoot parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar): base(parent, appliersRegistrar) {}
             }
         }
     }

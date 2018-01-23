@@ -41,11 +41,9 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                         TEntityBaseEventClass,
                                                         TEntityBaseEventInterface>, new()
             {
-                protected SlavedNestedEntity(TComponent parent) : this(parent.TimeSource, parent.RegisterEventAppliers()) { }
+                protected SlavedNestedEntity(TComponent parent) : this(parent.RegisterEventAppliers()) { }
 
-                protected SlavedNestedEntity
-                    (IUtcTimeTimeSource timeSource, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                    : base(timeSource, appliersRegistrar, registerEventAppliers: false)
+                protected SlavedNestedEntity(IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar): base(appliersRegistrar, registerEventAppliers: false)
                 {
                     RegisterEventAppliers()
                         .IgnoreUnhandled<TEntityBaseEventInterface>();
@@ -54,7 +52,6 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 // ReSharper disable once MemberCanBePrivate.Global
                 // ReSharper disable once UnusedAutoPropertyAccessor.Global
                 protected TEntityId Id { get; set; }
-
 
                 public abstract class EntityCollectionManagerBase
                 {

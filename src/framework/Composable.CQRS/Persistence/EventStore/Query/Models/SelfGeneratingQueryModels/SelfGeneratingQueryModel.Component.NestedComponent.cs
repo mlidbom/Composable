@@ -22,12 +22,10 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 where TNestedComponentBaseEventClass : TComponentBaseEventClass, TNestedComponentBaseEventInterface
                 where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
             {
-                protected NestedComponent(TComponent parent)
-                    : base(parent.TimeSource, parent.RegisterEventAppliers(), registerEventAppliers: true) {}
+                protected NestedComponent(TComponent parent) : base(parent.RegisterEventAppliers(), registerEventAppliers: true) {}
 
-                protected NestedComponent(IUtcTimeTimeSource timeSource, 
-                                          IEventHandlerRegistrar<TNestedComponentBaseEventInterface> appliersRegistrar,
-                                          bool registerEventAppliers) : base(timeSource, appliersRegistrar, registerEventAppliers) {}
+                protected NestedComponent(IEventHandlerRegistrar<TNestedComponentBaseEventInterface> appliersRegistrar,
+                                          bool registerEventAppliers) : base(appliersRegistrar, registerEventAppliers) {}
             }
         }
     }

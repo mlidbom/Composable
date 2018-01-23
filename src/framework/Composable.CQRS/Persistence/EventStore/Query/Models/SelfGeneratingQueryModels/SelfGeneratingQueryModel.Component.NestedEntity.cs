@@ -38,12 +38,9 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
                 // ReSharper disable once UnusedMember.Global todo: coverage
-                protected NestedEntity(TComponent parent)
-                    : this(parent.TimeSource, parent.RegisterEventAppliers()) { }
+                protected NestedEntity(TComponent parent): this(parent.RegisterEventAppliers()) { }
 
-                protected NestedEntity
-                    (IUtcTimeTimeSource timeSource, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                    : base(timeSource, appliersRegistrar, registerEventAppliers: false)
+                protected NestedEntity(IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
                 {
                     RegisterEventAppliers()
                         .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e));

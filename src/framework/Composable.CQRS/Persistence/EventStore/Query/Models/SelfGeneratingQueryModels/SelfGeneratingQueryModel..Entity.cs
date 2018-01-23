@@ -33,18 +33,15 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
             public TEntityId Id { get; private set; }
 
-            protected Entity(TAggregateRoot aggregateRoot)
-                : this(aggregateRoot.TimeSource, aggregateRoot.RegisterEventAppliers()) {}
+            protected Entity(TAggregateRoot aggregateRoot) : this(aggregateRoot.RegisterEventAppliers()) {}
 
             Entity
-                (IUtcTimeTimeSource timeSource,
-                 IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                : base(timeSource, appliersRegistrar, registerEventAppliers: false)
+                (IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
             {
                 RegisterEventAppliers()
                     .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e));
             }
-           
+
             // ReSharper disable once UnusedMember.Global todo: write tests.
             public static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent)
                 => new CollectionManager(parent, parent.RegisterEventAppliers());

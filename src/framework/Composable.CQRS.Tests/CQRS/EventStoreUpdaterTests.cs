@@ -75,7 +75,7 @@ namespace Composable.Tests.CQRS
         [Test]
         public void WhenFetchingAggregateThatDoesNotExistNoSuchAggregateExceptionIsThrown()
         {
-            UseInScope(session => Assert.Throws<AggregateRootNotFoundException>(() => session.Get<User>(Guid.NewGuid())));
+            UseInScope(session => Assert.Throws<AggregateNotFoundException>(() => session.Get<User>(Guid.NewGuid())));
         }
 
         [Test]

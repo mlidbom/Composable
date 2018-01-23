@@ -9,9 +9,9 @@ namespace Composable.Persistence.EventStore
         public static void ValidateHistory(Guid aggregateId, IReadOnlyList<IAggregateEvent> history)
         {
             int version = 1;
-            foreach(var aggregateRootEvent in history)
+            foreach(var aggregateEvent in history)
             {
-                if(aggregateRootEvent.AggregateVersion != version++)
+                if(aggregateEvent.AggregateVersion != version++)
                 {
                     throw new InvalidHistoryException(aggregateId);
                 }

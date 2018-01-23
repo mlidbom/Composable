@@ -63,7 +63,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                 {
                     if(theEvent.AggregateId != Guid.Empty && theEvent.AggregateId != Id)
                     {
-                        throw new ArgumentOutOfRangeException($"Tried to raise event for AggregateRootId: {theEvent.AggregateId} from AggregateRoot with Id: {Id}.");
+                        throw new ArgumentOutOfRangeException($"Tried to raise event for Aggregated: {theEvent.AggregateId} from Aggregate with Id: {Id}.");
                     }
                     if(_insertedVersionToAggregateVersionOffset != 0)
                     {

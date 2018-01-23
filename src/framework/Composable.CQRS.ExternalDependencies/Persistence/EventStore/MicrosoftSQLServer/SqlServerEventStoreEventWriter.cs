@@ -123,7 +123,7 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion},
                     rangeEnd: eventToInsertAfter.NextReadOrder);
             }
 
-            FixManualVersions(events.First().AggregateRootId);
+            FixManualVersions(events.First().AggregateId);
         }
 
         void SaveEventsWithinReadOrderRange(EventWriteDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
@@ -144,7 +144,7 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion},
                 foreach(var data in eventsToPersist)
                 {
                     var @event = data.Event;
-                    @event.InsertedVersion = data.InsertedVersion > data.AggregateRootVersion ? data.InsertedVersion : data.AggregateRootVersion;
+                    @event.InsertedVersion = data.InsertedVersion > data.AggregateVersion ? data.InsertedVersion : data.AggregateVersion;
 
                     using(var command = connection.CreateCommand())
                     {
@@ -157,7 +157,7 @@ INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK)
 VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.ManualVersion}, @{EventTable.Columns.ManualReadOrder}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.UtcTimeStamp}, @{EventTable.Columns.Event}, @{EventTable.Columns.InsertAfter},@{EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces})
 SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = data.AggregateRootId });
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = data.AggregateId });
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.InsertedVersion, SqlDbType.Int) { Value = @event.InsertedVersion });
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType,SqlDbType.Int){Value = eventTypeToId[@event.GetType()] });
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = data.EventId});

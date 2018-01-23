@@ -84,15 +84,15 @@ namespace Composable.Persistence.EventStore
 
         public void PersistMigrations() { _events = StreamEvents().Cast<AggregateEvent>().ToList(); }
 
-        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventType = null)
         {
-            OldContract.Assert.That(eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventBaseType),
+            OldContract.Assert.That(eventType == null || eventType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType),
                                  "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)");
 
             lock (_lockObject)
             {
                 return _events
-                    .Where(e => eventBaseType == null || eventBaseType.IsInstanceOfType(e))
+                    .Where(e => eventType == null || eventType.IsInstanceOfType(e))
                     .OrderBy(e => e.UtcTimeStamp)
                     .Select(e => e.AggregateId)
                     .Distinct()

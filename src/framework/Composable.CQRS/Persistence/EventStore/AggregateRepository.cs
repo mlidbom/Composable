@@ -25,8 +25,8 @@ namespace Composable.Persistence.EventStore
         }
 
         //todo: readonly copy should throw exception if trying to publish events.
-        public TAggregate GetReadonlyCopy(Guid aggregateRootId) => GetReadonlyCopyOfVersion(aggregateRootId, int.MaxValue);
+        public TAggregate GetReadonlyCopy(Guid aggregateId) => GetReadonlyCopyOfVersion(aggregateId, int.MaxValue);
 
-        public virtual TAggregate GetReadonlyCopyOfVersion(Guid aggregateRootId, int version) => _reader.GetReadonlyCopyOfVersion<TAggregate>(aggregateRootId, version);
+        public virtual TAggregate GetReadonlyCopyOfVersion(Guid aggregateId, int version) => _reader.GetReadonlyCopyOfVersion<TAggregate>(aggregateId, version);
     }
 }

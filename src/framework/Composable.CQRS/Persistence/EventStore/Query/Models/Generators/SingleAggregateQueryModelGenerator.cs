@@ -42,7 +42,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
             var queryModel = new TViewModel();
             Model = queryModel;
             history.ForEach(_eventDispatcher.Dispatch);
-            var result = Model;//Yes it does make sense. Look at the registered handler for IAggregateRootDeletedEvent
+            var result = Model;//Yes it does make sense. Look at the registered handler for IAggregateDeletedEvent
             Model = null;
             return result;
         }

@@ -15,11 +15,11 @@ namespace Composable.Persistence.EventStore
             UtcTimeStamp = DateTime.UtcNow;//Todo: Should use timesource.
         }
 
-        protected AggregateEvent(Guid aggregateRootId) : this() => AggregateId = aggregateRootId;
+        protected AggregateEvent(Guid aggregateId) : this() => AggregateId = aggregateId;
 
         [Obsolete("Only intended for testing. Do not use for normal inheritance.")] protected AggregateEvent(Guid? eventId = null,
-                                                                                                                 int? aggregateRootVersion = null,
-                                                                                                                 Guid? aggregateRootId = null,
+                                                                                                                 int? aggregateVersion = null,
+                                                                                                                 Guid? aggregateId = null,
                                                                                                                  DateTime? utcTimeStamp = null,
                                                                                                                  int? insertedVersion = null,
                                                                                                                  int? effectiveVersion = null,
@@ -30,8 +30,8 @@ namespace Composable.Persistence.EventStore
                                                                                                                  long? insertAfter = null)
         {
             EventId = eventId ?? EventId;
-            AggregateVersion = aggregateRootVersion ?? AggregateVersion;
-            AggregateId = aggregateRootId ?? AggregateId;
+            AggregateVersion = aggregateVersion ?? AggregateVersion;
+            AggregateId = aggregateId ?? AggregateId;
             UtcTimeStamp = utcTimeStamp ?? UtcTimeStamp;
             InsertedVersion = insertedVersion ?? InsertedVersion;
             EffectiveVersion = effectiveVersion;

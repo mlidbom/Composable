@@ -88,8 +88,8 @@ namespace Composable.Persistence.EventStore
         AggregateEvent HydrateEvent(EventReadDataRow eventDataRowRow)
         {
             var @event = (AggregateEvent)_serializer.Deserialize(eventType: _schemaManager.IdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
-            @event.AggregateId = eventDataRowRow.AggregateRootId;
-            @event.AggregateVersion = eventDataRowRow.AggregateRootVersion;
+            @event.AggregateId = eventDataRowRow.AggregateId;
+            @event.AggregateVersion = eventDataRowRow.AggregateVersion;
             @event.EventId = eventDataRowRow.EventId;
             @event.UtcTimeStamp = eventDataRowRow.UtcTimeStamp;
             @event.InsertionOrder = eventDataRowRow.InsertionOrder;
@@ -256,15 +256,15 @@ namespace Composable.Persistence.EventStore
             return message.Contains("timeout") || message.Contains("deadlock");
         }
 
-        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventType = null)
         {
-            OldContract.Assert.That(eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventBaseType),
-                "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)");
+            OldContract.Assert.That(eventType == null || eventType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType),
+                "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType)");
             _usageGuard.AssertNoContextChangeOccurred(this);
 
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
-            return _eventReader.StreamAggregateIdsInCreationOrder(eventBaseType);
+            return _eventReader.StreamAggregateIdsInCreationOrder(eventType);
         }
 
         public void Dispose()

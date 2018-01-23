@@ -74,7 +74,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
         public TestAggregate(IUtcTimeTimeSource timeSource, params RootEvent[] events):this(timeSource)
         {
-            OldContract.Assert.That(events.First() is IAggregateCreatedEvent, "events.First() is IAggregateRootCreatedEvent");
+            OldContract.Assert.That(events.First() is IAggregateCreatedEvent, "events.First() is IAggregateCreatedEvent");
 
             Publish(events);
         }

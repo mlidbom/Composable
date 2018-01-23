@@ -41,7 +41,7 @@ namespace Composable.Persistence.EventStore
             _usageGuard.AssertNoContextChangeOccurred(this);
             if (!DoTryGet(aggregateId, out TAggregate result))
             {
-                throw new AggregateRootNotFoundException(aggregateId);
+                throw new AggregateNotFoundException(aggregateId);
             }
             return result;
         }
@@ -68,7 +68,7 @@ namespace Composable.Persistence.EventStore
             var history = GetHistory(aggregateId);
             if(history.None())
             {
-                throw new AggregateRootNotFoundException(aggregateId);
+                throw new AggregateNotFoundException(aggregateId);
             }
 
             if(verifyVersion && history.Count < version - 1)

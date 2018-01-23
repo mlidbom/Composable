@@ -42,8 +42,8 @@ namespace Composable.Tests.NewtonSoft
                 DateTime utcTimeStamp)
 #pragma warning disable CS0618 // Type or member is obsolete
                 : base(
-                       aggregateRootId: aggregateRootId,
-                       aggregateRootVersion: aggregateRootVersion,
+                       aggregateId: aggregateRootId,
+                       aggregateVersion: aggregateRootVersion,
                        eventId: eventId,
                        insertAfter: insertAfter,
                        insertBefore: insertBefore,

@@ -12,8 +12,8 @@ namespace Composable.Persistence.EventStore
         void DeleteAggregate(Guid aggregateId);
         void PersistMigrations();
 
-        ///<summary>The passed <paramref name="eventBaseType"/> filters the aggregate Ids so that only ids of aggregates that are created by an event that inherits from <paramref name="eventBaseType"/> are returned.</summary>
-        IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null);
+        ///<summary>The passed <paramref name="eventType"/> filters the aggregate Ids so that only ids of aggregates that are created by an event that inherits from <paramref name="eventType"/> are returned.</summary>
+        IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventType = null);
     }
 
     static class EventStoreExtensions

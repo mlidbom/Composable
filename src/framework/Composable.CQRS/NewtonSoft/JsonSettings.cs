@@ -17,7 +17,7 @@ namespace Composable.NewtonSoft
             {
                 TypeNameHandling = TypeNameHandling.Auto,
                 ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
-                ContractResolver = IgnoreAggregateRootEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql.Instance
+                ContractResolver = IgnoreAggregateEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql.Instance
             };
 
     }

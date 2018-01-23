@@ -41,9 +41,9 @@ namespace Composable.Persistence.EventStore
         public int EventType { get; set; }
         public string EventJson { get; set; }
         public Guid EventId { get; internal set; }
-        public int AggregateRootVersion { get; internal set; }
+        public int AggregateVersion { get; internal set; }
 
-        public Guid AggregateRootId { get; internal set; }
+        public Guid AggregateId { get; internal set; }
         public DateTime UtcTimeStamp { get; internal set; }
 
         internal int InsertedVersion { get; set; }
@@ -77,8 +77,8 @@ namespace Composable.Persistence.EventStore
             EventJson = eventAsJson;
 
             EventId = @event.EventId;
-            AggregateRootVersion = @event.AggregateVersion;
-            AggregateRootId = @event.AggregateId;
+            AggregateVersion = @event.AggregateVersion;
+            AggregateId = @event.AggregateId;
             UtcTimeStamp = @event.UtcTimeStamp;
             InsertedVersion = @event.InsertedVersion;
             EffectiveVersion = @event.EffectiveVersion;
@@ -98,9 +98,9 @@ namespace Composable.Persistence.EventStore
         public string EventJson { get; set; }
 
         public Guid EventId { get; internal set; }
-        public int AggregateRootVersion { get; internal set; }
+        public int AggregateVersion { get; internal set; }
 
-        public Guid AggregateRootId { get; internal set; }
+        public Guid AggregateId { get; internal set; }
         public DateTime UtcTimeStamp { get; internal set; }
 
         internal int InsertedVersion { get; set; }

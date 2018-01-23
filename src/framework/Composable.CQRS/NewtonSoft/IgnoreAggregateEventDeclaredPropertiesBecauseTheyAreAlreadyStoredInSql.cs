@@ -5,10 +5,10 @@ using Newtonsoft.Json.Serialization;
 
 namespace Composable.NewtonSoft
 {
-    class IgnoreAggregateRootEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql : IncludeMembersWithPrivateSettersResolver
+    class IgnoreAggregateEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql : IncludeMembersWithPrivateSettersResolver
     {
-        public new static readonly IgnoreAggregateRootEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql Instance = new IgnoreAggregateRootEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql();
-        IgnoreAggregateRootEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql() {
+        public new static readonly IgnoreAggregateEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql Instance = new IgnoreAggregateEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql();
+        IgnoreAggregateEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql() {
         }
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {

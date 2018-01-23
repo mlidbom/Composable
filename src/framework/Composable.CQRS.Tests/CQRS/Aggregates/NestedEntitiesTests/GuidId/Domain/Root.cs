@@ -13,7 +13,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.Domain
         public Component Component { get; private set; }
 #pragma warning restore 108,114
 
-        public Root(string name) : base(new DateTimeNowTimeSource())
+        public Root(string name, Guid id) : base(new DateTimeNowTimeSource())
         {
             Component = new Component(this);
             _entities = RemovableEntity.CreateSelfManagingCollection(this);
@@ -21,7 +21,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.Domain
             RegisterEventAppliers()
                 .For<RootEvent.PropertyUpdated.Name>(e => Name = e.Name);
 
-            Publish(new RootEvent.Implementation.Created(Guid.NewGuid(), name));
+            Publish(new RootEvent.Implementation.Created(id, name));
         }
 
         public IReadOnlyEntityCollection<RemovableEntity, Guid> Entities => _entities.Entities;

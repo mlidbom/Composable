@@ -15,10 +15,12 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
     {
         Root Ag;
         RootQueryModel Qm;
+        Guid AggregateId;
 
         [SetUp]public void Setup()
         {
-            Ag = new Root("root");
+            AggregateId = Guid.NewGuid();
+            Ag = new Root("root", AggregateId);
             Qm = new RootQueryModel();
             var eventStored = ((IEventStored)Ag);
             eventStored.EventStream.Subscribe(@event => Qm.ApplyEvent((RootEvent.IRoot)@event));
@@ -29,6 +31,8 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
         {
             Ag.Name.Should().Be("root");
             Qm.Name.Should().Be("root");
+            Ag.Id.Should().Be(AggregateId);
+            Qm.Id.Should().Be(AggregateId);
         }
 
         [Test]
@@ -123,8 +127,12 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
             var agComponent = Ag.Component;
             var qmComponent = Qm.Component;
 
-            var agComponentEntity1 = agComponent.AddEntity("entity1");
+            var entity1Id = Guid.NewGuid();
+            var agComponentEntity1 = agComponent.AddEntity("entity1", entity1Id);
+            agComponent.Invoking(@this => @this.AddEntity("entity2", entity1Id)).ShouldThrow<Exception>();
+
             var qmComponentEntity1 = qmComponent.Entities.InCreationOrder[0];
+
             qmComponentEntity1.Id.Should().Be(agComponentEntity1.Id);
             agComponentEntity1.Name.Should().Be("entity1");
             qmComponentEntity1.Name.Should().Be("entity1");
@@ -137,7 +145,10 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
             agComponent.Entities[agComponentEntity1.Id].Should().Be(agComponentEntity1);
             qmComponent.Entities[agComponentEntity1.Id].Should().Be(qmComponentEntity1);
 
-            var agEntity2 = agComponent.AddEntity("entity2");
+            var entity2Id = Guid.NewGuid();
+            var agEntity2 = agComponent.AddEntity("entity2", entity2Id);
+            agComponent.Invoking(@this => @this.AddEntity("entity3", entity2Id)).ShouldThrow<Exception>();
+
             var qmEntity2 = qmComponent.Entities.InCreationOrder[1];
             agEntity2.Name.Should().Be("entity2");
             qmEntity2.Name.Should().Be("entity2");

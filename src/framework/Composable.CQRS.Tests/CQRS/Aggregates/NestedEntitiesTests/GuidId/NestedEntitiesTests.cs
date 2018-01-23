@@ -133,7 +133,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
 
             var qmComponentEntity1 = qmComponent.Entities.InCreationOrder[0];
 
-            qmComponentEntity1.Id.Should().Be(agComponentEntity1.Id);
+            qmComponentEntity1.Id.Should().Be(agComponentEntity1.Id).And.Be(entity1Id);
             agComponentEntity1.Name.Should().Be("entity1");
             qmComponentEntity1.Name.Should().Be("entity1");
             agComponent.Entities.InCreationOrder.Count.Should().Be(1);
@@ -202,9 +202,11 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
             var agRootEntity = Ag.AddEntity("RootEntityName");
             var qmRootEntity = Qm.Entities.InCreationOrder[0];
 
-            var agNestedEntity1 = agRootEntity.AddEntity("entity1");
+            var entity1Id = Guid.NewGuid();
+            var agNestedEntity1 = agRootEntity.AddEntity("entity1", entity1Id);
             var qmNestedEntity1 = qmRootEntity.Entities.InCreationOrder[0];
-            qmNestedEntity1.Id.Should().Be(agNestedEntity1.Id);
+            agNestedEntity1.Id.Should().Be(entity1Id);
+            qmNestedEntity1.Id.Should().Be(entity1Id);
             agNestedEntity1.Name.Should().Be("entity1");
             qmNestedEntity1.Name.Should().Be("entity1");
             agRootEntity.Entities.InCreationOrder.Count.Should().Be(1);
@@ -216,8 +218,11 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
             agRootEntity.Entities[agNestedEntity1.Id].Should().Be(agNestedEntity1);
             qmRootEntity.Entities[agNestedEntity1.Id].Should().Be(qmNestedEntity1);
 
-            var agNestedEntity2 = agRootEntity.AddEntity("entity2");
+            var entity2Id = Guid.NewGuid();
+            var agNestedEntity2 = agRootEntity.AddEntity("entity2", entity2Id);
             var qmNestedEntity2 = qmRootEntity.Entities.InCreationOrder[1];
+            agNestedEntity2.Id.Should().Be(entity2Id);
+            qmNestedEntity2.Id.Should().Be(entity2Id);
             agNestedEntity2.Name.Should().Be("entity2");
             qmNestedEntity2.Name.Should().Be("entity2");
             agRootEntity.Entities.InCreationOrder.Count.Should().Be(2);

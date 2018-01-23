@@ -19,9 +19,10 @@ namespace Composable.Messaging
     ///<summary>An instructs the receiver to return a resource based upon the data in the query.</summary>
     public interface IQuery<TResult> : IQuery { }
 
-
     public interface IProvidesOwnMessageIdMessage : IMessage { Guid MessageId { get; } }
-    public interface IRequiresTransactionalSendOperationMessage : IMessage { }
+
+    public interface IParticipateInTransactionalSendOperationMessage : IMessage { }
+    public interface IRequiresTransactionalSendOperationMessage : IParticipateInTransactionalSendOperationMessage { }
     public interface IRequireTransactionalHandlerExecutionMessage : IMessage { }
     public interface IRequireAllOperationsToBeTransactionalMessage : IRequiresTransactionalSendOperationMessage, IRequireTransactionalHandlerExecutionMessage {}
 
@@ -36,10 +37,4 @@ namespace Composable.Messaging
     public interface IExactlyOnceEvent : IEvent, IExactlyOnceMessage { }
     public interface IExactlyOnceCommand : ICommand, IExactlyOnceMessage { }
     public interface IExactlyOnceCommand<TResult> : ICommand<TResult>, IExactlyOnceCommand { }
-
-
-    public interface IEntityQuery<TEntity> : IQuery<TEntity>
-    {
-        Guid Id { get; }
-    }
 }

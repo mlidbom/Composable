@@ -3,30 +3,25 @@ using Composable.Persistence.EventStore.AggregateRoots;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
+        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
         public abstract class Entity<TEntity,
                                      TEntityId,
-                                     TEntityBaseEventClass,
                                      TEntityBaseEventInterface,
                                      TEntityCreatedEventInterface,
                                      TEntityRemovedEventInterface,
                                      TEventEntityIdSetterGetter> : Entity<TEntity,
                                                                        TEntityId,
-                                                                       TEntityBaseEventClass,
                                                                        TEntityBaseEventInterface,
                                                                        TEntityCreatedEventInterface,
                                                                        TEventEntityIdSetterGetter>
             where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TEntityBaseEventClass : TAggregateRootBaseEventClass, TEntityBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntityRemovedEventInterface : TEntityBaseEventInterface
             where TEntity : Entity<TEntity,
                                 TEntityId,
-                                TEntityBaseEventClass,
                                 TEntityBaseEventInterface,
                                 TEntityCreatedEventInterface,
                                 TEntityRemovedEventInterface,
@@ -48,7 +43,6 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             internal new class CollectionManager : QueryModelEntityCollectionManager<TAggregateRoot,
                                                      TEntity,
                                                      TEntityId,
-                                                     TEntityBaseEventClass,
                                                      TEntityBaseEventInterface,
                                                      TEntityCreatedEventInterface,
                                                      TEntityRemovedEventInterface,

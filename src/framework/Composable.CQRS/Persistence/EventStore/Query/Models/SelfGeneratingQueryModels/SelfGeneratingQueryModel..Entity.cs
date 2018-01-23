@@ -4,24 +4,20 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
+        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
         [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
         public abstract class Entity<TEntity,
                                      TEntityId,
-                                     TEntityBaseEventClass,
                                      TEntityBaseEventInterface,
                                      TEntityCreatedEventInterface,
-                                     TEventEntityIdSetterGetter> : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
+                                     TEventEntityIdSetterGetter> : Component<TEntity, TEntityBaseEventInterface>
             where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TEntityBaseEventClass : TAggregateRootBaseEventClass, TEntityBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntity : Entity<TEntity,
                                 TEntityId,
-                                TEntityBaseEventClass,
                                 TEntityBaseEventInterface,
                                 TEntityCreatedEventInterface,
                                 TEventEntityIdSetterGetter>
@@ -49,7 +45,6 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                  TAggregateRoot,
                                                  TEntity,
                                                  TEntityId,
-                                                 TEntityBaseEventClass,
                                                  TEntityBaseEventInterface,
                                                  TEntityCreatedEventInterface,
                                                  TEventEntityIdSetterGetter>

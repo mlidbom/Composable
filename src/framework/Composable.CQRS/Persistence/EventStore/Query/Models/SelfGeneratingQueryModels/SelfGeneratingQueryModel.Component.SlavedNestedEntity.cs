@@ -1,19 +1,15 @@
 ﻿using Composable.Messaging.Events;
 using Composable.Persistence.EventStore.AggregateRoots;
 
-// ReSharper disable UnusedMember.Global todo:tests
-
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
+        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
-        public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+        public abstract partial class Component<TComponent, TComponentBaseEventInterface>
             where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
-            where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+            where TComponent : Component<TComponent, TComponentBaseEventInterface>
         {
             ///<summary>
             /// An entity that is not created and removed through raising events.
@@ -22,18 +18,10 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             /// Inheritors must ensure that the Id property is initialized correctly before any calls to RaiseEvent.
             /// Usually this is implemented within a nested class that inherits from <see cref="EntityCollectionManagerBase"/>
             /// </summary>
-            public abstract class SlavedNestedEntity<TEntity,
-                                               TEntityId,
-                                               TEntityBaseEventClass,
-                                               TEntityBaseEventInterface,
-                                               TEventEntityIdSetterGetter> : NestedComponent<TEntity,
-                                                                                 TEntityBaseEventClass,
-                                                                                 TEntityBaseEventInterface>
+            public abstract class SlavedNestedEntity<TEntity, TEntityId, TEntityBaseEventInterface, TEventEntityIdSetterGetter> : NestedComponent<TEntity,TEntityBaseEventInterface>
                 where TEntityBaseEventInterface : class, TComponentBaseEventInterface
-                where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
                 where TEntity : SlavedNestedEntity<TEntity,
                                     TEntityId,
-                                    TEntityBaseEventClass,
                                     TEntityBaseEventInterface,
                                     TEventEntityIdSetterGetter>
                 where TEventEntityIdSetterGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()

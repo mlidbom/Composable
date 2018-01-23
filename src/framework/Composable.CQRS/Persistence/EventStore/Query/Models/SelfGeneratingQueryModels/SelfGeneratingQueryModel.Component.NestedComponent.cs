@@ -3,23 +3,20 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
+        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
-        public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+        public abstract partial class Component<TComponent, TComponentBaseEventInterface>
             where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
-            where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+            where TComponent : Component<TComponent, TComponentBaseEventInterface>
         {
             [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
-            public abstract class NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface> :
-                SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>.
-                    Component<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
+            public abstract class NestedComponent<TNestedComponent, TNestedComponentBaseEventInterface> :
+                SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>.
+                    Component<TNestedComponent, TNestedComponentBaseEventInterface>
                 where TNestedComponentBaseEventInterface : class, TComponentBaseEventInterface
-                where TNestedComponentBaseEventClass : TComponentBaseEventClass, TNestedComponentBaseEventInterface
-                where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
+                where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventInterface>
             {
                 protected NestedComponent(TComponent parent) : base(parent.RegisterEventAppliers(), registerEventAppliers: true) {}
 

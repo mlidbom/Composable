@@ -2,15 +2,13 @@
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot,  TAggregateRootBaseEventInterface>
+        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot,  TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
-        public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+        public abstract partial class Component<TComponent, TComponentBaseEventInterface>
             where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
-            where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+            where TComponent : Component<TComponent, TComponentBaseEventInterface>
         {
             readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();

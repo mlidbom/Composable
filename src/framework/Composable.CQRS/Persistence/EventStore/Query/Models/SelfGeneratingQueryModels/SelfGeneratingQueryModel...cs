@@ -7,10 +7,9 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>
-        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+    public partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>
+        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected SelfGeneratingQueryModel() : base(Guid.Empty)

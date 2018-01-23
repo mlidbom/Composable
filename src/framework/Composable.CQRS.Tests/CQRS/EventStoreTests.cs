@@ -14,7 +14,7 @@ namespace Composable.Tests.CQRS
 
     class SomeEvent : AggregateEvent, ISomeEvent
     {
-        public SomeEvent(Guid aggregateRootId, int version) : base(aggregateRootId)
+        public SomeEvent(Guid aggregateId, int version) : base(aggregateId)
         {
             AggregateVersion = version;
             UtcTimeStamp = new DateTime(UtcTimeStamp.Year, UtcTimeStamp.Month, UtcTimeStamp.Day, UtcTimeStamp.Hour, UtcTimeStamp.Minute, UtcTimeStamp.Second);
@@ -69,9 +69,9 @@ namespace Composable.Tests.CQRS
             var currentEventNumber = 0;
             stream.Should()
                   .HaveCount(moreEventsThanTheBatchSizeForStreamingEvents);
-            foreach(var aggregateRootEvent in stream)
+            foreach(var aggregateEvent in stream)
             {
-                aggregateRootEvent.AggregateVersion.Should()
+                aggregateEvent.AggregateVersion.Should()
                                   .Be(++currentEventNumber, "Incorrect event version detected");
             }
         }

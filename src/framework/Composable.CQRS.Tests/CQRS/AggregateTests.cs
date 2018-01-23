@@ -11,7 +11,7 @@ namespace Composable.Tests.CQRS
     using Composable.System.Reactive;
 
     [TestFixture]
-    public class AggregateRootTests
+    public class AggregateTests
     {
         [Test]
         public void VersionIncreasesWithEachAppliedEvent()

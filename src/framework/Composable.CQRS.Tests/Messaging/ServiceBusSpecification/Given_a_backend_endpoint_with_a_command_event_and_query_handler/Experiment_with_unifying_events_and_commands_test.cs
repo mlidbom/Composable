@@ -98,7 +98,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 public class Root : AggregateEvent, IRoot
                 {
                     protected Root() {}
-                    protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
+                    protected Root(Guid aggregateId) : base(aggregateId) {}
                 }
 
                 public class UserRegisteredEvent : Root, UserRegistered
@@ -129,7 +129,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 public class Root : AggregateEvent, IRoot
                 {
                     protected Root() {}
-                    protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
+                    protected Root(Guid aggregateId) : base(aggregateId) {}
                 }
 
                 public class Created : Root, IAggregateCreatedEvent

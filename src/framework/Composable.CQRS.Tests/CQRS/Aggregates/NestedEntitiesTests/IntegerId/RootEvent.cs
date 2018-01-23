@@ -25,7 +25,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.IntegerId
             public abstract class Root : AggregateEvent, IRoot
             {
                 protected Root() { }
-                protected Root(Guid aggregateRootId) : base(aggregateRootId) { }
+                protected Root(Guid aggregateId) : base(aggregateId) { }
             }
 
             public class Created : Root, RootEvent.Created

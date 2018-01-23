@@ -58,7 +58,7 @@ namespace Composable.Tests.CQRS
     abstract class UserEvent : AggregateEvent, IUserEvent
     {
         protected UserEvent() {}
-        protected UserEvent(Guid aggregateRootId) : base(aggregateRootId) {}
+        protected UserEvent(Guid aggregateId) : base(aggregateId) {}
     }
 
     class UserChangedEmail : UserEvent, IUserEvent

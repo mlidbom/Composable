@@ -15,7 +15,7 @@ namespace AccountManagement.Domain.Events
             public abstract class Root : AggregateEvent, AccountEvent.Root
             {
                 protected Root() {}
-                protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
+                protected Root(Guid aggregateId) : base(aggregateId) {}
             }
 
             public class UserRegistered : Root, AccountEvent.UserRegistered

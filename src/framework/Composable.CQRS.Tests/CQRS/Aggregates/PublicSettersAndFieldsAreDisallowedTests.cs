@@ -66,7 +66,7 @@ namespace Composable.Tests.CQRS.Aggregates
 
             public class AggComponent : Root.Component<AggComponent, RootEvent.Component.Root, RootEvent.Component.IRoot>
             {
-                public AggComponent(Root aggregateRoot) : base(aggregateRoot) {}
+                public AggComponent(Root aggregate) : base(aggregate) {}
 
                 public string Public { get; set; }
 
@@ -80,7 +80,7 @@ namespace Composable.Tests.CQRS.Aggregates
 
             public class AggEntity : Root.Entity<AggEntity, Guid, RootEvent.Entity.Root, RootEvent.Entity.IRoot,RootEvent.Entity.IRoot, RootEvent.Entity.Root.GetterSetter>
             {
-                public AggEntity(Root aggregateRoot) : base(aggregateRoot) {}
+                public AggEntity(Root aggregate) : base(aggregate) {}
                 public string Public { get; set; }
 
                 public class EntNestedComp : AggEntity.NestedComponent<EntNestedComp, RootEvent.Entity.Component.Root, RootEvent.Entity.Component.IRoot>

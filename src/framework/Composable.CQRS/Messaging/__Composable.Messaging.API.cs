@@ -19,33 +19,29 @@ namespace Composable.Messaging
     ///<summary>An instructs the receiver to return a resource based upon the data in the query.</summary>
     public interface IQuery<TResult> : IQuery { }
 
-    public interface IProvidesOwnMessageIdMessage : IMessage { Guid MessageId { get; } }
+    public interface IProvidesOwnMessageId { Guid MessageId { get; } }
 
-    public interface IRemoteMessage : IMessage {}
+    public interface ISupportRemoteDelivery {}
 
-    public interface ILocalMessage : IMessage {}
-    public interface ILocalEvent : IEvent, ILocalMessage { }
-    public interface ILocalCommand : ICommand, ILocalMessage { }
-    public interface ILocalCommand<TResult> : ICommand<TResult>, ILocalMessage  { }
-    public interface ILocalQuery<TResult> : ILocalMessage, IQuery<TResult> { }
+    public interface IOnlyLocalDelivery {}
+    public interface ILocalEvent : IEvent, IOnlyLocalDelivery { }
+    public interface ILocalCommand : ICommand, IOnlyLocalDelivery { }
+    public interface ILocalCommand<TResult> : ICommand<TResult>, IOnlyLocalDelivery  { }
+    public interface ILocalQuery<TResult> : IOnlyLocalDelivery, IQuery<TResult> { }
 
 
-    public interface IForbidTransactionalSendOperationMessage : IRemoteMessage{ }
+    public interface IAtMostOnceDelivery {}
+    public interface IForbidTransactionalSendOperation { }
 
-    public interface IUserInterfaceMessage : IForbidTransactionalSendOperationMessage, IMessage {}
+    public interface IUserInterfaceMessage : IForbidTransactionalSendOperation, IAtMostOnceDelivery, ISupportRemoteDelivery {}
     public interface IUserInterfaceCommand<TResult> : ICommand<TResult>, IUserInterfaceMessage  { }
-    public interface IUserInterfaceQuery<TResult> : IUserInterfaceMessage, IQuery<TResult> { }
+    public interface IUserInterfaceQuery<TResult> : IQuery<TResult>, IUserInterfaceMessage { }
 
-    public interface IRequiresTransactionalSendOperationMessage : IRemoteMessage{ }
-    public interface IRequireTransactionalHandlerExecutionMessage : IRemoteMessage { }
-    public interface IRequireAllOperationsToBeTransactionalMessage : IRequiresTransactionalSendOperationMessage, IRequireTransactionalHandlerExecutionMessage {}
+    public interface IRequireTransactionalSendOperation : ISupportRemoteDelivery{ }
+    public interface IRequireTransactionalHandlerExecution : ISupportRemoteDelivery { }
+    public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSendOperation, IRequireTransactionalHandlerExecution {}
 
-    public interface IAtMostOnceMessage : IRequireAllOperationsToBeTransactionalMessage {}
-    public interface IExactlyOnceMessage : IRequireAllOperationsToBeTransactionalMessage, IProvidesOwnMessageIdMessage {}
-
-    public interface IAtMostOnceEvent : IEvent, IAtMostOnceMessage { }
-    public interface IAtMostOnceCommand : ICommand, IAtMostOnceMessage { }
-    public interface IAtMostOnceCommand<TResult> : ICommand<TResult>, IAtMostOnceMessage  { }
+    public interface IExactlyOnceMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId {}
 
     public interface IExactlyOnceEvent : IEvent, IExactlyOnceMessage { }
     public interface IExactlyOnceCommand : ICommand, IExactlyOnceMessage { }

@@ -93,7 +93,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public static OutGoing Create(IMessage message, ITypeMapper typeMapper)
             {
-                var messageId = (message as IProvidesOwnMessageIdMessage)?.MessageId ?? Guid.NewGuid();
+                var messageId = (message as IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
                 return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, GetMessageType(message), message is IExactlyOnceMessage);
             }

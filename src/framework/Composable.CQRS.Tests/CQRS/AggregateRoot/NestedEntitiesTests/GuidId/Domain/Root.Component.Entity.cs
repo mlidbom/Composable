@@ -5,7 +5,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 {
     partial class Component
     {
-        public class Entity : Component.NestedEntity<Entity,
+        public class Entity : Component.RemovableNestedEntity<Entity,
                                   Guid,
                                   RootEvent.Component.Entity.Implementation.Root,
                                   RootEvent.Component.Entity.IRoot,

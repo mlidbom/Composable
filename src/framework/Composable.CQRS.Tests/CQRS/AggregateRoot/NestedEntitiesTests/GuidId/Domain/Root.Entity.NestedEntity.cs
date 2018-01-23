@@ -3,9 +3,9 @@ using Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Even
 
 namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 {
-    partial class Entity
+    partial class RemovableEntity
     {
-        public class NestedEntity : NestedEntity<NestedEntity,
+        public class RemovableNestedEntity : RemovableNestedEntity<RemovableNestedEntity,
                                         Guid,
                                         RootEvent.Entity.NestedEntity.Implementation.Root,
                                         RootEvent.Entity.NestedEntity.IRoot,
@@ -14,7 +14,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
                                         RootEvent.Entity.NestedEntity.Implementation.Root.IdGetterSetter>
         {
             public string Name { get; private set; }
-            public NestedEntity(Entity entity) : base(entity)
+            public RemovableNestedEntity(RemovableEntity removableEntity) : base(removableEntity)
             {
                 RegisterEventAppliers()
                     .For<RootEvent.Entity.NestedEntity.PropertyUpdated.Name>(e => Name = e.Name);

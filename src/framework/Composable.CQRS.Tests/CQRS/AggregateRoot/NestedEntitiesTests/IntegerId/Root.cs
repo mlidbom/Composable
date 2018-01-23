@@ -8,7 +8,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
     {
         static int _instances;
         public string Name { get; private set; }
-        readonly Entity.CollectionManager _entities;
+        readonly RemovableEntity.CollectionManager _entities;
 #pragma warning disable 108,114
         public Component Component { get; private set; }
 #pragma warning restore 108,114
@@ -16,7 +16,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
         public Root(string name) : base(new DateTimeNowTimeSource())
         {
             Component = new Component(this);
-            _entities = Entity.CreateSelfManagingCollection(this);
+            _entities = RemovableEntity.CreateSelfManagingCollection(this);
 
             RegisterEventAppliers()
                 .For<RootEvent.PropertyUpdated.Name>(e => Name = e.Name);
@@ -24,8 +24,8 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
             Publish(new RootEvent.Implementation.Created(Guid.NewGuid(), name));
         }
 
-        public IReadOnlyEntityCollection<Entity, int> Entities => _entities.Entities;
-        public Entity AddEntity(string name) => _entities.AddByPublishing(new RootEvent.Entity.Implementation.Created(++_instances, name));
+        public IReadOnlyEntityCollection<RemovableEntity, int> Entities => _entities.Entities;
+        public RemovableEntity AddEntity(string name) => _entities.AddByPublishing(new RootEvent.Entity.Implementation.Created(++_instances, name));
     }
 
     class Component : Root.Component<Component, RootEvent.Component.Implementation.Root, RootEvent.Component.IRoot>
@@ -46,7 +46,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
         public void Rename(string name) { Publish(new RootEvent.Component.Implementation.Renamed(name)); }
         public Entity AddEntity(string name) => _entities.AddByPublishing(new RootEvent.Component.Entity.Implementation.Created(++_instances, name));
 
-        public class Entity : NestedEntity<Entity,
+        public class Entity : RemovableNestedEntity<Entity,
                                   int,
                                   RootEvent.Component.Entity.Implementation.Root,
                                   RootEvent.Component.Entity.IRoot,
@@ -66,7 +66,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
         }
     }
 
-    class Entity : Root.Entity<Entity,
+    class RemovableEntity : Root.RemovableEntity<RemovableEntity,
                               int,
                               RootEvent.Entity.Implementation.Root,
                               RootEvent.Entity.IRoot,
@@ -76,20 +76,20 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
     {
         static int _instances;
         public string Name { get; private set; }
-        public Entity(Root root) : base(root)
+        public RemovableEntity(Root root) : base(root)
         {
-            _entities = NestedEntity.CreateSelfManagingCollection(this);
+            _entities = RemovableNestedEntity.CreateSelfManagingCollection(this);
             RegisterEventAppliers()
                 .For<RootEvent.Entity.PropertyUpdated.Name>(e => Name = e.Name);
         }
 
-        public IReadOnlyEntityCollection<NestedEntity, int> Entities => _entities.Entities;
-        readonly NestedEntity.CollectionManager _entities;
+        public IReadOnlyEntityCollection<RemovableNestedEntity, int> Entities => _entities.Entities;
+        readonly RemovableNestedEntity.CollectionManager _entities;
 
         public void Rename(string name) { Publish(new RootEvent.Entity.Implementation.Renamed(name)); }
         public void Remove() => Publish(new RootEvent.Entity.Implementation.Removed());
 
-        public class NestedEntity : NestedEntity<NestedEntity,
+        public class RemovableNestedEntity : RemovableNestedEntity<RemovableNestedEntity,
                                         int,
                                         RootEvent.Entity.NestedEntity.Implementation.Root,
                                         RootEvent.Entity.NestedEntity.IRoot,
@@ -98,7 +98,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
                                         RootEvent.Entity.NestedEntity.Implementation.Root.IdGetterSetter>
         {
             public string Name { get; private set; }
-            public NestedEntity(Entity entity) : base(entity)
+            public RemovableNestedEntity(RemovableEntity removableEntity) : base(removableEntity)
             {
                 RegisterEventAppliers()
                     .For<RootEvent.Entity.NestedEntity.PropertyUpdated.Name>(e => Name = e.Name);
@@ -109,7 +109,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
 
         }
 
-        public NestedEntity AddEntity(string name)
+        public RemovableNestedEntity AddEntity(string name)
             => _entities.AddByPublishing(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: ++_instances, name: name));
     }
 }

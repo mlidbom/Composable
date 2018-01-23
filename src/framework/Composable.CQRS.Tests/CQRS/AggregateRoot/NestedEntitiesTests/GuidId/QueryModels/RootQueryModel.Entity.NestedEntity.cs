@@ -5,7 +5,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryMo
 {
     partial class Entity
     {
-        public class NestedEntity : NestedEntity<NestedEntity,
+        public class RemovableNestedEntity : RemovableNestedEntity<RemovableNestedEntity,
                                         Guid,
                                         RootEvent.Entity.NestedEntity.IRoot,
                                         RootEvent.Entity.NestedEntity.Created,
@@ -13,7 +13,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryMo
                                         RootEvent.Entity.NestedEntity.Implementation.Root.IdGetterSetter>
         {
             public string Name { get; private set; }
-            public NestedEntity(Entity entity) : base(entity)
+            public RemovableNestedEntity(Entity entity) : base(entity)
             {
                 RegisterEventAppliers()
                     .For<RootEvent.Entity.NestedEntity.PropertyUpdated.Name>(e => Name = e.Name);

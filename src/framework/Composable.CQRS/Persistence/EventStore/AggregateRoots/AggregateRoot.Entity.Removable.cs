@@ -8,7 +8,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
         where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
-        public abstract class Entity<TEntity,
+        public abstract class RemovableEntity<TEntity,
                                      TEntityId,
                                      TEntityBaseEventClass,
                                      TEntityBaseEventInterface,
@@ -24,7 +24,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             where TEntityBaseEventClass : TAggregateRootBaseEventClass, TEntityBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntityRemovedEventInterface : TEntityBaseEventInterface
-            where TEntity : Entity<TEntity,
+            where TEntity : RemovableEntity<TEntity,
                                 TEntityId,
                                 TEntityBaseEventClass,
                                 TEntityBaseEventInterface,
@@ -34,9 +34,9 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>,
                 new()
         {
-            static Entity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.AssertStaticStructureIsValid();
+            static RemovableEntity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.AssertStaticStructureIsValid();
 
-            protected Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot)
+            protected RemovableEntity(TAggregateRoot aggregateRoot) : base(aggregateRoot)
             {
                 RegisterEventAppliers()
                     .IgnoreUnhandled<TEntityRemovedEventInterface>();

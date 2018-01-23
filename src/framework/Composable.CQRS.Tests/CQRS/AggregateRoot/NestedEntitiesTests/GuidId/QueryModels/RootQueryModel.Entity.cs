@@ -14,12 +14,12 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryMo
         public string Name { get; private set; }
         public Entity(RootQueryModel root) : base(root)
         {
-            _entities = NestedEntity.CreateSelfManagingCollection(this);
+            _entities = RemovableNestedEntity.CreateSelfManagingCollection(this);
             RegisterEventAppliers()
                 .For<RootEvent.Entity.PropertyUpdated.Name>(e => Name = e.Name);
         }
 
-        public IReadonlyQueryModelEntityCollection<NestedEntity, Guid> Entities => _entities.Entities;
-        readonly NestedEntity.CollectionManager _entities;
+        public IReadonlyQueryModelEntityCollection<RemovableNestedEntity, Guid> Entities => _entities.Entities;
+        readonly RemovableNestedEntity.CollectionManager _entities;
     }
 }

@@ -8,7 +8,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
     class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {
         public string Name { get; private set; }
-        readonly Entity.CollectionManager _entities;
+        readonly RemovableEntity.CollectionManager _entities;
 #pragma warning disable 108,114
         public Component Component { get; private set; }
 #pragma warning restore 108,114
@@ -16,7 +16,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
         public Root(string name) : base(new DateTimeNowTimeSource())
         {
             Component = new Component(this);
-            _entities = Entity.CreateSelfManagingCollection(this);
+            _entities = RemovableEntity.CreateSelfManagingCollection(this);
 
             RegisterEventAppliers()
                 .For<RootEvent.PropertyUpdated.Name>(e => Name = e.Name);
@@ -24,7 +24,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
             Publish(new RootEvent.Implementation.Created(Guid.NewGuid(), name));
         }
 
-        public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;
-        public Entity AddEntity(string name) => _entities.AddByPublishing(new RootEvent.Entity.Implementation.Created(Guid.NewGuid(), name));
+        public IReadOnlyEntityCollection<RemovableEntity, Guid> Entities => _entities.Entities;
+        public RemovableEntity AddEntity(string name) => _entities.AddByPublishing(new RootEvent.Entity.Implementation.Created(Guid.NewGuid(), name));
     }
 }

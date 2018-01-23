@@ -4,7 +4,7 @@ using Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Even
 
 namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 {
-    partial class Entity : Root.Entity<Entity,
+    partial class RemovableEntity : Root.RemovableEntity<RemovableEntity,
                               Guid,
                               RootEvent.Entity.Implementation.Root,
                               RootEvent.Entity.IRoot,
@@ -13,20 +13,20 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
                               RootEvent.Entity.Implementation.Root.IdGetterSetter>
     {
         public string Name { get; private set; }
-        public Entity(Root root) : base(root)
+        public RemovableEntity(Root root) : base(root)
         {
-            _entities = NestedEntity.CreateSelfManagingCollection(this);
+            _entities = RemovableNestedEntity.CreateSelfManagingCollection(this);
             RegisterEventAppliers()
                 .For<RootEvent.Entity.PropertyUpdated.Name>(e => Name = e.Name);
         }
 
-        public IReadOnlyEntityCollection<NestedEntity, Guid> Entities => _entities.Entities;
-        readonly NestedEntity.CollectionManager _entities;
+        public IReadOnlyEntityCollection<RemovableNestedEntity, Guid> Entities => _entities.Entities;
+        readonly RemovableNestedEntity.CollectionManager _entities;
 
         public void Rename(string name) { Publish(new RootEvent.Entity.Implementation.Renamed(name)); }
         public void Remove() => Publish(new RootEvent.Entity.Implementation.Removed());
 
-        public NestedEntity AddEntity(string name)
+        public RemovableNestedEntity AddEntity(string name)
             => _entities.AddByPublishing(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: Guid.NewGuid(), name: name));
     }
 }

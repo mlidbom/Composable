@@ -11,7 +11,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventInterface>
         {
-            internal abstract class NestedEntity<TEntity,
+            internal abstract class RemovableNestedEntity<TEntity,
                                                TEntityId,
                                                TEntityBaseEventInterface,
                                                TEntityCreatedEventInterface,
@@ -33,11 +33,11 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                     TEntityCreatedEventInterface,
                                     TEventEntityIdGetter>
             {
-                protected NestedEntity(TComponent parent) : this(parent.RegisterEventAppliers())
+                protected RemovableNestedEntity(TComponent parent) : this(parent.RegisterEventAppliers())
                 {
                 }
 
-                NestedEntity(IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar): base(appliersRegistrar)
+                RemovableNestedEntity(IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar): base(appliersRegistrar)
                 {
                     RegisterEventAppliers()
                         .IgnoreUnhandled<TEntityRemovedEventInterface>();

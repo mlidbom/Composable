@@ -33,10 +33,11 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId
         }
 
         [Test]
-        public void Createing_nested_entities_works_and_events_dispatch_correctly()
+        public void Creating_aggregate_entities_works_and_events_dispatch_correctly()
         {
             var agEntity1 = Ag.AddEntity("entity1");
             var qmEntity1 = Qm.Entities.InCreationOrder[0];
+            qmEntity1.Id.Should().Be(agEntity1.Id);
             agEntity1.Name.Should().Be("entity1");
             qmEntity1.Name.Should().Be("entity1");
             Ag.Entities.InCreationOrder.Count.Should().Be(1);
@@ -110,72 +111,75 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId
         }
 
         [Test]
-        public void EntityNestedInComponentWorks()
+        public void EntityNestedInComponentTests()
         {
-            var agEntity1 = Ag.AddEntity("entity1");
-            var qmEntity1 = Qm.Entities.InCreationOrder[0];
-            qmEntity1.Id.Should().Be(agEntity1.Id);
-            agEntity1.Name.Should().Be("entity1");
-            qmEntity1.Name.Should().Be("entity1");
-            Ag.Entities.InCreationOrder.Count.Should().Be(1);
-            Qm.Entities.InCreationOrder.Count.Should().Be(1);
-            Ag.Entities.Exists(agEntity1.Id).Should().Be(true);
-            Qm.Entities.Exists(agEntity1.Id).Should().Be(true);
-            Ag.Entities.Get(agEntity1.Id).Should().Be(agEntity1);
-            Qm.Entities.Get(agEntity1.Id).Should().Be(qmEntity1);
-            Ag.Entities[agEntity1.Id].Should().Be(agEntity1);
-            Qm.Entities[agEntity1.Id].Should().Be(qmEntity1);
+            var agComponent = Ag.Component;
+            var qmComponent = Qm.Component;
 
-            var agEntity2 = Ag.AddEntity("entity2");
-            var qmEntity2 = Qm.Entities.InCreationOrder[1];
+            var agComponentEntity1 = agComponent.AddEntity("entity1");
+            var qmComponentEntity1 = qmComponent.Entities.InCreationOrder[0];
+            qmComponentEntity1.Id.Should().Be(agComponentEntity1.Id);
+            agComponentEntity1.Name.Should().Be("entity1");
+            qmComponentEntity1.Name.Should().Be("entity1");
+            agComponent.Entities.InCreationOrder.Count.Should().Be(1);
+            qmComponent.Entities.InCreationOrder.Count.Should().Be(1);
+            agComponent.Entities.Exists(agComponentEntity1.Id).Should().Be(true);
+            qmComponent.Entities.Exists(agComponentEntity1.Id).Should().Be(true);
+            agComponent.Entities.Get(agComponentEntity1.Id).Should().Be(agComponentEntity1);
+            qmComponent.Entities.Get(agComponentEntity1.Id).Should().Be(qmComponentEntity1);
+            agComponent.Entities[agComponentEntity1.Id].Should().Be(agComponentEntity1);
+            qmComponent.Entities[agComponentEntity1.Id].Should().Be(qmComponentEntity1);
+
+            var agEntity2 = agComponent.AddEntity("entity2");
+            var qmEntity2 = qmComponent.Entities.InCreationOrder[1];
             agEntity2.Name.Should().Be("entity2");
             qmEntity2.Name.Should().Be("entity2");
-            Ag.Entities.InCreationOrder.Count.Should().Be(2);
-            Qm.Entities.InCreationOrder.Count.Should().Be(2);
-            Ag.Entities.Exists(agEntity2.Id).Should().Be(true);
-            Qm.Entities.Exists(agEntity2.Id).Should().Be(true);
-            Ag.Entities[agEntity2.Id].Should().Be(agEntity2);
-            Qm.Entities[agEntity2.Id].Should().Be(qmEntity2);
+            agComponent.Entities.InCreationOrder.Count.Should().Be(2);
+            qmComponent.Entities.InCreationOrder.Count.Should().Be(2);
+            agComponent.Entities.Exists(agEntity2.Id).Should().Be(true);
+            qmComponent.Entities.Exists(agEntity2.Id).Should().Be(true);
+            agComponent.Entities[agEntity2.Id].Should().Be(agEntity2);
+            qmComponent.Entities[agEntity2.Id].Should().Be(qmEntity2);
 
-            agEntity1.Rename("newName");
-            agEntity1.Name.Should().Be("newName");
-            qmEntity1.Name.Should().Be("newName");
+            agComponentEntity1.Rename("newName");
+            agComponentEntity1.Name.Should().Be("newName");
+            qmComponentEntity1.Name.Should().Be("newName");
             agEntity2.Name.Should().Be("entity2");
             qmEntity2.Name.Should().Be("entity2");
 
             agEntity2.Rename("newName2");
             agEntity2.Name.Should().Be("newName2");
             qmEntity2.Name.Should().Be("newName2");
-            agEntity1.Name.Should().Be("newName");
-            qmEntity1.Name.Should().Be("newName");
+            agComponentEntity1.Name.Should().Be("newName");
+            qmComponentEntity1.Name.Should().Be("newName");
 
-            Ag.Entities.InCreationOrder.Count.Should().Be(2);
-            Qm.Entities.InCreationOrder.Count.Should().Be(2);
+            agComponent.Entities.InCreationOrder.Count.Should().Be(2);
+            qmComponent.Entities.InCreationOrder.Count.Should().Be(2);
 
             agEntity2.Remove();
-            Ag.Entities.Exists(agEntity2.Id).Should().Be(false);
-            Qm.Entities.Exists(agEntity2.Id).Should().Be(false);
-            Ag.Entities.InCreationOrder.Count.Should().Be(1);
-            Qm.Entities.InCreationOrder.Count.Should().Be(1);
-            Ag.Invoking(_ => Ag.Entities.Get(agEntity2.Id)).ShouldThrow<Exception>();
-            Qm.Invoking(_ => Ag.Entities.Get(agEntity2.Id)).ShouldThrow<Exception>();
-            Ag.Invoking(_ => { var __ = Ag.Entities[agEntity2.Id]; }).ShouldThrow<Exception>();
-            Qm.Invoking(_ => { var __ = Ag.Entities[agEntity2.Id]; }).ShouldThrow<Exception>();
+            agComponent.Entities.Exists(agEntity2.Id).Should().Be(false);
+            qmComponent.Entities.Exists(agEntity2.Id).Should().Be(false);
+            agComponent.Entities.InCreationOrder.Count.Should().Be(1);
+            qmComponent.Entities.InCreationOrder.Count.Should().Be(1);
+            agComponent.Invoking(@this => @this.Entities.Get(agEntity2.Id)).ShouldThrow<Exception>();
+            qmComponent.Invoking(@this => @this.Entities.Get(agEntity2.Id)).ShouldThrow<Exception>();
+            agComponent.Invoking(@this => { var __ = @this.Entities[agEntity2.Id]; }).ShouldThrow<Exception>();
+            qmComponent.Invoking(@this => { var __ = @this.Entities[agEntity2.Id]; }).ShouldThrow<Exception>();
 
-            agEntity1.Remove();
-            Ag.Entities.Exists(agEntity1.Id).Should().Be(false);
-            Qm.Entities.Exists(agEntity1.Id).Should().Be(false);
-            Ag.Entities.InCreationOrder.Count.Should().Be(0);
-            Qm.Entities.InCreationOrder.Count.Should().Be(0);
-            Ag.Invoking(_ => Ag.Entities.Get(agEntity1.Id)).ShouldThrow<Exception>();
-            Qm.Invoking(_ => Ag.Entities.Get(agEntity1.Id)).ShouldThrow<Exception>();
-            Ag.Invoking(_ => { var __ = Ag.Entities[agEntity1.Id]; }).ShouldThrow<Exception>();
-            Qm.Invoking(_ => { var __ = Ag.Entities[agEntity1.Id]; }).ShouldThrow<Exception>();
+            agComponentEntity1.Remove();
+            agComponent.Entities.Exists(agComponentEntity1.Id).Should().Be(false);
+            qmComponent.Entities.Exists(agComponentEntity1.Id).Should().Be(false);
+            agComponent.Entities.InCreationOrder.Count.Should().Be(0);
+            qmComponent.Entities.InCreationOrder.Count.Should().Be(0);
+            agComponent.Invoking(@this => @this.Entities.Get(agComponentEntity1.Id)).ShouldThrow<Exception>();
+            qmComponent.Invoking(@this => @this.Entities.Get(agComponentEntity1.Id)).ShouldThrow<Exception>();
+            agComponent.Invoking(@this => { var __ = @this.Entities[agComponentEntity1.Id]; }).ShouldThrow<Exception>();
+            qmComponent.Invoking(@this => { var __ = @this.Entities[agComponentEntity1.Id]; }).ShouldThrow<Exception>();
         }
 
 
         [Test]
-        public void EntityNestedInEntityWorks()
+        public void EntityNestedInEntityTests()
         {
             var agRootEntity = Ag.AddEntity("RootEntityName");
             var qmRootEntity = Qm.Entities.InCreationOrder[0];

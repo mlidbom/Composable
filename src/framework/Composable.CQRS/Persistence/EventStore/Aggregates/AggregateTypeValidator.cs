@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Composable.Messaging;
 using Composable.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Linq;
@@ -92,19 +93,70 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
                 var detectedEventImplementationType = inheritedAggregateType.GenericTypeArguments[1];
                 var detectedEventType = inheritedAggregateType.GenericTypeArguments[2];
 
-                var typesToInspect = new List<Type> {typeof(TAggregate), detectedEventType, detectedEventImplementationType};
+                var eventTypesToInspect = new List<Type> {detectedEventType, detectedEventImplementationType};
 
-                typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(detectedEventImplementationType));
-                typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(detectedEventType));
+                eventTypesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(detectedEventImplementationType));
+                eventTypesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(detectedEventType));
 
-                typesToInspect = typesToInspect.Distinct().ToList();
+                eventTypesToInspect = eventTypesToInspect.Distinct().ToList();
 
-                typeMapper.AssertMappingsExistFor(typesToInspect);
+                typeMapper.AssertMappingsExistFor(eventTypesToInspect.Append(typeof(TAggregate)));
+
+                MessageInspector.AssertValid(eventTypesToInspect);
             }
 
             static IReadOnlyList<Type> GetAllInheritingClassesOrInterfaces(Type type) => type.Assembly.GetTypes()
                                                                                              .Where(type.IsAssignableFrom)
                                                                                              .ToList();
+        }
+    }
+
+    class MessageInspector
+    {
+        static readonly HashSet<Type> SuccessfullyInspectedTypes = new HashSet<Type>();
+
+        internal static void AssertValid(IReadOnlyList<Type> eventTypesToInspect)
+        {
+            foreach(var type in eventTypesToInspect)
+            {
+                AssertTypeIsValid(type);
+            }
+        }
+
+        public static void AssertValid(IMessage message) => AssertTypeIsValid(message.GetType());
+
+        static void AssertTypeIsValid(Type type)
+        {
+            lock(SuccessfullyInspectedTypes)
+            {
+                if(SuccessfullyInspectedTypes.Contains(type)) return;
+
+                if(type.Implements<ICommand>() && type.Implements<IEvent>())
+                {
+                    throw new Exception($"{type.FullName} implements both {typeof(ICommand)} and {typeof(IEvent)}.");
+                }
+
+                if(type.Implements<ICommand>() && type.Implements<IQuery>())
+                {
+                    throw new Exception($"{type.FullName} implements both {typeof(ICommand)} and {typeof(IQuery)}.");
+                }
+
+                if(type.Implements<IEvent>() && type.Implements<IQuery>())
+                {
+                    throw new Exception($"{type.FullName} implements both {typeof(IEvent)} and {typeof(IQuery)}.");
+                }
+
+                if(type.Implements<IRemoteMessage>() && type.Implements<ILocalMessage>())
+                {
+                    throw new Exception($"{type.FullName} implements both {typeof(IRemoteMessage)} and {typeof(ILocalMessage)}.");
+                }
+
+                if(type.Implements<IRequiresTransactionalSendOperationMessage>() && type.Implements<IForbidTransactionalSendOperationMessage>())
+                {
+                    throw new Exception($"{type.FullName} implements both {typeof(IRequiresTransactionalSendOperationMessage)} and {typeof(IForbidTransactionalSendOperationMessage)}.");
+                }
+                SuccessfullyInspectedTypes.Add(type);
+            }
         }
     }
 }

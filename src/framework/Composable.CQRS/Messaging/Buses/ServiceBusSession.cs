@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.EventStore.Aggregates;
 using Composable.System.Threading;
 using Composable.System.Transactions;
 using Composable.SystemExtensions.Threading;
@@ -26,6 +27,7 @@ namespace Composable.Messaging.Buses
         async Task<TResult> IRemoteServiceBusSession.GetRemoteAsync<TResult>(IQuery<TResult> query)
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
+            MessageInspector.AssertValid(query);
             return query is ICreateMyOwnResultQuery<TResult> selfCreating
                        ? selfCreating.CreateResult()
                        : await _transport.DispatchAsync(query).NoMarshalling();
@@ -36,6 +38,7 @@ namespace Composable.Messaging.Buses
         void IEventstoreEventPublisher.Publish(IExactlyOnceEvent @event) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
+            MessageInspector.AssertValid(@event);
             _handlerRegistry.CreateEventDispatcher().Dispatch(@event);
             _transport.DispatchIfTransactionCommits(@event);
         });
@@ -43,12 +46,14 @@ namespace Composable.Messaging.Buses
         void IRemoteServiceBusSession.PostRemote(IExactlyOnceCommand command) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
+            MessageInspector.AssertValid(command);
             CommandValidator.AssertCommandIsValid(command);
             _transport.DispatchIfTransactionCommits(command);
         });
 
         void IRemoteServiceBusSession.SchedulePostRemote(DateTime sendAt, IExactlyOnceCommand command) => TransactionScopeCe.Execute(() =>
         {
+            MessageInspector.AssertValid(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
             CommandValidator.AssertCommandIsValid(command);
             _commandScheduler.Schedule(sendAt, command);
@@ -56,6 +61,7 @@ namespace Composable.Messaging.Buses
 
         Task<TResult> IRemoteServiceBusSession.PostRemoteAsync<TResult>(IExactlyOnceCommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
+            MessageInspector.AssertValid(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
             CommandValidator.AssertCommandIsValid(command);
             return _transport.DispatchIfTransactionCommitsAsync(command);
@@ -65,6 +71,7 @@ namespace Composable.Messaging.Buses
 
         TResult ILocalServiceBusSession.Post<TResult>(IExactlyOnceCommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
+            MessageInspector.AssertValid(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
             CommandValidator.AssertCommandIsValid(command);
             return _handlerRegistry.GetCommandHandler(command).Invoke(command);
@@ -72,6 +79,7 @@ namespace Composable.Messaging.Buses
 
         void ILocalServiceBusSession.Post(IExactlyOnceCommand command) => TransactionScopeCe.Execute(() =>
         {
+            MessageInspector.AssertValid(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
             CommandValidator.AssertCommandIsValid(command);
             _handlerRegistry.GetCommandHandler(command).Invoke(command);
@@ -79,6 +87,7 @@ namespace Composable.Messaging.Buses
 
         TResult ILocalServiceBusSession.Get<TResult>(IQuery<TResult> query)
         {
+            MessageInspector.AssertValid(query);
             _contextGuard.AssertNoContextChangeOccurred(this);
             return query is ICreateMyOwnResultQuery<TResult> selfCreating
                        ? selfCreating.CreateResult()

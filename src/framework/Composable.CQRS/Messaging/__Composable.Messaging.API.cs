@@ -23,16 +23,16 @@ namespace Composable.Messaging
 
     public interface IRemoteMessage : IMessage {}
 
-    public interface ILocalMessage : IMessage {} //todo: type validation that no messages are both IRemoteMessage and ILocalmessage
+    public interface ILocalMessage : IMessage {}
     public interface ILocalEvent : IEvent, ILocalMessage { }
     public interface ILocalCommand : ICommand, ILocalMessage { }
     public interface ILocalCommand<TResult> : ICommand<TResult>, ILocalMessage  { }
     public interface ILocalQuery<TResult> : ILocalMessage, IQuery<TResult> { }
 
 
-    public interface IForbidTransactionalSendOperationMessage : IRemoteMessage{ } //todo: type validation that no messages are both IForbidTransactionalSendOperationMessage and IRequiresTransactionalSendOperationMessage
+    public interface IForbidTransactionalSendOperationMessage : IRemoteMessage{ }
 
-    public interface IUserInterfaceMessage : IForbidTransactionalSendOperationMessage, IMessage {} //todo: type validation that no messages are both IUserInterfaceMessage and ILocalMessage
+    public interface IUserInterfaceMessage : IForbidTransactionalSendOperationMessage, IMessage {}
     public interface IUserInterfaceCommand<TResult> : ICommand<TResult>, IUserInterfaceMessage  { }
     public interface IUserInterfaceQuery<TResult> : IUserInterfaceMessage, IQuery<TResult> { }
 

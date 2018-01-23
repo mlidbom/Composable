@@ -112,7 +112,7 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
         }
     }
 
-    class MessageInspector
+    static class MessageInspector
     {
         static readonly HashSet<Type> SuccessfullyInspectedTypes = new HashSet<Type>();
 

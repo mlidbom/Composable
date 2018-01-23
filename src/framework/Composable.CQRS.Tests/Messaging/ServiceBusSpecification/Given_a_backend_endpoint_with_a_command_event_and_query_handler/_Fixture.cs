@@ -68,7 +68,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         }
 
         protected class MyCommand : TransactionalExactlyOnceDeliveryCommand {}
-        protected class MyEvent : AggregateRootEvent {}
+        protected class MyEvent : AggregateEvent {}
         protected class MyQuery : Query<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
         protected class MyCommandWithResult : TransactionalExactlyOnceDeliveryCommand<MyCommandResult> {}

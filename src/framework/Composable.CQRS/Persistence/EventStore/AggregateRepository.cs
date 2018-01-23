@@ -1,12 +1,12 @@
 ﻿using System;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 
 namespace Composable.Persistence.EventStore
 {
-    public class AggregateRepository<TAggregate, TBaseEventClass, TBaseEventInterface> : IAggregateRepository<TAggregate>
-        where TAggregate : AggregateRoot<TAggregate, TBaseEventClass, TBaseEventInterface>, IEventStored
-        where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
-        where TBaseEventInterface : class, IAggregateRootEvent
+    public class AggregateRepository<TAggregate, TAggregateEventImplementation, TAggregateEvent> : IAggregateRepository<TAggregate>
+        where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>, IEventStored
+        where TAggregateEventImplementation : AggregateEvent, TAggregateEvent
+        where TAggregateEvent : class, IAggregateEvent
     {
         readonly IEventStoreReader _reader;
         readonly IEventStoreUpdater _aggregates;
@@ -25,8 +25,8 @@ namespace Composable.Persistence.EventStore
         }
 
         //todo: readonly copy should throw exception if trying to publish events.
-        public TAggregate GetReadonlyCopy(Guid aggregateRootId) => GetReadonlyCopyOfVersion(aggregateRootId, int.MaxValue);
+        public TAggregate GetReadonlyCopy(Guid aggregateId) => GetReadonlyCopyOfVersion(aggregateId, int.MaxValue);
 
-        public virtual TAggregate GetReadonlyCopyOfVersion(Guid aggregateRootId, int version) => _reader.GetReadonlyCopyOfVersion<TAggregate>(aggregateRootId, version);
+        public virtual TAggregate GetReadonlyCopyOfVersion(Guid aggregateId, int version) => _reader.GetReadonlyCopyOfVersion<TAggregate>(aggregateId, version);
     }
 }

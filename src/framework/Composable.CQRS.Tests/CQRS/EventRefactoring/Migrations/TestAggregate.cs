@@ -4,19 +4,19 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 using JetBrains.Annotations;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
-    interface IRootEvent : IAggregateRootEvent { }
+    interface IRootEvent : IAggregateEvent { }
 
-    abstract class RootEvent : AggregateRootEvent, IRootEvent
+    abstract class RootEvent : AggregateEvent, IRootEvent
     {}
 
     namespace Events
     {
-        abstract class EcAbstract : RootEvent, IAggregateRootCreatedEvent
+        abstract class EcAbstract : RootEvent, IAggregateCreatedEvent
         {}
 
         // ReSharper disable ClassNeverInstantiated.Global
@@ -38,14 +38,14 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
     }
 
 
-    class TestAggregate : AggregateRoot<TestAggregate, RootEvent, IRootEvent>
+    class TestAggregate : Aggregate<TestAggregate, RootEvent, IRootEvent>
     {
         public void Publish(params RootEvent[] events)
         {
-            if (GetIdBypassContractValidation() == Guid.Empty && events.First().AggregateRootId == Guid.Empty)
+            if (GetIdBypassContractValidation() == Guid.Empty && events.First().AggregateId == Guid.Empty)
             {
                 SetIdBeVerySureYouKnowWhatYouAreDoing(Guid.NewGuid());
-                events.Cast<AggregateRootEvent>().First().AggregateRootId = Id;
+                events.Cast<AggregateEvent>().First().AggregateId = Id;
             }
 
             foreach (var @event in events)
@@ -74,7 +74,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
         public TestAggregate(IUtcTimeTimeSource timeSource, params RootEvent[] events):this(timeSource)
         {
-            OldContract.Assert.That(events.First() is IAggregateRootCreatedEvent, "events.First() is IAggregateRootCreatedEvent");
+            OldContract.Assert.That(events.First() is IAggregateCreatedEvent, "events.First() is IAggregateCreatedEvent");
 
             Publish(events);
         }
@@ -82,12 +82,12 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public static TestAggregate FromEvents(IUtcTimeTimeSource timeSource, Guid? id, IEnumerable<Type> events)
         {
             var rootEvents = events.ToEvents();
-            rootEvents.Cast<AggregateRootEvent>().First().AggregateRootId = id ?? Guid.NewGuid();
+            rootEvents.Cast<AggregateEvent>().First().AggregateId = id ?? Guid.NewGuid();
             return new TestAggregate(timeSource, rootEvents);
         }
 
         readonly List<IRootEvent> _history = new List<IRootEvent>();
-        public IReadOnlyList<IAggregateRootEvent> History => _history;
+        public IReadOnlyList<IAggregateEvent> History => _history;
     }
 
     static class EventSequenceGenerator

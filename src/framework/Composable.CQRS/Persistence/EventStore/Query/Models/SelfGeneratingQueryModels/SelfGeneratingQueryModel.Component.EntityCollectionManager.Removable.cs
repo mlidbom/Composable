@@ -1,37 +1,37 @@
 ﻿using Composable.Messaging.Events;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+    public abstract partial class SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
+        where TQueryModel : SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateEvent
     {
-        public abstract partial class Component<TComponent, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TComponent : Component<TComponent, TComponentBaseEventInterface>
+        public abstract partial class Component<TComponent, TComponentEvent>
+            where TComponentEvent : class, TAggregateEvent
+            where TComponent : Component<TComponent, TComponentEvent>
         {
             internal class QueryModelEntityCollectionManager<TParent,
                                                  TEntity,
                                                  TEntityId,
-                                                 TEntityBaseEventInterface,
-                                                 TEntityCreatedEventInterface,
-                                                 TEntityRemovedEventInterface,
+                                                 TEntityEvent,
+                                                 TEntityCreatedEvent,
+                                                 TEntityRemovedEvent,
                                                  TEventEntityIdGetter> : QueryModelEntityCollectionManager<TParent,
                                                                                    TEntity,
                                                                                    TEntityId,
-                                                                                   TEntityBaseEventInterface,
-                                                                                   TEntityCreatedEventInterface,
+                                                                                   TEntityEvent,
+                                                                                   TEntityCreatedEvent,
                                                                                    TEventEntityIdGetter>
-                where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
-                where TEntityCreatedEventInterface : TEntityBaseEventInterface
-                where TEntityRemovedEventInterface : TEntityBaseEventInterface
-                where TEntity : Component<TEntity, TEntityBaseEventInterface>
-                where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
+                where TEntityEvent : class, TAggregateEvent
+                where TEntityCreatedEvent : TEntityEvent
+                where TEntityRemovedEvent : TEntityEvent
+                where TEntity : Component<TEntity, TEntityEvent>
+                where TEventEntityIdGetter : IGetAggregateEntityEventEntityId<TEntityEvent, TEntityId>, new()
             {
-                protected QueryModelEntityCollectionManager (TParent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, appliersRegistrar)
+                protected QueryModelEntityCollectionManager (TParent parent, IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(parent, appliersRegistrar)
                 {
-                    appliersRegistrar.For<TEntityRemovedEventInterface>(
+                    appliersRegistrar.For<TEntityRemovedEvent>(
                         e =>
                         {
                             var id = IdGetter.GetId(e);

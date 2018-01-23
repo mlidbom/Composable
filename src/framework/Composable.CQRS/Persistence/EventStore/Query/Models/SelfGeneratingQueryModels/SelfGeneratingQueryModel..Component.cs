@@ -2,38 +2,38 @@
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot,  TAggregateRootBaseEventInterface>
-        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot,  TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+    public abstract partial class SelfGeneratingQueryModel<TQueryModel,  TAggregateEvent>
+        where TQueryModel : SelfGeneratingQueryModel<TQueryModel,  TAggregateEvent>
+        where TAggregateEvent : class, IAggregateEvent
     {
-        public abstract partial class Component<TComponent, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TComponent : Component<TComponent, TComponentBaseEventInterface>
+        public abstract partial class Component<TComponent, TComponentEvent>
+            where TComponentEvent : class, TAggregateEvent
+            where TComponent : Component<TComponent, TComponentEvent>
         {
-            readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
-                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
+            readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentEvent> _eventAppliersEventDispatcher =
+                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentEvent>();
 
-            void ApplyEvent(TComponentBaseEventInterface @event)
+            void ApplyEvent(TComponentEvent @event)
             {
                 _eventAppliersEventDispatcher.Dispatch(@event);
             }
 
-            protected Component(TAggregateRoot aggregateRoot)
+            protected Component(TQueryModel queryModel)
                 : this(
-                    appliersRegistrar: aggregateRoot.RegisterEventAppliers(),
+                    appliersRegistrar: queryModel.RegisterEventAppliers(),
                     registerEventAppliers: true)
             {}
 
-            internal Component(IEventHandlerRegistrar<TComponentBaseEventInterface> appliersRegistrar, bool registerEventAppliers)
+            internal Component(IEventHandlerRegistrar<TComponentEvent> appliersRegistrar, bool registerEventAppliers)
             {
                 if(registerEventAppliers)
                 {
                     appliersRegistrar
-                                 .For<TComponentBaseEventInterface>(ApplyEvent);
+                                 .For<TComponentEvent>(ApplyEvent);
                 }
             }
 
-            protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventAppliers() => _eventAppliersEventDispatcher.Register();
+            protected IEventHandlerRegistrar<TComponentEvent> RegisterEventAppliers() => _eventAppliersEventDispatcher.Register();
         }
     }
 }

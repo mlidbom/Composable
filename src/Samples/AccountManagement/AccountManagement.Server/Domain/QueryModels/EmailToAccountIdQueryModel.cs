@@ -31,9 +31,9 @@ namespace AccountManagement.Domain.QueryModels
         internal static void UpdateQueryModelWhenEmailChanges(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
             (AccountEvent.PropertyUpdated.Email message, IDocumentDbUpdater queryModels, ILocalServiceBusSession bus) =>
             {
-                if(message.AggregateRootVersion > 1)
+                if(message.AggregateVersion > 1)
                 {
-                    var previousAccountVersion = bus.Get(PrivateAccountApi.Queries.ReadOnlyCopyOfVersion(message.AggregateRootId, message.AggregateRootVersion -1));
+                    var previousAccountVersion = bus.Get(PrivateAccountApi.Queries.ReadOnlyCopyOfVersion(message.AggregateId, message.AggregateVersion -1));
                     var previousEmail = previousAccountVersion.Email;
 
                     if(previousEmail != null)
@@ -43,7 +43,7 @@ namespace AccountManagement.Domain.QueryModels
                 }
 
                 var newEmail = message.Email;
-                queryModels.Save(newEmail, new EmailToAccountIdQueryModel(newEmail, message.AggregateRootId));
+                queryModels.Save(newEmail, new EmailToAccountIdQueryModel(newEmail, message.AggregateId));
             });
     }
 }

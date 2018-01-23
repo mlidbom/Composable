@@ -3,22 +3,22 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+    public abstract partial class SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
+        where TQueryModel : SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateEvent
     {
-        public abstract partial class Component<TComponent, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TComponent : Component<TComponent, TComponentBaseEventInterface>
+        public abstract partial class Component<TComponent, TComponentEvent>
+            where TComponentEvent : class, TAggregateEvent
+            where TComponent : Component<TComponent, TComponentEvent>
         {
             [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
-            public abstract class NestedComponent<TNestedComponent, TNestedComponentBaseEventInterface> : Component<TNestedComponent, TNestedComponentBaseEventInterface>
-                where TNestedComponentBaseEventInterface : class, TComponentBaseEventInterface
-                where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventInterface>
+            public abstract class NestedComponent<TNestedComponent, TNestedComponentEvent> : Component<TNestedComponent, TNestedComponentEvent>
+                where TNestedComponentEvent : class, TComponentEvent
+                where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentEvent>
             {
                 protected NestedComponent(TComponent parent) : base(parent.RegisterEventAppliers(), registerEventAppliers: true) {}
 
-                protected NestedComponent(IEventHandlerRegistrar<TNestedComponentBaseEventInterface> appliersRegistrar,
+                protected NestedComponent(IEventHandlerRegistrar<TNestedComponentEvent> appliersRegistrar,
                                           bool registerEventAppliers) : base(appliersRegistrar, registerEventAppliers) {}
             }
         }

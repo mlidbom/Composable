@@ -9,6 +9,6 @@ namespace Composable.Persistence.EventStore.Serialization.NewtonSoft
 
         public string Serialize(object @event) => JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings);
 
-        public IAggregateRootEvent Deserialize(Type eventType, string eventData) => (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, eventType, JsonSettings);
+        public IAggregateEvent Deserialize(Type eventType, string eventData) => (IAggregateEvent)JsonConvert.DeserializeObject(eventData, eventType, JsonSettings);
     }
 }

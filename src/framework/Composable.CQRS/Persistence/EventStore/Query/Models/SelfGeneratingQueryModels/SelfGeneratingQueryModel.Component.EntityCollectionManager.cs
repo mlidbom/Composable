@@ -1,42 +1,42 @@
 ﻿using Composable.Messaging.Events;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 using Composable.System.Reflection;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+    public abstract partial class SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
+        where TQueryModel : SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateEvent
     {
-        public abstract partial class Component<TComponent, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TComponent : Component<TComponent, TComponentBaseEventInterface>
+        public abstract partial class Component<TComponent, TComponentEvent>
+            where TComponentEvent : class, TAggregateEvent
+            where TComponent : Component<TComponent, TComponentEvent>
         {
             public class QueryModelEntityCollectionManager<TParent,
                                                  TEntity,
                                                  TEntityId,
-                                                 TEntityBaseEventInterface,
-                                                 TEntityCreatedEventInterface,
-                                                 TEventEntityIdSetterGetter> : IQueryModelEntityCollectionManager<TEntity, TEntityId>
-                where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
-                where TEntityCreatedEventInterface : TEntityBaseEventInterface
-                where TEntity : Component<TEntity, TEntityBaseEventInterface>
-                where TEventEntityIdSetterGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
+                                                 TEntityEvent,
+                                                 TEntityCreatedEvent,
+                                                 TEntityEventIdGetterSetter> : IQueryModelEntityCollectionManager<TEntity, TEntityId>
+                where TEntityEvent : class, TAggregateEvent
+                where TEntityCreatedEvent : TEntityEvent
+                where TEntity : Component<TEntity, TEntityEvent>
+                where TEntityEventIdGetterSetter : IGetAggregateEntityEventEntityId<TEntityEvent, TEntityId>, new()
             {
-                protected static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
+                protected static readonly TEntityEventIdGetterSetter IdGetter = new TEntityEventIdGetterSetter();
 
                 protected readonly QueryModelEntityCollection<TEntity, TEntityId> ManagedEntities;
-                protected QueryModelEntityCollectionManager(TParent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                protected QueryModelEntityCollectionManager(TParent parent, IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)
                 {
                     ManagedEntities = new QueryModelEntityCollection<TEntity, TEntityId>();
                     appliersRegistrar
-                        .For<TEntityCreatedEventInterface>(
+                        .For<TEntityCreatedEvent>(
                             e =>
                             {
                                 var entity = ObjectFactory<TEntity>.CreateInstance(parent);
                                 ManagedEntities.Add(entity, IdGetter.GetId(e));
                             })
-                        .For<TEntityBaseEventInterface>(e => ManagedEntities[IdGetter.GetId(e)].ApplyEvent(e));
+                        .For<TEntityEvent>(e => ManagedEntities[IdGetter.GetId(e)].ApplyEvent(e));
                 }
 
                 public IReadonlyQueryModelEntityCollection<TEntity, TEntityId> Entities => ManagedEntities;

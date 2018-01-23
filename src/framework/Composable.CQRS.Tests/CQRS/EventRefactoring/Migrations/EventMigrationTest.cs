@@ -456,17 +456,17 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 var expected = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E2>()).History;
                 AssertStreamsAreIdentical(expected: expected, migratedHistory: aggregate.History, descriptionOfHistory: "migrated history");
 
-                var completeEventHistory =serviceLocator.ExecuteInIsolatedScope(() => EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateRootEvent>();
+                var completeEventHistory =serviceLocator.ExecuteInIsolatedScope(() => EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateEvent>();
                 AssertStreamsAreIdentical(expected: expected, migratedHistory: completeEventHistory, descriptionOfHistory: "streamed persisted history");
 
                 SafeConsole.WriteLine("Version");
                 SafeConsole.WriteLine("Aggregate Effective Inserted Manual");
                 SafeConsole.WriteLine("A E I M");
-                completeEventHistory.ForEach(@event => SafeConsole.WriteLine($"{@event.AggregateRootVersion} {@event.EffectiveVersion} {@event.InsertedVersion} {@event.ManualVersion}"));
+                completeEventHistory.ForEach(@event => SafeConsole.WriteLine($"{@event.AggregateVersion} {@event.EffectiveVersion} {@event.InsertedVersion} {@event.ManualVersion}"));
 
                 toDispose.Add(serviceLocator = serviceLocator.Clone());
 
-                completeEventHistory = serviceLocator.ExecuteInIsolatedScope(() => EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateRootEvent>();
+                completeEventHistory = serviceLocator.ExecuteInIsolatedScope(() => EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateEvent>();
                 AssertStreamsAreIdentical(expected: expected, migratedHistory: completeEventHistory, descriptionOfHistory: "streamed persisted history");
             }
             finally

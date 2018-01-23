@@ -7,35 +7,35 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>
-        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+    public partial class SelfGeneratingQueryModel<TQueryModel, TAggregateEvent> : VersionedPersistentEntity<TQueryModel>
+        where TQueryModel : SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateEvent
     {
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected SelfGeneratingQueryModel() : base(Guid.Empty)
         {
-            OldContract.Assert.That(typeof(TAggregateRootBaseEventInterface).IsInterface, "typeof(TAggregateRootBaseEventInterface).IsInterface");
+            OldContract.Assert.That(typeof(TAggregateEvent).IsInterface, "typeof(TAggregateEvent).IsInterface");
         }
 
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
 
-        protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();
+        protected IEventHandlerRegistrar<TAggregateEvent> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();
 
-        public void ApplyEvent(TAggregateRootBaseEventInterface theEvent)
+        public void ApplyEvent(TAggregateEvent theEvent)
         {
-            if(theEvent is IAggregateRootCreatedEvent)
+            if(theEvent is IAggregateCreatedEvent)
             {
-                SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateRootId);
+                SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateId);
             }
 
-            Version = theEvent.AggregateRootVersion;
+            Version = theEvent.AggregateVersion;
             _eventDispatcher.Dispatch(theEvent);
         }
 
-        public void LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
+        public void LoadFromHistory(IEnumerable<IAggregateEvent> history)
         {
             Contract.State.Assert(Version == 0);
-            history.ForEach(theEvent => ApplyEvent((TAggregateRootBaseEventInterface)theEvent));
+            history.ForEach(theEvent => ApplyEvent((TAggregateEvent)theEvent));
         }
     }
 }

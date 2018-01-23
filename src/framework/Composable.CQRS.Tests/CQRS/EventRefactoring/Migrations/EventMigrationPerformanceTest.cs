@@ -20,7 +20,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
     {
         public EventMigrationPerformanceTest(Type eventStoreType) : base(eventStoreType) { }
 
-        List<AggregateRootEvent> _history;
+        List<AggregateEvent> _history;
         TestAggregate _aggregate;
         IServiceLocator _container;
         IReadOnlyList<IEventMigration> _currentMigrations;
@@ -36,7 +36,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                                      .Concat(Seq.OfTypes<E2, E4, E6, E8>()))).ToList();
 
             _aggregate = TestAggregate.FromEvents(TestingTimeSource.FrozenUtcNow(), Guid.NewGuid(), historyTypes);
-            _history = _aggregate.History.Cast<AggregateRootEvent>().ToList();
+            _history = _aggregate.History.Cast<AggregateEvent>().ToList();
 
             _currentMigrations = Seq.Empty<IEventMigration>().ToList();
             _container = CreateServiceLocatorForEventStoreType(migrationsfactory: () => _currentMigrations, eventStoreType: EventStoreType);
@@ -87,7 +87,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         }
 
         [Test]
-        public void With_four_migrations_that_change_nothing_uncached_loading_takes_less_than_50_milliseconds_cached_less_than_10_milliseconds()
+        public void With_four_migrations_that_change_nothing_uncached_loading_takes_less_than_50_milliseconds_cached_less_than_15_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
                 Before<E3>.Insert<E1>(),
@@ -96,7 +96,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 Before<E9>.Insert<E1>()
             ).ToArray();
 
-            AssertUncachedAggregateLoadTime(50.Milliseconds(), 10.Milliseconds(), eventMigrations);
+            AssertUncachedAggregateLoadTime(50.Milliseconds(), 15.Milliseconds(), eventMigrations);
         }
 
         [Test]

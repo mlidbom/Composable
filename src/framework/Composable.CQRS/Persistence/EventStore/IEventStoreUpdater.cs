@@ -5,7 +5,7 @@ namespace Composable.Persistence.EventStore
 {
     public interface IEventStoreReader
     {
-        IReadOnlyList<IAggregateRootEvent> GetHistory(Guid aggregateId);
+        IReadOnlyList<IAggregateEvent> GetHistory(Guid aggregateId);
         /// <summary>
         /// Loads a specific version of the aggregate.
         /// This instance is NOT tracked for changes.

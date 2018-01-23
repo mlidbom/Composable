@@ -15,13 +15,13 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
         {
             readonly Dictionary<Guid, int> _aggregateVersions = new Dictionary<Guid, int>();
 
-            public IEnumerable<AggregateRootEvent> Mutate(IEnumerable<AggregateRootEvent> eventStream)
+            public IEnumerable<AggregateEvent> Mutate(IEnumerable<AggregateEvent> eventStream)
             {
                 foreach(var @event in eventStream)
                 {
-                    var version = _aggregateVersions.GetOrAddDefault(@event.AggregateRootId) + 1;
-                    _aggregateVersions[@event.AggregateRootId] = version;
-                    @event.AggregateRootVersion = version;
+                    var version = _aggregateVersions.GetOrAddDefault(@event.AggregateId) + 1;
+                    _aggregateVersions[@event.AggregateId] = version;
+                    @event.AggregateVersion = version;
                     yield return @event;
                 }
             }
@@ -35,12 +35,12 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
             public RealMutator(IReadOnlyList<IEventMigration> eventMigrationFactories) => _eventMigrationFactories = eventMigrationFactories;
 
-            public IEnumerable<AggregateRootEvent> Mutate(IEnumerable<AggregateRootEvent> eventStream)
+            public IEnumerable<AggregateEvent> Mutate(IEnumerable<AggregateEvent> eventStream)
             {
                 foreach(var @event in eventStream)
                 {
                     var mutatedEvents = _aggregateMutatorsCache.GetOrAdd(
-                        @event.AggregateRootId,
+                        @event.AggregateId,
                         () => SingleAggregateInstanceEventStreamMutator.Create(@event, _eventMigrationFactories)
                         ).Mutate(@event);
 

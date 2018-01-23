@@ -14,25 +14,25 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
     //Each of the optimizations were done with the help of a profiler and running benchmarks on the tested performance improvements time and time again.
     class EventModifier : IEventModifier
     {
-        readonly Action<IReadOnlyList<AggregateRootEvent>> _eventsAddedCallback;
-        internal LinkedList<AggregateRootEvent> Events;
-        AggregateRootEvent[] _replacementEvents;
-        AggregateRootEvent[] _insertedEvents;
+        readonly Action<IReadOnlyList<AggregateEvent>> _eventsAddedCallback;
+        internal LinkedList<AggregateEvent> Events;
+        AggregateEvent[] _replacementEvents;
+        AggregateEvent[] _insertedEvents;
 
-        public EventModifier(Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback) => _eventsAddedCallback = eventsAddedCallback;
+        public EventModifier(Action<IReadOnlyList<AggregateEvent>> eventsAddedCallback) => _eventsAddedCallback = eventsAddedCallback;
 
-        public AggregateRootEvent Event;
+        public AggregateEvent Event;
 
-        LinkedListNode<AggregateRootEvent> _currentNode;
-        AggregateRootEvent _lastEventInActualStream;
+        LinkedListNode<AggregateEvent> _currentNode;
+        AggregateEvent _lastEventInActualStream;
 
-        LinkedListNode<AggregateRootEvent> CurrentNode
+        LinkedListNode<AggregateEvent> CurrentNode
         {
             get
             {
                 if (Events == null)
                 {
-                    Events = new LinkedList<AggregateRootEvent>();
+                    Events = new LinkedList<AggregateEvent>();
                     _currentNode = Events.AddFirst(Event);
                 }
                 return _currentNode;
@@ -49,7 +49,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             OldContract.Assert.That(_replacementEvents == null && _insertedEvents == null, "You can only modify the current event once.");
         }
 
-        public void Replace(params AggregateRootEvent[] events)
+        public void Replace(params AggregateEvent[] events)
         {
             AssertNoPriorModificationsHaveBeenMade();
             OldContract.Assert.That(Event.GetType() != typeof(EndOfAggregateHistoryEventPlaceHolder), "You cannot call replace on the event that signifies the end of the stream");
@@ -59,9 +59,9 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             _replacementEvents.ForEach(
                 (e, index) =>
                 {
-                    e.ManualVersion = e.AggregateRootVersion = Event.AggregateRootVersion + index;
+                    e.ManualVersion = e.AggregateVersion = Event.AggregateVersion + index;
                     e.Replaces = Event.InsertionOrder;
-                    e.AggregateRootId = Event.AggregateRootId;
+                    e.AggregateId = Event.AggregateId;
                     e.UtcTimeStamp = Event.UtcTimeStamp;
                 });
 
@@ -69,7 +69,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             _eventsAddedCallback.Invoke(_replacementEvents);
         }
 
-        public void Reset(AggregateRootEvent @event)
+        public void Reset(AggregateEvent @event)
         {
             if(@event is EndOfAggregateHistoryEventPlaceHolder && !(Event is EndOfAggregateHistoryEventPlaceHolder))
             {
@@ -81,7 +81,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             _replacementEvents = null;
         }
 
-        public void MoveTo(LinkedListNode<AggregateRootEvent> current)
+        public void MoveTo(LinkedListNode<AggregateEvent> current)
         {
             if (current.Value is EndOfAggregateHistoryEventPlaceHolder && !(Event is EndOfAggregateHistoryEventPlaceHolder))
             {
@@ -92,7 +92,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             _replacementEvents = null;
         }
 
-        public void InsertBefore(params AggregateRootEvent[] insert)
+        public void InsertBefore(params AggregateEvent[] insert)
         {
             AssertNoPriorModificationsHaveBeenMade();
 
@@ -104,8 +104,8 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                     (e, index) =>
                     {
                         e.InsertAfter = _lastEventInActualStream.InsertionOrder;
-                        e.ManualVersion = e.AggregateRootVersion = Event.AggregateRootVersion + index;
-                        e.AggregateRootId = Event.AggregateRootId;
+                        e.ManualVersion = e.AggregateVersion = Event.AggregateVersion + index;
+                        e.AggregateId = Event.AggregateId;
                         e.UtcTimeStamp = _lastEventInActualStream.UtcTimeStamp;
                     });
             }
@@ -115,18 +115,18 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                     (e, index) =>
                     {
                         e.InsertBefore = Event.InsertionOrder;
-                        e.ManualVersion = e.AggregateRootVersion = Event.AggregateRootVersion + index;
-                        e.AggregateRootId = Event.AggregateRootId;
+                        e.ManualVersion = e.AggregateVersion = Event.AggregateVersion + index;
+                        e.AggregateId = Event.AggregateId;
                         e.UtcTimeStamp = Event.UtcTimeStamp;
                     });
             }
 
-            CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Length);
+            CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateVersion += _insertedEvents.Length);
 
             CurrentNode.AddBefore(_insertedEvents);
             _eventsAddedCallback.Invoke(_insertedEvents);
         }
 
-        internal AggregateRootEvent[] MutatedHistory => Events?.ToArray() ?? new[] { Event };
+        internal AggregateEvent[] MutatedHistory => Events?.ToArray() ?? new[] { Event };
     }
 }

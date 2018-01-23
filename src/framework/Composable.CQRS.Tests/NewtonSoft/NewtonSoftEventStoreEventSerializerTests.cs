@@ -18,7 +18,7 @@ namespace Composable.Tests.NewtonSoft
     {
         readonly IEventStoreEventSerializer _eventSerializer = new NewtonSoftEventStoreEventSerializer();
 
-        class TestEvent : AggregateRootEvent
+        class TestEvent : AggregateEvent
         {
             [UsedImplicitly]
             public TestEvent() { }
@@ -33,8 +33,8 @@ namespace Composable.Tests.NewtonSoft
                 string test1,
                 string test2,
                 Guid eventId,
-                int aggregateRootVersion,
-                Guid aggregateRootId,
+                int aggregateVersion,
+                Guid aggregateId,
                 long insertionOrder,
                 long? replaces,
                 long? insertBefore,
@@ -42,8 +42,8 @@ namespace Composable.Tests.NewtonSoft
                 DateTime utcTimeStamp)
 #pragma warning disable CS0618 // Type or member is obsolete
                 : base(
-                       aggregateRootId: aggregateRootId,
-                       aggregateRootVersion: aggregateRootVersion,
+                       aggregateId: aggregateId,
+                       aggregateVersion: aggregateVersion,
                        eventId: eventId,
                        insertAfter: insertAfter,
                        insertBefore: insertBefore,
@@ -65,13 +65,13 @@ namespace Composable.Tests.NewtonSoft
 
 
         [Test]
-        public void IgnoresAllIAggregateRootEventProperties()
+        public void IgnoresAllIAggregateEventProperties()
         {
             var eventWithAllValuesSet = new TestEvent(
                                             test1: "Test1",
                                             test2: "Test2",
-                                            aggregateRootId:  Guid.NewGuid(),
-                                            aggregateRootVersion:  2,
+                                            aggregateId:  Guid.NewGuid(),
+                                            aggregateVersion:  2,
                                             eventId: Guid.NewGuid(),
                                             insertAfter:  10,
                                             insertBefore:  20,
@@ -109,8 +109,8 @@ namespace Composable.Tests.NewtonSoft
             var @event = new TestEvent(
                                             test1: "Test1",
                                             test2: "Test2",
-                                            aggregateRootId: Guid.NewGuid(),
-                                            aggregateRootVersion: 2,
+                                            aggregateId: Guid.NewGuid(),
+                                            aggregateVersion: 2,
                                             eventId: Guid.NewGuid(),
                                             insertAfter: 10,
                                             insertBefore: 20,
@@ -140,8 +140,8 @@ namespace Composable.Tests.NewtonSoft
             var events = 1.Through(iterations).Select( index =>  new TestEvent(
                                             test1: "Test1",
                                             test2: "Test2",
-                                            aggregateRootId: Guid.NewGuid(),
-                                            aggregateRootVersion: 2,
+                                            aggregateId: Guid.NewGuid(),
+                                            aggregateVersion: 2,
                                             eventId: Guid.NewGuid(),
                                             insertAfter: 10,
                                             insertBefore: 20,

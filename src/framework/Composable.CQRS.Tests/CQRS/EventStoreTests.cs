@@ -10,13 +10,13 @@ using NUnit.Framework;
 
 namespace Composable.Tests.CQRS
 {
-    interface ISomeEvent : IAggregateRootEvent {}
+    interface ISomeEvent : IAggregateEvent {}
 
-    class SomeEvent : AggregateRootEvent, ISomeEvent
+    class SomeEvent : AggregateEvent, ISomeEvent
     {
-        public SomeEvent(Guid aggregateRootId, int version) : base(aggregateRootId)
+        public SomeEvent(Guid aggregateId, int version) : base(aggregateId)
         {
-            AggregateRootVersion = version;
+            AggregateVersion = version;
             UtcTimeStamp = new DateTime(UtcTimeStamp.Year, UtcTimeStamp.Month, UtcTimeStamp.Day, UtcTimeStamp.Hour, UtcTimeStamp.Minute, UtcTimeStamp.Second);
         }
     }
@@ -69,9 +69,9 @@ namespace Composable.Tests.CQRS
             var currentEventNumber = 0;
             stream.Should()
                   .HaveCount(moreEventsThanTheBatchSizeForStreamingEvents);
-            foreach(var aggregateRootEvent in stream)
+            foreach(var aggregateEvent in stream)
             {
-                aggregateRootEvent.AggregateRootVersion.Should()
+                aggregateEvent.AggregateVersion.Should()
                                   .Be(++currentEventNumber, "Incorrect event version detected");
             }
         }
@@ -90,7 +90,7 @@ namespace Composable.Tests.CQRS
 
             TransactionScopeCe.Execute(()=> _eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value)));
             var toRemove = aggregatesWithEvents[2][0]
-                .AggregateRootId;
+                .AggregateId;
             aggregatesWithEvents.Remove(2);
 
             _eventStore.DeleteAggregate(toRemove);
@@ -98,7 +98,7 @@ namespace Composable.Tests.CQRS
             foreach(var kvp in aggregatesWithEvents)
             {
                 var stream = _eventStore.GetAggregateHistory(kvp.Value[0]
-                                                               .AggregateRootId);
+                                                               .AggregateId);
                 stream.Should()
                       .HaveCount(10);
             }
@@ -125,7 +125,7 @@ namespace Composable.Tests.CQRS
             Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count);
         }
 
-        [Test] public void GetListOfAggregateIdsUsingBaseEventType()
+        [Test] public void GetListOfAggregateIdsUsingEventType()
         {
             var aggregatesWithEvents = 1.Through(10)
                                         .ToDictionary(i => i,

@@ -89,7 +89,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public RegisterUserCommand RegisterUser(string userName) => new RegisterUserCommand(userName);
             }
 
-            class UserRegisteredEvent : AggregateRootEvent
+            class UserRegisteredEvent : AggregateEvent
             {
                 public UserRegisteredEvent(string name) => Name = name;
                 public string Name { get; }

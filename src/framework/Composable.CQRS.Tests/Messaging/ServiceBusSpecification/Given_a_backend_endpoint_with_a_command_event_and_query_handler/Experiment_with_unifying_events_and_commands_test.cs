@@ -8,7 +8,7 @@ using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -89,16 +89,16 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserEvent
         {
-            public interface IRoot : IAggregateRootEvent {}
+            public interface IRoot : IAggregateEvent {}
 
-            public interface UserRegistered : IRoot, IAggregateRootCreatedEvent {}
+            public interface UserRegistered : IRoot, IAggregateCreatedEvent {}
 
             public static class Implementation
             {
-                public class Root : AggregateRootEvent, IRoot
+                public class Root : AggregateEvent, IRoot
                 {
                     protected Root() {}
-                    protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
+                    protected Root(Guid aggregateId) : base(aggregateId) {}
                 }
 
                 public class UserRegisteredEvent : Root, UserRegistered
@@ -123,23 +123,23 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarEvent
         {
-            public interface IRoot : IAggregateRootEvent {}
+            public interface IRoot : IAggregateEvent {}
             public static class Implementation
             {
-                public class Root : AggregateRootEvent, IRoot
+                public class Root : AggregateEvent, IRoot
                 {
                     protected Root() {}
-                    protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
+                    protected Root(Guid aggregateId) : base(aggregateId) {}
                 }
 
-                public class Created : Root, IAggregateRootCreatedEvent
+                public class Created : Root, IAggregateCreatedEvent
                 {
                     public Created() : base(UserRegistrarAggregate.SingleId) {}
                 }
             }
         }
 
-        public class UserRegistrarAggregate : AggregateRoot<UserRegistrarAggregate, UserRegistrarEvent.Implementation.Root, UserRegistrarEvent.IRoot>
+        public class UserRegistrarAggregate : Aggregate<UserRegistrarAggregate, UserRegistrarEvent.Implementation.Root, UserRegistrarEvent.IRoot>
         {
             internal static Guid SingleId = Guid.Parse("5C400DD9-50FB-40C7-8A13-265005588AED");
             internal static UserRegistrarAggregate Create()
@@ -156,7 +156,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             internal static RegisterUserResult RegisterUser(IServiceBusSession busSession) => busSession.Post(new UserRegistrarCommand.RegisterUserCommand());
         }
 
-        public class UserAggregate : AggregateRoot<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>
+        public class UserAggregate : Aggregate<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>
         {
             UserAggregate() : base(DateTimeNowTimeSource.Instance)
                 => RegisterEventAppliers()
@@ -178,8 +178,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public class UserResource : QueryResult
         {
-            public IEnumerable<IAggregateRootEvent> History { get; }
-            public UserResource(IEnumerable<IAggregateRootEvent> history) { History = history; }
+            public IEnumerable<IAggregateEvent> History { get; }
+            public UserResource(IEnumerable<IAggregateEvent> history) { History = history; }
         }
 
         public class RegisterUserResult : Message

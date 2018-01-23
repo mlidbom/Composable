@@ -117,6 +117,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
         class AQueryResult : QueryResult {}
 
-        class AnEvent : AggregateRootEvent {}
+        class AnEvent : AggregateEvent {}
     }
 }

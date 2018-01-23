@@ -35,7 +35,7 @@ namespace Composable.Messaging.Events
             RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent => ForGenericEvent(handler);
 
             ///<summary>Lets you register handlers for event interfaces that may be defined outside of the event hierarchy you specify with TEvent.
-            /// Useful for listening to generic events such as IAggregateRootCreatedEvent or IAggregateRootDeletedEvent
+            /// Useful for listening to generic events such as IAggregateCreatedEvent or IAggregateDeletedEvent
             /// Be aware that the concrete event received MUST still actually inherit TEvent or there will be an InvalidCastException
             /// </summary>
             RegistrationBuilder ForGenericEvent<THandledEvent>(Action<THandledEvent> handler)

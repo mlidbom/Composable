@@ -75,7 +75,7 @@ namespace Composable.Tests.CQRS
         [Test]
         public void WhenFetchingAggregateThatDoesNotExistNoSuchAggregateExceptionIsThrown()
         {
-            UseInScope(session => Assert.Throws<AggregateRootNotFoundException>(() => session.Get<User>(Guid.NewGuid())));
+            UseInScope(session => Assert.Throws<AggregateNotFoundException>(() => session.Get<User>(Guid.NewGuid())));
         }
 
         [Test]
@@ -491,10 +491,10 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session =>
                                     {
                                         Assert.That(_eventSpy.DispatchedMessages.Count, Is.EqualTo(18));
-                                        Assert.That(_eventSpy.DispatchedMessages.OfType<IAggregateRootEvent>().Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
+                                        Assert.That(_eventSpy.DispatchedMessages.OfType<IAggregateEvent>().Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
                                         var allPersistedEvents = ServiceLocator.EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
 
-                                        _eventSpy.DispatchedMessages.OfType<IAggregateRootEvent>().ShouldBeEquivalentTo(allPersistedEvents,options => options.WithStrictOrdering());
+                                        _eventSpy.DispatchedMessages.OfType<IAggregateEvent>().ShouldBeEquivalentTo(allPersistedEvents,options => options.WithStrictOrdering());
                                     });
         }
 

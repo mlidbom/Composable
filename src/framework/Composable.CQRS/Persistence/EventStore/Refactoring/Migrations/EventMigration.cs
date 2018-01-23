@@ -4,7 +4,7 @@ using Composable.Contracts;
 namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
     abstract class EventMigration<TMigratedAggregateEventHierarchyRootInterface> : IEventMigration
-        where TMigratedAggregateEventHierarchyRootInterface : IAggregateRootEvent
+        where TMigratedAggregateEventHierarchyRootInterface : IAggregateEvent
     {
         protected EventMigration(Guid id, string name, string description)
         {

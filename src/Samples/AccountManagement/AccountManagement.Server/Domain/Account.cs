@@ -6,12 +6,12 @@ using Composable.Functional;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 
 namespace AccountManagement.Domain
 {
     ///Completely encapsulates all the business logic for an account.  Should make it impossible for clients to use the class incorrectly.
-    partial class Account : AggregateRoot<Account, AccountEvent.Implementation.Root, AccountEvent.Root>, IAccountResourceData
+    partial class Account : Aggregate<Account, AccountEvent.Implementation.Root, AccountEvent.Root>, IAccountResourceData
     {
         public Email Email { get; private set; } //Never public setters on an aggregate.
         public Password Password { get; private set; } //Never public setters on an aggregate.

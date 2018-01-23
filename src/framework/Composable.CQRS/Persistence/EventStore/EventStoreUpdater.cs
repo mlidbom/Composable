@@ -41,7 +41,7 @@ namespace Composable.Persistence.EventStore
             _usageGuard.AssertNoContextChangeOccurred(this);
             if (!DoTryGet(aggregateId, out TAggregate result))
             {
-                throw new AggregateRootNotFoundException(aggregateId);
+                throw new AggregateNotFoundException(aggregateId);
             }
             return result;
         }
@@ -68,7 +68,7 @@ namespace Composable.Persistence.EventStore
             var history = GetHistory(aggregateId);
             if(history.None())
             {
-                throw new AggregateRootNotFoundException(aggregateId);
+                throw new AggregateNotFoundException(aggregateId);
             }
 
             if(verifyVersion && history.Count < version - 1)
@@ -76,7 +76,7 @@ namespace Composable.Persistence.EventStore
                 throw new Exception($"Requested version: {version} not found. Current version: {history.Count}");
             }
 
-            aggregate.LoadFromHistory(history.Where(e => e.AggregateRootVersion <= version));
+            aggregate.LoadFromHistory(history.Where(e => e.AggregateVersion <= version));
             return aggregate;
         }
 
@@ -85,7 +85,7 @@ namespace Composable.Persistence.EventStore
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
             var changes = aggregate.GetChanges().ToList();
-            if (aggregate.Version > 0 && changes.None() || changes.Any() && changes.Min(e => e.AggregateRootVersion) > 1)
+            if (aggregate.Version > 0 && changes.None() || changes.Any() && changes.Min(e => e.AggregateVersion) > 1)
             {
                 throw new AttemptToSaveAlreadyPersistedAggregateException(aggregate);
             }
@@ -105,10 +105,10 @@ namespace Composable.Persistence.EventStore
             _disposableResources.Add(aggregate.EventStream.Subscribe(OnAggregateEvent));
         }
 
-        void OnAggregateEvent(IAggregateRootEvent @event)
+        void OnAggregateEvent(IAggregateEvent @event)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            OldContract.Assert.That(_idMap.ContainsKey(@event.AggregateRootId), "Got event from aggregate that is not tracked!");
+            OldContract.Assert.That(_idMap.ContainsKey(@event.AggregateId), "Got event from aggregate that is not tracked!");
             _store.SaveEvents(new[] { @event });
             _eventPublisher.Publish(@event);
         }
@@ -130,9 +130,9 @@ namespace Composable.Persistence.EventStore
         public override string ToString() => $"{_id}: {GetType().FullName}";
         readonly Guid _id = Guid.NewGuid();
 
-        public IReadOnlyList<IAggregateRootEvent> GetHistory(Guid aggregateId) => GetHistoryInternal(aggregateId, takeWriteLock:false);
+        public IReadOnlyList<IAggregateEvent> GetHistory(Guid aggregateId) => GetHistoryInternal(aggregateId, takeWriteLock:false);
 
-        IReadOnlyList<IAggregateRootEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
+        IReadOnlyList<IAggregateEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
             var history = takeWriteLock
                               ? _store.GetAggregateHistoryForUpdate(aggregateId)

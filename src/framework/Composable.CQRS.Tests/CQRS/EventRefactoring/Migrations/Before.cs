@@ -25,11 +25,11 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             public Inspector(IEnumerable<Type> insert) => _insert = insert;
 
-            public void MigrateEvent(IAggregateRootEvent @event, IEventModifier modifier)
+            public void MigrateEvent(IAggregateEvent @event, IEventModifier modifier)
             {
                 if (@event.GetType() == typeof(TEvent) && _lastSeenEventType != _insert.Last())
                 {
-                    modifier.InsertBefore(_insert.Select(Activator.CreateInstance).Cast<AggregateRootEvent>().ToArray());
+                    modifier.InsertBefore(_insert.Select(Activator.CreateInstance).Cast<AggregateEvent>().ToArray());
                 }
 
                 _lastSeenEventType = @event.GetType();

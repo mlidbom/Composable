@@ -41,7 +41,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         [TearDown] public void TearDown() { Host.Dispose(); }
 
         protected class MyCommand : TransactionalExactlyOnceDeliveryCommand {}
-        protected class MyEvent : AggregateRootEvent {}
+        protected class MyEvent : AggregateEvent {}
         protected class MyQuery : Query<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
         protected class MyCommandWithResult : TransactionalExactlyOnceDeliveryCommand<MyCommandResult> {}

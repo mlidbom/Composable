@@ -40,6 +40,7 @@ namespace Composable.Messaging
                 if(type.Implements<ISupportRemoteDelivery>() && type.Implements<IOnlyLocalDelivery>())                            throw new Exception($"{type.FullName} implements both {typeof(ISupportRemoteDelivery)} and {typeof(IOnlyLocalDelivery)}.");
                 if(type.Implements<IRequireTransactionalSendOperation>() && type.Implements<IForbidTransactionalSendOperation>()) throw new Exception($"{type.FullName} implements both {typeof(IRequireTransactionalSendOperation)} and {typeof(IForbidTransactionalSendOperation)}.");
                 if(type.Implements<IQuery>() && !type.IsAbstract && !type.Implements(typeof(IQuery<>)))                           throw new Exception($"{type.FullName} implements only: {nameof(IQuery)}. Concrete types must implement {typeof(IQuery<>).GetFullNameCompilable()}");
+
                 SuccessfullyInspectedTypes.Add(type);
             }
         }

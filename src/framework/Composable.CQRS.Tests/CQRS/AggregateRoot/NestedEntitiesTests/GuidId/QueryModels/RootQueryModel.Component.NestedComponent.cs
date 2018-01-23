@@ -9,8 +9,10 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryMo
             public NestedComponent(Component parent) : base(parent)
             {
                 RegisterEventAppliers()
-                    .For<RootEvent.Component.NestedComponent.PropertyUpdated.Name>(e => {});
+                    .For<RootEvent.Component.NestedComponent.PropertyUpdated.Name>(e => Name = e.Name);
             }
+
+            public string Name { get; private set; }
         }
     }
 }

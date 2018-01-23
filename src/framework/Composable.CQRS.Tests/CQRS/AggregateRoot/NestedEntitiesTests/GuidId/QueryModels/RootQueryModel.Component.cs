@@ -9,14 +9,14 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryMo
         public Component(RootQueryModel root) : base(root)
         {
             _entities = Component.Entity.CreateSelfManagingCollection(this);
-            _nestedComponent = new NestedComponent(this);
+            CComponent = new NestedComponent(this);
             RegisterEventAppliers()
                 .For<RootEvent.Component.PropertyUpdated.Name>(e => Name = e.Name);
         }
 
         readonly Component.Entity.CollectionManager _entities;
         // ReSharper disable once NotAccessedField.Local
-        NestedComponent _nestedComponent;
+        public NestedComponent CComponent { get; private set; }
 
         public string Name { get; private set; }
         public IReadonlyQueryModelEntityCollection<Entity, Guid> Entities => _entities.Entities;

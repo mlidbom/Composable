@@ -5,6 +5,7 @@ using Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Even
 using Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.QueryModels;
 using FluentAssertions;
 using NUnit.Framework;
+using Component = Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Component;
 
 // ReSharper disable InconsistentNaming
 
@@ -33,7 +34,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId
         }
 
         [Test]
-        public void Creating_aggregate_entities_works_and_events_dispatch_correctly()
+        public void Aggregate_entity_tests()
         {
             var agEntity1 = Ag.AddEntity("entity1");
             var qmEntity1 = Qm.Entities.InCreationOrder[0];
@@ -98,20 +99,28 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId
         }
 
         [Test]
-        public void ComponentPropertiesAreSetcorrectly()
+        public void Aggregate_Component_tests()
         {
-            var agComponent = Ag.Component;
-            var qmComponent = Qm.Component;
-            agComponent.Name.Should().BeNullOrEmpty();
-            qmComponent.Name.Should().BeNullOrEmpty();
+            Ag.Component.Name.Should().BeNullOrEmpty();
+            Qm.Component.Name.Should().BeNullOrEmpty();
 
-            agComponent.Rename("newName");
-            agComponent.Name.Should().Be("newName");
-            qmComponent.Name.Should().Be("newName");
+            Ag.Component.Rename("newName");
+            Ag.Component.Name.Should().Be("newName");
+            Qm.Component.Name.Should().Be("newName");
         }
 
         [Test]
-        public void EntityNestedInComponentTests()
+        public void Aggregate_Component_Component_tests()
+        {
+            Ag.Component.CComponent.Name.Should().BeNullOrEmpty();
+            Qm.Component.CComponent.Name.Should().BeNullOrEmpty();
+            Ag.Component.CComponent.Rename("newName");
+            Ag.Component.CComponent.Name.Should().Be("newName");
+            Qm.Component.CComponent.Name.Should().Be("newName");
+        }
+
+        [Test]
+        public void Aggregate_Component_Entity_tests()
         {
             var agComponent = Ag.Component;
             var qmComponent = Qm.Component;
@@ -179,7 +188,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId
 
 
         [Test]
-        public void EntityNestedInEntityTests()
+        public void Aggregate_Entity_Entity_tests()
         {
             var agRootEntity = Ag.AddEntity("RootEntityName");
             var qmRootEntity = Qm.Entities.InCreationOrder[0];

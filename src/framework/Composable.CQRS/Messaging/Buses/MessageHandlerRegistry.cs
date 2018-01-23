@@ -24,6 +24,7 @@ namespace Composable.Messaging.Buses
 
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForEvent<TEvent>(Action<TEvent> handler)
         {
+            MessageInspector.AssertValid<TEvent>();
             lock(_lock)
             {
                 Contract.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(IExactlyOnceCommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(IQuery)));
@@ -35,6 +36,7 @@ namespace Composable.Messaging.Buses
 
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForCommand<TCommand>(Action<TCommand> handler)
         {
+            MessageInspector.AssertValid<TCommand>();
             lock(_lock)
             {
                 Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
@@ -45,6 +47,7 @@ namespace Composable.Messaging.Buses
 
         public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : IExactlyOnceCommand<TResult>
         {
+            MessageInspector.AssertValid<TCommand>();
             lock (_lock)
             {
                 Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
@@ -64,6 +67,7 @@ namespace Composable.Messaging.Buses
 
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler)
         {
+            MessageInspector.AssertValid<TQuery>();
             lock(_lock)
             {
                 Contract.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(IExactlyOnceCommand)));
@@ -71,8 +75,6 @@ namespace Composable.Messaging.Buses
                 return this;
             }
         }
-
-
 
         Action<object> IMessageHandlerRegistry.GetCommandHandler(IExactlyOnceCommand message)
         {

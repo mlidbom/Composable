@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Transactions;
 using Composable.System.Reflection;
 
-namespace Composable.Messaging {
+namespace Composable.Messaging
+{
     static class MessageInspector
     {
         static readonly HashSet<Type> SuccessfullyInspectedTypes = new HashSet<Type>();
@@ -12,11 +13,13 @@ namespace Composable.Messaging {
         {
             foreach(var type in eventTypesToInspect)
             {
-                AssertTypeIsValid(type);
+                AssertValid(type);
             }
         }
 
-        public static void AssertValidToSend(IMessage message)
+        internal static void AssertValid<TMessage>() => AssertValid(typeof(TMessage));
+
+        internal static void AssertValidToSend(IMessage message)
         {
             if(message is IRequiresTransactionalSendOperationMessage && Transaction.Current == null)
             {
@@ -28,10 +31,10 @@ namespace Composable.Messaging {
                 throw new Exception($"{message.GetType().FullName} is {nameof(IForbidTransactionalSendOperationMessage)} but there is a transaction.");
             }
 
-            AssertTypeIsValid(message.GetType());
+            AssertValid(message.GetType());
         }
 
-        static void AssertTypeIsValid(Type type)
+        internal static void AssertValid(Type type)
         {
             lock(SuccessfullyInspectedTypes)
             {
@@ -61,6 +64,12 @@ namespace Composable.Messaging {
                 {
                     throw new Exception($"{type.FullName} implements both {typeof(IRequiresTransactionalSendOperationMessage)} and {typeof(IForbidTransactionalSendOperationMessage)}.");
                 }
+
+                if(type.Implements<IQuery>() && !type.IsAbstract && !type.Implements(typeof(IQuery<>)))
+                {
+                    throw new Exception($"{type.FullName} implements only: {nameof(IQuery)}. Concrete types must implement {typeof(IQuery<>).GetFullNameCompilable()}");
+                }
+
                 SuccessfullyInspectedTypes.Add(type);
             }
         }

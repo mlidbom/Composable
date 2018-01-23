@@ -46,7 +46,7 @@ namespace Composable.Persistence.EventStore.Aggregates
             try
             {
                 _raiseEventReentrancyLevel++;
-                theEvent.AggregateRootVersion = Version + 1;
+                theEvent.AggregateVersion = Version + 1;
                 theEvent.UtcTimeStamp = TimeSource.UtcNow;
                 if(Version == 0)
                 {
@@ -54,23 +54,23 @@ namespace Composable.Persistence.EventStore.Aggregates
                     {
                         throw new Exception($"The first raised event type {theEvent.GetType()} did not inherit {nameof(IAggregateCreatedEvent)}");
                     }
-                    if(theEvent.AggregateRootId == Guid.Empty)
+                    if(theEvent.AggregateId == Guid.Empty)
                     {
-                        throw new Exception($"{nameof(IAggregateDeletedEvent.AggregateRootId)} was empty in {nameof(IAggregateCreatedEvent)}");
+                        throw new Exception($"{nameof(IAggregateDeletedEvent.AggregateId)} was empty in {nameof(IAggregateCreatedEvent)}");
                     }
-                    theEvent.AggregateRootVersion = 1;
+                    theEvent.AggregateVersion = 1;
                 } else
                 {
-                    if(theEvent.AggregateRootId != Guid.Empty && theEvent.AggregateRootId != Id)
+                    if(theEvent.AggregateId != Guid.Empty && theEvent.AggregateId != Id)
                     {
-                        throw new ArgumentOutOfRangeException($"Tried to raise event for AggregateRootId: {theEvent.AggregateRootId} from AggregateRoot with Id: {Id}.");
+                        throw new ArgumentOutOfRangeException($"Tried to raise event for AggregateRootId: {theEvent.AggregateId} from AggregateRoot with Id: {Id}.");
                     }
                     if(_insertedVersionToAggregateVersionOffset != 0)
                     {
-                        theEvent.InsertedVersion = theEvent.AggregateRootVersion + _insertedVersionToAggregateVersionOffset;
-                        theEvent.ManualVersion = theEvent.AggregateRootVersion;
+                        theEvent.InsertedVersion = theEvent.AggregateVersion + _insertedVersionToAggregateVersionOffset;
+                        theEvent.ManualVersion = theEvent.AggregateVersion;
                     }
-                    theEvent.AggregateRootId = Id;
+                    theEvent.AggregateId = Id;
                 }
 
                 ApplyEvent(theEvent);
@@ -106,9 +106,9 @@ namespace Composable.Persistence.EventStore.Aggregates
                 _applyingEvents = true;
                 if (theEvent is IAggregateCreatedEvent)
                 {
-                    SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateRootId);
+                    SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateId);
                 }
-                Version = theEvent.AggregateRootVersion;
+                Version = theEvent.AggregateVersion;
                 _eventDispatcher.Dispatch(theEvent);
             }
             finally

@@ -15,7 +15,7 @@ namespace Composable.Persistence.EventStore
             UtcTimeStamp = DateTime.UtcNow;//Todo: Should use timesource.
         }
 
-        protected AggregateEvent(Guid aggregateRootId) : this() => AggregateRootId = aggregateRootId;
+        protected AggregateEvent(Guid aggregateRootId) : this() => AggregateId = aggregateRootId;
 
         [Obsolete("Only intended for testing. Do not use for normal inheritance.")] protected AggregateEvent(Guid? eventId = null,
                                                                                                                  int? aggregateRootVersion = null,
@@ -30,8 +30,8 @@ namespace Composable.Persistence.EventStore
                                                                                                                  long? insertAfter = null)
         {
             EventId = eventId ?? EventId;
-            AggregateRootVersion = aggregateRootVersion ?? AggregateRootVersion;
-            AggregateRootId = aggregateRootId ?? AggregateRootId;
+            AggregateVersion = aggregateRootVersion ?? AggregateVersion;
+            AggregateId = aggregateRootId ?? AggregateId;
             UtcTimeStamp = utcTimeStamp ?? UtcTimeStamp;
             InsertedVersion = insertedVersion ?? InsertedVersion;
             EffectiveVersion = effectiveVersion;
@@ -43,9 +43,9 @@ namespace Composable.Persistence.EventStore
         }
 
         public Guid EventId { get; internal set; }
-        public int AggregateRootVersion { get; internal set; }
+        public int AggregateVersion { get; internal set; }
 
-        public Guid AggregateRootId { get; internal set; }
+        public Guid AggregateId { get; internal set; }
         public DateTime UtcTimeStamp { get; internal set; }
 
         internal int InsertedVersion { get; set; }

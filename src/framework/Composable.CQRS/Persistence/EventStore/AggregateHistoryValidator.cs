@@ -11,7 +11,7 @@ namespace Composable.Persistence.EventStore
             int version = 1;
             foreach(var aggregateRootEvent in history)
             {
-                if(aggregateRootEvent.AggregateRootVersion != version++)
+                if(aggregateRootEvent.AggregateVersion != version++)
                 {
                     throw new InvalidHistoryException(aggregateId);
                 }

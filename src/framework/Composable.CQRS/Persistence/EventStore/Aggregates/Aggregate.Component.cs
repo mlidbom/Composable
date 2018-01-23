@@ -29,11 +29,11 @@ namespace Composable.Persistence.EventStore.Aggregates
                 _eventAppliersEventDispatcher.Dispatch(@event);
             }
 
-            protected Component(TAggregate aggregateRoot)
+            protected Component(TAggregate aggregate)
                 : this(
-                    timeSource: aggregateRoot.TimeSource,
-                    raiseEventThroughParent: aggregateRoot.Publish,
-                    appliersRegistrar: aggregateRoot.RegisterEventAppliers(),
+                    timeSource: aggregate.TimeSource,
+                    raiseEventThroughParent: aggregate.Publish,
+                    appliersRegistrar: aggregate.RegisterEventAppliers(),
                     registerEventAppliers: true)
             {}
 

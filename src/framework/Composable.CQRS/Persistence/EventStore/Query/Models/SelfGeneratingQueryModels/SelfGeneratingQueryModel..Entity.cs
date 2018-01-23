@@ -28,7 +28,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
             public TEntityId Id { get; private set; }
 
-            protected Entity(TAggregate aggregateRoot) : this(aggregateRoot.RegisterEventAppliers()) {}
+            protected Entity(TAggregate aggregate) : this(aggregate.RegisterEventAppliers()) {}
 
             Entity
                 (IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)

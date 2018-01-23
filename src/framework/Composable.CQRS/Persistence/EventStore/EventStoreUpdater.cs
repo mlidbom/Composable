@@ -76,7 +76,7 @@ namespace Composable.Persistence.EventStore
                 throw new Exception($"Requested version: {version} not found. Current version: {history.Count}");
             }
 
-            aggregate.LoadFromHistory(history.Where(e => e.AggregateRootVersion <= version));
+            aggregate.LoadFromHistory(history.Where(e => e.AggregateVersion <= version));
             return aggregate;
         }
 
@@ -85,7 +85,7 @@ namespace Composable.Persistence.EventStore
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
             var changes = aggregate.GetChanges().ToList();
-            if (aggregate.Version > 0 && changes.None() || changes.Any() && changes.Min(e => e.AggregateRootVersion) > 1)
+            if (aggregate.Version > 0 && changes.None() || changes.Any() && changes.Min(e => e.AggregateVersion) > 1)
             {
                 throw new AttemptToSaveAlreadyPersistedAggregateException(aggregate);
             }
@@ -108,7 +108,7 @@ namespace Composable.Persistence.EventStore
         void OnAggregateEvent(IAggregateEvent @event)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            OldContract.Assert.That(_idMap.ContainsKey(@event.AggregateRootId), "Got event from aggregate that is not tracked!");
+            OldContract.Assert.That(_idMap.ContainsKey(@event.AggregateId), "Got event from aggregate that is not tracked!");
             _store.SaveEvents(new[] { @event });
             _eventPublisher.Publish(@event);
         }

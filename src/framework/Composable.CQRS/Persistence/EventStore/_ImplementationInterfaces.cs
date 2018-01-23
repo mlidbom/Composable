@@ -78,8 +78,8 @@ namespace Composable.Persistence.EventStore
             EventJson = eventAsJson;
 
             EventId = @event.EventId;
-            AggregateRootVersion = @event.AggregateRootVersion;
-            AggregateRootId = @event.AggregateRootId;
+            AggregateRootVersion = @event.AggregateVersion;
+            AggregateRootId = @event.AggregateId;
             UtcTimeStamp = @event.UtcTimeStamp;
             InsertedVersion = @event.InsertedVersion;
             EffectiveVersion = @event.EffectiveVersion;

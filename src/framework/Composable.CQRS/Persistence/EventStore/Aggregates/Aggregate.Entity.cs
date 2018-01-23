@@ -35,8 +35,8 @@ namespace Composable.Persistence.EventStore.Aggregates
 
             public TEntityId Id { get; private set; }
 
-            protected Entity(TAggregate aggregateRoot)
-                : this(aggregateRoot.TimeSource, aggregateRoot.Publish, aggregateRoot.RegisterEventAppliers()) {}
+            protected Entity(TAggregate aggregate)
+                : this(aggregate.TimeSource, aggregate.Publish, aggregate.RegisterEventAppliers()) {}
 
             Entity
                 (IUtcTimeTimeSource timeSource,

@@ -25,10 +25,10 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
         {
             if(theEvent is IAggregateCreatedEvent)
             {
-                SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateRootId);
+                SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateId);
             }
 
-            Version = theEvent.AggregateRootVersion;
+            Version = theEvent.AggregateVersion;
             _eventDispatcher.Dispatch(theEvent);
         }
 

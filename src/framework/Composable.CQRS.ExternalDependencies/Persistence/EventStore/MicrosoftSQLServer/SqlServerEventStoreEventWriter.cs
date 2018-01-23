@@ -37,7 +37,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                 foreach(var data in events)
                 {
                     var @event = data.Event;
-                    @event.InsertedVersion = @event.InsertedVersion > @event.AggregateRootVersion ? @event.InsertedVersion : @event.AggregateRootVersion;
+                    @event.InsertedVersion = @event.InsertedVersion > @event.AggregateVersion ? @event.InsertedVersion : @event.AggregateVersion;
 
                     using(var command = connection.CreateCommand())
                     {
@@ -49,7 +49,7 @@ INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK)
 (       {EventTable.Columns.AggregateId},  {EventTable.Columns.InsertedVersion},  {EventTable.Columns.ManualVersion}, {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.UtcTimeStamp},  {EventTable.Columns.Event}) 
 VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.ManualVersion}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.UtcTimeStamp}, @{EventTable.Columns.Event})";
 
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = @event.AggregateRootId });
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = @event.AggregateId });
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.InsertedVersion, SqlDbType.Int) { Value = @event.InsertedVersion });
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType,SqlDbType.Int){Value = eventTypeToId[@event.GetType()] });
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = @event.EventId});

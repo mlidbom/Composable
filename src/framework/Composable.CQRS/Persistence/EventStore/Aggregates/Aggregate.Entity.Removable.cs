@@ -36,7 +36,7 @@ namespace Composable.Persistence.EventStore.Aggregates
         {
             static RemovableEntity() => AggregateTypeValidator<TEntity, TEntityEventImplementation, TEntityEvent>.AssertStaticStructureIsValid();
 
-            protected RemovableEntity(TAggregate aggregateRoot) : base(aggregateRoot)
+            protected RemovableEntity(TAggregate aggregate) : base(aggregate)
             {
                 RegisterEventAppliers()
                     .IgnoreUnhandled<TEntityRemovedEvent>();

@@ -88,8 +88,8 @@ namespace Composable.Persistence.EventStore
         AggregateEvent HydrateEvent(EventReadDataRow eventDataRowRow)
         {
             var @event = (AggregateEvent)_serializer.Deserialize(eventType: _schemaManager.IdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
-            @event.AggregateRootId = eventDataRowRow.AggregateRootId;
-            @event.AggregateRootVersion = eventDataRowRow.AggregateRootVersion;
+            @event.AggregateId = eventDataRowRow.AggregateRootId;
+            @event.AggregateVersion = eventDataRowRow.AggregateRootVersion;
             @event.EventId = eventDataRowRow.EventId;
             @event.UtcTimeStamp = eventDataRowRow.UtcTimeStamp;
             @event.InsertionOrder = eventDataRowRow.InsertionOrder;
@@ -139,7 +139,7 @@ namespace Composable.Persistence.EventStore
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
             events = events.ToList();
-            var updatedAggregates = events.Select(@event => @event.AggregateRootId).Distinct().ToList();
+            var updatedAggregates = events.Select(@event => @event.AggregateId).Distinct().ToList();
 
             var eventRows = events.Cast<AggregateEvent>()
                                   .Select(@this => new EventWriteDataRow(@event: @this, eventAsJson: _serializer.Serialize(@this)))
@@ -149,7 +149,7 @@ namespace Composable.Persistence.EventStore
             foreach(var aggregateId in updatedAggregates)
             {
                 var completeAggregateHistory = _cache.Get(aggregateId)
-                                                     .Events.Concat(events.Where(@event => @event.AggregateRootId == aggregateId))
+                                                     .Events.Concat(events.Where(@event => @event.AggregateId == aggregateId))
                                                      .Cast<AggregateEvent>()
                                                      .ToArray();
                 SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);

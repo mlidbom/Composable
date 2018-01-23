@@ -27,7 +27,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             (IAggregateEvent creationEvent, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateEvent>> eventsAddedCallback)
         {
             _eventModifier = new EventModifier(eventsAddedCallback ?? (_ => { }));
-            _aggregateId = creationEvent.AggregateRootId;
+            _aggregateId = creationEvent.AggregateId;
             _eventMigrators = eventMigrations
                 .Where(migration => migration.MigratedAggregateEventHierarchyRootInterface.IsInstanceOfType(creationEvent))
                 .Select(migration => migration.CreateSingleAggregateInstanceHandlingMigrator())
@@ -36,13 +36,13 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         public IEnumerable<AggregateEvent> Mutate(AggregateEvent @event)
         {
-            OldContract.Assert.That(_aggregateId == @event.AggregateRootId, "_aggregateId == @event.AggregateRootId");
+            OldContract.Assert.That(_aggregateId == @event.AggregateId, "_aggregateId == @event.AggregateRootId");
             if (_eventMigrators.Length == 0)
             {
                 return Seq.Create(@event);
             }
 
-            @event.AggregateRootVersion = _aggregateVersion;
+            @event.AggregateVersion = _aggregateVersion;
             _eventModifier.Reset(@event);
 
             for(var index = 0; index < _eventMigrators.Length; index++)
@@ -123,6 +123,6 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
     }
 
     class EndOfAggregateHistoryEventPlaceHolder : AggregateEvent {
-        public EndOfAggregateHistoryEventPlaceHolder(Guid aggregateId, int i):base(aggregateId) => AggregateRootVersion = i;
+        public EndOfAggregateHistoryEventPlaceHolder(Guid aggregateId, int i):base(aggregateId) => AggregateVersion = i;
     }
 }

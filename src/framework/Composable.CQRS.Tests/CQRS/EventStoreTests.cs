@@ -16,7 +16,7 @@ namespace Composable.Tests.CQRS
     {
         public SomeEvent(Guid aggregateRootId, int version) : base(aggregateRootId)
         {
-            AggregateRootVersion = version;
+            AggregateVersion = version;
             UtcTimeStamp = new DateTime(UtcTimeStamp.Year, UtcTimeStamp.Month, UtcTimeStamp.Day, UtcTimeStamp.Hour, UtcTimeStamp.Minute, UtcTimeStamp.Second);
         }
     }
@@ -71,7 +71,7 @@ namespace Composable.Tests.CQRS
                   .HaveCount(moreEventsThanTheBatchSizeForStreamingEvents);
             foreach(var aggregateRootEvent in stream)
             {
-                aggregateRootEvent.AggregateRootVersion.Should()
+                aggregateRootEvent.AggregateVersion.Should()
                                   .Be(++currentEventNumber, "Incorrect event version detected");
             }
         }
@@ -90,7 +90,7 @@ namespace Composable.Tests.CQRS
 
             TransactionScopeCe.Execute(()=> _eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value)));
             var toRemove = aggregatesWithEvents[2][0]
-                .AggregateRootId;
+                .AggregateId;
             aggregatesWithEvents.Remove(2);
 
             _eventStore.DeleteAggregate(toRemove);
@@ -98,7 +98,7 @@ namespace Composable.Tests.CQRS
             foreach(var kvp in aggregatesWithEvents)
             {
                 var stream = _eventStore.GetAggregateHistory(kvp.Value[0]
-                                                               .AggregateRootId);
+                                                               .AggregateId);
                 stream.Should()
                       .HaveCount(10);
             }

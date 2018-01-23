@@ -59,9 +59,9 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             _replacementEvents.ForEach(
                 (e, index) =>
                 {
-                    e.ManualVersion = e.AggregateRootVersion = Event.AggregateRootVersion + index;
+                    e.ManualVersion = e.AggregateVersion = Event.AggregateVersion + index;
                     e.Replaces = Event.InsertionOrder;
-                    e.AggregateRootId = Event.AggregateRootId;
+                    e.AggregateId = Event.AggregateId;
                     e.UtcTimeStamp = Event.UtcTimeStamp;
                 });
 
@@ -104,8 +104,8 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                     (e, index) =>
                     {
                         e.InsertAfter = _lastEventInActualStream.InsertionOrder;
-                        e.ManualVersion = e.AggregateRootVersion = Event.AggregateRootVersion + index;
-                        e.AggregateRootId = Event.AggregateRootId;
+                        e.ManualVersion = e.AggregateVersion = Event.AggregateVersion + index;
+                        e.AggregateId = Event.AggregateId;
                         e.UtcTimeStamp = _lastEventInActualStream.UtcTimeStamp;
                     });
             }
@@ -115,13 +115,13 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                     (e, index) =>
                     {
                         e.InsertBefore = Event.InsertionOrder;
-                        e.ManualVersion = e.AggregateRootVersion = Event.AggregateRootVersion + index;
-                        e.AggregateRootId = Event.AggregateRootId;
+                        e.ManualVersion = e.AggregateVersion = Event.AggregateVersion + index;
+                        e.AggregateId = Event.AggregateId;
                         e.UtcTimeStamp = Event.UtcTimeStamp;
                     });
             }
 
-            CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Length);
+            CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateVersion += _insertedEvents.Length);
 
             CurrentNode.AddBefore(_insertedEvents);
             _eventsAddedCallback.Invoke(_insertedEvents);

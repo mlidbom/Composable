@@ -1,7 +1,7 @@
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public interface IGeTAggregateEntityEventEntityId<in TEventInterface, out TEntityId>
+    public interface IGeTAggregateEntityEventEntityId<in TEvent, out TEntityId>
     {
-        TEntityId GetId(TEventInterface @event);
+        TEntityId GetId(TEvent @event);
     }
 }

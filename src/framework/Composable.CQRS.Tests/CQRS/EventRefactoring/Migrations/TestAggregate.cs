@@ -42,10 +42,10 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
     {
         public void Publish(params RootEvent[] events)
         {
-            if (GetIdBypassContractValidation() == Guid.Empty && events.First().AggregateRootId == Guid.Empty)
+            if (GetIdBypassContractValidation() == Guid.Empty && events.First().AggregateId == Guid.Empty)
             {
                 SetIdBeVerySureYouKnowWhatYouAreDoing(Guid.NewGuid());
-                events.Cast<AggregateEvent>().First().AggregateRootId = Id;
+                events.Cast<AggregateEvent>().First().AggregateId = Id;
             }
 
             foreach (var @event in events)
@@ -82,7 +82,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public static TestAggregate FromEvents(IUtcTimeTimeSource timeSource, Guid? id, IEnumerable<Type> events)
         {
             var rootEvents = events.ToEvents();
-            rootEvents.Cast<AggregateEvent>().First().AggregateRootId = id ?? Guid.NewGuid();
+            rootEvents.Cast<AggregateEvent>().First().AggregateId = id ?? Guid.NewGuid();
             return new TestAggregate(timeSource, rootEvents);
         }
 

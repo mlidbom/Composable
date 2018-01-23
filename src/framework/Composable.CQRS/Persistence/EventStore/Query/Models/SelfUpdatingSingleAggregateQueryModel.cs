@@ -9,8 +9,8 @@ namespace Composable.Persistence.EventStore.Query.Models
 {
     //todo:complete including tests
     // ReSharper disable UnusedMember.Global
-    abstract class SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateEvent>
-        where TRootQueryModel : SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateEvent>
+    abstract class SelfUpdatingSingleAggregateQueryModel<TQueryModel, TAggregateEvent>
+        where TQueryModel : SelfUpdatingSingleAggregateQueryModel<TQueryModel, TAggregateEvent>
         where TAggregateEvent : class
     {
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventAppliersEventDispatcher =
@@ -45,11 +45,11 @@ namespace Composable.Persistence.EventStore.Query.Models
 
             protected IEventHandlerRegistrar<TEntityEvent> RegisterEventAppliers() => _eventAppliersEventDispatcher.Register();
 
-            public static IReadOnlyEntityCollection<TEntity, TEntityId> CreateSelfManagingCollection(TRootQueryModel rootQueryModel) => new Collection(rootQueryModel);
+            public static IReadOnlyEntityCollection<TEntity, TEntityId> CreateSelfManagingCollection(TQueryModel rootQueryModel) => new Collection(rootQueryModel);
 
             class Collection : IReadOnlyEntityCollection<TEntity, TEntityId>
             {
-                public Collection(TRootQueryModel aggregate)
+                public Collection(TQueryModel aggregate)
                 {
                     aggregate.RegisterEventAppliers()
                          .For<TEntityCreatedEvent>(

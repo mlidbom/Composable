@@ -18,9 +18,9 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 _eventAppliersEventDispatcher.Dispatch(@event);
             }
 
-            protected Component(TAggregate aggregateRoot)
+            protected Component(TAggregate aggregate)
                 : this(
-                    appliersRegistrar: aggregateRoot.RegisterEventAppliers(),
+                    appliersRegistrar: aggregate.RegisterEventAppliers(),
                     registerEventAppliers: true)
             {}
 

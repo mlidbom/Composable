@@ -29,7 +29,7 @@ namespace Composable.Persistence.EventStore
         {
             lock(_lockObject)
             {
-                return SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, _events.Where(e => e.AggregateRootId == id).ToArray())
+                return SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, _events.Where(e => e.AggregateId == id).ToArray())
                     .ToList();
             }
         }
@@ -73,7 +73,7 @@ namespace Composable.Persistence.EventStore
             {
                 for(var i = 0; i < _events.Count; i++)
                 {
-                    if(_events[i].AggregateRootId == aggregateId)
+                    if(_events[i].AggregateId == aggregateId)
                     {
                         _events.RemoveAt(i);
                         i--;
@@ -94,7 +94,7 @@ namespace Composable.Persistence.EventStore
                 return _events
                     .Where(e => eventBaseType == null || eventBaseType.IsInstanceOfType(e))
                     .OrderBy(e => e.UtcTimeStamp)
-                    .Select(e => e.AggregateRootId)
+                    .Select(e => e.AggregateId)
                     .Distinct()
                     .ToList();
             }

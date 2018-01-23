@@ -29,7 +29,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             where TEventEntityIdGetter : IGeTAggregateEntityEventEntityId<TEntityEvent, TEntityId>,
                 new()
         {
-            protected Entity(TAggregate aggregateRoot) : base(aggregateRoot)
+            protected Entity(TAggregate aggregate) : base(aggregate)
             {
                 RegisterEventAppliers()
                     .IgnoreUnhandled<TEntityRemovedEvent>();

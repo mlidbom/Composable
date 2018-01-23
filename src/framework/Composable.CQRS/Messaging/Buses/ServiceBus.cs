@@ -4,21 +4,21 @@ using JetBrains.Annotations;
 
 namespace Composable.Messaging.Buses
 {
-    [UsedImplicitly] class ServiceBus : IServiceBus
+    [UsedImplicitly] class ServiceBusControl : IServiceBusControl
     {
         readonly IInterprocessTransport _transport;
         readonly IInbox _inbox;
         readonly CommandScheduler _commandScheduler;
         bool _started;
 
-        public ServiceBus(IInterprocessTransport transport, IInbox inbox, CommandScheduler commandScheduler)
+        public ServiceBusControl(IInterprocessTransport transport, IInbox inbox, CommandScheduler commandScheduler)
         {
             _transport = transport;
             _inbox = inbox;
             _commandScheduler = commandScheduler;
         }
 
-        void IServiceBus.Start()
+        void IServiceBusControl.Start()
         {
             Contract.State.Assert(!_started);
 
@@ -29,7 +29,7 @@ namespace Composable.Messaging.Buses
             _commandScheduler.Start();
         }
 
-        void IServiceBus.Stop()
+        void IServiceBusControl.Stop()
         {
             Contract.State.Assert(_started);
             _started = false;

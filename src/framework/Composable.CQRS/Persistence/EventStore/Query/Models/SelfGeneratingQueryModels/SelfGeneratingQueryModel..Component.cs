@@ -2,8 +2,8 @@
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregate,  TAggregateEvent>
-        where TAggregate : SelfGeneratingQueryModel<TAggregate,  TAggregateEvent>
+    public abstract partial class SelfGeneratingQueryModel<TQueryModel,  TAggregateEvent>
+        where TQueryModel : SelfGeneratingQueryModel<TQueryModel,  TAggregateEvent>
         where TAggregateEvent : class, IAggregateEvent
     {
         public abstract partial class Component<TComponent, TComponentEvent>
@@ -18,9 +18,9 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 _eventAppliersEventDispatcher.Dispatch(@event);
             }
 
-            protected Component(TAggregate aggregate)
+            protected Component(TQueryModel queryModel)
                 : this(
-                    appliersRegistrar: aggregate.RegisterEventAppliers(),
+                    appliersRegistrar: queryModel.RegisterEventAppliers(),
                     registerEventAppliers: true)
             {}
 

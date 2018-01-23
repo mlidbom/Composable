@@ -4,8 +4,8 @@ using Composable.System.Reflection;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
-        where TAggregate : SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
+    public abstract partial class SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
+        where TQueryModel : SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
         where TAggregateEvent : class, IAggregateEvent
     {
         public abstract partial class Component<TComponent, TComponentEvent>

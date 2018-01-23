@@ -4,8 +4,8 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
-        where TAggregate : SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
+    public abstract partial class SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
+        where TQueryModel : SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
         where TAggregateEvent : class, IAggregateEvent
     {
         [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
@@ -28,7 +28,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
             public TEntityId Id { get; private set; }
 
-            protected Entity(TAggregate aggregate) : this(aggregate.RegisterEventAppliers()) {}
+            protected Entity(TQueryModel queryModel) : this(queryModel.RegisterEventAppliers()) {}
 
             Entity
                 (IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
@@ -37,10 +37,10 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                     .For<TEntityCreatedEvent>(e => Id = IdGetter.GetId(e));
             }
 
-            public static CollectionManager CreateSelfManagingCollection(TAggregate parent) => new CollectionManager(parent, parent.RegisterEventAppliers());
+            public static CollectionManager CreateSelfManagingCollection(TQueryModel parent) => new CollectionManager(parent, parent.RegisterEventAppliers());
 
             public class CollectionManager : QueryModelEntityCollectionManager<
-                                                 TAggregate,
+                                                 TQueryModel,
                                                  TEntity,
                                                  TEntityId,
                                                  TEntityEvent,
@@ -48,7 +48,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                  TEventEntityIdGetter>
             {
                 internal CollectionManager
-                    (TAggregate parent, IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(parent, appliersRegistrar) {}
+                    (TQueryModel parent, IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(parent, appliersRegistrar) {}
             }
         }
     }

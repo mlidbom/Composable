@@ -7,8 +7,8 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public partial class SelfGeneratingQueryModel<TAggregate, TAggregateEvent> : VersionedPersistentEntity<TAggregate>
-        where TAggregate : SelfGeneratingQueryModel<TAggregate, TAggregateEvent>
+    public partial class SelfGeneratingQueryModel<TQueryModel, TAggregateEvent> : VersionedPersistentEntity<TQueryModel>
+        where TQueryModel : SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
         where TAggregateEvent : class, IAggregateEvent
     {
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens

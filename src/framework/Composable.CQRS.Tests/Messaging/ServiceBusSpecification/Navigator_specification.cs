@@ -107,7 +107,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class RegisterUserCommand : TransactionalExactlyOnceDeliveryCommand<UserRegisteredConfirmationResource>
+            protected class RegisterUserCommand : ExactlyOnceCommand<UserRegisteredConfirmationResource>
             {
                 public RegisterUserCommand(string name) => Name = name;
                 public string Name { get; }

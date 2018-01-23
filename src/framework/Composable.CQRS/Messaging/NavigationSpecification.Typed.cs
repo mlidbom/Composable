@@ -12,8 +12,8 @@ namespace Composable.Messaging
         public NavigationSpecification<TNext> Select<TNext>(Func<TResult, TNext> select) => new NavigationSpecification<TNext>.SelectQuery<TResult>(this, select);
 
         public NavigationSpecification<TNext> Get<TNext>(Func<TResult, IQuery<TNext>> next) => new NavigationSpecification<TNext>.Remote.ContinuationQuery<TResult>(this, next);
-        public NavigationSpecification<TNext> Post<TNext>(Func<TResult, ITransactionalExactlyOnceDeliveryCommand<TNext>> next) => new NavigationSpecification<TNext>.Remote.PostCommand<TResult>(this, next);
-        public NavigationSpecification Post(Func<TResult, ITransactionalExactlyOnceDeliveryCommand> next) => new Remote.PostVoidCommand<TResult>(this, next);
+        public NavigationSpecification<TNext> Post<TNext>(Func<TResult, IExactlyOnceCommand<TNext>> next) => new NavigationSpecification<TNext>.Remote.PostCommand<TResult>(this, next);
+        public NavigationSpecification Post(Func<TResult, IExactlyOnceCommand> next) => new Remote.PostVoidCommand<TResult>(this, next);
 
         class SelectQuery<TPrevious> : NavigationSpecification<TResult>
         {

@@ -13,7 +13,7 @@ namespace Composable.Messaging.Buses
     {
         readonly ITypeMapper _typeMapper;
         readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
-        readonly Dictionary<Type, List<Action<ITransactionalExactlyOnceDeliveryEvent>>> _eventHandlers = new Dictionary<Type, List<Action<ITransactionalExactlyOnceDeliveryEvent>>>();
+        readonly Dictionary<Type, List<Action<IExactlyOnceEvent>>> _eventHandlers = new Dictionary<Type, List<Action<IExactlyOnceEvent>>>();
         readonly Dictionary<Type, Func<object, object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
         readonly Dictionary<Type, Func<object, object>> _commandHandlersReturningResults = new Dictionary<Type, Func<object, object>>();
         readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
@@ -24,10 +24,11 @@ namespace Composable.Messaging.Buses
 
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForEvent<TEvent>(Action<TEvent> handler)
         {
+            MessageInspector.AssertValid<TEvent>();
             lock(_lock)
             {
-                Contract.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(ITransactionalExactlyOnceDeliveryCommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(IQuery)));
-                _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<ITransactionalExactlyOnceDeliveryEvent>>()).Add(@event => handler((TEvent)@event));
+                Contract.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(IExactlyOnceCommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(IQuery)));
+                _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<IExactlyOnceEvent>>()).Add(@event => handler((TEvent)@event));
                 _eventHandlerRegistrations.Add(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
                 return this;
             }
@@ -35,19 +36,21 @@ namespace Composable.Messaging.Buses
 
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForCommand<TCommand>(Action<TCommand> handler)
         {
+            MessageInspector.AssertValid<TCommand>();
             lock(_lock)
             {
-                Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(ITransactionalExactlyOnceDeliveryEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
+                Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
                 _commandHandlers.Add(typeof(TCommand), command => handler((TCommand)command));
                 return this;
             }
         }
 
-        public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : ITransactionalExactlyOnceDeliveryCommand<TResult>
+        public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : IExactlyOnceCommand<TResult>
         {
+            MessageInspector.AssertValid<TCommand>();
             lock (_lock)
             {
-                Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(ITransactionalExactlyOnceDeliveryEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
+                Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
                 _commandHandlersReturningResults.Add(typeof(TCommand), command =>
                 {
                     var result = handler((TCommand)command);
@@ -64,17 +67,16 @@ namespace Composable.Messaging.Buses
 
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler)
         {
+            MessageInspector.AssertValid<TQuery>();
             lock(_lock)
             {
-                Contract.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(ITransactionalExactlyOnceDeliveryEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(ITransactionalExactlyOnceDeliveryCommand)));
+                Contract.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(IExactlyOnceCommand)));
                 _queryHandlers.Add(typeof(TQuery), query => handler((TQuery)query));
                 return this;
             }
         }
 
-
-
-        Action<object> IMessageHandlerRegistry.GetCommandHandler(ITransactionalExactlyOnceDeliveryCommand message)
+        Action<object> IMessageHandlerRegistry.GetCommandHandler(IExactlyOnceCommand message)
         {
             if(TryGetCommandHandler(message, out var handler))
             {
@@ -84,7 +86,7 @@ namespace Composable.Messaging.Buses
             throw new NoHandlerException(message.GetType());
         }
 
-        public bool TryGetCommandHandler(ITransactionalExactlyOnceDeliveryCommand message, out Action<object> handler)
+        public bool TryGetCommandHandler(IExactlyOnceCommand message, out Action<object> handler)
         {
             lock(_lock)
             {
@@ -92,7 +94,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public bool TryGetCommandHandlerWithResult(ITransactionalExactlyOnceDeliveryCommand message, out Func<object, object> handler)
+        public bool TryGetCommandHandlerWithResult(IExactlyOnceCommand message, out Func<object, object> handler)
         {
             lock(_lock)
             {
@@ -100,7 +102,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public Func<ITransactionalExactlyOnceDeliveryCommand, object> GetCommandHandler(Type commandType)
+        public Func<IExactlyOnceCommand, object> GetCommandHandler(Type commandType)
         {
             if(_commandHandlers.TryGetValue(commandType, out var handler))
             {
@@ -116,7 +118,7 @@ namespace Composable.Messaging.Buses
 
         public Func<IQuery, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType];
 
-        public IReadOnlyList<Action<ITransactionalExactlyOnceDeliveryEvent>> GetEventHandlers(Type eventType)
+        public IReadOnlyList<Action<IExactlyOnceEvent>> GetEventHandlers(Type eventType)
         {
             return _eventHandlers.Where(@this => @this.Key.IsAssignableFrom(eventType)).SelectMany(@this => @this.Value).ToList();
         }
@@ -137,7 +139,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public Func<ITransactionalExactlyOnceDeliveryCommand<TResult>, TResult> GetCommandHandler<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command)
+        public Func<IExactlyOnceCommand<TResult>, TResult> GetCommandHandler<TResult>(IExactlyOnceCommand<TResult> command)
         {
             try
             {
@@ -154,11 +156,11 @@ namespace Composable.Messaging.Buses
         }
 
 
-        IEventDispatcher<ITransactionalExactlyOnceDeliveryEvent> IMessageHandlerRegistry.CreateEventDispatcher()
+        IEventDispatcher<IExactlyOnceEvent> IMessageHandlerRegistry.CreateEventDispatcher()
         {
-            var dispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<ITransactionalExactlyOnceDeliveryEvent>();
+            var dispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<IExactlyOnceEvent>();
             var registrar = dispatcher.RegisterHandlers()
-                                      .IgnoreUnhandled<ITransactionalExactlyOnceDeliveryEvent>();
+                                      .IgnoreUnhandled<IExactlyOnceEvent>();
             lock(_lock)
             {
                 _eventHandlerRegistrations.ForEach(handlerRegistration => handlerRegistration.RegisterHandlerWithRegistrar(registrar));
@@ -183,8 +185,8 @@ namespace Composable.Messaging.Buses
         internal class EventHandlerRegistration
         {
             public Type Type { get; }
-            public Action<IEventHandlerRegistrar<ITransactionalExactlyOnceDeliveryEvent>> RegisterHandlerWithRegistrar { get; }
-            public EventHandlerRegistration(Type type, Action<IEventHandlerRegistrar<ITransactionalExactlyOnceDeliveryEvent>> registerHandlerWithRegistrar)
+            public Action<IEventHandlerRegistrar<IExactlyOnceEvent>> RegisterHandlerWithRegistrar { get; }
+            public EventHandlerRegistration(Type type, Action<IEventHandlerRegistrar<IExactlyOnceEvent>> registerHandlerWithRegistrar)
             {
                 Type = type;
                 RegisterHandlerWithRegistrar = registerHandlerWithRegistrar;

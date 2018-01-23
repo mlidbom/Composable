@@ -74,7 +74,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         }
 
         [Test]
-        public void With_four_migrations_mutation_that_all_actually_changes_things_uncached_loading_takes_less_than_50_milliseconds_cached_less_than_10_milliseconds()
+        public void With_four_migrations_mutation_that_all_actually_changes_things_uncached_loading_takes_less_than_50_milliseconds_cached_less_than_15_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
                 Before<E2>.Insert<E3>()
@@ -83,7 +83,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 ,Before<E8>.Insert<E9>()
             ).ToArray();
 
-            AssertUncachedAggregateLoadTime(50.Milliseconds(), 10.Milliseconds(), eventMigrations);
+            AssertUncachedAggregateLoadTime(50.Milliseconds(), 15.Milliseconds(), eventMigrations);
         }
 
         [Test]

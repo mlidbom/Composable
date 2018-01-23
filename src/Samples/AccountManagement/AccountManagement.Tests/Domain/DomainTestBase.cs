@@ -10,9 +10,9 @@ namespace AccountManagement.Tests.Domain
 {
     public class EventSpy
     {
-        public IEnumerable<ITransactionalExactlyOnceDeliveryEvent> DispatchedMessages => _events.ToList();
-        public void Receive(ITransactionalExactlyOnceDeliveryEvent @event) { _events.Add(@event); }
-        readonly List<ITransactionalExactlyOnceDeliveryEvent> _events = new List<ITransactionalExactlyOnceDeliveryEvent>();
+        public IEnumerable<IExactlyOnceEvent> DispatchedMessages => _events.ToList();
+        public void Receive(IExactlyOnceEvent @event) { _events.Add(@event); }
+        readonly List<IExactlyOnceEvent> _events = new List<IExactlyOnceEvent>();
     }
 
     [TestFixture] public abstract class DomainTestBase
@@ -30,7 +30,7 @@ namespace AccountManagement.Tests.Domain
 
             var domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(Host);
             domainEndpoint.ServiceLocator.Resolve<IMessageHandlerRegistrar>()
-                           .ForEvent<ITransactionalExactlyOnceDeliveryEvent>(EventSpy.Receive);
+                           .ForEvent<IExactlyOnceEvent>(EventSpy.Receive);
         }
 
         [TearDown] public void DisposeScopeAndContainer() => Host.Dispose();

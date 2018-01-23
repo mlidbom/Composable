@@ -17,7 +17,7 @@ namespace Composable.Messaging
         Guid Id { get; }
     }
 
-    public class EntityByIdQuery<TEntity> : Message, IEntityQuery<TEntity>
+    public class EntityByIdQuery<TEntity> : Message, IQuery<TEntity>
     {
         public EntityByIdQuery() {}
         public EntityByIdQuery(Guid id) => Id = id;
@@ -25,7 +25,7 @@ namespace Composable.Messaging
         public EntityByIdQuery<TEntity> WithId(Guid id) => new EntityByIdQuery<TEntity> {Id = id};
     }
 
-    public class ReadonlyCopyOfEntityByIdQuery<TEntity> : Message, IEntityQuery<TEntity>
+    public class ReadonlyCopyOfEntityByIdQuery<TEntity> : Message, IQuery<TEntity>
     {
         public ReadonlyCopyOfEntityByIdQuery() {}
         public ReadonlyCopyOfEntityByIdQuery(Guid id) => Id = id;
@@ -33,7 +33,7 @@ namespace Composable.Messaging
         public EntityByIdQuery<TEntity> WithId(Guid id) => new EntityByIdQuery<TEntity> {Id = id};
     }
 
-    public class ReadonlyCopyOfEntityVersionByIdQuery<TEntity> : Message, IEntityQuery<TEntity>
+    public class ReadonlyCopyOfEntityVersionByIdQuery<TEntity> : Message, IQuery<TEntity>
     {
         public ReadonlyCopyOfEntityVersionByIdQuery() {}
         public ReadonlyCopyOfEntityVersionByIdQuery(Guid id, int version)
@@ -62,7 +62,7 @@ namespace Composable.Messaging
         public Guid Id { get; private set; }
     }
 
-    public class PersistEntityCommand<TEntity> : TransactionalExactlyOnceDeliveryCommand
+    public class PersistEntityCommand<TEntity> : ExactlyOnceCommand
     {
         public PersistEntityCommand(TEntity entity) => Entity = entity;
         public TEntity Entity { get; }

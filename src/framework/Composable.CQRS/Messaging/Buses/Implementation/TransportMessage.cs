@@ -35,7 +35,7 @@ namespace Composable.Messaging.Buses.Implementation
                     _message = (IMessage)JsonConvert.DeserializeObject(Body, typeMapper.GetType(MessageType), JsonSettings.JsonSerializerSettings);
 
 
-                    Contract.State.Assert(!(_message is ITransactionalExactlyOnceDeliveryMessage) || MessageId == (_message as ITransactionalExactlyOnceDeliveryMessage).MessageId);
+                    Contract.State.Assert(!(_message is IExactlyOnceMessage) || MessageId == (_message as IExactlyOnceMessage).MessageId);
                 }
                 return _message;
             }
@@ -93,17 +93,17 @@ namespace Composable.Messaging.Buses.Implementation
 
             public static OutGoing Create(IMessage message, ITypeMapper typeMapper)
             {
-                var messageId = (message as ITransactionalExactlyOnceDeliveryMessage)?.MessageId ?? Guid.NewGuid();
+                var messageId = (message as IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
-                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, GetMessageType(message), message is ITransactionalExactlyOnceDeliveryMessage);
+                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, GetMessageType(message), message is IExactlyOnceMessage);
             }
 
             static TransportMessageType GetMessageType(IMessage message)
             {
                 switch(message) {
-                    case ITransactionalExactlyOnceDeliveryEvent _:
+                    case IExactlyOnceEvent _:
                         return TransportMessageType.Event;
-                    case ITransactionalExactlyOnceDeliveryCommand _:
+                    case IExactlyOnceCommand _:
                         return TransportMessageType.Command;
                     case IQuery _:
                         return TransportMessageType.Query;

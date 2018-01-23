@@ -20,9 +20,9 @@ namespace Composable.Messaging
 
             internal class StartCommand : NavigationSpecification<TResult>
             {
-                readonly ITransactionalExactlyOnceDeliveryCommand<TResult> _start;
+                readonly IExactlyOnceCommand<TResult> _start;
 
-                internal StartCommand(ITransactionalExactlyOnceDeliveryCommand<TResult> start) => _start = start;
+                internal StartCommand(IExactlyOnceCommand<TResult> start) => _start = start;
 
                 public override TResult ExecuteOn(IServiceBusSession busSession) => busSession.PostRemote(_start);
                 public override Task<TResult> ExecuteAsyncOn(IServiceBusSession busSession) => busSession.PostRemoteAsync(_start);
@@ -57,8 +57,8 @@ namespace Composable.Messaging
             internal class PostCommand<TPrevious> : NavigationSpecification<TResult>
             {
                 readonly NavigationSpecification<TPrevious> _previous;
-                readonly Func<TPrevious, ITransactionalExactlyOnceDeliveryCommand<TResult>> _next;
-                internal PostCommand(NavigationSpecification<TPrevious> previous, Func<TPrevious, ITransactionalExactlyOnceDeliveryCommand<TResult>> next)
+                readonly Func<TPrevious, IExactlyOnceCommand<TResult>> _next;
+                internal PostCommand(NavigationSpecification<TPrevious> previous, Func<TPrevious, IExactlyOnceCommand<TResult>> next)
                 {
                     _previous = previous;
                     _next = next;
@@ -82,8 +82,8 @@ namespace Composable.Messaging
             internal class PostVoidCommand<TPrevious> : NavigationSpecification
             {
                 readonly NavigationSpecification<TPrevious> _previous;
-                readonly Func<TPrevious, ITransactionalExactlyOnceDeliveryCommand> _next;
-                internal PostVoidCommand(NavigationSpecification<TPrevious> previous, Func<TPrevious, ITransactionalExactlyOnceDeliveryCommand> next)
+                readonly Func<TPrevious, IExactlyOnceCommand> _next;
+                internal PostVoidCommand(NavigationSpecification<TPrevious> previous, Func<TPrevious, IExactlyOnceCommand> next)
                 {
                     _previous = previous;
                     _next = next;

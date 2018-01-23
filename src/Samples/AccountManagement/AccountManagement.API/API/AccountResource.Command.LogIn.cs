@@ -11,7 +11,7 @@ namespace AccountManagement.API
         {
             public static class LogIn
             {
-                public class UI : TransactionalExactlyOnceDeliveryCommand<LoginAttemptResult>
+                public class UI : ExactlyOnceCommand<LoginAttemptResult>
                 {
                     [Required] [Email] public string Email { get; set; }
                     [Required] public string Password { get; set; }

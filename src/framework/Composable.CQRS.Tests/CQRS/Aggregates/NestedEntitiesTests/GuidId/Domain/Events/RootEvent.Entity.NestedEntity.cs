@@ -45,9 +45,9 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.Domain.Eve
 
                     public class Created : Root, NestedEntity.Created
                     {
-                        public Created(Guid nestedEntityId, string name)
+                        public Created(Guid id, string name)
                         {
-                            NestedEntityId = nestedEntityId;
+                            NestedEntityId = id;
                             Name = name;
                         }
                         public string Name { get; }

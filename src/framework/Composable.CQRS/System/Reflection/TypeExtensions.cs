@@ -13,15 +13,14 @@ namespace Composable.System.Reflection
         /// ///<returns>true if <paramref name="me"/> implements the interface: <typeparamref name="TImplemented"/>. By definition true if <paramref name="me"/> == <typeparamref name="TImplemented"/>.</returns>
         public static bool Implements<TImplemented>(this Type me)
         {
-            ContractOptimized.Argument(me, nameof(me))
-                             .NotNull();
+            Contract.Argument.Assert(me != null);
 
             if (!typeof(TImplemented).IsInterface)
             {
                 throw new ArgumentException(nameof(TImplemented));
             }
 
-            return me.Implements(typeof(TImplemented));
+            return typeof(TImplemented).IsAssignableFrom(me);
         }
 
         ///<returns>true if <paramref name="me"/> implements the interface: <paramref name="implemented"/>. By definition true if <paramref name="me"/> == <paramref name="implemented"/>.</returns>

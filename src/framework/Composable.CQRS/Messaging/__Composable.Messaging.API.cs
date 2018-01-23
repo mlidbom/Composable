@@ -31,15 +31,15 @@ namespace Composable.Messaging
 
 
     public interface IAtMostOnceDelivery {}
-    public interface IForbidTransactionalSendOperation { }
+    public interface IForbidTransactionalSend { }
 
-    public interface IUserInterfaceMessage : IForbidTransactionalSendOperation, IAtMostOnceDelivery, ISupportRemoteDelivery {}
+    public interface IUserInterfaceMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteDelivery {}
     public interface IUserInterfaceCommand<TResult> : ICommand<TResult>, IUserInterfaceMessage  { }
     public interface IUserInterfaceQuery<TResult> : IQuery<TResult>, IUserInterfaceMessage { }
 
-    public interface IRequireTransactionalSendOperation : ISupportRemoteDelivery{ }
+    public interface IRequireTransactionalSend : ISupportRemoteDelivery{ }
     public interface IRequireTransactionalHandlerExecution : ISupportRemoteDelivery { }
-    public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSendOperation, IRequireTransactionalHandlerExecution {}
+    public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSend, IRequireTransactionalHandlerExecution {}
 
     public interface IExactlyOnceMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId {}
 

@@ -13,7 +13,7 @@ namespace AccountManagement.API
     {
         public static partial class Commands
         {
-            public class Register : TransactionalExactlyOnceDeliveryCommand<Register.RegistrationAttemptResult>, IValidatableObject
+            public class Register : ExactlyOnceCommand<Register.RegistrationAttemptResult>, IValidatableObject
             {
                 public Register() {}
                 public Register(Guid accountId, string email, string password)
@@ -43,7 +43,7 @@ namespace AccountManagement.API
                     EmailAlreadyRegistered = 2
                 }
 
-                internal ITransactionalExactlyOnceDeliveryCommand<RegistrationAttemptResult> WithValues(Guid accountId, string email, string password) => new Register(accountId, email, password);
+                internal IExactlyOnceCommand<RegistrationAttemptResult> WithValues(Guid accountId, string email, string password) => new Register(accountId, email, password);
             }
         }
     }

@@ -62,7 +62,7 @@ namespace Composable.Messaging
         public Guid Id { get; private set; }
     }
 
-    public class PersistEntityCommand<TEntity> : TransactionalExactlyOnceDeliveryCommand
+    public class PersistEntityCommand<TEntity> : ExactlyOnceCommand
     {
         public PersistEntityCommand(TEntity entity) => Entity = entity;
         public TEntity Entity { get; }

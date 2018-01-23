@@ -10,7 +10,7 @@ namespace AccountManagement.API
     {
         public static partial class Commands
         {
-            public class ChangeEmail : TransactionalExactlyOnceDeliveryCommand
+            public class ChangeEmail : ExactlyOnceCommand
             {
                 [UsedImplicitly] ChangeEmail() {}
                 internal ChangeEmail(Guid accountId) => AccountId = accountId;

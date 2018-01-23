@@ -108,7 +108,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             }
         }
 
-        class ACommand : ITransactionalExactlyOnceDeliveryCommand
+        class ACommand : IExactlyOnceCommand
         {
             public Guid MessageId { get; } = Guid.NewGuid();
         }

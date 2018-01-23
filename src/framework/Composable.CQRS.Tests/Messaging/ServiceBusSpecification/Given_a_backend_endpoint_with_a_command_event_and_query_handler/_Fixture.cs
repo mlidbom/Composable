@@ -67,11 +67,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             QueryHandlerThreadGate.Open();
         }
 
-        protected class MyCommand : TransactionalExactlyOnceDeliveryCommand {}
+        protected class MyCommand : ExactlyOnceCommand {}
         protected class MyEvent : AggregateEvent {}
         protected class MyQuery : Query<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
-        protected class MyCommandWithResult : TransactionalExactlyOnceDeliveryCommand<MyCommandResult> {}
+        protected class MyCommandWithResult : ExactlyOnceCommand<MyCommandResult> {}
         protected class MyCommandResult : Message {}
     }
 }

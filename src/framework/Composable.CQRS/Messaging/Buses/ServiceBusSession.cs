@@ -33,44 +33,44 @@ namespace Composable.Messaging.Buses
 
         TResult IRemoteServiceBusSession.GetRemote<TResult>(IQuery<TResult> query) => ((IRemoteServiceBusSession)this).GetRemoteAsync(query).ResultUnwrappingException();
 
-        void IEventstoreEventPublisher.Publish(ITransactionalExactlyOnceDeliveryEvent @event) => TransactionScopeCe.Execute(() =>
+        void IEventstoreEventPublisher.Publish(IExactlyOnceEvent @event) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             _handlerRegistry.CreateEventDispatcher().Dispatch(@event);
             _transport.DispatchIfTransactionCommits(@event);
         });
 
-        void IRemoteServiceBusSession.PostRemote(ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
+        void IRemoteServiceBusSession.PostRemote(IExactlyOnceCommand command) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             CommandValidator.AssertCommandIsValid(command);
             _transport.DispatchIfTransactionCommits(command);
         });
 
-        void IRemoteServiceBusSession.SchedulePostRemote(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
+        void IRemoteServiceBusSession.SchedulePostRemote(DateTime sendAt, IExactlyOnceCommand command) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             CommandValidator.AssertCommandIsValid(command);
             _commandScheduler.Schedule(sendAt, command);
         });
 
-        Task<TResult> IRemoteServiceBusSession.PostRemoteAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => TransactionScopeCe.Execute(() =>
+        Task<TResult> IRemoteServiceBusSession.PostRemoteAsync<TResult>(IExactlyOnceCommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             CommandValidator.AssertCommandIsValid(command);
             return _transport.DispatchIfTransactionCommitsAsync(command);
         });
 
-        TResult IRemoteServiceBusSession.PostRemote<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => ((IRemoteServiceBusSession)this).PostRemoteAsync(command).ResultUnwrappingException();
+        TResult IRemoteServiceBusSession.PostRemote<TResult>(IExactlyOnceCommand<TResult> command) => ((IRemoteServiceBusSession)this).PostRemoteAsync(command).ResultUnwrappingException();
 
-        TResult ILocalServiceBusSession.Post<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command) => TransactionScopeCe.Execute(() =>
+        TResult ILocalServiceBusSession.Post<TResult>(IExactlyOnceCommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             CommandValidator.AssertCommandIsValid(command);
             return _handlerRegistry.GetCommandHandler(command).Invoke(command);
         });
 
-        void ILocalServiceBusSession.Post(ITransactionalExactlyOnceDeliveryCommand command) => TransactionScopeCe.Execute(() =>
+        void ILocalServiceBusSession.Post(IExactlyOnceCommand command) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             CommandValidator.AssertCommandIsValid(command);

@@ -4,34 +4,38 @@
 
 namespace Composable.Messaging
 {
-    ///<summary>An object that is used to transfer data from a sender to a receiver through a messaging infrastructure.</summary>
+    ///<summary>Any object that is used to transfer data from a sender to a receiver through a messaging infrastructure.</summary>
     public interface IMessage {}
 
     ///<summary>Informs the receiver that something has happened.</summary>
-    public interface IEvent { }
+    public interface IEvent : IMessage { }
 
     /// <summary>Instructs the recevier to perform an action.</summary>
-    public interface ICommand { }
+    public interface ICommand : IMessage { }
+    public interface ICommand<TResult> : ICommand { }
 
-    public interface INonTransactionalAtMostOnceDeliveryMessage : IMessage{}
+    public interface IQuery : IMessage { }
 
-    public interface ITransactionalExactlyOnceDeliveryMessage : IMessage
-    {
-        Guid MessageId { get; }
-    }
-
-    public interface INonTransactionalAtMostOnceDeliveryEvent : IEvent, INonTransactionalAtMostOnceDeliveryMessage { }
-    public interface INonTransactionalAtMostOnceDeliveryCommand : ICommand, INonTransactionalAtMostOnceDeliveryMessage { }
-
-    public interface IQuery : INonTransactionalAtMostOnceDeliveryMessage { }
-
-    ///<summary>An <see cref="IMessage"/> that instructs the receiver to return a resource based upon the data in the query.</summary>
+    ///<summary>An instructs the receiver to return a resource based upon the data in the query.</summary>
     public interface IQuery<TResult> : IQuery { }
 
 
-    public interface ITransactionalExactlyOnceDeliveryEvent : IEvent, ITransactionalExactlyOnceDeliveryMessage { }
-    public interface ITransactionalExactlyOnceDeliveryCommand : ICommand, ITransactionalExactlyOnceDeliveryMessage { }
-    public interface ITransactionalExactlyOnceDeliveryCommand<TResult> : ITransactionalExactlyOnceDeliveryCommand { }
+    public interface IProvidesOwnMessageIdMessage : IMessage { Guid MessageId { get; } }
+    public interface IRequiresTransactionalSendOperationMessage : IMessage { }
+    public interface IRequireTransactionalHandlerExecutionMessage : IMessage { }
+    public interface IRequireAllOperationsToBeTransactionalMessage : IRequiresTransactionalSendOperationMessage, IRequireTransactionalHandlerExecutionMessage {}
+
+    public interface IAtMostOnceMessage : IRequireAllOperationsToBeTransactionalMessage {}
+    public interface IAtLeastOnceMessage : IRequireAllOperationsToBeTransactionalMessage, IProvidesOwnMessageIdMessage { }
+    public interface IExactlyOnceMessage : IAtLeastOnceMessage { }
+
+    public interface IAtMostOnceEvent : IEvent, IAtMostOnceMessage { }
+    public interface IAtMostOnceCommand : ICommand, IAtMostOnceMessage { }
+    public interface IAtMostOnceCommand<TResult> : ICommand<TResult>, IAtMostOnceMessage  { }
+
+    public interface IExactlyOnceEvent : IEvent, IExactlyOnceMessage { }
+    public interface IExactlyOnceCommand : ICommand, IExactlyOnceMessage { }
+    public interface IExactlyOnceCommand<TResult> : ICommand<TResult>, IExactlyOnceCommand { }
 
 
     public interface IEntityQuery<TEntity> : IQuery<TEntity>

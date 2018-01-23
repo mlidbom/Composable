@@ -11,7 +11,7 @@ namespace AccountManagement.API
     {
         public static partial class Commands
         {
-            public class ChangePassword : TransactionalExactlyOnceDeliveryCommand, IValidatableObject
+            public class ChangePassword : ExactlyOnceCommand, IValidatableObject
             {
                 public ChangePassword(Guid accountId) => AccountId = accountId;
 

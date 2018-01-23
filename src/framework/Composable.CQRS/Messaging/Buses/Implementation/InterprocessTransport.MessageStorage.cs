@@ -20,7 +20,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _typeMapper = typeMapper;
             }
 
-            public void SaveMessage(ITransactionalExactlyOnceDeliveryMessage message, params EndpointId[] receiverEndpointIds) =>
+            public void SaveMessage(IExactlyOnceMessage message, params EndpointId[] receiverEndpointIds) =>
                 _connectionFactory.UseCommand(
                     command =>
                     {

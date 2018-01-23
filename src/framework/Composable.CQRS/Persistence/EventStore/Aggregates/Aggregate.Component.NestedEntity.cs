@@ -4,14 +4,14 @@ using Composable.Messaging.Events;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
+    public abstract partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
+        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
+        where TAggregateBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
     {
         public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
+            where TComponentBaseEventInterface : class, TAggregateBaseEventInterface
+            where TComponentBaseEventClass : TAggregateBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
             public abstract class NestedEntity<TEntity,
@@ -31,7 +31,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                                     TEntityBaseEventInterface,
                                     TEntityCreatedEventInterface,
                                     TEventEntityIdSetterGetter>
-                where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId,
+                where TEventEntityIdSetterGetter : IGetSeTAggregateEntityEventEntityId<TEntityId,
                                                        TEntityBaseEventClass,
                                                        TEntityBaseEventInterface>, new()
             {

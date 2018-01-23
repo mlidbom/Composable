@@ -87,7 +87,7 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
             static void AssertValidInternal(ITypeMapper typeMapper)
             {
                 var classInheritanceChain = typeof(TAggregate).ClassInheritanceChain().ToList();
-                var inheritedAggregateRootType = classInheritanceChain.Where(baseClass => baseClass.IsConstructedGenericType && baseClass.GetGenericTypeDefinition() == typeof(AggregateRoot<,,>)).Single();
+                var inheritedAggregateRootType = classInheritanceChain.Where(baseClass => baseClass.IsConstructedGenericType && baseClass.GetGenericTypeDefinition() == typeof(Aggregate<,,>)).Single();
 
                 var detectedEventClassType = inheritedAggregateRootType.GenericTypeArguments[1];
                 var detectedEventInterfaceType = inheritedAggregateRootType.GenericTypeArguments[2];

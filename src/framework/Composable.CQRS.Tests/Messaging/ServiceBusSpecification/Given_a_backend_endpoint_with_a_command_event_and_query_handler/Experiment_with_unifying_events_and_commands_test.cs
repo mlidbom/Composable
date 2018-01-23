@@ -139,7 +139,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        public class UserRegistrarAggregate : AggregateRoot<UserRegistrarAggregate, UserRegistrarEvent.Implementation.Root, UserRegistrarEvent.IRoot>
+        public class UserRegistrarAggregate : Aggregate<UserRegistrarAggregate, UserRegistrarEvent.Implementation.Root, UserRegistrarEvent.IRoot>
         {
             internal static Guid SingleId = Guid.Parse("5C400DD9-50FB-40C7-8A13-265005588AED");
             internal static UserRegistrarAggregate Create()
@@ -156,7 +156,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             internal static RegisterUserResult RegisterUser(IServiceBusSession busSession) => busSession.Post(new UserRegistrarCommand.RegisterUserCommand());
         }
 
-        public class UserAggregate : AggregateRoot<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>
+        public class UserAggregate : Aggregate<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>
         {
             UserAggregate() : base(DateTimeNowTimeSource.Instance)
                 => RegisterEventAppliers()

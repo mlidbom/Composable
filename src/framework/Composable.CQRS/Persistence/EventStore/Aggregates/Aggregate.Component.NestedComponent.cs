@@ -5,19 +5,19 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
+    public abstract partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
+        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
+        where TAggregateBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
     {
         public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
+            where TComponentBaseEventInterface : class, TAggregateBaseEventInterface
+            where TComponentBaseEventClass : TAggregateBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
             [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
             public abstract class NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface> :
-                AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>.
+                Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>.
                     Component<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
                 where TNestedComponentBaseEventInterface : class, TComponentBaseEventInterface
                 where TNestedComponentBaseEventClass : TComponentBaseEventClass, TNestedComponentBaseEventInterface

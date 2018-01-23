@@ -3,12 +3,12 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public abstract partial class SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : SelfGeneratingQueryModel<TAggregateRoot, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+    public abstract partial class SelfGeneratingQueryModel<TAggregate, TAggregateBaseEventInterface>
+        where TAggregate : SelfGeneratingQueryModel<TAggregate, TAggregateBaseEventInterface>
+        where TAggregateBaseEventInterface : class, IAggregateRootEvent
     {
         public abstract partial class Component<TComponent, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
+            where TComponentBaseEventInterface : class, TAggregateBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventInterface>
         {
             [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]

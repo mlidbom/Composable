@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace Composable.Tests.CQRS
 {
-    class User : AggregateRoot<User,UserEvent, IUserEvent>
+    class User : Aggregate<User,UserEvent, IUserEvent>
     {
         public string Email { get; private set; }
         public string Password { get; private set; }

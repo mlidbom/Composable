@@ -5,10 +5,10 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
+    public abstract partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
+        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
+        where TAggregateBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
     {
         [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
         public abstract class Entity<TEntity,
@@ -17,8 +17,8 @@ namespace Composable.Persistence.EventStore.Aggregates
                                      TEntityBaseEventInterface,
                                      TEntityCreatedEventInterface,
                                      TEventEntityIdSetterGetter> : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
-            where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TEntityBaseEventClass : TAggregateRootBaseEventClass, TEntityBaseEventInterface
+            where TEntityBaseEventInterface : class, TAggregateBaseEventInterface
+            where TEntityBaseEventClass : TAggregateBaseEventClass, TEntityBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntity : Entity<TEntity,
                                 TEntityId,
@@ -26,7 +26,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                                 TEntityBaseEventInterface,
                                 TEntityCreatedEventInterface,
                                 TEventEntityIdSetterGetter>
-            where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>,
+            where TEventEntityIdSetterGetter : IGetSeTAggregateEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>,
                 new()
         {
             static Entity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.AssertStaticStructureIsValid();
@@ -35,7 +35,7 @@ namespace Composable.Persistence.EventStore.Aggregates
 
             public TEntityId Id { get; private set; }
 
-            protected Entity(TAggregateRoot aggregateRoot)
+            protected Entity(TAggregate aggregateRoot)
                 : this(aggregateRoot.TimeSource, aggregateRoot.Publish, aggregateRoot.RegisterEventAppliers()) {}
 
             Entity
@@ -63,11 +63,11 @@ namespace Composable.Persistence.EventStore.Aggregates
             }
 
             // ReSharper disable once UnusedMember.Global todo: write tests.
-            public static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent)
+            public static CollectionManager CreateSelfManagingCollection(TAggregate parent)
                 => new CollectionManager(parent, parent.Publish, parent.RegisterEventAppliers());
 
             public class CollectionManager : EntityCollectionManager<
-                                                 TAggregateRoot,
+                                                 TAggregate,
                                                  TEntity,
                                                  TEntityId,
                                                  TEntityBaseEventClass,
@@ -76,7 +76,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                                                  TEventEntityIdSetterGetter>
             {
                 internal CollectionManager
-                    (TAggregateRoot parent,
+                    (TAggregate parent,
                      Action<TEntityBaseEventClass> raiseEventThroughParent,
                      IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, raiseEventThroughParent, appliersRegistrar) {}
             }

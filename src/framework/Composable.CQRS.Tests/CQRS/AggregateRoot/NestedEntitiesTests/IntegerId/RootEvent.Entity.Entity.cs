@@ -35,7 +35,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
                     {
                         public int NestedEntityId { get; protected set; }
 
-                        public new class IdGetterSetter : Root, IGetSetAggregateRootEntityEventEntityId<int, Root, IRoot>
+                        public new class IdGetterSetter : Root, IGetSeTAggregateEntityEventEntityId<int, Root, IRoot>
                         {
                             public void SetEntityId(Root @event, int id) => @event.NestedEntityId = id;
                             public int GetId(IRoot @event) => @event.NestedEntityId;

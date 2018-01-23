@@ -75,7 +75,7 @@ namespace Composable.Tests.CQRS
             receivedEvents[1].GetType().Should().Be(typeof(TriggeredEvent));
         }
 
-        class CascadingEventsAggregate : AggregateRoot<CascadingEventsAggregate, AggregateRootEvent, IAggregateRootEvent>
+        class CascadingEventsAggregate : Aggregate<CascadingEventsAggregate, AggregateRootEvent, IAggregateRootEvent>
         {
             public CascadingEventsAggregate():base(TestingTimeSource.FrozenUtcNow())
             {

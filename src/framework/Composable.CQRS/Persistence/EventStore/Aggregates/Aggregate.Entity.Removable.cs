@@ -3,10 +3,10 @@ using Composable.Messaging.Events;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
+    public abstract partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
+        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
+        where TAggregateBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
     {
         public abstract class RemovableEntity<TEntity,
                                      TEntityId,
@@ -20,8 +20,8 @@ namespace Composable.Persistence.EventStore.Aggregates
                                                                        TEntityBaseEventInterface,
                                                                        TEntityCreatedEventInterface,
                                                                        TEventEntityIdSetterGetter>
-            where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TEntityBaseEventClass : TAggregateRootBaseEventClass, TEntityBaseEventInterface
+            where TEntityBaseEventInterface : class, TAggregateBaseEventInterface
+            where TEntityBaseEventClass : TAggregateBaseEventClass, TEntityBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntityRemovedEventInterface : TEntityBaseEventInterface
             where TEntity : RemovableEntity<TEntity,
@@ -31,24 +31,24 @@ namespace Composable.Persistence.EventStore.Aggregates
                                 TEntityCreatedEventInterface,
                                 TEntityRemovedEventInterface,
                                 TEventEntityIdSetterGetter>
-            where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>,
+            where TEventEntityIdSetterGetter : IGetSeTAggregateEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>,
                 new()
         {
             static RemovableEntity() => AggregateTypeValidator<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>.AssertStaticStructureIsValid();
 
-            protected RemovableEntity(TAggregateRoot aggregateRoot) : base(aggregateRoot)
+            protected RemovableEntity(TAggregate aggregateRoot) : base(aggregateRoot)
             {
                 RegisterEventAppliers()
                     .IgnoreUnhandled<TEntityRemovedEventInterface>();
             }
-            internal new static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent)
+            internal new static CollectionManager CreateSelfManagingCollection(TAggregate parent)
                 =>
                     new CollectionManager(
                         parent: parent,
                         raiseEventThroughParent: parent.Publish,
                         appliersRegistrar: parent.RegisterEventAppliers());
 
-            internal new class CollectionManager : EntityCollectionManager<TAggregateRoot,
+            internal new class CollectionManager : EntityCollectionManager<TAggregate,
                                                      TEntity,
                                                      TEntityId,
                                                      TEntityBaseEventClass,
@@ -58,7 +58,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                                                      TEventEntityIdSetterGetter>
             {
                 internal CollectionManager
-                    (TAggregateRoot parent,
+                    (TAggregate parent,
                      Action<TEntityBaseEventClass> raiseEventThroughParent,
                      IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, raiseEventThroughParent, appliersRegistrar) {}
             }

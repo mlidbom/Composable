@@ -5,7 +5,7 @@ using Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Even
 
 namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 {
-    class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
+    class Root : Aggregate<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {
         public string Name { get; private set; }
         readonly RemovableEntity.CollectionManager _entities;

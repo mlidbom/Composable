@@ -5,14 +5,14 @@ using Composable.System.Reflection;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
+    public abstract partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
+        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
+        where TAggregateBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
     {
         public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
-            where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
+            where TComponentBaseEventInterface : class, TAggregateBaseEventInterface
+            where TComponentBaseEventClass : TAggregateBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
             public class EntityCollectionManager<TParent,
@@ -25,11 +25,11 @@ namespace Composable.Persistence.EventStore.Aggregates
                                                                                    TEntityId,
                                                                                    TEntityBaseEventClass,
                                                                                    TEntityCreatedEventInterface>
-                where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
+                where TEntityBaseEventInterface : class, TAggregateBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
-                where TEntityBaseEventClass : TEntityBaseEventInterface, TAggregateRootBaseEventClass
+                where TEntityBaseEventClass : TEntityBaseEventInterface, TAggregateBaseEventClass
                 where TEntity : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
-                where TEventEntityIdSetterGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
+                where TEventEntityIdSetterGetter : IGeTAggregateEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
             {
                 protected static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
 

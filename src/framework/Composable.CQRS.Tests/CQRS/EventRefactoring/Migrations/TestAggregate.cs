@@ -38,7 +38,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
     }
 
 
-    class TestAggregate : AggregateRoot<TestAggregate, RootEvent, IRootEvent>
+    class TestAggregate : Aggregate<TestAggregate, RootEvent, IRootEvent>
     {
         public void Publish(params RootEvent[] events)
         {

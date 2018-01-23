@@ -10,36 +10,36 @@ using Composable.System.Reactive;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>, IEventStored
-        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
+    public partial class Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface> : VersionedPersistentEntity<TAggregate>, IEventStored
+        where TAggregate : Aggregate<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>
+        where TAggregateBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateBaseEventClass : AggregateRootEvent, TAggregateBaseEventInterface
     {
         IUtcTimeTimeSource TimeSource { get; set; }
 
-        static AggregateRoot() => AggregateTypeValidator<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>.AssertStaticStructureIsValid();
+        static Aggregate() => AggregateTypeValidator<TAggregate, TAggregateBaseEventClass, TAggregateBaseEventInterface>.AssertStaticStructureIsValid();
 
-        [Obsolete("Only for infrastructure", true)] protected AggregateRoot():this(DateTimeNowTimeSource.Instance){ }
+        [Obsolete("Only for infrastructure", true)] protected Aggregate():this(DateTimeNowTimeSource.Instance){ }
 
         int _insertedVersionToAggregateVersionOffset = 0;
 
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
-        protected AggregateRoot(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
+        protected Aggregate(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
         {
             OldContract.Assert.That(timeSource != null, "timeSource != null");
-            OldContract.Assert.That(typeof(TAggregateRootBaseEventInterface).IsInterface, "typeof(TAggregateRootBaseEventInterface).IsInterface");
+            OldContract.Assert.That(typeof(TAggregateBaseEventInterface).IsInterface, "typeof(TAggregateBaseEventInterface).IsInterface");
             TimeSource = timeSource;
-            _eventHandlersEventDispatcher.Register().IgnoreUnhandled<TAggregateRootBaseEventInterface>();
+            _eventHandlersEventDispatcher.Register().IgnoreUnhandled<TAggregateBaseEventInterface>();
         }
 
         readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateBaseEventInterface>();
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateBaseEventInterface>();
 
         int _raiseEventReentrancyLevel = 0;
-        List<TAggregateRootBaseEventClass> _raiseEventUnpushedEvents = new List<TAggregateRootBaseEventClass>();
+        List<TAggregateBaseEventClass> _raiseEventUnpushedEvents = new List<TAggregateBaseEventClass>();
         bool _applyingEvents;
-        protected void Publish(TAggregateRootBaseEventClass theEvent)
+        protected void Publish(TAggregateBaseEventClass theEvent)
         {
             OldContract.Assert.That(!_applyingEvents, "You cannot raise events from within event appliers");
 
@@ -94,12 +94,12 @@ namespace Composable.Persistence.EventStore.Aggregates
             }
         }
 
-        protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();
+        protected IEventHandlerRegistrar<TAggregateBaseEventInterface> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();
 
         // ReSharper disable once UnusedMember.Global todo: coverage
-        protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventHandlers() => _eventHandlersEventDispatcher.RegisterHandlers();
+        protected IEventHandlerRegistrar<TAggregateBaseEventInterface> RegisterEventHandlers() => _eventHandlersEventDispatcher.RegisterHandlers();
 
-        void ApplyEvent(TAggregateRootBaseEventInterface theEvent)
+        void ApplyEvent(TAggregateBaseEventInterface theEvent)
         {
             try
             {
@@ -121,7 +121,7 @@ namespace Composable.Persistence.EventStore.Aggregates
         {
         }
 
-        readonly SimpleObservable<TAggregateRootBaseEventClass> _simpleObservable = new SimpleObservable<TAggregateRootBaseEventClass>();
+        readonly SimpleObservable<TAggregateBaseEventClass> _simpleObservable = new SimpleObservable<TAggregateBaseEventClass>();
         IObservable<IAggregateRootEvent> IEventStored.EventStream => _simpleObservable;
 
         void IEventStored.AcceptChanges()
@@ -138,7 +138,7 @@ namespace Composable.Persistence.EventStore.Aggregates
 
         void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
         {
-            history.ForEach(theEvent => ApplyEvent((TAggregateRootBaseEventInterface)theEvent));
+            history.ForEach(theEvent => ApplyEvent((TAggregateBaseEventInterface)theEvent));
             var maxInsertedVersion = history.Max(@event => ((AggregateRootEvent)@event).InsertedVersion);
             if(maxInsertedVersion != Version)
             {

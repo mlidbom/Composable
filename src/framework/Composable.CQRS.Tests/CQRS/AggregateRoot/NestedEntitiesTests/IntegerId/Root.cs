@@ -4,7 +4,7 @@ using Composable.Persistence.EventStore.Aggregates;
 
 namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
 {
-    class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
+    class Root : Aggregate<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {
         static int _instances;
         public string Name { get; private set; }

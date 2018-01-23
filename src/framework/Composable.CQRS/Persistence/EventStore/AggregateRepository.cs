@@ -4,7 +4,7 @@ using Composable.Persistence.EventStore.Aggregates;
 namespace Composable.Persistence.EventStore
 {
     public class AggregateRepository<TAggregate, TBaseEventClass, TBaseEventInterface> : IAggregateRepository<TAggregate>
-        where TAggregate : AggregateRoot<TAggregate, TBaseEventClass, TBaseEventInterface>, IEventStored
+        where TAggregate : Aggregate<TAggregate, TBaseEventClass, TBaseEventInterface>, IEventStored
         where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
         where TBaseEventInterface : class, IAggregateRootEvent
     {

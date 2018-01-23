@@ -9,12 +9,12 @@ namespace Composable.Persistence.EventStore.Query.Models
 {
     //todo:complete including tests
     // ReSharper disable UnusedMember.Global
-    abstract class SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateRootBaseEventInterface>
-        where TRootQueryModel : SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class
+    abstract class SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateBaseEventInterface>
+        where TRootQueryModel : SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateBaseEventInterface>
+        where TAggregateBaseEventInterface : class
     {
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventAppliersEventDispatcher =
-            new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateBaseEventInterface> _eventAppliersEventDispatcher =
+            new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateBaseEventInterface>();
 
         protected SelfUpdatingSingleAggregateQueryModel()
         {
@@ -22,19 +22,19 @@ namespace Composable.Persistence.EventStore.Query.Models
                 .ForGenericEvent<IAggregateRootCreatedEvent>(e => {});
         }
 
-        public void ApplyEvent(TAggregateRootBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
-        public void ApplyEvents(IEnumerable<TAggregateRootBaseEventInterface> @event)
+        public void ApplyEvent(TAggregateBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
+        public void ApplyEvents(IEnumerable<TAggregateBaseEventInterface> @event)
         {
             @event.ForEach(_eventAppliersEventDispatcher.Dispatch);
         }
 
-        IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers() => _eventAppliersEventDispatcher.Register();
+        IEventHandlerRegistrar<TAggregateBaseEventInterface> RegisterEventAppliers() => _eventAppliersEventDispatcher.Register();
 
         public abstract class Entity<TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdGetter>
-            where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
+            where TEntityBaseEventInterface : class, TAggregateBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntity : Entity<TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdGetter>
-            where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
+            where TEventEntityIdGetter : IGeTAggregateEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
         {
             readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface>();

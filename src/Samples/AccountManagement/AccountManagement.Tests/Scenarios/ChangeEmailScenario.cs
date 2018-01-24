@@ -9,7 +9,7 @@ namespace AccountManagement.Tests.Scenarios
     {
         readonly IEndpoint _clientEndpoint;
 
-        public Email NewEmail = TestData.Email.CreateValidEmail();
+        public string NewEmail = TestData.Email.CreateValidEmail().ToString();
         public readonly Email OldEmail;
         public AccountResource Account { get; private set; }
 
@@ -25,7 +25,7 @@ namespace AccountManagement.Tests.Scenarios
 
         public void Execute()
         {
-            Account.Command.ChangeEmail.WithEmail(NewEmail.ToString()).Post().ExecuteAsRequestOn(_clientEndpoint);
+            Account.Command.ChangeEmail.WithEmail(NewEmail).Post().ExecuteAsRequestOn(_clientEndpoint);
 
             Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
         }

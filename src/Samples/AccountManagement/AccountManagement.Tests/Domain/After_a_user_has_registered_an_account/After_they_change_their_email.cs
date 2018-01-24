@@ -25,16 +25,16 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [Test] public void Raised_event_contains_the_supplied_email() =>
             EventSpy.DispatchedMessages
                       .OfType<AccountEvent.UserChangedEmail>().Single()
-                      .Email.Should().Be(_changeEmailScenario.NewEmail);
+                      .Email.StringValue.Should().Be(_changeEmailScenario.NewEmail);
 
         [Test] public void Account_Email_is_the_supplied_email() =>
-            _changeEmailScenario.Account.Email.Should().Be(_changeEmailScenario.NewEmail);
+            _changeEmailScenario.Account.Email.StringValue.Should().Be(_changeEmailScenario.NewEmail);
 
         [Test] public void Registering_an_account_with_the_old_email_works() =>
             new RegisterAccountScenario(ClientEndpoint, email: _changeEmailScenario.OldEmail.ToString()).Execute();
 
         [Test] public void Attempting_to_register_an_account_with_the_new_email_fails_with_email_already_registered_message() =>
-            new RegisterAccountScenario(ClientEndpoint, email: _changeEmailScenario.NewEmail.ToString()).Execute()
+            new RegisterAccountScenario(ClientEndpoint, email: _changeEmailScenario.NewEmail).Execute()
             .Result
             .Should().Be(AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered);
     }

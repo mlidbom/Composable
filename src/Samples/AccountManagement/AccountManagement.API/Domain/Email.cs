@@ -13,14 +13,14 @@ namespace AccountManagement.Domain
     public class Email : ValueObject<Email>
     {
         static readonly Regex BasicEmailValidationRegex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
-        [JsonProperty] string Value { get; }
+        [JsonProperty] public string StringValue { get; }
 
-        public override string ToString() => Value;
+        public override string ToString() => StringValue;
 
-        [JsonConstructor] Email(string value)
+        [JsonConstructor] Email(string stringValue)
         {
-            AssertIsValid(value);
-            Value = value;
+            AssertIsValid(stringValue);
+            StringValue = stringValue;
         }
 
         public static bool IsValidEmail(string emailAddress)

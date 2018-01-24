@@ -10,6 +10,7 @@ using Composable.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
+using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using NetMQ;
 
@@ -32,9 +33,11 @@ namespace Composable.Messaging.Buses.Implementation
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
+        ITaskRunner _taskRunner;
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeMapper typeMapper, EndpointId endpointId) => _state.WithExclusiveAccess(@this =>
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeMapper typeMapper, EndpointId endpointId, ITaskRunner taskRunner) => _state.WithExclusiveAccess(@this =>
         {
+            _taskRunner = taskRunner;
             @this.EndpointId = endpointId;
             @this.HandlerStorage = new HandlerStorage(typeMapper);
             @this.TypeMapper = typeMapper;
@@ -45,7 +48,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Connect(IEndpoint endpoint) => _state.WithExclusiveAccess(@this =>
         {
-            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper));
+            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner));
             @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypeIds());
         });
 

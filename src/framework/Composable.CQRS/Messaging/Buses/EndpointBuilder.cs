@@ -7,6 +7,7 @@ using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.Refactoring.Naming;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
+using Composable.System.Threading;
 using Composable.SystemExtensions.Threading;
 
 namespace Composable.Messaging.Buses
@@ -35,6 +36,7 @@ namespace Composable.Messaging.Buses
         internal static void DefaultWiring(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointId endpointId, EndpointConfiguration configuration, TypeMapper typeMapper)
         {
             container.Register(
+                Component.For<ITaskRunner>().ImplementedBy<TaskRunner>().LifestyleSingleton(),
                 Component.For<EndpointId>().UsingFactoryMethod(() => endpointId).LifestyleSingleton(),
                 Component.For<EndpointConfiguration>()
                          .UsingFactoryMethod(() => configuration)
@@ -47,8 +49,8 @@ namespace Composable.Messaging.Buses
                          .ImplementedBy<AggregateTypeValidator>()
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
-                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, EndpointId id) =>
-                                                 new InterprocessTransport(globalStateTracker, timeSource, connectionProvider.GetConnectionProvider(configuration.ConnectionStringName), typeMapper, id))
+                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, EndpointId id, ITaskRunner taskRunner) =>
+                                                 new InterprocessTransport(globalStateTracker, timeSource, connectionProvider.GetConnectionProvider(configuration.ConnectionStringName), typeMapper, id, taskRunner))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
@@ -63,7 +65,7 @@ namespace Composable.Messaging.Buses
                          .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
                          .LifestyleScoped(),
                 Component.For<IInbox>()
-                         .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), k.Resolve<ISqlConnectionProvider>().GetConnectionProvider(configuration.ConnectionStringName), k.Resolve<ITypeMapper>()))
+                         .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), k.Resolve<ISqlConnectionProvider>().GetConnectionProvider(configuration.ConnectionStringName), k.Resolve<ITypeMapper>(), k.Resolve<ITaskRunner>()))
                          .LifestyleSingleton(),
                 Component.For<CommandScheduler>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))

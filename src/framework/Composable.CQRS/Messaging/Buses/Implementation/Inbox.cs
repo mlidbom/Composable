@@ -35,13 +35,13 @@ namespace Composable.Messaging.Buses.Implementation
         Thread _pollerThread;
         CancellationTokenSource _cancellationTokenSource;
 
-        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory, ITypeMapper typeMapper)
+        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory, ITypeMapper typeMapper, ITaskRunner taskRunner)
         {
             _configuration = configuration;
             _typeMapper = typeMapper;
             _address = configuration.Address;
             _storage = new MessageStorage(connectionFactory);
-            _handlerExecutionEngine = new HandlerExecutionEngine(globalStateTracker, handlerRegistry, serviceLocator, _storage, _typeMapper);
+            _handlerExecutionEngine = new HandlerExecutionEngine(globalStateTracker, handlerRegistry, serviceLocator, _storage, _typeMapper, taskRunner);
         }
 
         public EndPointAddress Address => new EndPointAddress(_address);

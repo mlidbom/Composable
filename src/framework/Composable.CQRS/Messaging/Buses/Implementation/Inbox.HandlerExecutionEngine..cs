@@ -32,13 +32,14 @@ namespace Composable.Messaging.Buses.Implementation
                                           IMessageHandlerRegistry handlerRegistry,
                                           IServiceLocator serviceLocator,
                                           MessageStorage storage,
-                                          ITypeMapper typeMapper)
+                                          ITypeMapper typeMapper,
+                                          ITaskRunner taskRunner)
             {
                 _handlerRegistry = handlerRegistry;
                 _serviceLocator = serviceLocator;
                 _storage = storage;
                 _typeMapper = typeMapper;
-                _coordinator =  new Coordinator(globalStateTracker, typeMapper);
+                _coordinator =  new Coordinator(globalStateTracker, typeMapper, taskRunner);
 
                 _messagePumpThread = new Thread(AwaitDispatchableMessageThread)
                                      {

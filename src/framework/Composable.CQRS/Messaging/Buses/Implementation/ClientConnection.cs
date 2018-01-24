@@ -8,6 +8,7 @@ using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Collections.Collections;
+using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.SystemExtensions.TransactionsCE;
 using NetMQ;
@@ -17,28 +18,29 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
-        public void DispatchIfTransactionCommits(IExactlyOnceEvent @event) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper))));
+        readonly ITaskRunner _taskRunner;
+        public void DispatchIfTransactionCommits(IExactlyOnceEvent @event) => Transaction.Current.OnCommittedSuccessfully(action: () => _state.WithExclusiveAccess(func: state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper))));
 
-        public void DispatchIfTransactionCommits(IExactlyOnceCommand command) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
+        public void DispatchIfTransactionCommits(IExactlyOnceCommand command) => Transaction.Current.OnCommittedSuccessfully(action: () => _state.WithExclusiveAccess(func: state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
 
-        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(IExactlyOnceCommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
+        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(IExactlyOnceCommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(func: async state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper);
 
-            Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(innerState =>
+            Transaction.Current.OnCommittedSuccessfully(action: () => _state.WithExclusiveAccess(func: innerState =>
             {
                 innerState.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
                 DispatchMessage(innerState, outGoingMessage);
             }));
 
-            Transaction.Current.OnAbort(() => taskCompletionSource.SetException(new TransactionAbortedException("Transaction aborted so command was never dispatched")));
+            Transaction.Current.OnAbort(action: () => taskCompletionSource.SetException(new TransactionAbortedException(message: "Transaction aborted so command was never dispatched")));
 
             return await taskCompletionSource.Task;
         });
 
-        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(state =>
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(func: state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -65,9 +67,11 @@ namespace Composable.Messaging.Buses.Implementation
                                 NetMQPoller poller,
                                 IUtcTimeTimeSource timeSource,
                                 InterprocessTransport.MessageStorage messageStorage,
-                                ITypeMapper typeMapper)
+                                ITypeMapper typeMapper,
+                                ITaskRunner taskRunner)
         {
-            _state.WithExclusiveAccess(state =>
+            _taskRunner = taskRunner;
+            _state.WithExclusiveAccess(func: state =>
             {
                 state.TypeMapper = typeMapper;
                 state.TimeSource = timeSource;
@@ -100,15 +104,12 @@ namespace Composable.Messaging.Buses.Implementation
             });
         }
 
-        void DispatchQueuedMessages(object sender,NetMQQueueEventArgs<TransportMessage.OutGoing> netMQQueueEventArgs) => _state.WithExclusiveAccess(state =>
+        void DispatchQueuedMessages(object sender,NetMQQueueEventArgs<TransportMessage.OutGoing> netMQQueueEventArgs) => _state.WithExclusiveAccess(func: state =>
         {
-            while(netMQQueueEventArgs.Queue.TryDequeue(out var message, TimeSpan.Zero))
-            {
-                state.Socket.Send(message);
-            }
+            while(netMQQueueEventArgs.Queue.TryDequeue(out var message, TimeSpan.Zero)) state.Socket.Send(message);
         });
 
-        public void Dispose() => _state.WithExclusiveAccess(state =>
+        public void Dispose() => _state.WithExclusiveAccess(func: state =>
         {
             state.Socket.Dispose();
             state.DispatchQueue.Dispose();
@@ -135,15 +136,14 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, batchMaximum: 100);
 
-            _state.WithExclusiveAccess(state =>
+            _state.WithExclusiveAccess(func: state =>
             {
                 foreach(var response in responseBatch)
-                {
                     switch(response.ResponseType)
                     {
                         case TransportMessage.Response.ResponseType.Success:
                             var successResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
-                            Task.Run(() =>
+                            _taskRunner.RunAndCrashProcessIfTaskThrows(() =>
                             {
                                 try
                                 {
@@ -161,12 +161,11 @@ namespace Composable.Messaging.Buses.Implementation
                             break;
                         case TransportMessage.Response.ResponseType.Received:
                             Contract.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
-                            Task.Run(() => state.MessageStorage.MarkAsReceived(response, state.RemoteEndpointId));
+                            _taskRunner.RunAndCrashProcessIfTaskThrows(() => state.MessageStorage.MarkAsReceived(response, state.RemoteEndpointId));
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                }
             });
         }
     }

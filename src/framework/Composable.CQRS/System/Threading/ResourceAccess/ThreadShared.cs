@@ -81,5 +81,18 @@ namespace Composable.System.Threading.ResourceAccess
                 }
             }
         }
+
+        public void ExecuteWithExclusiveAccessWhen(Func<TShared, bool> condition, Action<TShared> action)
+        {
+            lock(_lock)
+            {
+                while(!condition(_shared))
+                {
+                    Monitor.Wait(_lock);
+                }
+
+                action(_shared);
+            }
+        }
     }
 }

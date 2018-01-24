@@ -63,7 +63,7 @@ namespace AccountManagement
 
         //In order to allow you to rename types when you need to composable does not use type names in the persisted data in the event store, document database or the service bus.
         //In order to enable you to freely rename and move types you must map each concrete type to a unique Guid.
-        //To make this as easy as possible for you Composable will detect missing mappings and throw an exception telling exactly which lines of code you need to paste into the method below. 
+        //To make this as easy as possible for you Composable will detect missing mappings and throw an exception telling exactly which lines of code you need to paste into the method below.
         //The lines you see here are pasted directly from the message in such an exception.
         static void MapTypes(ITypeMappingRegistar typeMapper)
         {

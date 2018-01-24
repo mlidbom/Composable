@@ -20,11 +20,11 @@ namespace AccountManagement.Domain
                 (AccountResource.Commands.ChangeEmail command, ILocalServiceBusSession bus) =>
                     bus.Get(PrivateAccountApi.Queries.ById(command.AccountId)).ChangeEmail(Email.Parse(command.Email)));
 
-            internal static void RegisterAccount(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
+            internal static void Register(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
                 (AccountResource.Commands.Register command, ILocalServiceBusSession bus) =>
-                    Register(command.AccountId, Email.Parse(command.Email), new Password(command.Password), bus));
+                    Account.Register(command.AccountId, Email.Parse(command.Email), new Password(command.Password), bus));
 
-            internal static void GetAccount(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
+            internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                 (EntityByIdQuery<AccountResource> accountQuery, ILocalServiceBusSession bus)
                     => new AccountResource(bus.Get(PrivateAccountApi.Queries.ReadOnlyCopy(accountQuery.Id))));
         }

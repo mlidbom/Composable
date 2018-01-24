@@ -4,7 +4,6 @@ using Composable.Contracts;
 using Composable.Functional;
 using Composable.Messaging.Buses;
 using Composable.Persistence.DocumentDb;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace AccountManagement.Domain.QueryModels
@@ -16,12 +15,9 @@ namespace AccountManagement.Domain.QueryModels
         public EmailToAccountIdQueryModel(Email email, Guid accountId)
         {
             OldContract.Argument(() => email, () => accountId).NotNullOrDefault();
-
-            Email = email;
             AccountId = accountId;
         }
 
-        [JsonProperty]Email Email { [UsedImplicitly] get; set; }
         [JsonProperty]Guid AccountId { get; set; }
 
         internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
@@ -34,12 +30,7 @@ namespace AccountManagement.Domain.QueryModels
                 if(message.AggregateVersion > 1)
                 {
                     var previousAccountVersion = bus.Get(PrivateAccountApi.Queries.ReadOnlyCopyOfVersion(message.AggregateId, message.AggregateVersion -1));
-                    var previousEmail = previousAccountVersion.Email;
-
-                    if(previousEmail != null)
-                    {
-                        queryModels.Delete<EmailToAccountIdQueryModel>(previousEmail);
-                    }
+                    queryModels.Delete<EmailToAccountIdQueryModel>(previousAccountVersion.Email);
                 }
 
                 var newEmail = message.Email;

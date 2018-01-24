@@ -45,8 +45,8 @@ namespace AccountManagement
 
         static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            EmailToAccountIdQueryModel.UpdateQueryModelWhenEmailChanges(registrar);
-            EmailToAccountIdQueryModel.TryGetAccountByEmail(registrar);
+            EmailToAccountMapper.UpdateMappingWhenEmailChanges(registrar);
+            EmailToAccountMapper.TryGetAccountByEmail(registrar);
 
             Account.UIAdapter.RegisterHandlers(registrar);
             Account.InternalServices.RegisterHandlers(registrar);

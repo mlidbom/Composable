@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.System.Linq;
-using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.System.Threading
 {

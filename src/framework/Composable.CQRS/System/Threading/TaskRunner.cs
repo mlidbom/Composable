@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -18,31 +19,25 @@ namespace Composable.System.Threading
 
     public class TaskRunner : ITaskRunner, IDisposable
     {
-        readonly AwaitableOptimizedThreadShared<State> _state = new AwaitableOptimizedThreadShared<State>(new State());
         readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        const int MaxRunningTasks = 20;
-        readonly Thread _taskDispatcherThread;
+        readonly BlockingCollection<Action> _tasksQueue = new BlockingCollection<Action>();
+        const int MaxRunningTasks = 5;
+        readonly List<Thread> _taskRunnerThreads;
+
         public TaskRunner()
         {
-            _taskDispatcherThread = new Thread(DispatchTasks){Name = $"{nameof(TaskRunner)}_{nameof(DispatchTasks)}"};
-            _taskDispatcherThread.Start();
+            _taskRunnerThreads = 1.Through(MaxRunningTasks).Select(_ => new Thread(RunTaskWhenAwailable)).ToList();
+            _taskRunnerThreads.ForEach(@this => @this.Start());
         }
 
-        void DispatchTasks()
+        void RunTaskWhenAwailable()
         {
             while(!_cancellationTokenSource.Token.IsCancellationRequested)
             {
                 try
                 {
-                    _state.ExecuteWithExclusiveAccessWhen(state => state.RunningTasks < MaxRunningTasks && state.QueuedTasks.Count > 0,
-                                                          state =>
-                                                          {
-                                                              var actionToRun = state.QueuedTasks.Dequeue();
-                                                              var startedTask = Task.Factory.StartNew(actionToRun);
-                                                              startedTask.ContinueWith(completedTask => _state.Update(innerState => innerState.RunningTasks--));
-                                                              MonitorAndCrashProcessIfTaskThrows(startedTask);
-                                                              state.RunningTasks++;
-                                                          });
+                    var task = _tasksQueue.Take();
+                    task.Invoke();
                 }
                 catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException || exception is ThreadAbortException)
                 {
@@ -60,17 +55,11 @@ namespace Composable.System.Threading
         public void RunAndCrashProcessIfTaskThrows(IEnumerable<Action> tasks) => RunAndCrashProcessIfTaskThrows(tasks.ToArray());
         public void RunAndCrashProcessIfTaskThrows(params Action[] tasks) => tasks.ForEach(EnqueueAndCrashProcessIfTaskFails);
 
-        void EnqueueAndCrashProcessIfTaskFails(Action action) => _state.Update(state => state.QueuedTasks.Enqueue(action));
-
-        class State
-        {
-            public int RunningTasks = 0;
-            public readonly Queue<Action> QueuedTasks = new Queue<Action>();
-        }
+        void EnqueueAndCrashProcessIfTaskFails(Action action) => _tasksQueue.Add(action);
 
         public void Dispose()
         {
-            _taskDispatcherThread.InterruptAndJoin();
+            _taskRunnerThreads.ForEach(thread => thread.InterruptAndJoin());
         }
     }
 }

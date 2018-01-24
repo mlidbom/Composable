@@ -45,11 +45,19 @@ namespace AccountManagement
 
         static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
+            Account.UIAdapter.GetAccount(registrar);
+            Account.UIAdapter.RegisterAccount(registrar);
+            Account.UIAdapter.ChangeEmail(registrar);
+            Account.UIAdapter.ChangePassword(registrar);
+            Account.UIAdapter.Login(registrar);
+
+            Account.InternalServices.GetById(registrar);
+            Account.InternalServices.Save(registrar);
+            Account.InternalServices.GetReadonlyCopyOfLatestVersion(registrar);
+            Account.InternalServices.GetReadonlyCopyOfSpecificVersion(registrar);
+
             EmailToAccountMapper.UpdateMappingWhenEmailChanges(registrar);
             EmailToAccountMapper.TryGetAccountByEmail(registrar);
-
-            Account.UIAdapter.RegisterHandlers(registrar);
-            Account.InternalServices.RegisterHandlers(registrar);
         }
 
         static void MapTypes(ITypeMappingRegistar typeMapper)

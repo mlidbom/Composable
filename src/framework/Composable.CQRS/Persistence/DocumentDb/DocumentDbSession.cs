@@ -26,7 +26,7 @@ namespace Composable.Persistence.DocumentDb
 
         public DocumentDbSession(IDocumentDb backingStore, ISingleContextUseGuard usageGuard)
         {
-            _usageGuard = usageGuard;
+            _usageGuard = new CombinationUsageGuard(usageGuard, new SingleTransactionUsageGuard());
             _backingStore = backingStore;
         }
 

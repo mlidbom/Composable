@@ -1,19 +1,20 @@
 ﻿using AccountManagement.API;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountManagement.UI.MVC.Views.Login
 {
-    public class LoginController : Controller
+    public class LoginController : ControllerBase
     {
-        readonly IServiceBus _serviceBus;
-        public LoginController(IServiceBus serviceBus) => _serviceBus = serviceBus;
+        readonly IServiceBusSession _bus;
+        public LoginController(IServiceBusSession remoteServiceBusSession) => _bus = remoteServiceBusSession;
 
-        public IActionResult Login(AccountResource.Command.LogIn.UI loginCommand)
+        public IActionResult Login(AccountResource.Commands.LogIn.UI loginCommand)
         {
             if(!ModelState.IsValid) return View("LoginForm");
 
-            var result = _serviceBus.Send(loginCommand);
+            var result = loginCommand.PostOn(_bus);
             if(result.Succeeded)
             {
                 return View("LoggedIn");
@@ -23,6 +24,6 @@ namespace AccountManagement.UI.MVC.Views.Login
             return View("LoginForm");
         }
 
-        public IActionResult LoginForm() => View("LoginForm", (_serviceBus.Query(AccountApi.Start)).Commands.Login);
+        public IActionResult LoginForm() => View("LoginForm", Api.Accounts.Command.Login().ExecuteOn(_bus));
     }
 }

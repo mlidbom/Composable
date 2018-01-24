@@ -12,7 +12,7 @@ namespace Composable.Persistence.EventStore
     {
         IReadOnlyList<IEventMigration> _migrationFactories;
 
-        IList<AggregateRootEvent> _events = new List<AggregateRootEvent>();
+        IList<AggregateEvent> _events = new List<AggregateEvent>();
         int _insertionOrder;
 
         public void Dispose()
@@ -23,22 +23,22 @@ namespace Composable.Persistence.EventStore
 
         public InMemoryEventStore(IEnumerable<IEventMigration> migrations = null ) => _migrationFactories = migrations?.ToList() ?? new List<IEventMigration>();
 
-        public IReadOnlyList<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id) => GetAggregateHistory(id);
+        public IReadOnlyList<IAggregateEvent> GetAggregateHistoryForUpdate(Guid id) => GetAggregateHistory(id);
 
-        public IReadOnlyList<IAggregateRootEvent> GetAggregateHistory(Guid id)
+        public IReadOnlyList<IAggregateEvent> GetAggregateHistory(Guid id)
         {
             lock(_lockObject)
             {
-                return SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, _events.Where(e => e.AggregateRootId == id).ToArray())
+                return SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, _events.Where(e => e.AggregateId == id).ToArray())
                     .ToList();
             }
         }
 
-        public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
+        public void SaveEvents(IEnumerable<IAggregateEvent> events)
         {
             lock(_lockObject)
             {
-                events.Cast<AggregateRootEvent>().ForEach(
+                events.Cast<AggregateEvent>().ForEach(
                     @event =>
                     {
                         @event.InsertionOrder = ++_insertionOrder;
@@ -47,7 +47,7 @@ namespace Composable.Persistence.EventStore
             }
         }
 
-        IEnumerable<IAggregateRootEvent> StreamEvents()
+        IEnumerable<IAggregateEvent> StreamEvents()
         {
             lock(_lockObject)
             {
@@ -56,7 +56,7 @@ namespace Composable.Persistence.EventStore
             }
         }
 
-        public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents)
+        public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateEvent>> handleEvents)
         {
             var batches = StreamEvents()
                 .ChopIntoSizesOf(batchSize)
@@ -73,7 +73,7 @@ namespace Composable.Persistence.EventStore
             {
                 for(var i = 0; i < _events.Count; i++)
                 {
-                    if(_events[i].AggregateRootId == aggregateId)
+                    if(_events[i].AggregateId == aggregateId)
                     {
                         _events.RemoveAt(i);
                         i--;
@@ -82,19 +82,19 @@ namespace Composable.Persistence.EventStore
             }
         }
 
-        public void PersistMigrations() { _events = StreamEvents().Cast<AggregateRootEvent>().ToList(); }
+        public void PersistMigrations() { _events = StreamEvents().Cast<AggregateEvent>().ToList(); }
 
-        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventType = null)
         {
-            OldContract.Assert.That(eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType),
-                                 "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)");
+            OldContract.Assert.That(eventType == null || eventType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType),
+                                 "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType)");
 
             lock (_lockObject)
             {
                 return _events
-                    .Where(e => eventBaseType == null || eventBaseType.IsInstanceOfType(e))
+                    .Where(e => eventType == null || eventType.IsInstanceOfType(e))
                     .OrderBy(e => e.UtcTimeStamp)
-                    .Select(e => e.AggregateRootId)
+                    .Select(e => e.AggregateId)
                     .Distinct()
                     .ToList();
             }

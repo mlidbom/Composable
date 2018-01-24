@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
+using Composable.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
@@ -20,48 +22,62 @@ namespace Composable.Messaging.Buses.Implementation
             internal bool Running;
             public IGlobalBusStateTracker GlobalBusStateTracker;
             internal readonly Dictionary<EndpointId, ClientConnection> EndpointConnections = new Dictionary<EndpointId, ClientConnection>();
-            internal readonly HandlerStorage HandlerStorage = new HandlerStorage();
-            internal readonly NetMQPoller Poller = new NetMQPoller();
+            internal HandlerStorage HandlerStorage;
+            internal NetMQPoller Poller;
             public IUtcTimeTimeSource TimeSource { get; set; }
             public MessageStorage MessageStorage { get; set; }
+            public ITypeMapper TypeMapper { get; set; }
+            public EndpointId EndpointId;
+            public Thread PollerThread;
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory) => _state.WithExclusiveAccess(@this =>
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeMapper typeMapper, EndpointId endpointId) => _state.WithExclusiveAccess(@this =>
         {
-            @this.MessageStorage = new MessageStorage(connectionFactory);
+            @this.EndpointId = endpointId;
+            @this.HandlerStorage = new HandlerStorage(typeMapper);
+            @this.TypeMapper = typeMapper;
+            @this.MessageStorage = new MessageStorage(connectionFactory, typeMapper);
             @this.TimeSource = timeSource;
             @this.GlobalBusStateTracker = globalBusStateTracker;
         });
 
         public void Connect(IEndpoint endpoint) => _state.WithExclusiveAccess(@this =>
         {
-            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage));
-            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypes().Select(TypeId.FromType).ToSet());
+            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper));
+            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypeIds());
+        });
+
+        public void Start() => _state.WithExclusiveAccess(state =>
+        {
+            Contract.State.Assert(!state.Running);
+            state.Running = true;
+            state.MessageStorage.Start();
+
+            state.Poller = new NetMQPoller();
+            state.PollerThread =  new Thread(() => state.Poller.Run()){Name = $"{nameof(InterprocessTransport)}_{nameof(state.PollerThread)}"};
+            state.PollerThread.Start();
         });
 
         public void Stop() => _state.WithExclusiveAccess(state =>
         {
             Contract.State.Assert(state.Running);
             state.Running = false;
+            state.Poller.StopAsync();
+            state.PollerThread.Join();
             state.Poller.Dispose();
             state.EndpointConnections.Values.ForEach(socket => socket.Dispose());
+            state.Poller = null;
         });
 
-        public void Start() => _state.WithExclusiveAccess(@this =>
-        {
-            Contract.State.Assert(!@this.Running);
-            @this.Running = true;
-            @this.MessageStorage.Start();
-            @this.Poller.RunAsync();
-        });
-
-        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event) => _state.WithExclusiveAccess(state =>
+        public void DispatchIfTransactionCommits(IExactlyOnceEvent @event) => _state.WithExclusiveAccess(state =>
         {
             var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(@event);
 
-            var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToArray();
+            var connections = eventHandlerEndpointIds.Where(id => id != state.EndpointId)//We dispatch events to ourself synchronously so don't go doing it again here.
+                                                     .Select(endpointId => state.EndpointConnections[endpointId])
+                                                     .ToArray();
 
             if(connections.Any())//Don't waste time persisting if there are no receivers
             {
@@ -70,7 +86,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
         });
 
-        public void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command) => _state.WithExclusiveAccess(state =>
+        public void DispatchIfTransactionCommits(IExactlyOnceCommand command) => _state.WithExclusiveAccess(state =>
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
@@ -78,7 +94,7 @@ namespace Composable.Messaging.Buses.Implementation
             connection.DispatchIfTransactionCommits(command);
         });
 
-        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
+        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(IExactlyOnceCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];

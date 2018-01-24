@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses
 {
@@ -31,21 +32,21 @@ namespace Composable.Messaging.Buses
                                                          Action<ITestingEndpointHost> build,
                                                          TestingMode mode = TestingMode.DatabasePool)
             {
-                var testingEndpointHost = new TestingEndpointHost(new RunMode(isTesting: true, mode: mode), containerFactory);
+                var testingEndpointHost = new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory);
                 build(testingEndpointHost);
                 return testingEndpointHost;
             }
             public static ITestingEndpointHost CreateHost(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) =>
-                new TestingEndpointHost(new RunMode(isTesting: true, mode: mode), containerFactory);
+                new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory);
         }
 
         public IEndpoint RegisterAndStartEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
         {
-            var builder = new EndpointBuilder(_globalBusStateTracker, _containerFactory(_mode), name);
+            var builder = new EndpointBuilder(_globalBusStateTracker, _containerFactory(_mode), name, id);
 
             setup(builder);
 
-            var endpoint = builder.Build(name, id);
+            var endpoint = builder.Build();
 
             var existingEndpoints = Endpoints.ToList();
 
@@ -57,6 +58,8 @@ namespace Composable.Messaging.Buses
 
             existingEndpoints.ForEach(existingEndpoint =>
             {
+                existingEndpoint.ServiceLocator.Resolve<TypeMapper>().MergeMappingsWith(endpoint.ServiceLocator.Resolve<TypeMapper>());
+
                 existingEndpoint.ServiceLocator.Resolve<IInterprocessTransport>().Connect(endpoint);
                 endpointTransport.Connect(existingEndpoint);
             });

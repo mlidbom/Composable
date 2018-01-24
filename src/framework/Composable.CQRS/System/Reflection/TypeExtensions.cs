@@ -13,15 +13,14 @@ namespace Composable.System.Reflection
         /// ///<returns>true if <paramref name="me"/> implements the interface: <typeparamref name="TImplemented"/>. By definition true if <paramref name="me"/> == <typeparamref name="TImplemented"/>.</returns>
         public static bool Implements<TImplemented>(this Type me)
         {
-            ContractOptimized.Argument(me, nameof(me))
-                             .NotNull();
+            Contract.Argument.Assert(me != null);
 
             if (!typeof(TImplemented).IsInterface)
             {
                 throw new ArgumentException(nameof(TImplemented));
             }
 
-            return me.Implements(typeof(TImplemented));
+            return typeof(TImplemented).IsAssignableFrom(me);
         }
 
         ///<returns>true if <paramref name="me"/> implements the interface: <paramref name="implemented"/>. By definition true if <paramref name="me"/> == <paramref name="implemented"/>.</returns>
@@ -98,6 +97,28 @@ namespace Composable.System.Reflection
                 TypeMap.Add(valueType, types.Single());
                 return true;
             }
+        }
+
+        public static IEnumerable<Type> ClassInheritanceChain(this Type me)
+        {
+            while (me != null)
+            {
+                yield return me;
+                me = me.BaseType;
+            }
+        }
+
+        public static string GetFullNameCompilable(this Type @this)
+        {
+            if(!@this.IsConstructedGenericType) return @this.FullName.Replace("+", ".");
+
+            var typeArguments = @this.GenericTypeArguments;
+            // ReSharper disable once PossibleNullReferenceException
+            var genericTypeName = @this.GetGenericTypeDefinition().FullName.Replace($@"`{typeArguments.Length}", "");
+
+            var name = $"{genericTypeName}<{typeArguments.Select(type => type.FullName).Join(",")}>";
+
+            return name;
         }
 
         ///<summary>Thrown if there is more than one type that matches the string passed to <see cref="TypeExtensions.AsType"/></summary>

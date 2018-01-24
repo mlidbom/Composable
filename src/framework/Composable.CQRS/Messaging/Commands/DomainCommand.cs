@@ -3,15 +3,15 @@ using Composable.DDD;
 
 namespace Composable.Messaging.Commands
 {
-    public class TransactionalExactlyOnceDeliveryCommand : ValueObject<TransactionalExactlyOnceDeliveryCommand>, ITransactionalExactlyOnceDeliveryCommand
+    public class ExactlyOnceCommand : ValueObject<ExactlyOnceCommand>, IExactlyOnceCommand
     {
         public Guid MessageId { get; private set; }
 
-        protected TransactionalExactlyOnceDeliveryCommand()
+        protected ExactlyOnceCommand()
             : this(Guid.NewGuid()) {}
 
-        TransactionalExactlyOnceDeliveryCommand(Guid id) => MessageId = id;
+        ExactlyOnceCommand(Guid id) => MessageId = id;
     }
 
-    public class TransactionalExactlyOnceDeliveryCommand<TResult> : TransactionalExactlyOnceDeliveryCommand, ITransactionalExactlyOnceDeliveryCommand<TResult> {}
+    public class ExactlyOnceCommand<TResult> : ExactlyOnceCommand, IExactlyOnceCommand<TResult> {}
 }

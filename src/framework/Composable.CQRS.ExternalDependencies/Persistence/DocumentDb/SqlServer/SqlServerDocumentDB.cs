@@ -29,7 +29,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
         ConcurrentDictionary<Type, int> _knownTypes = null;
         SchemaManager _schemaManager;
 
-        protected SqlServerDocumentDb(ISqlConnection connection, IUtcTimeTimeSource timeSource)
+        internal SqlServerDocumentDb(ISqlConnection connection, IUtcTimeTimeSource timeSource)
         {
             _schemaManager = new SqlServerDocumentDb.SchemaManager(connection);
             _connectionManager = connection;

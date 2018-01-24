@@ -4,38 +4,45 @@
 
 namespace Composable.Messaging
 {
-    ///<summary>An object that is used to transfer data from a sender to a receiver through a messaging infrastructure.</summary>
+    ///<summary>Any object that is used to transfer data from a sender to a receiver through a messaging infrastructure.</summary>
     public interface IMessage {}
 
     ///<summary>Informs the receiver that something has happened.</summary>
-    public interface IEvent { }
+    public interface IEvent : IMessage { }
 
     /// <summary>Instructs the recevier to perform an action.</summary>
-    public interface ICommand { }
+    public interface ICommand : IMessage { }
+    public interface ICommand<TResult> : ICommand { }
 
-    public interface INonTransactionalAtMostOnceDeliveryMessage : IMessage{}
+    public interface IQuery : IMessage { }
 
-    public interface ITransactionalExactlyOnceDeliveryMessage : IMessage
-    {
-        Guid MessageId { get; }
-    }
-
-    public interface INonTransactionalAtMostOnceDeliveryEvent : IEvent, INonTransactionalAtMostOnceDeliveryMessage { }
-    public interface INonTransactionalAtMostOnceDeliveryCommand : ICommand, INonTransactionalAtMostOnceDeliveryMessage { }
-
-    public interface IQuery : INonTransactionalAtMostOnceDeliveryMessage { }
-
-    ///<summary>An <see cref="IMessage"/> that instructs the receiver to return a resource based upon the data in the query.</summary>
+    ///<summary>An instructs the receiver to return a resource based upon the data in the query.</summary>
     public interface IQuery<TResult> : IQuery { }
 
+    public interface ISupportRemoteReceiver {}
 
-    public interface ITransactionalExactlyOnceDeliveryEvent : IEvent, ITransactionalExactlyOnceDeliveryMessage { }
-    public interface ITransactionalExactlyOnceDeliveryCommand : ICommand, ITransactionalExactlyOnceDeliveryMessage { }
-    public interface ITransactionalExactlyOnceDeliveryCommand<TResult> : ITransactionalExactlyOnceDeliveryCommand { }
+    public interface IOnlyLocalReceiver {}
+    public interface ILocalEvent : IEvent, IOnlyLocalReceiver { }
+    public interface ILocalCommand : ICommand, IOnlyLocalReceiver { }
+    public interface ILocalCommand<TResult> : ICommand<TResult>, IOnlyLocalReceiver  { }
+    public interface ILocalQuery<TResult> : IOnlyLocalReceiver, IQuery<TResult> { }
 
 
-    public interface IEntityQuery<TEntity> : IQuery<TEntity>
-    {
-        Guid Id { get; }
-    }
+    public interface IAtMostOnceDelivery {}
+    public interface IForbidTransactionalSend { }
+
+    public interface IUserInterfaceMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteReceiver {}
+    public interface IUserInterfaceCommand<TResult> : ICommand<TResult>, IUserInterfaceMessage  { }
+    public interface IUserInterfaceQuery<TResult> : IQuery<TResult>, IUserInterfaceMessage { }
+
+    public interface IRequireTransactionalSender : ISupportRemoteReceiver{ }
+    public interface IRequireTransactionalReceiver : ISupportRemoteReceiver { }
+    public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSender, IRequireTransactionalReceiver {}
+
+    public interface IProvidesOwnMessageId { Guid MessageId { get; } }
+    public interface IExactlyOnceMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId {}
+
+    public interface IExactlyOnceEvent : IEvent, IExactlyOnceMessage { }
+    public interface IExactlyOnceCommand : ICommand, IExactlyOnceMessage { }
+    public interface IExactlyOnceCommand<TResult> : ICommand<TResult>, IExactlyOnceCommand { }
 }

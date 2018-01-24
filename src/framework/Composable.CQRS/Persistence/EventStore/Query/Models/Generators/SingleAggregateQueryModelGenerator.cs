@@ -12,7 +12,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         IVersioningQueryModelGenerator<TViewModel>
         where TImplementer : SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession>
         where TSession : IEventStoreReader
-        where TEvent : class, IAggregateRootEvent
+        where TEvent : class, IAggregateEvent
         where TViewModel : class, ISingleAggregateQueryModel, new()
     {
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>();
@@ -23,8 +23,8 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         {
             _session = session;
             _eventDispatcher.RegisterHandlers()
-                .ForGenericEvent<IAggregateRootCreatedEvent>(e => Model.SetId(e.AggregateRootId))
-                .ForGenericEvent<IAggregateRootDeletedEvent>(e => Model = null);
+                .ForGenericEvent<IAggregateCreatedEvent>(e => Model.SetId(e.AggregateId))
+                .ForGenericEvent<IAggregateDeletedEvent>(e => Model = null);
         }
 
         ///<summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
@@ -42,7 +42,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
             var queryModel = new TViewModel();
             Model = queryModel;
             history.ForEach(_eventDispatcher.Dispatch);
-            var result = Model;//Yes it does make sense. Look at the registered handler for IAggregateRootDeletedEvent
+            var result = Model;//Yes it does make sense. Look at the registered handler for IAggregateDeletedEvent
             Model = null;
             return result;
         }

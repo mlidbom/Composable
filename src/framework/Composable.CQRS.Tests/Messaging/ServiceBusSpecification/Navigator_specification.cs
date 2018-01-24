@@ -19,6 +19,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         public class Fixture : IDisposable
         {
             readonly ITestingEndpointHost Host;
+            IDisposable _scope;
 
             public Fixture()
             {
@@ -29,20 +30,31 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                     buildHost => buildHost.RegisterAndStartEndpoint(
                         "Backend",
                         new EndpointId(Guid.Parse("3A1B6A8C-D232-476C-A15A-9C8295413210")),
-                        builder => builder.RegisterHandlers
-                                          .ForEvent((UserRegisteredEvent myEvent) => queryResults.Add(new UserResource(myEvent.Name)))
-                                          .ForQuery((GetUserQuery query) => queryResults.Single(result => result.Name == query.Name))
-                                          .ForQuery((UserApiStartPageQuery query) => new UserApiStartPage())
-                                          .ForCommandWithResult((RegisterUserCommand command, IServiceBus bus) =>
-                                          {
-                                              bus.Publish(new UserRegisteredEvent(command.Name));
-                                              return new UserRegisteredConfirmationResource(command.Name);
-                                          })));
+                        builder =>
+                        {
+                            builder.RegisterHandlers
+                                   .ForEvent((UserRegisteredEvent             myEvent) => queryResults.Add(new UserResource(myEvent.Name)))
+                                   .ForQuery((GetUserQuery                    query) => queryResults.Single(result => result.Name == query.Name))
+                                   .ForQuery((UserApiStartPageQuery           query) => new UserApiStartPage())
+                                   .ForCommandWithResult((RegisterUserCommand command, IServiceBusSession bus) =>
+                                    {
+                                        bus.Publish(new UserRegisteredEvent(command.Name));
+                                        return new UserRegisteredConfirmationResource(command.Name);
+                                    });
+
+                            builder.TypeMapper
+                                   .Map<GetUserQuery>("44b8b0b6-fe09-4e3b-a22c-8d09bd51dbb0")
+                                   .Map<RegisterUserCommand>("ed799a31-0de9-41ae-ae7a-421438f2d857")
+                                   .Map<UserApiStartPageQuery>("4367ec6e-ddbc-42ea-91ad-9af1e6e4e29a")
+                                   .Map<UserRegisteredEvent>("8a42968e-f18f-4126-9743-1a97cdd2ccab");
+                        }));
+
+                _scope = Host.ClientEndpoint.ServiceLocator.BeginScope();
             }
 
             [Fact] void Can_get_command_result()
             {
-                var commandResult1 = Host.ClientBus.Send(new RegisterUserCommand("new-user-name"));
+                var commandResult1 = Host.ClientBusSession.PostRemote(new RegisterUserCommand("new-user-name"));
                 commandResult1.Name.Should().Be("new-user-name");
             }
 
@@ -50,8 +62,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             {
                 var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
                                                           .Post(startpage => startpage.RegisterUser("new-user-name"))
-                                                          .Get(registerUserResult => registerUserResult.User)
-                                                          .Execute(Host.ClientBus);
+                                                          .Get(registerUserResult => registerUserResult.User).ExecuteOn(Host.ClientBusSession);
 
                 userResource.Name.Should().Be("new-user-name");
             }
@@ -61,12 +72,16 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
                                                           .Post(startpage => startpage.RegisterUser("new-user-name"))
                                                           .Get(registerUserResult => registerUserResult.User)
-                                                          .ExecuteAsync(Host.ClientBus);
+                                                          .ExecuteAsyncOn(Host.ClientBusSession);
 
                 (await userResource).Name.Should().Be("new-user-name");
             }
 
-            public void Dispose() { Host.Dispose(); }
+            public void Dispose()
+            {
+                _scope.Dispose();
+                Host.Dispose();
+            }
 
             class UserApiStartPage : QueryResult
             {
@@ -74,14 +89,12 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public RegisterUserCommand RegisterUser(string userName) => new RegisterUserCommand(userName);
             }
 
-            [TypeId("6EDCBCD0-C1DE-4499-9CBB-8E8E8405A9C3")]
-            class UserRegisteredEvent : AggregateRootEvent
+            class UserRegisteredEvent : AggregateEvent
             {
                 public UserRegisteredEvent(string name) => Name = name;
                 public string Name { get; }
             }
 
-            [TypeId("3D2C5363-620E-4859-BF94-9535BCC994FA")]
             protected class GetUserQuery : Query<UserResource>
             {
                 public GetUserQuery(string name) => Name = name;
@@ -94,8 +107,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            [TypeId("3B1A2A50-F114-4886-B981-C56753AFD55E")]
-            protected class RegisterUserCommand : TransactionalExactlyOnceDeliveryCommand<UserRegisteredConfirmationResource>
+            protected class RegisterUserCommand : ExactlyOnceCommand<UserRegisteredConfirmationResource>
             {
                 public RegisterUserCommand(string name) => Name = name;
                 public string Name { get; }
@@ -108,7 +120,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            [TypeId("F762C93B-8F03-4A1C-BCCA-DC43A5EC4459")]
             class UserApiStartPageQuery : Query<UserApiStartPage> {}
         }
     }

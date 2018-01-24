@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
-using Composable;
 using NUnit.Framework;
 
 // General Information about an assembly is controlled through the following
@@ -45,5 +44,3 @@ using NUnit.Framework;
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly2)]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly3)]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly4)]
-
-[assembly: ContainsComposableTypeIds]

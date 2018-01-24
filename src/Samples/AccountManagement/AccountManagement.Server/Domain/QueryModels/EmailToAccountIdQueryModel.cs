@@ -1,10 +1,11 @@
 ﻿using System;
 using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Services;
 using Composable.Contracts;
 using Composable.Functional;
 using Composable.Messaging.Buses;
+using Composable.Persistence.DocumentDb;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace AccountManagement.Domain.QueryModels
 {
@@ -20,35 +21,29 @@ namespace AccountManagement.Domain.QueryModels
             AccountId = accountId;
         }
 
-        public Email Email { [UsedImplicitly] get; private set; }
-        public Guid AccountId { get; private set; }
+        [JsonProperty]Email Email { [UsedImplicitly] get; set; }
+        [JsonProperty]Guid AccountId { get; set; }
 
-        internal static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
-        {
-            registrar.ForEvent((AccountEvent.PropertyUpdated.Email message, IAccountManagementDomainDocumentDbUpdater queryModels, IAccountRepository repository) =>
-                                   UpdateQueryModel(message, repository, queryModels))
-                     .ForQuery((PrivateApi.Account.Queries.TryGetByEmailQuery tryGetAccount, IAccountManagementDomainDocumentDbReader documentDb, IAccountRepository accountRepository) =>
-                                   TryGetAccountByEmail(tryGetAccount, documentDb, accountRepository));
-        }
+        internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
+            (PrivateAccountApi.Query.TryGetByEmailQuery tryGetAccount, IDocumentDbReader documentDb, ILocalServiceBusSession bus) =>
+                documentDb.TryGet(tryGetAccount.Email, out EmailToAccountIdQueryModel map) ? Option.Some(bus.Get(PrivateAccountApi.Queries.ById(map.AccountId))) : Option.None<Account>());
 
-        static Option<Account> TryGetAccountByEmail(PrivateApi.Account.Queries.TryGetByEmailQuery tryGetAccount, IAccountManagementDomainDocumentDbReader documentDb, IAccountRepository accountRepository)
-            => documentDb.TryGet(tryGetAccount.Email, out EmailToAccountIdQueryModel map) ? Option.Some(accountRepository.Get(map.AccountId)) : Option.None<Account>();
-
-        static void UpdateQueryModel(AccountEvent.PropertyUpdated.Email message, IAccountRepository repository, IAccountManagementDomainDocumentDbUpdater queryModels)
-        {
-            if(message.AggregateRootVersion > 1)
+        internal static void UpdateQueryModelWhenEmailChanges(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
+            (AccountEvent.PropertyUpdated.Email message, IDocumentDbUpdater queryModels, ILocalServiceBusSession bus) =>
             {
-                var previousAccountVersion = repository.GetReadonlyCopyOfVersion(message.AggregateRootId, message.AggregateRootVersion - 1);
-                var previousEmail = previousAccountVersion.Email;
-
-                if(previousEmail != null)
+                if(message.AggregateVersion > 1)
                 {
-                    queryModels.Delete<EmailToAccountIdQueryModel>(previousEmail);
-                }
-            }
+                    var previousAccountVersion = bus.Get(PrivateAccountApi.Queries.ReadOnlyCopyOfVersion(message.AggregateId, message.AggregateVersion -1));
+                    var previousEmail = previousAccountVersion.Email;
 
-            var newEmail = message.Email;
-            queryModels.Save(newEmail, new EmailToAccountIdQueryModel(newEmail, message.AggregateRootId));
-        }
+                    if(previousEmail != null)
+                    {
+                        queryModels.Delete<EmailToAccountIdQueryModel>(previousEmail);
+                    }
+                }
+
+                var newEmail = message.Email;
+                queryModels.Save(newEmail, new EmailToAccountIdQueryModel(newEmail, message.AggregateId));
+            });
     }
 }

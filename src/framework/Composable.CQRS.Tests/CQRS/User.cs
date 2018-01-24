@@ -1,13 +1,13 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 using Composable.Tests.CQRS.EventRefactoring.Migrations;
 using JetBrains.Annotations;
 
 namespace Composable.Tests.CQRS
 {
-    class User : AggregateRoot<User,UserEvent, IUserEvent>
+    class User : Aggregate<User,UserEvent, IUserEvent>
     {
         public string Email { get; private set; }
         public string Password { get; private set; }
@@ -52,28 +52,28 @@ namespace Composable.Tests.CQRS
         }
     }
 
-    [TypeId("602DB8BE-9210-423B-999E-7B0F21461BB8")]interface IUserEvent : IAggregateRootEvent, IRootEvent
+    interface IUserEvent : IAggregateEvent, IRootEvent
     { }
 
-    abstract class UserEvent : AggregateRootEvent, IUserEvent
+    abstract class UserEvent : AggregateEvent, IUserEvent
     {
         protected UserEvent() {}
-        protected UserEvent(Guid aggregateRootId) : base(aggregateRootId) {}
+        protected UserEvent(Guid aggregateId) : base(aggregateId) {}
     }
 
-    [TypeId("EEF29472-92ED-4AB4-81D3-3B38EB571025")]class UserChangedEmail : UserEvent, IUserEvent
+    class UserChangedEmail : UserEvent, IUserEvent
     {
         public UserChangedEmail(string email) => Email = email;
         public string Email { get; private set; }
     }
 
-    [TypeId("B10B3CA4-5F9D-43FF-B2BB-DA65DFBAF3BD")]class UserChangedPassword : UserEvent, IUserEvent
+    class UserChangedPassword : UserEvent, IUserEvent
     {
         public UserChangedPassword(string password) => Password = password;
         public string Password { get; private set; }
     }
 
-    [TypeId("B9517AE2-0697-469C-82C4-A3C827F11142")]class UserRegistered : UserEvent, IAggregateRootCreatedEvent
+    class UserRegistered : UserEvent, IAggregateCreatedEvent
     {
         public UserRegistered(Guid userId, string email, string password):base(userId)
         {
@@ -85,15 +85,15 @@ namespace Composable.Tests.CQRS
         public string Password { get; private set; }
     }
 
-    [TypeId("D04B3EE8-8C5D-4CF5-BA7E-8F6248EC91DA")][UsedImplicitly] class MigratedBeforeUserRegisteredEvent : UserEvent, IAggregateRootCreatedEvent
+    [UsedImplicitly] class MigratedBeforeUserRegisteredEvent : UserEvent, IAggregateCreatedEvent
     {
     }
 
-    [TypeId("49ACCFAC-3F2C-4D8D-A199-233298653B40")][UsedImplicitly] class MigratedAfterUserChangedEmailEvent : UserEvent, IAggregateRootCreatedEvent
+    [UsedImplicitly] class MigratedAfterUserChangedEmailEvent : UserEvent, IAggregateCreatedEvent
     {
     }
 
-    [TypeId("51AAB04D-31BB-4060-BBA6-EC37A9BB06D4")][UsedImplicitly] class MigratedReplaceUserChangedPasswordEvent : UserEvent, IAggregateRootCreatedEvent
+    [UsedImplicitly] class MigratedReplaceUserChangedPasswordEvent : UserEvent, IAggregateCreatedEvent
     {
     }
 }

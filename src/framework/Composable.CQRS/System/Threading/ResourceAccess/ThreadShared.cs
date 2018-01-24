@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace Composable.System.Threading.ResourceAccess
 {
@@ -35,5 +36,50 @@ namespace Composable.System.Threading.ResourceAccess
         public TResult WithExclusiveAccess<TResult>(Func<TResource, TResult> func) => ResourceGuard.WithExclusiveLock(_lock, () => func(_resource));
 
         public void WithExclusiveAccess(Action<TResource> func) => ResourceGuard.WithExclusiveLock(_lock, () => func(_resource));
+    }
+
+    class AwaitableOptimizedThreadShared<TShared>
+    {
+        readonly object _lock = new object();
+        readonly TShared _shared;
+        public AwaitableOptimizedThreadShared(TShared shared) => _shared = shared;
+
+        public TResult Read<TResult>(Func<TShared, TResult> read)
+        {
+            lock(_shared)
+            {
+                return read(_shared);
+            }
+        }
+
+        public TResult Update<TResult>(Func<TShared, TResult> update)
+        {
+            lock(_lock)
+            {
+                var result = update(_shared);
+                Monitor.PulseAll(_lock);
+                return result;
+            }
+        }
+
+        public void Update(Action<TShared> update)
+        {
+            lock(_lock)
+            {
+                update(_shared);
+                Monitor.PulseAll(_lock);
+            }
+        }
+
+        public void Await(Func<TShared, bool> condition)
+        {
+            lock(_lock)
+            {
+                while(!condition(_shared))
+                {
+                    Monitor.Wait(_lock);
+                }
+            }
+        }
     }
 }

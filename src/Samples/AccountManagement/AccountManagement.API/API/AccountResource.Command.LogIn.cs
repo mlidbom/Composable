@@ -1,20 +1,26 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
-using Composable;
 using Composable.Messaging.Commands;
+// ReSharper disable MemberCanBeMadeStatic.Global
 
 namespace AccountManagement.API
 {
     public partial class AccountResource
     {
-        public static partial class Command
+        public static partial class Commands
         {
             public static class LogIn
             {
-                [TypeId("FD3A793F-CEDE-4082-B710-1C143133C9E5")]public class UI : TransactionalExactlyOnceDeliveryCommand<LoginAttemptResult>
+                public class UI : ExactlyOnceCommand<LoginAttemptResult>
                 {
                     [Required] [Email] public string Email { get; set; }
                     [Required] public string Password { get; set; }
+
+                    internal UI WithValues(string email, string password) => new UI
+                                                                           {
+                                                                               Email = email,
+                                                                               Password = password
+                                                                           };
                 }
 
                 public class LoginAttemptResult

@@ -1,17 +1,17 @@
 ﻿using System;
 using AccountManagement.API;
 using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Services;
 using Composable.Contracts;
 using Composable.Functional;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Persistence.EventStore.Aggregates;
 
 namespace AccountManagement.Domain
 {
     ///Completely encapsulates all the business logic for an account.  Should make it impossible for clients to use the class incorrectly.
-    partial class Account : AggregateRoot<Account, AccountEvent.Implementation.Root, AccountEvent.Root>, IAccountResourceData
+    partial class Account : Aggregate<Account, AccountEvent.Implementation.Root, AccountEvent.Root>, IAccountResourceData
     {
         public Email Email { get; private set; } //Never public setters on an aggregate.
         public Password Password { get; private set; } //Never public setters on an aggregate.
@@ -39,57 +39,58 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        static AccountResource.Command.Register.RegistrationAttemptResult Register(Command.Register command, IAccountRepository repository, IInProcessServiceBus bus)
+        static AccountResource.Commands.Register.RegistrationAttemptResult Register(Guid accountId, Email email ,Password password, ILocalServiceBusSession busSession)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
-            OldContract.Argument(() => command, () => repository, () => bus).NotNullOrDefault();
+            OldContract.Argument(() => accountId, () => email, () => password, () => busSession).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
-            if(bus.Query(PrivateApi.Account.Queries.TryGetByEmail(command.Email)).HasValue)
+            if(busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)).HasValue)
             {
-                return AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
+                return AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
             }
 
             var newAccount = new Account();
-            newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: command.AccountId, email: command.Email, password: command.Password));
-            repository.Add(newAccount);
+            newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
 
-            return AccountResource.Command.Register.RegistrationAttemptResult.Successful;
+            busSession.Post(PrivateAccountApi.Commands.SaveNew(newAccount));
+
+            return AccountResource.Commands.Register.RegistrationAttemptResult.Successful;
         }
 
-        void ChangePassword(Command.ChangePassword command)
+        void ChangePassword(string oldPassword, Password newPassword)
         {
-            OldContract.Argument(() => command).NotNullOrDefault();
+            OldContract.Argument(() => oldPassword, () => newPassword).NotNullOrDefault();
 
-            Password.AssertIsCorrectPassword(command.OldPassword);
+            Password.AssertIsCorrectPassword(oldPassword);
 
-            Publish(new AccountEvent.Implementation.UserChangedPassword(command.NewPassword));
+            Publish(new AccountEvent.Implementation.UserChangedPassword(newPassword));
         }
 
-        void ChangeEmail(Command.ChangeEmail command)
+        void ChangeEmail(Email email)
         {
-            OldContract.Argument(() => command).NotNullOrDefault();
+            OldContract.Argument(() => email).NotNullOrDefault();
 
-            Publish(new AccountEvent.Implementation.UserChangedEmail(command.Email));
+            Publish(new AccountEvent.Implementation.UserChangedEmail(email));
         }
 
-        AccountResource.Command.LogIn.LoginAttemptResult Login(string logInPassword)
+        AccountResource.Commands.LogIn.LoginAttemptResult Login(string logInPassword)
         {
             if(Password.IsCorrectPassword(logInPassword))
             {
                 var authenticationToken = Guid.NewGuid().ToString();
                 Publish(new AccountEvent.Implementation.LoggedIn(authenticationToken));
-                return AccountResource.Command.LogIn.LoginAttemptResult.Success(authenticationToken);
+                return AccountResource.Commands.LogIn.LoginAttemptResult.Success(authenticationToken);
             }
 
             Publish(new AccountEvent.Implementation.LoginFailed());
-            return AccountResource.Command.LogIn.LoginAttemptResult.Failure();
+            return AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
         }
 
-        static AccountResource.Command.LogIn.LoginAttemptResult Login(Command.Login logIn, IInProcessServiceBus bus) =>
-            bus.Query(PrivateApi.Account.Queries.TryGetByEmail(logIn.Email)) is Some<Account> account
-                ? account.Value.Login(logIn.Password)
-                : AccountResource.Command.LogIn.LoginAttemptResult.Failure();
+        static AccountResource.Commands.LogIn.LoginAttemptResult Login(Email email, string password, ILocalServiceBusSession busSession) =>
+            busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)) is Option<Account>.Some account
+                ? account.Value.Login(password)
+                : AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
     }
 }

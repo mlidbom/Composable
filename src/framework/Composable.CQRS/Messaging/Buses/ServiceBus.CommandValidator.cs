@@ -4,11 +4,11 @@ using System.Linq;
 
 namespace Composable.Messaging.Buses
 {
-    partial class ServiceBus
+    partial class ServiceBusSession
     {
         static class CommandValidator
         {
-            public static void AssertCommandIsValid(ITransactionalExactlyOnceDeliveryCommand command)
+            public static void AssertCommandIsValid(IExactlyOnceCommand command)
             {
                 var failures = ValidationFailures(command);
                 if(failures.Any())

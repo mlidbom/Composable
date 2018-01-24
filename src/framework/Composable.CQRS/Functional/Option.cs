@@ -1,5 +1,4 @@
-﻿using System;
-using Composable.Contracts;
+﻿using Composable.Contracts;
 
 namespace Composable.Functional
 {
@@ -8,38 +7,33 @@ namespace Composable.Functional
         public static Option<T> NoneIfNull<T>(T value) where T: class => value == null ? None<T>() : Some(value);
         public static Option<T> NoneIfDefault<T>(T value) where T: struct => Equals(value, default(T)) ? None<T>() : Some(value);
 
-        public static Option<T> Some<T>(T value) => new Some<T>(value);
-        public static  Option<T> None<T>() => Functional.None<T>.Instance;
+        public static Option<T> Some<T>(T value) => new Option<T>.Some(value);
+        public static  Option<T> None<T>() => Option<T>.None.Instance;
     }
 
-    // ReSharper disable once UnusedTypeParameter It is used to maintain type safety in pattern matching. We need to know what the type of the Some value vill be even if the value is not included in this class.
     public abstract class Option<T>
     {
-        [Obsolete("For the love of sanity do NOT add another inheritor to this class. It will break the whole abstraction!")]
-        protected Option() {}
+        Option() {}
 
         public abstract bool HasValue { get; }
-    }
 
-#pragma warning disable 618
-    public sealed class Some<T> : Option<T>
-    {
-        public Some(T value)
+        public sealed class Some : Option<T>
         {
-            Contract.Argument.NotNull(value);
-            Value = value;
+            internal Some(T value)
+            {
+                Contract.Argument.NotNull(value);
+                Value = value;
+            }
+
+            public T Value { get; }
+            public override bool HasValue => true;
         }
 
-        public T Value { get; }
-        public override bool HasValue => true;
+        internal sealed class None : Option<T>
+        {
+            None(){}
+            internal static readonly None Instance = new None();
+            public override bool HasValue => false;
+        }
     }
-
-    public sealed class None<T> : Option<T>
-    {
-        None(){}
-        internal static readonly None<T> Instance = new None<T>();
-        public override bool HasValue => false;
-    }
-#pragma warning restore 618
-
 }

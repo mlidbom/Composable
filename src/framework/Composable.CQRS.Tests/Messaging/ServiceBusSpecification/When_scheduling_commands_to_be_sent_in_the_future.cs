@@ -12,10 +12,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 {
     public class When_scheduling_commands_to_be_sent_in_the_future : IDisposable
     {
-        readonly IServiceBus _bus;
+        readonly IServiceBusSession _busSession;
         readonly IUtcTimeTimeSource _timeSource;
         readonly IThreadGate _receivedCommandGate;
         readonly ITestingEndpointHost _host;
+        IDisposable _scope;
 
         public When_scheduling_commands_to_be_sent_in_the_future()
         {
@@ -24,21 +25,27 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             var endpoint = _host.RegisterAndStartEndpoint(
                 "endpoint",
                 new EndpointId(Guid.Parse("17ED9DF9-33A8-4DF8-B6EC-6ED97AB2030B")),
-                builder => builder.RegisterHandlers.ForCommand<ScheduledCommand>(
-                    cmd => _receivedCommandGate.AwaitPassthrough()));
+                builder =>
+                {
+                    builder.RegisterHandlers.ForCommand<ScheduledCommand>(
+                        cmd => _receivedCommandGate.AwaitPassthrough());
+
+                    builder.TypeMapper.Map<ScheduledCommand>("6bc9abe2-8861-4108-98dd-8aa1b50c0c42");
+                });
 
             var serviceLocator = endpoint.ServiceLocator;
             _receivedCommandGate = ThreadGate.CreateOpenWithTimeout(TimeSpanExtensions.Seconds(1));
 
             _timeSource = serviceLocator.Resolve<IUtcTimeTimeSource>();
-            _bus = serviceLocator.Resolve<IServiceBus>();
+            _scope = serviceLocator.BeginScope();
+            _busSession = serviceLocator.Resolve<IServiceBusSession>();
         }
 
         [Fact] public void Messages_whose_due_time_has_passed_are_delivered()
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + .1.Seconds(), inOneHour);
+            _busSession.SchedulePostRemote(now + .1.Seconds(), inOneHour);
 
             _receivedCommandGate.AwaitPassedThroughCountEqualTo(1, timeout: .5.Seconds());
         }
@@ -47,14 +54,18 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + TimeSpanExtensions.Seconds(2), inOneHour);
+            _busSession.SchedulePostRemote(now + TimeSpanExtensions.Seconds(2), inOneHour);
 
             _receivedCommandGate.TryAwaitPassededThroughCountEqualTo(1, timeout: .5.Seconds())
                                 .Should().Be(false);
         }
 
-        public void Dispose() { _host.Dispose(); }
+        public void Dispose()
+        {
+            _scope.Dispose();
+            _host.Dispose();
+        }
 
-        [TypeId("BEB1E3BA-3515-43EA-A33D-1EE7A5775A11")]class ScheduledCommand : TransactionalExactlyOnceDeliveryCommand {}
+        class ScheduledCommand : ExactlyOnceCommand {}
     }
 }

@@ -7,7 +7,7 @@
         protected override string CreateTableSql => $@"
 CREATE TABLE [dbo].[{EventTypeTable.Name}](
 	[{EventTypeTable.Columns.Id}] [int] IDENTITY(1,1) NOT NULL,
-	[{EventTypeTable.Columns.EventType}] [nvarchar](450) NOT NULL,
+	[{EventTypeTable.Columns.EventType}] [UNIQUEIDENTIFIER] NOT NULL,
     CONSTRAINT [PK_{EventTypeTable.Columns.EventType}] PRIMARY KEY CLUSTERED 
     (
     	[Id] ASC

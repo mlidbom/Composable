@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Transactions;
+using Composable.Messaging.Buses;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -10,7 +11,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
     {
         [Fact] void Command_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            Host.ClientBus.Send(new MyCommand());
+            ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyCommand()));
 
             var transaction = CommandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                        .PassedThrough.Single().Transaction;
@@ -20,7 +21,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Command_handler_with_result_runs_in_transaction_with_isolation_level_Serializable()
         {
-            var commandResult = Host.ClientBus.Send(new MyCommandWithResult());
+            var commandResult = ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyCommandWithResult()));
 
             commandResult.Should().NotBe(null);
 
@@ -32,7 +33,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Event_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            Host.ClientBus.Publish(new MyEvent());
+            ClientEndpoint.ExecuteRequest(session => session.Publish(new MyEvent()));
 
             var transaction = EventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                      .PassedThrough.Single().Transaction;
@@ -42,7 +43,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Query_handler_does_not_run_in_transaction()
         {
-            Host.ClientBus.Query(new MyQuery());
+            ClientEndpoint.ExecuteRequest(session => session.GetRemote(new MyQuery()));
 
             QueryHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                    .PassedThrough.Single().Transaction.Should().Be(null);

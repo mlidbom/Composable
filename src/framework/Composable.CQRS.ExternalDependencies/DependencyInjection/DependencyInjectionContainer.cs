@@ -7,14 +7,18 @@ namespace Composable.DependencyInjection
 {
     public static class DependencyInjectionContainer
     {
-        public static IServiceLocator CreateServiceLocatorForTesting(TestingMode mode = TestingMode.DatabasePool) => CreateServiceLocatorForTesting(_ => {}, mode);
+        public static IServiceLocator CreateServiceLocatorForTesting() => CreateServiceLocatorForTesting(_ => {}, TestingMode.DatabasePool);
 
-        public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup, TestingMode mode = TestingMode.DatabasePool)
+        public static IServiceLocator CreateServiceLocatorForTesting(TestingMode mode) => CreateServiceLocatorForTesting(_ => {}, mode);
+
+        public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle] Action<IDependencyInjectionContainer> setup) => CreateServiceLocatorForTesting(setup, TestingMode.DatabasePool);
+
+        public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup, TestingMode mode)
         {
-            var @this = Create(new RunMode(isTesting:true, mode: mode));
+            var @this = Create(new RunMode(isTesting:true, testingMode: mode));
 
 
-            @this.ConfigureWiringForTestsCallBeforeAllOtherWiring(mode);
+            @this.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             setup(@this);
 

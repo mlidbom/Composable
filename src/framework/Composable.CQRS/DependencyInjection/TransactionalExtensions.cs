@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Composable.System.Transactions;
 using JetBrains.Annotations;
 
@@ -32,7 +33,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        internal static TResult ExecuteInIsolatedScope<TResult>(this IServiceLocator me, [InstantHandle]Func<TResult> function)
+        public static TResult ExecuteInIsolatedScope<TResult>(this IServiceLocator me, [InstantHandle]Func<TResult> function)
         {
             using (me.BeginScope())
             {
@@ -45,6 +46,22 @@ namespace Composable.DependencyInjection
             using (me.BeginScope())
             {
                 action();
+            }
+        }
+
+        public static async Task<TResult> ExecuteInIsolatedScopeAsync<TResult>(this IServiceLocator me, [InstantHandle]Func<Task<TResult>> function)
+        {
+            using (me.BeginScope())
+            {
+                return await function();
+            }
+        }
+
+        internal static async Task ExecuteInIsolatedScopeAsync(this IServiceLocator me, [InstantHandle]Func<Task> action)
+        {
+            using (me.BeginScope())
+            {
+                await action();
             }
         }
     }

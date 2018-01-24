@@ -13,18 +13,18 @@ namespace Composable.Messaging.Buses.Implementation
     {
         void Stop();
         void Start();
-        void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent message);
-        void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command);
-        Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command);
+        void DispatchIfTransactionCommits(IExactlyOnceEvent message);
+        void DispatchIfTransactionCommits(IExactlyOnceCommand command);
+        Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(IExactlyOnceCommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> command);
         void Connect(IEndpoint endpoint);
     }
 
     interface IClientConnection : IDisposable
     {
-        void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryEvent @event);
-        void DispatchIfTransactionCommits(ITransactionalExactlyOnceDeliveryCommand command);
-        Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(ITransactionalExactlyOnceDeliveryCommand<TCommandResult> command);
+        void DispatchIfTransactionCommits(IExactlyOnceEvent @event);
+        void DispatchIfTransactionCommits(IExactlyOnceCommand command);
+        Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(IExactlyOnceCommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query);
     }
 

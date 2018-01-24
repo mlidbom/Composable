@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
+using Composable.Refactoring.Naming;
 using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Transactions;
@@ -16,6 +17,7 @@ namespace Composable.Messaging.Buses.Implementation
             readonly IMessageHandlerRegistry _handlerRegistry;
             readonly IServiceLocator _serviceLocator;
             readonly MessageStorage _storage;
+            readonly ITypeMapper _typeMapper;
             readonly Thread _messagePumpThread;
             CancellationTokenSource _cancellationTokenSource;
 
@@ -29,12 +31,14 @@ namespace Composable.Messaging.Buses.Implementation
             public HandlerExecutionEngine(IGlobalBusStateTracker globalStateTracker,
                                           IMessageHandlerRegistry handlerRegistry,
                                           IServiceLocator serviceLocator,
-                                          MessageStorage storage)
+                                          MessageStorage storage,
+                                          ITypeMapper typeMapper)
             {
                 _handlerRegistry = handlerRegistry;
                 _serviceLocator = serviceLocator;
                 _storage = storage;
-                _coordinator =  new Coordinator(globalStateTracker);
+                _typeMapper = typeMapper;
+                _coordinator =  new Coordinator(globalStateTracker, typeMapper);
 
                 _messagePumpThread = new Thread(AwaitDispatchableMessageThread)
                                      {
@@ -46,13 +50,13 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal async Task<object> Enqueue(TransportMessage.InComing message)
             {
-                var innerMessage = message.DeserializeMessageAndCacheForNextCall();
+                var innerMessage = message.DeserializeMessageAndCacheForNextCall(_typeMapper);
 
                 switch(innerMessage)
                 {
-                    case ITransactionalExactlyOnceDeliveryCommand command:
+                    case IExactlyOnceCommand command:
                         return await DispatchAsync(command, message);
-                    case ITransactionalExactlyOnceDeliveryEvent @event:
+                    case IExactlyOnceEvent @event:
                         return await DispatchAsync(@event, message);
                     case IQuery query:
                         return await DispatchAsync(query, message);
@@ -100,7 +104,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(ITransactionalExactlyOnceDeliveryEvent @event, TransportMessage.InComing message)
+            async Task<object> DispatchAsync(IExactlyOnceEvent @event, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -123,7 +127,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(ITransactionalExactlyOnceDeliveryCommand command, TransportMessage.InComing message)
+            async Task<object> DispatchAsync(IExactlyOnceCommand command, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetCommandHandler(command.GetType());
 

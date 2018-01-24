@@ -1,53 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.System;
 using Composable.System.Collections.Collections;
-using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Messaging.Buses.Implementation
 {
     class GlobalBusStateTracker : IGlobalBusStateTracker
     {
-        readonly Dictionary<Guid, InFlightMessage> _inflightMessages = new Dictionary<Guid, InFlightMessage>();
+        readonly AwaitableOptimizedThreadShared<NonThreadSafeImplementation> _implementation = new AwaitableOptimizedThreadShared<NonThreadSafeImplementation>(new NonThreadSafeImplementation());
 
-        //Todo: It is never OK for this class to block for a significant amount of time. So make that explicit with a really strict timeout on all operations waiting for access.
-        //Currently we cannot make the timeout really strict because it does time out....
-        readonly IResourceGuard _guard = ResourceGuard.WithTimeout(100.Milliseconds());
+        public IReadOnlyList<Exception> GetExceptions() => _implementation.Update(implementation => implementation.GetExceptions());
 
-        readonly List<Exception> _busExceptions = new List<Exception>();
-
-        public IReadOnlyList<Exception> GetExceptions() => _guard.Update(() => _busExceptions.ToList());
-
-        public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage) => _guard.Update(() =>
-        {
-            var inFlightMessage = _inflightMessages.GetOrAdd(transportMessage.MessageId, () => new InFlightMessage());
-            inFlightMessage.RemainingReceivers++;
-        });
+        public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage) => _implementation.Update(implementation => implementation.SendingMessageOnTransport(transportMessage));
 
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride)
-            => _guard.AwaitCondition(timeout: timeoutOverride ?? 30.Seconds(),
-                                     condition: () => _inflightMessages.None());
-
-        public void DoneWith(Guid messageId, Exception exception) => _guard.Update(() =>
         {
-            if(exception != null)
-            {
-                _busExceptions.Add(exception);
-            }
+            _implementation.Await(implementation => implementation.InflightMessages.Count == 0);
+        }
 
-            var inFlightMessage = _inflightMessages[messageId];
-            inFlightMessage.RemainingReceivers--;
-            if(inFlightMessage.RemainingReceivers == 0)
-            {
-                _inflightMessages.Remove(messageId);
-            }
-        });
+        public void DoneWith(Guid messageId, Exception exception) => _implementation.Update(implementation => implementation.DoneWith(messageId, exception));
 
         class InFlightMessage
         {
             public int RemainingReceivers { get; set; }
+        }
+
+        class NonThreadSafeImplementation
+        {
+            internal readonly Dictionary<Guid, InFlightMessage> InflightMessages = new Dictionary<Guid, InFlightMessage>();
+
+            readonly List<Exception> _busExceptions = new List<Exception>();
+
+            public IReadOnlyList<Exception> GetExceptions() => _busExceptions.ToList();
+
+            public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage)
+            {
+                var inFlightMessage = InflightMessages.GetOrAdd(transportMessage.MessageId, () => new InFlightMessage());
+                inFlightMessage.RemainingReceivers++;
+            }
+
+            public void DoneWith(Guid messageId, Exception exception)
+            {
+                if(exception != null)
+                {
+                    _busExceptions.Add(exception);
+                }
+
+                var inFlightMessage = InflightMessages[messageId];
+                inFlightMessage.RemainingReceivers--;
+                if(inFlightMessage.RemainingReceivers == 0)
+                {
+                    InflightMessages.Remove(messageId);
+                }
+            }
         }
     }
 }

@@ -24,6 +24,10 @@ namespace Composable.Persistence.EventStore
         void DeleteAggregate(Guid aggregateId);
     }
 
+    interface IAggregateTypeValidator
+    {
+        void AssertIsValid<TAggregate>();
+    }
 
     interface IEventStorePersistenceLayer
     {
@@ -37,9 +41,9 @@ namespace Composable.Persistence.EventStore
         public int EventType { get; set; }
         public string EventJson { get; set; }
         public Guid EventId { get; internal set; }
-        public int AggregateRootVersion { get; internal set; }
+        public int AggregateVersion { get; internal set; }
 
-        public Guid AggregateRootId { get; internal set; }
+        public Guid AggregateId { get; internal set; }
         public DateTime UtcTimeStamp { get; internal set; }
 
         internal int InsertedVersion { get; set; }
@@ -55,18 +59,17 @@ namespace Composable.Persistence.EventStore
 
     class EventWriteDataRow
     {
-        public EventWriteDataRow(AggregateRootEvent @event, string eventAsJson):this(SqlDecimal.Null, @event, eventAsJson)
+        public EventWriteDataRow(AggregateEvent @event, string eventAsJson):this(SqlDecimal.Null, @event, eventAsJson)
         {}
 
         public EventWriteDataRow(EventWriteDataRow source, SqlDecimal manualReadOrder) : this(manualReadOrder, source.Event, source.EventJson)
         { }
 
-        EventWriteDataRow(SqlDecimal manualReadOrder, AggregateRootEvent @event, string eventAsJson)
+        EventWriteDataRow(SqlDecimal manualReadOrder, AggregateEvent @event, string eventAsJson)
         {
             if(!(manualReadOrder.IsNull || (manualReadOrder.Precision == 38 && manualReadOrder.Scale == 17)))
             {
-                //Todo:Bug: Do something about this. The precision is not what we think it is. This is not acceptable.
-                //throw new ArgumentException($"$$$$$$$$$$$$$$$$$$$$$$$$$ Found decimal with precision: {manualReadOrder.Precision} and scale: {manualReadOrder.Scale}", nameof(manualReadOrder));
+                throw new ArgumentException($"$$$$$$$$$$$$$$$$$$$$$$$$$ Found decimal with precision: {manualReadOrder.Precision} and scale: {manualReadOrder.Scale}", nameof(manualReadOrder));
             }
 
             Event = @event;
@@ -74,8 +77,8 @@ namespace Composable.Persistence.EventStore
             EventJson = eventAsJson;
 
             EventId = @event.EventId;
-            AggregateRootVersion = @event.AggregateRootVersion;
-            AggregateRootId = @event.AggregateRootId;
+            AggregateVersion = @event.AggregateVersion;
+            AggregateId = @event.AggregateId;
             UtcTimeStamp = @event.UtcTimeStamp;
             InsertedVersion = @event.InsertedVersion;
             EffectiveVersion = @event.EffectiveVersion;
@@ -88,16 +91,16 @@ namespace Composable.Persistence.EventStore
         }
 
         public SqlDecimal ManualReadOrder { get; private set; }
-        public AggregateRootEvent Event { get; private set; }
+        public AggregateEvent Event { get; private set; }
 
 
         public int EventType { get; set; }
         public string EventJson { get; set; }
 
         public Guid EventId { get; internal set; }
-        public int AggregateRootVersion { get; internal set; }
+        public int AggregateVersion { get; internal set; }
 
-        public Guid AggregateRootId { get; internal set; }
+        public Guid AggregateId { get; internal set; }
         public DateTime UtcTimeStamp { get; internal set; }
 
         internal int InsertedVersion { get; set; }

@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Transactions;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
+using Composable.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
@@ -22,7 +25,14 @@ namespace Composable.Tests.CQRS
     [TestFixture]
     public abstract class EventStoreUpdaterTests
     {
-        IMessageSpy MessageSpy => ServiceLocator.Resolve<IMessageSpy>();
+        class EventSpy
+        {
+            public IEnumerable<IExactlyOnceEvent> DispatchedMessages => _events.ToList();
+            public void Receive(IExactlyOnceEvent @event) { _events.Add(@event); }
+            readonly List<IExactlyOnceEvent> _events = new List<IExactlyOnceEvent>();
+        }
+
+        EventSpy _eventSpy;
 
         protected abstract IServiceLocator CreateServiceLocator();
         internal IServiceLocator ServiceLocator { get; private set; }
@@ -30,6 +40,22 @@ namespace Composable.Tests.CQRS
         [SetUp] public void SetupBus()
         {
             ServiceLocator = CreateServiceLocator();
+
+            _eventSpy = new EventSpy();
+
+            ServiceLocator.Resolve<IMessageHandlerRegistrar>()
+                          .ForEvent<IExactlyOnceEvent>(_eventSpy.Receive);
+
+            ServiceLocator.Resolve<ITypeMappingRegistar>()
+                          .Map<Composable.Tests.CQRS.User>("2cfabb11-5e5a-494d-898f-8bfc654544eb")
+                          .Map<Composable.Tests.CQRS.IUserEvent>("0727c209-2f49-46ab-a56b-a1332415a895")
+                          .Map<Composable.Tests.CQRS.MigratedAfterUserChangedEmailEvent>("9ff42a12-f28c-447a-8aa1-79e6f685fa41")
+                          .Map<Composable.Tests.CQRS.MigratedBeforeUserRegisteredEvent>("3338e1d4-3839-4f63-9248-ea4dd30c8348")
+                          .Map<Composable.Tests.CQRS.MigratedReplaceUserChangedPasswordEvent>("45db6370-f7e7-4eb8-b792-845485d86295")
+                          .Map<Composable.Tests.CQRS.UserChangedEmail>("40ae1f6d-5f95-4c60-ac5f-21a3d1c85de9")
+                          .Map<Composable.Tests.CQRS.UserChangedPassword>("0b3b57f6-fd69-4da1-bb52-15033495f044")
+                          .Map<Composable.Tests.CQRS.UserEvent>("fa71e035-571d-4231-bd65-e667c138ec36")
+                          .Map<Composable.Tests.CQRS.UserRegistered>("03265864-8e1d-4eb7-a7a9-63dfc2b965de");
         }
 
         [TearDown] public void TearDownTask()
@@ -49,7 +75,7 @@ namespace Composable.Tests.CQRS
         [Test]
         public void WhenFetchingAggregateThatDoesNotExistNoSuchAggregateExceptionIsThrown()
         {
-            UseInScope(session => Assert.Throws<AggregateRootNotFoundException>(() => session.Get<User>(Guid.NewGuid())));
+            UseInScope(session => Assert.Throws<AggregateNotFoundException>(() => session.Get<User>(Guid.NewGuid())));
         }
 
         [Test]
@@ -92,7 +118,7 @@ namespace Composable.Tests.CQRS
 
             Assert.Throws<MultiThreadedUseException>(() => updater.Get<User>(Guid.NewGuid()));
             Assert.Throws<MultiThreadedUseException>(() => updater.Dispose());
-            Assert.Throws<MultiThreadedUseException>(() => reader.LoadSpecificVersion<User>(Guid.NewGuid(), 1));
+            Assert.Throws<MultiThreadedUseException>(() => reader.GetReadonlyCopyOfVersion<User>(Guid.NewGuid(), 1));
             Assert.Throws<MultiThreadedUseException>(() => updater.Save(new User()));
             Assert.Throws<MultiThreadedUseException>(() => updater.TryGet(Guid.NewGuid(), out User _));
 
@@ -111,17 +137,17 @@ namespace Composable.Tests.CQRS
             UseInScope(session =>
                        {
                            var reader = ServiceLocator.Resolve<ITestingEventStoreReader>();
-                           var loadedUser = reader.LoadSpecificVersion<User>(user.Id, 1);
+                           var loadedUser = reader.GetReadonlyCopyOfVersion<User>(user.Id, 1);
                            Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                            Assert.That(loadedUser.Email, Is.EqualTo("email@email.se"));
                            Assert.That(loadedUser.Password, Is.EqualTo("password"));
 
-                           loadedUser = reader.LoadSpecificVersion<User>(user.Id, 2);
+                           loadedUser = reader.GetReadonlyCopyOfVersion<User>(user.Id, 2);
                            Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                            Assert.That(loadedUser.Email, Is.EqualTo("email@email.se"));
                            Assert.That(loadedUser.Password, Is.EqualTo("NewPassword"));
 
-                           loadedUser = reader.LoadSpecificVersion<User>(user.Id, 3);
+                           loadedUser = reader.GetReadonlyCopyOfVersion<User>(user.Id, 3);
                            Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                            Assert.That(loadedUser.Email, Is.EqualTo("NewEmail"));
                            Assert.That(loadedUser.Password, Is.EqualTo("NewPassword"));
@@ -192,7 +218,7 @@ namespace Composable.Tests.CQRS
 
             UseInTransactionalScope(session =>
                                     {
-                                        var loadedUser = ServiceLocator.Resolve<ITestingEventStoreReader>().LoadSpecificVersion<User>(user.Id, 1);
+                                        var loadedUser = ServiceLocator.Resolve<ITestingEventStoreReader>().GetReadonlyCopyOfVersion<User>(user.Id, 1);
                                         loadedUser.ChangeEmail("NewEmail");
                                     });
 
@@ -292,7 +318,7 @@ namespace Composable.Tests.CQRS
                                         session.Save(user2);
                                     });
 
-            MessageSpy.DispatchedMessages.Count().Should().Be(2);
+            _eventSpy.DispatchedMessages.Count().Should().Be(2);
 
             UseInTransactionalScope(session =>
                                     {
@@ -303,8 +329,8 @@ namespace Composable.Tests.CQRS
                                         session.Delete(user1.Id);
                                     });
 
-            var published = MessageSpy.DispatchedMessages.ToList();
-            MessageSpy.DispatchedMessages.Count()
+            var published = _eventSpy.DispatchedMessages.ToList();
+            _eventSpy.DispatchedMessages.Count()
                       .Should()
                       .Be(3);
             Assert.That(published.Last(), Is.InstanceOf<UserChangedEmail>());
@@ -317,13 +343,13 @@ namespace Composable.Tests.CQRS
                                         var user1 = new User();
                                         user1.Register("email1@email.se", "password", Guid.NewGuid());
 
-                                        MessageSpy.DispatchedMessages.Last()
+                                        _eventSpy.DispatchedMessages.Last()
                                                   .Should()
                                                   .BeOfType<UserRegistered>();
 
                                         user1 = session.Get<User>(user1.Id);
                                         user1.ChangeEmail("new_email");
-                                        MessageSpy.DispatchedMessages.Last()
+                                        _eventSpy.DispatchedMessages.Last()
                                                   .Should()
                                                   .BeOfType<UserChangedEmail>();
                                     });
@@ -349,7 +375,7 @@ namespace Composable.Tests.CQRS
             UseInScope(session =>
                        {
                            var history = ((IEventStoreReader)session).GetHistory(userId);
-                           Assert.That(history.Count(), Is.EqualTo(2));
+                           Assert.That(history.Count, Is.EqualTo(2));
                        });
         }
 
@@ -370,7 +396,7 @@ namespace Composable.Tests.CQRS
             UseInScope(session =>
                        {
                            var history = ((IEventStoreReader)session).GetHistory(userId);
-                           Assert.That(history.Count(), Is.EqualTo(0));
+                           Assert.That(history.Count, Is.EqualTo(0));
                        });
         }
 
@@ -395,7 +421,7 @@ namespace Composable.Tests.CQRS
             UseInScope(session =>
                        {
                            var history = ((IEventStoreReader)session).GetHistory(userId);
-                           Assert.That(history.Count(), Is.EqualTo(0));
+                           Assert.That(history.Count, Is.EqualTo(0));
                        });
         }
 
@@ -445,30 +471,30 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session =>
                                     {
                                         users.Take(3).ForEach(session.Save);
-                                        Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(6));
+                                        Assert.That(_eventSpy.DispatchedMessages.Count, Is.EqualTo(6));
                                     });
 
             UseInTransactionalScope(session =>
                                     {
-                                        Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(6));
+                                        Assert.That(_eventSpy.DispatchedMessages.Count, Is.EqualTo(6));
                                         users.Skip(3).Take(3).ForEach(session.Save);
-                                        Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(12));
+                                        Assert.That(_eventSpy.DispatchedMessages.Count, Is.EqualTo(12));
                                     });
 
             UseInTransactionalScope(session =>
                                     {
-                                        Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(12));
+                                        Assert.That(_eventSpy.DispatchedMessages.Count, Is.EqualTo(12));
                                         users.Skip(6).Take(3).ForEach(session.Save);
-                                        Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(18));
+                                        Assert.That(_eventSpy.DispatchedMessages.Count, Is.EqualTo(18));
                                     });
 
             UseInTransactionalScope(session =>
                                     {
-                                        Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(18));
-                                        Assert.That(MessageSpy.DispatchedMessages.OfType<IAggregateRootEvent>().Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
+                                        Assert.That(_eventSpy.DispatchedMessages.Count, Is.EqualTo(18));
+                                        Assert.That(_eventSpy.DispatchedMessages.OfType<IAggregateEvent>().Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
                                         var allPersistedEvents = ServiceLocator.EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
 
-                                        MessageSpy.DispatchedMessages.OfType<IAggregateRootEvent>().ShouldBeEquivalentTo(allPersistedEvents,options => options.WithStrictOrdering());
+                                        _eventSpy.DispatchedMessages.OfType<IAggregateEvent>().ShouldBeEquivalentTo(allPersistedEvents,options => options.WithStrictOrdering());
                                     });
         }
 

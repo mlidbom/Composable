@@ -5,35 +5,29 @@ using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
 {
-    class ChangeAccountEmailScenario
+    class ChangeAccountEmailScenario : ScenarioBase
     {
-        readonly IServiceBus _clientBus;
+        readonly IEndpoint _clientEndpoint;
 
         public Email NewEmail = TestData.Email.CreateValidEmail();
         public readonly Email OldEmail;
         public AccountResource Account { get; private set; }
 
-        public static ChangeAccountEmailScenario Create(IServiceBus clientBus)
-            => new ChangeAccountEmailScenario(clientBus, new RegisterAccountScenario(clientBus).Execute().Account);
+        public static ChangeAccountEmailScenario Create(IEndpoint domainEndpoint)
+            => new ChangeAccountEmailScenario(domainEndpoint, new RegisterAccountScenario(domainEndpoint).Execute().Account);
 
-        public ChangeAccountEmailScenario(IServiceBus clientBus, AccountResource account)
+        public ChangeAccountEmailScenario(IEndpoint clientEndpoint, AccountResource account)
         {
-            _clientBus = clientBus;
+            _clientEndpoint = clientEndpoint;
             Account = account;
             OldEmail = Account.Email;
         }
 
         public void Execute()
         {
-            var command = Account.CommandsCollections.ChangeEmail;
-            command.Email = NewEmail.ToString();
+            Account.Command.ChangeEmail.WithEmail(NewEmail.ToString()).Post().ExecuteAsRequestOn(_clientEndpoint);
 
-            _clientBus.Send(command);
-
-            Account = NavigationSpecification
-                      .Get(AccountApi.Start)
-                      .Get(start => start.Queries.AccountById.WithId(Account.Id))
-                      .Execute(_clientBus);
+            Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
         }
     }
 }

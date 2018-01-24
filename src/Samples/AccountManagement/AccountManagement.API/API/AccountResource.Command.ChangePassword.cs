@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
 using AccountManagement.Domain;
-using Composable;
 using Composable.Messaging.Commands;
 
 namespace AccountManagement.API
 {
     public partial class AccountResource
     {
-        public static partial class Command
+        public static partial class Commands
         {
-            [TypeId("43922809-0404-4392-B754-38928C905EBF")]
-            public class ChangePassword : TransactionalExactlyOnceDeliveryCommand, IValidatableObject
+            public class ChangePassword : ExactlyOnceCommand, IValidatableObject
             {
                 public ChangePassword(Guid accountId) => AccountId = accountId;
 
@@ -22,6 +20,12 @@ namespace AccountManagement.API
                 [Required] public string NewPassword { get; set; }
 
                 public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Password.Validate(NewPassword, this, () => NewPassword);
+
+                public ChangePassword WithValues(string oldPassword, string newPassword) => new ChangePassword(AccountId)
+                                                                                   {
+                                                                                       OldPassword = oldPassword,
+                                                                                       NewPassword = newPassword
+                                                                                   };
             }
         }
     }

@@ -5,13 +5,15 @@ namespace Composable.Persistence.EventStore
 {
     public interface IEventStoreReader
     {
-        IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId);
+        IReadOnlyList<IAggregateEvent> GetHistory(Guid aggregateId);
         /// <summary>
         /// Loads a specific version of the aggregate.
         /// This instance is NOT tracked for changes.
         /// No changes to this entity vill be persisted.
         /// </summary>
-        TAggregate LoadSpecificVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : IEventStored;
+        TAggregate GetReadonlyCopyOfVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : IEventStored;
+
+        TAggregate GetReadonlyCopy<TAggregate>(Guid aggregateId) where TAggregate : IEventStored;
     }
 
     public interface IEventStoreUpdater : IDisposable

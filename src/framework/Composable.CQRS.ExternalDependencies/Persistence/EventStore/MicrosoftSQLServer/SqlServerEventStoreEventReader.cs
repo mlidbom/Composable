@@ -48,8 +48,8 @@ FROM {EventTable.Name} {lockHint} ";
                                                                       {
                                                                           EventJson = eventReader.GetString(1),
                                                                           EventType = eventReader.GetInt32(0),
-                                                                          AggregateRootId = eventReader.GetGuid(2),
-                                                                          AggregateRootVersion = eventReader[3] as int? ?? eventReader.GetInt32(10),
+                                                                          AggregateId = eventReader.GetGuid(2),
+                                                                          AggregateVersion = eventReader[3] as int? ?? eventReader.GetInt32(10),
                                                                           EventId = eventReader.GetGuid(4),
                                                                           //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
                                                                           UtcTimeStamp = DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),

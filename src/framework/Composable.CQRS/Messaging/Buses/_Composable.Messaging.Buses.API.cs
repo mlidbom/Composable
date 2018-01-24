@@ -6,60 +6,80 @@ using Composable.DDD;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Messaging.Events;
+using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses
 {
-    ///<summary>Dispatches messages within a process.</summary>
-    public interface IInProcessServiceBus
+    public interface IEventstoreEventPublisher
     {
-        void Publish(ITransactionalExactlyOnceDeliveryEvent anEvent);
-        TResult Query<TResult>(IQuery<TResult> query);
-        TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
-        void Send(ITransactionalExactlyOnceDeliveryCommand message);
+        void Publish(IExactlyOnceEvent anEvent);
     }
 
+    ///<summary>Dispatches messages within a process.</summary>
+    public interface ILocalServiceBusSession : IEventstoreEventPublisher
+    {
+        ///<summary>Syncronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
+        TResult Get<TResult>(IQuery<TResult> query);
+
+        ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
+        TResult Post<TResult>(IExactlyOnceCommand<TResult> command);
+
+        ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
+        void Post(IExactlyOnceCommand command);
+    }
+
+    public interface IRemoteServiceBusSession
+    {
+        ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
+        void PostRemote(IExactlyOnceCommand command);
+
+        ///<summary>Schedules a command to be sent later if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
+        void SchedulePostRemote(DateTime sendAt, IExactlyOnceCommand command);
+
+        ///<summary>Syncronous wrapper for <see cref="PostRemoteAsync{TResult}"/>. Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver. NOTE: The result CANNOT be awaited within the sending transaction since it has not been sent yet.</summary>
+        TResult PostRemote<TResult>(IExactlyOnceCommand<TResult> command);
+
+        ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver. NOTE: The result CANNOT be awaited within the sending transaction since it has not been sent yet.</summary>
+        Task<TResult> PostRemoteAsync<TResult>(IExactlyOnceCommand<TResult> command);
+
+        ///<summary>Syncronous wrapper for: <see cref="GetRemoteAsync{TResult}"/>. Gets the result of a handler somewhere on the bus handling the <paramref name="query"/>.</summary>
+        TResult GetRemote<TResult>(IQuery<TResult> query);
+
+        ///<summary>Gets the result of a handler somewhere on the bus handling the <paramref name="query"/></summary>
+        Task<TResult> GetRemoteAsync<TResult>(IQuery<TResult> query);
+    }
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IServiceBus : IDisposable
+    public interface IServiceBusSession : ILocalServiceBusSession, IRemoteServiceBusSession
     {
-        void Send(ITransactionalExactlyOnceDeliveryCommand command);
-        void SendAtTime(DateTime sendAt, ITransactionalExactlyOnceDeliveryCommand command);
-        TResult Send<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
-        Task<TResult> SendAsync<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
-
-        void Publish(ITransactionalExactlyOnceDeliveryEvent @event);
-
-        Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
-        TResult Query<TResult>(IQuery<TResult> query);
-    }
-
-    public interface IMessageSpy
-    {
-        IEnumerable<object> DispatchedMessages { get; }
     }
 
     interface IMessageHandlerRegistry
     {
-        Action<object> GetCommandHandler(ITransactionalExactlyOnceDeliveryCommand message);
+        Action<object> GetCommandHandler(IExactlyOnceCommand message);
 
-        Func<ITransactionalExactlyOnceDeliveryCommand, object> GetCommandHandler(Type commandType);
+        bool TryGetCommandHandler(IExactlyOnceCommand message, out Action<object> handler);
+
+        bool TryGetCommandHandlerWithResult(IExactlyOnceCommand message, out Func<object, object> handler);
+
+        Func<IExactlyOnceCommand, object> GetCommandHandler(Type commandType);
         Func<IQuery, object> GetQueryHandler(Type commandType);
-        IReadOnlyList<Action<ITransactionalExactlyOnceDeliveryEvent>> GetEventHandlers(Type eventType);
+        IReadOnlyList<Action<IExactlyOnceEvent>> GetEventHandlers(Type eventType);
 
         Func<IQuery<TResult>, TResult> GetQueryHandler<TResult>(IQuery<TResult> query);
 
-        Func<ITransactionalExactlyOnceDeliveryCommand<TResult>, TResult> GetCommandHandler<TResult>(ITransactionalExactlyOnceDeliveryCommand<TResult> command);
+        Func<IExactlyOnceCommand<TResult>, TResult> GetCommandHandler<TResult>(IExactlyOnceCommand<TResult> command);
 
-        IEventDispatcher<ITransactionalExactlyOnceDeliveryEvent> CreateEventDispatcher();
+        IEventDispatcher<IExactlyOnceEvent> CreateEventDispatcher();
 
-        ISet<Type> HandledTypes();
+        ISet<TypeId> HandledTypeIds();
     }
 
     public interface IMessageHandlerRegistrar
     {
-        IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : ITransactionalExactlyOnceDeliveryEvent;
-        IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : ITransactionalExactlyOnceDeliveryCommand;
-        IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : ITransactionalExactlyOnceDeliveryCommand<TResult>;
+        IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : IExactlyOnceEvent;
+        IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : IExactlyOnceCommand;
+        IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : IExactlyOnceCommand<TResult>;
         IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult>;
     }
 
@@ -86,6 +106,7 @@ namespace Composable.Messaging.Buses
     public interface IEndpointBuilder
     {
         IDependencyInjectionContainer Container { get; }
+        ITypeMappingRegistar TypeMapper { get; }
         EndpointConfiguration Configuration { get; }
         MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers { get; }
     }
@@ -102,7 +123,9 @@ namespace Composable.Messaging.Buses
 
         TException AssertThrown<TException>() where TException : Exception;
 
-        IServiceBus ClientBus { get; }
+        IEndpoint ClientEndpoint { get; }
+
+        IServiceBusSession ClientBusSession { get; }
     }
 
     interface IMessageDispatchingRule
@@ -140,7 +163,7 @@ namespace Composable.Messaging.Buses
     public class SelfGeneratingResourceQuery<TResource> : ICreateMyOwnResultQuery<TResource> where TResource : new()
     {
         SelfGeneratingResourceQuery() {}
-        public static SelfGeneratingResourceQuery<TResource> Instance = new SelfGeneratingResourceQuery<TResource>();
+        public static readonly SelfGeneratingResourceQuery<TResource> Instance = new SelfGeneratingResourceQuery<TResource>();
         public TResource CreateResult() => new TResource();
     }
 

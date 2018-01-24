@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.Messaging.Commands;
 
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable UnusedTypeParameter
@@ -16,12 +17,33 @@ namespace Composable.Messaging
         Guid Id { get; }
     }
 
-    [TypeId("444153B1-7B35-4F17-9FF3-85040CEEBAAB")]
-    public class EntityByIdQuery<TEntity> : Message, IEntityQuery<TEntity>
+    public class EntityByIdQuery<TEntity> : Message, IQuery<TEntity>
     {
         public EntityByIdQuery() {}
         public EntityByIdQuery(Guid id) => Id = id;
         public Guid Id { get; set; }
+        public EntityByIdQuery<TEntity> WithId(Guid id) => new EntityByIdQuery<TEntity> {Id = id};
+    }
+
+    public class ReadonlyCopyOfEntityByIdQuery<TEntity> : Message, IQuery<TEntity>
+    {
+        public ReadonlyCopyOfEntityByIdQuery() {}
+        public ReadonlyCopyOfEntityByIdQuery(Guid id) => Id = id;
+        public Guid Id { get; set; }
+        public EntityByIdQuery<TEntity> WithId(Guid id) => new EntityByIdQuery<TEntity> {Id = id};
+    }
+
+    public class ReadonlyCopyOfEntityVersionByIdQuery<TEntity> : Message, IQuery<TEntity>
+    {
+        public ReadonlyCopyOfEntityVersionByIdQuery() {}
+        public ReadonlyCopyOfEntityVersionByIdQuery(Guid id, int version)
+        {
+            Id = id;
+            Version = version;
+        }
+
+        public Guid Id { get; set; }
+        public int Version { get; set;}
         public EntityByIdQuery<TEntity> WithId(Guid id) => new EntityByIdQuery<TEntity> {Id = id};
     }
 
@@ -38,5 +60,11 @@ namespace Composable.Messaging
         protected EntityResource() {}
         protected EntityResource(Guid id) => Id = id;
         public Guid Id { get; private set; }
+    }
+
+    public class PersistEntityCommand<TEntity> : ExactlyOnceCommand
+    {
+        public PersistEntityCommand(TEntity entity) => Entity = entity;
+        public TEntity Entity { get; }
     }
 }

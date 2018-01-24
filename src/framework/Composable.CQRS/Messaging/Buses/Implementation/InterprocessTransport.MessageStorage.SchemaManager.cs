@@ -12,7 +12,6 @@ namespace Composable.Messaging.Buses.Implementation
             internal const string TypeIdGuidValue = nameof(TypeIdGuidValue);
             internal const string MessageId = nameof(MessageId);
             internal const string Body = nameof(Body);
-            internal const string ParentTypeIdGuidValue = nameof(ParentTypeIdGuidValue);
         }
 
         static class MessageDispatching
@@ -40,7 +39,6 @@ CREATE TABLE [dbo].[{OutboxMessages.TableName}]
 (
 	[{OutboxMessages.Identity}] [int] IDENTITY(1,1) NOT NULL,
     [{OutboxMessages.TypeIdGuidValue}] [uniqueidentifier] NOT NULL,
-    [{OutboxMessages.ParentTypeIdGuidValue}] [uniqueidentifier] NOT NULL,
     [{OutboxMessages.MessageId}] [uniqueidentifier] NOT NULL,
 	[{OutboxMessages.Body}] [nvarchar](MAX) NOT NULL,
 

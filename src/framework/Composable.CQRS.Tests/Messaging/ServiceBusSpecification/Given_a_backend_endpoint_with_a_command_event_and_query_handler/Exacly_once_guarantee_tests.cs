@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Transactions;
+using Composable.Messaging.Buses;
 using Composable.System;
 using Composable.System.Threading;
 using Composable.System.Transactions;
@@ -21,7 +22,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             {
                 TransactionScopeCe.Execute(() =>
                 {
-                    commandResultTask = Host.ClientBus.SendAsync(new MyCommandWithResult());
+                    commandResultTask = ClientEndpoint.ExecuteRequest(session => session.PostRemoteAsync(new MyCommandWithResult()));
                     throw new Exception("MyException");
                 });
             }
@@ -40,7 +41,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             {
                 TransactionScopeCe.Execute(() =>
                 {
-                    Host.ClientBus.Send(new MyCommand());
+                    ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyCommand()));
                     throw new Exception("MyException");
                 });
             }
@@ -55,11 +56,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             try
             {
-                TransactionScopeCe.Execute(() =>
+                ClientEndpoint.ExecuteRequest(session => TransactionScopeCe.Execute(() =>
                 {
-                    Host.ClientBus.Publish(new MyEvent());
+                    Host.ClientBusSession.Publish(new MyEvent());
                     throw new Exception("MyException");
-                });
+                }));
             }
             catch(Exception exception) when (exception.Message == "MyException"){}
 

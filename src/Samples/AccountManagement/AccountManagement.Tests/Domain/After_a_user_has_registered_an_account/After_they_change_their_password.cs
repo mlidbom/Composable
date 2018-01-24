@@ -13,14 +13,14 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [SetUp]
         public void RegisterAccount()
         {
-            _changePasswordScenario = ChangePasswordScenario.Create(ClientBus);
+            _changePasswordScenario = ChangePasswordScenario.Create(ClientEndpoint);
             _changePasswordScenario.Execute();
         }
 
         [Test]
         public void An_IUserChangedAccountPasswordEvent_is_published_on_the_bus()
         {
-            MessageSpy.DispatchedMessages
+            EventSpy.DispatchedMessages
                 .OfType<AccountEvent.UserChangedPassword>()
                 .Should().HaveCount(1);
         }
@@ -28,7 +28,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [Test]
         public void Event_password_should_accept_the_used_password_as_valid()
         {
-            MessageSpy.DispatchedMessages.OfType<AccountEvent.UserChangedPassword>()
+            EventSpy.DispatchedMessages.OfType<AccountEvent.UserChangedPassword>()
                 .Single().Password.AssertIsCorrectPassword(_changePasswordScenario.NewPasswordAsString);
         }
 

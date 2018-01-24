@@ -4,25 +4,25 @@ using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
 {
-    class ChangePasswordScenario
+    class ChangePasswordScenario : ScenarioBase
     {
-        readonly IServiceBus _bus;
+        readonly IEndpoint _clientEndpoint;
 
         public string OldPassword;
         public string NewPasswordAsString;
         public AccountResource Account { get; private set; }
 
-        public static ChangePasswordScenario Create(IServiceBus bus)
+        public static ChangePasswordScenario Create(IEndpoint domainEndpoint)
         {
-            var registerAccountScenario = new RegisterAccountScenario(bus);
+            var registerAccountScenario = new RegisterAccountScenario(domainEndpoint);
             var account = registerAccountScenario.Execute().Account;
 
-            return new ChangePasswordScenario(bus, account, registerAccountScenario.Password);
+            return new ChangePasswordScenario(domainEndpoint, account, registerAccountScenario.Password);
         }
 
-        public ChangePasswordScenario(IServiceBus bus, AccountResource account, string oldPassword, string newPassword = null)
+        public ChangePasswordScenario(IEndpoint clientEndpoint, AccountResource account, string oldPassword, string newPassword = null)
         {
-            _bus = bus;
+            _clientEndpoint = clientEndpoint;
             Account = account;
             OldPassword = oldPassword;
             NewPasswordAsString = newPassword ?? TestData.Password.CreateValidPasswordString();
@@ -30,15 +30,9 @@ namespace AccountManagement.Tests.Scenarios
 
         public void Execute()
         {
-            var command = Account.CommandsCollections.ChangePassword;
-            command.NewPassword = NewPasswordAsString;
-            command.OldPassword = OldPassword;
+            Account.Command.ChangePassword.WithValues(OldPassword, NewPasswordAsString).Post().ExecuteAsRequestOn(_clientEndpoint);
 
-            _bus.Send(command);
-            Account = NavigationSpecification
-                      .Get(AccountApi.Start)
-                      .Get(start => start.Queries.AccountById.WithId(Account.Id))
-                      .Execute(_bus);
+            Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
         }
     }
 }

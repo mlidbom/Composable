@@ -28,6 +28,6 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
         /// <para>Called once for each event in the aggregate's history. </para>
         /// <para>Then it is called once with an instance of <see cref="EndOfAggregateHistoryEventPlaceHolder"/>. </para>
         /// </summary>
-        void MigrateEvent(IAggregateRootEvent @event, IEventModifier modifier);
+        void MigrateEvent(IAggregateEvent @event, IEventModifier modifier);
     }
 }

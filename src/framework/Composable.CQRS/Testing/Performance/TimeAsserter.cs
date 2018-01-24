@@ -7,13 +7,13 @@ using JetBrains.Annotations;
 
 namespace Composable.Testing.Performance
 {
-    static class TimeAsserter
+    public static class TimeAsserter
     {
         const string DefaultTimeFormat = "ss\\.fff";
 
         static readonly MachineWideSingleThreaded MachineWideSingleThreaded = MachineWideSingleThreaded.For(typeof(TimeAsserter));
 
-        public static StopwatchExtensions.TimedExecutionSummary Execute
+        internal static StopwatchExtensions.TimedExecutionSummary Execute
             ([InstantHandle]Action action,
              int iterations = 1,
              TimeSpan? maxAverage = null,
@@ -61,7 +61,7 @@ namespace Composable.Testing.Performance
             return executionSummary;
         }
 
-        public static StopwatchExtensions.TimedThreadedExecutionSummary ExecuteThreaded
+        internal static StopwatchExtensions.TimedThreadedExecutionSummary ExecuteThreaded
             ([InstantHandle]Action action,
              int iterations = 1,
              TimeSpan? maxAverage = null,
@@ -71,7 +71,8 @@ namespace Composable.Testing.Performance
              string timeFormat = DefaultTimeFormat,
              [InstantHandle]Action setup = null,
              [InstantHandle]Action tearDown = null,
-             int maxTries = 10)
+             int maxTries = 10,
+            int maxDegreeOfParallelism = -1)
         {
             StopwatchExtensions.TimedThreadedExecutionSummary executionSummary = null;
 
@@ -104,7 +105,7 @@ namespace Composable.Testing.Performance
                     for(var tries = 1; tries <= maxTries; tries++)
                     {
                         setup?.Invoke();
-                        executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions);
+                        executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions, maxDegreeOfParallelism: maxDegreeOfParallelism);
                         tearDown?.Invoke();
                         try
                         {

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Transactions;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
+using Composable.Refactoring.Naming;
 using Composable.Tests.CQRS;
 using NUnit.Framework;
 
@@ -15,6 +16,8 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
         [SetUp] public void SetupTask()
         {
             _serviceLocator = TestWiringHelper.SetupTestingServiceLocator(TestingMode.DatabasePool);
+            _serviceLocator.Resolve<ITypeMappingRegistar>()
+                           .Map<Composable.Tests.CQRS.UserRegistered>("e965b5d4-6f1a-45fa-9660-2fec0abc4a0a");
         }
 
         [TearDown] public void TearDownTask()
@@ -71,13 +74,13 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
                 }
             }
 
-            IAggregateRootEvent firstRead;
+            IAggregateEvent firstRead;
             using(_serviceLocator.BeginScope())
             {
                 firstRead = _serviceLocator.SqlEventStore().GetAggregateHistory(user.Id).Single();
             }
 
-            IAggregateRootEvent secondRead;
+            IAggregateEvent secondRead;
             using (_serviceLocator.BeginScope())
             {
                 secondRead = _serviceLocator.SqlEventStore().GetAggregateHistory(user.Id).Single();

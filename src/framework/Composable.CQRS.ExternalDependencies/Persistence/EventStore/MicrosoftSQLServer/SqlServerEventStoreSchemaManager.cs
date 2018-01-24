@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using System.Transactions;
 using Composable.Logging.Log4Net;
-using Composable.Persistence.EventStore.Refactoring.Naming;
+using Composable.Refactoring.Naming;
 using Composable.System.Data.SqlClient;
 using Composable.System.Transactions;
 
@@ -13,13 +13,13 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         bool _verifiedConnectionString;
         readonly EventTableSchemaManager _eventTable = new EventTableSchemaManager();
         readonly EventTypeTableSchemaManager _eventTypeTable = new EventTypeTableSchemaManager();
-        public SqlServerEventStoreSchemaManager(ISqlConnection connectionString, IEventNameMapper nameMapper)
+        public SqlServerEventStoreSchemaManager(ISqlConnection connectionString, ITypeMapper typeMapper)
         {
             _connectionManager = connectionString;
-            _nameMapper = nameMapper;
+            _typeMapper = typeMapper;
         }
 
-        readonly IEventNameMapper _nameMapper;
+        readonly ITypeMapper _typeMapper;
 
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
@@ -43,7 +43,7 @@ AT:
             {
                 using(var connection = OpenConnection())
                 {
-                    IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionManager, _nameMapper);
+                    IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionManager, _typeMapper);
 
                     if(!_eventTable.Exists(connection))
                     {

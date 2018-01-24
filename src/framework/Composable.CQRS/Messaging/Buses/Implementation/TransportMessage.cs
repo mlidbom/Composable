@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.NewtonSoft;
+using Composable.Refactoring.Naming;
 using Composable.System.Reflection;
 using NetMQ;
 using NetMQ.Sockets;
@@ -27,14 +28,14 @@ namespace Composable.Messaging.Buses.Implementation
 
             IMessage _message;
 
-            public IMessage DeserializeMessageAndCacheForNextCall()
+            public IMessage DeserializeMessageAndCacheForNextCall(ITypeMapper typeMapper)
             {
                 if(_message == null)
                 {
-                    _message = (IMessage)JsonConvert.DeserializeObject(Body, MessageType.GetRuntimeType(), JsonSettings.JsonSerializerSettings);
+                    _message = (IMessage)JsonConvert.DeserializeObject(Body, typeMapper.GetType(MessageType), JsonSettings.JsonSerializerSettings);
 
 
-                    Contract.State.Assert(!(_message is ITransactionalExactlyOnceDeliveryMessage) || MessageId == (_message as ITransactionalExactlyOnceDeliveryMessage).MessageId);
+                    Contract.State.Assert(!(_message is IExactlyOnceMessage) || MessageId == (_message as IExactlyOnceMessage).MessageId);
                 }
                 return _message;
             }
@@ -47,19 +48,24 @@ namespace Composable.Messaging.Buses.Implementation
                 MessageId = messageId;
             }
 
-            public static InComing Receive(RouterSocket socket)
+            public static IReadOnlyList<InComing> ReceiveBatch(RouterSocket socket)
             {
-                var receivedMessage = socket.ReceiveMultipartMessage();
+                var result = new List<TransportMessage.InComing>();
+                NetMQMessage receivedMessage = null;
+                while(socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref receivedMessage))
+                {
 
-                var client = receivedMessage[0].ToByteArray();
-                var messageId = new Guid(receivedMessage[1].ToByteArray());
-                var messageType = new TypeId(new Guid(receivedMessage[2].ToByteArray()), new Guid(receivedMessage[3].ToByteArray()));
-                var messageBody = receivedMessage[4].ConvertToString();
+                    var client = receivedMessage[0].ToByteArray();
+                    var messageId = new Guid(receivedMessage[1].ToByteArray());
+                    var messageType = new TypeId(new Guid(receivedMessage[2].ToByteArray()));
+                    var messageBody = receivedMessage[3].ConvertToString();
 
-                return new InComing(messageBody, messageType, client, messageId);
+                    result.Add(new InComing(messageBody, messageType, client, messageId));
+                }
+                return result;
             }
 
-            public Response.Outgoing CreateFailureResponse(Exception exception) => Response.Outgoing.Failure(this, exception);
+            public Response.Outgoing CreateFailureResponse(AggregateException exception) => Response.Outgoing.Failure(this, exception);
 
             public Response.Outgoing CreateSuccessResponse(object response) => Response.Outgoing.Success(this, response);
 
@@ -80,25 +86,24 @@ namespace Composable.Messaging.Buses.Implementation
                 var message = new NetMQMessage(4);
                 message.Append(MessageId);
                 message.Append(_messageType.GuidValue);
-                message.Append(_messageType.ParentTypeGuidValue);
                 message.Append(_messageBody);
 
                 socket.SendMultipartMessage(message);
             }
 
-            public static OutGoing Create(IMessage message)
+            public static OutGoing Create(IMessage message, ITypeMapper typeMapper)
             {
-                var messageId = (message as ITransactionalExactlyOnceDeliveryMessage)?.MessageId ?? Guid.NewGuid();
+                var messageId = (message as IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
-                return new OutGoing(TypeId.FromType(message.GetType()), messageId, body, GetMessageType(message), message is ITransactionalExactlyOnceDeliveryMessage);
+                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, GetMessageType(message), message is IExactlyOnceMessage);
             }
 
             static TransportMessageType GetMessageType(IMessage message)
             {
                 switch(message) {
-                    case ITransactionalExactlyOnceDeliveryEvent _:
+                    case IExactlyOnceEvent _:
                         return TransportMessageType.Event;
-                    case ITransactionalExactlyOnceDeliveryCommand _:
+                    case IExactlyOnceCommand _:
                         return TransportMessageType.Command;
                     case IQuery _:
                         return TransportMessageType.Query;
@@ -159,13 +164,21 @@ namespace Composable.Messaging.Buses.Implementation
                     return new Outgoing(responseMessage);
                 }
 
-                public static Outgoing Failure(TransportMessage.InComing incoming, Exception failure)
+                public static Outgoing Failure(TransportMessage.InComing incoming, AggregateException failure)
                 {
                     var response = new NetMQMessage();
 
                     response.Append(incoming.Client);
                     response.Append(incoming.MessageId);
                     response.Append((int)ResponseType.Failure);
+
+                    if(failure.InnerExceptions.Count == 1)
+                    {
+                        response.Append(failure.InnerException.ToString());
+                    } else
+                    {
+                        response.Append(failure.ToString());
+                    }
 
                     return new Outgoing(response);
                 }
@@ -183,7 +196,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal class Incoming
             {
-                readonly string _resultJson;
+                internal readonly string Body;
                 readonly string _responseType;
                 object _result;
                 internal ResponseType ResponseType { get; }
@@ -193,11 +206,11 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     if(_result == null)
                     {
-                        if(_resultJson == Constants.NullString)
+                        if(Body == Constants.NullString)
                         {
                             return null;
                         }
-                        _result = JsonConvert.DeserializeObject(_resultJson, _responseType.AsType(), JsonSettings.JsonSerializerSettings);
+                        _result = JsonConvert.DeserializeObject(Body, _responseType.AsType(), JsonSettings.JsonSerializerSettings);
                     }
                     return _result;
                 }
@@ -223,19 +236,19 @@ namespace Composable.Messaging.Buses.Implementation
                         case ResponseType.Success:
                             var responseType = message[2].ConvertToString();
                             var responseBody = message[3].ConvertToString();
-                            return new Incoming(type: type, respondingToMessageId: messageId, resultJson: responseBody, responseType: responseType);
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: responseBody, responseType: responseType);
                         case ResponseType.Failure:
-                            return new Incoming(type: type, respondingToMessageId: messageId, resultJson: null, responseType: null);
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: message[2].ConvertToString(), responseType: null);
                         case ResponseType.Received:
-                            return new Incoming(type: type, respondingToMessageId: messageId, resultJson: null, responseType: null);
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: null, responseType: null);
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
                 }
 
-                Incoming(ResponseType type, Guid respondingToMessageId, string resultJson, string responseType)
+                Incoming(ResponseType type, Guid respondingToMessageId, string body, string responseType)
                 {
-                    _resultJson = resultJson;
+                    Body = body;
                     _responseType = responseType;
                     ResponseType = type;
                     RespondingToMessageId = respondingToMessageId;

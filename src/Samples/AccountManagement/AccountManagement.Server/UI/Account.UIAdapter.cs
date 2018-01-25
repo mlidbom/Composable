@@ -1,8 +1,10 @@
 ﻿using System;
 using AccountManagement.API;
 using AccountManagement.Domain;
+using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Passwords;
 using AccountManagement.Domain.Registration;
+using Composable.Functional;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 
@@ -11,8 +13,25 @@ namespace AccountManagement.UI
     static class AccountUIAdapter
     {
         public static void Login(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
-            (AccountResource.Commands.LogIn.UI logIn, ILocalServiceBusSession bus) =>
-                Account.Login(Email.Parse(logIn.Email), logIn.Password, bus));
+            (AccountResource.Commands.LogIn.UI logIn, ILocalServiceBusSession busSession) =>
+            {
+                var email = Email.Parse(logIn.Email);
+
+                if(busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)) is Option<Account>.Some account)
+                {
+                    switch(account.Value.Login(logIn.Password))
+                    {
+                        case AccountEvent.LoggedIn loggedIn:
+                            return AccountResource.Commands.LogIn.LoginAttemptResult.Success(loggedIn.AuthenticationToken);
+                        case AccountEvent.LoginFailed _:
+                            return AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
+                        default: throw new ArgumentOutOfRangeException();
+                    }
+                } else
+                {
+                    return AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
+                }
+            });
 
         internal static void ChangePassword(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Commands.ChangePassword command, ILocalServiceBusSession busSession) =>

@@ -80,30 +80,10 @@ namespace AccountManagement.Domain
         {
             if(Password.IsCorrectPassword(logInPassword))
             {
-                var authenticationToken = Guid.NewGuid().ToString();
-                var loggedInEvent = new AccountEvent.Implementation.LoggedIn(authenticationToken);
-                Publish(loggedInEvent);
-                return loggedInEvent;
-            }
-
-            return Publish(new AccountEvent.Implementation.LoginFailed());
-        }
-
-        internal static AccountResource.Commands.LogIn.LoginAttemptResult Login(Email email, string password, ILocalServiceBusSession busSession)
-        {
-            if(busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)) is Option<Account>.Some account)
-            {
-                switch(account.Value.Login(password))
-                {
-                    case AccountEvent.LoggedIn loggedIn:
-                        return AccountResource.Commands.LogIn.LoginAttemptResult.Success(loggedIn.AuthenticationToken);
-                    case AccountEvent.LoginFailed loginFailed:
-                        return AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
-                    default: throw new ArgumentOutOfRangeException();
-                }
+                return Publish(new AccountEvent.Implementation.LoggedIn(token: Guid.NewGuid().ToString()));
             } else
             {
-                return AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
+                return Publish(new AccountEvent.Implementation.LoginFailed());
             }
         }
     }

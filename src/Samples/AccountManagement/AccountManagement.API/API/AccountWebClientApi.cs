@@ -35,15 +35,15 @@ namespace AccountManagement.API
         {
             static readonly NavigationSpecification<StartResource.Query> Queries = Instance.Start.Select(start => start.Queries);
 
-            public NavigationSpecification<AccountResource> AccountById(Guid accountId) => Queries.Get(@this => @this.AccountById.WithId(accountId));
+            public NavigationSpecification<AccountResource> AccountById(Guid accountId) => Queries.Get(queries => queries.AccountById.WithId(accountId));
         }
 
         public class CommandsSection
         {
             static NavigationSpecification<StartResource.Command> Commands => Instance.Start.Select(start => start.Commands);
 
-            public NavigationSpecification<AccountResource.Commands.Register> Register() => Commands.Select(@this => @this.Register);
-            public NavigationSpecification<AccountResource.Commands.Register.RegistrationAttemptResult> Register(Guid accountId, string email, string password) => Commands.Post(@this =>  @this.Register.WithValues(accountId, email, password));
+            public NavigationSpecification<AccountResource.Commands.Register> Register() => Commands.Select(commands => commands.Register);
+            public NavigationSpecification<AccountResource.Commands.Register.RegistrationAttemptResult> Register(Guid accountId, string email, string password) => Commands.Post(commands =>  commands.Register.WithValues(accountId, email, password));
 
             public NavigationSpecification<AccountResource.Commands.LogIn> Login() => Commands.Select(commands => commands.Login);
             public NavigationSpecification<AccountResource.Commands.LogIn.LoginAttemptResult> Login(string email, string password) => Commands.Post(commands => commands.Login.WithValues(email, password));

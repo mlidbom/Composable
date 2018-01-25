@@ -1,17 +1,16 @@
 ﻿using System;
 using AccountManagement.API;
+using AccountManagement.Domain;
 using AccountManagement.Domain.Passwords;
 using AccountManagement.Domain.Registration;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 
-namespace AccountManagement.Domain
+namespace AccountManagement.UI
 {
-    partial class Account
+    static class AccountUIAdapter
     {
-        internal static class UIAdapter
-        {
-            public static void Login(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
+        public static void Login(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
                 (AccountResource.Commands.LogIn.UI logIn, ILocalServiceBusSession bus) =>
                     Account.Login(Email.Parse(logIn.Email), logIn.Password, bus));
 
@@ -41,6 +40,5 @@ namespace AccountManagement.Domain
             internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                 (EntityByIdQuery<AccountResource> accountQuery, ILocalServiceBusSession bus)
                     => new AccountResource(bus.Get(PrivateAccountApi.Queries.ReadOnlyCopy(accountQuery.Id))));
-        }
     }
 }

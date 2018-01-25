@@ -40,7 +40,7 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        static (RegistrationAttemptStatus Status, Account Created) Register(Guid accountId, Email email ,Password password, ILocalServiceBusSession busSession)
+        internal static (RegistrationAttemptStatus Status, Account Created) Register(Guid accountId, Email email ,Password password, ILocalServiceBusSession busSession)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
@@ -60,7 +60,7 @@ namespace AccountManagement.Domain
             return (RegistrationAttemptStatus.Successful, newAccount);
         }
 
-        void ChangePassword(string oldPassword, Password newPassword)
+        internal void ChangePassword(string oldPassword, Password newPassword)
         {
             OldContract.Argument(() => oldPassword, () => newPassword).NotNullOrDefault();
 
@@ -69,14 +69,14 @@ namespace AccountManagement.Domain
             Publish(new AccountEvent.Implementation.UserChangedPassword(newPassword));
         }
 
-        void ChangeEmail(Email email)
+        internal void ChangeEmail(Email email)
         {
             OldContract.Argument(() => email).NotNullOrDefault();
 
             Publish(new AccountEvent.Implementation.UserChangedEmail(email));
         }
 
-        AccountResource.Commands.LogIn.LoginAttemptResult Login(string logInPassword)
+        internal AccountResource.Commands.LogIn.LoginAttemptResult Login(string logInPassword)
         {
             if(Password.IsCorrectPassword(logInPassword))
             {
@@ -89,7 +89,7 @@ namespace AccountManagement.Domain
             return AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
         }
 
-        static AccountResource.Commands.LogIn.LoginAttemptResult Login(Email email, string password, ILocalServiceBusSession busSession) =>
+        internal static AccountResource.Commands.LogIn.LoginAttemptResult Login(Email email, string password, ILocalServiceBusSession busSession) =>
             busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)) is Option<Account>.Some account
                 ? account.Value.Login(password)
                 : AccountResource.Commands.LogIn.LoginAttemptResult.Failure();

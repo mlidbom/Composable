@@ -1,5 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain;
+using AccountManagement.UI;
 using AccountManagement.UI.QueryModels;
 using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Services.Implementation;
@@ -44,11 +45,11 @@ namespace AccountManagement
 
         static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            Account.UIAdapter.GetById(registrar);
-            Account.UIAdapter.Register(registrar);
-            Account.UIAdapter.ChangeEmail(registrar);
-            Account.UIAdapter.ChangePassword(registrar);
-            Account.UIAdapter.Login(registrar);
+            AccountUIAdapter.GetById(registrar);
+            AccountUIAdapter.Register(registrar);
+            AccountUIAdapter.ChangeEmail(registrar);
+            AccountUIAdapter.ChangePassword(registrar);
+            AccountUIAdapter.Login(registrar);
 
             Account.InternalServices.GetById(registrar);
             Account.InternalServices.Save(registrar);

@@ -17,7 +17,7 @@ namespace AccountManagement.UI
             {
                 var email = Email.Parse(logIn.Email);
 
-                if(busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)) is Option<Account>.Some account)
+                if(busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)) is Some<Account> account)
                 {
                     switch(account.Value.Login(logIn.Password))
                     {

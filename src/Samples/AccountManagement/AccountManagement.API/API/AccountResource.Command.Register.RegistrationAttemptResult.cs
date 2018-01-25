@@ -1,4 +1,5 @@
-﻿using Composable.Contracts;
+﻿using AccountManagement.Domain;
+using Composable.Contracts;
 using Newtonsoft.Json;
 
 // ReSharper disable MemberCanBeMadeStatic.Global Because we want these members to be accessed through the fluent API we don't want to make them static.
@@ -13,22 +14,16 @@ namespace AccountManagement.API
             {
                 public class RegistrationAttemptResult
                 {
-                    [JsonConstructor]internal RegistrationAttemptResult(Statuses status, AccountResource registeredAccount)
+                    [JsonConstructor]internal RegistrationAttemptResult(RegistrationAttemptStatus status, AccountResource registeredAccount)
                     {
-                        Contract.Argument.Assert(status != Statuses.Successful || registeredAccount != null);
+                        Contract.Argument.Assert(status != RegistrationAttemptStatus.Successful || registeredAccount != null);
                         Status = status;
                         RegisteredAccount = registeredAccount;
                     }
 
-                    public Statuses Status { get; private set; }
+                    public RegistrationAttemptStatus Status { get; private set; }
                     public AccountResource RegisteredAccount { get; private set; }
-
-                    public enum Statuses
-                    {
-                        Successful = 1,
-                        EmailAlreadyRegistered = 2
-                    }
-                } 
+                }
             }
         }
     }

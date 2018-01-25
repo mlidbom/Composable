@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AccountManagement.Domain.Extensions
+namespace AccountManagement.Extensions
 {
     static class CollectionExtensions
     {

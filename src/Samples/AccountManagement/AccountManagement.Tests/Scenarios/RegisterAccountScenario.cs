@@ -1,5 +1,6 @@
 using System;
 using AccountManagement.API;
+using AccountManagement.Domain;
 using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
@@ -26,9 +27,9 @@ namespace AccountManagement.Tests.Scenarios
 
             switch(result.Status)
             {
-                case AccountResource.Commands.Register.RegistrationAttemptResult.Statuses.Successful:
+                case RegistrationAttemptStatus.Successful:
                     return (result, Api.Query.AccountById(AccountId).ExecuteAsRequestOn(_clientEndpoint));
-                case AccountResource.Commands.Register.RegistrationAttemptResult.Statuses.EmailAlreadyRegistered:
+                case RegistrationAttemptStatus.EmailAlreadyRegistered:
                     return (result, null);
                 default:
                     throw new ArgumentOutOfRangeException();

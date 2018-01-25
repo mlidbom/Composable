@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AccountManagement.Domain.Extensions;
+using AccountManagement.Extensions;
 
 namespace AccountManagement.Domain
 {

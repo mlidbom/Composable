@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using AccountManagement.API;
+using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.Tests.Scenarios;
 using FluentAssertions;
@@ -17,7 +18,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         {
             _registerAccountScenario = new RegisterAccountScenario(ClientEndpoint);
             (_result, _registeredAccount) = _registerAccountScenario.Execute();
-            _result.Status.Should().Be(AccountResource.Commands.Register.RegistrationAttemptResult.Statuses.Successful);
+            _result.Status.Should().Be(RegistrationAttemptStatus.Successful);
         }
 
         [Test] public void An_IUserRegisteredAccountEvent_is_published() => EventSpy.DispatchedMessages.OfType<AccountEvent.UserRegistered>().ToList().Should().HaveCount(1);
@@ -48,7 +49,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
             var scenario = new RegisterAccountScenario(ClientEndpoint, email: _registerAccountScenario.Email);
 
             var (result, _) = scenario.Execute();
-            result.Status.Should().Be(AccountResource.Commands.Register.RegistrationAttemptResult.Statuses.EmailAlreadyRegistered);
+            result.Status.Should().Be(RegistrationAttemptStatus.EmailAlreadyRegistered);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace AccountManagement.Domain.Events
                 /// Once again we are saved from doing work here by using value objects for <see cref="Email"/> and <see cref="Password"/>
                 /// The base class will ensure that the GUID is not empty.
                 /// </summary>
-                public UserRegistered(Guid accountId, Email email, Password password) : base(accountId)
+                public UserRegistered(Guid accountId, Email email, HashedPassword password) : base(accountId)
                 {
                     Contract.Argument.Assert(email != null, password != null);
 
@@ -37,7 +37,7 @@ namespace AccountManagement.Domain.Events
                 }
 
                 public Email Email { get; private set; }
-                public Password Password { get; private set; }
+                public HashedPassword Password { get; private set; }
             }
 
             public class UserChangedEmail : Root, AccountEvent.UserChangedEmail
@@ -49,9 +49,9 @@ namespace AccountManagement.Domain.Events
 
             public class UserChangedPassword : Root, AccountEvent.UserChangedPassword
             {
-                public UserChangedPassword(Password password) => Password = password;
+                public UserChangedPassword(HashedPassword password) => Password = password;
 
-                public Password Password { get; private set; }
+                public HashedPassword Password { get; private set; }
             }
 
             public class LoggedIn : Root, AccountEvent.LoggedIn

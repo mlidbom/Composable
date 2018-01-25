@@ -25,6 +25,6 @@ namespace AccountManagement.Tests.Scenarios
             _clientEndpoint = clientEndpoint;
         }
 
-        public AccountResource.Commands.LogIn.LoginAttemptResult Execute() => Api.Command.Login(Email, Password).ExecuteAsRequestOn(_clientEndpoint);
+        public AccountResource.Command.LogIn.LoginAttemptResult Execute() => Api.Command.Login(Email, Password).ExecuteAsRequestOn(_clientEndpoint);
     }
 }

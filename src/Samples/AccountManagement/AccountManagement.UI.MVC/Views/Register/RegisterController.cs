@@ -13,7 +13,7 @@ namespace AccountManagement.UI.MVC.Views.Register
         readonly IServiceBusSession _bus;
         public RegisterController(IServiceBusSession remoteServiceBusSession) => _bus = remoteServiceBusSession;
 
-        public IActionResult Register(AccountResource.Commands.Register registrationCommand)
+        public IActionResult Register(AccountResource.Command.Register registrationCommand)
         {
             if(!ModelState.IsValid) return View("RegistrationForm");
 

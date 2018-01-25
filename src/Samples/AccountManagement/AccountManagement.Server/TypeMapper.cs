@@ -11,10 +11,10 @@ namespace AccountManagement
         public static void MapTypes(ITypeMappingRegistar typeMapper)
         {
             typeMapper
-               .Map<API.AccountResource.Commands.ChangeEmail>("f38f0473-e0cc-4ef7-9ff6-4e99da03a39e")
-               .Map<API.AccountResource.Commands.Register>("1C8342B3-1302-40D1-BD54-1333A47F756F")
-               .Map<API.AccountResource.Commands.ChangePassword>("077F075B-64A3-4E02-B435-F04B19F6C98D")
-               .Map<API.AccountResource.Commands.LogIn>("90689406-de88-43da-be17-0fb93692f6ad")
+               .Map<API.AccountResource.Command.ChangeEmail>("f38f0473-e0cc-4ef7-9ff6-4e99da03a39e")
+               .Map<API.AccountResource.Command.Register>("1C8342B3-1302-40D1-BD54-1333A47F756F")
+               .Map<API.AccountResource.Command.ChangePassword>("077F075B-64A3-4E02-B435-F04B19F6C98D")
+               .Map<API.AccountResource.Command.LogIn>("90689406-de88-43da-be17-0fb93692f6ad")
                .Map<Composable.Messaging.EntityByIdQuery<API.AccountResource>>("bc9a5aa6-bbbc-4e0f-841f-ad77d40a483f")
                .Map<AccountApi.Query.TryGetByEmailQuery>("4cf7d647-e5cf-4961-989c-e9f128207a9e")
                .Map<Domain.Account>("c2ca53e0-ee6d-4725-8bf8-c13b680d0ac5")

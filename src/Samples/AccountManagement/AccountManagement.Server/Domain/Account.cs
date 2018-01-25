@@ -15,7 +15,7 @@ namespace AccountManagement.Domain
     partial class Account : Aggregate<Account, AccountEvent.Implementation.Root, AccountEvent.Root>, IAccountResourceData
     {
         public Email Email { get; private set; } //Never public setters on an aggregate.
-        public Password Password { get; private set; } //Never public setters on an aggregate.
+        public HashedPassword Password { get; private set; } //Never public setters on an aggregate.
 
         //No public constructors please. Aggregates are created through domain verbs.
         //Expose named factory methods that ensure the instance is valid instead. See register method below.
@@ -40,7 +40,7 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        internal static (RegistrationAttemptStatus Status, Account Created) Register(Guid accountId, Email email ,Password password, ILocalServiceBusSession busSession)
+        internal static (RegistrationAttemptStatus Status, Account Created) Register(Guid accountId, Email email ,HashedPassword password, ILocalServiceBusSession busSession)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
@@ -60,7 +60,7 @@ namespace AccountManagement.Domain
             return (RegistrationAttemptStatus.Successful, newAccount);
         }
 
-        internal void ChangePassword(string oldPassword, Password newPassword)
+        internal void ChangePassword(string oldPassword, HashedPassword newPassword)
         {
             OldContract.Argument(() => oldPassword, () => newPassword).NotNullOrDefault();
 

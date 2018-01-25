@@ -22,7 +22,7 @@ namespace AccountManagement.Tests.Scenarios
             Email = email ?? TestData.Email.CreateValidEmail().ToString();
         }
 
-        public (AccountResource.Commands.Register.RegistrationAttemptResult Result, AccountResource Account) Execute()
+        public (AccountResource.Command.Register.RegistrationAttemptResult Result, AccountResource Account) Execute()
         {
             var result = _clientEndpoint.ExecuteRequest(Api.Command.Register(AccountId, Email, Password));
 

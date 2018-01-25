@@ -42,11 +42,11 @@ namespace AccountManagement.API
         {
             static NavigationSpecification<StartResource.Command> Commands => Instance.Start.Select(start => start.Commands);
 
-            public NavigationSpecification<AccountResource.Commands.Register> Register() => Commands.Select(commands => commands.Register);
-            public NavigationSpecification<AccountResource.Commands.Register.RegistrationAttemptResult> Register(Guid accountId, string email, string password) => Commands.Post(commands =>  commands.Register.WithValues(accountId, email, password));
+            public NavigationSpecification<AccountResource.Command.Register> Register() => Commands.Select(commands => commands.Register);
+            public NavigationSpecification<AccountResource.Command.Register.RegistrationAttemptResult> Register(Guid accountId, string email, string password) => Commands.Post(commands =>  commands.Register.WithValues(accountId, email, password));
 
-            public NavigationSpecification<AccountResource.Commands.LogIn> Login() => Commands.Select(commands => commands.Login);
-            public NavigationSpecification<AccountResource.Commands.LogIn.LoginAttemptResult> Login(string email, string password) => Commands.Post(commands => commands.Login.WithValues(email, password));
+            public NavigationSpecification<AccountResource.Command.LogIn> Login() => Commands.Select(commands => commands.Login);
+            public NavigationSpecification<AccountResource.Command.LogIn.LoginAttemptResult> Login(string email, string password) => Commands.Post(commands => commands.Login.WithValues(email, password));
         }
     }
 }

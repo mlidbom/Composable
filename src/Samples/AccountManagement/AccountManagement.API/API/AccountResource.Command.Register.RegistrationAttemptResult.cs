@@ -9,7 +9,7 @@ namespace AccountManagement.API
 {
     public partial class AccountResource
     {
-        public static partial class Commands
+        public static partial class Command
         {
             public partial class Register
             {

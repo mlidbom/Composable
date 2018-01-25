@@ -31,7 +31,7 @@ namespace AccountManagement.Domain.Events
         {
             public interface Password : AccountEvent.Root
             {
-                Passwords.Password Password { get; /* Never add a setter! */ }
+                Passwords.HashedPassword Password { get; /* Never add a setter! */ }
             }
 
             public interface Email : AccountEvent.Root

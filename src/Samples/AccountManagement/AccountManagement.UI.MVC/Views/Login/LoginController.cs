@@ -10,7 +10,7 @@ namespace AccountManagement.UI.MVC.Views.Login
         readonly IServiceBusSession _bus;
         public LoginController(IServiceBusSession remoteServiceBusSession) => _bus = remoteServiceBusSession;
 
-        public IActionResult Login(AccountResource.Commands.LogIn loginCommand)
+        public IActionResult Login(AccountResource.Command.LogIn loginCommand)
         {
             if(!ModelState.IsValid) return View("LoginForm");
 

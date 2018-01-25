@@ -16,8 +16,8 @@ namespace AccountManagement.API
 
         public class Command
         {
-            public AccountResource.Commands.LogIn Login { get; private set; } = new AccountResource.Commands.LogIn();
-            public AccountResource.Commands.Register Register { get; private set; } = new AccountResource.Commands.Register();
+            public AccountResource.Command.LogIn Login { get; private set; } = new AccountResource.Command.LogIn();
+            public AccountResource.Command.Register Register { get; private set; } = new AccountResource.Command.Register();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace AccountManagement.UI.QueryModels
 
     partial class AccountQueryModel : ISingleAggregateQueryModel
     {
-        public Password Password { get; private set; }
+        public HashedPassword Password { get; private set; }
         public Email Email { get; private set; }
         public Guid Id { get; private set; }
 

@@ -5,7 +5,7 @@ using Composable.Contracts;
 
 namespace AccountManagement.Domain.Passwords
 {
-    public partial class Password
+    public partial class HashedPassword
     {
         //Use a private nested class to the Password class short and readable while keeping the hashing logic private.
         static class PasswordHasher

@@ -13,7 +13,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
     {
         AccountResource _registeredAccount;
         RegisterAccountScenario _registerAccountScenario;
-        AccountResource.Commands.Register.RegistrationAttemptResult _result;
+        AccountResource.Command.Register.RegistrationAttemptResult _result;
 
         [SetUp] public void RegisterAccount()
         {

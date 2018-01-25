@@ -9,7 +9,7 @@ namespace AccountManagement.API
     {
         public static partial class Commands
         {
-            public class LogIn : ExactlyOnceCommand<LogIn.LoginAttemptResult>
+            public partial class LogIn : ExactlyOnceCommand<LogIn.LoginAttemptResult>
             {
                     [Required] [Email] public string Email { get; set; }
                     [Required] public string Password { get; set; }
@@ -19,23 +19,6 @@ namespace AccountManagement.API
                                                                                Email = email,
                                                                                Password = password
                                                                            };
-
-                public class LoginAttemptResult
-                {
-                    public string AuthenticationToken { get; private set; }
-                    public bool Succeeded { get; private set; }
-
-                    public static LoginAttemptResult Success(string authenticationToken) => new LoginAttemptResult()
-                                                                                            {
-                                                                                                AuthenticationToken = authenticationToken,
-                                                                                                Succeeded = true
-                                                                                            };
-
-                    public static LoginAttemptResult Failure() => new LoginAttemptResult()
-                                                                  {
-                                                                      Succeeded = false
-                                                                  };
-                }
             }
         }
     }

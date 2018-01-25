@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
+using AccountManagement.API;
 using AccountManagement.Extensions;
+using Composable.System.ComponentModel.DataAnnotations;
 
 namespace AccountManagement.Domain.Passwords
 {
@@ -45,6 +49,34 @@ namespace AccountManagement.Domain.Passwords
                 MissingLowerCaseCharacter = 4,
                 ShorterThanFourCharacters = 8,
                 BorderedByWhitespace = 16
+            }
+
+            // ReSharper disable once MemberHidesStaticFromOuterClass
+            internal static IEnumerable<ValidationResult> Validate(string password, IValidatableObject owner, Expression<Func<object>> passwordMember)
+            {
+                var policyFailures = Password.Policy.GetPolicyFailures(password).ToList();
+                if (policyFailures.Any())
+                {
+                    switch (policyFailures.First())
+                    {
+                        case Password.Policy.Failures.BorderedByWhitespace:
+                            yield return owner.CreateValidationResult(RegisterAccountCommandResources.Password_BorderedByWhitespace, passwordMember);
+                            break;
+                        case Password.Policy.Failures.MissingLowerCaseCharacter:
+                            yield return owner.CreateValidationResult(RegisterAccountCommandResources.Password_MissingLowerCaseCharacter, passwordMember);
+                            break;
+                        case Password.Policy.Failures.MissingUppercaseCharacter:
+                            yield return owner.CreateValidationResult(RegisterAccountCommandResources.Password_MissingUpperCaseCharacter, passwordMember);
+                            break;
+                        case Password.Policy.Failures.ShorterThanFourCharacters:
+                            yield return owner.CreateValidationResult(RegisterAccountCommandResources.Password_ShorterThanFourCharacters, passwordMember);
+                            break;
+                        case Password.Policy.Failures.Null:
+                            throw new Exception("Null should have been caught by the Required attribute");
+                        default:
+                            throw new Exception($"Unknown password failure type {policyFailures.First()}");
+                    }
+                }
             }
         }
     }

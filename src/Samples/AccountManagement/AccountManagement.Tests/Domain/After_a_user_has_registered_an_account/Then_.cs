@@ -17,7 +17,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         {
             _registerAccountScenario = new RegisterAccountScenario(ClientEndpoint);
             (_result, _registeredAccount) = _registerAccountScenario.Execute();
-            _result.Should().Be(AccountResource.Commands.Register.RegistrationAttemptResult.Successful);
+            _result.Status.Should().Be(AccountResource.Commands.Register.RegistrationAttemptResult.Statuses.Successful);
         }
 
         [Test] public void An_IUserRegisteredAccountEvent_is_published() => EventSpy.DispatchedMessages.OfType<AccountEvent.UserRegistered>().ToList().Should().HaveCount(1);
@@ -48,7 +48,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
             var scenario = new RegisterAccountScenario(ClientEndpoint, email: _registerAccountScenario.Email);
 
             var (result, _) = scenario.Execute();
-            result.Should().Be(AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered);
+            result.Status.Should().Be(AccountResource.Commands.Register.RegistrationAttemptResult.Statuses.EmailAlreadyRegistered);
         }
     }
 }

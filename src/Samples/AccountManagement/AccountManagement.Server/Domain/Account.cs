@@ -48,7 +48,7 @@ namespace AccountManagement.Domain
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
             if(busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)).HasValue)
             {
-                return AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
+                return new AccountResource.Commands.Register.RegistrationAttemptResult(AccountResource.Commands.Register.RegistrationAttemptResult.Statuses.EmailAlreadyRegistered, null);
             }
 
             var newAccount = new Account();
@@ -56,7 +56,7 @@ namespace AccountManagement.Domain
 
             busSession.Post(PrivateAccountApi.Commands.SaveNew(newAccount));
 
-            return AccountResource.Commands.Register.RegistrationAttemptResult.Successful;
+            return new AccountResource.Commands.Register.RegistrationAttemptResult(AccountResource.Commands.Register.RegistrationAttemptResult.Statuses.Successful, new AccountResource(newAccount));
         }
 
         void ChangePassword(string oldPassword, Password newPassword)

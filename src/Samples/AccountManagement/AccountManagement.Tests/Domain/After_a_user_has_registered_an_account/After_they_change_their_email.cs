@@ -35,7 +35,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
 
         [Test] public void Attempting_to_register_an_account_with_the_new_email_fails_with_email_already_registered_message() =>
             new RegisterAccountScenario(ClientEndpoint, email: _changeEmailScenario.NewEmail).Execute()
-            .Result
-            .Should().Be(AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered);
+            .Result.Status
+            .Should().Be(AccountResource.Commands.Register.RegistrationAttemptResult.Statuses.EmailAlreadyRegistered);
     }
 }

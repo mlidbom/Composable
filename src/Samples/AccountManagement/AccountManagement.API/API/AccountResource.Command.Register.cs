@@ -13,7 +13,7 @@ namespace AccountManagement.API
     {
         public static partial class Commands
         {
-            public class Register : ExactlyOnceCommand<Register.RegistrationAttemptResult>, IValidatableObject
+            public partial class Register : ExactlyOnceCommand<Register.RegistrationAttemptResult>, IValidatableObject
             {
                 public Register() {}
                 public Register(Guid accountId, string email, string password)
@@ -36,12 +36,6 @@ namespace AccountManagement.API
                 public string Password { get; set; }
 
                 public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Password.Validate(Password, this, () => Password);
-
-                public enum RegistrationAttemptResult
-                {
-                    Successful = 1,
-                    EmailAlreadyRegistered = 2
-                }
 
                 internal IExactlyOnceCommand<RegistrationAttemptResult> WithValues(Guid accountId, string email, string password) => new Register(accountId, email, password);
             }

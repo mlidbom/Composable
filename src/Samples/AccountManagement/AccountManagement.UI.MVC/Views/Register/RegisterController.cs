@@ -16,11 +16,11 @@ namespace AccountManagement.UI.MVC.Views.Register
             if(!ModelState.IsValid) return View("RegistrationForm");
 
             var result = registrationCommand.PostOn(_bus);
-            switch(result)
+            switch(result.Status)
             {
-                case AccountResource.Commands.Register.RegistrationAttemptResult.Successful:
-                    return View("ValidateYourEmail", Api.Accounts.Query.AccountById(registrationCommand.AccountId).ExecuteOn(_bus));
-                case AccountResource.Commands.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
+                case AccountResource.Commands.Register.RegistrationAttemptResult.Statuses.Successful:
+                    return View("ValidateYourEmail", result.RegisteredAccount);
+                case AccountResource.Commands.Register.RegistrationAttemptResult.Statuses.EmailAlreadyRegistered:
                     ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
                     return View("RegistrationForm");
                 default:

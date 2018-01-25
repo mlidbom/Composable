@@ -2,6 +2,7 @@
 using AccountManagement.API;
 using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
+using AccountManagement.Domain.Registration;
 using AccountManagement.Tests.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;

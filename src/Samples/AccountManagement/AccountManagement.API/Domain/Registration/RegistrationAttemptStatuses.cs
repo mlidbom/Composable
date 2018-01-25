@@ -1,4 +1,4 @@
-﻿namespace AccountManagement.Domain
+﻿namespace AccountManagement.Domain.Registration
 {
     public enum RegistrationAttemptStatus
     {

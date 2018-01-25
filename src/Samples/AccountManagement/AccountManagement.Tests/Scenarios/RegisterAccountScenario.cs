@@ -1,6 +1,7 @@
 using System;
 using AccountManagement.API;
 using AccountManagement.Domain;
+using AccountManagement.Domain.Registration;
 using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios

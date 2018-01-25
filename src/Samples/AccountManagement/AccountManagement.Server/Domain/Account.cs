@@ -40,7 +40,7 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        static AccountResource.Commands.Register.RegistrationAttemptResult Register(Guid accountId, Email email ,Password password, ILocalServiceBusSession busSession)
+        static (RegistrationAttemptStatus Status, Account Created) Register(Guid accountId, Email email ,Password password, ILocalServiceBusSession busSession)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
@@ -49,7 +49,7 @@ namespace AccountManagement.Domain
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
             if(busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)).HasValue)
             {
-                return new AccountResource.Commands.Register.RegistrationAttemptResult(RegistrationAttemptStatus.EmailAlreadyRegistered, null);
+                return (RegistrationAttemptStatus.EmailAlreadyRegistered, null);
             }
 
             var newAccount = new Account();
@@ -57,7 +57,7 @@ namespace AccountManagement.Domain
 
             busSession.Post(PrivateAccountApi.Commands.SaveNew(newAccount));
 
-            return new AccountResource.Commands.Register.RegistrationAttemptResult(RegistrationAttemptStatus.Successful, new AccountResource(newAccount));
+            return (RegistrationAttemptStatus.Successful, newAccount);
         }
 
         void ChangePassword(string oldPassword, Password newPassword)

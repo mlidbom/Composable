@@ -76,22 +76,35 @@ namespace AccountManagement.Domain
             Publish(new AccountEvent.Implementation.UserChangedEmail(email));
         }
 
-        internal AccountResource.Commands.LogIn.LoginAttemptResult Login(string logInPassword)
+        internal AccountEvent.LoginAttempted Login(string logInPassword)
         {
             if(Password.IsCorrectPassword(logInPassword))
             {
                 var authenticationToken = Guid.NewGuid().ToString();
-                Publish(new AccountEvent.Implementation.LoggedIn(authenticationToken));
-                return AccountResource.Commands.LogIn.LoginAttemptResult.Success(authenticationToken);
+                var loggedInEvent = new AccountEvent.Implementation.LoggedIn(authenticationToken);
+                Publish(loggedInEvent);
+                return loggedInEvent;
             }
 
-            Publish(new AccountEvent.Implementation.LoginFailed());
-            return AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
+            return Publish(new AccountEvent.Implementation.LoginFailed());
         }
 
-        internal static AccountResource.Commands.LogIn.LoginAttemptResult Login(Email email, string password, ILocalServiceBusSession busSession) =>
-            busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)) is Option<Account>.Some account
-                ? account.Value.Login(password)
-                : AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
+        internal static AccountResource.Commands.LogIn.LoginAttemptResult Login(Email email, string password, ILocalServiceBusSession busSession)
+        {
+            if(busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)) is Option<Account>.Some account)
+            {
+                switch(account.Value.Login(password))
+                {
+                    case AccountEvent.LoggedIn loggedIn:
+                        return AccountResource.Commands.LogIn.LoginAttemptResult.Success(loggedIn.AuthenticationToken);
+                    case AccountEvent.LoginFailed loginFailed:
+                        return AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
+                    default: throw new ArgumentOutOfRangeException();
+                }
+            } else
+            {
+                return AccountResource.Commands.LogIn.LoginAttemptResult.Failure();
+            }
+        }
     }
 }

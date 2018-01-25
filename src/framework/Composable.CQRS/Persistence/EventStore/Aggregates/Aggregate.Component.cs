@@ -32,7 +32,7 @@ namespace Composable.Persistence.EventStore.Aggregates
             protected Component(TAggregate aggregate)
                 : this(
                     timeSource: aggregate.TimeSource,
-                    raiseEventThroughParent: aggregate.Publish,
+                    raiseEventThroughParent: @event => aggregate.Publish(@event),
                     appliersRegistrar: aggregate.RegisterEventAppliers(),
                     registerEventAppliers: true)
             {}

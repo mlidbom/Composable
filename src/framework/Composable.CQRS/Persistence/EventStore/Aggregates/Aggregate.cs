@@ -39,7 +39,9 @@ namespace Composable.Persistence.EventStore.Aggregates
         int _raiseEventReentrancyLevel = 0;
         List<TAggregateEventImplementation> _raiseEventUnpushedEvents = new List<TAggregateEventImplementation>();
         bool _applyingEvents;
-        protected void Publish(TAggregateEventImplementation theEvent)
+
+        protected TEvent Publish<TEvent>(TEvent theEvent)
+        where TEvent : TAggregateEventImplementation
         {
             OldContract.Assert.That(!_applyingEvents, "You cannot raise events from within event appliers");
 
@@ -92,6 +94,8 @@ namespace Composable.Persistence.EventStore.Aggregates
                 }
                 _raiseEventUnpushedEvents.Clear();
             }
+
+            return theEvent;
         }
 
         protected IEventHandlerRegistrar<TAggregateEvent> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();

@@ -40,12 +40,16 @@ namespace AccountManagement.Domain.Events
             }
         }
 
-        public interface LoggedIn : AccountEvent.Root
+        public interface LoginAttempted : AccountEvent.Root
+        {
+        }
+
+        public interface LoggedIn : LoginAttempted
         {
             string AuthenticationToken { get; }
         }
 
-        public interface LoginFailed : AccountEvent.Root
+        public interface LoginFailed : LoginAttempted
         {
         }
     }

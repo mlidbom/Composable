@@ -6,6 +6,7 @@ using Composable.Messaging.Events;
 using Composable.Refactoring.Naming;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
+using Composable.System.Reflection;
 
 namespace Composable.Messaging.Buses
 {
@@ -37,6 +38,12 @@ namespace Composable.Messaging.Buses
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForCommand<TCommand>(Action<TCommand> handler)
         {
             MessageInspector.AssertValid<TCommand>();
+
+            if(typeof(TCommand).Implements(typeof(IExactlyOnceCommand<>)))
+            {
+                throw new Exception($"{typeof(TCommand)} expects a result. You must register a method that returns a result.");
+            }
+
             lock(_lock)
             {
                 Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));

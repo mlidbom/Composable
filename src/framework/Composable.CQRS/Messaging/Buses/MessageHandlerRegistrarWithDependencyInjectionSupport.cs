@@ -15,6 +15,8 @@ namespace Composable.Messaging.Buses
         internal IMessageHandlerRegistrar Register { get; }
 
         internal IServiceLocator ServiceLocator { get; }
+
+        internal TService Resolve<TService>() where TService : class => ServiceLocator.Resolve<TService>();
     }
 
     public static class MessageHandlerRegistrarWithDependencyInjectionSupportExtensions
@@ -40,7 +42,7 @@ namespace Composable.Messaging.Buses
             Func<TCommand, TDependency1, TResult> action) where TCommand : IExactlyOnceCommand<TResult>
                                                           where TDependency1 : class
         {
-            @this.Register.ForCommand<TCommand, TResult>(command => action(command, @this.ServiceLocator.Resolve<TDependency1>()));
+            @this.Register.ForCommand<TCommand, TResult>(command => action(command, @this.Resolve<TDependency1>()));
             return @this;
         }
 
@@ -50,7 +52,8 @@ namespace Composable.Messaging.Buses
                                                                         where TDependency1 : class
                                                                         where TDependency2 : class
         {
-            return @this.ForCommandWithResult<TCommand, TDependency1, TResult>((command, d1) => action(command, d1, @this.ServiceLocator.Resolve<TDependency2>()));
+            @this.Register.ForCommand<TCommand, TResult>(command => action(command, @this.Resolve<TDependency1>(), @this.Resolve<TDependency2>()));
+            return @this;
         }
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TDependency1>(
@@ -58,12 +61,7 @@ namespace Composable.Messaging.Buses
             Action<TCommand, TDependency1> action) where TCommand : IExactlyOnceCommand
                                                    where TDependency1 : class
         {
-            if(typeof(TCommand).Implements(typeof(IExactlyOnceCommand<>)))
-            {
-                throw new Exception($"{typeof(TCommand)} expects a result. You must register a method that returns a result.");
-            }
-
-            @this.ForCommand<TCommand>(command => action(command, @this.ServiceLocator.Resolve<TDependency1>()));
+            @this.ForCommand<TCommand>(command => action(command, @this.Resolve<TDependency1>()));
             return @this;
         }
 
@@ -73,7 +71,7 @@ namespace Composable.Messaging.Buses
                                                                  where TDependency1 : class
                                                                  where TDependency2 : class
         {
-            return @this.ForCommand<TCommand, TDependency1>((command, d1) => action(command, d1, @this.ServiceLocator.Resolve<TDependency2>()));
+            return @this.ForCommand<TCommand, TDependency1>((command, d1) => action(command, d1, @this.Resolve<TDependency2>()));
         }
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent>(
@@ -89,7 +87,7 @@ namespace Composable.Messaging.Buses
             Action<TEvent, TDependency1> action) where TEvent : IExactlyOnceEvent
                                                  where TDependency1 : class
         {
-            @this.ForEvent<TEvent>(command => action(command, @this.ServiceLocator.Resolve<TDependency1>()));
+            @this.ForEvent<TEvent>(command => action(command, @this.Resolve<TDependency1>()));
             return @this;
         }
 
@@ -99,7 +97,7 @@ namespace Composable.Messaging.Buses
                                                                where TDependency1 : class
                                                                where TDependency2 : class
         {
-            return @this.ForEvent<TEvent, TDependency1>((command, dep1) => action(command, dep1, @this.ServiceLocator.Resolve<TDependency2>()));
+            return @this.ForEvent<TEvent, TDependency1>((command, dep1) => action(command, dep1, @this.Resolve<TDependency2>()));
         }
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent, TDependency1, TDependency2, TDependency3>(
@@ -109,7 +107,7 @@ namespace Composable.Messaging.Buses
                                                                where TDependency2 : class
                                                                              where TDependency3 : class
         {
-            return @this.ForEvent<TEvent, TDependency1, TDependency2> ((command, dep1, dep2) => action(command, dep1, dep2, @this.ServiceLocator.Resolve<TDependency3>()));
+            return @this.ForEvent<TEvent, TDependency1, TDependency2> ((command, dep1, dep2) => action(command, dep1, dep2, @this.Resolve<TDependency3>()));
         }
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TResult>(
@@ -125,7 +123,7 @@ namespace Composable.Messaging.Buses
             Func<TQuery, TDependency1, TResult> action) where TQuery : IQuery<TResult>
                                                         where TDependency1 : class
         {
-            @this.Register.ForQuery<TQuery, TResult>(query => action(query, @this.ServiceLocator.Resolve<TDependency1>()));
+            @this.Register.ForQuery<TQuery, TResult>(query => action(query, @this.Resolve<TDependency1>()));
             return @this;
         }
 
@@ -135,7 +133,7 @@ namespace Composable.Messaging.Buses
                                                         where TDependency1 : class
                                                         where TDependency2 : class
         {
-            return @this.ForQuery<TQuery, TDependency1, TResult>((query, d1) => action(query, d1, @this.ServiceLocator.Resolve<TDependency2>()));
+            return @this.ForQuery<TQuery, TDependency1, TResult>((query, d1) => action(query, d1, @this.Resolve<TDependency2>()));
         }
     }
 }

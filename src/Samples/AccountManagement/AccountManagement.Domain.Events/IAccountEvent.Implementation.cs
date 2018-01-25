@@ -1,4 +1,5 @@
 ﻿using System;
+using AccountManagement.Domain.Passwords;
 using Composable.Contracts;
 using Composable.Persistence.EventStore;
 using JetBrains.Annotations;

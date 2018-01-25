@@ -1,4 +1,5 @@
 ﻿using AccountManagement.API;
+using AccountManagement.Domain.Passwords;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 

@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Composable.Contracts;
 
-namespace AccountManagement.Domain
+namespace AccountManagement.Domain.Passwords
 {
     public partial class Password
     {

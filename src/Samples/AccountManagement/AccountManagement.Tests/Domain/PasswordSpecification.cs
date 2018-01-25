@@ -1,4 +1,5 @@
 ﻿using AccountManagement.Domain;
+using AccountManagement.Domain.Passwords;
 using FluentAssertions;
 using NUnit.Framework;
 // ReSharper disable InconsistentNaming

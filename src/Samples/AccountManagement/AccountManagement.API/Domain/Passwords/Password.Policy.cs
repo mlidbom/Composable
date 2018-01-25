@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AccountManagement.Extensions;
 
-namespace AccountManagement.Domain
+namespace AccountManagement.Domain.Passwords
 {
     public partial class Password
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using AccountManagement.API;
 using AccountManagement.Domain.Events;
+using AccountManagement.Domain.Passwords;
 using AccountManagement.Domain.Registration;
 using Composable.Contracts;
 using Composable.Functional;

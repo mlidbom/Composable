@@ -7,7 +7,7 @@ using AccountManagement.API;
 using Composable.System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
 
-namespace AccountManagement.Domain
+namespace AccountManagement.Domain.Passwords
 {
     /// <summary>
     /// Note how all the business logic of a secure password is encapsulated and the instance is immutable after being created.
@@ -42,24 +42,24 @@ namespace AccountManagement.Domain
 
         public static IEnumerable<ValidationResult> Validate(string password, IValidatableObject owner, Expression<Func<object>> passwordMember)
         {
-            var policyFailures = Domain.Password.Policy.GetPolicyFailures(password).ToList();
+            var policyFailures = Password.Policy.GetPolicyFailures(password).ToList();
             if (policyFailures.Any())
             {
                 switch (policyFailures.First())
                 {
-                    case Domain.Password.Policy.Failures.BorderedByWhitespace:
+                    case Password.Policy.Failures.BorderedByWhitespace:
                         yield return owner.CreateValidationResult(RegisterAccountCommandResources.Password_BorderedByWhitespace, passwordMember);
                         break;
-                    case Domain.Password.Policy.Failures.MissingLowerCaseCharacter:
+                    case Password.Policy.Failures.MissingLowerCaseCharacter:
                         yield return owner.CreateValidationResult(RegisterAccountCommandResources.Password_MissingLowerCaseCharacter, passwordMember);
                         break;
-                    case Domain.Password.Policy.Failures.MissingUppercaseCharacter:
+                    case Password.Policy.Failures.MissingUppercaseCharacter:
                         yield return owner.CreateValidationResult(RegisterAccountCommandResources.Password_MissingUpperCaseCharacter, passwordMember);
                         break;
-                    case Domain.Password.Policy.Failures.ShorterThanFourCharacters:
+                    case Password.Policy.Failures.ShorterThanFourCharacters:
                         yield return owner.CreateValidationResult(RegisterAccountCommandResources.Password_ShorterThanFourCharacters, passwordMember);
                         break;
-                    case Domain.Password.Policy.Failures.Null:
+                    case Password.Policy.Failures.Null:
                         throw new Exception("Null should have been caught by the Required attribute");
                     default:
                         throw new Exception($"Unknown password failure type {policyFailures.First()}");

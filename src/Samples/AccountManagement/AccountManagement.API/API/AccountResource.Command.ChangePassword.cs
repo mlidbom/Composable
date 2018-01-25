@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
-using AccountManagement.Domain;
+using AccountManagement.Domain.Passwords;
 using Composable.Messaging.Commands;
 
 namespace AccountManagement.API

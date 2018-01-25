@@ -1,5 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain;
+using AccountManagement.Domain.Passwords;
 
 namespace AccountManagement.API
 {

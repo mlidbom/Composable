@@ -1,4 +1,5 @@
 ﻿using AccountManagement.Domain;
+using AccountManagement.Domain.Passwords;
 using Composable.Messaging;
 using JetBrains.Annotations;
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using AccountManagement.Domain;
-using AccountManagement.Domain.QueryModels;
 using AccountManagement.UI.QueryModels;
 using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Services.Implementation;

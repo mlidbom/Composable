@@ -5,7 +5,7 @@ using Composable.Messaging.Buses;
 using Composable.Persistence.DocumentDb;
 using JetBrains.Annotations;
 
-namespace AccountManagement.Domain.QueryModels
+namespace AccountManagement.Domain
 {
     [UsedImplicitly] class EmailToAccountMapper
     {

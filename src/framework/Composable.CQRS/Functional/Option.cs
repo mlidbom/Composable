@@ -1,4 +1,9 @@
-﻿using Composable.Contracts;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Composable.Contracts;
+using Composable.System;
+using Composable.System.Linq;
 
 namespace Composable.Functional
 {
@@ -11,7 +16,7 @@ namespace Composable.Functional
         public static  Option<T> None<T>() => Option<T>.None.Instance;
     }
 
-    public abstract class Option<T>
+    public abstract class Option<T> : DiscriminatedUnion<Option<T>, Option<T>.Some, Option<T>.None>
     {
         Option() {}
 
@@ -29,7 +34,7 @@ namespace Composable.Functional
             public override bool HasValue => true;
         }
 
-        internal sealed class None : Option<T>
+        public sealed class None : Option<T>
         {
             None(){}
             internal static readonly None Instance = new None();

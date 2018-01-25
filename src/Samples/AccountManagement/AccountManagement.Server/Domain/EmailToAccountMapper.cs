@@ -16,15 +16,15 @@ namespace AccountManagement.Domain
         }
 
         internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (PrivateAccountApi.Query.TryGetByEmailQuery tryGetAccount, IDocumentDbReader documentDb, ILocalServiceBusSession bus) =>
-                documentDb.TryGet(tryGetAccount.Email, out EmailToAccountMap map) ? Option.Some(bus.Get(PrivateAccountApi.Queries.ById(map.AccountId))) : Option.None<Account>());
+            (AccountApi.Query.TryGetByEmailQuery tryGetAccount, IDocumentDbReader documentDb, ILocalServiceBusSession bus) =>
+                documentDb.TryGet(tryGetAccount.Email, out EmailToAccountMap map) ? Option.Some(bus.Get(AccountApi.Queries.ById(map.AccountId))) : Option.None<Account>());
 
         internal static void UpdateMappingWhenEmailChanges(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
             (AccountEvent.PropertyUpdated.Email message, IDocumentDbUpdater queryModels, ILocalServiceBusSession bus) =>
             {
                 if(message.AggregateVersion > 1)
                 {
-                    var previousAccountVersion = bus.Get(PrivateAccountApi.Queries.ReadOnlyCopyOfVersion(message.AggregateId, message.AggregateVersion -1));
+                    var previousAccountVersion = bus.Get(AccountApi.Queries.ReadOnlyCopyOfVersion(message.AggregateId, message.AggregateVersion -1));
                     queryModels.Delete<EmailToAccountMap>(previousAccountVersion.Email);
                 }
 

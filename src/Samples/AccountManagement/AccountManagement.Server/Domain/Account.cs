@@ -47,7 +47,7 @@ namespace AccountManagement.Domain
             OldContract.Argument(() => accountId, () => email, () => password, () => busSession).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
-            if(busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)).HasValue)
+            if(busSession.Get(AccountApi.Queries.TryGetByEmail(email)).HasValue)
             {
                 return (RegistrationAttemptStatus.EmailAlreadyRegistered, null);
             }
@@ -55,7 +55,7 @@ namespace AccountManagement.Domain
             var newAccount = new Account();
             newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
 
-            busSession.Post(PrivateAccountApi.Commands.SaveNew(newAccount));
+            busSession.Post(AccountApi.Commands.SaveNew(newAccount));
 
             return (RegistrationAttemptStatus.Successful, newAccount);
         }

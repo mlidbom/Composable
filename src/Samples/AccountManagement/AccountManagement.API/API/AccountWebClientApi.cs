@@ -45,7 +45,7 @@ namespace AccountManagement.API
             public NavigationSpecification<AccountResource.Commands.Register> Register() => Commands.Select(@this => @this.Register);
             public NavigationSpecification<AccountResource.Commands.Register.RegistrationAttemptResult> Register(Guid accountId, string email, string password) => Commands.Post(@this =>  @this.Register.WithValues(accountId, email, password));
 
-            public NavigationSpecification<AccountResource.Commands.LogIn.UI> Login() => Commands.Select(commands => commands.Login);
+            public NavigationSpecification<AccountResource.Commands.LogIn> Login() => Commands.Select(commands => commands.Login);
             public NavigationSpecification<AccountResource.Commands.LogIn.LoginAttemptResult> Login(string email, string password) => Commands.Post(commands => commands.Login.WithValues(email, password));
         }
     }

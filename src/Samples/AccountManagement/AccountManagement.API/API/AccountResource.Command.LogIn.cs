@@ -9,19 +9,16 @@ namespace AccountManagement.API
     {
         public static partial class Commands
         {
-            public static class LogIn
+            public class LogIn : ExactlyOnceCommand<LogIn.LoginAttemptResult>
             {
-                public class UI : ExactlyOnceCommand<LoginAttemptResult>
-                {
                     [Required] [Email] public string Email { get; set; }
                     [Required] public string Password { get; set; }
 
-                    internal UI WithValues(string email, string password) => new UI
+                    internal LogIn WithValues(string email, string password) => new LogIn
                                                                            {
                                                                                Email = email,
                                                                                Password = password
                                                                            };
-                }
 
                 public class LoginAttemptResult
                 {

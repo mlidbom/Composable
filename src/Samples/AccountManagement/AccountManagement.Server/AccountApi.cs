@@ -6,7 +6,7 @@ using Composable.Messaging;
 
 namespace AccountManagement
 {
-    static class PrivateAccountApi
+    static class AccountApi
     {
         internal static Query Queries => new Query();
         internal static Command Commands => new Command();

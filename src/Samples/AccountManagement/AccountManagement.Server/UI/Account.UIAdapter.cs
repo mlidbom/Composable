@@ -13,11 +13,11 @@ namespace AccountManagement.UI
     static class AccountUIAdapter
     {
         public static void Login(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
-            (AccountResource.Commands.LogIn.UI logIn, ILocalServiceBusSession busSession) =>
+            (AccountResource.Commands.LogIn logIn, ILocalServiceBusSession busSession) =>
             {
                 var email = Email.Parse(logIn.Email);
 
-                if(busSession.Get(PrivateAccountApi.Queries.TryGetByEmail(email)) is Some<Account> account)
+                if(busSession.Get(AccountApi.Queries.TryGetByEmail(email)) is Some<Account> account)
                 {
                     switch(account.Value.Login(logIn.Password))
                     {
@@ -35,11 +35,11 @@ namespace AccountManagement.UI
 
         internal static void ChangePassword(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Commands.ChangePassword command, ILocalServiceBusSession busSession) =>
-                busSession.Get(PrivateAccountApi.Queries.ById(command.AccountId)).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
+                busSession.Get(AccountApi.Queries.ById(command.AccountId)).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
 
         internal static void ChangeEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Commands.ChangeEmail command, ILocalServiceBusSession bus) =>
-                bus.Get(PrivateAccountApi.Queries.ById(command.AccountId)).ChangeEmail(Email.Parse(command.Email)));
+                bus.Get(AccountApi.Queries.ById(command.AccountId)).ChangeEmail(Email.Parse(command.Email)));
 
         internal static void Register(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
             (AccountResource.Commands.Register command, ILocalServiceBusSession bus) =>
@@ -58,6 +58,6 @@ namespace AccountManagement.UI
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (EntityByIdQuery<AccountResource> accountQuery, ILocalServiceBusSession bus)
-                => new AccountResource(bus.Get(PrivateAccountApi.Queries.ReadOnlyCopy(accountQuery.Id))));
+                => new AccountResource(bus.Get(AccountApi.Queries.ReadOnlyCopy(accountQuery.Id))));
     }
 }

@@ -15,7 +15,7 @@ namespace AccountManagement
         {
             internal TryGetByEmailQuery TryGetByEmail(Email email) => new TryGetByEmailQuery(email);
 
-            internal EntityByIdQuery<Account> ById(Guid id) => new EntityByIdQuery<Account>(id);
+            internal EntityLink<Account> ById(Guid id) => new EntityLink<Account>(id);
 
             internal ReadonlyCopyOfEntityByIdQuery<Account> ReadOnlyCopy(Guid id) => new ReadonlyCopyOfEntityByIdQuery<Account>(id);
 

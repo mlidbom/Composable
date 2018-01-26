@@ -17,12 +17,12 @@ namespace Composable.Messaging
         Guid Id { get; }
     }
 
-    public class EntityByIdQuery<TEntity> : Message, IQuery<TEntity>
+    public class EntityLink<TEntity> : Message, IQuery<TEntity>
     {
-        public EntityByIdQuery() {}
-        public EntityByIdQuery(Guid id) => Id = id;
+        public EntityLink() {}
+        public EntityLink(Guid id) => Id = id;
         public Guid Id { get; set; }
-        public EntityByIdQuery<TEntity> WithId(Guid id) => new EntityByIdQuery<TEntity> {Id = id};
+        public EntityLink<TEntity> WithId(Guid id) => new EntityLink<TEntity> {Id = id};
     }
 
     public class ReadonlyCopyOfEntityByIdQuery<TEntity> : Message, IQuery<TEntity>
@@ -30,7 +30,7 @@ namespace Composable.Messaging
         public ReadonlyCopyOfEntityByIdQuery() {}
         public ReadonlyCopyOfEntityByIdQuery(Guid id) => Id = id;
         public Guid Id { get; set; }
-        public EntityByIdQuery<TEntity> WithId(Guid id) => new EntityByIdQuery<TEntity> {Id = id};
+        public EntityLink<TEntity> WithId(Guid id) => new EntityLink<TEntity> {Id = id};
     }
 
     public class ReadonlyCopyOfEntityVersionByIdQuery<TEntity> : Message, IQuery<TEntity>
@@ -44,7 +44,7 @@ namespace Composable.Messaging
 
         public Guid Id { get; set; }
         public int Version { get; set;}
-        public EntityByIdQuery<TEntity> WithId(Guid id) => new EntityByIdQuery<TEntity> {Id = id};
+        public EntityLink<TEntity> WithId(Guid id) => new EntityLink<TEntity> {Id = id};
     }
 
     public abstract class Message : IMessage

@@ -11,7 +11,7 @@ namespace AccountManagement.API
 
         public class Query
         {
-            public EntityByIdQuery<AccountResource> AccountById { get; private set; } = new EntityByIdQuery<AccountResource>();
+            public EntityLink<AccountResource> AccountById { get; private set; } = new EntityLink<AccountResource>();
         }
 
         public class Command

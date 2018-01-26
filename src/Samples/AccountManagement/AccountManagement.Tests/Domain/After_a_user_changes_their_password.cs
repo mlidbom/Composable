@@ -2,9 +2,9 @@
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
+namespace AccountManagement.Tests.Domain
 {
-    public class After_they_change_their_password : DomainTestBase
+    public class After_a_user_changes_their_password : DomainTestBase
     {
         ChangePasswordScenario _changePasswordScenario;
 

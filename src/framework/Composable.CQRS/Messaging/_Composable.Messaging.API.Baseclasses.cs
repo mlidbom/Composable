@@ -62,9 +62,9 @@ namespace Composable.Messaging
         public Guid Id { get; private set; }
     }
 
-    public class PersistEntityCommand<TEntity> : ExactlyOnceCommand
+    public class SaveAggregate<TEntity> : ExactlyOnceCommand
     {
-        public PersistEntityCommand(TEntity entity) => Entity = entity;
+        public SaveAggregate(TEntity entity) => Entity = entity;
         public TEntity Entity { get; }
     }
 }

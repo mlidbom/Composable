@@ -7,7 +7,7 @@ namespace Composable
     {
         public static class EventStoreManaging<TAggregate>
         {
-            public static PersistEntityCommand<TAggregate> Save(TAggregate account) => new PersistEntityCommand<TAggregate>(account);
+            public static SaveAggregate<TAggregate> Save(TAggregate account) => new SaveAggregate<TAggregate>(account);
 
             public static AggregateLink<TAggregate> GetForUpdate(Guid id) => new AggregateLink<TAggregate>(id);
 

@@ -37,7 +37,7 @@ namespace AccountManagement
 
         internal class Command
         {
-            internal PersistEntityCommand<Account> Save(Account account) => ComposableApi.EventStoreManaging<Account>.Save(account);
+            internal SaveAggregate<Account> Save(Account account) => ComposableApi.EventStoreManaging<Account>.Save(account);
         }
     }
 }

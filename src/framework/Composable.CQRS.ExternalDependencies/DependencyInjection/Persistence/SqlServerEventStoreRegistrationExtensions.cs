@@ -234,7 +234,7 @@ namespace Composable.DependencyInjection.Persistence
         }
 
         static void Save<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForCommand(
-            (PersistEntityCommand<TAggregate> command, IEventStoreUpdater updater) => updater.Save(command.Entity));
+            (SaveAggregate<TAggregate> command, IEventStoreUpdater updater) => updater.Save(command.Entity));
 
         static void Get<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForQuery(
             (AggregateLink<TAggregate> query, IEventStoreUpdater updater) => updater.Get<TAggregate>(query.Id));

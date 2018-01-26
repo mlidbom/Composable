@@ -8,6 +8,6 @@ namespace AccountManagement.API
     {
         Guid Id { get; }
         Email Email { get; }
-        HashedPassword Password { get; }
+        Password Password { get; }
     }
 }

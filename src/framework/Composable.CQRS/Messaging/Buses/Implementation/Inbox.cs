@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Start() => _resourceGuard.Update(action: () =>
         {
-            Contract.Invariant.Assert(!_running);
+            Assert.Invariant.Assert(!_running);
             _running = true;
 
             _serverSocket = new RouterSocket();
@@ -78,7 +78,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Stop()
         {
-            Contract.Invariant.Assert(_running);
+            Assert.Invariant.Assert(_running);
             _running = false;
             _messagePumpThread.InterruptAndJoin();
             _poller.StopAsync();
@@ -140,7 +140,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         void HandleIncomingMessage(object sender, NetMQSocketEventArgs e)
         {
-            Contract.Argument.Assert(e.IsReadyToReceive);
+            Assert.Argument.Assert(e.IsReadyToReceive);
             _receivedMessageBatches.Add(TransportMessage.InComing.ReceiveBatch(_serverSocket));
         }
 

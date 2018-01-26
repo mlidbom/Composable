@@ -37,7 +37,7 @@ namespace Composable.Testing.Threading
         {
             using(var ownedLock = _resourceGuard.AwaitExclusiveLock())
             {
-                OldContract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
+                Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
                 _isOpen = true;
                 _lockOnNextPass = true;
                 ownedLock.NotifyWaitingThreadsAboutUpdate();

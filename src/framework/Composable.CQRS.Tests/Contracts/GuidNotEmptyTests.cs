@@ -2,6 +2,7 @@
 using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
+using Assert = NUnit.Framework.Assert;
 
 namespace Composable.Tests.Contracts
 {
@@ -14,14 +15,14 @@ namespace Composable.Tests.Contracts
             var emptyGuid = Guid.Empty;
             var aGuid = Guid.NewGuid();
 
-            Assert.Throws<GuidIsEmptyContractViolationException>(() => OldContract.ReturnValue(emptyGuid).NotEmpty())
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.ReturnValue(emptyGuid).NotEmpty())
                 .Message.Should().Contain("ReturnValue");
 
-            Assert.Throws<GuidIsEmptyContractViolationException>(() => OldContract.Argument(() => emptyGuid).NotEmpty());
-            Assert.Throws<GuidIsEmptyContractViolationException>(() => OldContract.Argument(() => emptyGuid).NotEmpty())
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Argument(() => emptyGuid).NotEmpty());
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Argument(() => emptyGuid).NotEmpty())
                 .Message.Should().Contain("emptyGuid");
 
-            Assert.Throws<GuidIsEmptyContractViolationException>(() => OldContract.Argument(() => aGuid, () => emptyGuid).NotEmpty())
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Argument(() => aGuid, () => emptyGuid).NotEmpty())
                 .Message.Should().Contain("emptyGuid");
         }
 

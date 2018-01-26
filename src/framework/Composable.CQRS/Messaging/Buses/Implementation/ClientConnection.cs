@@ -160,7 +160,7 @@ namespace Composable.Messaging.Buses.Implementation
                             failureResponse.SetException(new MessageDispatchingFailedException(response.Body));
                             break;
                         case TransportMessage.Response.ResponseType.Received:
-                            Contract.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
+                            Assert.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
                             _taskRunner.RunAndCrashProcessIfTaskThrows(() => state.MessageStorage.MarkAsReceived(response, state.RemoteEndpointId));
                             break;
                         default:

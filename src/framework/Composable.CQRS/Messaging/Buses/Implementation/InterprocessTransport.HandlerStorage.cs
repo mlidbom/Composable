@@ -34,7 +34,7 @@ namespace Composable.Messaging.Buses.Implementation
                             AddQueryHandler(type, endpointId);
                         } else
                         {
-                            Contract.Argument.Assert(false);
+                            Assert.Argument.Assert(false);
                         }
                     }
                 }
@@ -42,7 +42,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             void AddEventHandler(Type eventType, EndpointId endpointId)
             {
-                Contract.Argument.NotNull(eventType, endpointId);
+                Assert.Argument.NotNull(eventType, endpointId);
                 var eventTypeId = _typeMapper.GetId(eventType);
 
                 _eventHandlerRegistrations.Add((eventTypeId, endpointId));
@@ -50,14 +50,14 @@ namespace Composable.Messaging.Buses.Implementation
 
             void AddCommandHandler(Type commandType, EndpointId endpointId)
             {
-                Contract.Argument.NotNull(commandType, endpointId);
+                Assert.Argument.NotNull(commandType, endpointId);
                 var commandTypeId = _typeMapper.GetId(commandType);
                 _commandHandlerMap.Add(commandTypeId, endpointId);
             }
 
             void AddQueryHandler(Type queryType, EndpointId endpointId)
             {
-                Contract.Argument.NotNull(queryType, endpointId);
+                Assert.Argument.NotNull(queryType, endpointId);
                 var queryTypeId = _typeMapper.GetId(queryType);
                 _queryHandlerMap.Add(queryTypeId, endpointId);
             }

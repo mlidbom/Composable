@@ -17,7 +17,7 @@ namespace AccountManagement.API
         }
 
         public Email Email { get; private set; }
-        public HashedPassword Password { get; private set; }
+        public Password Password { get; private set; }
 
         public CommandsCollection Commands { get; private set; }
     }

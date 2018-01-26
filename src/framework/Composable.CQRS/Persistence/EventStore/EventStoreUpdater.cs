@@ -25,7 +25,7 @@ namespace Composable.Persistence.EventStore
 
         public EventStoreUpdater(IEventstoreEventPublisher eventPublisher, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator)
         {
-            OldContract.Argument(() => eventPublisher, () => store, () => usageGuard, () => timeSource)
+            Contract.Argument(() => eventPublisher, () => store, () => usageGuard, () => timeSource)
                         .NotNull();
 
             _usageGuard = new CombinationUsageGuard(usageGuard, new SingleTransactionUsageGuard());
@@ -61,7 +61,7 @@ namespace Composable.Persistence.EventStore
         TAggregate LoadSpecificVersionInternal<TAggregate>(Guid aggregateId, int version, bool verifyVersion = true) where TAggregate : IEventStored
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
-            OldContract.Assert.That(version > 0, "version > 0");
+            Contract.Assert.That(version > 0, "version > 0");
 
             _usageGuard.AssertNoContextChangeOccurred(this);
             var aggregate = CreateInstance<TAggregate>();
@@ -108,7 +108,7 @@ namespace Composable.Persistence.EventStore
         void OnAggregateEvent(IAggregateEvent @event)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            OldContract.Assert.That(_idMap.ContainsKey(@event.AggregateId), "Got event from aggregate that is not tracked!");
+            Contract.Assert.That(_idMap.ContainsKey(@event.AggregateId), "Got event from aggregate that is not tracked!");
             _store.SaveEvents(new[] { @event });
             _eventPublisher.Publish(@event);
         }

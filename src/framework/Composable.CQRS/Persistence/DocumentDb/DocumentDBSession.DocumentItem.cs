@@ -36,7 +36,7 @@ namespace Composable.Persistence.DocumentDb
 
             public void Save(object document)
             {
-                OldContract.Argument(() => document)
+                Contract.Argument(() => document)
                             .NotNull();
                 Document = document;
                 IsDeleted = false;
@@ -44,7 +44,7 @@ namespace Composable.Persistence.DocumentDb
 
             public void DocumentLoadedFromBackingStore(object document)
             {
-                OldContract.Argument(() => document)
+                Contract.Argument(() => document)
                             .NotNull();
                 Document = document;
                 IsInBackingStore = true;

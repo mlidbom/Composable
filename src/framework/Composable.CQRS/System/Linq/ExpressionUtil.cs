@@ -9,42 +9,42 @@ namespace Composable.System.Linq
     {
         public static string ExtractMethodName(Expression<Action> func)
         {
-            OldContract.Argument(() => func).NotNull();
+            Contract.Argument(() => func).NotNull();
             return ((MethodCallExpression)func.Body).Method.Name;
         }
 
         ///<summary>Extracts the name of the member that the supplied func expression returns.</summary>
         public static string ExtractMethodName<T>(Expression<Func<T>> func)
         {
-            OldContract.Argument(() => func).NotNull();
+            Contract.Argument(() => func).NotNull();
             return ((MethodCallExpression)func.Body).Method.Name;
         }
 
         ///<summary>Extracts the name of the member that the supplied func expression returns.</summary>
         public static string ExtractMemberName<TValue>(Expression<Func<TValue>> func)
         {
-            OldContract.Argument(() => func).NotNull();
+            Contract.Argument(() => func).NotNull();
             return ExtractMemberName((LambdaExpression)func);
         }
 
         ///<summary>Extracts the name of the member that the supplied func expression returns.</summary>
         public static string ExtractMemberName<TParam, TValue>(Expression<Func<TParam, TValue>> func)
         {
-            OldContract.Argument(() => func).NotNull();
+            Contract.Argument(() => func).NotNull();
             return ExtractMemberName((LambdaExpression)func);
         }
 
         ///<summary>Extracts the name of the member that the supplied func expression returns.</summary>
         public static string ExtractMemberName<TParam, TParam2, TValue>(Expression<Func<TParam, TParam2, TValue>> func)
         {
-            OldContract.Argument(() => func).NotNull();
+            Contract.Argument(() => func).NotNull();
             return ExtractMemberName((LambdaExpression)func);
         }
 
         ///<summary>Extracts the name of the member that the supplied lambda expression returns.</summary>
         static string ExtractMemberName(LambdaExpression lambda)
         {
-            OldContract.Argument(() => lambda).NotNull();
+            Contract.Argument(() => lambda).NotNull();
 
             var memberExpression = lambda.Body is UnaryExpression unaryExpression
                                        ? (MemberExpression)unaryExpression.Operand
@@ -55,13 +55,13 @@ namespace Composable.System.Linq
 
         public static string ExtractMemberPath<TValue>(Expression<Func<TValue>> func)
         {
-            OldContract.Argument(() => func).NotNull();
+            Contract.Argument(() => func).NotNull();
             return ExtractMemberPath((LambdaExpression)func);
         }
 
         static string ExtractMemberPath(LambdaExpression lambda)
         {
-            OldContract.Argument(() => lambda).NotNull();
+            Contract.Argument(() => lambda).NotNull();
             var memberExpression = lambda.Body is UnaryExpression unaryExpression
                                        ? (MemberExpression)unaryExpression.Operand
                                        : (MemberExpression)lambda.Body;

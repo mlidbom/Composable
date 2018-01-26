@@ -35,7 +35,7 @@ namespace AccountManagement.UI
 
         internal static void ChangePassword(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Command.ChangePassword command, ILocalServiceBusSession busSession) =>
-                busSession.Execute(AccountApi.Queries.ById(command.AccountId)).ChangePassword(command.OldPassword, new HashedPassword(command.NewPassword)));
+                busSession.Execute(AccountApi.Queries.ById(command.AccountId)).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
 
         internal static void ChangeEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Command.ChangeEmail command, ILocalServiceBusSession bus) =>
@@ -44,7 +44,7 @@ namespace AccountManagement.UI
         internal static void Register(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
             (AccountResource.Command.Register command, ILocalServiceBusSession bus) =>
             {
-                var (status, account) = Account.Register(command.AccountId, Email.Parse(command.Email), new HashedPassword(command.Password), bus);
+                var (status, account) = Account.Register(command.AccountId, Email.Parse(command.Email), new Password(command.Password), bus);
                 switch(status)
                 {
                     case RegistrationAttemptStatus.Successful:

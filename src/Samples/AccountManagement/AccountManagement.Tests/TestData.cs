@@ -27,7 +27,7 @@
             static int _passwordCount = 1;
             internal static string CreateValidPasswordString() => "SomeComplexPassword" + _passwordCount++;
 
-            public static AccountManagement.Domain.Passwords.HashedPassword CreateValidPassword() => new AccountManagement.Domain.Passwords.HashedPassword(CreateValidPasswordString());
+            public static AccountManagement.Domain.Passwords.Password CreateValidPassword() => new AccountManagement.Domain.Passwords.Password(CreateValidPasswordString());
         }
 
         internal static class Email

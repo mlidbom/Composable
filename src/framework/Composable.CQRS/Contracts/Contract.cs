@@ -1,94 +1,112 @@
 ﻿using System;
-using JetBrains.Annotations;
+using System.Linq.Expressions;
+
+// ReSharper disable UnusedParameter.Global
 
 namespace Composable.Contracts
 {
-    public class Contract
+ /// <summary>
+    /// Ensures that a class's contract is followed.
+    /// <para>Inspects arguments, members and return values and throws different <see cref="ContractViolationException"/>s if the inspection fails.</para>
+    /// <para><see cref="Argument{TParameter}"/> inspects method arguments. Call at the very beginning of methods.</para>
+    /// <para><see cref="ReturnValue{TReturnValue}"/> and <see cref="Return{TReturnValue}"/> inspects the return value from a method. Call at the very end of a method.</para>
+    /// <para><see cref="Invariant"/> inspects class members(Fields and Properties). Call within a shared method called something like AssertInvariantsAreMet.</para>
+    /// <para>.</para>
+    /// <para>The returned type of all these methods: <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
+    /// <code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }
+    /// </code>
+    /// </summary>
+    public static class Contract
     {
-        ///<summary>Assert conditions about current state of "this". Failures would mean that someone made a call that is illegal given state of "this".</summary>
-        public static BaseAssertion State { get; } = BaseAssertion.StateInstance;
+        ///<summary>
+        ///<para>Start inspecting one or more arguments for contract compliance.</para>
+        ///<para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
+        ///</summary>
+        public static IInspected<TParameter> Argument<TParameter>(params Expression<Func<TParameter>>[] arguments) => CreateInspected(arguments, InspectionType.Argument);
 
-        ///<summary>Assert something that must always be true for "this".</summary>
-        public static BaseAssertion Invariant { get; } = BaseAssertion.InvariantInstance;
+        ///<summary>
+        ///<para>Start inspecting one or more arguments for contract compliance.</para>
+        ///<para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
+        ///<para>The returned type : <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
+        ///<code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
+        ///</summary>
+        public static IInspected<object> Argument(params Expression<Func<object>>[] arguments) => CreateInspected(arguments, InspectionType.Argument);
 
-        ///<summary>Assert conditions on arguments to current method.</summary>
-        public static BaseAssertion Argument { get; } = BaseAssertion.ArgumentsInstance;
+        ///<summary>
+        ///<para>Start inspecting one or more members for contract compliance.</para>
+        /// <para>An invariant is something that must always be true for an object. Like email and password never being missing for an account.</para>
+        ///<para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
+        ///<para>The returned type : <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
+        ///<code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
+        ///</summary>
+        internal static IInspected<TParameter> Invariant<TParameter>(params Expression<Func<TParameter>>[] members) => CreateInspected(members, InspectionType.Invariant);
 
-        ///<summary>Assert conditions on the result of makeing a method call.</summary>
-        public static BaseAssertion Result { get; } = BaseAssertion.ResultInstance;
+        ///<summary>
+        ///<para>Start inspecting one or more members for contract compliance.</para>
+        /// <para>An invariant is something that must always be true for an object. Like email and password never being missing for an account.</para>
+        ///<para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
+        ///<para>The returned type : <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
+        ///<code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
+        ///</summary>
+        public static IInspected<object> Invariant(params Expression<Func<object>>[] arguments) => CreateInspected(arguments, InspectionType.Invariant);
 
+        ///<summary>Start inspecting a return value
+        ///<para>The returned type : <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
+        ///<code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
+        ///</summary>
+        internal static IInspected<TReturnValue> ReturnValue<TReturnValue>(TReturnValue returnValue) => new Inspected<TReturnValue>(new InspectedValue<TReturnValue>(returnValue, InspectionType.ReturnValue, "ReturnValue"));
 
-
-        public struct BaseAssertion
+        ///<summary>Inspect a return value by passing in a Lambda that performs the inspections the same way you would for an argument.</summary>
+        public static TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<IInspected<TReturnValue>> assert)
         {
-            internal static BaseAssertion InvariantInstance = new BaseAssertion(InspectionType.Invariant);
-            internal static BaseAssertion ArgumentsInstance = new BaseAssertion(InspectionType.Argument);
-            internal static BaseAssertion StateInstance = new BaseAssertion(InspectionType.State);
-            internal static BaseAssertion ResultInstance = new BaseAssertion(InspectionType.Result);
-
-            readonly InspectionType _inspectionType;
-            BaseAssertion(InspectionType inspectionType) => _inspectionType = inspectionType;
-
-            [ContractAnnotation("c1:false => halt")] public ChainedAssertion Assert(bool c1) => RunAssertions(0, _inspectionType, c1);
-            [ContractAnnotation("c1:false => halt; c2:false => halt")] public ChainedAssertion Assert(bool c1, bool c2) => RunAssertions(0, _inspectionType, c1, c2);
-            [ContractAnnotation("c1:false => halt; c2:false => halt; c3:false => halt")] public ChainedAssertion Assert(bool c1, bool c2, bool c3) => RunAssertions(0, _inspectionType, c1, c2, c3);
-            [ContractAnnotation("c1:false => halt; c2:false => halt; c3:false => halt; c4:false => halt")] public ChainedAssertion Assert(bool c1, bool c2, bool c3, bool c4) => RunAssertions(0, _inspectionType, c1, c2, c3, c4);
-
-
-            [ContractAnnotation("c1:null => halt")] public ChainedAssertion NotNull(object c1) => RunNotNull(0, _inspectionType, c1);
-            [ContractAnnotation("c1:null => halt; c2:null => halt")] public ChainedAssertion NotNull(object c1, object c2) => RunNotNull(0, _inspectionType, c1, c2);
-            [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt")] public ChainedAssertion NotNull(object c1, object c2, object c3) => RunNotNull(0, _inspectionType, c1, c2, c3);
-            [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt; c4:null => halt")] public ChainedAssertion NotNull(object c1, object c2, object c3, object c4) => RunNotNull(0, _inspectionType, c1, c2, c3, c4);
+            assert(ReturnValue(returnValue));
+            return returnValue;
         }
 
-        public struct ChainedAssertion
-        {
-            readonly InspectionType _inspectionType;
-            readonly int _recursionDepth;
-            internal ChainedAssertion(InspectionType inspectionType, int recursionDepth)
+        static IInspected<TParameter> CreateInspected<TParameter>(Expression<Func<TParameter>>[] arguments, InspectionType inspectionType)
+        { //Yes the loop is not as pretty as a linq expression but this is performance critical code that might run in tight loops. If it was not I would be using linq.
+            var inspected = new IInspectedValue<TParameter>[arguments.Length];
+            for(var i = 0; i < arguments.Length; i++)
             {
-                _inspectionType = inspectionType;
-                _recursionDepth = recursionDepth;
+                inspected[i] = new InspectedValue<TParameter>(
+                    value: ContractsExpression.ExtractValue(arguments[i]),
+                    type: inspectionType,
+                    name: ContractsExpression.ExtractName(arguments[i]));
             }
-
-            [ContractAnnotation("c1:false => halt")] public ChainedAssertion And(bool c1) => RunAssertions(_recursionDepth, _inspectionType, c1);
-            [ContractAnnotation("c1:false => halt; c2:false => halt")] public ChainedAssertion And(bool c1, bool c2) => RunAssertions(_recursionDepth, _inspectionType, c1, c2);
-            [ContractAnnotation("c1:false => halt; c2:false => halt; c3:false => halt")] public ChainedAssertion And(bool c1, bool c2, bool c3) => RunAssertions(_recursionDepth, _inspectionType, c1, c2, c3);
-            [ContractAnnotation("c1:false => halt; c2:false => halt; c3:false => halt; c4:false => halt")] public ChainedAssertion And(bool c1, bool c2, bool c3, bool c4) => RunAssertions(_recursionDepth, _inspectionType, c1, c2, c3, c4);
-
-            [ContractAnnotation("c1:null => halt")] public ChainedAssertion NotNull(object c1) => RunNotNull(0, _inspectionType, c1);
-            [ContractAnnotation("c1:null => halt; c2:null => halt")] public ChainedAssertion NotNull(object c1, object c2) => RunNotNull(0, _inspectionType, c1, c2);
-            [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt")] public ChainedAssertion NotNull(object c1, object c2, object c3) => RunNotNull(0, _inspectionType, c1, c2, c3);
-            [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt; c4:null => halt")] public ChainedAssertion NotNull(object c1, object c2, object c3, object c4) => RunNotNull(0, _inspectionType, c1, c2, c3, c4);
+            return new Inspected<TParameter>(inspected);
         }
 
-        static ChainedAssertion RunNotNull(int recursionLevel, InspectionType inspectionType, params object[] instances)
+        internal static readonly IContractAssertion Assert = new ContractAssertionImplementation(InspectionType.Assertion);
+        internal static readonly IContractAssertion Arguments = new ContractAssertionImplementation(InspectionType.Argument);
+
+        internal static void AssertThat(params bool[] conditions)
         {
-            for (var index = 0; index < instances.Length; index++)
+            for(var condition = 0; condition < conditions.Length; condition++)
             {
-                if (instances[index] == null)
+                if(!conditions[condition])
                 {
-                    throw new AssertionException(inspectionType, index);
+                    throw new ContractAssertThatException(condition);
                 }
             }
-            return new ChainedAssertion(inspectionType, recursionLevel + 1);
         }
 
-        static ChainedAssertion RunAssertions(int recursionLevel, InspectionType inspectionType, params bool[] conditions)
+        class ContractAssertionImplementation : IContractAssertion
         {
-            for (var condition = 0; condition < conditions.Length; condition++)
-            {
-                if (!conditions[condition])
-                {
-                    throw new AssertionException(inspectionType, condition);
-                }
-            }
-            return new ChainedAssertion(inspectionType, recursionLevel + 1);
-        }
-
-        class AssertionException : Exception
-        {
-            public AssertionException(InspectionType inspectionType, int index) : base($"{inspectionType}: {index}") { }
+            public ContractAssertionImplementation(InspectionType inspectionType) => InspectionType = inspectionType;
+            public InspectionType InspectionType { get; }
         }
     }
+
+    public class ContractAssertThatException : Exception
+    {
+        public ContractAssertThatException(int condition):base($"Condition: {condition} was false")
+        {}
+    }
+
+    interface IContractAssertion
+    {
+        InspectionType InspectionType { get; }
+    }
 }
+
+// ReSharper restore UnusedParameter.Global

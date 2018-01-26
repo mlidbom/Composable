@@ -1,6 +1,7 @@
 ﻿using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
+using Assert = NUnit.Framework.Assert;
 
 namespace Composable.Tests.Contracts
 {
@@ -17,13 +18,13 @@ namespace Composable.Tests.Contracts
             var okString = "okString";
             var emptyString = "";
             string nullString = null;
-            Assert.Throws<ObjectIsNullContractViolationException>(() => OldContract.Argument(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull())
                 .Message.Should().Contain(nameof(nullString));
 
-            Assert.Throws<ObjectIsNullContractViolationException>(() => OldContract.Argument(() => okString, () => nullString, () => notNullObject).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => okString, () => nullString, () => notNullObject).NotNull())
                 .Message.Should().Contain(nameof(nullString));
 
-            Assert.Throws<StringIsEmptyContractViolationException>(() => OldContract.Argument(() => okString, () => emptyString).NotNullOrEmpty())
+            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Argument(() => okString, () => emptyString).NotNullOrEmpty())
                 .Message.Should().Contain(nameof(emptyString));
 
             Assert.Throws<ObjectIsNullContractViolationException>(() => TestStringsForNullOrEmpty(nullString))
@@ -42,18 +43,18 @@ namespace Composable.Tests.Contracts
         [Test]
         public void ThrowsIllegalArgumentAccessLambdaIfTheLambdaAccessesALiteral()
         {
-            Assert.Throws<InvalidAccessorLambdaException>(() => OldContract.Argument(() => ""));
-            Assert.Throws<InvalidAccessorLambdaException>(() => OldContract.Argument(() => 0));
+            Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Argument(() => ""));
+            Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Argument(() => 0));
         }
 
         static void TestStringsForNullOrEmpty(string singleString)
         {
-            OldContract.Argument(() => singleString).NotNullOrEmpty();
+            Contract.Argument(() => singleString).NotNullOrEmpty();
         }
 
         static void TestStringsForNullOrEmpty(string firstString, string secondString, string thirdString)
         {
-            OldContract.Argument(() => firstString, () => secondString, () => thirdString).NotNullOrEmpty();
+            Contract.Argument(() => firstString, () => secondString, () => thirdString).NotNullOrEmpty();
         }
     }
 

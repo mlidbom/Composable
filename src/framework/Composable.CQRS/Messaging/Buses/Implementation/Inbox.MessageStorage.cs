@@ -44,7 +44,7 @@ WHERE {InboxMessages.MessageId} = @{InboxMessages.MessageId}
                                                  .AddParameter(InboxMessages.MessageId, message.MessageId)
                                                  .ExecuteNonQuery();
 
-                        Contract.Result.Assert(affectedRows == 1);
+                        Assert.Result.Assert(affectedRows == 1);
                         return affectedRows;
                     });
 

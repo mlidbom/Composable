@@ -28,7 +28,7 @@ namespace Composable.Messaging.Buses
             MessageInspector.AssertValid<TEvent>();
             lock(_lock)
             {
-                Contract.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(IExactlyOnceCommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(IQuery)));
+                Assert.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(IExactlyOnceCommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(IQuery)));
                 _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<IExactlyOnceEvent>>()).Add(@event => handler((TEvent)@event));
                 _eventHandlerRegistrations.Add(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
                 return this;
@@ -46,7 +46,7 @@ namespace Composable.Messaging.Buses
 
             lock(_lock)
             {
-                Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
+                Assert.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
                 _commandHandlers.Add(typeof(TCommand), command => handler((TCommand)command));
                 return this;
             }
@@ -57,7 +57,7 @@ namespace Composable.Messaging.Buses
             MessageInspector.AssertValid<TCommand>();
             lock (_lock)
             {
-                Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
+                Assert.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
                 _commandHandlersReturningResults.Add(typeof(TCommand), command =>
                 {
                     var result = handler((TCommand)command);
@@ -77,7 +77,7 @@ namespace Composable.Messaging.Buses
             MessageInspector.AssertValid<TQuery>();
             lock(_lock)
             {
-                Contract.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(IExactlyOnceCommand)));
+                Assert.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(IExactlyOnceCommand)));
                 _queryHandlers.Add(typeof(TQuery), query => handler((TQuery)query));
                 return this;
             }

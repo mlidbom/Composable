@@ -41,7 +41,7 @@ namespace Composable.DependencyInjection.Persistence
 
         public static void RegisterSqlServerDocumentDb(this IDependencyInjectionContainer @this, string connectionName)
         {
-            OldContract.Argument(() => connectionName).NotNullEmptyOrWhiteSpace();
+            Contract.Argument(() => connectionName).NotNullEmptyOrWhiteSpace();
 
             if(@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
@@ -73,7 +73,7 @@ namespace Composable.DependencyInjection.Persistence
             where TReader : IDocumentDbReader
             where TBulkReader : IDocumentDbBulkReader
         {
-            OldContract.Argument(() => connectionName)
+            Contract.Argument(() => connectionName)
                     .NotNullEmptyOrWhiteSpace();
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TUpdater, TReader, TBulkReader>());

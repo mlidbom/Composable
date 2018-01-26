@@ -16,7 +16,7 @@ namespace AccountManagement.Domain
     partial class Account : Aggregate<Account, AccountEvent.Implementation.Root, AccountEvent.Root>, IAccountResourceData
     {
         public Email Email { get; private set; } //Never public setters on an aggregate.
-        public HashedPassword Password { get; private set; } //Never public setters on an aggregate.
+        public Password Password { get; private set; } //Never public setters on an aggregate.
 
         //No public constructors please. Aggregates are created through domain verbs.
         //Expose named factory methods that ensure the instance is valid instead. See register method below.
@@ -33,7 +33,7 @@ namespace AccountManagement.Domain
 
         //Ensure that the state of the instance is sane. If not throw an exception.
         //Called after every call to Publish.
-        protected override void AssertInvariantsAreMet() => OldContract.Invariant(() => Email, () => Password, () => Id).NotNullOrDefault();
+        protected override void AssertInvariantsAreMet() => Contract.Invariant(() => Email, () => Password, () => Id).NotNullOrDefault();
 
         /// <summary><para>Used when a user manually creates an account themselves.</para>
         /// <para>Note how this design with a named static creation method: </para>
@@ -41,11 +41,11 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        internal static (RegistrationAttemptStatus Status, Account Created) Register(Guid accountId, Email email ,HashedPassword password, ILocalServiceBusSession localBus)
+        internal static (RegistrationAttemptStatus Status, Account Registered) Register(Guid accountId, Email email ,Password password, ILocalServiceBusSession localBus)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
-            OldContract.Argument(() => accountId, () => email, () => password, () => localBus).NotNullOrDefault();
+            Contract.Argument(() => accountId, () => email, () => password, () => localBus).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so duplicates are forbidden.
             if(AccountApi.Queries.TryGetByEmail(email).ExecuteOn(localBus) is Some<Account>)
@@ -61,9 +61,9 @@ namespace AccountManagement.Domain
             return (RegistrationAttemptStatus.Successful, newAccount);
         }
 
-        internal void ChangePassword(string oldPassword, HashedPassword newPassword)
+        internal void ChangePassword(string oldPassword, Password newPassword)
         {
-            OldContract.Argument(() => oldPassword, () => newPassword).NotNullOrDefault();
+            Contract.Argument(() => oldPassword, () => newPassword).NotNullOrDefault();
 
             Password.AssertIsCorrectPassword(oldPassword);
 
@@ -72,7 +72,7 @@ namespace AccountManagement.Domain
 
         internal void ChangeEmail(Email email)
         {
-            OldContract.Argument(() => email).NotNullOrDefault();
+            Contract.Argument(() => email).NotNullOrDefault();
 
             Publish(new AccountEvent.Implementation.UserChangedEmail(email));
         }

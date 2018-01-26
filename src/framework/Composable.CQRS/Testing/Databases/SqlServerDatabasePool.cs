@@ -62,7 +62,7 @@ namespace Composable.Testing.Databases
             _machineWideState = MachineWideSharedObject<SharedState>.For(connectionStringWithoutInvalidChars, usePersistentFile: true);
             _masterConnectionString = masterConnectionString;
 
-            OldContract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
+            Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
                                     $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
             _masterConnection = new SqlServerConnection(_masterConnectionString);
         }
@@ -73,7 +73,7 @@ namespace Composable.Testing.Databases
         IReadOnlyList<Database> _transientCache = new List<Database>();
         public ISqlConnection ConnectionProviderFor(string reservationName) => _guard.Update(() =>
         {
-            OldContract.Assert.That(!_disposed, "!_disposed");
+            Contract.Assert.That(!_disposed, "!_disposed");
 
             var reservedDatabase = _transientCache.SingleOrDefault(db => db.IsReserved && db.ReservedByPoolId == _poolId && db.ReservationName == reservationName);
             if(reservedDatabase != null)

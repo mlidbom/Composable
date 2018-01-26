@@ -258,7 +258,7 @@ namespace Composable.Persistence.EventStore
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventType = null)
         {
-            OldContract.Assert.That(eventType == null || eventType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType),
+            Contract.Assert.That(eventType == null || eventType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType),
                 "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType)");
             _usageGuard.AssertNoContextChangeOccurred(this);
 

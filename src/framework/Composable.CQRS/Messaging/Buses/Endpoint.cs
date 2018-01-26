@@ -10,7 +10,7 @@ namespace Composable.Messaging.Buses
         bool _running;
         public Endpoint(IServiceLocator serviceLocator, EndpointId id, string name)
         {
-            Contract.Argument.Assert(serviceLocator != null, id != null);
+            Assert.Argument.Assert(serviceLocator != null, id != null);
             ServiceLocator = serviceLocator;
             Id = id;
             Name = name;
@@ -24,7 +24,7 @@ namespace Composable.Messaging.Buses
 
         public void Start()
         {
-            Contract.State.Assert(!_running);
+            Assert.State.Assert(!_running);
 
             _running = true;
 
@@ -34,7 +34,7 @@ namespace Composable.Messaging.Buses
 
         public void Stop()
         {
-            Contract.State.Assert(_running);
+            Assert.State.Assert(_running);
             _running = false;
             BusControl.Stop();
         }

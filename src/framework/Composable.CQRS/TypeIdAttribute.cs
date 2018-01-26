@@ -13,7 +13,7 @@ namespace Composable
 
         internal TypeId(Guid guidValue)
         {
-            Contract.Argument.Assert(guidValue != Guid.Empty);
+            Assert.Argument.Assert(guidValue != Guid.Empty);
             GuidValue = guidValue;
         }
     }

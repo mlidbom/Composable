@@ -46,13 +46,13 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         void AssertNoPriorModificationsHaveBeenMade()
         {
-            OldContract.Assert.That(_replacementEvents == null && _insertedEvents == null, "You can only modify the current event once.");
+            Contract.Assert.That(_replacementEvents == null && _insertedEvents == null, "You can only modify the current event once.");
         }
 
         public void Replace(params AggregateEvent[] events)
         {
             AssertNoPriorModificationsHaveBeenMade();
-            OldContract.Assert.That(Event.GetType() != typeof(EndOfAggregateHistoryEventPlaceHolder), "You cannot call replace on the event that signifies the end of the stream");
+            Contract.Assert.That(Event.GetType() != typeof(EndOfAggregateHistoryEventPlaceHolder), "You cannot call replace on the event that signifies the end of the stream");
 
             _replacementEvents = events;
 

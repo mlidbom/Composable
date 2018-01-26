@@ -1,5 +1,6 @@
 ﻿using Composable.Contracts;
 using NUnit.Framework;
+using Assert = NUnit.Framework.Assert;
 
 namespace Composable.Tests.Contracts
 {

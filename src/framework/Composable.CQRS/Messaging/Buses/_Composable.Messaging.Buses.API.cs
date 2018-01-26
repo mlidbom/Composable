@@ -98,7 +98,7 @@ namespace Composable.Messaging.Buses
         public Guid GuidValue { get; }
         public EndpointId(Guid guidValue)
         {
-            Contract.Argument.Assert(guidValue != Guid.Empty);
+            Assert.Argument.Assert(guidValue != Guid.Empty);
             GuidValue = guidValue;
         }
     }

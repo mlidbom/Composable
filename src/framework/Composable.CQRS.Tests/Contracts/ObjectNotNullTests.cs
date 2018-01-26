@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
+using Assert = NUnit.Framework.Assert;
 
 namespace Composable.Tests.Contracts
 {
@@ -23,14 +24,14 @@ namespace Composable.Tests.Contracts
             var nullString = (string)null;
             var anObject = new object();
 
-            Assert.Throws<ObjectIsNullContractViolationException>(() => OldContract.Argument(() => nullString).NotNull());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => OldContract.Argument(() => anObject, () => nullString).NotNull());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => OldContract.Argument(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => anObject, () => nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
 
-            Assert.Throws<ObjectIsNullContractViolationException>(() => OldContract.Invariant(() => nullString).NotNull());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => OldContract.Invariant(() => anObject, () => nullString).NotNull());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => OldContract.Invariant(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Invariant(() => nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Invariant(() => anObject, () => nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Invariant(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
         }
 
@@ -39,7 +40,7 @@ namespace Composable.Tests.Contracts
         {
             string nullString = null;
 
-            Assert.Throws<ObjectIsNullContractViolationException>(() => OldContract.Argument(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
         }
     }

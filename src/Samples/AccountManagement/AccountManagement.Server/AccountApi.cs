@@ -25,7 +25,7 @@ namespace AccountManagement
             {
                 public TryGetByEmailQuery(Email accountId)
                 {
-                    OldContract.Argument(() => accountId).NotNullOrDefault();
+                    Contract.Argument(() => accountId).NotNullOrDefault();
                     Email = accountId;
                 }
 

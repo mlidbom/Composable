@@ -12,7 +12,7 @@ namespace AccountManagement.Tests.Domain
         {
             static class From_the_string_Pass
             {
-                static readonly HashedPassword _password = new HashedPassword("Pass");
+                static readonly Password _password = new Password("Pass");
 
                 [Test] public static void HashedPassword_is_not_null() => _password.Hash.Should().NotBeNull();
                 [Test] public static void HashedPassword_is_not_an_empty_array() => _password.Hash.Should().NotBeEmpty();
@@ -47,7 +47,7 @@ namespace AccountManagement.Tests.Domain
 
                 static void AssertCreatingPasswordThrowsExceptionContainingFailure(string password, Password.Policy.Failures expectedFailure)
                     // ReSharper disable once ObjectCreationAsStatement
-                    => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new HashedPassword(password)).Failures.Should().Contain(expectedFailure);
+                    => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(password)).Failures.Should().Contain(expectedFailure);
             }
         }
     }

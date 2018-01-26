@@ -1,6 +1,7 @@
 ﻿using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
+using Assert = NUnit.Framework.Assert;
 
 namespace Composable.Tests.Contracts
 {
@@ -17,8 +18,8 @@ namespace Composable.Tests.Contracts
 
         static string ReturnInputStringAndRefuseToReturnNull(string returnMe)
         {
-            OldContract.ReturnValue(returnMe).NotNullEmptyOrWhiteSpace();
-            return OldContract.Return(returnMe, assert => assert.NotNullEmptyOrWhiteSpace());
+            Contract.ReturnValue(returnMe).NotNullEmptyOrWhiteSpace();
+            return Contract.Return(returnMe, assert => assert.NotNullEmptyOrWhiteSpace());
         }
     }
 }

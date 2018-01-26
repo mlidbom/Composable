@@ -70,7 +70,7 @@ namespace Composable.DependencyInjection.Persistence
                                                                                             string connectionName,
                                                                                             IReadOnlyList<IEventMigration> migrations = null)
         {
-              OldContract.Argument(() => connectionName)
+              Contract.Argument(() => connectionName)
                     .NotNullEmptyOrWhiteSpace();
 
             migrations = migrations ?? new List<IEventMigration>();
@@ -133,7 +133,7 @@ namespace Composable.DependencyInjection.Persistence
             where TSessionInterface : class, IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
         {
-            OldContract.Argument(() => connectionName)
+            Contract.Argument(() => connectionName)
                     .NotNullEmptyOrWhiteSpace();
             migrations = migrations ?? (() => EmptyMigrationsArray);
 

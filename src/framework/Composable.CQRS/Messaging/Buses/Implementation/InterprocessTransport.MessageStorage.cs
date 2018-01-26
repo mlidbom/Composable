@@ -67,7 +67,7 @@ WHERE {MessageDispatching.MessageId} = @{MessageDispatching.MessageId}
                                                  .AddParameter(MessageDispatching.EndpointId, endpointId.GuidValue)
                                                  .ExecuteNonQuery();
 
-                        Contract.Result.Assert(affectedRows == 1);
+                        Assert.Result.Assert(affectedRows == 1);
                         return affectedRows;
                     });
 

@@ -14,7 +14,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected SelfGeneratingQueryModel() : base(Guid.Empty)
         {
-            OldContract.Assert.That(typeof(TAggregateEvent).IsInterface, "typeof(TAggregateEvent).IsInterface");
+            Contract.Assert.That(typeof(TAggregateEvent).IsInterface, "typeof(TAggregateEvent).IsInterface");
         }
 
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
@@ -34,7 +34,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
         public void LoadFromHistory(IEnumerable<IAggregateEvent> history)
         {
-            Contract.State.Assert(Version == 0);
+            Assert.State.Assert(Version == 0);
             history.ForEach(theEvent => ApplyEvent((TAggregateEvent)theEvent));
         }
     }

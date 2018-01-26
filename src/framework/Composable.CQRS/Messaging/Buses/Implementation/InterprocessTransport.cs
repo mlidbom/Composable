@@ -54,7 +54,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Start() => _state.WithExclusiveAccess(state =>
         {
-            Contract.State.Assert(!state.Running);
+            Assert.State.Assert(!state.Running);
             state.Running = true;
             state.MessageStorage.Start();
 
@@ -65,7 +65,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Stop() => _state.WithExclusiveAccess(state =>
         {
-            Contract.State.Assert(state.Running);
+            Assert.State.Assert(state.Running);
             state.Running = false;
             state.Poller.StopAsync();
             state.PollerThread.Join();

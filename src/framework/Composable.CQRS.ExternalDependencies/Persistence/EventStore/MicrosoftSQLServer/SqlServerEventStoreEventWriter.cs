@@ -86,12 +86,12 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion},
                                          .SingleOrDefault();
             // ReSharper restore PossibleInvalidOperationException
 
-            OldContract.Assert.That(Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1,
+            Contract.Assert.That(Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1,
                                  "Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1");
 
             if (replacementGroup != null)
             {
-                OldContract.Assert.That(replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0),
+                Contract.Assert.That(replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0),
                                      "replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0)");
                 var eventToReplace = LoadEventOrderNeighborhood(replacementGroup.Key);
 
@@ -102,7 +102,7 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion},
             }
             else if (insertBeforeGroup != null)
             {
-                OldContract.Assert.That(insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0),
+                Contract.Assert.That(insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0),
                                      "insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0)");
                 var eventToInsertBefore = LoadEventOrderNeighborhood(insertBeforeGroup.Key);
 
@@ -113,7 +113,7 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion},
             }
             else if (insertAfterGroup != null)
             {
-                OldContract.Assert.That(insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0),
+                Contract.Assert.That(insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0),
                                      "insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0)");
                 var eventToInsertAfter = LoadEventOrderNeighborhood(insertAfterGroup.Key);
 

@@ -35,7 +35,7 @@ namespace Composable.Messaging.Buses.Implementation
                     _message = (IMessage)JsonConvert.DeserializeObject(Body, typeMapper.GetType(MessageType), JsonSettings.JsonSerializerSettings);
 
 
-                    Contract.State.Assert(!(_message is IExactlyOnceMessage) || MessageId == (_message as IExactlyOnceMessage).MessageId);
+                    Assert.State.Assert(!(_message is IExactlyOnceMessage) || MessageId == (_message as IExactlyOnceMessage).MessageId);
                 }
                 return _message;
             }

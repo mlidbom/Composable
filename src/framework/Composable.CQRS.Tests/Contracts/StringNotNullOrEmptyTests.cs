@@ -2,6 +2,7 @@
 using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
+using Assert = NUnit.Framework.Assert;
 
 namespace Composable.Tests.Contracts
 {
@@ -12,14 +13,14 @@ namespace Composable.Tests.Contracts
         public void NotEmptyThrowsStringIsEmptyArgumentExceptionForEmptyString()
         {
             var emptyString = "";
-            Assert.Throws<StringIsEmptyContractViolationException>(() => OldContract.Argument(() => emptyString).NotNullOrEmpty());
+            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Argument(() => emptyString).NotNullOrEmpty());
         }
 
         [Test]
         public void UsesArgumentNameForExceptionMessage()
         {
             var emptyString = "";
-            Assert.Throws<StringIsEmptyContractViolationException>(() => OldContract.Argument(() => emptyString).NotNullOrEmpty())
+            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Argument(() => emptyString).NotNullOrEmpty())
                 .Message.Should().Contain("emptyString");
         }
 

@@ -13,7 +13,7 @@ namespace Composable.System.Reflection
         /// ///<returns>true if <paramref name="me"/> implements the interface: <typeparamref name="TImplemented"/>. By definition true if <paramref name="me"/> == <typeparamref name="TImplemented"/>.</returns>
         public static bool Implements<TImplemented>(this Type me)
         {
-            Contract.Argument.Assert(me != null);
+            Assert.Argument.Assert(me != null);
 
             if (!typeof(TImplemented).IsInterface)
             {
@@ -52,7 +52,7 @@ namespace Composable.System.Reflection
 
         internal static Type GetGenericInterface(this Type me, Type implemented)
         {
-            Contract.Argument.Assert(me != null, implemented != null).And(implemented.IsGenericTypeDefinition);
+            Assert.Argument.Assert(me != null, implemented != null).And(implemented.IsGenericTypeDefinition);
 
             return me.GetInterfaces().Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == implemented);
         }

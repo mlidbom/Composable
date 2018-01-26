@@ -8,13 +8,13 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
     {
         protected EventMigration(Guid id, string name, string description)
         {
-            OldContract.Argument(() => id)
+            Contract.Argument(() => id)
                         .NotNullOrDefault();
 
-            OldContract.Argument(() => description, () => name)
+            Contract.Argument(() => description, () => name)
                         .NotNullEmptyOrWhiteSpace();
 
-            OldContract.Assert.That(typeof(TMigratedAggregateEventHierarchyRootInterface).IsInterface, "typeof(TMigratedAggregateEventHierarchyRootInterface).IsInterface");
+            Contract.Assert.That(typeof(TMigratedAggregateEventHierarchyRootInterface).IsInterface, "typeof(TMigratedAggregateEventHierarchyRootInterface).IsInterface");
 
             Id = id;
             Name = name;

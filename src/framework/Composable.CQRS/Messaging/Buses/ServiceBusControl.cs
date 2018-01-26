@@ -20,7 +20,7 @@ namespace Composable.Messaging.Buses
 
         void IServiceBusControl.Start()
         {
-            Contract.State.Assert(!_started);
+            Assert.State.Assert(!_started);
 
             _started = true;
 
@@ -31,7 +31,7 @@ namespace Composable.Messaging.Buses
 
         void IServiceBusControl.Stop()
         {
-            Contract.State.Assert(_started);
+            Assert.State.Assert(_started);
             _started = false;
             _commandScheduler.Stop();
             _transport.Stop();

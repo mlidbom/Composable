@@ -20,7 +20,7 @@ namespace Composable.Functional
     {
         internal Some(T value)
         {
-            Contract.Argument.NotNull(value);
+            Assert.Argument.NotNull(value);
             Value = value;
         }
 

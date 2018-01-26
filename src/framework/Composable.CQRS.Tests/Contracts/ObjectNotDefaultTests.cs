@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Composable.Contracts;
 using NUnit.Framework;
+using Assert = NUnit.Framework.Assert;
 
 namespace Composable.Tests.Contracts
 {
@@ -15,10 +16,10 @@ namespace Composable.Tests.Contracts
             var zero = 0;
             // ReSharper restore ConvertToConstant.Local
 
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => OldContract.Argument(() => zero).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => OldContract.Argument(() => zero).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => OldContract.Argument(() => myStructure).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => OldContract.Argument(() => myStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myStructure).NotDefault());
 
             InspectionTestHelper.InspectBadValue<ObjectIsDefaultContractViolationException, MyStructure>(
                 inspected => inspected.NotDefault(),

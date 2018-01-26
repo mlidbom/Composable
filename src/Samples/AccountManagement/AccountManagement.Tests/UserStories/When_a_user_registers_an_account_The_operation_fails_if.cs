@@ -1,13 +1,13 @@
 ﻿using System;
-using AccountManagement.Tests.Scenarios;
+using AccountManagement.Scenarios;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
 using Composable.Testing;
 using NUnit.Framework;
 
-namespace AccountManagement.Tests.Domain
+namespace AccountManagement.UserStories
 {
-    public class When_a_user_registers_an_account_The_operation_fails_if : AccountManagementTestBase
+    public class When_a_user_registers_an_account_the_operation_fails_if : UserStoryTest
     {
         RegisterAccountScenario _registerAccountScenario;
 

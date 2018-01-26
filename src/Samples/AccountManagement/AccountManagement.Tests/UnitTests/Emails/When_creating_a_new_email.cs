@@ -5,7 +5,7 @@ using AccountManagement.Domain;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Tests.Domain.EmailSpecification
+namespace AccountManagement.UnitTests.Emails
 {
     [TestFixture] public class When_creating_a_new_email
     {

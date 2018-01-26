@@ -1,4 +1,4 @@
-﻿namespace AccountManagement.Tests
+﻿namespace AccountManagement
 {
     public static class TestData
     {

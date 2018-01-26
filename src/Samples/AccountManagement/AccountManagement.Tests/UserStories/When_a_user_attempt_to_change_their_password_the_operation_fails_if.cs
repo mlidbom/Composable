@@ -1,14 +1,13 @@
 ﻿using System;
-using AccountManagement.Tests.Scenarios;
+using AccountManagement.Scenarios;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
-using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Tests.Domain
+namespace AccountManagement.UserStories
 {
-    [TestFixture] public class When_a_user_attempt_to_change_their_password_the_operation_fails_if : AccountManagementTestBase
+    [TestFixture] public class When_a_user_attempt_to_change_their_password_the_operation_fails_if : UserStoryTest
     {
         RegisterAccountScenario _registerAccountScenario;
         ChangePasswordScenario _changePasswordScenario;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace AccountManagement.Tests.UI.Commands.UserCommands
+namespace AccountManagement.UnitTests.UI.Commands.UserCommands
 {
     static class CommandValidator
     {

@@ -1,10 +1,10 @@
-﻿using AccountManagement.Tests.Scenarios;
+﻿using AccountManagement.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Tests.Domain
+namespace AccountManagement.UserStories
 {
-    public class After_a_user_changes_their_password : AccountManagementTestBase
+    public class After_a_user_changes_their_password : UserStoryTest
     {
         ChangePasswordScenario _changePasswordScenario;
 

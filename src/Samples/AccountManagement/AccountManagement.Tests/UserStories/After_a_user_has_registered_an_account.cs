@@ -1,12 +1,12 @@
 ﻿using AccountManagement.API;
 using AccountManagement.Domain.Registration;
-using AccountManagement.Tests.Scenarios;
+using AccountManagement.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
+namespace AccountManagement.UserStories
 {
-    [TestFixture] public class After_a_user_has_registered_an_account : AccountManagementTestBase
+    [TestFixture] public class After_a_user_has_registered_an_account : UserStoryTest
     {
         AccountResource _registeredAccount;
         RegisterAccountScenario _registerAccountScenario;
@@ -33,7 +33,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [Test] public void Login_with_the_wrong_email_but_correct_password_fails()
             => new LoginScenario(ClientEndpoint, "some_other@email.com", _registerAccountScenario.Password).Execute().Succeeded.Should().Be(false);
 
-        [Test] public void Attempting_to_register_another_account_with_the_same_email_fails_with_email_already_registered_message() =>
+        [Test] public void Registering_another_account_with_the_same_email_fails_with_email_already_registered_message() =>
             new RegisterAccountScenario(ClientEndpoint, email: _registerAccountScenario.Email).Execute().Result.Status.Should().Be(RegistrationAttemptStatus.EmailAlreadyRegistered);
 
     }

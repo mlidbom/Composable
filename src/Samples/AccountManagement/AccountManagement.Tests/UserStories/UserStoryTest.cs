@@ -2,9 +2,9 @@
 using Composable.Messaging.Buses;
 using NUnit.Framework;
 
-namespace AccountManagement.Tests.Domain
+namespace AccountManagement.UserStories
 {
-    [TestFixture] public abstract class AccountManagementTestBase
+    [TestFixture] public abstract class UserStoryTest
     {
         protected ITestingEndpointHost Host;
         protected IEndpoint ClientEndpoint => Host.ClientEndpoint;

@@ -2,7 +2,7 @@
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 
-namespace AccountManagement.Tests.Scenarios
+namespace AccountManagement.Scenarios
 {
     class ChangePasswordScenario : ScenarioBase
     {

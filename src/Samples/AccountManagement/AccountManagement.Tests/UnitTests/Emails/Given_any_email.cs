@@ -2,7 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Tests.Domain.EmailSpecification
+namespace AccountManagement.UnitTests.Emails
 {
     [TestFixture] public class Given_any_email
     {

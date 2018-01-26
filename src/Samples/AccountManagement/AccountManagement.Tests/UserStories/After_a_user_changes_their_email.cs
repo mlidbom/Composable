@@ -1,12 +1,11 @@
 ﻿using AccountManagement.Domain.Registration;
-using AccountManagement.Tests.Scenarios;
+using AccountManagement.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 
-// ReSharper disable once CheckNamespace
-namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
+namespace AccountManagement.UserStories
 {
-    public class After_a_user_changes_their_email : AccountManagementTestBase
+    public class After_a_user_changes_their_email : UserStoryTest
     {
         ChangeAccountEmailScenario _changeEmailScenario;
         RegisterAccountScenario _registerAccountScenario;

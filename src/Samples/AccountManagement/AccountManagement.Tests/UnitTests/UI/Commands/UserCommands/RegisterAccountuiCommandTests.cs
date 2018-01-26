@@ -4,7 +4,7 @@ using AccountManagement.API;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Tests.UI.Commands.UserCommands
+namespace AccountManagement.UnitTests.UI.Commands.UserCommands
 {
     [TestFixture]
     public class RegisterAccountUICommandTests

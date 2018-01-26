@@ -1,6 +1,6 @@
 ﻿using AccountManagement.API;
 
-namespace AccountManagement.Tests.Scenarios
+namespace AccountManagement.Scenarios
 {
     public class ScenarioBase
     {

@@ -1,11 +1,11 @@
 ﻿using System;
 using AccountManagement.API.ValidationAttributes;
-using AccountManagement.Tests.UI.Commands.UserCommands;
+using AccountManagement.UnitTests.UI.Commands.UserCommands;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 
-namespace AccountManagement.Tests.UI.Commands
+namespace AccountManagement.UnitTests.UI.Commands
 {
     [TestFixture]
     public class EntityIdAttributeTests

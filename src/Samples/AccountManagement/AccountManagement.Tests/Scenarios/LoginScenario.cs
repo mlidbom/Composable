@@ -1,7 +1,7 @@
 ﻿using AccountManagement.API;
 using Composable.Messaging.Buses;
 
-namespace AccountManagement.Tests.Scenarios
+namespace AccountManagement.Scenarios
 {
     class LoginScenario : ScenarioBase
     {

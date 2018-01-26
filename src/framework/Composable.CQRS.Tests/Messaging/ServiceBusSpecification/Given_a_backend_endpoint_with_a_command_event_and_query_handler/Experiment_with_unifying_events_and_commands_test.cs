@@ -153,7 +153,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 => RegisterEventAppliers()
                     .IgnoreUnhandled<UserRegistrarEvent.IRoot>();
 
-            internal static RegisterUserResult RegisterUser(IServiceBusSession busSession) => busSession.Post(new UserRegistrarCommand.RegisterUserCommand());
+            internal static RegisterUserResult RegisterUser(IServiceBusSession busSession) => new UserRegistrarCommand.RegisterUserCommand().ExecuteOn(busSession);
         }
 
         public class UserAggregate : Aggregate<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>

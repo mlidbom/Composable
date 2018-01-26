@@ -47,8 +47,8 @@ namespace AccountManagement.Domain
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
             OldContract.Argument(() => accountId, () => email, () => password, () => localBus).NotNullOrDefault();
 
-            //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
-            if(AccountApi.Queries.TryGetByEmail(email).GetOn(localBus) is Some<Account>)
+            //The email is the unique identifier for logging into the account so duplicates are forbidden.
+            if(AccountApi.Queries.TryGetByEmail(email).ExecuteOn(localBus) is Some<Account>)
             {
                 return (RegistrationAttemptStatus.EmailAlreadyRegistered, null);
             }
@@ -56,7 +56,7 @@ namespace AccountManagement.Domain
             var newAccount = new Account();
             newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
 
-            localBus.Post(AccountApi.Commands.SaveNew(newAccount));
+            AccountApi.Commands.SaveNew(newAccount).ExecuteOn(localBus);
 
             return (RegistrationAttemptStatus.Successful, newAccount);
         }

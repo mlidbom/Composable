@@ -11,14 +11,14 @@ namespace AccountManagement.Domain
     {
         internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (AccountApi.Query.TryGetByEmailQuery tryGetAccount, IDocumentDbReader documentDb, ILocalServiceBusSession bus) =>
-                documentDb.TryGet(tryGetAccount.Email, out AggregateLink<Account> accountLink) ? Option.Some(accountLink.GetOn(bus)) : Option.None<Account>());
+                documentDb.TryGet(tryGetAccount.Email, out AggregateLink<Account> accountLink) ? Option.Some(accountLink.ExecuteOn(bus)) : Option.None<Account>());
 
         internal static void UpdateMappingWhenEmailChanges(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
             (AccountEvent.PropertyUpdated.Email emailUpdated, IDocumentDbUpdater queryModels, ILocalServiceBusSession bus) =>
             {
                 if(emailUpdated.AggregateVersion > 1)
                 {
-                    var previousAccountVersion = AccountApi.Queries.ReadOnlyCopyOfVersion(emailUpdated.AggregateId, emailUpdated.AggregateVersion -1).GetOn(bus);
+                    var previousAccountVersion = AccountApi.Queries.ReadOnlyCopyOfVersion(emailUpdated.AggregateId, emailUpdated.AggregateVersion -1).ExecuteOn(bus);
                     queryModels.Delete<AggregateLink<Account>>(previousAccountVersion.Email);
                 }
 

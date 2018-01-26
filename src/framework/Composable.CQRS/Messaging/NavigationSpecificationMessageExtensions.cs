@@ -19,10 +19,10 @@ namespace Composable.Messaging
         public static TResult GetOn<TResult>(this IQuery<TResult> query, IServiceBusSession bus) => NavigationSpecification.Get(query).ExecuteOn(bus);
 
 
-        public static TResult PostOn<TResult>(this IExactlyOnceCommand<TResult> command, ILocalServiceBusSession bus) => bus.Post(command);
+        public static TResult ExecuteOn<TResult>(this IExactlyOnceCommand<TResult> command, ILocalServiceBusSession bus) => bus.Execute(command);
 
-        public static void PostOn(this IExactlyOnceCommand command, ILocalServiceBusSession bus) => bus.Post(command);
+        public static void ExecuteOn(this IExactlyOnceCommand command, ILocalServiceBusSession bus) => bus.Execute(command);
 
-        public static TResult GetOn<TResult>(this IQuery<TResult> query, ILocalServiceBusSession bus) => bus.Get(query);
+        public static TResult ExecuteOn<TResult>(this IQuery<TResult> query, ILocalServiceBusSession bus) => bus.Execute(query);
     }
 }

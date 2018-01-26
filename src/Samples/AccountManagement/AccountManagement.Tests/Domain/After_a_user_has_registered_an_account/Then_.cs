@@ -39,7 +39,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
                .Succeeded.Should().Be(false);
 
         [Test]
-        public void Attempting_to_register_an_account_with_the_new_email_fails_with_email_already_registered_message()
+        public void Attempting_to_register_another_account_with_the_same_email_fails_with_email_already_registered_message()
         {
             var scenario = new RegisterAccountScenario(ClientEndpoint, email: _registerAccountScenario.Email);
 

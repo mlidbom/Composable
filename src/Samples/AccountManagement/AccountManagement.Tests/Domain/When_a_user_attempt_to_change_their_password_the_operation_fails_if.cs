@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace AccountManagement.Tests.Domain
 {
-    [TestFixture] public class When_a_user_attempt_to_change_their_password_the_operation_fails_if : DomainTestBase
+    [TestFixture] public class When_a_user_attempt_to_change_their_password_the_operation_fails_if : AccountManagementTestBase
     {
         RegisterAccountScenario _registerAccountScenario;
         ChangePasswordScenario _changePasswordScenario;

@@ -6,7 +6,7 @@ using NUnit.Framework;
 // ReSharper disable once CheckNamespace
 namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
 {
-    public class After_a_user_change_their_email : DomainTestBase
+    public class After_a_user_changes_their_email : AccountManagementTestBase
     {
         ChangeAccountEmailScenario _changeEmailScenario;
         RegisterAccountScenario _registerAccountScenario;

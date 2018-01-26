@@ -5,9 +5,9 @@ using Composable.System.Linq;
 using Composable.Testing;
 using NUnit.Framework;
 
-namespace AccountManagement.Tests.Domain.When_a_user_registers_an_account
+namespace AccountManagement.Tests.Domain
 {
-    [TestFixture] public class The_operation_fails_if : DomainTestBase
+    public class When_a_user_registers_an_account_The_operation_fails_if : AccountManagementTestBase
     {
         RegisterAccountScenario _registerAccountScenario;
 

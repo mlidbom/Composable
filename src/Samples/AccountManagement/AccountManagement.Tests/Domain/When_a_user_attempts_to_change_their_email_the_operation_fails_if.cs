@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace AccountManagement.Tests.Domain
 {
-    public class When_a_user_attempts_to_change_their_email_the_operation_fails_if : DomainTestBase
+    public class When_a_user_attempts_to_change_their_email_the_operation_fails_if : AccountManagementTestBase
     {
         ChangeAccountEmailScenario _changeEmail;
 

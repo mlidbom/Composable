@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace AccountManagement.Tests.Domain
 {
-    public class After_a_user_changes_their_password : DomainTestBase
+    public class After_a_user_changes_their_password : AccountManagementTestBase
     {
         ChangePasswordScenario _changePasswordScenario;
 

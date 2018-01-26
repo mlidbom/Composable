@@ -17,7 +17,7 @@ namespace AccountManagement.Domain
             internal static void GetReadonlyCopyOfLatestVersion(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                 (GetReadonlyCopyOfEntity<Account> query, IEventStoreReader reader) => reader.GetReadonlyCopy<Account>(query.Id));
 
-            internal static void GetReadonlyCopyOfSpecificVersion(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
+            internal static void GetReadonlyCopyOfVersion(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                 (GetReadonlyCopyOfEntityVersion<Account> query, IEventStoreReader reader) => reader.GetReadonlyCopyOfVersion<Account>(query.Id, query.Version));
         }
     }

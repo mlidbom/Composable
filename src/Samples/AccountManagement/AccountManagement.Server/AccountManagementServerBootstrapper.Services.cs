@@ -24,7 +24,7 @@ namespace AccountManagement
             Account.Repository.Get(registrar);
             Account.Repository.Save(registrar);
             Account.Repository.GetReadonlyCopyOfLatestVersion(registrar);
-            Account.Repository.GetReadonlyCopyOfSpecificVersion(registrar);
+            Account.Repository.GetReadonlyCopyOfVersion(registrar);
 
             EmailToAccountMapper.UpdateMappingWhenEmailChanges(registrar);
             EmailToAccountMapper.TryGetAccountByEmail(registrar);

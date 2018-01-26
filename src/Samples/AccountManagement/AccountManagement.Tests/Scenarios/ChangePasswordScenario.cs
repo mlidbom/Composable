@@ -30,7 +30,7 @@ namespace AccountManagement.Tests.Scenarios
 
         public void Execute()
         {
-            Account.Commands.ChangePassword.WithValues(OldPassword, NewPasswordAsString).Post().ExecuteAsRequestOn(_clientEndpoint);
+            Account.Commands.ChangePassword.WithValues(OldPassword, NewPasswordAsString).PostRemote().ExecuteAsRequestOn(_clientEndpoint);
 
             Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
         }

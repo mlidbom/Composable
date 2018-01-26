@@ -17,7 +17,7 @@ namespace AccountManagement.UI
             {
                 var email = Email.Parse(logIn.Email);
 
-                if(AccountApi.Queries.TryGetByEmail(email).ExecuteOn(bus) is Some<Account> account)
+                if(AccountApi.Queries.TryGetByEmail(email).GetLocalOn(bus) is Some<Account> account)
                 {
                     switch(account.Value.Login(logIn.Password))
                     {
@@ -35,11 +35,11 @@ namespace AccountManagement.UI
 
         internal static void ChangePassword(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Command.ChangePassword command, ILocalServiceBusSession bus) =>
-                AccountApi.Queries.Get(command.AccountId).ExecuteOn(bus).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
+                AccountApi.Queries.Get(command.AccountId).GetLocalOn(bus).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
 
         internal static void ChangeEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Command.ChangeEmail command, ILocalServiceBusSession bus) =>
-                AccountApi.Queries.Get(command.AccountId).ExecuteOn(bus).ChangeEmail(Email.Parse(command.Email)));
+                AccountApi.Queries.Get(command.AccountId).GetLocalOn(bus).ChangeEmail(Email.Parse(command.Email)));
 
         internal static void Register(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
             (AccountResource.Command.Register command, ILocalServiceBusSession bus) =>
@@ -58,6 +58,6 @@ namespace AccountManagement.UI
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (AggregateLink<AccountResource> accountQuery, ILocalServiceBusSession bus)
-                => new AccountResource(AccountApi.Queries.GetReadOnlyCopy(accountQuery.Id).ExecuteOn(bus)));
+                => new AccountResource(AccountApi.Queries.GetReadOnlyCopy(accountQuery.Id).GetLocalOn(bus)));
     }
 }

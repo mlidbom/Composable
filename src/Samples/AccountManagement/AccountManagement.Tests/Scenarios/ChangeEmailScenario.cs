@@ -25,7 +25,7 @@ namespace AccountManagement.Tests.Scenarios
 
         public void Execute()
         {
-            Account.Commands.ChangeEmail.WithEmail(NewEmail).Post().ExecuteAsRequestOn(_clientEndpoint);
+            Account.Commands.ChangeEmail.WithEmail(NewEmail).PostRemote().ExecuteAsRequestOn(_clientEndpoint);
 
             Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
         }

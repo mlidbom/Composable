@@ -19,13 +19,13 @@ namespace Composable.Messaging.Buses
     public interface ILocalServiceBusSession : IEventstoreEventPublisher
     {
         ///<summary>Syncronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        TResult Execute<TResult>(IQuery<TResult> query);
+        TResult GetLocal<TResult>(IQuery<TResult> query);
 
         ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        TResult Execute<TResult>(IExactlyOnceCommand<TResult> command);
+        TResult PostLocal<TResult>(IExactlyOnceCommand<TResult> command);
 
         ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        void Execute(IExactlyOnceCommand command);
+        void PostLocal(IExactlyOnceCommand command);
     }
 
     public interface IRemoteServiceBusSession

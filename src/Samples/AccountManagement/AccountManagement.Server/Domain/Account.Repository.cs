@@ -15,10 +15,10 @@ namespace AccountManagement.Domain
                 (AggregateLink<Account> query, IEventStoreUpdater updater) => updater.Get<Account>(query.Id));
 
             internal static void GetReadonlyCopyOfLatestVersion(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-                (ReadonlyCopyOfEntityByIdQuery<Account> query, IEventStoreReader reader) => reader.GetReadonlyCopy<Account>(query.Id));
+                (GetReadonlyCopyOfEntity<Account> query, IEventStoreReader reader) => reader.GetReadonlyCopy<Account>(query.Id));
 
             internal static void GetReadonlyCopyOfSpecificVersion(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-                (ReadonlyCopyOfEntityVersionByIdQuery<Account> query, IEventStoreReader reader) => reader.GetReadonlyCopyOfVersion<Account>(query.Id, query.Version));
+                (GetReadonlyCopyOfEntityVersion<Account> query, IEventStoreReader reader) => reader.GetReadonlyCopyOfVersion<Account>(query.Id, query.Version));
         }
     }
 }

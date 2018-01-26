@@ -13,11 +13,11 @@ namespace AccountManagement.UI
     static class AccountUIAdapter
     {
         public static void Login(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
-            (AccountResource.Command.LogIn logIn, ILocalServiceBusSession busSession) =>
+            (AccountResource.Command.LogIn logIn, ILocalServiceBusSession bus) =>
             {
                 var email = Email.Parse(logIn.Email);
 
-                if(busSession.Execute(AccountApi.Queries.TryGetByEmail(email)) is Some<Account> account)
+                if(AccountApi.Queries.TryGetByEmail(email).ExecuteOn(bus) is Some<Account> account)
                 {
                     switch(account.Value.Login(logIn.Password))
                     {
@@ -34,12 +34,12 @@ namespace AccountManagement.UI
             });
 
         internal static void ChangePassword(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
-            (AccountResource.Command.ChangePassword command, ILocalServiceBusSession busSession) =>
-                busSession.Execute(AccountApi.Queries.ById(command.AccountId)).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
+            (AccountResource.Command.ChangePassword command, ILocalServiceBusSession bus) =>
+                AccountApi.Queries.Get(command.AccountId).ExecuteOn(bus).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
 
         internal static void ChangeEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Command.ChangeEmail command, ILocalServiceBusSession bus) =>
-                bus.Execute(AccountApi.Queries.ById(command.AccountId)).ChangeEmail(Email.Parse(command.Email)));
+                AccountApi.Queries.Get(command.AccountId).ExecuteOn(bus).ChangeEmail(Email.Parse(command.Email)));
 
         internal static void Register(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
             (AccountResource.Command.Register command, ILocalServiceBusSession bus) =>
@@ -58,6 +58,6 @@ namespace AccountManagement.UI
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (AggregateLink<AccountResource> accountQuery, ILocalServiceBusSession bus)
-                => new AccountResource(bus.Execute(AccountApi.Queries.ReadOnlyCopy(accountQuery.Id))));
+                => new AccountResource(AccountApi.Queries.GetReadOnlyCopy(accountQuery.Id).ExecuteOn(bus)));
     }
 }

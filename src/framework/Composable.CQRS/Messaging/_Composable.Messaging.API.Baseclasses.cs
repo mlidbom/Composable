@@ -25,18 +25,18 @@ namespace Composable.Messaging
         public AggregateLink<TEntity> WithId(Guid id) => new AggregateLink<TEntity> {Id = id};
     }
 
-    public class ReadonlyCopyOfEntityByIdQuery<TEntity> : Message, IQuery<TEntity>
+    public class GetReadonlyCopyOfEntity<TEntity> : Message, IQuery<TEntity>
     {
-        public ReadonlyCopyOfEntityByIdQuery() {}
-        public ReadonlyCopyOfEntityByIdQuery(Guid id) => Id = id;
+        public GetReadonlyCopyOfEntity() {}
+        public GetReadonlyCopyOfEntity(Guid id) => Id = id;
         public Guid Id { get; set; }
         public AggregateLink<TEntity> WithId(Guid id) => new AggregateLink<TEntity> {Id = id};
     }
 
-    public class ReadonlyCopyOfEntityVersionByIdQuery<TEntity> : Message, IQuery<TEntity>
+    public class GetReadonlyCopyOfEntityVersion<TEntity> : Message, IQuery<TEntity>
     {
-        public ReadonlyCopyOfEntityVersionByIdQuery() {}
-        public ReadonlyCopyOfEntityVersionByIdQuery(Guid id, int version)
+        public GetReadonlyCopyOfEntityVersion() {}
+        public GetReadonlyCopyOfEntityVersion(Guid id, int version)
         {
             Id = id;
             Version = version;

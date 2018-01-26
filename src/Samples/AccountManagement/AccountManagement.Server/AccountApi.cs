@@ -15,11 +15,11 @@ namespace AccountManagement
         {
             internal TryGetByEmailQuery TryGetByEmail(Email email) => new TryGetByEmailQuery(email);
 
-            internal AggregateLink<Account> ById(Guid id) => new AggregateLink<Account>(id);
+            internal AggregateLink<Account> Get(Guid id) => new AggregateLink<Account>(id);
 
-            internal ReadonlyCopyOfEntityByIdQuery<Account> ReadOnlyCopy(Guid id) => new ReadonlyCopyOfEntityByIdQuery<Account>(id);
+            internal GetReadonlyCopyOfEntity<Account> GetReadOnlyCopy(Guid id) => new GetReadonlyCopyOfEntity<Account>(id);
 
-            internal ReadonlyCopyOfEntityVersionByIdQuery<Account> ReadOnlyCopyOfVersion(Guid id, int version) => new ReadonlyCopyOfEntityVersionByIdQuery<Account>(id, version);
+            internal GetReadonlyCopyOfEntityVersion<Account> GetReadOnlyCopyOfVersion(Guid id, int version) => new GetReadonlyCopyOfEntityVersion<Account>(id, version);
 
             internal class TryGetByEmailQuery : IQuery<Option<Account>>
             {

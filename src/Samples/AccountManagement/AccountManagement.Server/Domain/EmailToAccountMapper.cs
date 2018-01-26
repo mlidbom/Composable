@@ -18,7 +18,7 @@ namespace AccountManagement.Domain
             {
                 if(emailUpdated.AggregateVersion > 1)
                 {
-                    var previousAccountVersion = AccountApi.Queries.ReadOnlyCopyOfVersion(emailUpdated.AggregateId, emailUpdated.AggregateVersion -1).ExecuteOn(bus);
+                    var previousAccountVersion = AccountApi.Queries.GetReadOnlyCopyOfVersion(emailUpdated.AggregateId, emailUpdated.AggregateVersion -1).ExecuteOn(bus);
                     queryModels.Delete<AggregateLink<Account>>(previousAccountVersion.Email);
                 }
 

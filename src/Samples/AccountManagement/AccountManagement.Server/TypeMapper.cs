@@ -43,7 +43,6 @@ namespace AccountManagement
                .Map<Composable.Messaging.DocumentLink<Composable.Messaging.AggregateLink<AccountManagement.Domain.Account>>>("2d8e86f8-72b7-429f-8a0c-a0c393bea97f")
                .Map<Composable.Messaging.GetReadonlyCopyOfDocument<Composable.Messaging.AggregateLink<AccountManagement.Domain.Account>>>("a25c12f1-ecd8-438a-8c35-e37b89387c19")
                .Map<Composable.Messaging.SaveDocument<Composable.Messaging.AggregateLink<AccountManagement.Domain.Account>>>("bf279875-50b9-49d6-b66d-8717ce863a01");
-                ;
         }
     }
 }

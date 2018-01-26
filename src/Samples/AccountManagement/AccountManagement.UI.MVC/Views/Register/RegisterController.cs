@@ -10,8 +10,8 @@ namespace AccountManagement.UI.MVC.Views.Register
 {
     public class RegisterController : ControllerBase
     {
-        readonly IServiceBusSession _bus;
-        public RegisterController(IServiceBusSession remoteServiceBusSession) => _bus = remoteServiceBusSession;
+        readonly IRemoteServiceBusSession _bus;
+        public RegisterController(IRemoteServiceBusSession remoteServiceBusSession) => _bus = remoteServiceBusSession;
 
         public IActionResult Register(AccountResource.Command.Register registrationCommand)
         {

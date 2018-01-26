@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using AccountManagement.Domain.Events;
-using AccountManagement.Tests.Scenarios;
+﻿using AccountManagement.Tests.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -10,32 +8,16 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
     {
         ChangePasswordScenario _changePasswordScenario;
 
-        [SetUp]
-        public void RegisterAccount()
+        [SetUp] public void RegisterAccount()
         {
             _changePasswordScenario = ChangePasswordScenario.Create(ClientEndpoint);
             _changePasswordScenario.Execute();
         }
 
-        [Test]
-        public void An_IUserChangedAccountPasswordEvent_is_published_on_the_bus()
-        {
-            EventSpy.DispatchedMessages
-                .OfType<AccountEvent.UserChangedPassword>()
-                .Should().HaveCount(1);
-        }
+        [Test] public void Logging_in_with_the_new_password_works() =>
+            new LoginScenario(ClientEndpoint, _changePasswordScenario.Account, _changePasswordScenario.NewPasswordAsString).Execute().Succeeded.Should().Be(true);
 
-        [Test]
-        public void Event_password_should_accept_the_used_password_as_valid()
-        {
-            EventSpy.DispatchedMessages.OfType<AccountEvent.UserChangedPassword>()
-                .Single().Password.AssertIsCorrectPassword(_changePasswordScenario.NewPasswordAsString);
-        }
-
-        [Test]
-        public void Account_password_should_accept_the_new_password_as_valid()
-        {
-            _changePasswordScenario.Account.Password.AssertIsCorrectPassword(_changePasswordScenario.NewPasswordAsString);
-        }
+        [Test] public void Logging_in_with_the_old_password_fails() =>
+            new LoginScenario(ClientEndpoint, _changePasswordScenario.Account, _changePasswordScenario.OldPassword).Execute().Succeeded.Should().Be(false);
     }
 }

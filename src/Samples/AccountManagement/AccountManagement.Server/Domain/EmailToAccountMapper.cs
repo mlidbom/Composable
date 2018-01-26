@@ -9,10 +9,6 @@ namespace AccountManagement.Domain
 {
     [UsedImplicitly] class EmailToAccountMapper
     {
-        internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (AccountApi.Query.TryGetByEmailQuery tryGetAccount, IDocumentDbReader documentDb, ILocalServiceBusSession bus) =>
-                documentDb.TryGet(tryGetAccount.Email, out AggregateLink<Account> accountLink) ? Option.Some(accountLink.GetLocalOn(bus)) : Option.None<Account>());
-
         internal static void UpdateMappingWhenEmailChanges(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
             (AccountEvent.PropertyUpdated.Email emailUpdated, IDocumentDbUpdater queryModels, ILocalServiceBusSession bus) =>
             {
@@ -25,5 +21,9 @@ namespace AccountManagement.Domain
                 var newEmail = emailUpdated.Email;
                 queryModels.Save(newEmail, new AggregateLink<Account>(emailUpdated.AggregateId));
             });
+
+        internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
+            (AccountApi.Query.TryGetByEmailQuery tryGetAccount, IDocumentDbReader documentDb, ILocalServiceBusSession bus) =>
+                documentDb.TryGet(tryGetAccount.Email, out AggregateLink<Account> accountLink) ? Option.Some(accountLink.GetLocalOn(bus)) : Option.None<Account>());
     }
 }

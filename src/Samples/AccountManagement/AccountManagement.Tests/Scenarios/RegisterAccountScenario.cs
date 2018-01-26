@@ -24,14 +24,14 @@ namespace AccountManagement.Tests.Scenarios
 
         public (AccountResource.Command.Register.RegistrationAttemptResult Result, AccountResource Account) Execute()
         {
-            var result = _clientEndpoint.ExecuteRequest(Api.Command.Register(AccountId, Email, Password));
+            var registrationAttemptResult = _clientEndpoint.ExecuteRequest(Api.Command.Register(AccountId, Email, Password));
 
-            switch(result.Status)
+            switch(registrationAttemptResult.Status)
             {
                 case RegistrationAttemptStatus.Successful:
-                    return (result, Api.Query.AccountById(AccountId).ExecuteAsRequestOn(_clientEndpoint));
+                    return (registrationAttemptResult, Api.Query.AccountById(AccountId).ExecuteAsRequestOn(_clientEndpoint));
                 case RegistrationAttemptStatus.EmailAlreadyRegistered:
-                    return (result, null);
+                    return (registrationAttemptResult, null);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

@@ -33,6 +33,6 @@ namespace AccountManagement.Tests.Domain
                            .ForEvent<IExactlyOnceEvent>(EventSpy.Receive);
         }
 
-        [TearDown] public void DisposeScopeAndContainer() => Host.Dispose();
+        [TearDown] public void Teardown() => Host.Dispose();
     }
 }

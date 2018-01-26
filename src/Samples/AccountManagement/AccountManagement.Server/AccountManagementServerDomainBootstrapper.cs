@@ -8,7 +8,6 @@ using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Refactoring.Naming;
 
 namespace AccountManagement
 {

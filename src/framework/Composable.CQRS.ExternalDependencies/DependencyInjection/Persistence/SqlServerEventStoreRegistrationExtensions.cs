@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Castle.DynamicProxy;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
@@ -66,7 +67,7 @@ namespace Composable.DependencyInjection.Persistence
         [UsedImplicitly] internal class EventCache<TUpdaterType> : EventCache
         {}
 
-        public static void RegisterSqlServerEventStore(this IDependencyInjectionContainer @this,
+        public static SqlServerEventStoreRegistrationBuilder RegisterSqlServerEventStore(this IDependencyInjectionContainer @this,
                                                                                             string connectionName,
                                                                                             IReadOnlyList<IEventMigration> migrations = null)
         {
@@ -113,6 +114,8 @@ namespace Composable.DependencyInjection.Persistence
             @this.Register(Component.For<IEventStoreUpdater, IEventStoreReader>()
                                     .ImplementedBy<EventStoreUpdater>()
                                     .LifestyleScoped());
+
+            return new SqlServerEventStoreRegistrationBuilder();
         }
 
         public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
@@ -217,5 +220,29 @@ namespace Composable.DependencyInjection.Persistence
                                              },
                 options: ProxyGenerationOptions.Default);
         }
+    }
+
+    public class SqlServerEventStoreRegistrationBuilder
+    {
+        public SqlServerEventStoreRegistrationBuilder HandleAggregate<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored
+        {
+            Save<TAggregate>(registrar);
+            Get<TAggregate>(registrar);
+            GetReadonlyCopyOfLatestVersion<TAggregate>(registrar);
+            GetReadonlyCopyOfVersion<TAggregate>(registrar);
+            return this;
+        }
+
+        static void Save<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForCommand(
+            (PersistEntityCommand<TAggregate> command, IEventStoreUpdater updater) => updater.Save(command.Entity));
+
+        static void Get<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForQuery(
+            (AggregateLink<TAggregate> query, IEventStoreUpdater updater) => updater.Get<TAggregate>(query.Id));
+
+        static void GetReadonlyCopyOfLatestVersion<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForQuery(
+            (GetReadonlyCopyOfEntity<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopy<TAggregate>(query.Id));
+
+        static void GetReadonlyCopyOfVersion<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForQuery(
+            (GetReadonlyCopyOfEntityVersion<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopyOfVersion<TAggregate>(query.Id, query.Version));
     }
 }

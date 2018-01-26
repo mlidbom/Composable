@@ -11,10 +11,11 @@ using Composable.Messaging.Buses.Implementation;
 
 namespace AccountManagement
 {
-    public static class AccountManagementServerDomainBootstrapper
+    public class AccountManagementServerDomainBootstrapper
     {
+        SqlServerEventStoreRegistrationBuilder _eventStore;
 
-        public static IEndpoint RegisterWith(IEndpointHost host)
+        public IEndpoint RegisterWith(IEndpointHost host)
         {
             return host.RegisterAndStartEndpoint("AccountManagement",
                                                  new EndpointId(Guid.Parse("1A1BE9C8-C8F6-4E38-ABFB-F101E5EDB00D")),
@@ -28,13 +29,14 @@ namespace AccountManagement
                                                  });
         }
 
-        static void RegisterDomainComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
+        void RegisterDomainComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
-            container.RegisterSqlServerEventStore(configuration.ConnectionStringName);
+            _eventStore = container.RegisterSqlServerEventStore(configuration.ConnectionStringName);
+
             container.RegisterSqlServerDocumentDb(configuration.ConnectionStringName);
         }
 
-        static void RegisterUserInterfaceComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
+        void RegisterUserInterfaceComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
             container.RegisterSqlServerDocumentDb<IAccountManagementUiDocumentDbUpdater, IAccountManagementUiDocumentDbReader, IAccountManagementUiDocumentDbBulkReader>(configuration.ConnectionStringName);
 
@@ -42,18 +44,11 @@ namespace AccountManagement
             AccountQueryModel.Generator.RegisterWith(container);
         }
 
-        static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
+        void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            AccountUIAdapter.GetById(registrar);
-            AccountUIAdapter.Register(registrar);
-            AccountUIAdapter.ChangeEmail(registrar);
-            AccountUIAdapter.ChangePassword(registrar);
-            AccountUIAdapter.Login(registrar);
+            _eventStore.HandleAggregate<Account>(registrar);
 
-            Account.Repository.Get(registrar);
-            Account.Repository.Save(registrar);
-            Account.Repository.GetReadonlyCopyOfLatestVersion(registrar);
-            Account.Repository.GetReadonlyCopyOfVersion(registrar);
+            UIAdapterLayer.Register(registrar);
 
             EmailToAccountMapper.UpdateMappingWhenEmailChanges(registrar);
             EmailToAccountMapper.TryGetAccountByEmail(registrar);

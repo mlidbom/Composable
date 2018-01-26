@@ -13,7 +13,7 @@ using Composable.Persistence.EventStore.Aggregates;
 namespace AccountManagement.Domain
 {
     ///Completely encapsulates all the business logic for an account.  Should make it impossible for clients to use the class incorrectly.
-    partial class Account : Aggregate<Account, AccountEvent.Implementation.Root, AccountEvent.Root>, IAccountResourceData
+    class Account : Aggregate<Account, AccountEvent.Implementation.Root, AccountEvent.Root>, IAccountResourceData
     {
         public Email Email { get; private set; } //Never public setters on an aggregate.
         public Password Password { get; private set; } //Never public setters on an aggregate.
@@ -56,7 +56,7 @@ namespace AccountManagement.Domain
             var newAccount = new Account();
             newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
 
-            AccountApi.Commands.SaveNew(newAccount).PostLocalOn(bus);
+            AccountApi.Commands.Save(newAccount).PostLocalOn(bus);
 
             return (RegistrationAttemptStatus.Successful, newAccount);
         }

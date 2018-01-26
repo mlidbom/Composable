@@ -28,7 +28,7 @@ namespace AccountManagement.Tests.Domain
             Host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
             ClientEndpoint = Host.ClientEndpoint;
 
-            var domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(Host);
+            var domainEndpoint = new AccountManagementServerDomainBootstrapper().RegisterWith(Host);
             domainEndpoint.ServiceLocator.Resolve<IMessageHandlerRegistrar>()
                            .ForEvent<IExactlyOnceEvent>(EventSpy.Receive);
         }

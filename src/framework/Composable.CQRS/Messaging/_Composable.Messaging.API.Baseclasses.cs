@@ -25,18 +25,18 @@ namespace Composable.Messaging
         public AggregateLink<TEntity> WithId(Guid id) => new AggregateLink<TEntity> {Id = id};
     }
 
-    public class GetReadonlyCopyOfEntity<TEntity> : Message, IQuery<TEntity>
+    public class GetReadonlyCopyOfAggregate<TEntity> : Message, IQuery<TEntity>
     {
-        public GetReadonlyCopyOfEntity() {}
-        public GetReadonlyCopyOfEntity(Guid id) => Id = id;
+        public GetReadonlyCopyOfAggregate() {}
+        public GetReadonlyCopyOfAggregate(Guid id) => Id = id;
         public Guid Id { get; set; }
         public AggregateLink<TEntity> WithId(Guid id) => new AggregateLink<TEntity> {Id = id};
     }
 
-    public class GetReadonlyCopyOfEntityVersion<TEntity> : Message, IQuery<TEntity>
+    public class GetReadonlyCopyOfAggregateVersion<TEntity> : Message, IQuery<TEntity>
     {
-        public GetReadonlyCopyOfEntityVersion() {}
-        public GetReadonlyCopyOfEntityVersion(Guid id, int version)
+        public GetReadonlyCopyOfAggregateVersion() {}
+        public GetReadonlyCopyOfAggregateVersion(Guid id, int version)
         {
             Id = id;
             Version = version;
@@ -62,9 +62,9 @@ namespace Composable.Messaging
         public Guid Id { get; private set; }
     }
 
-    public class PersistEntityCommand<TEntity> : ExactlyOnceCommand
+    public class SaveAggregate<TEntity> : ExactlyOnceCommand
     {
-        public PersistEntityCommand(TEntity entity) => Entity = entity;
+        public SaveAggregate(TEntity entity) => Entity = entity;
         public TEntity Entity { get; }
     }
 }

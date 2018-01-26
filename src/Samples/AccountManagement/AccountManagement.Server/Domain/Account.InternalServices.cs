@@ -6,12 +6,12 @@ namespace AccountManagement.Domain
 {
     partial class Account
     {
-        internal static class InternalServices
+        internal static class Repository
         {
             internal static void Save(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
                 (PersistEntityCommand<Account> command, IEventStoreUpdater updater) => updater.Save(command.Entity));
 
-            internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
+            internal static void Get(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                 (AggregateLink<Account> query, IEventStoreUpdater updater) => updater.Get<Account>(query.Id));
 
             internal static void GetReadonlyCopyOfLatestVersion(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(

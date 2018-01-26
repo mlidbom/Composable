@@ -51,10 +51,10 @@ namespace AccountManagement
             AccountUIAdapter.ChangePassword(registrar);
             AccountUIAdapter.Login(registrar);
 
-            Account.InternalServices.GetById(registrar);
-            Account.InternalServices.Save(registrar);
-            Account.InternalServices.GetReadonlyCopyOfLatestVersion(registrar);
-            Account.InternalServices.GetReadonlyCopyOfSpecificVersion(registrar);
+            Account.Repository.Get(registrar);
+            Account.Repository.Save(registrar);
+            Account.Repository.GetReadonlyCopyOfLatestVersion(registrar);
+            Account.Repository.GetReadonlyCopyOfSpecificVersion(registrar);
 
             EmailToAccountMapper.UpdateMappingWhenEmailChanges(registrar);
             EmailToAccountMapper.TryGetAccountByEmail(registrar);

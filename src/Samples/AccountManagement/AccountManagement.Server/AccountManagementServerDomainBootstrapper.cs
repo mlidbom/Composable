@@ -6,6 +6,7 @@ using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Services.Implementation;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 
@@ -14,6 +15,7 @@ namespace AccountManagement
     public class AccountManagementServerDomainBootstrapper
     {
         SqlServerEventStoreRegistrationBuilder _eventStore;
+        DocumentDbRegistrationBuilder _documentDb;
 
         public IEndpoint RegisterWith(IEndpointHost host)
         {
@@ -33,7 +35,7 @@ namespace AccountManagement
         {
             _eventStore = container.RegisterSqlServerEventStore(configuration.ConnectionStringName);
 
-            container.RegisterSqlServerDocumentDb(configuration.ConnectionStringName);
+            _documentDb = container.RegisterSqlServerDocumentDb(configuration.ConnectionStringName);
         }
 
         static void RegisterUserInterfaceComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
@@ -47,6 +49,7 @@ namespace AccountManagement
         void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
             _eventStore.HandleAggregate<Account>(registrar);
+            _documentDb.HandleDocumentType<AggregateLink<Account>>(registrar);
 
             UIAdapterLayer.Register(registrar);
 

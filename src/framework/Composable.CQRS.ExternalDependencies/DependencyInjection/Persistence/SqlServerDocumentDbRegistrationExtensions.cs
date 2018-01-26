@@ -2,8 +2,11 @@ using System;
 using Castle.DynamicProxy;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging;
+using Composable.Messaging.Buses;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
+using Composable.Persistence.EventStore;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
@@ -39,7 +42,7 @@ namespace Composable.DependencyInjection.Persistence
             }
         }
 
-        public static void RegisterSqlServerDocumentDb(this IDependencyInjectionContainer @this, string connectionName)
+        public static DocumentDbRegistrationBuilder RegisterSqlServerDocumentDb(this IDependencyInjectionContainer @this, string connectionName)
         {
             Contract.Argument(() => connectionName).NotNullEmptyOrWhiteSpace();
 
@@ -65,6 +68,8 @@ namespace Composable.DependencyInjection.Persistence
                                     .ImplementedBy<DocumentDbSession>()
                                     .LifestyleScoped()
                           );
+
+            return new DocumentDbRegistrationBuilder();
         }
 
         public static void RegisterSqlServerDocumentDb<TUpdater, TReader, TBulkReader>(this IDependencyInjectionContainer @this,
@@ -129,5 +134,25 @@ namespace Composable.DependencyInjection.Persistence
                                                                                               },
                                                                  options: ProxyGenerationOptions.Default);
         }
+    }
+
+    public class DocumentDbRegistrationBuilder
+    {
+        public DocumentDbRegistrationBuilder HandleDocumentType<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
+        {
+            Save<TDocument>(registrar);
+            Get<TDocument>(registrar);
+            GetReadonlyCopyOfLatestVersion<TDocument>(registrar);
+            return this;
+        }
+
+        static void Save<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
+            (SaveDocument<TDocument> command, IDocumentDbUpdater updater) => updater.Save(command.Key, command.Entity));
+
+        static void Get<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
+            (DocumentLink<TDocument> query, IDocumentDbUpdater updater) => updater.GetForUpdate<TDocument>(query.Id));
+
+        static void GetReadonlyCopyOfLatestVersion<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
+            (GetReadonlyCopyOfDocument<TDocument> query, IDocumentDbReader reader) => reader.Get<TDocument>(query.Id));
     }
 }

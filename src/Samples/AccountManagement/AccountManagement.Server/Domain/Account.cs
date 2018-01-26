@@ -56,7 +56,7 @@ namespace AccountManagement.Domain
             var newAccount = new Account();
             newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
 
-            AccountApi.Commands.SaveNew(newAccount).PostLocalOn(bus);
+            AccountApi.Commands.Save(newAccount).PostLocalOn(bus);
 
             return (RegistrationAttemptStatus.Successful, newAccount);
         }

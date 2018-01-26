@@ -17,9 +17,9 @@ namespace AccountManagement
 
         public IEndpoint RegisterWith(IEndpointHost host)
         {
-            return host.RegisterAndStartEndpoint("AccountManagement",
-                                                 new EndpointId(Guid.Parse("1A1BE9C8-C8F6-4E38-ABFB-F101E5EDB00D")),
-                                                 builder =>
+            return host.RegisterAndStartEndpoint(name: "AccountManagement",
+                                                 id: new EndpointId(Guid.Parse(input: "1A1BE9C8-C8F6-4E38-ABFB-F101E5EDB00D")),
+                                                 setup: builder =>
                                                  {
                                                      TypeMapper.MapTypes(builder.TypeMapper);
                                                      RegisterDomainComponents(builder.Container, builder.Configuration);
@@ -36,7 +36,7 @@ namespace AccountManagement
             container.RegisterSqlServerDocumentDb(configuration.ConnectionStringName);
         }
 
-        void RegisterUserInterfaceComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
+        static void RegisterUserInterfaceComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
             container.RegisterSqlServerDocumentDb<IAccountManagementUiDocumentDbUpdater, IAccountManagementUiDocumentDbReader, IAccountManagementUiDocumentDbBulkReader>(configuration.ConnectionStringName);
 

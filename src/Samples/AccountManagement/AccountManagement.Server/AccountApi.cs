@@ -1,8 +1,10 @@
 ﻿using System;
 using AccountManagement.Domain;
+using Composable;
 using Composable.Contracts;
 using Composable.Functional;
 using Composable.Messaging;
+// ReSharper disable MemberCanBeMadeStatic.Global we want composable fluent API which does not happen with static members.
 
 namespace AccountManagement
 {
@@ -15,11 +17,11 @@ namespace AccountManagement
         {
             internal TryGetByEmailQuery TryGetByEmail(Email email) => new TryGetByEmailQuery(email);
 
-            internal AggregateLink<Account> Get(Guid id) => new AggregateLink<Account>(id);
+            internal AggregateLink<Account> GetForUpdate(Guid id) => ComposableApi.EventStoreManaging<Account>.GetForUpdate(id);
 
-            internal GetReadonlyCopyOfEntity<Account> GetReadOnlyCopy(Guid id) => new GetReadonlyCopyOfEntity<Account>(id);
+            internal GetReadonlyCopyOfAggregate<Account> GetReadOnlyCopy(Guid id) => ComposableApi.EventStoreManaging<Account>.GetReadOnlyCopy(id);
 
-            internal GetReadonlyCopyOfEntityVersion<Account> GetReadOnlyCopyOfVersion(Guid id, int version) => new GetReadonlyCopyOfEntityVersion<Account>(id, version);
+            internal GetReadonlyCopyOfAggregateVersion<Account> GetReadOnlyCopyOfVersion(Guid id, int version) => ComposableApi.EventStoreManaging<Account>.GetReadOnlyCopyOfVersion(id, version);
 
             internal class TryGetByEmailQuery : IQuery<Option<Account>>
             {
@@ -35,7 +37,7 @@ namespace AccountManagement
 
         internal class Command
         {
-            internal PersistEntityCommand<Account> SaveNew(Account account) => new PersistEntityCommand<Account>(account);
+            internal PersistEntityCommand<Account> Save(Account account) => ComposableApi.EventStoreManaging<Account>.Save(account);
         }
     }
 }

@@ -35,11 +35,11 @@ namespace AccountManagement.UI
 
         internal static void ChangePassword(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Command.ChangePassword command, ILocalServiceBusSession bus) =>
-                AccountApi.Queries.Get(command.AccountId).GetLocalOn(bus).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
+                AccountApi.Queries.GetForUpdate(command.AccountId).GetLocalOn(bus).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
 
         internal static void ChangeEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Command.ChangeEmail command, ILocalServiceBusSession bus) =>
-                AccountApi.Queries.Get(command.AccountId).GetLocalOn(bus).ChangeEmail(Email.Parse(command.Email)));
+                AccountApi.Queries.GetForUpdate(command.AccountId).GetLocalOn(bus).ChangeEmail(Email.Parse(command.Email)));
 
         internal static void Register(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
             (AccountResource.Command.Register command, ILocalServiceBusSession bus) =>

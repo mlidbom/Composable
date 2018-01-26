@@ -38,8 +38,8 @@ namespace AccountManagement
                 //todo: Having to do this for interal stuff makes no sense at all.
                .Map<Composable.Messaging.AggregateLink<Domain.Account>>("e5648606-0d8b-450e-8eec-a66899b7e12a")
                .Map<Composable.Messaging.PersistEntityCommand<Domain.Account>>("01b66bcb-1a39-4bb0-8344-444349ee0790")
-               .Map<Composable.Messaging.GetReadonlyCopyOfEntity<Domain.Account>>("b57e938c-254e-4f0a-9afd-b4cfef228189")
-               .Map<Composable.Messaging.GetReadonlyCopyOfEntityVersion<Domain.Account>>("9b5ef7b2-cbc6-46a5-a1d0-2400b1cc0951");
+               .Map<Composable.Messaging.GetReadonlyCopyOfAggregate<Domain.Account>>("b57e938c-254e-4f0a-9afd-b4cfef228189")
+               .Map<Composable.Messaging.GetReadonlyCopyOfAggregateVersion<Domain.Account>>("9b5ef7b2-cbc6-46a5-a1d0-2400b1cc0951");
         }
     }
 }

@@ -12,7 +12,7 @@ namespace AccountManagement.Domain
                 (PersistEntityCommand<Account> command, IEventStoreUpdater updater) => updater.Save(command.Entity));
 
             internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-                (EntityLink<Account> query, IEventStoreUpdater updater) => updater.Get<Account>(query.Id));
+                (AggregateLink<Account> query, IEventStoreUpdater updater) => updater.Get<Account>(query.Id));
 
             internal static void GetReadonlyCopyOfLatestVersion(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                 (ReadonlyCopyOfEntityByIdQuery<Account> query, IEventStoreReader reader) => reader.GetReadonlyCopy<Account>(query.Id));

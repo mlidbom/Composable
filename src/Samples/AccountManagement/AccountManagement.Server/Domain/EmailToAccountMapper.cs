@@ -12,7 +12,7 @@ namespace AccountManagement.Domain
     {
         internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (AccountApi.Query.TryGetByEmailQuery tryGetAccount, IDocumentDbReader documentDb, ILocalServiceBusSession bus) =>
-                documentDb.TryGet(tryGetAccount.Email, out EntityLink<Account> accountLink) ? Option.Some(bus.Get(accountLink)) : Option.None<Account>());
+                documentDb.TryGet(tryGetAccount.Email, out AggregateLink<Account> accountLink) ? Option.Some(bus.Get(accountLink)) : Option.None<Account>());
 
         internal static void UpdateMappingWhenEmailChanges(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
             (AccountEvent.PropertyUpdated.Email emailUpdated, IDocumentDbUpdater queryModels, ILocalServiceBusSession bus) =>
@@ -20,11 +20,11 @@ namespace AccountManagement.Domain
                 if(emailUpdated.AggregateVersion > 1)
                 {
                     var previousAccountVersion = bus.Get(AccountApi.Queries.ReadOnlyCopyOfVersion(emailUpdated.AggregateId, emailUpdated.AggregateVersion -1));
-                    queryModels.Delete<EntityLink<Account>>(previousAccountVersion.Email);
+                    queryModels.Delete<AggregateLink<Account>>(previousAccountVersion.Email);
                 }
 
                 var newEmail = emailUpdated.Email;
-                queryModels.Save(newEmail, new EntityLink<Account>(emailUpdated.AggregateId));
+                queryModels.Save(newEmail, new AggregateLink<Account>(emailUpdated.AggregateId));
             });
     }
 }

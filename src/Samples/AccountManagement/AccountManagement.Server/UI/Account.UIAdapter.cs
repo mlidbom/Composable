@@ -57,7 +57,7 @@ namespace AccountManagement.UI
             });
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (EntityLink<AccountResource> accountQuery, ILocalServiceBusSession bus)
+            (AggregateLink<AccountResource> accountQuery, ILocalServiceBusSession bus)
                 => new AccountResource(bus.Get(AccountApi.Queries.ReadOnlyCopy(accountQuery.Id))));
     }
 }

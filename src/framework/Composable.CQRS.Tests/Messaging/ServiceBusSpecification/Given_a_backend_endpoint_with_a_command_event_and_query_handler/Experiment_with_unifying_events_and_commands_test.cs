@@ -109,10 +109,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarCommand
         {
-            public interface IRoot : MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand {}
+            public interface IRoot : MessagingApi.Remote.ExactlyOnce.ICommand {}
 
-            public class Root : ExactlyOnceCommand, IRoot {}
-            public class Root<TResult> : ExactlyOnceCommand<TResult>, IRoot where TResult : MessagingApi.IMessage {}
+            public class Root : Command, IRoot {}
+            public class Root<TResult> : Command<TResult>, IRoot where TResult : MessagingApi.IMessage {}
 
             public class RegisterUserCommand : Root<RegisterUserResult>
             {

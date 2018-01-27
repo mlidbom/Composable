@@ -101,9 +101,9 @@ namespace Composable.Messaging.Buses.Implementation
             static TransportMessageType GetMessageType(MessagingApi.IMessage message)
             {
                 switch(message) {
-                    case MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent _:
+                    case MessagingApi.Remote.ExactlyOnce.IEvent _:
                         return TransportMessageType.Event;
-                    case MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand _:
+                    case MessagingApi.Remote.ExactlyOnce.ICommand _:
                         return TransportMessageType.Command;
                     case MessagingApi.IQuery _:
                         return TransportMessageType.Query;

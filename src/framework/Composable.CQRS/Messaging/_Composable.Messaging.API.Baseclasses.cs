@@ -37,15 +37,15 @@ namespace Composable.Messaging
         public Guid Id { get; private set; }
     }
 
-    public class ExactlyOnceCommand : ValueObject<ExactlyOnceCommand>, MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand
+    public class Command : ValueObject<Command>, MessagingApi.Remote.ExactlyOnce.ICommand
     {
         public Guid MessageId { get; private set; }
 
-        protected ExactlyOnceCommand()
+        protected Command()
             : this(Guid.NewGuid()) {}
 
-        ExactlyOnceCommand(Guid id) => MessageId = id;
+        Command(Guid id) => MessageId = id;
     }
 
-    public class ExactlyOnceCommand<TResult> : ExactlyOnceCommand, MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TResult> {}
+    public class Command<TResult> : Command, MessagingApi.Remote.ExactlyOnce.ICommand<TResult> {}
 }

@@ -8,7 +8,7 @@ namespace Composable.Messaging.Buses
     {
         static class CommandValidator
         {
-            public static void AssertCommandIsValid(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand command)
+            public static void AssertCommandIsValid(MessagingApi.Remote.ExactlyOnce.ICommand command)
             {
                 var failures = ValidationFailures(command);
                 if(failures.Any())

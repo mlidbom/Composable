@@ -66,6 +66,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             _host.Dispose();
         }
 
-        class ScheduledCommand : ExactlyOnceCommand {}
+        class ScheduledCommand : Command {}
     }
 }

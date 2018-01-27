@@ -64,7 +64,7 @@ namespace Composable.Persistence.DocumentDb
 
             public SaveDocument<TDocument> Save<TDocument>(TDocument account) where TDocument : IHasPersistentIdentity<Guid> => new SaveDocument<TDocument>(account.Id.ToString(), account);
 
-            public class SaveDocument<TEntity> : ExactlyOnceCommand
+            public class SaveDocument<TEntity> : Messaging.Command
             {
                 public SaveDocument(string key, TEntity entity)
                 {

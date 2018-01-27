@@ -53,7 +53,7 @@ namespace Composable.Persistence.EventStore
         {
             public SaveAggregate<TAggregate> Save<TAggregate>(TAggregate account) => new SaveAggregate<TAggregate>(account);
 
-            public class SaveAggregate<TEntity> : ExactlyOnceCommand
+            public class SaveAggregate<TEntity> : Messaging.Command
             {
                 public SaveAggregate(TEntity entity) => Entity = entity;
                 public TEntity Entity { get; }

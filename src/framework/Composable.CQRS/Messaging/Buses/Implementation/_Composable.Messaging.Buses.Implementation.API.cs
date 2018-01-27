@@ -13,18 +13,18 @@ namespace Composable.Messaging.Buses.Implementation
     {
         void Stop();
         void Start();
-        void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent message);
-        void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand command);
-        Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TCommandResult> command);
+        void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.IEvent message);
+        void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.ICommand command);
+        Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(MessagingApi.Remote.ExactlyOnce.ICommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(MessagingApi.IQuery<TQueryResult> command);
         void Connect(IEndpoint endpoint);
     }
 
     interface IClientConnection : IDisposable
     {
-        void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent @event);
-        void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand command);
-        Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TCommandResult> command);
+        void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.IEvent @event);
+        void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.ICommand command);
+        Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(MessagingApi.Remote.ExactlyOnce.ICommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(MessagingApi.IQuery<TQueryResult> query);
     }
 

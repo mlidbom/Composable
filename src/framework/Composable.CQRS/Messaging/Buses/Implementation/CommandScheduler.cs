@@ -26,7 +26,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Start() => _guard.Update(() => _scheduledMessagesTimer = new Timer(callback: _ => SendDueCommands(), state: null, dueTime: 0.Seconds(), period: 100.Milliseconds()));
 
-        public void Schedule(DateTime sendAt, MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand message) => _guard.Update(() =>
+        public void Schedule(DateTime sendAt, MessagingApi.Remote.ExactlyOnce.ICommand message) => _guard.Update(() =>
         {
             if(_timeSource.UtcNow > sendAt.ToUniversalTime())
                 throw new InvalidOperationException(message: "You cannot schedule a queuedMessageInformation to be sent in the past.");
@@ -49,9 +49,9 @@ namespace Composable.Messaging.Buses.Implementation
         class ScheduledCommand
         {
             public DateTime SendAt { get; }
-            public MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand Command { get; }
+            public MessagingApi.Remote.ExactlyOnce.ICommand Command { get; }
 
-            public ScheduledCommand(DateTime sendAt, MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand command)
+            public ScheduledCommand(DateTime sendAt, MessagingApi.Remote.ExactlyOnce.ICommand command)
             {
                 SendAt = sendAt.SafeToUniversalTime();
                 Command = command;

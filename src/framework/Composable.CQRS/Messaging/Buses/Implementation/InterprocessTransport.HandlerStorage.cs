@@ -62,7 +62,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _queryHandlerMap.Add(queryTypeId, endpointId);
             }
 
-            internal EndpointId GetCommandHandlerEndpoint(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand command)
+            internal EndpointId GetCommandHandlerEndpoint(MessagingApi.Remote.ExactlyOnce.ICommand command)
             {
                 var commandTypeId = _typeMapper.GetId(command.GetType());
 
@@ -86,7 +86,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return endpointId;
             }
 
-            internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent @event)
+            internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(MessagingApi.Remote.ExactlyOnce.IEvent @event)
             {
                 var typedEventHandlerRegistrations = _eventHandlerRegistrations
                                                      .Where(me => _typeMapper.TryGetType(me.EventType, out var _))
@@ -102,8 +102,8 @@ namespace Composable.Messaging.Buses.Implementation
                        .ToList();
             }
 
-            static bool IsCommand(Type type) => typeof(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand).IsAssignableFrom(type);
-            static bool IsEvent(Type type) => typeof(MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent).IsAssignableFrom(type);
+            static bool IsCommand(Type type) => typeof(MessagingApi.Remote.ExactlyOnce.ICommand).IsAssignableFrom(type);
+            static bool IsEvent(Type type) => typeof(MessagingApi.Remote.ExactlyOnce.IEvent).IsAssignableFrom(type);
             static bool IsQuery(Type type) => typeof(MessagingApi.IQuery).IsAssignableFrom(type);
         }
     }

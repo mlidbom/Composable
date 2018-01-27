@@ -1,5 +1,6 @@
 ﻿using System;
 // ReSharper disable UnusedTypeParameter
+// ReSharper disable MemberHidesStaticFromOuterClass
 
 namespace Composable.Messaging
 {
@@ -20,27 +21,27 @@ namespace Composable.Messaging
         ///<summary>An instructs the receiver to return a resource based upon the data in the query.</summary>
         public interface IQuery<TResult> : MessagingApi.IQuery { }
 
-        public class Local
+        public static class Local
         {
-            public interface IOnlyLocalReceiver {}
-            public interface ILocalEvent : IEvent, IOnlyLocalReceiver { }
-            public interface ILocalCommand : ICommand, IOnlyLocalReceiver { }
-            public interface ILocalCommand<TResult> : ICommand<TResult>, IOnlyLocalReceiver  { }
-            public interface ILocalQuery<TResult> : IOnlyLocalReceiver, MessagingApi.IQuery<TResult> { }
+            public interface IRequireLocalReceiver {}
+            public interface IEvent : MessagingApi.IEvent, IRequireLocalReceiver { }
+            public interface ICommand : MessagingApi.ICommand, IRequireLocalReceiver { }
+            public interface ICommand<TResult> : MessagingApi.ICommand<TResult>, IRequireLocalReceiver  { }
+            public interface IQuery<TResult> : IRequireLocalReceiver, MessagingApi.IQuery<TResult> { }
         }
 
-        public class Remote
+        public static class Remote
         {
             public interface ISupportRemoteReceiver {}
 
-            public class AtMostOnce
+            public class NonTransactional
             {
                 public interface IAtMostOnceDelivery {}
                 public interface IForbidTransactionalSend { }
 
-                public interface IUserInterfaceMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteReceiver {}
-                public interface IUserInterfaceCommand<TResult> : ICommand<TResult>, IUserInterfaceMessage  { }
-                public interface IUserInterfaceQuery<TResult> : MessagingApi.IQuery<TResult>, IUserInterfaceMessage { }
+                public interface IMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteReceiver {}
+                public interface ICommand<TResult> : MessagingApi.ICommand<TResult>, IMessage  { }
+                public interface IQuery<TResult> : MessagingApi.IQuery<TResult>, IMessage { }
             }
 
             public class ExactlyOnce
@@ -52,9 +53,9 @@ namespace Composable.Messaging
                 public interface IProvidesOwnMessageId { Guid MessageId { get; } }
                 public interface IExactlyOnceMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId {}
 
-                public interface IExactlyOnceEvent : IEvent, IExactlyOnceMessage { }
-                public interface IExactlyOnceCommand : ICommand, IExactlyOnceMessage { }
-                public interface IExactlyOnceCommand<TResult> : ICommand<TResult>, MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand { }
+                public interface IEvent : MessagingApi.IEvent, IExactlyOnceMessage { }
+                public interface ICommand : MessagingApi.ICommand, IExactlyOnceMessage { }
+                public interface ICommand<TResult> : MessagingApi.ICommand<TResult>, MessagingApi.Remote.ExactlyOnce.ICommand { }
             }
         }
     }

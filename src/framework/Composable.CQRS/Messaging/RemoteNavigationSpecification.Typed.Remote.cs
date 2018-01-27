@@ -20,9 +20,9 @@ namespace Composable.Messaging
 
             internal class StartCommand : RemoteNavigationSpecification<TResult>
             {
-                readonly MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TResult> _start;
+                readonly MessagingApi.Remote.ExactlyOnce.ICommand<TResult> _start;
 
-                internal StartCommand(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TResult> start) => _start = start;
+                internal StartCommand(MessagingApi.Remote.ExactlyOnce.ICommand<TResult> start) => _start = start;
 
                 public override TResult ExecuteRemoteOn(IRemoteServiceBusSession busSession) => busSession.PostRemote(_start);
                 public override Task<TResult> ExecuteRemoteAsyncOn(IRemoteServiceBusSession busSession) => busSession.PostRemoteAsync(_start);
@@ -57,8 +57,8 @@ namespace Composable.Messaging
             internal class PostCommand<TPrevious> : RemoteNavigationSpecification<TResult>
             {
                 readonly RemoteNavigationSpecification<TPrevious> _previous;
-                readonly Func<TPrevious, MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TResult>> _next;
-                internal PostCommand(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TResult>> next)
+                readonly Func<TPrevious, MessagingApi.Remote.ExactlyOnce.ICommand<TResult>> _next;
+                internal PostCommand(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, MessagingApi.Remote.ExactlyOnce.ICommand<TResult>> next)
                 {
                     _previous = previous;
                     _next = next;
@@ -82,8 +82,8 @@ namespace Composable.Messaging
             internal class PostVoidCommand<TPrevious> : RemoteNavigationSpecification
             {
                 readonly RemoteNavigationSpecification<TPrevious> _previous;
-                readonly Func<TPrevious, MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand> _next;
-                internal PostVoidCommand(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand> next)
+                readonly Func<TPrevious, MessagingApi.Remote.ExactlyOnce.ICommand> _next;
+                internal PostVoidCommand(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, MessagingApi.Remote.ExactlyOnce.ICommand> next)
                 {
                     _previous = previous;
                     _next = next;

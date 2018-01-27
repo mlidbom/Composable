@@ -74,7 +74,7 @@ namespace Composable.Messaging.Buses.Implementation
             state.Poller = null;
         });
 
-        public void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent @event) => _state.WithExclusiveAccess(state =>
+        public void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.IEvent @event) => _state.WithExclusiveAccess(state =>
         {
             var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(@event);
 
@@ -89,7 +89,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
         });
 
-        public void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand command) => _state.WithExclusiveAccess(state =>
+        public void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.ICommand command) => _state.WithExclusiveAccess(state =>
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
@@ -97,7 +97,7 @@ namespace Composable.Messaging.Buses.Implementation
             connection.DispatchIfTransactionCommits(command);
         });
 
-        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
+        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(MessagingApi.Remote.ExactlyOnce.ICommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];

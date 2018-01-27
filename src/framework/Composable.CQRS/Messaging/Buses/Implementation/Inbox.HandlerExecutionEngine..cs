@@ -55,9 +55,9 @@ namespace Composable.Messaging.Buses.Implementation
 
                 switch(innerMessage)
                 {
-                    case MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand command:
+                    case MessagingApi.Remote.ExactlyOnce.ICommand command:
                         return await DispatchAsync(command, message);
-                    case MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent @event:
+                    case MessagingApi.Remote.ExactlyOnce.IEvent @event:
                         return await DispatchAsync(@event, message);
                     case MessagingApi.IQuery query:
                         return await DispatchAsync(query, message);
@@ -105,7 +105,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent @event, TransportMessage.InComing message)
+            async Task<object> DispatchAsync(MessagingApi.Remote.ExactlyOnce.IEvent @event, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -128,7 +128,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand command, TransportMessage.InComing message)
+            async Task<object> DispatchAsync(MessagingApi.Remote.ExactlyOnce.ICommand command, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetCommandHandler(command.GetType());
 

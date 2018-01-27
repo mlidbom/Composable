@@ -10,7 +10,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public partial class LogIn : ExactlyOnceCommand<LogIn.LoginAttemptResult>
+            public partial class LogIn : Command<LogIn.LoginAttemptResult>
             {
                     [Required] [Email] public string Email { get; set; }
                     [Required] public string Password { get; set; }

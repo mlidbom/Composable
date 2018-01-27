@@ -19,7 +19,7 @@ namespace Composable.Persistence.DocumentDb
 
             public GetReadonlyCopyOfDocument<TDocument> GetReadOnlyCopy<TDocument>(Guid id) => new GetReadonlyCopyOfDocument<TDocument>(id);
 
-            public class DocumentLink<TEntity> : BusApi.Remote.ExactlyOnce.Message, BusApi.IQuery<TEntity>
+            public class DocumentLink<TEntity> : BusApi.Local.Queries.Query<TEntity>
             {
                 internal DocumentLink() {}
                 public DocumentLink(Guid id) => Id = id;
@@ -27,7 +27,7 @@ namespace Composable.Persistence.DocumentDb
                 public DocumentLink<TEntity> WithId(Guid id) => new DocumentLink<TEntity> {Id = id};
             }
 
-            public class TryGetDocument<TEntity> : BusApi.Remote.ExactlyOnce.Message, BusApi.IQuery<TEntity>
+            public class TryGetDocument<TEntity> : BusApi.Local.Queries.Query<TEntity>
             {
                 internal TryGetDocument() {}
                 public TryGetDocument(Guid id) => Id = id;
@@ -35,7 +35,7 @@ namespace Composable.Persistence.DocumentDb
                 public DocumentLink<TEntity> WithId(Guid id) => new DocumentLink<TEntity> {Id = id};
             }
 
-            public class GetReadonlyCopyOfDocument<TEntity> : BusApi.Remote.ExactlyOnce.Message, BusApi.IQuery<TEntity>
+            public class GetReadonlyCopyOfDocument<TEntity> : BusApi.Local.Queries.Query<TEntity>
             {
                 public GetReadonlyCopyOfDocument() {}
                 public GetReadonlyCopyOfDocument(Guid id) => Id = id;
@@ -43,7 +43,7 @@ namespace Composable.Persistence.DocumentDb
                 public DocumentLink<TEntity> WithId(Guid id) => new DocumentLink<TEntity> {Id = id};
             }
 
-            public class GetReadonlyCopyOfDocumentVersion<TEntity> : BusApi.Remote.ExactlyOnce.Message, BusApi.IQuery<TEntity>
+            public class GetReadonlyCopyOfDocumentVersion<TEntity> : BusApi.Local.Queries.Query<TEntity>
             {
                 public GetReadonlyCopyOfDocumentVersion() {}
                 public GetReadonlyCopyOfDocumentVersion(Guid id, int version)
@@ -64,7 +64,7 @@ namespace Composable.Persistence.DocumentDb
 
             public SaveDocument<TDocument> Save<TDocument>(TDocument account) where TDocument : IHasPersistentIdentity<Guid> => new SaveDocument<TDocument>(account.Id.ToString(), account);
 
-            public class SaveDocument<TEntity> : BusApi.Remote.ExactlyOnce.Command
+            public class SaveDocument<TEntity> : BusApi.Local.Commands.Command
             {
                 public SaveDocument(string key, TEntity entity)
                 {

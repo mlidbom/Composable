@@ -114,9 +114,9 @@ namespace Composable.System.Reflection
 
             var typeArguments = @this.GenericTypeArguments;
             // ReSharper disable once PossibleNullReferenceException
-            var genericTypeName = @this.GetGenericTypeDefinition().FullName.Replace($@"`{typeArguments.Length}", "");
+            var genericTypeName = @this.GetGenericTypeDefinition().GetFullNameCompilable().Replace($@"`{typeArguments.Length}", "");
 
-            var name = $"{genericTypeName}<{typeArguments.Select(type => type.FullName).Join(",")}>";
+            var name = $"{genericTypeName}<{typeArguments.Select(type => type.GetFullNameCompilable()).Join(",")}>";
 
             return name;
         }

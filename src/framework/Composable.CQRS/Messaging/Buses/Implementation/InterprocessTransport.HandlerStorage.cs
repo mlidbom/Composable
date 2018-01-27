@@ -32,6 +32,9 @@ namespace Composable.Messaging.Buses.Implementation
                         } else if(IsRemoteQuery(type))
                         {
                             AddQueryHandler(type, endpointId);
+                        } else
+                        {
+                            throw new Exception($"Type {typeId} is neither a remote command, event or query.");
                         }
                     }
                 }

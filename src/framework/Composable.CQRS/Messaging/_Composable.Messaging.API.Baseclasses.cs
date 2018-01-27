@@ -5,17 +5,7 @@ namespace Composable.Messaging
 {
     public abstract class QueryResult {}
 
-    public abstract class RemoteQuery<TResult> : MessagingApi.IQuery<TResult> {}
-
     public abstract class LocalQuery<TResult> : MessagingApi.IQuery<TResult> {}
-
-    public class RemoteEntityResourceQuery<TResource> : RemoteQuery<TResource> where TResource : IHasPersistentIdentity<Guid>
-    {
-        public RemoteEntityResourceQuery() {}
-        public RemoteEntityResourceQuery(Guid entityId) => EntityId = entityId;
-        public RemoteEntityResourceQuery<TResource> WithId(Guid id) => new RemoteEntityResourceQuery<TResource>(id);
-        public Guid EntityId { get; private set; }
-    }
 
     ///<summary>Represent an entity within the domain of the current API that is uniquely identifiable through its type and Id.</summary>
     public interface IEntityResource : IHasPersistentIdentity<Guid>

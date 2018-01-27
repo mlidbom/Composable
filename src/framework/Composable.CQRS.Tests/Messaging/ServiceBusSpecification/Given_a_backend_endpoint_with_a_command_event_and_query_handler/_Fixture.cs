@@ -68,7 +68,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         protected class MyCommand : Command {}
         protected class MyEvent : AggregateEvent {}
-        protected class MyQuery : RemoteQuery<MyQueryResult> {}
+        protected class MyQuery : MessagingApi.Remote.Query.RemoteQuery<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
         protected class MyCommandWithResult : Command<MyCommandResult> {}
         protected class MyCommandResult : ExactlyOnceMessage {}

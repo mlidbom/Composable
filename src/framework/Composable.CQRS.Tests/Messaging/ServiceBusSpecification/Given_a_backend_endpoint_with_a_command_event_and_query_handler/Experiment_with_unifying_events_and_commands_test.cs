@@ -169,7 +169,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        public class GetUserQuery : RemoteQuery<UserResource>
+        public class GetUserQuery : MessagingApi.Remote.Query.RemoteQuery<UserResource>
         {
             public Guid UserId { get; private set; }
             public GetUserQuery(Guid userId) => UserId = userId;

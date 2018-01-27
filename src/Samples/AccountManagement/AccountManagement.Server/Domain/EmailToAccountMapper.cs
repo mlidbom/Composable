@@ -1,7 +1,6 @@
 ﻿using AccountManagement.Domain.Events;
 using Composable;
 using Composable.Functional;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.DocumentDb;
 using JetBrains.Annotations;
@@ -23,13 +22,13 @@ namespace AccountManagement.Domain
                 }
 
                 var newEmail = emailUpdated.Email;
-                bus.PostLocal(DocumentDb.Commands.Save(newEmail.ToString(), AccountApi.Queries.GetForUpdate(emailUpdated.AggregateId)));
+                bus.PostLocal(DocumentDb.Commands.Save(newEmail.StringValue, AccountApi.Queries.GetForUpdate(emailUpdated.AggregateId)));
             });
 
         internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (AccountApi.Query.TryGetByEmailQuery tryGetAccount, ILocalServiceBusSession bus) =>
                 bus.GetLocal(DocumentDb.Queries.TryGet<AccountLink>(tryGetAccount.Email.StringValue)) is Some<AccountLink> accountLink
-                    ? Option.Some(accountLink.Value.GetLocalOn(bus))
+                    ? Option.Some(bus.GetLocal(accountLink.Value))
                     : Option.None<Account>());
     }
 }

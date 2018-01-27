@@ -18,7 +18,7 @@ namespace Composable.Persistence.EventStore
 
             public GetReadonlyCopyOfAggregateVersion<TAggregate> GetReadOnlyCopyOfVersion<TAggregate>(Guid id, int version) => new GetReadonlyCopyOfAggregateVersion<TAggregate>(id, version);
 
-            public class AggregateLink<TEntity> : LocalQuery<TEntity>
+            public class AggregateLink<TEntity> : MessagingApi.Local.Queries.Query<TEntity>
             {
                 public AggregateLink() {}
                 public AggregateLink(Guid id) => Id = id;
@@ -26,7 +26,7 @@ namespace Composable.Persistence.EventStore
                 public AggregateLink<TEntity> WithId(Guid id) => new AggregateLink<TEntity> {Id = id};
             }
 
-            public class GetReadonlyCopyOfAggregate<TEntity> : LocalQuery<TEntity>
+            public class GetReadonlyCopyOfAggregate<TEntity> : MessagingApi.Local.Queries.Query<TEntity>
             {
                 public GetReadonlyCopyOfAggregate() {}
                 public GetReadonlyCopyOfAggregate(Guid id) => Id = id;
@@ -34,7 +34,7 @@ namespace Composable.Persistence.EventStore
                 public AggregateLink<TEntity> WithId(Guid id) => new AggregateLink<TEntity> {Id = id};
             }
 
-            public class GetReadonlyCopyOfAggregateVersion<TEntity> : LocalQuery<TEntity>
+            public class GetReadonlyCopyOfAggregateVersion<TEntity> : MessagingApi.Local.Queries.Query<TEntity>
             {
                 public GetReadonlyCopyOfAggregateVersion() {}
                 public GetReadonlyCopyOfAggregateVersion(Guid id, int version)
@@ -53,7 +53,7 @@ namespace Composable.Persistence.EventStore
         {
             public SaveAggregate<TAggregate> Save<TAggregate>(TAggregate account) => new SaveAggregate<TAggregate>(account);
 
-            public class SaveAggregate<TEntity> : MessagingApi.Remote.ExactlyOnce.Command
+            public class SaveAggregate<TEntity> : MessagingApi.Local.Commands.Command
             {
                 public SaveAggregate(TEntity entity) => Entity = entity;
                 public TEntity Entity { get; }

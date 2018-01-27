@@ -41,7 +41,8 @@ namespace Composable.Messaging
 
                 public interface IMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteReceiver {}
                 public interface ICommand<TResult> : MessagingApi.ICommand<TResult>, IMessage  { }
-                public interface IQuery<TResult> : MessagingApi.IQuery<TResult>, IMessage { }
+                public interface IQuery : MessagingApi.IQuery, IMessage { }
+                public interface IQuery<TResult> : MessagingApi.IQuery<TResult>, MessagingApi.Remote.NonTransactional.IQuery, IMessage { }
             }
 
             public partial class ExactlyOnce

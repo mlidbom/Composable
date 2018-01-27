@@ -26,7 +26,7 @@ namespace AccountManagement
 
             internal EventStoreApi.Query.GetReadonlyCopyOfAggregateVersion<Account> GetReadOnlyCopyOfVersion(Guid id, int version) => ComposableApi.EventStoreManaging().Queries.GetReadOnlyCopyOfVersion<Account>(id, version);
 
-            internal class TryGetByEmailQuery : MessagingApi.IQuery<Option<Account>>
+            internal class TryGetByEmailQuery : MessagingApi.Local.IQuery<Option<Account>>
             {
                 public TryGetByEmailQuery(Email accountId)
                 {

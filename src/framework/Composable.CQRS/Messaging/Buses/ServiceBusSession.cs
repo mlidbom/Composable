@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Persistence.EventStore.Aggregates;
 using Composable.System.Threading;
 using Composable.System.Transactions;
 using Composable.SystemExtensions.Threading;
@@ -69,7 +68,7 @@ namespace Composable.Messaging.Buses
 
         TResult IRemoteServiceBusSession.PostRemote<TResult>(MessagingApi.Remote.ExactlyOnce.ICommand<TResult> command) => ((IRemoteServiceBusSession)this).PostRemoteAsync(command).ResultUnwrappingException();
 
-        TResult ILocalServiceBusSession.PostLocal<TResult>(MessagingApi.Remote.ExactlyOnce.ICommand<TResult> command) => TransactionScopeCe.Execute(() =>
+        TResult ILocalServiceBusSession.PostLocal<TResult>(MessagingApi.Local.ICommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSend(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -77,7 +76,7 @@ namespace Composable.Messaging.Buses
             return _handlerRegistry.GetCommandHandler(command).Invoke(command);
         });
 
-        void ILocalServiceBusSession.PostLocal(MessagingApi.Remote.ExactlyOnce.ICommand command) => TransactionScopeCe.Execute(() =>
+        void ILocalServiceBusSession.PostLocal(MessagingApi.Local.ICommand command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSend(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -85,7 +84,7 @@ namespace Composable.Messaging.Buses
             _handlerRegistry.GetCommandHandler(command).Invoke(command);
         });
 
-        TResult ILocalServiceBusSession.GetLocal<TResult>(MessagingApi.IQuery<TResult> query)
+        TResult ILocalServiceBusSession.GetLocal<TResult>(MessagingApi.Local.IQuery<TResult> query)
         {
             MessageInspector.AssertValidToSend(query);
             _contextGuard.AssertNoContextChangeOccurred(this);

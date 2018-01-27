@@ -19,10 +19,10 @@ namespace Composable.Messaging
         public static TResult GetRemoteOn<TResult>(this MessagingApi.IQuery<TResult> query, IRemoteServiceBusSession bus) => RemoteNavigationSpecification.GetRemote(query).ExecuteRemoteOn(bus);
 
 
-        public static TResult PostLocalOn<TResult>(this MessagingApi.Remote.ExactlyOnce.ICommand<TResult> command, ILocalServiceBusSession bus) => bus.PostLocal(command);
+        public static TResult PostLocalOn<TResult>(this MessagingApi.Local.ICommand<TResult> command, ILocalServiceBusSession bus) => bus.PostLocal(command);
 
-        public static void PostLocalOn(this MessagingApi.Remote.ExactlyOnce.ICommand command, ILocalServiceBusSession bus) => bus.PostLocal(command);
+        public static void PostLocalOn(this MessagingApi.Local.ICommand command, ILocalServiceBusSession bus) => bus.PostLocal(command);
 
-        public static TResult GetLocalOn<TResult>(this MessagingApi.IQuery<TResult> query, ILocalServiceBusSession bus) => bus.GetLocal(query);
+        public static TResult GetLocalOn<TResult>(this MessagingApi.Local.IQuery<TResult> query, ILocalServiceBusSession bus) => bus.GetLocal(query);
     }
 }

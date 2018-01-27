@@ -67,7 +67,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Can_register_user_and_fetch_user_resource()
         {
-            var registrationResult = _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() =>  UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBusSession>()));
+            var registrationResult = _userDomainServiceLocator.ExecuteInIsolatedScope(() =>  UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBusSession>()));
 
             var user = _host.ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() =>_host.ClientBusSession.GetRemote(registrationResult.UserLink));
 
@@ -152,7 +152,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 => RegisterEventAppliers()
                     .IgnoreUnhandled<UserRegistrarEvent.IRoot>();
 
-            internal static RegisterUserResult RegisterUser(IServiceBusSession bus) => new UserRegistrarCommand.RegisterUserCommand().PostLocalOn(bus);
+            internal static RegisterUserResult RegisterUser(IServiceBusSession bus) => new UserRegistrarCommand.RegisterUserCommand().PostRemoteOn(bus);
         }
 
         public class UserAggregate : Aggregate<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>

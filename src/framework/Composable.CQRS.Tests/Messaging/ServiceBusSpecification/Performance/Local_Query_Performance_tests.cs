@@ -12,17 +12,17 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         [Test] public void Given_30_client_threads_Runs_100_local_queries_in_2_milliSecond()
         {
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => new MyQuery().GetLocalOn(ServerBusSession)), iterations: 10, maxDegreeOfParallelism: 30);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => new MyLocalQuery().GetLocalOn(ServerBusSession)), iterations: 10, maxDegreeOfParallelism: 30);
 
-            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => new MyQuery().GetLocalOn(ServerBusSession)), iterations: 100, maxTotal: 2.Milliseconds(), maxDegreeOfParallelism: 30);
+            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => new MyLocalQuery().GetLocalOn(ServerBusSession)), iterations: 100, maxTotal: 2.Milliseconds(), maxDegreeOfParallelism: 30);
         }
 
         [Test] public void Given_1_client_thread_Runs_100_local_queries_in_1_milliseconds()
         {
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => new MyQuery().GetLocalOn(ServerBusSession)), iterations: 10, maxDegreeOfParallelism: 30);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => new MyLocalQuery().GetLocalOn(ServerBusSession)), iterations: 10, maxDegreeOfParallelism: 30);
 
-            TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => new MyQuery().GetLocalOn(ServerBusSession)), iterations: 100, maxTotal: 1.Milliseconds());
+            TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => new MyLocalQuery().GetLocalOn(ServerBusSession)), iterations: 100, maxTotal: 1.Milliseconds());
         }
     }
 }

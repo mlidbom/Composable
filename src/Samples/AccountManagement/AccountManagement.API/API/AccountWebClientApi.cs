@@ -15,7 +15,7 @@ namespace AccountManagement.API
     /// </summary>
     public static class AccountWebClientApi
     {
-        public static readonly SelfGeneratingResourceQuery<StartResource> Start = SelfGeneratingResourceQuery<StartResource>.Instance;
+        public static readonly MessagingApi.Remote.Query.SelfGeneratingResourceQuery<StartResource> Start = MessagingApi.Remote.Query.SelfGeneratingResourceQuery<StartResource>.Instance;
     }
 
 

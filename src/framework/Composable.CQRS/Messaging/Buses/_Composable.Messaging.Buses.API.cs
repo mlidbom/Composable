@@ -19,13 +19,13 @@ namespace Composable.Messaging.Buses
     public interface ILocalServiceBusSession : IEventstoreEventPublisher
     {
         ///<summary>Syncronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        TResult GetLocal<TResult>(MessagingApi.IQuery<TResult> query);
+        TResult GetLocal<TResult>(MessagingApi.Local.IQuery<TResult> query);
 
         ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        TResult PostLocal<TResult>(MessagingApi.Remote.ExactlyOnce.ICommand<TResult> command);
+        TResult PostLocal<TResult>(MessagingApi.Local.ICommand<TResult> command);
 
         ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        void PostLocal(MessagingApi.Remote.ExactlyOnce.ICommand command);
+        void PostLocal(MessagingApi.Local.ICommand command);
     }
 
     public interface IRemoteServiceBusSession
@@ -56,30 +56,30 @@ namespace Composable.Messaging.Buses
 
     interface IMessageHandlerRegistry
     {
-        Action<object> GetCommandHandler(MessagingApi.Remote.ExactlyOnce.ICommand message);
+        Action<object> GetCommandHandler(MessagingApi.ICommand message);
 
-        bool TryGetCommandHandler(MessagingApi.Remote.ExactlyOnce.ICommand message, out Action<object> handler);
+        bool TryGetCommandHandler(MessagingApi.ICommand message, out Action<object> handler);
 
-        bool TryGetCommandHandlerWithResult(MessagingApi.Remote.ExactlyOnce.ICommand message, out Func<object, object> handler);
+        bool TryGetCommandHandlerWithResult(MessagingApi.ICommand message, out Func<object, object> handler);
 
-        Func<MessagingApi.Remote.ExactlyOnce.ICommand, object> GetCommandHandler(Type commandType);
+        Func<MessagingApi.ICommand, object> GetCommandHandler(Type commandType);
         Func<MessagingApi.IQuery, object> GetQueryHandler(Type commandType);
-        IReadOnlyList<Action<MessagingApi.Remote.ExactlyOnce.IEvent>> GetEventHandlers(Type eventType);
+        IReadOnlyList<Action<MessagingApi.IEvent>> GetEventHandlers(Type eventType);
 
         Func<MessagingApi.IQuery<TResult>, TResult> GetQueryHandler<TResult>(MessagingApi.IQuery<TResult> query);
 
-        Func<MessagingApi.Remote.ExactlyOnce.ICommand<TResult>, TResult> GetCommandHandler<TResult>(MessagingApi.Remote.ExactlyOnce.ICommand<TResult> command);
+        Func<MessagingApi.ICommand<TResult>, TResult> GetCommandHandler<TResult>(MessagingApi.ICommand<TResult> command);
 
-        IEventDispatcher<MessagingApi.Remote.ExactlyOnce.IEvent> CreateEventDispatcher();
+        IEventDispatcher<MessagingApi.IEvent> CreateEventDispatcher();
 
         ISet<TypeId> HandledTypeIds();
     }
 
     public interface IMessageHandlerRegistrar
     {
-        IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : MessagingApi.Remote.ExactlyOnce.IEvent;
-        IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : MessagingApi.Remote.ExactlyOnce.ICommand;
-        IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : MessagingApi.Remote.ExactlyOnce.ICommand<TResult>;
+        IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : MessagingApi.IEvent;
+        IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : MessagingApi.ICommand;
+        IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : MessagingApi.ICommand<TResult>;
         IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : MessagingApi.IQuery<TResult>;
     }
 
@@ -158,13 +158,6 @@ namespace Composable.Messaging.Buses
     interface ICreateMyOwnResultQuery<TResult> : MessagingApi.IQuery<TResult>
     {
         TResult CreateResult();
-    }
-
-    public class SelfGeneratingResourceQuery<TResource> : ICreateMyOwnResultQuery<TResource> where TResource : new()
-    {
-        SelfGeneratingResourceQuery() {}
-        public static readonly SelfGeneratingResourceQuery<TResource> Instance = new SelfGeneratingResourceQuery<TResource>();
-        public TResource CreateResult() => new TResource();
     }
 
     ///<summary>Any query for this resource will be executed by simply calling the default constructor of the resource type</summary>

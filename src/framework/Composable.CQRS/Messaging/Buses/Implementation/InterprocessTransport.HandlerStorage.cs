@@ -23,18 +23,15 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     if(_typeMapper.TryGetType(typeId, out var type))
                     {
-                        if(IsEvent(type))
+                        if(IsRemoteEvent(type))
                         {
                             AddEventHandler(type, endpointId);
-                        } else if(IsCommand(type))
+                        } else if(IsRemoteCommand(type))
                         {
                             AddCommandHandler(type, endpointId);
-                        } else if(IsQuery(type))
+                        } else if(IsRemoteQuery(type))
                         {
                             AddQueryHandler(type, endpointId);
-                        } else
-                        {
-                            Assert.Argument.Assert(false);
                         }
                     }
                 }
@@ -102,9 +99,9 @@ namespace Composable.Messaging.Buses.Implementation
                        .ToList();
             }
 
-            static bool IsCommand(Type type) => typeof(MessagingApi.Remote.ExactlyOnce.ICommand).IsAssignableFrom(type);
-            static bool IsEvent(Type type) => typeof(MessagingApi.Remote.ExactlyOnce.IEvent).IsAssignableFrom(type);
-            static bool IsQuery(Type type) => typeof(MessagingApi.IQuery).IsAssignableFrom(type);
+            static bool IsRemoteCommand(Type type) => typeof(MessagingApi.Remote.ExactlyOnce.ICommand).IsAssignableFrom(type);
+            static bool IsRemoteEvent(Type type) => typeof(MessagingApi.Remote.ExactlyOnce.IEvent).IsAssignableFrom(type);
+            static bool IsRemoteQuery(Type type) => typeof(MessagingApi.Remote.NonTransactional.IQuery).IsAssignableFrom(type);
         }
     }
 }

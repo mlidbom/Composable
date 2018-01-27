@@ -8,7 +8,6 @@ namespace AccountManagement.UserStories
     [TestFixture] public abstract class UserStoryTest
     {
         protected ITestingEndpointHost Host;
-        protected IEndpoint ClientEndpoint => Host.ClientEndpoint;
         internal AccountScenarioApi Scenario => new AccountScenarioApi(Host.ClientEndpoint);
 
         [SetUp] public void SetupContainerAndBeginScope()

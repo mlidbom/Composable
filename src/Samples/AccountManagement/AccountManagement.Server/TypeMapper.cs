@@ -40,7 +40,7 @@ namespace AccountManagement
 
                 //todo: Having to do this for internal stuff makes no sense at all.
                .Map<EventStoreApi.Query.AggregateLink<Domain.Account>>("e5648606-0d8b-450e-8eec-a66899b7e12a")
-               .Map<EventStoreApi.Command.SaveAggregate<Domain.Account>>("01b66bcb-1a39-4bb0-8344-444349ee0790")
+               //.Map<EventStoreApi.Command.SaveAggregate<Domain.Account>>("01b66bcb-1a39-4bb0-8344-444349ee0790")
                .Map<EventStoreApi.Query.GetReadonlyCopyOfAggregate<Domain.Account>>("b57e938c-254e-4f0a-9afd-b4cfef228189")
                .Map<EventStoreApi.Query.GetReadonlyCopyOfAggregateVersion<Domain.Account>>("9b5ef7b2-cbc6-46a5-a1d0-2400b1cc0951")
                .Map<DocumentDbApi.Query.DocumentLink<EventStoreApi.Query.AggregateLink<AccountManagement.Domain.Account>>>("2d8e86f8-72b7-429f-8a0c-a0c393bea97f")

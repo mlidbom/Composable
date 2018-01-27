@@ -3,7 +3,7 @@
 
 namespace Composable.Messaging
 {
-    public class MessagingApiInstance
+    public class BusApiInstance
     {
         public LocalApiInstance Local => new LocalApiInstance();
         public LocalApiInstance Remote => new LocalApiInstance();

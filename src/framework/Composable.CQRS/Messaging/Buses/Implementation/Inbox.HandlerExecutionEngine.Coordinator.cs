@@ -47,7 +47,7 @@ namespace Composable.Messaging.Buses.Implementation
                     const int MaxConcurrentlyExecutingHandlers = 20;
                     readonly IGlobalBusStateTracker _globalStateTracker;
                     internal readonly ITypeMapper TypeMapper;
-                    readonly List<MessagingApi.IMessage> _executingMessages = new List<MessagingApi.IMessage>();
+                    readonly List<BusApi.IMessage> _executingMessages = new List<BusApi.IMessage>();
                     readonly List<QueuedMessage> _messagesWaitingToExecute = new List<QueuedMessage>();
                     public NonThreadsafeImplementation(IGlobalBusStateTracker globalStateTracker, ITypeMapper typeMapper)
                     {
@@ -95,7 +95,7 @@ namespace Composable.Messaging.Buses.Implementation
                     readonly Coordinator _coordinator;
                     readonly Action      _messageTask;
                     readonly ITaskRunner _taskRunner;
-                    public   MessagingApi.IMessage    Message     { get; }
+                    public   BusApi.IMessage    Message     { get; }
                     public   Guid        MessageId   { get; }
 
                     public void Run()

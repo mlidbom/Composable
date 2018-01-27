@@ -23,7 +23,7 @@ namespace Composable.Messaging.Buses
     {
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TCommand> action) where TCommand : MessagingApi.ICommand
+            Action<TCommand> action) where TCommand : BusApi.ICommand
         {
             @this.Register.ForCommand(action);
             return @this;
@@ -31,7 +31,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommandWithResult<TCommand, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TCommand, TResult> action) where TCommand : MessagingApi.ICommand<TResult>
+            Func<TCommand, TResult> action) where TCommand : BusApi.ICommand<TResult>
         {
             @this.Register.ForCommand(action);
             return @this;
@@ -39,7 +39,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommandWithResult<TCommand, TDependency1, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TCommand, TDependency1, TResult> action) where TCommand : MessagingApi.ICommand<TResult>
+            Func<TCommand, TDependency1, TResult> action) where TCommand : BusApi.ICommand<TResult>
                                                           where TDependency1 : class
         {
             @this.Register.ForCommand<TCommand, TResult>(command => action(command, @this.Resolve<TDependency1>()));
@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommandWithResult<TCommand, TDependency1, TDependency2, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TCommand, TDependency1, TDependency2, TResult> action) where TCommand : MessagingApi.ICommand<TResult>
+            Func<TCommand, TDependency1, TDependency2, TResult> action) where TCommand : BusApi.ICommand<TResult>
                                                                         where TDependency1 : class
                                                                         where TDependency2 : class
         {
@@ -58,7 +58,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TDependency1>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TCommand, TDependency1> action) where TCommand : MessagingApi.ICommand
+            Action<TCommand, TDependency1> action) where TCommand : BusApi.ICommand
                                                    where TDependency1 : class
         {
             @this.ForCommand<TCommand>(command => action(command, @this.Resolve<TDependency1>()));
@@ -67,7 +67,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TDependency1, TDependency2>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TCommand, TDependency1, TDependency2> action) where TCommand : MessagingApi.ICommand
+            Action<TCommand, TDependency1, TDependency2> action) where TCommand : BusApi.ICommand
                                                                  where TDependency1 : class
                                                                  where TDependency2 : class
         {
@@ -76,7 +76,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TEvent> action) where TEvent : MessagingApi.IEvent
+            Action<TEvent> action) where TEvent : BusApi.IEvent
         {
             @this.Register.ForEvent(action);
             return @this;
@@ -84,7 +84,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent, TDependency1>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TEvent, TDependency1> action) where TEvent : MessagingApi.IEvent
+            Action<TEvent, TDependency1> action) where TEvent : BusApi.IEvent
                                                  where TDependency1 : class
         {
             @this.ForEvent<TEvent>(command => action(command, @this.Resolve<TDependency1>()));
@@ -93,7 +93,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent, TDependency1, TDependency2>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TEvent, TDependency1, TDependency2> action) where TEvent : MessagingApi.IEvent
+            Action<TEvent, TDependency1, TDependency2> action) where TEvent : BusApi.IEvent
                                                                where TDependency1 : class
                                                                where TDependency2 : class
         {
@@ -102,7 +102,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent, TDependency1, TDependency2, TDependency3>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TEvent, TDependency1, TDependency2, TDependency3> action) where TEvent : MessagingApi.IEvent
+            Action<TEvent, TDependency1, TDependency2, TDependency3> action) where TEvent : BusApi.IEvent
                                                                where TDependency1 : class
                                                                where TDependency2 : class
                                                                              where TDependency3 : class
@@ -112,7 +112,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TResult> action) where TQuery : MessagingApi.IQuery<TResult>
+            Func<TQuery, TResult> action) where TQuery : BusApi.IQuery<TResult>
         {
             @this.Register.ForQuery(action);
             return @this;
@@ -120,7 +120,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TDependency1, TResult> action) where TQuery : MessagingApi.IQuery<TResult>
+            Func<TQuery, TDependency1, TResult> action) where TQuery : BusApi.IQuery<TResult>
                                                         where TDependency1 : class
         {
             @this.Register.ForQuery<TQuery, TResult>(query => action(query, @this.Resolve<TDependency1>()));
@@ -129,7 +129,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TDependency2, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TDependency1, TDependency2, TResult> action) where TQuery : MessagingApi.IQuery<TResult>
+            Func<TQuery, TDependency1, TDependency2, TResult> action) where TQuery : BusApi.IQuery<TResult>
                                                         where TDependency1 : class
                                                         where TDependency2 : class
         {

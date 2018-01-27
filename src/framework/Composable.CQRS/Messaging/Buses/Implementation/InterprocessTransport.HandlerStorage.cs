@@ -59,7 +59,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _queryHandlerMap.Add(queryTypeId, endpointId);
             }
 
-            internal EndpointId GetCommandHandlerEndpoint(MessagingApi.Remote.ExactlyOnce.ICommand command)
+            internal EndpointId GetCommandHandlerEndpoint(BusApi.Remote.ExactlyOnce.ICommand command)
             {
                 var commandTypeId = _typeMapper.GetId(command.GetType());
 
@@ -71,7 +71,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return endpointId;
             }
 
-            internal EndpointId GetQueryHandlerEndpoint(MessagingApi.IQuery query)
+            internal EndpointId GetQueryHandlerEndpoint(BusApi.IQuery query)
             {
                 var queryTypeId = _typeMapper.GetId(query.GetType());
 
@@ -83,7 +83,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return endpointId;
             }
 
-            internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(MessagingApi.Remote.ExactlyOnce.IEvent @event)
+            internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(BusApi.Remote.ExactlyOnce.IEvent @event)
             {
                 var typedEventHandlerRegistrations = _eventHandlerRegistrations
                                                      .Where(me => _typeMapper.TryGetType(me.EventType, out var _))
@@ -99,9 +99,9 @@ namespace Composable.Messaging.Buses.Implementation
                        .ToList();
             }
 
-            static bool IsRemoteCommand(Type type) => typeof(MessagingApi.Remote.ExactlyOnce.ICommand).IsAssignableFrom(type);
-            static bool IsRemoteEvent(Type type) => typeof(MessagingApi.Remote.ExactlyOnce.IEvent).IsAssignableFrom(type);
-            static bool IsRemoteQuery(Type type) => typeof(MessagingApi.Remote.NonTransactional.IQuery).IsAssignableFrom(type);
+            static bool IsRemoteCommand(Type type) => typeof(BusApi.Remote.ExactlyOnce.ICommand).IsAssignableFrom(type);
+            static bool IsRemoteEvent(Type type) => typeof(BusApi.Remote.ExactlyOnce.IEvent).IsAssignableFrom(type);
+            static bool IsRemoteQuery(Type type) => typeof(BusApi.Remote.NonTransactional.IQuery).IsAssignableFrom(type);
         }
     }
 }

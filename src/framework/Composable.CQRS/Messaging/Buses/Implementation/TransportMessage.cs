@@ -26,16 +26,16 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly string Body;
             internal readonly TypeId MessageType;
 
-            MessagingApi.IMessage _message;
+            BusApi.IMessage _message;
 
-            public MessagingApi.IMessage DeserializeMessageAndCacheForNextCall(ITypeMapper typeMapper)
+            public BusApi.IMessage DeserializeMessageAndCacheForNextCall(ITypeMapper typeMapper)
             {
                 if(_message == null)
                 {
-                    _message = (MessagingApi.IMessage)JsonConvert.DeserializeObject(Body, typeMapper.GetType(MessageType), JsonSettings.JsonSerializerSettings);
+                    _message = (BusApi.IMessage)JsonConvert.DeserializeObject(Body, typeMapper.GetType(MessageType), JsonSettings.JsonSerializerSettings);
 
 
-                    Assert.State.Assert(!(_message is MessagingApi.Remote.ExactlyOnce.IExactlyOnceMessage) || MessageId == (_message as MessagingApi.Remote.ExactlyOnce.IExactlyOnceMessage).MessageId);
+                    Assert.State.Assert(!(_message is BusApi.Remote.ExactlyOnce.IExactlyOnceMessage) || MessageId == (_message as BusApi.Remote.ExactlyOnce.IExactlyOnceMessage).MessageId);
                 }
                 return _message;
             }
@@ -91,21 +91,21 @@ namespace Composable.Messaging.Buses.Implementation
                 socket.SendMultipartMessage(message);
             }
 
-            public static OutGoing Create(MessagingApi.IMessage message, ITypeMapper typeMapper)
+            public static OutGoing Create(BusApi.IMessage message, ITypeMapper typeMapper)
             {
-                var messageId = (message as MessagingApi.Remote.ExactlyOnce.IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
+                var messageId = (message as BusApi.Remote.ExactlyOnce.IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
-                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, GetMessageType(message), message is MessagingApi.Remote.ExactlyOnce.IExactlyOnceMessage);
+                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, GetMessageType(message), message is BusApi.Remote.ExactlyOnce.IExactlyOnceMessage);
             }
 
-            static TransportMessageType GetMessageType(MessagingApi.IMessage message)
+            static TransportMessageType GetMessageType(BusApi.IMessage message)
             {
                 switch(message) {
-                    case MessagingApi.Remote.ExactlyOnce.IEvent _:
+                    case BusApi.Remote.ExactlyOnce.IEvent _:
                         return TransportMessageType.Event;
-                    case MessagingApi.Remote.ExactlyOnce.ICommand _:
+                    case BusApi.Remote.ExactlyOnce.ICommand _:
                         return TransportMessageType.Command;
-                    case MessagingApi.IQuery _:
+                    case BusApi.IQuery _:
                         return TransportMessageType.Query;
                     default:
                         throw new ArgumentOutOfRangeException();

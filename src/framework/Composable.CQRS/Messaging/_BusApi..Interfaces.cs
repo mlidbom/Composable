@@ -4,7 +4,7 @@
 
 namespace Composable.Messaging
 {
-    public partial class MessagingApi
+    public partial class BusApi
     {
         ///<summary>Any object that is used to transfer data from a sender to a receiver through a messaging infrastructure.</summary>
         public interface IMessage {}
@@ -19,15 +19,15 @@ namespace Composable.Messaging
         public interface IQuery : IMessage { }
 
         ///<summary>An instructs the receiver to return a resource based upon the data in the query.</summary>
-        public interface IQuery<TResult> : MessagingApi.IQuery { }
+        public interface IQuery<TResult> : BusApi.IQuery { }
 
         public partial class Local
         {
             public interface IRequireLocalReceiver {}
-            public interface IEvent : MessagingApi.IEvent, IRequireLocalReceiver { }
-            public interface ICommand : MessagingApi.ICommand, IRequireLocalReceiver { }
-            public interface ICommand<TResult> : MessagingApi.ICommand<TResult>, IRequireLocalReceiver  { }
-            public interface IQuery<TResult> : IRequireLocalReceiver, MessagingApi.IQuery<TResult> { }
+            public interface IEvent : BusApi.IEvent, IRequireLocalReceiver { }
+            public interface ICommand : BusApi.ICommand, IRequireLocalReceiver { }
+            public interface ICommand<TResult> : BusApi.ICommand<TResult>, IRequireLocalReceiver  { }
+            public interface IQuery<TResult> : IRequireLocalReceiver, BusApi.IQuery<TResult> { }
         }
 
         public partial class Remote
@@ -40,9 +40,9 @@ namespace Composable.Messaging
                 public interface IForbidTransactionalSend { }
 
                 public interface IMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteReceiver {}
-                public interface ICommand<TResult> : MessagingApi.ICommand<TResult>, IMessage  { }
-                public interface IQuery : MessagingApi.IQuery, IMessage { }
-                public interface IQuery<TResult> : MessagingApi.IQuery<TResult>, MessagingApi.Remote.NonTransactional.IQuery, IMessage { }
+                public interface ICommand<TResult> : BusApi.ICommand<TResult>, IMessage  { }
+                public interface IQuery : BusApi.IQuery, IMessage { }
+                public interface IQuery<TResult> : BusApi.IQuery<TResult>, BusApi.Remote.NonTransactional.IQuery, IMessage { }
             }
 
             public partial class ExactlyOnce
@@ -54,9 +54,9 @@ namespace Composable.Messaging
                 public interface IProvidesOwnMessageId { Guid MessageId { get; } }
                 public interface IExactlyOnceMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId {}
 
-                public interface IEvent : MessagingApi.IEvent, IExactlyOnceMessage { }
-                public interface ICommand : MessagingApi.ICommand, IExactlyOnceMessage { }
-                public interface ICommand<TResult> : MessagingApi.ICommand<TResult>, MessagingApi.Remote.ExactlyOnce.ICommand { }
+                public interface IEvent : BusApi.IEvent, IExactlyOnceMessage { }
+                public interface ICommand : BusApi.ICommand, IExactlyOnceMessage { }
+                public interface ICommand<TResult> : BusApi.ICommand<TResult>, BusApi.Remote.ExactlyOnce.ICommand { }
             }
         }
     }

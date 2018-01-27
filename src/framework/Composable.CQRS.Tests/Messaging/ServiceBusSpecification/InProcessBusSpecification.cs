@@ -108,11 +108,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             }
         }
 
-        class ACommand : MessagingApi.Local.ICommand
+        class ACommand : BusApi.Local.ICommand
         {
         }
 
-        class AQuery : MessagingApi.Local.Queries.Query<AQueryResult> {}
+        class AQuery : BusApi.Local.Queries.Query<AQueryResult> {}
 
         class AQueryResult : QueryResult {}
 

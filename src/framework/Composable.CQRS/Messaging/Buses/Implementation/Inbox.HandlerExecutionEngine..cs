@@ -55,11 +55,11 @@ namespace Composable.Messaging.Buses.Implementation
 
                 switch(innerMessage)
                 {
-                    case MessagingApi.Remote.ExactlyOnce.ICommand command:
+                    case BusApi.Remote.ExactlyOnce.ICommand command:
                         return await DispatchAsync(command, message);
-                    case MessagingApi.Remote.ExactlyOnce.IEvent @event:
+                    case BusApi.Remote.ExactlyOnce.IEvent @event:
                         return await DispatchAsync(@event, message);
-                    case MessagingApi.IQuery query:
+                    case BusApi.IQuery query:
                         return await DispatchAsync(query, message);
                     default:
                         throw new Exception($"Unsupported message type: {message.GetType()}");
@@ -82,7 +82,7 @@ namespace Composable.Messaging.Buses.Implementation
                 }
             }
 
-            async Task<object> DispatchAsync(MessagingApi.IQuery query, TransportMessage.InComing message)
+            async Task<object> DispatchAsync(BusApi.IQuery query, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetQueryHandler(query.GetType());
 
@@ -105,7 +105,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(MessagingApi.Remote.ExactlyOnce.IEvent @event, TransportMessage.InComing message)
+            async Task<object> DispatchAsync(BusApi.Remote.ExactlyOnce.IEvent @event, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -128,7 +128,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(MessagingApi.Remote.ExactlyOnce.ICommand command, TransportMessage.InComing message)
+            async Task<object> DispatchAsync(BusApi.Remote.ExactlyOnce.ICommand command, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetCommandHandler(command.GetType());
 

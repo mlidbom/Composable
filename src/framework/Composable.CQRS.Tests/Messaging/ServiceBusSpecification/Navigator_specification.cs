@@ -94,7 +94,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class GetUserQuery : MessagingApi.Remote.Query.RemoteQuery<UserResource>
+            protected class GetUserQuery : BusApi.Remote.Query.RemoteQuery<UserResource>
             {
                 public GetUserQuery(string name) => Name = name;
                 public string Name { get; }
@@ -106,20 +106,20 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class RegisterUserCommand : MessagingApi.Remote.ExactlyOnce.Command<UserRegisteredConfirmationResource>
+            protected class RegisterUserCommand : BusApi.Remote.ExactlyOnce.Command<UserRegisteredConfirmationResource>
             {
                 public RegisterUserCommand(string name) => Name = name;
                 public string Name { get; }
             }
 
-            protected class UserRegisteredConfirmationResource : MessagingApi.Remote.ExactlyOnce.Message
+            protected class UserRegisteredConfirmationResource : BusApi.Remote.ExactlyOnce.Message
             {
                 public UserRegisteredConfirmationResource(string name) => Name = name;
                 public GetUserQuery User => new GetUserQuery(Name);
                 public string Name { get; }
             }
 
-            class UserApiStartPageQuery : MessagingApi.Remote.Query.RemoteQuery<UserApiStartPage> {}
+            class UserApiStartPageQuery : BusApi.Remote.Query.RemoteQuery<UserApiStartPage> {}
         }
     }
 }

@@ -8,13 +8,13 @@ using Composable.Messaging.Buses;
 
 namespace Composable.Messaging
 {
-    public partial class MessagingApi
+    public partial class BusApi
     {
         public partial class Local
         {
             public class Queries
             {
-                public abstract class Query<TResult> : MessagingApi.Local.IQuery<TResult> {}
+                public abstract class Query<TResult> : BusApi.Local.IQuery<TResult> {}
 
                 public class EntityQuery<TResource> : Query<TResource> where TResource : IHasPersistentIdentity<Guid>
                 {
@@ -27,11 +27,11 @@ namespace Composable.Messaging
 
             public class Commands
             {
-                public abstract class Command : MessagingApi.Local.ICommand
+                public abstract class Command : BusApi.Local.ICommand
                 {
                 }
 
-                public abstract class Command<TResult> : MessagingApi.Local.ICommand<TResult>
+                public abstract class Command<TResult> : BusApi.Local.ICommand<TResult>
                 {
                 }
             }
@@ -41,7 +41,7 @@ namespace Composable.Messaging
         {
             public class Query
             {
-                public abstract class RemoteQuery<TResult> : MessagingApi.Remote.NonTransactional.IQuery<TResult> {}
+                public abstract class RemoteQuery<TResult> : BusApi.Remote.NonTransactional.IQuery<TResult> {}
 
                 public class RemoteEntityResourceQuery<TResource> : RemoteQuery<TResource> where TResource : IHasPersistentIdentity<Guid>
                 {
@@ -65,7 +65,7 @@ namespace Composable.Messaging
 
             public partial class ExactlyOnce
             {
-                public abstract class Message : MessagingApi.IMessage, MessagingApi.Remote.ExactlyOnce.IExactlyOnceMessage
+                public abstract class Message : BusApi.IMessage, BusApi.Remote.ExactlyOnce.IExactlyOnceMessage
                 {
                     protected Message() : this(Guid.NewGuid()) {}
                     protected Message(Guid id) => MessageId = id;
@@ -73,7 +73,7 @@ namespace Composable.Messaging
                     public Guid MessageId { get; private set; } //Do not remove setter. Required for serialization
                 }
 
-                public class Command : ValueObject<Command>, MessagingApi.Remote.ExactlyOnce.ICommand
+                public class Command : ValueObject<Command>, BusApi.Remote.ExactlyOnce.ICommand
                 {
                     public Guid MessageId { get; private set; }
 
@@ -83,7 +83,7 @@ namespace Composable.Messaging
                     Command(Guid id) => MessageId = id;
                 }
 
-                public class Command<TResult> : Command, MessagingApi.Remote.ExactlyOnce.ICommand<TResult> {}
+                public class Command<TResult> : Command, BusApi.Remote.ExactlyOnce.ICommand<TResult> {}
             }
         }
     }

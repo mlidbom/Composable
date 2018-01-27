@@ -9,6 +9,6 @@ namespace Composable
     {
         public EventStoreApi EventStoreManaging() => new EventStoreApi();
         public DocumentDbApi DocumentDb => new DocumentDbApi();
-        public MessagingApiInstance Messaging => new MessagingApiInstance();
+        public BusApiInstance Bus => new BusApiInstance();
     }
 }

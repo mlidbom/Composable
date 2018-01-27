@@ -3,7 +3,7 @@ using Composable.Messaging.Buses;
 
 namespace AccountManagement.API
 {
-    public class StartResource : ISelfGeneratingResource
+    public class StartResource
     {
         public Command Commands { get; private set; } = new Command();
 
@@ -11,7 +11,7 @@ namespace AccountManagement.API
 
         public class Query
         {
-            public MessagingApi.Remote.Query.RemoteEntityResourceQuery<AccountResource> AccountById { get; private set; } = new MessagingApi.Remote.Query.RemoteEntityResourceQuery<AccountResource>();
+            public BusApi.Remote.Query.RemoteEntityResourceQuery<AccountResource> AccountById { get; private set; } = new BusApi.Remote.Query.RemoteEntityResourceQuery<AccountResource>();
         }
 
         public class Command

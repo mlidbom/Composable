@@ -18,17 +18,17 @@ namespace AccountManagement.Domain
             {
                 if(emailUpdated.AggregateVersion > 1)
                 {
-                    var previousAccountVersion = AccountApi.Queries.GetReadOnlyCopyOfVersion(emailUpdated.AggregateId, emailUpdated.AggregateVersion - 1).GetLocalOn(bus);
-                    DocumentDb.Commands.Delete<AccountLink>(previousAccountVersion.Email.StringValue).PostLocalOn(bus);
+                    var previousAccountVersion = bus.GetLocal(AccountApi.Queries.GetReadOnlyCopyOfVersion(emailUpdated.AggregateId, emailUpdated.AggregateVersion - 1));
+                    bus.PostLocal(DocumentDb.Commands.Delete<AccountLink>(previousAccountVersion.Email.StringValue));
                 }
 
                 var newEmail = emailUpdated.Email;
-                DocumentDb.Commands.Save(newEmail.ToString(), AccountApi.Queries.GetForUpdate(emailUpdated.AggregateId)).PostLocalOn(bus);
+                bus.PostLocal(DocumentDb.Commands.Save(newEmail.ToString(), AccountApi.Queries.GetForUpdate(emailUpdated.AggregateId)));
             });
 
         internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (AccountApi.Query.TryGetByEmailQuery tryGetAccount, ILocalServiceBusSession bus) =>
-                DocumentDb.Queries.TryGet<AccountLink>(tryGetAccount.Email.StringValue).GetLocalOn(bus) is Some<AccountLink> accountLink
+                bus.GetLocal(DocumentDb.Queries.TryGet<AccountLink>(tryGetAccount.Email.StringValue)) is Some<AccountLink> accountLink
                     ? Option.Some(accountLink.Value.GetLocalOn(bus))
                     : Option.None<Account>());
     }

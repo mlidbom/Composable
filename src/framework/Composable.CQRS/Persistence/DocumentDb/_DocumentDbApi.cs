@@ -3,6 +3,7 @@ using Composable.DDD;
 using Composable.Functional;
 using Composable.Messaging;
 // ReSharper disable MemberCanBeMadeStatic.Global we want composable fluent APIs. No statics please.
+// ReSharper disable UnusedTypeParameter it is vital for correct routing in the bus when more than one document type is registered in the document db.
 
 namespace Composable.Persistence.DocumentDb
 

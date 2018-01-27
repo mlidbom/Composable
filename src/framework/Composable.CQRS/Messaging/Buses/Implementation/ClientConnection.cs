@@ -19,11 +19,11 @@ namespace Composable.Messaging.Buses.Implementation
     class ClientConnection : IClientConnection
     {
         readonly ITaskRunner _taskRunner;
-        public void DispatchIfTransactionCommits(IExactlyOnceEvent @event) => Transaction.Current.OnCommittedSuccessfully(action: () => _state.WithExclusiveAccess(func: state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper))));
+        public void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent @event) => Transaction.Current.OnCommittedSuccessfully(action: () => _state.WithExclusiveAccess(func: state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper))));
 
-        public void DispatchIfTransactionCommits(IExactlyOnceCommand command) => Transaction.Current.OnCommittedSuccessfully(action: () => _state.WithExclusiveAccess(func: state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
+        public void DispatchIfTransactionCommits(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand command) => Transaction.Current.OnCommittedSuccessfully(action: () => _state.WithExclusiveAccess(func: state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
 
-        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(IExactlyOnceCommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(func: async state =>
+        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(func: async state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -40,7 +40,7 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task;
         });
 
-        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(func: state =>
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(MessagingApi.IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(func: state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 

@@ -14,10 +14,10 @@ namespace Composable.Messaging
 
         internal static void AssertValid<TMessage>() => AssertValid(typeof(TMessage));
 
-        internal static void AssertValidToSend(IMessage message)
+        internal static void AssertValidToSend(MessagingApi.IMessage message)
         {
-            if(message is IRequireTransactionalSender && Transaction.Current == null)                              throw new Exception($"{message.GetType().FullName} is {nameof(IRequireTransactionalSender)} but there is no transaction.");
-            if(message is IForbidTransactionalSend && Transaction.Current != null)                                 throw new Exception($"{message.GetType().FullName} is {nameof(IForbidTransactionalSend)} but there is a transaction.");
+            if(message is MessagingApi.Remote.ExactlyOnce.IRequireTransactionalSender && Transaction.Current == null)                              throw new Exception($"{message.GetType().FullName} is {nameof(MessagingApi.Remote.ExactlyOnce.IRequireTransactionalSender)} but there is no transaction.");
+            if(message is MessagingApi.Remote.AtMostOnce.IForbidTransactionalSend && Transaction.Current != null)                                 throw new Exception($"{message.GetType().FullName} is {nameof(MessagingApi.Remote.AtMostOnce.IForbidTransactionalSend)} but there is a transaction.");
 
             AssertValid(message.GetType());
         }
@@ -28,13 +28,13 @@ namespace Composable.Messaging
             {
                 if(SuccessfullyInspectedTypes.Contains(type)) return;
 
-                if(!type.Implements<IMessage>())                                                                   throw new Exception($"{type.FullName} is not an {nameof(IMessage)}");
-                if(type.Implements<ICommand>() && type.Implements<IEvent>())                                       throw new Exception($"{type.FullName} implements both {typeof(ICommand)} and {typeof(IEvent)}.");
-                if(type.Implements<ICommand>() && type.Implements<IQuery>())                                       throw new Exception($"{type.FullName} implements both {typeof(ICommand)} and {typeof(IQuery)}.");
-                if(type.Implements<IEvent>() && type.Implements<IQuery>())                                         throw new Exception($"{type.FullName} implements both {typeof(IEvent)} and {typeof(IQuery)}.");
-                if(type.Implements<ISupportRemoteReceiver>() && type.Implements<IOnlyLocalReceiver>())             throw new Exception($"{type.FullName} implements both {typeof(ISupportRemoteReceiver)} and {typeof(IOnlyLocalReceiver)}.");
-                if(type.Implements<IRequireTransactionalSender>() && type.Implements<IForbidTransactionalSend>())  throw new Exception($"{type.FullName} implements both {typeof(IRequireTransactionalSender)} and {typeof(IForbidTransactionalSend)}.");
-                if(type.Implements<IQuery>() && !type.IsAbstract && !type.Implements(typeof(IQuery<>)))            throw new Exception($"{type.FullName} implements only: {nameof(IQuery)}. Concrete types must implement {typeof(IQuery<>).GetFullNameCompilable()}");
+                if(!type.Implements<MessagingApi.IMessage>())                                                                   throw new Exception($"{type.FullName} is not an {nameof(MessagingApi.IMessage)}");
+                if(type.Implements<MessagingApi.ICommand>() && type.Implements<MessagingApi.IEvent>())                                       throw new Exception($"{type.FullName} implements both {typeof(MessagingApi.ICommand)} and {typeof(MessagingApi.IEvent)}.");
+                if(type.Implements<MessagingApi.ICommand>() && type.Implements<MessagingApi.IQuery>())                                       throw new Exception($"{type.FullName} implements both {typeof(MessagingApi.ICommand)} and {typeof(MessagingApi.IQuery)}.");
+                if(type.Implements<MessagingApi.IEvent>() && type.Implements<MessagingApi.IQuery>())                                         throw new Exception($"{type.FullName} implements both {typeof(MessagingApi.IEvent)} and {typeof(MessagingApi.IQuery)}.");
+                if(type.Implements<MessagingApi.Remote.ISupportRemoteReceiver>() && type.Implements<MessagingApi.Local.IOnlyLocalReceiver>())             throw new Exception($"{type.FullName} implements both {typeof(MessagingApi.Remote.ISupportRemoteReceiver)} and {typeof(MessagingApi.Local.IOnlyLocalReceiver)}.");
+                if(type.Implements<MessagingApi.Remote.ExactlyOnce.IRequireTransactionalSender>() && type.Implements<MessagingApi.Remote.AtMostOnce.IForbidTransactionalSend>())  throw new Exception($"{type.FullName} implements both {typeof(MessagingApi.Remote.ExactlyOnce.IRequireTransactionalSender)} and {typeof(MessagingApi.Remote.AtMostOnce.IForbidTransactionalSend)}.");
+                if(type.Implements<MessagingApi.IQuery>() && !type.IsAbstract && !type.Implements(typeof(MessagingApi.IQuery<>)))            throw new Exception($"{type.FullName} implements only: {nameof(MessagingApi.IQuery)}. Concrete types must implement {typeof(MessagingApi.IQuery<>).GetFullNameCompilable()}");
 
                 SuccessfullyInspectedTypes.Add(type);
             }

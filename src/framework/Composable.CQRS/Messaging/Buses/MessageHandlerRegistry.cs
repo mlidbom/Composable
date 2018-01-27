@@ -14,7 +14,7 @@ namespace Composable.Messaging.Buses
     {
         readonly ITypeMapper _typeMapper;
         readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
-        readonly Dictionary<Type, List<Action<IExactlyOnceEvent>>> _eventHandlers = new Dictionary<Type, List<Action<IExactlyOnceEvent>>>();
+        readonly Dictionary<Type, List<Action<MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent>>> _eventHandlers = new Dictionary<Type, List<Action<MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent>>>();
         readonly Dictionary<Type, Func<object, object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
         readonly Dictionary<Type, Func<object, object>> _commandHandlersReturningResults = new Dictionary<Type, Func<object, object>>();
         readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
@@ -28,8 +28,8 @@ namespace Composable.Messaging.Buses
             MessageInspector.AssertValid<TEvent>();
             lock(_lock)
             {
-                Assert.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(IExactlyOnceCommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(IQuery)));
-                _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<IExactlyOnceEvent>>()).Add(@event => handler((TEvent)@event));
+                Assert.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(MessagingApi.IQuery)));
+                _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent>>()).Add(@event => handler((TEvent)@event));
                 _eventHandlerRegistrations.Add(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
                 return this;
             }
@@ -39,25 +39,25 @@ namespace Composable.Messaging.Buses
         {
             MessageInspector.AssertValid<TCommand>();
 
-            if(typeof(TCommand).Implements(typeof(IExactlyOnceCommand<>)))
+            if(typeof(TCommand).Implements(typeof(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<>)))
             {
                 throw new Exception($"{typeof(TCommand)} expects a result. You must register a method that returns a result.");
             }
 
             lock(_lock)
             {
-                Assert.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
+                Assert.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(MessagingApi.IQuery)));
                 _commandHandlers.Add(typeof(TCommand), command => handler((TCommand)command));
                 return this;
             }
         }
 
-        public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : IExactlyOnceCommand<TResult>
+        public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TResult>
         {
             MessageInspector.AssertValid<TCommand>();
             lock (_lock)
             {
-                Assert.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
+                Assert.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(MessagingApi.IQuery)));
                 _commandHandlersReturningResults.Add(typeof(TCommand), command =>
                 {
                     var result = handler((TCommand)command);
@@ -77,13 +77,13 @@ namespace Composable.Messaging.Buses
             MessageInspector.AssertValid<TQuery>();
             lock(_lock)
             {
-                Assert.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(IExactlyOnceEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(IExactlyOnceCommand)));
+                Assert.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand)));
                 _queryHandlers.Add(typeof(TQuery), query => handler((TQuery)query));
                 return this;
             }
         }
 
-        Action<object> IMessageHandlerRegistry.GetCommandHandler(IExactlyOnceCommand message)
+        Action<object> IMessageHandlerRegistry.GetCommandHandler(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand message)
         {
             if(TryGetCommandHandler(message, out var handler))
             {
@@ -93,7 +93,7 @@ namespace Composable.Messaging.Buses
             throw new NoHandlerException(message.GetType());
         }
 
-        public bool TryGetCommandHandler(IExactlyOnceCommand message, out Action<object> handler)
+        public bool TryGetCommandHandler(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand message, out Action<object> handler)
         {
             lock(_lock)
             {
@@ -101,7 +101,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public bool TryGetCommandHandlerWithResult(IExactlyOnceCommand message, out Func<object, object> handler)
+        public bool TryGetCommandHandlerWithResult(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand message, out Func<object, object> handler)
         {
             lock(_lock)
             {
@@ -109,7 +109,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public Func<IExactlyOnceCommand, object> GetCommandHandler(Type commandType)
+        public Func<MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand, object> GetCommandHandler(Type commandType)
         {
             if(_commandHandlers.TryGetValue(commandType, out var handler))
             {
@@ -123,14 +123,14 @@ namespace Composable.Messaging.Buses
             return _commandHandlersReturningResults[commandType];
         }
 
-        public Func<IQuery, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType];
+        public Func<MessagingApi.IQuery, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType];
 
-        public IReadOnlyList<Action<IExactlyOnceEvent>> GetEventHandlers(Type eventType)
+        public IReadOnlyList<Action<MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent>> GetEventHandlers(Type eventType)
         {
             return _eventHandlers.Where(@this => @this.Key.IsAssignableFrom(eventType)).SelectMany(@this => @this.Value).ToList();
         }
 
-        Func<IQuery<TResult>, TResult> IMessageHandlerRegistry.GetQueryHandler<TResult>(IQuery<TResult> query)
+        Func<MessagingApi.IQuery<TResult>, TResult> IMessageHandlerRegistry.GetQueryHandler<TResult>(MessagingApi.IQuery<TResult> query)
         {
             try
             {
@@ -146,7 +146,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public Func<IExactlyOnceCommand<TResult>, TResult> GetCommandHandler<TResult>(IExactlyOnceCommand<TResult> command)
+        public Func<MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TResult>, TResult> GetCommandHandler<TResult>(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TResult> command)
         {
             try
             {
@@ -163,11 +163,11 @@ namespace Composable.Messaging.Buses
         }
 
 
-        IEventDispatcher<IExactlyOnceEvent> IMessageHandlerRegistry.CreateEventDispatcher()
+        IEventDispatcher<MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent> IMessageHandlerRegistry.CreateEventDispatcher()
         {
-            var dispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<IExactlyOnceEvent>();
+            var dispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent>();
             var registrar = dispatcher.RegisterHandlers()
-                                      .IgnoreUnhandled<IExactlyOnceEvent>();
+                                      .IgnoreUnhandled<MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent>();
             lock(_lock)
             {
                 _eventHandlerRegistrations.ForEach(handlerRegistration => handlerRegistration.RegisterHandlerWithRegistrar(registrar));
@@ -192,8 +192,8 @@ namespace Composable.Messaging.Buses
         internal class EventHandlerRegistration
         {
             public Type Type { get; }
-            public Action<IEventHandlerRegistrar<IExactlyOnceEvent>> RegisterHandlerWithRegistrar { get; }
-            public EventHandlerRegistration(Type type, Action<IEventHandlerRegistrar<IExactlyOnceEvent>> registerHandlerWithRegistrar)
+            public Action<IEventHandlerRegistrar<MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent>> RegisterHandlerWithRegistrar { get; }
+            public EventHandlerRegistration(Type type, Action<IEventHandlerRegistrar<MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent>> registerHandlerWithRegistrar)
             {
                 Type = type;
                 RegisterHandlerWithRegistrar = registerHandlerWithRegistrar;

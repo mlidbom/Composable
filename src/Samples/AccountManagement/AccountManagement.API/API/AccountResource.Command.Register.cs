@@ -36,7 +36,7 @@ namespace AccountManagement.API
 
                 public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Passwords.Password.Validate(Password, this, () => Password);
 
-                internal IExactlyOnceCommand<RegistrationAttemptResult> WithValues(Guid accountId, string email, string password) => new Register(accountId, email, password);
+                internal MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<RegistrationAttemptResult> WithValues(Guid accountId, string email, string password) => new Register(accountId, email, password);
             }
         }
     }

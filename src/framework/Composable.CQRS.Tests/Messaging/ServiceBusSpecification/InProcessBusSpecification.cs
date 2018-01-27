@@ -108,7 +108,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             }
         }
 
-        class ACommand : IExactlyOnceCommand
+        class ACommand : MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand
         {
             public Guid MessageId { get; } = Guid.NewGuid();
         }

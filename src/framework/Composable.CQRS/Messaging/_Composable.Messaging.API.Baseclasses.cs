@@ -5,9 +5,9 @@ namespace Composable.Messaging
 {
     public abstract class QueryResult {}
 
-    public abstract class RemoteQuery<TResult> : IQuery<TResult> {}
+    public abstract class RemoteQuery<TResult> : MessagingApi.IQuery<TResult> {}
 
-    public abstract class LocalQuery<TResult> : IQuery<TResult> {}
+    public abstract class LocalQuery<TResult> : MessagingApi.IQuery<TResult> {}
 
     public class RemoteEntityResourceQuery<TResource> : RemoteQuery<TResource> where TResource : IHasPersistentIdentity<Guid>
     {
@@ -18,11 +18,11 @@ namespace Composable.Messaging
     }
 
     ///<summary>Represent an entity within the domain of the current API that is uniquely identifiable through its type and Id.</summary>
-    public interface IEntityResource<TResource> : IHasPersistentIdentity<Guid>
+    public interface IEntityResource : IHasPersistentIdentity<Guid>
     {
     }
 
-    public abstract class ExactlyOnceMessage : IMessage, IExactlyOnceMessage
+    public abstract class ExactlyOnceMessage : MessagingApi.IMessage, MessagingApi.Remote.ExactlyOnce.IExactlyOnceMessage
     {
         protected ExactlyOnceMessage() : this(Guid.NewGuid()) {}
         protected ExactlyOnceMessage(Guid id) => MessageId = id;
@@ -30,14 +30,14 @@ namespace Composable.Messaging
         public Guid MessageId { get; private set; } //Do not remove setter. Required for serialization
     }
 
-    public abstract class EntityResource<TResource> : ExactlyOnceMessage, IEntityResource<TResource> where TResource : EntityResource<TResource>
+    public abstract class EntityResource<TResource> : ExactlyOnceMessage, IEntityResource where TResource : EntityResource<TResource>
     {
         protected EntityResource() {}
         protected EntityResource(Guid id) => Id = id;
         public Guid Id { get; private set; }
     }
 
-    public class ExactlyOnceCommand : ValueObject<ExactlyOnceCommand>, IExactlyOnceCommand
+    public class ExactlyOnceCommand : ValueObject<ExactlyOnceCommand>, MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand
     {
         public Guid MessageId { get; private set; }
 
@@ -47,5 +47,5 @@ namespace Composable.Messaging
         ExactlyOnceCommand(Guid id) => MessageId = id;
     }
 
-    public class ExactlyOnceCommand<TResult> : ExactlyOnceCommand, IExactlyOnceCommand<TResult> {}
+    public class ExactlyOnceCommand<TResult> : ExactlyOnceCommand, MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand<TResult> {}
 }

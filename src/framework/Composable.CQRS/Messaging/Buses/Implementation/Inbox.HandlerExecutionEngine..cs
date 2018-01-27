@@ -55,11 +55,11 @@ namespace Composable.Messaging.Buses.Implementation
 
                 switch(innerMessage)
                 {
-                    case IExactlyOnceCommand command:
+                    case MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand command:
                         return await DispatchAsync(command, message);
-                    case IExactlyOnceEvent @event:
+                    case MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent @event:
                         return await DispatchAsync(@event, message);
-                    case IQuery query:
+                    case MessagingApi.IQuery query:
                         return await DispatchAsync(query, message);
                     default:
                         throw new Exception($"Unsupported message type: {message.GetType()}");
@@ -82,7 +82,7 @@ namespace Composable.Messaging.Buses.Implementation
                 }
             }
 
-            async Task<object> DispatchAsync(IQuery query, TransportMessage.InComing message)
+            async Task<object> DispatchAsync(MessagingApi.IQuery query, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetQueryHandler(query.GetType());
 
@@ -105,7 +105,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(IExactlyOnceEvent @event, TransportMessage.InComing message)
+            async Task<object> DispatchAsync(MessagingApi.Remote.ExactlyOnce.IExactlyOnceEvent @event, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -128,7 +128,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(IExactlyOnceCommand command, TransportMessage.InComing message)
+            async Task<object> DispatchAsync(MessagingApi.Remote.ExactlyOnce.IExactlyOnceCommand command, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetCommandHandler(command.GetType());
 

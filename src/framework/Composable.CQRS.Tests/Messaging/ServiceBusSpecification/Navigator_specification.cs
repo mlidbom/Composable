@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Messaging.Commands;
 using Composable.Persistence.EventStore;
 using FluentAssertions;
 using Xunit;
@@ -95,7 +94,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class GetUserQuery : Query<UserResource>
+            protected class GetUserQuery : RemoteQuery<UserResource>
             {
                 public GetUserQuery(string name) => Name = name;
                 public string Name { get; }
@@ -113,14 +112,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class UserRegisteredConfirmationResource : Message
+            protected class UserRegisteredConfirmationResource : ExactlyOnceMessage
             {
                 public UserRegisteredConfirmationResource(string name) => Name = name;
                 public GetUserQuery User => new GetUserQuery(Name);
                 public string Name { get; }
             }
 
-            class UserApiStartPageQuery : Query<UserApiStartPage> {}
+            class UserApiStartPageQuery : RemoteQuery<UserApiStartPage> {}
         }
     }
 }

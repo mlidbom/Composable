@@ -7,6 +7,7 @@ using AccountManagement.Domain.Registration;
 using Composable.Functional;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Persistence.EventStore;
 
 namespace AccountManagement.UI
 {
@@ -57,7 +58,7 @@ namespace AccountManagement.UI
             });
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (AggregateLink<AccountResource> accountQuery, ILocalServiceBusSession bus)
-                => new AccountResource(AccountApi.Queries.GetReadOnlyCopy(accountQuery.Id).GetLocalOn(bus)));
+            (RemoteEntityResourceQuery<AccountResource> accountQuery, ILocalServiceBusSession bus)
+                => new AccountResource(AccountApi.Queries.GetReadOnlyCopy(accountQuery.EntityId).GetLocalOn(bus)));
     }
 }

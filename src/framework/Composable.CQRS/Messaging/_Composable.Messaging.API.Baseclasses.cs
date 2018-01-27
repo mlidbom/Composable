@@ -1,34 +1,51 @@
 ﻿using System;
-using Composable.Messaging.Commands;
-
-// ReSharper disable UnusedMemberInSuper.Global
-// ReSharper disable UnusedTypeParameter
-// ReSharper disable UnusedMember.Global
+using Composable.DDD;
 
 namespace Composable.Messaging
 {
-    public abstract class QueryResult : Message {}
+    public abstract class QueryResult {}
 
-    public abstract class Query<TResult> : Message, IQuery<TResult> {}
+    public abstract class RemoteQuery<TResult> : IQuery<TResult> {}
 
-    ///<summary>Represent an entity within the domain of the current API that is uniquely identifiable through its type and Id.</summary>
-    public interface IEntityResource<TResource>
+    public abstract class LocalQuery<TResult> : IQuery<TResult> {}
+
+    public class RemoteEntityResourceQuery<TResource> : RemoteQuery<TResource> where TResource : IHasPersistentIdentity<Guid>
     {
-        Guid Id { get; }
+        public RemoteEntityResourceQuery() {}
+        public RemoteEntityResourceQuery(Guid entityId) => EntityId = entityId;
+        public RemoteEntityResourceQuery<TResource> WithId(Guid id) => new RemoteEntityResourceQuery<TResource>(id);
+        public Guid EntityId { get; private set; }
     }
 
-    public abstract class Message : IMessage
+    ///<summary>Represent an entity within the domain of the current API that is uniquely identifiable through its type and Id.</summary>
+    public interface IEntityResource<TResource> : IHasPersistentIdentity<Guid>
     {
-        protected Message() : this(Guid.NewGuid()) {}
-        protected Message(Guid id) => MessageId = id;
+    }
+
+    public abstract class ExactlyOnceMessage : IMessage, IExactlyOnceMessage
+    {
+        protected ExactlyOnceMessage() : this(Guid.NewGuid()) {}
+        protected ExactlyOnceMessage(Guid id) => MessageId = id;
 
         public Guid MessageId { get; private set; } //Do not remove setter. Required for serialization
     }
 
-    public abstract class EntityResource<TResource> : Message, IEntityResource<TResource> where TResource : EntityResource<TResource>
+    public abstract class EntityResource<TResource> : ExactlyOnceMessage, IEntityResource<TResource> where TResource : EntityResource<TResource>
     {
         protected EntityResource() {}
         protected EntityResource(Guid id) => Id = id;
         public Guid Id { get; private set; }
     }
+
+    public class ExactlyOnceCommand : ValueObject<ExactlyOnceCommand>, IExactlyOnceCommand
+    {
+        public Guid MessageId { get; private set; }
+
+        protected ExactlyOnceCommand()
+            : this(Guid.NewGuid()) {}
+
+        ExactlyOnceCommand(Guid id) => MessageId = id;
+    }
+
+    public class ExactlyOnceCommand<TResult> : ExactlyOnceCommand, IExactlyOnceCommand<TResult> {}
 }

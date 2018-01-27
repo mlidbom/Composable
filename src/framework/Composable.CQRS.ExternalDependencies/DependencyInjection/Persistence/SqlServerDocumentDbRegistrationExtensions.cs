@@ -147,12 +147,12 @@ namespace Composable.DependencyInjection.Persistence
         }
 
         static void Save<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
-            (SaveDocument<TDocument> command, IDocumentDbUpdater updater) => updater.Save(command.Key, command.Entity));
+            (DocumentDbApi.Command.SaveDocument<TDocument> command, IDocumentDbUpdater updater) => updater.Save(command.Key, command.Entity));
 
         static void Get<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (DocumentLink<TDocument> query, IDocumentDbUpdater updater) => updater.GetForUpdate<TDocument>(query.Id));
+            (DocumentDbApi.Query.DocumentLink<TDocument> query, IDocumentDbUpdater updater) => updater.GetForUpdate<TDocument>(query.Id));
 
         static void GetReadonlyCopyOfLatestVersion<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (GetReadonlyCopyOfDocument<TDocument> query, IDocumentDbReader reader) => reader.Get<TDocument>(query.Id));
+            (DocumentDbApi.Query.GetReadonlyCopyOfDocument<TDocument> query, IDocumentDbReader reader) => reader.Get<TDocument>(query.Id));
     }
 }

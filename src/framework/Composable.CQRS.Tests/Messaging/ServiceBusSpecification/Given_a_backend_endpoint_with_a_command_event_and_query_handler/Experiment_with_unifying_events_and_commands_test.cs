@@ -6,7 +6,6 @@ using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Messaging.Commands;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.Testing.Threading;
@@ -170,7 +169,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        public class GetUserQuery : Query<UserResource>
+        public class GetUserQuery : RemoteQuery<UserResource>
         {
             public Guid UserId { get; private set; }
             public GetUserQuery(Guid userId) => UserId = userId;
@@ -182,7 +181,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public UserResource(IEnumerable<IAggregateEvent> history) { History = history; }
         }
 
-        public class RegisterUserResult : Message
+        public class RegisterUserResult : ExactlyOnceMessage
         {
             public GetUserQuery UserLink { get; private set; }
             public RegisterUserResult(Guid userId) => UserLink = new GetUserQuery(userId);

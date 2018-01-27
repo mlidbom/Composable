@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
-using Composable.Messaging.Commands;
+using Composable.Messaging;
 using JetBrains.Annotations;
 
 namespace AccountManagement.API

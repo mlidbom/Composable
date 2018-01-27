@@ -11,7 +11,7 @@ namespace AccountManagement.API
 
         public class Query
         {
-            public AggregateLink<AccountResource> AccountById { get; private set; } = new AggregateLink<AccountResource>();
+            public RemoteEntityResourceQuery<AccountResource> AccountById { get; private set; } = new RemoteEntityResourceQuery<AccountResource>();
         }
 
         public class Command

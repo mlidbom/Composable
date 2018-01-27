@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
-using Composable.Messaging.Commands;
+using Composable.Messaging;
+
 // ReSharper disable MemberCanBeMadeStatic.Global
 
 namespace AccountManagement.API

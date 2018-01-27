@@ -2,7 +2,6 @@
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Messaging.Commands;
 using Composable.Persistence.EventStore;
 using NUnit.Framework;
 
@@ -42,9 +41,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 
         protected class MyCommand : ExactlyOnceCommand {}
         protected class MyEvent : AggregateEvent {}
-        protected class MyQuery : Query<MyQueryResult> {}
+        protected class MyQuery : RemoteQuery<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
         protected class MyCommandWithResult : ExactlyOnceCommand<MyCommandResult> {}
-        protected class MyCommandResult : Message {}
+        protected class MyCommandResult : ExactlyOnceMessage {}
     }
 }

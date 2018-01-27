@@ -234,15 +234,15 @@ namespace Composable.DependencyInjection.Persistence
         }
 
         static void Save<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForCommand(
-            (SaveAggregate<TAggregate> command, IEventStoreUpdater updater) => updater.Save(command.Entity));
+            (EventStoreApi.Command.SaveAggregate<TAggregate> command, IEventStoreUpdater updater) => updater.Save(command.Entity));
 
         static void Get<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForQuery(
-            (AggregateLink<TAggregate> query, IEventStoreUpdater updater) => updater.Get<TAggregate>(query.Id));
+            (EventStoreApi.Query.AggregateLink<TAggregate> query, IEventStoreUpdater updater) => updater.Get<TAggregate>(query.Id));
 
         static void GetReadonlyCopyOfLatestVersion<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForQuery(
-            (GetReadonlyCopyOfAggregate<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopy<TAggregate>(query.Id));
+            (EventStoreApi.Query.GetReadonlyCopyOfAggregate<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopy<TAggregate>(query.Id));
 
         static void GetReadonlyCopyOfVersion<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForQuery(
-            (GetReadonlyCopyOfAggregateVersion<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopyOfVersion<TAggregate>(query.Id, query.Version));
+            (EventStoreApi.Query.GetReadonlyCopyOfAggregateVersion<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopyOfVersion<TAggregate>(query.Id, query.Version));
     }
 }

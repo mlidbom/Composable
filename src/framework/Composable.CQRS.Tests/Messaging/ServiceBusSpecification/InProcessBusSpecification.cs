@@ -113,7 +113,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             public Guid MessageId { get; } = Guid.NewGuid();
         }
 
-        class AQuery : Query<AQueryResult> {}
+        class AQuery : RemoteQuery<AQueryResult> {}
 
         class AQueryResult : QueryResult {}
 

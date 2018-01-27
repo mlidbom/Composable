@@ -53,7 +53,7 @@ namespace AccountManagement.UnitTests.UI.Commands.UserCommands
         [Test]
         public void IsInvalidIfPasswordDoesNotMatchPolicy()
         {
-            foreach(var invalidPassword in TestData.Password.Invalid.All)
+            foreach(var invalidPassword in TestData.Passwords.Invalid.All)
             {
                 _registerAccountUiCommand.Password = invalidPassword;
                 CommandValidator.ValidationFailures(_registerAccountUiCommand).Should().NotBeEmpty();
@@ -63,19 +63,19 @@ namespace AccountManagement.UnitTests.UI.Commands.UserCommands
         [Test]
         public void WhenNotMatchingThePolicyTheFailureTellsHow()
         {
-            _registerAccountUiCommand.Password = TestData.Password.Invalid.ShorterThanFourCharacters;
+            _registerAccountUiCommand.Password = TestData.Passwords.Invalid.ShorterThanFourCharacters;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_ShorterThanFourCharacters);
 
-            _registerAccountUiCommand.Password = TestData.Password.Invalid.BorderedByWhiteSpaceAtEnd;
+            _registerAccountUiCommand.Password = TestData.Passwords.Invalid.BorderedByWhiteSpaceAtEnd;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_BorderedByWhitespace);
 
-            _registerAccountUiCommand.Password = TestData.Password.Invalid.MissingLowercaseCharacter;
+            _registerAccountUiCommand.Password = TestData.Passwords.Invalid.MissingLowercaseCharacter;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_MissingLowerCaseCharacter);
 
-            _registerAccountUiCommand.Password = TestData.Password.Invalid.MissingUpperCaseCharacter;
+            _registerAccountUiCommand.Password = TestData.Passwords.Invalid.MissingUpperCaseCharacter;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_MissingUpperCaseCharacter);
 
-            _registerAccountUiCommand.Password = TestData.Password.Invalid.Null;
+            _registerAccountUiCommand.Password = TestData.Passwords.Invalid.Null;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.PasswordMissing);
         }
 

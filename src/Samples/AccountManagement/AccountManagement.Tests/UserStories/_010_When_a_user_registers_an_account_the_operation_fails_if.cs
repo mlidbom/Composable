@@ -13,10 +13,16 @@ namespace AccountManagement.UserStories
         [SetUp] public void SetupWiringAndCreateRepositoryAndScope() { _registerAccountScenario = new RegisterAccountScenario(ClientEndpoint); }
 
         [Test] public void Password_does_not_meet_policy() =>
-            TestData.Password.Invalid.All.ForEach(invalidPassword => new RegisterAccountScenario(ClientEndpoint)
-                                                                    .Mutate(@this => @this.Password = invalidPassword)
-                                                                    .Invoking(@this => @this.Execute())
-                                                                    .ShouldThrow<Exception>());
+            TestData.Passwords.Invalid.All.ForEach(invalidPassword => new RegisterAccountScenario(ClientEndpoint)
+                                                                     .SetPassword(invalidPassword)
+                                                                     .Invoking(@this => @this.Execute())
+                                                                     .ShouldThrow<Exception>());
+
+        [Test] public void Email_is_invalid() =>
+            TestData.Emails.InvalidEmails.ForEach(invalidEmail => new RegisterAccountScenario(ClientEndpoint)
+                                                                 .SetEmail(invalidEmail)
+                                                                 .Invoking(@this => @this.Execute())
+                                                                 .ShouldThrow<Exception>());
 
         [Test] public void Email_is_null()
             => _registerAccountScenario.Mutate(@this => @this.Email = null).Invoking(@this => @this.Execute()).ShouldThrow<Exception>();

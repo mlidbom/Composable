@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AccountManagement.Domain;
+using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -9,27 +10,18 @@ namespace AccountManagement.UnitTests.Emails
 {
     [TestFixture] public class When_creating_a_new_email
     {
-        [TestFixture] public class An_InvalidEmailException_containing_the_email_is_thrown_
+        [TestFixture] public class An_InvalidEmailException_containing_the_email_is_thrown_if_email_
         {
-            [Test, TestCaseSource(typeof(An_InvalidEmailException_containing_the_email_is_thrown_), nameof(InvalidEmails))]
+            [Test, TestCaseSource(typeof(TestData.Emails), nameof(TestData.Emails.InvalidEmailsTestData))]
             public void in_each_of_these_cases_and_the_message_contains_the_email(string invalidEmail)
             {
-                Assert.Throws<InvalidEmailException>(() => Email.Parse(invalidEmail))
-                      .Message.Should()
-                      .Contain(invalidEmail);
-            }
+                var invalidEmailException = Assert.Throws<InvalidEmailException>(() => Email.Parse(invalidEmail));
 
-            static IEnumerable InvalidEmails => new Dictionary<string, string>
-                                                {
-                                                    {"Only whitespace", " "},
-                                                    {"No domain", "test.test.com"},
-                                                    {"Repeated ..", "test.test@test..com"},
-                                                    {"Repeated ...", "test.test@test...com"},
-                                                    {"@.", "test.test@.test.dk"},
-                                                    {"Repeated .. and @.", "test.test@..test.dk"},
-                                                    {"Repeated .. and .@", "test.test..@test.dk"},
-                                                    {".@", "test.test.@test.dk"}
-                                                }.Select(entry => new TestCaseData(entry.Value).SetName($"\"{entry.Value}\" ({entry.Key})"));
+                if(!string.IsNullOrEmpty(invalidEmail))
+                {
+                    invalidEmailException.Message.Should().Contain((invalidEmail));
+                }
+            }
         }
 
         [Test] public void An_InvalidEmailException_containing_the_string_null_is_thrown_if_the_string_passed_is_null()

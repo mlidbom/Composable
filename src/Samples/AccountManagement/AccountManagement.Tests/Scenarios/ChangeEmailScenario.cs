@@ -2,6 +2,7 @@
 using AccountManagement.Domain;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.System.Linq;
 
 namespace AccountManagement.Scenarios
 {
@@ -9,8 +10,12 @@ namespace AccountManagement.Scenarios
     {
         readonly IEndpoint _clientEndpoint;
 
-        public string NewEmail = TestData.Email.CreateValidEmail().ToString();
+        public string NewEmail = TestData.Emails.CreateUnusedEmail();
         public readonly Email OldEmail;
+
+        public ChangeAccountEmailScenario SetNewEmail(string newEmail) => this.Mutate(@this => @this.NewEmail = newEmail);
+
+
         public AccountResource Account { get; private set; }
 
         public static ChangeAccountEmailScenario Create(IEndpoint domainEndpoint)

@@ -2,6 +2,7 @@ using System;
 using AccountManagement.API;
 using AccountManagement.Domain.Registration;
 using Composable.Messaging.Buses;
+using Composable.System.Linq;
 
 namespace AccountManagement.Scenarios
 {
@@ -13,12 +14,16 @@ namespace AccountManagement.Scenarios
         public String Email;
         public string Password;
 
-        public RegisterAccountScenario(IEndpoint clientEndpoint, string email = null, string password = null)
+
+        public RegisterAccountScenario SetEmail(string email) => this.Mutate(@this => @this.Email = email);
+        public RegisterAccountScenario SetPassword(string password) => this.Mutate(@this => @this.Password = password);
+
+        public RegisterAccountScenario(IEndpoint clientEndpoint, string email = null, string password = TestData.Passwords.ValidPassword)
         {
             _clientEndpoint = clientEndpoint;
             AccountId = Guid.NewGuid();
-            Password = password ?? TestData.Password.CreateValidPasswordString();
-            Email = email ?? TestData.Email.CreateValidEmail().ToString();
+            Password = password;
+            Email = email ?? TestData.Emails.CreateUnusedEmail();
         }
 
         public (AccountResource.Command.Register.RegistrationAttemptResult Result, AccountResource Account) Execute()

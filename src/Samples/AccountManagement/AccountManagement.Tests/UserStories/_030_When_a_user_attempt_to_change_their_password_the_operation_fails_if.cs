@@ -1,5 +1,4 @@
 ﻿using System;
-using AccountManagement.API;
 using AccountManagement.Scenarios;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
@@ -12,21 +11,20 @@ namespace AccountManagement.UserStories
     {
         RegisterAccountScenario _registerAccountScenario;
         ChangePasswordScenario _changePasswordScenario;
-        AccountResource _account;
 
         [SetUp] public void RegisterAccount()
         {
             _registerAccountScenario = new RegisterAccountScenario(ClientEndpoint);
-            _account = _registerAccountScenario.Execute().Account;
+            _registerAccountScenario.Execute();
             _changePasswordScenario = ChangePasswordScenario.Create(ClientEndpoint);
         }
 
         [Test]public void New_password_does_not_meet_policy() =>
-            TestData.Password.Invalid.All.ForEach(invalidPassword => new ChangePasswordScenario(ClientEndpoint, _account, oldPassword: _registerAccountScenario.Password, newPassword: invalidPassword).Invoking(@this => @this.Execute()).ShouldThrow<Exception>());
+            TestData.Passwords.Invalid.All.ForEach(invalidPassword => ChangePasswordScenario.Create(ClientEndpoint).SetNewPassword(invalidPassword).Invoking(@this => @this.Execute()).ShouldThrow<Exception>());
 
-        [Test] public void OldPassword_is_null() => _changePasswordScenario.Mutate(@this => @this.OldPassword = null).Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
+        [Test] public void OldPassword_is_null() => _changePasswordScenario.SetOldPassword(null).Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
 
-        [Test] public void OldPassword_is_empty_string() => _changePasswordScenario.Mutate(@this => @this.OldPassword = "").Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
+        [Test] public void OldPassword_is_empty_string() => _changePasswordScenario.SetOldPassword("").Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
 
         [Test] public void OldPassword_is_not_the_current_password_of_the_account() =>
             Host.AssertThatRunningScenarioThrowsBackendException<Exception>(() => _changePasswordScenario.Mutate(@this => @this.OldPassword = "Wrong").Execute())

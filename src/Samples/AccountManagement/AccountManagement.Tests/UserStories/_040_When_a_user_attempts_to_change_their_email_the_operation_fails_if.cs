@@ -13,9 +13,9 @@ namespace AccountManagement.UserStories
         [SetUp] public void RegisterAccount() => _changeEmail = ChangeAccountEmailScenario.Create(ClientEndpoint);
 
         [Test] public void NewEmail_is_null() =>
-            _changeEmail.Mutate(@this => @this.NewEmail = null).Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
+            _changeEmail.SetNewEmail(null).Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
 
         [Test] public void NewEmail_is_empty_string() =>
-            _changeEmail.Mutate(@this => @this.NewEmail = "").Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
+            _changeEmail.SetNewEmail("").Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
     }
 }

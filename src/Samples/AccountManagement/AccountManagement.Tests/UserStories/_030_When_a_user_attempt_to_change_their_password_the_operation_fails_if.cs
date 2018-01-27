@@ -20,11 +20,11 @@ namespace AccountManagement.UserStories
         }
 
         [Test]public void New_password_does_not_meet_policy() =>
-            TestData.Passwords.Invalid.All.ForEach(invalidPassword => ChangePasswordScenario.Create(ClientEndpoint).SetNewPassword(invalidPassword).Invoking(@this => @this.Execute()).ShouldThrow<Exception>());
+            TestData.Passwords.Invalid.All.ForEach(invalidPassword => ChangePasswordScenario.Create(ClientEndpoint).WithNewPassword(invalidPassword).ExecutingShouldThrow<Exception>());
 
-        [Test] public void OldPassword_is_null() => _changePasswordScenario.SetOldPassword(null).Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
+        [Test] public void OldPassword_is_null() => _changePasswordScenario.WithOldPassword(null).ExecutingShouldThrow<Exception>();
 
-        [Test] public void OldPassword_is_empty_string() => _changePasswordScenario.SetOldPassword("").Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
+        [Test] public void OldPassword_is_empty_string() => _changePasswordScenario.WithOldPassword("").ExecutingShouldThrow<Exception>();
 
         [Test] public void OldPassword_is_not_the_current_password_of_the_account() =>
             Host.AssertThatRunningScenarioThrowsBackendException<Exception>(() => _changePasswordScenario.Mutate(@this => @this.OldPassword = "Wrong").Execute())

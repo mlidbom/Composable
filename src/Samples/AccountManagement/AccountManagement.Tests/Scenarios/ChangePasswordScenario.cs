@@ -6,16 +6,16 @@ using Composable.System.Linq;
 
 namespace AccountManagement.Scenarios
 {
-    class ChangePasswordScenario : ScenarioBase
+    class ChangePasswordScenario : ScenarioBase<AccountResource>
     {
         readonly IEndpoint _clientEndpoint;
 
         public string OldPassword;
-        public string NewPasswordAsString;
+        public string NewPassword;
         public AccountResource Account { get; private set; }
 
-        public ChangePasswordScenario SetNewPassword(string newPassword) => this.Mutate(@this => @this.NewPasswordAsString = newPassword);
-        public ChangePasswordScenario SetOldPassword(string oldPassword) => this.Mutate(@this => @this.OldPassword = oldPassword);
+        public ChangePasswordScenario WithNewPassword(string newPassword) => this.Mutate(@this => @this.NewPassword = newPassword);
+        public ChangePasswordScenario WithOldPassword(string oldPassword) => this.Mutate(@this => @this.OldPassword = oldPassword);
 
         public static ChangePasswordScenario Create(IEndpoint domainEndpoint)
         {
@@ -31,14 +31,14 @@ namespace AccountManagement.Scenarios
             _clientEndpoint = clientEndpoint;
             Account = account;
             OldPassword = oldPassword;
-            NewPasswordAsString = newPassword;
+            NewPassword = newPassword;
         }
 
-        public void Execute()
+        public override AccountResource Execute()
         {
-            Account.Commands.ChangePassword.WithValues(OldPassword, NewPasswordAsString).PostRemote().ExecuteAsRequestOn(_clientEndpoint);
+            Account.Commands.ChangePassword.WithValues(OldPassword, NewPassword).PostRemote().ExecuteAsRequestOn(_clientEndpoint);
 
-            Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
+            return Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
         }
     }
 }

@@ -6,14 +6,14 @@ using Composable.System.Linq;
 
 namespace AccountManagement.Scenarios
 {
-    class ChangeAccountEmailScenario : ScenarioBase
+    class ChangeAccountEmailScenario : ScenarioBase<AccountResource>
     {
         readonly IEndpoint _clientEndpoint;
 
         public string NewEmail = TestData.Emails.CreateUnusedEmail();
         public readonly Email OldEmail;
 
-        public ChangeAccountEmailScenario SetNewEmail(string newEmail) => this.Mutate(@this => @this.NewEmail = newEmail);
+        public ChangeAccountEmailScenario WithNewEmail(string newEmail) => this.Mutate(@this => @this.NewEmail = newEmail);
 
 
         public AccountResource Account { get; private set; }
@@ -28,11 +28,11 @@ namespace AccountManagement.Scenarios
             OldEmail = Account.Email;
         }
 
-        public void Execute()
+        public override AccountResource Execute()
         {
             Account.Commands.ChangeEmail.WithEmail(NewEmail).PostRemote().ExecuteAsRequestOn(_clientEndpoint);
 
-            Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
+            return Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
         }
     }
 }

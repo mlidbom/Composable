@@ -11,7 +11,7 @@ namespace AccountManagement.UserStories
 
         [Test] public void NewEmail_is_invalid() =>
             TestData.Emails.InvalidEmails.ForEach(action: invalidEmail => ChangeAccountEmailScenario.Create(ClientEndpoint)
-                                                                                            .SetNewEmail(newEmail: null)
-                                                                                            .Invoking(action: @this => @this.Execute()).ShouldThrow<Exception>());
+                                                                                            .WithNewEmail(newEmail: null)
+                                                                                            .ExecutingShouldThrow<Exception>());
     }
 }

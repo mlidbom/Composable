@@ -1,7 +1,6 @@
 ﻿using System;
 using AccountManagement.Scenarios;
 using Composable.System.Linq;
-using FluentAssertions;
 using NUnit.Framework;
 
 namespace AccountManagement.UserStories
@@ -14,23 +13,21 @@ namespace AccountManagement.UserStories
 
         [Test] public void Password_does_not_meet_policy() =>
             TestData.Passwords.Invalid.All.ForEach(invalidPassword => new RegisterAccountScenario(ClientEndpoint)
-                                                                     .SetPassword(invalidPassword)
-                                                                     .Invoking(@this => @this.Execute())
-                                                                     .ShouldThrow<Exception>());
+                                                                     .WithPassword(invalidPassword)
+                                                                     .ExecutingShouldThrow<Exception>());
 
         [Test] public void Email_is_invalid() =>
             TestData.Emails.InvalidEmails.ForEach(invalidEmail => new RegisterAccountScenario(ClientEndpoint)
-                                                                 .SetEmail(invalidEmail)
-                                                                 .Invoking(@this => @this.Execute())
-                                                                 .ShouldThrow<Exception>());
+                                                                 .WithEmail(invalidEmail)
+                                                                 .ExecutingShouldThrow<Exception>());
 
         [Test] public void Email_is_null()
-            => _registerAccountScenario.Mutate(@this => @this.Email = null).Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
+            => _registerAccountScenario.WithEmail(null).ExecutingShouldThrow<Exception>();
 
         [Test] public void Email_is_empty_string()
-            => _registerAccountScenario.Mutate(@this => @this.Email = "").Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
+            => _registerAccountScenario.WithEmail("").ExecutingShouldThrow<Exception>();
 
         [Test] public void AccountId_is_empty()
-            => _registerAccountScenario.Mutate(@this => @this.AccountId = Guid.Empty).Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
+            => _registerAccountScenario.WithAccountId(Guid.Empty).ExecutingShouldThrow<Exception>();
     }
 }

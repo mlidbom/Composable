@@ -15,7 +15,7 @@ namespace AccountManagement.UserStories
         }
 
         [Test] public void Logging_in_with_the_new_password_works() =>
-            new LoginScenario(ClientEndpoint, _changePasswordScenario.Account, _changePasswordScenario.NewPasswordAsString).Execute().Succeeded.Should().Be(true);
+            new LoginScenario(ClientEndpoint, _changePasswordScenario.Account, _changePasswordScenario.NewPassword).Execute().Succeeded.Should().Be(true);
 
         [Test] public void Logging_in_with_the_old_password_fails() =>
             new LoginScenario(ClientEndpoint, _changePasswordScenario.Account, _changePasswordScenario.OldPassword).Execute().Succeeded.Should().Be(false);

@@ -4,7 +4,7 @@ using AccountManagement.Domain.Registration;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
 
-namespace AccountManagement.Scenarios
+namespace AccountManagement.UserStories.Scenarios
 {
     class RegisterAccountScenario : ScenarioBase<(AccountResource.Command.Register.RegistrationAttemptResult Result, AccountResource Account)>
     {

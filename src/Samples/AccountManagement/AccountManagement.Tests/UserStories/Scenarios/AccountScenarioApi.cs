@@ -2,7 +2,7 @@
 using AccountManagement.Domain;
 using Composable.Messaging.Buses;
 
-namespace AccountManagement.Scenarios
+namespace AccountManagement.UserStories.Scenarios
 {
     class AccountScenarioApi
     {
@@ -21,6 +21,5 @@ namespace AccountManagement.Scenarios
         internal LoginScenario Login(RegisterAccountScenario registrationScenario) => new LoginScenario(_clientEndpoint, registrationScenario.Email, registrationScenario.Password);
         internal LoginScenario Login(Email email, string password) => new LoginScenario(_clientEndpoint, email: email.StringValue, password: password);
         internal LoginScenario Login(string email, string password) => new LoginScenario(_clientEndpoint, email: email, password: password);
-
     }
 }

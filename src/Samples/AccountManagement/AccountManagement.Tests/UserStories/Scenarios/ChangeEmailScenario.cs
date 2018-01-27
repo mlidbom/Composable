@@ -4,7 +4,7 @@ using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
 
-namespace AccountManagement.Scenarios
+namespace AccountManagement.UserStories.Scenarios
 {
     class ChangeAccountEmailScenario : ScenarioBase<AccountResource>
     {

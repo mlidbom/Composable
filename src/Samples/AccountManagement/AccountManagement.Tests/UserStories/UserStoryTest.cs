@@ -1,4 +1,4 @@
-﻿using AccountManagement.Scenarios;
+﻿using AccountManagement.UserStories.Scenarios;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using NUnit.Framework;

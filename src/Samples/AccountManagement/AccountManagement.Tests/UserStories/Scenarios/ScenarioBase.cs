@@ -3,7 +3,7 @@ using AccountManagement.API;
 using FluentAssertions;
 using FluentAssertions.Specialized;
 
-namespace AccountManagement.Scenarios
+namespace AccountManagement.UserStories.Scenarios
 {
     public abstract class ScenarioBase<TResult>
     {

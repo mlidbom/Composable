@@ -1,4 +1,4 @@
-﻿using AccountManagement.Scenarios;
+﻿using AccountManagement.UserStories.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 

@@ -2,7 +2,7 @@
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
 
-namespace AccountManagement.Scenarios
+namespace AccountManagement.UserStories.Scenarios
 {
     class LoginScenario : ScenarioBase<AccountResource.Command.LogIn.LoginAttemptResult>
     {

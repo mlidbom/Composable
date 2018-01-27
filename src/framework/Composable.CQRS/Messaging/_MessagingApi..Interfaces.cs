@@ -4,7 +4,7 @@
 
 namespace Composable.Messaging
 {
-    public class MessagingApi
+    public partial class MessagingApi
     {
         ///<summary>Any object that is used to transfer data from a sender to a receiver through a messaging infrastructure.</summary>
         public interface IMessage {}
@@ -21,7 +21,7 @@ namespace Composable.Messaging
         ///<summary>An instructs the receiver to return a resource based upon the data in the query.</summary>
         public interface IQuery<TResult> : MessagingApi.IQuery { }
 
-        public static class Local
+        public partial class Local
         {
             public interface IRequireLocalReceiver {}
             public interface IEvent : MessagingApi.IEvent, IRequireLocalReceiver { }
@@ -30,11 +30,11 @@ namespace Composable.Messaging
             public interface IQuery<TResult> : IRequireLocalReceiver, MessagingApi.IQuery<TResult> { }
         }
 
-        public static class Remote
+        public partial class Remote
         {
             public interface ISupportRemoteReceiver {}
 
-            public class NonTransactional
+            public partial class NonTransactional
             {
                 public interface IAtMostOnceDelivery {}
                 public interface IForbidTransactionalSend { }
@@ -44,7 +44,7 @@ namespace Composable.Messaging
                 public interface IQuery<TResult> : MessagingApi.IQuery<TResult>, IMessage { }
             }
 
-            public class ExactlyOnce
+            public partial class ExactlyOnce
             {
                 public interface IRequireTransactionalSender : ISupportRemoteReceiver{ }
                 public interface IRequireTransactionalReceiver : ISupportRemoteReceiver { }

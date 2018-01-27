@@ -20,11 +20,11 @@ namespace AccountManagement
         {
             internal TryGetByEmailQuery TryGetByEmail(Email email) => new TryGetByEmailQuery(email);
 
-            internal EventStoreApi.Query.AggregateLink<Account> GetForUpdate(Guid id) => ComposableApi.EventStoreManaging().Queries.GetForUpdate<Account>(id);
+            internal EventStoreApi.Query.AggregateLink<Account> GetForUpdate(Guid id) => ComposableApi.EventStore.Queries.GetForUpdate<Account>(id);
 
-            internal EventStoreApi.Query.GetReadonlyCopyOfAggregate<Account> GetReadOnlyCopy(Guid id) => ComposableApi.EventStoreManaging().Queries.GetReadOnlyCopy<Account>(id);
+            internal EventStoreApi.Query.GetReadonlyCopyOfAggregate<Account> GetReadOnlyCopy(Guid id) => ComposableApi.EventStore.Queries.GetReadOnlyCopy<Account>(id);
 
-            internal EventStoreApi.Query.GetReadonlyCopyOfAggregateVersion<Account> GetReadOnlyCopyOfVersion(Guid id, int version) => ComposableApi.EventStoreManaging().Queries.GetReadOnlyCopyOfVersion<Account>(id, version);
+            internal EventStoreApi.Query.GetReadonlyCopyOfAggregateVersion<Account> GetReadOnlyCopyOfVersion(Guid id, int version) => ComposableApi.EventStore.Queries.GetReadOnlyCopyOfVersion<Account>(id, version);
 
             internal class TryGetByEmailQuery : BusApi.Local.IQuery<Option<Account>>
             {
@@ -40,7 +40,7 @@ namespace AccountManagement
 
         internal class Command
         {
-            internal EventStoreApi.Command.SaveAggregate<Account> Save(Account account) => ComposableApi.EventStoreManaging().Commands.Save(account);
+            internal EventStoreApi.Command.SaveAggregate<Account> Save(Account account) => ComposableApi.EventStore.Commands.Save(account);
         }
     }
 }

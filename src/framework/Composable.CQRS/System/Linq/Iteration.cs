@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace Composable.System.Linq
 {
     /// <summary/>
-    static class Iteration
+    public static class Iteration
     {
         /// <summary>
         /// Executes <paramref name="action"/> for each element in the sequence <paramref name="source"/>.

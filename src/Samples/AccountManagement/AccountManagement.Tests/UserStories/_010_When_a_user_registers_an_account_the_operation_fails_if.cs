@@ -3,22 +3,21 @@ using AccountManagement.Scenarios;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
 using Composable.Testing;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace AccountManagement.UserStories
 {
-    public class When_a_user_registers_an_account_the_operation_fails_if : UserStoryTest
+    public class _010_When_a_user_registers_an_account_the_operation_fails_if : UserStoryTest
     {
         RegisterAccountScenario _registerAccountScenario;
 
         [SetUp] public void SetupWiringAndCreateRepositoryAndScope() { _registerAccountScenario = new RegisterAccountScenario(ClientEndpoint); }
 
 
-        [Test] public void  Password_is_null() =>
-            AssertThrows.Exception<CommandValidationFailureException>(() => _registerAccountScenario.Mutate(@this => @this.Password = null).Execute());
-
-        [Test] public void  Password_is_empty() =>
-            AssertThrows.Exception<CommandValidationFailureException>(() => _registerAccountScenario.Mutate(@this => @this.Password = "").Execute());
+        [Test, TestCaseSource(typeof(TestData.Password.Invalid), nameof(TestData.Password.Invalid.All))]
+        public void Password_does_not_meet_policy(string newPassword) =>
+            _registerAccountScenario.Mutate(@this => @this.Password = newPassword).Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
 
         [Test] public void Email_is_null()
             => AssertThrows.Exception<CommandValidationFailureException>(() => _registerAccountScenario.Mutate(@this => @this.Email = null).Execute());

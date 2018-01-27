@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace AccountManagement.UserStories
 {
-    [TestFixture] public class After_a_user_has_registered_an_account : UserStoryTest
+    [TestFixture] public class _020_After_a_user_has_registered_an_account : UserStoryTest
     {
         AccountResource _registeredAccount;
         RegisterAccountScenario _registerAccountScenario;

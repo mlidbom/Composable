@@ -4,30 +4,32 @@
     {
         public static class Password
         {
+            const string ValidPassword = "Pass";
+
             public static class Invalid
             {
+                public const string Null = null;
+                public static readonly string EmptyString = string.Empty;
+                public static readonly string ShorterThanFourCharacters = ValidPassword.Substring(0,3);
+                public static readonly  string BorderedByWhiteSpaceAtEnd = $"{ValidPassword} ";
+                public static readonly  string BorderedByWhiteSpaceAtBeginning = $" {ValidPassword}";
+                public static readonly  string MissingUpperCaseCharacter = ValidPassword.ToLower();
+                public static readonly  string MissingLowercaseCharacter = ValidPassword.ToUpper();
+
                 public static readonly string[] All =
                 {
                     Null,
+                    EmptyString,
                     ShorterThanFourCharacters,
                     BorderedByWhiteSpaceAtBeginning,
                     BorderedByWhiteSpaceAtEnd,
                     MissingUpperCaseCharacter,
                     MissingLowercaseCharacter
                 };
-
-                public const string Null = null;
-                public const string ShorterThanFourCharacters = "a";
-                public const string BorderedByWhiteSpaceAtEnd = "Urdu ";
-                const string BorderedByWhiteSpaceAtBeginning = " Urdu";
-                public const string MissingUpperCaseCharacter = "urdu";
-                public const string MissingLowercaseCharacter = "URDU";
             }
 
             static int _passwordCount = 1;
-            internal static string CreateValidPasswordString() => "SomeComplexPassword" + _passwordCount++;
-
-            public static AccountManagement.Domain.Passwords.Password CreateValidPassword() => new AccountManagement.Domain.Passwords.Password(CreateValidPasswordString());
+            internal static string CreateValidPasswordString() => $"{ValidPassword}{_passwordCount++}";
         }
 
         internal static class Email

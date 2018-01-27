@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace AccountManagement.UserStories
 {
-    public class After_a_user_changes_their_password : UserStoryTest
+    public class _031_After_a_user_changes_their_password : UserStoryTest
     {
         ChangePasswordScenario _changePasswordScenario;
 

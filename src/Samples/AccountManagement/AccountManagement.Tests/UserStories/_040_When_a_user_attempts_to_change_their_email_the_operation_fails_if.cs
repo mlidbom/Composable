@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace AccountManagement.UserStories
 {
-    public class When_a_user_attempts_to_change_their_email_the_operation_fails_if : UserStoryTest
+    public class _040_When_a_user_attempts_to_change_their_email_the_operation_fails_if : UserStoryTest
     {
         ChangeAccountEmailScenario _changeEmail;
 

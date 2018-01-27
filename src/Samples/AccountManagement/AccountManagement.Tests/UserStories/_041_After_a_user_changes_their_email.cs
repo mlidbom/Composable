@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace AccountManagement.UserStories
 {
-    public class After_a_user_changes_their_email : UserStoryTest
+    public class _041_After_a_user_changes_their_email : UserStoryTest
     {
         ChangeAccountEmailScenario _changeEmailScenario;
         RegisterAccountScenario _registerAccountScenario;

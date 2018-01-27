@@ -17,15 +17,15 @@ namespace AccountManagement.Scenarios
             var registerAccountScenario = new RegisterAccountScenario(domainEndpoint);
             var account = registerAccountScenario.Execute().Account;
 
-            return new ChangePasswordScenario(domainEndpoint, account, registerAccountScenario.Password);
+            return new ChangePasswordScenario(domainEndpoint, account, registerAccountScenario.Password, TestData.Password.CreateValidPasswordString());
         }
 
-        public ChangePasswordScenario(IEndpoint clientEndpoint, AccountResource account, string oldPassword, string newPassword = null)
+        public ChangePasswordScenario(IEndpoint clientEndpoint, AccountResource account, string oldPassword, string newPassword)
         {
             _clientEndpoint = clientEndpoint;
             Account = account;
             OldPassword = oldPassword;
-            NewPasswordAsString = newPassword ?? TestData.Password.CreateValidPasswordString();
+            NewPasswordAsString = newPassword;
         }
 
         public void Execute()

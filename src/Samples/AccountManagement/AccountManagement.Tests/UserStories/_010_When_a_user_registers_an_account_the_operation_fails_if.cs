@@ -1,8 +1,6 @@
 ﻿using System;
 using AccountManagement.Scenarios;
-using Composable.Messaging.Buses;
 using Composable.System.Linq;
-using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -14,18 +12,19 @@ namespace AccountManagement.UserStories
 
         [SetUp] public void SetupWiringAndCreateRepositoryAndScope() { _registerAccountScenario = new RegisterAccountScenario(ClientEndpoint); }
 
-
-        [Test, TestCaseSource(typeof(TestData.Password.Invalid), nameof(TestData.Password.Invalid.All))]
-        public void Password_does_not_meet_policy(string newPassword) =>
-            _registerAccountScenario.Mutate(@this => @this.Password = newPassword).Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
+        [Test] public void Password_does_not_meet_policy() =>
+            TestData.Password.Invalid.All.ForEach(invalidPassword => new RegisterAccountScenario(ClientEndpoint)
+                                                                    .Mutate(@this => @this.Password = invalidPassword)
+                                                                    .Invoking(@this => @this.Execute())
+                                                                    .ShouldThrow<Exception>());
 
         [Test] public void Email_is_null()
-            => AssertThrows.Exception<CommandValidationFailureException>(() => _registerAccountScenario.Mutate(@this => @this.Email = null).Execute());
+            => _registerAccountScenario.Mutate(@this => @this.Email = null).Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
 
         [Test] public void Email_is_empty_string()
-            => AssertThrows.Exception<CommandValidationFailureException>(() => _registerAccountScenario.Mutate(@this => @this.Email = "").Execute());
+            => _registerAccountScenario.Mutate(@this => @this.Email = "").Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
 
         [Test] public void AccountId_is_empty()
-            => AssertThrows.Exception<CommandValidationFailureException>(() => _registerAccountScenario.Mutate(@this => @this.AccountId = Guid.Empty).Execute());
+            => _registerAccountScenario.Mutate(@this => @this.AccountId = Guid.Empty).Invoking(@this => @this.Execute()).ShouldThrow<Exception>();
     }
 }

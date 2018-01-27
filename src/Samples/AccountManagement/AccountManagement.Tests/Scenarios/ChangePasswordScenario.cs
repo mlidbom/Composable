@@ -1,4 +1,5 @@
 ﻿using AccountManagement.API;
+using Composable.Contracts;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 
@@ -22,6 +23,7 @@ namespace AccountManagement.Scenarios
 
         public ChangePasswordScenario(IEndpoint clientEndpoint, AccountResource account, string oldPassword, string newPassword)
         {
+            Assert.Argument.NotNull(account);
             _clientEndpoint = clientEndpoint;
             Account = account;
             OldPassword = oldPassword;

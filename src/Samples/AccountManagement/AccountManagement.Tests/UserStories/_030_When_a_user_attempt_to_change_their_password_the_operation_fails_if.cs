@@ -1,5 +1,4 @@
 ﻿using System;
-using AccountManagement.Scenarios;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
 using FluentAssertions;
@@ -9,25 +8,15 @@ namespace AccountManagement.UserStories
 {
     [TestFixture] public class _030_When_a_user_attempt_to_change_their_password_the_operation_fails_if : UserStoryTest
     {
-        RegisterAccountScenario _registerAccountScenario;
-        ChangePasswordScenario _changePasswordScenario;
+        [Test] public void New_password_does_not_meet_policy() =>
+            TestData.Passwords.Invalid.All.ForEach(invalidPassword => Scenario.ChangePassword().WithNewPassword(invalidPassword).ExecutingShouldThrow<Exception>());
 
-        [SetUp] public void RegisterAccount()
-        {
-            _registerAccountScenario = new RegisterAccountScenario(ClientEndpoint);
-            _registerAccountScenario.Execute();
-            _changePasswordScenario = ChangePasswordScenario.Create(ClientEndpoint);
-        }
+        [Test] public void OldPassword_is_null() => Scenario.ChangePassword().WithOldPassword(null).ExecutingShouldThrow<Exception>();
 
-        [Test]public void New_password_does_not_meet_policy() =>
-            TestData.Passwords.Invalid.All.ForEach(invalidPassword => ChangePasswordScenario.Create(ClientEndpoint).WithNewPassword(invalidPassword).ExecutingShouldThrow<Exception>());
-
-        [Test] public void OldPassword_is_null() => _changePasswordScenario.WithOldPassword(null).ExecutingShouldThrow<Exception>();
-
-        [Test] public void OldPassword_is_empty_string() => _changePasswordScenario.WithOldPassword("").ExecutingShouldThrow<Exception>();
+        [Test] public void OldPassword_is_empty_string() => Scenario.ChangePassword().WithOldPassword("").ExecutingShouldThrow<Exception>();
 
         [Test] public void OldPassword_is_not_the_current_password_of_the_account() =>
-            Host.AssertThatRunningScenarioThrowsBackendException<Exception>(() => _changePasswordScenario.Mutate(@this => @this.OldPassword = "Wrong").Execute())
+            Host.AssertThatRunningScenarioThrowsBackendException<Exception>(() => Scenario.ChangePassword().WithOldPassword("Wrong").Execute())
                 .Message.ToLower().Should().Contain("wrongpassword");
     }
 }

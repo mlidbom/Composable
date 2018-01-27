@@ -1,5 +1,6 @@
 ﻿using AccountManagement.API;
 using Composable.Messaging.Buses;
+using Composable.System.Linq;
 
 namespace AccountManagement.Scenarios
 {
@@ -9,11 +10,15 @@ namespace AccountManagement.Scenarios
         public string Password { get; set; }
         public string Email { get; set; }
 
-        public static LoginScenario Create(IEndpoint domainEndpoint)
+
+        public LoginScenario WithEmail(string email) => this.Mutate(@this => @this.Email = email);
+        public LoginScenario WithPassword(string password) => this.Mutate(@this => @this.Password = password);
+
+        public static LoginScenario Create(IEndpoint clientEndpoint)
         {
-            var registerAccountScenario = new RegisterAccountScenario(domainEndpoint);
+            var registerAccountScenario = new RegisterAccountScenario(clientEndpoint);
             registerAccountScenario.Execute();
-            return new LoginScenario(domainEndpoint, registerAccountScenario.Email, registerAccountScenario.Password);
+            return new LoginScenario(clientEndpoint, registerAccountScenario.Email, registerAccountScenario.Password);
         }
 
         public LoginScenario(IEndpoint clientEndpoint, AccountResource account, string password) : this(clientEndpoint, account.Email.ToString(), password) {}

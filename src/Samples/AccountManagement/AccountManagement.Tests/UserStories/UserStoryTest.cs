@@ -1,4 +1,5 @@
-﻿using Composable.DependencyInjection;
+﻿using AccountManagement.Scenarios;
+using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using NUnit.Framework;
 
@@ -8,6 +9,7 @@ namespace AccountManagement.UserStories
     {
         protected ITestingEndpointHost Host;
         protected IEndpoint ClientEndpoint => Host.ClientEndpoint;
+        internal AccountScenarioApi Scenario => new AccountScenarioApi(Host.ClientEndpoint);
 
         [SetUp] public void SetupContainerAndBeginScope()
         {

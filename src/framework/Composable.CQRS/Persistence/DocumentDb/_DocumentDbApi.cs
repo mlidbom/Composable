@@ -14,7 +14,9 @@ namespace Composable.Persistence.DocumentDb
 
         public class Query
         {
-            public TryGetDocument<TDocument> TryGet<TDocument>(Guid id) where TDocument : IHasPersistentIdentity<Guid> => new TryGetDocument<TDocument>(id);
+            public TryGetDocument<TDocument> TryGet<TDocument>(Guid id) where TDocument : IHasPersistentIdentity<Guid> => new TryGetDocument<TDocument>(id.ToString());
+
+            public TryGetDocument<TDocument> TryGet<TDocument>(string id) => new TryGetDocument<TDocument>(id);
 
             public GetDocumentForUpdate<TDocument> GetForUpdate<TDocument>(Guid id) => new GetDocumentForUpdate<TDocument>(id);
 
@@ -22,40 +24,20 @@ namespace Composable.Persistence.DocumentDb
 
             public class GetDocumentForUpdate<TEntity> : BusApi.Local.Queries.Query<TEntity>
             {
-                internal GetDocumentForUpdate() {}
-                public GetDocumentForUpdate(Guid id) => Id = id;
-                public Guid Id { get; set; }
-                public GetDocumentForUpdate<TEntity> WithId(Guid id) => new GetDocumentForUpdate<TEntity> {Id = id};
+                internal GetDocumentForUpdate(Guid id) => Id = id;
+                internal Guid Id { get; private set; }
             }
 
             public class TryGetDocument<TEntity> : BusApi.Local.Queries.Query<Option<TEntity>>
             {
-                internal TryGetDocument() {}
-                public TryGetDocument(Guid id) => Id = id;
-                public Guid Id { get; set; }
-                public GetDocumentForUpdate<TEntity> WithId(Guid id) => new GetDocumentForUpdate<TEntity> {Id = id};
+                internal TryGetDocument(string id) => Id = id;
+                internal string Id { get; private set; }
             }
 
             public class GetReadonlyCopyOfDocument<TEntity> : BusApi.Local.Queries.Query<TEntity>
             {
-                public GetReadonlyCopyOfDocument() {}
-                public GetReadonlyCopyOfDocument(Guid id) => Id = id;
-                public Guid Id { get; set; }
-                public GetDocumentForUpdate<TEntity> WithId(Guid id) => new GetDocumentForUpdate<TEntity> {Id = id};
-            }
-
-            public class GetReadonlyCopyOfDocumentVersion<TEntity> : BusApi.Local.Queries.Query<TEntity>
-            {
-                public GetReadonlyCopyOfDocumentVersion() {}
-                public GetReadonlyCopyOfDocumentVersion(Guid id, int version)
-                {
-                    Id = id;
-                    Version = version;
-                }
-
-                public Guid Id { get; set; }
-                public int Version { get; set; }
-                public GetDocumentForUpdate<TEntity> WithId(Guid id) => new GetDocumentForUpdate<TEntity> {Id = id};
+                internal GetReadonlyCopyOfDocument(Guid id) => Id = id;
+                internal Guid Id { get; private set; }
             }
         }
 
@@ -65,6 +47,14 @@ namespace Composable.Persistence.DocumentDb
 
             public SaveDocument<TDocument> Save<TDocument>(TDocument account) where TDocument : IHasPersistentIdentity<Guid> => new SaveDocument<TDocument>(account.Id.ToString(), account);
 
+            public DeleteDocument<TDocument> Delete<TDocument>(string key) => new DeleteDocument<TDocument>(key);
+
+            public class DeleteDocument<TEntity> : BusApi.Local.Commands.Command
+            {
+                internal DeleteDocument(string key) => Key = key;
+                internal string Key { get; }
+            }
+
             public class SaveDocument<TEntity> : BusApi.Local.Commands.Command
             {
                 public SaveDocument(string key, TEntity entity)
@@ -73,8 +63,8 @@ namespace Composable.Persistence.DocumentDb
                     Entity = entity;
                 }
 
-                public string Key { get; }
-                public TEntity Entity { get; }
+                internal string Key { get; }
+                internal TEntity Entity { get; }
             }
         }
     }

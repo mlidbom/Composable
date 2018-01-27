@@ -146,11 +146,15 @@ namespace Composable.DependencyInjection.Persistence
             Get<TDocument>(registrar);
             Save<TDocument>(registrar);
             GetForUpdate<TDocument>(registrar);
+            Delete<TDocument>(registrar);
             return this;
         }
 
         static void Save<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (DocumentDbApi.Command.SaveDocument<TDocument> command, IDocumentDbUpdater updater) => updater.Save(command.Key, command.Entity));
+
+        static void Delete<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
+            (DocumentDbApi.Command.DeleteDocument<TDocument> command, IDocumentDbUpdater updater) => updater.Delete<TDocument>(command.Key));
 
         static void GetForUpdate<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (DocumentDbApi.Query.GetDocumentForUpdate<TDocument> query, IDocumentDbUpdater updater) => updater.GetForUpdate<TDocument>(query.Id));

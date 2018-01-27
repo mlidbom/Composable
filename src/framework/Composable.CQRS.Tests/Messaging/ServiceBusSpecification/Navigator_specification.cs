@@ -106,13 +106,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class RegisterUserCommand : Command<UserRegisteredConfirmationResource>
+            protected class RegisterUserCommand : MessagingApi.Remote.ExactlyOnce.Command<UserRegisteredConfirmationResource>
             {
                 public RegisterUserCommand(string name) => Name = name;
                 public string Name { get; }
             }
 
-            protected class UserRegisteredConfirmationResource : ExactlyOnceMessage
+            protected class UserRegisteredConfirmationResource : MessagingApi.Remote.ExactlyOnce.Message
             {
                 public UserRegisteredConfirmationResource(string name) => Name = name;
                 public GetUserQuery User => new GetUserQuery(Name);

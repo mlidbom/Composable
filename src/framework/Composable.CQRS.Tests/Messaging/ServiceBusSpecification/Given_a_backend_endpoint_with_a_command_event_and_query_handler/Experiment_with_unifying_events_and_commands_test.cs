@@ -111,8 +111,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             public interface IRoot : MessagingApi.Remote.ExactlyOnce.ICommand {}
 
-            public class Root : Command, IRoot {}
-            public class Root<TResult> : Command<TResult>, IRoot where TResult : MessagingApi.IMessage {}
+            public class Root : MessagingApi.Remote.ExactlyOnce.Command, IRoot {}
+            public class Root<TResult> : MessagingApi.Remote.ExactlyOnce.Command<TResult>, IRoot where TResult : MessagingApi.IMessage {}
 
             public class RegisterUserCommand : Root<RegisterUserResult>
             {
@@ -181,7 +181,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public UserResource(IEnumerable<IAggregateEvent> history) { History = history; }
         }
 
-        public class RegisterUserResult : ExactlyOnceMessage
+        public class RegisterUserResult : MessagingApi.Remote.ExactlyOnce.Message
         {
             public GetUserQuery UserLink { get; private set; }
             public RegisterUserResult(Guid userId) => UserLink = new GetUserQuery(userId);

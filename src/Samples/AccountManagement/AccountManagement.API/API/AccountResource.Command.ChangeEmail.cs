@@ -10,7 +10,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public class ChangeEmail : Composable.Messaging.Command
+            public class ChangeEmail : MessagingApi.Remote.ExactlyOnce.Command
             {
                 [UsedImplicitly] ChangeEmail() {}
                 internal ChangeEmail(Guid accountId) => AccountId = accountId;

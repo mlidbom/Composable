@@ -12,7 +12,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public partial class Register : Command<Register.RegistrationAttemptResult>, IValidatableObject
+            public partial class Register : MessagingApi.Remote.ExactlyOnce.Command<Register.RegistrationAttemptResult>, IValidatableObject
             {
                 public Register() {}
                 public Register(Guid accountId, string email, string password)

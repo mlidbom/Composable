@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.DDD;
+using Composable.Functional;
 using Composable.Messaging;
 // ReSharper disable MemberCanBeMadeStatic.Global we want composable fluent APIs. No statics please.
 
@@ -13,26 +14,26 @@ namespace Composable.Persistence.DocumentDb
 
         public class Query
         {
-            public TryGetDocument<TDocument> TryGet<TDocument>(Guid id) => new TryGetDocument<TDocument>(id);
+            public TryGetDocument<TDocument> TryGet<TDocument>(Guid id) where TDocument : IHasPersistentIdentity<Guid> => new TryGetDocument<TDocument>(id);
 
-            public DocumentLink<TDocument> GetForUpdate<TDocument>(Guid id) => new DocumentLink<TDocument>(id);
+            public GetDocumentForUpdate<TDocument> GetForUpdate<TDocument>(Guid id) => new GetDocumentForUpdate<TDocument>(id);
 
             public GetReadonlyCopyOfDocument<TDocument> GetReadOnlyCopy<TDocument>(Guid id) => new GetReadonlyCopyOfDocument<TDocument>(id);
 
-            public class DocumentLink<TEntity> : BusApi.Local.Queries.Query<TEntity>
+            public class GetDocumentForUpdate<TEntity> : BusApi.Local.Queries.Query<TEntity>
             {
-                internal DocumentLink() {}
-                public DocumentLink(Guid id) => Id = id;
+                internal GetDocumentForUpdate() {}
+                public GetDocumentForUpdate(Guid id) => Id = id;
                 public Guid Id { get; set; }
-                public DocumentLink<TEntity> WithId(Guid id) => new DocumentLink<TEntity> {Id = id};
+                public GetDocumentForUpdate<TEntity> WithId(Guid id) => new GetDocumentForUpdate<TEntity> {Id = id};
             }
 
-            public class TryGetDocument<TEntity> : BusApi.Local.Queries.Query<TEntity>
+            public class TryGetDocument<TEntity> : BusApi.Local.Queries.Query<Option<TEntity>> where TEntity : IHasPersistentIdentity<Guid>
             {
                 internal TryGetDocument() {}
                 public TryGetDocument(Guid id) => Id = id;
                 public Guid Id { get; set; }
-                public DocumentLink<TEntity> WithId(Guid id) => new DocumentLink<TEntity> {Id = id};
+                public GetDocumentForUpdate<TEntity> WithId(Guid id) => new GetDocumentForUpdate<TEntity> {Id = id};
             }
 
             public class GetReadonlyCopyOfDocument<TEntity> : BusApi.Local.Queries.Query<TEntity>
@@ -40,7 +41,7 @@ namespace Composable.Persistence.DocumentDb
                 public GetReadonlyCopyOfDocument() {}
                 public GetReadonlyCopyOfDocument(Guid id) => Id = id;
                 public Guid Id { get; set; }
-                public DocumentLink<TEntity> WithId(Guid id) => new DocumentLink<TEntity> {Id = id};
+                public GetDocumentForUpdate<TEntity> WithId(Guid id) => new GetDocumentForUpdate<TEntity> {Id = id};
             }
 
             public class GetReadonlyCopyOfDocumentVersion<TEntity> : BusApi.Local.Queries.Query<TEntity>
@@ -54,7 +55,7 @@ namespace Composable.Persistence.DocumentDb
 
                 public Guid Id { get; set; }
                 public int Version { get; set; }
-                public DocumentLink<TEntity> WithId(Guid id) => new DocumentLink<TEntity> {Id = id};
+                public GetDocumentForUpdate<TEntity> WithId(Guid id) => new GetDocumentForUpdate<TEntity> {Id = id};
             }
         }
 

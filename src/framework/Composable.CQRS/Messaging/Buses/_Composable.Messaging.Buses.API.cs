@@ -155,11 +155,6 @@ namespace Composable.Messaging.Buses
         }
     }
 
-    interface ICreateMyOwnResultQuery<TResult> : BusApi.IQuery<TResult>
-    {
-        TResult CreateResult();
-    }
-
     public enum ClientCachingStrategy
     {
         ReuseSingletonInstance = 1,

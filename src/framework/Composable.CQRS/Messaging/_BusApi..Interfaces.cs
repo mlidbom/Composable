@@ -21,6 +21,11 @@ namespace Composable.Messaging
         ///<summary>An instructs the receiver to return a resource based upon the data in the query.</summary>
         public interface IQuery<TResult> : BusApi.IQuery { }
 
+        public interface ICreateMyOwnResultQuery<TResult> : IQuery<TResult>
+        {
+            TResult CreateResult();
+        }
+
         public partial class Local
         {
             public interface IRequireLocalReceiver {}

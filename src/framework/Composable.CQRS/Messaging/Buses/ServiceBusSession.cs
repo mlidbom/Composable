@@ -4,11 +4,12 @@ using Composable.Messaging.Buses.Implementation;
 using Composable.System.Threading;
 using Composable.System.Transactions;
 using Composable.SystemExtensions.Threading;
+using JetBrains.Annotations;
 
 namespace Composable.Messaging.Buses
 {
     //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
-    partial class ServiceBusSession : IServiceBusSession, ILocalServiceBusSession
+    [UsedImplicitly] partial class ServiceBusSession : IServiceBusSession, ILocalServiceBusSession
     {
         readonly IInterprocessTransport _transport;
         readonly CommandScheduler _commandScheduler;
@@ -27,7 +28,7 @@ namespace Composable.Messaging.Buses
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSend(query);
-            return query is ICreateMyOwnResultQuery<TResult> selfCreating
+            return query is BusApi.ICreateMyOwnResultQuery<TResult> selfCreating
                        ? selfCreating.CreateResult()
                        : await _transport.DispatchAsync(query).NoMarshalling();
         }
@@ -90,7 +91,7 @@ namespace Composable.Messaging.Buses
             _contextGuard.AssertNoContextChangeOccurred(this);
             // ReSharper disable once SuspiciousTypeConversion.Global
             //Todo: Test and stop disabling resharper warning
-            return query is ICreateMyOwnResultQuery<TResult> selfCreating
+            return query is BusApi.ICreateMyOwnResultQuery<TResult> selfCreating
                        ? selfCreating.CreateResult()
                        : _handlerRegistry.GetQueryHandler(query).Invoke(query);
         }

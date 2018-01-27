@@ -176,7 +176,7 @@ namespace Composable.Messaging.Buses
             return dispatcher;
         }
 
-        public ISet<TypeId> HandledTypeIds()
+        public ISet<TypeId> HandledRemoteMessageTypeIds()
         {
             var handledTypes = _commandHandlers.Keys
                                                .Concat(_commandHandlersReturningResults.Keys).Concat(_queryHandlers.Keys)

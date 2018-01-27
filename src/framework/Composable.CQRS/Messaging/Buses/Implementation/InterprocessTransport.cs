@@ -49,7 +49,7 @@ namespace Composable.Messaging.Buses.Implementation
         public void Connect(IEndpoint endpoint) => _state.WithExclusiveAccess(@this =>
         {
             @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner));
-            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypeIds());
+            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds());
         });
 
         public void Start() => _state.WithExclusiveAccess(state =>

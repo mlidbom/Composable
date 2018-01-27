@@ -72,7 +72,7 @@ namespace Composable.Messaging.Buses
 
         IEventDispatcher<BusApi.IEvent> CreateEventDispatcher();
 
-        ISet<TypeId> HandledTypeIds();
+        ISet<TypeId> HandledRemoteMessageTypeIds();
     }
 
     public interface IMessageHandlerRegistrar

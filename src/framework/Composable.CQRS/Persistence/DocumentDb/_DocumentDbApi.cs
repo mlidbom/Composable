@@ -28,7 +28,7 @@ namespace Composable.Persistence.DocumentDb
                 public GetDocumentForUpdate<TEntity> WithId(Guid id) => new GetDocumentForUpdate<TEntity> {Id = id};
             }
 
-            public class TryGetDocument<TEntity> : BusApi.Local.Queries.Query<Option<TEntity>> where TEntity : IHasPersistentIdentity<Guid>
+            public class TryGetDocument<TEntity> : BusApi.Local.Queries.Query<Option<TEntity>>
             {
                 internal TryGetDocument() {}
                 public TryGetDocument(Guid id) => Id = id;

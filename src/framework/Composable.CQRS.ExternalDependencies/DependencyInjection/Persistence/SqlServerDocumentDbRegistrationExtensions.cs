@@ -142,10 +142,7 @@ namespace Composable.DependencyInjection.Persistence
     {
         public DocumentDbRegistrationBuilder HandleDocumentType<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            if(typeof(IHasPersistentIdentity<Guid>).IsAssignableFrom(typeof(TDocument)))
-            {
-                typeof(DocumentDbRegistrationBuilder).GetMethod(nameof(TryGet)).MakeGenericMethod(typeof(TDocument)).Invoke(null, new []{registrar});
-            }
+            TryGet<TDocument>(registrar);
             Get<TDocument>(registrar);
             Save<TDocument>(registrar);
             GetForUpdate<TDocument>(registrar);
@@ -158,7 +155,7 @@ namespace Composable.DependencyInjection.Persistence
         static void GetForUpdate<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (DocumentDbApi.Query.GetDocumentForUpdate<TDocument> query, IDocumentDbUpdater updater) => updater.GetForUpdate<TDocument>(query.Id));
 
-        static void TryGet<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TDocument : IHasPersistentIdentity<Guid> => registrar.ForQuery(
+        static void TryGet<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (DocumentDbApi.Query.TryGetDocument<TDocument> query, IDocumentDbReader updater) => updater.TryGet<TDocument>(query.Id, out var document) ? Option.Some(document) : Option.None<TDocument>());
 
         static void Get<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(

@@ -1,5 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain;
+using AccountManagement.UI.QueryModels;
 using Composable;
 using Composable.Contracts;
 using Composable.Functional;
@@ -15,6 +16,7 @@ namespace AccountManagement
         static ComposableApi ComposableApi => new ComposableApi();
         internal static Query Queries => new Query();
         internal static Command Commands => new Command();
+        internal static AccountQueryModel.Api AccountQueryModel => new AccountQueryModel.Api();
 
         internal class Query
         {
@@ -34,7 +36,7 @@ namespace AccountManagement
                     Email = accountId;
                 }
 
-                public Email Email { get; private set; }
+                internal Email Email { get; private set; }
             }
         }
 

@@ -1,9 +1,8 @@
 ﻿using System;
 using AccountManagement.Domain;
+using AccountManagement.Domain.Events;
 using AccountManagement.UI;
 using AccountManagement.UI.QueryModels;
-using AccountManagement.UI.QueryModels.Services;
-using AccountManagement.UI.QueryModels.Services.Implementation;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.Messaging.Buses;
@@ -25,8 +24,6 @@ namespace AccountManagement
                                                  {
                                                      TypeMapper.MapTypes(builder.TypeMapper);
                                                      RegisterDomainComponents(builder.Container, builder.Configuration);
-                                                     RegisterUserInterfaceComponents(builder.Container, builder.Configuration);
-
                                                      RegisterHandlers(builder.RegisterHandlers);
                                                  });
         }
@@ -38,20 +35,14 @@ namespace AccountManagement
             _documentDb = container.RegisterSqlServerDocumentDb(configuration.ConnectionStringName);
         }
 
-        static void RegisterUserInterfaceComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
-        {
-            container.RegisterSqlServerDocumentDb<IAccountManagementUiDocumentDbUpdater, IAccountManagementUiDocumentDbReader, IAccountManagementUiDocumentDbBulkReader>(configuration.ConnectionStringName);
-
-            AccountManagementQueryModelReader.RegisterWith(container);
-            AccountQueryModel.Generator.RegisterWith(container);
-        }
-
         void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            _eventStore.HandleAggregate<Account>(registrar);
+            _eventStore.HandleAggregate<Account, AccountEvent.Root>(registrar);
             _documentDb.HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(registrar);
 
             UIAdapterLayer.Register(registrar);
+
+            AccountQueryModel.Api.RegisterHandlers(registrar);
 
             EmailToAccountMapper.UpdateMappingWhenEmailChanges(registrar);
             EmailToAccountMapper.TryGetAccountByEmail(registrar);

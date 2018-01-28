@@ -142,27 +142,8 @@ namespace Composable.DependencyInjection.Persistence
     {
         public DocumentDbRegistrationBuilder HandleDocumentType<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            TryGet<TDocument>(registrar);
-            Get<TDocument>(registrar);
-            Save<TDocument>(registrar);
-            GetForUpdate<TDocument>(registrar);
-            Delete<TDocument>(registrar);
+            DocumentDbApi.HandleDocumentType<TDocument>(registrar);
             return this;
         }
-
-        static void Save<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
-            (DocumentDbApi.Command.SaveDocument<TDocument> command, IDocumentDbUpdater updater) => updater.Save(command.Key, command.Entity));
-
-        static void Delete<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
-            (DocumentDbApi.Command.DeleteDocument<TDocument> command, IDocumentDbUpdater updater) => updater.Delete<TDocument>(command.Key));
-
-        static void GetForUpdate<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (DocumentDbApi.Query.GetDocumentForUpdate<TDocument> query, IDocumentDbUpdater updater) => updater.GetForUpdate<TDocument>(query.Id));
-
-        static void TryGet<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (DocumentDbApi.Query.TryGetDocument<TDocument> query, IDocumentDbReader updater) => updater.TryGet<TDocument>(query.Id, out var document) ? Option.Some(document) : Option.None<TDocument>());
-
-        static void Get<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (DocumentDbApi.Query.GetReadonlyCopyOfDocument<TDocument> query, IDocumentDbReader reader) => reader.Get<TDocument>(query.Id));
     }
 }

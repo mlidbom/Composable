@@ -7,7 +7,6 @@ using AccountManagement.Domain.Registration;
 using Composable.Functional;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Persistence.EventStore;
 
 namespace AccountManagement.UI
 {
@@ -18,7 +17,7 @@ namespace AccountManagement.UI
             {
                 var email = Email.Parse(logIn.Email);
 
-                if(AccountApi.Queries.TryGetByEmail(email).GetLocalOn(bus) is Some<Account> account)
+                if(bus.GetLocal(AccountApi.Queries.TryGetByEmail(email)) is Some<Account> account)
                 {
                     switch(account.Value.Login(logIn.Password))
                     {
@@ -59,6 +58,6 @@ namespace AccountManagement.UI
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (BusApi.Remote.Query.RemoteEntityResourceQuery<AccountResource> accountQuery, ILocalServiceBusSession bus)
-                => new AccountResource(AccountApi.Queries.GetReadOnlyCopy(accountQuery.EntityId).GetLocalOn(bus)));
+                => new AccountResource(bus.GetLocal(AccountApi.AccountQueryModel.Queries.Get(accountQuery.EntityId))));
     }
 }

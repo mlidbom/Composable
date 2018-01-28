@@ -18,6 +18,10 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <None Remove="Composable.Core.v3.ncrunchproject" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <Compile Include="..\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
   </ItemGroup>
 

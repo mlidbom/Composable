@@ -4,6 +4,6 @@ namespace Composable.Messaging.Buses.Implementation
 {
     static class IMessageExtensions
     {
-        internal static bool RequiresResponse(this IMessage @this) => @this is IQuery || @this.GetType().Implements(typeof(IExactlyOnceCommand<>));
+        internal static bool RequiresResponse(this BusApi.IMessage @this) => @this is BusApi.IQuery || @this.GetType().Implements(typeof(BusApi.Remote.ExactlyOnce.ICommand<>));
     }
 }

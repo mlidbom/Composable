@@ -4,9 +4,9 @@ namespace Composable.Tests.Messaging.APIDraft
 {
     public class PolicyBased
     {
-        interface IThreadingPolicy { } //IEnumerable<string> LocksToTake(IMessage queuedMessageInformation);
+        interface IThreadingPolicy { } //IEnumerable<string> LocksToTake(MessagingApi.IMessage queuedMessageInformation);
 
-        interface ITransactionPolicy { } // String TransactionToParticipateIn(IMessage queuedMessageInformation)
+        interface ITransactionPolicy { } // String TransactionToParticipateIn(MessagingApi.IMessage queuedMessageInformation)
 
         class OneOperationOnAnAggregateAtATime: IThreadingPolicy { }
         class OneHandlerAtATimePerMessage : IThreadingPolicy {}

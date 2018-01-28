@@ -1,8 +1,8 @@
 ﻿using System;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Messaging.Commands;
 using Composable.System;
 using Composable.Testing.Threading;
 using FluentAssertions;
@@ -66,6 +66,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             _host.Dispose();
         }
 
-        class ScheduledCommand : ExactlyOnceCommand {}
+        class ScheduledCommand : BusApi.Remote.ExactlyOnce.Command {}
     }
 }

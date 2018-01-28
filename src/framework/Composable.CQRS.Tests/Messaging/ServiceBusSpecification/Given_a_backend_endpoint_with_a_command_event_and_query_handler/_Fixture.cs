@@ -2,7 +2,6 @@
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Messaging.Commands;
 using Composable.Persistence.EventStore;
 using Composable.Testing.Threading;
 using FluentAssertions;
@@ -67,11 +66,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             QueryHandlerThreadGate.Open();
         }
 
-        protected class MyCommand : ExactlyOnceCommand {}
+        protected class MyCommand : BusApi.Remote.ExactlyOnce.Command {}
         protected class MyEvent : AggregateEvent {}
-        protected class MyQuery : Query<MyQueryResult> {}
+        protected class MyQuery : BusApi.Remote.Query.RemoteQuery<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
-        protected class MyCommandWithResult : ExactlyOnceCommand<MyCommandResult> {}
-        protected class MyCommandResult : Message {}
+        protected class MyCommandWithResult : BusApi.Remote.ExactlyOnce.Command<MyCommandResult> {}
+        protected class MyCommandResult : BusApi.Remote.ExactlyOnce.Message {}
     }
 }

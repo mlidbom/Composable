@@ -10,6 +10,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class HandlerStorage
         {
+            bool _handlerHasBeenResolved;
             readonly ITypeMapper _typeMapper;
             readonly Dictionary<TypeId, EndpointId> _commandHandlerMap = new Dictionary<TypeId, EndpointId>();
             readonly Dictionary<TypeId, EndpointId> _queryHandlerMap = new Dictionary<TypeId, EndpointId>();
@@ -19,51 +20,33 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal void AddRegistrations(EndpointId endpointId, ISet<TypeId> handledTypeIds)
             {
+                Assert.Argument.NotNull(endpointId, handledTypeIds);
+                Assert.State.Assert(!_handlerHasBeenResolved);//Our collections are safe for multithreaded read, but not for read/write. So ensure that no-one tries to change them after we start reading from them.
+
                 foreach(var typeId in handledTypeIds)
                 {
                     if(_typeMapper.TryGetType(typeId, out var type))
                     {
-                        if(IsEvent(type))
+                        if(IsRemoteEvent(type))
                         {
-                            AddEventHandler(type, endpointId);
-                        } else if(IsCommand(type))
+                            _eventHandlerRegistrations.Add((_typeMapper.GetId(type), endpointId));
+                        } else if(IsRemoteCommand(type))
                         {
-                            AddCommandHandler(type, endpointId);
-                        } else if(IsQuery(type))
+                            _commandHandlerMap.Add(_typeMapper.GetId(type), endpointId);
+                        } else if(IsRemoteQuery(type))
                         {
-                            AddQueryHandler(type, endpointId);
+                            _queryHandlerMap.Add(_typeMapper.GetId(type), endpointId);
                         } else
                         {
-                            Assert.Argument.Assert(false);
+                            throw new Exception($"Type {typeId} is neither a remote command, event or query.");
                         }
                     }
                 }
             }
 
-            void AddEventHandler(Type eventType, EndpointId endpointId)
+            internal EndpointId GetCommandHandlerEndpoint(BusApi.Remote.ExactlyOnce.ICommand command)
             {
-                Assert.Argument.NotNull(eventType, endpointId);
-                var eventTypeId = _typeMapper.GetId(eventType);
-
-                _eventHandlerRegistrations.Add((eventTypeId, endpointId));
-            }
-
-            void AddCommandHandler(Type commandType, EndpointId endpointId)
-            {
-                Assert.Argument.NotNull(commandType, endpointId);
-                var commandTypeId = _typeMapper.GetId(commandType);
-                _commandHandlerMap.Add(commandTypeId, endpointId);
-            }
-
-            void AddQueryHandler(Type queryType, EndpointId endpointId)
-            {
-                Assert.Argument.NotNull(queryType, endpointId);
-                var queryTypeId = _typeMapper.GetId(queryType);
-                _queryHandlerMap.Add(queryTypeId, endpointId);
-            }
-
-            internal EndpointId GetCommandHandlerEndpoint(IExactlyOnceCommand command)
-            {
+                _handlerHasBeenResolved = true;
                 var commandTypeId = _typeMapper.GetId(command.GetType());
 
                 if(!_commandHandlerMap.TryGetValue(commandTypeId, out var endpointId))
@@ -74,8 +57,9 @@ namespace Composable.Messaging.Buses.Implementation
                 return endpointId;
             }
 
-            internal EndpointId GetQueryHandlerEndpoint(IQuery query)
+            internal EndpointId GetQueryHandlerEndpoint(BusApi.IQuery query)
             {
+                _handlerHasBeenResolved = true;
                 var queryTypeId = _typeMapper.GetId(query.GetType());
 
                 if(!_queryHandlerMap.TryGetValue(queryTypeId, out var endpointId))
@@ -86,8 +70,9 @@ namespace Composable.Messaging.Buses.Implementation
                 return endpointId;
             }
 
-            internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(IExactlyOnceEvent @event)
+            internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(BusApi.Remote.ExactlyOnce.IEvent @event)
             {
+                _handlerHasBeenResolved = true;
                 var typedEventHandlerRegistrations = _eventHandlerRegistrations
                                                      .Where(me => _typeMapper.TryGetType(me.EventType, out var _))
                                                      .Select(me => new
@@ -102,9 +87,9 @@ namespace Composable.Messaging.Buses.Implementation
                        .ToList();
             }
 
-            static bool IsCommand(Type type) => typeof(IExactlyOnceCommand).IsAssignableFrom(type);
-            static bool IsEvent(Type type) => typeof(IExactlyOnceEvent).IsAssignableFrom(type);
-            static bool IsQuery(Type type) => typeof(IQuery).IsAssignableFrom(type);
+            static bool IsRemoteCommand(Type type) => typeof(BusApi.Remote.ExactlyOnce.ICommand).IsAssignableFrom(type);
+            static bool IsRemoteEvent(Type type) => typeof(BusApi.Remote.ExactlyOnce.IEvent).IsAssignableFrom(type);
+            static bool IsRemoteQuery(Type type) => typeof(BusApi.Remote.NonTransactional.IQuery).IsAssignableFrom(type);
         }
     }
 }

@@ -108,12 +108,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             }
         }
 
-        class ACommand : IExactlyOnceCommand
+        class ACommand : BusApi.Local.ICommand
         {
-            public Guid MessageId { get; } = Guid.NewGuid();
         }
 
-        class AQuery : Query<AQueryResult> {}
+        class AQuery : BusApi.Local.Queries.Query<AQueryResult> {}
 
         class AQueryResult : QueryResult {}
 

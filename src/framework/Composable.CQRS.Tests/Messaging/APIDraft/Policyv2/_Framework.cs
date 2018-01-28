@@ -19,7 +19,7 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
 
     interface IMessageHandlerPolicy
     {
-        void Configure(IHandlerPolicyConfigurationBuilder builder, IMessage message);
+        void Configure(IHandlerPolicyConfigurationBuilder builder, BusApi.IMessage message);
     }
 
 
@@ -92,6 +92,6 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
     class CompositePolicy : IMessageHandlerPolicy
     {
         public CompositePolicy(params IMessageHandlerPolicy[] policies) { }
-        public void Configure(IHandlerPolicyConfigurationBuilder builder, IMessage message) { throw new NotImplementedException(); }
+        public void Configure(IHandlerPolicyConfigurationBuilder builder, BusApi.IMessage message) { throw new NotImplementedException(); }
     }
 }

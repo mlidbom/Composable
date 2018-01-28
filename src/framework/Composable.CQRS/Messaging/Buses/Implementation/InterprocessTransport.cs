@@ -49,7 +49,7 @@ namespace Composable.Messaging.Buses.Implementation
         public void Connect(IEndpoint endpoint) => _state.WithExclusiveAccess(@this =>
         {
             @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner));
-            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypeIds());
+            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds());
         });
 
         public void Start() => _state.WithExclusiveAccess(state =>
@@ -74,7 +74,7 @@ namespace Composable.Messaging.Buses.Implementation
             state.Poller = null;
         });
 
-        public void DispatchIfTransactionCommits(IExactlyOnceEvent @event) => _state.WithExclusiveAccess(state =>
+        public void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.IEvent @event) => _state.WithExclusiveAccess(state =>
         {
             var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(@event);
 
@@ -89,7 +89,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
         });
 
-        public void DispatchIfTransactionCommits(IExactlyOnceCommand command) => _state.WithExclusiveAccess(state =>
+        public void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.ICommand command) => _state.WithExclusiveAccess(state =>
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
@@ -97,7 +97,7 @@ namespace Composable.Messaging.Buses.Implementation
             connection.DispatchIfTransactionCommits(command);
         });
 
-        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(IExactlyOnceCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
+        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.Remote.ExactlyOnce.ICommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
@@ -106,7 +106,7 @@ namespace Composable.Messaging.Buses.Implementation
             return await connection.DispatchIfTransactionCommitsAsync(command);
         });
 
-        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>
         {
             var endPointId = state.HandlerStorage.GetQueryHandlerEndpoint(query);
             var connection = state.EndpointConnections[endPointId];

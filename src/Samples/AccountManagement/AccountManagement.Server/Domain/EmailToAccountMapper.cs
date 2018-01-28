@@ -1,29 +1,34 @@
 ﻿using AccountManagement.Domain.Events;
+using Composable;
 using Composable.Functional;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.DocumentDb;
 using JetBrains.Annotations;
+using AccountLink = Composable.Persistence.EventStore.EventStoreApi.Query.AggregateLink<AccountManagement.Domain.Account>;
 
 namespace AccountManagement.Domain
 {
     [UsedImplicitly] class EmailToAccountMapper
     {
+        static DocumentDbApi DocumentDb => new ComposableApi().DocumentDb;
+
         internal static void UpdateMappingWhenEmailChanges(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
-            (AccountEvent.PropertyUpdated.Email emailUpdated, IDocumentDbUpdater queryModels, ILocalServiceBusSession bus) =>
+            (AccountEvent.PropertyUpdated.Email emailUpdated, ILocalServiceBusSession bus) =>
             {
                 if(emailUpdated.AggregateVersion > 1)
                 {
-                    var previousAccountVersion = AccountApi.Queries.GetReadOnlyCopyOfVersion(emailUpdated.AggregateId, emailUpdated.AggregateVersion -1).GetLocalOn(bus);
-                    queryModels.Delete<AggregateLink<Account>>(previousAccountVersion.Email);
+                    var previousAccountVersion = bus.GetLocal(AccountApi.Queries.GetReadOnlyCopyOfVersion(emailUpdated.AggregateId, emailUpdated.AggregateVersion - 1));
+                    bus.PostLocal(DocumentDb.Commands.Delete<AccountLink>(previousAccountVersion.Email.StringValue));
                 }
 
                 var newEmail = emailUpdated.Email;
-                queryModels.Save(newEmail, new AggregateLink<Account>(emailUpdated.AggregateId));
+                bus.PostLocal(DocumentDb.Commands.Save(newEmail.StringValue, AccountApi.Queries.GetForUpdate(emailUpdated.AggregateId)));
             });
 
         internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (AccountApi.Query.TryGetByEmailQuery tryGetAccount, IDocumentDbReader documentDb, ILocalServiceBusSession bus) =>
-                documentDb.TryGet(tryGetAccount.Email, out AggregateLink<Account> accountLink) ? Option.Some(accountLink.GetLocalOn(bus)) : Option.None<Account>());
+            (AccountApi.Query.TryGetByEmailQuery query, ILocalServiceBusSession bus) =>
+                bus.GetLocal(DocumentDb.Queries.TryGet<AccountLink>(query.Email.StringValue)) is Some<AccountLink> accountLink
+                    ? Option.Some(bus.GetLocal(accountLink.Value))
+                    : Option.None<Account>());
     }
 }

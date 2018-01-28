@@ -4,12 +4,15 @@ using Composable;
 using Composable.Contracts;
 using Composable.Functional;
 using Composable.Messaging;
+using Composable.Persistence.EventStore;
+
 // ReSharper disable MemberCanBeMadeStatic.Global we want composable fluent API which does not happen with static members.
 
 namespace AccountManagement
 {
     static class AccountApi
     {
+        static ComposableApi ComposableApi => new ComposableApi();
         internal static Query Queries => new Query();
         internal static Command Commands => new Command();
 
@@ -17,13 +20,13 @@ namespace AccountManagement
         {
             internal TryGetByEmailQuery TryGetByEmail(Email email) => new TryGetByEmailQuery(email);
 
-            internal AggregateLink<Account> GetForUpdate(Guid id) => ComposableApi.EventStoreManaging<Account>.GetForUpdate(id);
+            internal EventStoreApi.Query.AggregateLink<Account> GetForUpdate(Guid id) => ComposableApi.EventStore.Queries.GetForUpdate<Account>(id);
 
-            internal GetReadonlyCopyOfAggregate<Account> GetReadOnlyCopy(Guid id) => ComposableApi.EventStoreManaging<Account>.GetReadOnlyCopy(id);
+            internal EventStoreApi.Query.GetReadonlyCopyOfAggregate<Account> GetReadOnlyCopy(Guid id) => ComposableApi.EventStore.Queries.GetReadOnlyCopy<Account>(id);
 
-            internal GetReadonlyCopyOfAggregateVersion<Account> GetReadOnlyCopyOfVersion(Guid id, int version) => ComposableApi.EventStoreManaging<Account>.GetReadOnlyCopyOfVersion(id, version);
+            internal EventStoreApi.Query.GetReadonlyCopyOfAggregateVersion<Account> GetReadOnlyCopyOfVersion(Guid id, int version) => ComposableApi.EventStore.Queries.GetReadOnlyCopyOfVersion<Account>(id, version);
 
-            internal class TryGetByEmailQuery : IQuery<Option<Account>>
+            internal class TryGetByEmailQuery : BusApi.Local.IQuery<Option<Account>>
             {
                 public TryGetByEmailQuery(Email accountId)
                 {
@@ -37,7 +40,7 @@ namespace AccountManagement
 
         internal class Command
         {
-            internal SaveAggregate<Account> Save(Account account) => ComposableApi.EventStoreManaging<Account>.Save(account);
+            internal EventStoreApi.Command.SaveAggregate<Account> Save(Account account) => ComposableApi.EventStore.Commands.Save(account);
         }
     }
 }

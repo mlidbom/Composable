@@ -5,21 +5,21 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class QueriesExecuteAfterAllCommandsAndEventsAreDone : IMessageDispatchingRule
     {
-        public bool CanBeDispatched(IReadOnlyList<IMessage> executingMessages, IMessage message)
+        public bool CanBeDispatched(IReadOnlyList<BusApi.IMessage> executingMessages, BusApi.IMessage message)
         {
-            if(!(message is IQuery)) return true;
+            if(!(message is BusApi.IQuery)) return true;
 
-            return executingMessages.None(executing => executing is IEvent || executing is ICommand);
+            return executingMessages.None(executing => executing is BusApi.IEvent || executing is BusApi.ICommand);
         }
     }
 
     class CommandsAndEventHandlersDoNotRunInParallelWithEachOtherInTheSameEndpoint : IMessageDispatchingRule
     {
-        public bool CanBeDispatched(IReadOnlyList<IMessage> executingMessages, IMessage message)
+        public bool CanBeDispatched(IReadOnlyList<BusApi.IMessage> executingMessages, BusApi.IMessage message)
         {
-            if(message is IQuery) return true;
+            if(message is BusApi.IQuery) return true;
 
-            return executingMessages.None(executing => executing is IEvent || executing is ICommand);
+            return executingMessages.None(executing => executing is BusApi.IEvent || executing is BusApi.ICommand);
         }
     }
 }

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Persistence.EventStore.Aggregates;
 using Composable.System.Threading;
 using Composable.System.Transactions;
 using Composable.SystemExtensions.Threading;
+using JetBrains.Annotations;
 
 namespace Composable.Messaging.Buses
 {
     //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
-    partial class ServiceBusSession : IServiceBusSession, ILocalServiceBusSession
+    [UsedImplicitly] partial class ServiceBusSession : IServiceBusSession, ILocalServiceBusSession
     {
         readonly IInterprocessTransport _transport;
         readonly CommandScheduler _commandScheduler;
@@ -24,18 +24,18 @@ namespace Composable.Messaging.Buses
             _handlerRegistry = handlerRegistry;
         }
 
-        async Task<TResult> IRemoteServiceBusSession.GetRemoteAsync<TResult>(IQuery<TResult> query)
+        async Task<TResult> IRemoteServiceBusSession.GetRemoteAsync<TResult>(BusApi.IQuery<TResult> query)
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSend(query);
-            return query is ICreateMyOwnResultQuery<TResult> selfCreating
+            return query is BusApi.ICreateMyOwnResultQuery<TResult> selfCreating
                        ? selfCreating.CreateResult()
                        : await _transport.DispatchAsync(query).NoMarshalling();
         }
 
-        TResult IRemoteServiceBusSession.GetRemote<TResult>(IQuery<TResult> query) => ((IRemoteServiceBusSession)this).GetRemoteAsync(query).ResultUnwrappingException();
+        TResult IRemoteServiceBusSession.GetRemote<TResult>(BusApi.IQuery<TResult> query) => ((IRemoteServiceBusSession)this).GetRemoteAsync(query).ResultUnwrappingException();
 
-        void IEventstoreEventPublisher.Publish(IExactlyOnceEvent @event) => TransactionScopeCe.Execute(() =>
+        void IEventstoreEventPublisher.Publish(BusApi.Remote.ExactlyOnce.IEvent @event) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSend(@event);
@@ -43,7 +43,7 @@ namespace Composable.Messaging.Buses
             _transport.DispatchIfTransactionCommits(@event);
         });
 
-        void IRemoteServiceBusSession.PostRemote(IExactlyOnceCommand command) => TransactionScopeCe.Execute(() =>
+        void IRemoteServiceBusSession.PostRemote(BusApi.Remote.ExactlyOnce.ICommand command) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSend(command);
@@ -51,7 +51,7 @@ namespace Composable.Messaging.Buses
             _transport.DispatchIfTransactionCommits(command);
         });
 
-        void IRemoteServiceBusSession.SchedulePostRemote(DateTime sendAt, IExactlyOnceCommand command) => TransactionScopeCe.Execute(() =>
+        void IRemoteServiceBusSession.SchedulePostRemote(DateTime sendAt, BusApi.Remote.ExactlyOnce.ICommand command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSend(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -59,7 +59,7 @@ namespace Composable.Messaging.Buses
             _commandScheduler.Schedule(sendAt, command);
         });
 
-        Task<TResult> IRemoteServiceBusSession.PostRemoteAsync<TResult>(IExactlyOnceCommand<TResult> command) => TransactionScopeCe.Execute(() =>
+        Task<TResult> IRemoteServiceBusSession.PostRemoteAsync<TResult>(BusApi.Remote.ExactlyOnce.ICommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSend(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -67,9 +67,9 @@ namespace Composable.Messaging.Buses
             return _transport.DispatchIfTransactionCommitsAsync(command);
         });
 
-        TResult IRemoteServiceBusSession.PostRemote<TResult>(IExactlyOnceCommand<TResult> command) => ((IRemoteServiceBusSession)this).PostRemoteAsync(command).ResultUnwrappingException();
+        TResult IRemoteServiceBusSession.PostRemote<TResult>(BusApi.Remote.ExactlyOnce.ICommand<TResult> command) => ((IRemoteServiceBusSession)this).PostRemoteAsync(command).ResultUnwrappingException();
 
-        TResult ILocalServiceBusSession.PostLocal<TResult>(IExactlyOnceCommand<TResult> command) => TransactionScopeCe.Execute(() =>
+        TResult ILocalServiceBusSession.PostLocal<TResult>(BusApi.Local.ICommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSend(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -77,7 +77,7 @@ namespace Composable.Messaging.Buses
             return _handlerRegistry.GetCommandHandler(command).Invoke(command);
         });
 
-        void ILocalServiceBusSession.PostLocal(IExactlyOnceCommand command) => TransactionScopeCe.Execute(() =>
+        void ILocalServiceBusSession.PostLocal(BusApi.Local.ICommand command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSend(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -85,11 +85,13 @@ namespace Composable.Messaging.Buses
             _handlerRegistry.GetCommandHandler(command).Invoke(command);
         });
 
-        TResult ILocalServiceBusSession.GetLocal<TResult>(IQuery<TResult> query)
+        TResult ILocalServiceBusSession.GetLocal<TResult>(BusApi.Local.IQuery<TResult> query)
         {
             MessageInspector.AssertValidToSend(query);
             _contextGuard.AssertNoContextChangeOccurred(this);
-            return query is ICreateMyOwnResultQuery<TResult> selfCreating
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            //Todo: Test and stop disabling resharper warning
+            return query is BusApi.ICreateMyOwnResultQuery<TResult> selfCreating
                        ? selfCreating.CreateResult()
                        : _handlerRegistry.GetQueryHandler(query).Invoke(query);
         }

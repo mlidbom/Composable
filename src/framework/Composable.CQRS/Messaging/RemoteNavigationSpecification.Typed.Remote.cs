@@ -10,9 +10,9 @@ namespace Composable.Messaging
         {
             internal class StartQuery : RemoteNavigationSpecification<TResult>
             {
-                readonly IQuery<TResult> _start;
+                readonly BusApi.IQuery<TResult> _start;
 
-                internal StartQuery(IQuery<TResult> start) => _start = start;
+                internal StartQuery(BusApi.IQuery<TResult> start) => _start = start;
 
                 public override TResult ExecuteRemoteOn(IRemoteServiceBusSession busSession) => busSession.GetRemote(_start);
                 public override Task<TResult> ExecuteRemoteAsyncOn(IRemoteServiceBusSession busSession) => busSession.GetRemoteAsync(_start);
@@ -20,9 +20,9 @@ namespace Composable.Messaging
 
             internal class StartCommand : RemoteNavigationSpecification<TResult>
             {
-                readonly IExactlyOnceCommand<TResult> _start;
+                readonly BusApi.Remote.ExactlyOnce.ICommand<TResult> _start;
 
-                internal StartCommand(IExactlyOnceCommand<TResult> start) => _start = start;
+                internal StartCommand(BusApi.Remote.ExactlyOnce.ICommand<TResult> start) => _start = start;
 
                 public override TResult ExecuteRemoteOn(IRemoteServiceBusSession busSession) => busSession.PostRemote(_start);
                 public override Task<TResult> ExecuteRemoteAsyncOn(IRemoteServiceBusSession busSession) => busSession.PostRemoteAsync(_start);
@@ -31,9 +31,9 @@ namespace Composable.Messaging
             internal class ContinuationQuery<TPrevious> : RemoteNavigationSpecification<TResult>
             {
                 readonly RemoteNavigationSpecification<TPrevious> _previous;
-                readonly Func<TPrevious, IQuery<TResult>> _nextQuery;
+                readonly Func<TPrevious, BusApi.IQuery<TResult>> _nextQuery;
 
-                internal ContinuationQuery(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, IQuery<TResult>> nextQuery)
+                internal ContinuationQuery(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, BusApi.IQuery<TResult>> nextQuery)
                 {
                     _previous = previous;
                     _nextQuery = nextQuery;
@@ -57,8 +57,8 @@ namespace Composable.Messaging
             internal class PostCommand<TPrevious> : RemoteNavigationSpecification<TResult>
             {
                 readonly RemoteNavigationSpecification<TPrevious> _previous;
-                readonly Func<TPrevious, IExactlyOnceCommand<TResult>> _next;
-                internal PostCommand(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, IExactlyOnceCommand<TResult>> next)
+                readonly Func<TPrevious, BusApi.Remote.ExactlyOnce.ICommand<TResult>> _next;
+                internal PostCommand(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, BusApi.Remote.ExactlyOnce.ICommand<TResult>> next)
                 {
                     _previous = previous;
                     _next = next;
@@ -82,8 +82,8 @@ namespace Composable.Messaging
             internal class PostVoidCommand<TPrevious> : RemoteNavigationSpecification
             {
                 readonly RemoteNavigationSpecification<TPrevious> _previous;
-                readonly Func<TPrevious, IExactlyOnceCommand> _next;
-                internal PostVoidCommand(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, IExactlyOnceCommand> next)
+                readonly Func<TPrevious, BusApi.Remote.ExactlyOnce.ICommand> _next;
+                internal PostVoidCommand(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, BusApi.Remote.ExactlyOnce.ICommand> next)
                 {
                     _previous = previous;
                     _next = next;

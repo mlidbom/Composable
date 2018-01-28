@@ -6,9 +6,9 @@ using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Services.Implementation;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.EventStore;
 
 namespace AccountManagement
 {
@@ -49,7 +49,7 @@ namespace AccountManagement
         void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
             _eventStore.HandleAggregate<Account>(registrar);
-            _documentDb.HandleDocumentType<AggregateLink<Account>>(registrar);
+            _documentDb.HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(registrar);
 
             UIAdapterLayer.Register(registrar);
 

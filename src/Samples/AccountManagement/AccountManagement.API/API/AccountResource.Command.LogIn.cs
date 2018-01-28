@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
-using Composable.Messaging.Commands;
+using Composable.Messaging;
+
 // ReSharper disable MemberCanBeMadeStatic.Global
 
 namespace AccountManagement.API
@@ -9,7 +10,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public partial class LogIn : ExactlyOnceCommand<LogIn.LoginAttemptResult>
+            public partial class LogIn : BusApi.Remote.ExactlyOnce.Command<LogIn.LoginAttemptResult>
             {
                     [Required] [Email] public string Email { get; set; }
                     [Required] public string Password { get; set; }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
-using Composable.Messaging.Commands;
+using Composable.Messaging;
 using JetBrains.Annotations;
 
 namespace AccountManagement.API
@@ -10,7 +10,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public class ChangeEmail : ExactlyOnceCommand
+            public class ChangeEmail : BusApi.Remote.ExactlyOnce.Command
             {
                 [UsedImplicitly] ChangeEmail() {}
                 internal ChangeEmail(Guid accountId) => AccountId = accountId;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
 using Composable.Messaging;
-using Composable.Messaging.Commands;
 using JetBrains.Annotations;
 // ReSharper disable MemberCanBeMadeStatic.Global Because we want these members to be accessed through the fluent API we don't want to make them static.
 
@@ -13,7 +12,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public partial class Register : ExactlyOnceCommand<Register.RegistrationAttemptResult>, IValidatableObject
+            public partial class Register : BusApi.Remote.ExactlyOnce.Command<Register.RegistrationAttemptResult>, IValidatableObject
             {
                 public Register() {}
                 public Register(Guid accountId, string email, string password)
@@ -37,7 +36,7 @@ namespace AccountManagement.API
 
                 public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Passwords.Password.Validate(Password, this, () => Password);
 
-                internal IExactlyOnceCommand<RegistrationAttemptResult> WithValues(Guid accountId, string email, string password) => new Register(accountId, email, password);
+                internal BusApi.Remote.ExactlyOnce.ICommand<RegistrationAttemptResult> WithValues(Guid accountId, string email, string password) => new Register(accountId, email, password);
             }
         }
     }

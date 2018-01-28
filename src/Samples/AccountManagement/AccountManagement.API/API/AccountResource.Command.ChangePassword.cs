@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
-using AccountManagement.Domain.Passwords;
-using Composable.Messaging.Commands;
+using Composable.Messaging;
 
 namespace AccountManagement.API
 {
@@ -11,7 +10,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public class ChangePassword : ExactlyOnceCommand, IValidatableObject
+            public class ChangePassword : BusApi.Remote.ExactlyOnce.Command, IValidatableObject
             {
                 public ChangePassword(Guid accountId) => AccountId = accountId;
 

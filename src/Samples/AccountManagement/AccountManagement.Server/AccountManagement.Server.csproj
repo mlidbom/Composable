@@ -12,6 +12,11 @@
     <LangVersion>latest</LangVersion>
     <RootNamespace>AccountManagement</RootNamespace>
   </PropertyGroup>
+    
+  <ItemGroup>
+    <None Remove="AccountManagement.Domain.Shared.v3.ncrunchproject" />
+    <None Remove="AccountManagement.Server.v3.ncrunchproject" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\AccountManagementCommonAssemblyInfoInternalsVisibleToComposable.cs" Link="Properties\AccountManagementCommonAssemblyInfoInternalsVisibleToComposable.cs" />

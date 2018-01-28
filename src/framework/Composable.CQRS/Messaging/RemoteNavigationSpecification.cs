@@ -6,9 +6,9 @@ namespace Composable.Messaging
 {
     public abstract class RemoteNavigationSpecification
     {
-        public static RemoteNavigationSpecification<TResult> GetRemote<TResult>(IQuery<TResult> query) => new RemoteNavigationSpecification<TResult>.Remote.StartQuery(query);
-        public static RemoteNavigationSpecification PostRemote(IExactlyOnceCommand command) => new RemoteNavigationSpecification.Remote.VoidCommand(command);
-        public static RemoteNavigationSpecification<TResult> PostRemote<TResult>(IExactlyOnceCommand<TResult> command) => new RemoteNavigationSpecification<TResult>.Remote.StartCommand(command);
+        public static RemoteNavigationSpecification<TResult> GetRemote<TResult>(BusApi.IQuery<TResult> query) => new RemoteNavigationSpecification<TResult>.Remote.StartQuery(query);
+        public static RemoteNavigationSpecification PostRemote(BusApi.Remote.ExactlyOnce.ICommand command) => new RemoteNavigationSpecification.Remote.VoidCommand(command);
+        public static RemoteNavigationSpecification<TResult> PostRemote<TResult>(BusApi.Remote.ExactlyOnce.ICommand<TResult> command) => new RemoteNavigationSpecification<TResult>.Remote.StartCommand(command);
 
         public abstract void ExecuteRemoteOn(IRemoteServiceBusSession busSession);
         public abstract Task ExecuteRemoteAsyncOn(IRemoteServiceBusSession busSession);
@@ -17,9 +17,9 @@ namespace Composable.Messaging
         {
             public class VoidCommand : RemoteNavigationSpecification
             {
-                readonly IExactlyOnceCommand _command;
+                readonly BusApi.Remote.ExactlyOnce.ICommand _command;
 
-                public VoidCommand(IExactlyOnceCommand command) => _command = command;
+                public VoidCommand(BusApi.Remote.ExactlyOnce.ICommand command) => _command = command;
 
                 public override void ExecuteRemoteOn(IRemoteServiceBusSession busSession) => busSession.PostRemote(_command);
                 public override Task ExecuteRemoteAsyncOn(IRemoteServiceBusSession busSession)

@@ -99,7 +99,7 @@ namespace Composable.Messaging.Buses.Implementation
                     foreach(var transportMessage in transportMessageBatch)
                     {
                         var innerMessage = transportMessage.DeserializeMessageAndCacheForNextCall(_typeMapper);
-                        if(innerMessage is IExactlyOnceMessage)
+                        if(innerMessage is BusApi.Remote.ExactlyOnce.IExactlyOnceMessage)
                         {
                             _storage.SaveMessage(transportMessage);
                             _responseQueue.Enqueue(transportMessage.CreatePersistedResponse());

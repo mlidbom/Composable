@@ -26,8 +26,8 @@ namespace AccountManagement.Domain
             });
 
         internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (AccountApi.Query.TryGetByEmailQuery tryGetAccount, ILocalServiceBusSession bus) =>
-                bus.GetLocal(DocumentDb.Queries.TryGet<AccountLink>(tryGetAccount.Email.StringValue)) is Some<AccountLink> accountLink
+            (AccountApi.Query.TryGetByEmailQuery query, ILocalServiceBusSession bus) =>
+                bus.GetLocal(DocumentDb.Queries.TryGet<AccountLink>(query.Email.StringValue)) is Some<AccountLink> accountLink
                     ? Option.Some(bus.GetLocal(accountLink.Value))
                     : Option.None<Account>());
     }

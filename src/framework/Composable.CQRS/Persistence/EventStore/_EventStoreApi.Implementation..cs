@@ -5,8 +5,6 @@ using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Newtonsoft.Json;
 
-// ReSharper disable MemberCanBeMadeStatic.Global we want composable fluent APIs. No statics please.
-
 namespace Composable.Persistence.EventStore
 {
     public partial class EventStoreApi
@@ -16,7 +14,7 @@ namespace Composable.Persistence.EventStore
             public class AggregateLink<TAggregate> : BusApi.Local.Queries.Query<TAggregate> where TAggregate : IEventStored
             {
                 [JsonConstructor] internal AggregateLink(Guid id) => Id = id;
-                public Guid Id { get; }
+                [JsonProperty] Guid Id { get; }
 
                 internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                     (AggregateLink<TAggregate> query, IEventStoreUpdater updater) => updater.Get<TAggregate>(query.Id));
@@ -25,7 +23,7 @@ namespace Composable.Persistence.EventStore
             public class GetAggregateHistory<TEvent> : BusApi.Local.Queries.Query<IEnumerable<TEvent>> where TEvent : IAggregateEvent
             {
                 [JsonConstructor] internal GetAggregateHistory(Guid id) => Id = id;
-                public Guid Id { get; }
+                [JsonProperty] Guid Id { get; }
 
                 internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                     (GetAggregateHistory<TEvent> query, IEventStoreReader reader) => reader.GetHistory(query.Id).Cast<TEvent>());
@@ -33,8 +31,8 @@ namespace Composable.Persistence.EventStore
 
             public class GetReadonlyCopyOfAggregate<TAggregate> : BusApi.Local.Queries.Query<TAggregate> where TAggregate : IEventStored
             {
-                internal GetReadonlyCopyOfAggregate(Guid id) => Id = id;
-                public Guid Id { get; }
+                [JsonConstructor] internal GetReadonlyCopyOfAggregate(Guid id) => Id = id;
+                [JsonProperty] Guid Id { get; }
 
                 internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                     (GetReadonlyCopyOfAggregate<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopy<TAggregate>(query.Id));
@@ -48,8 +46,8 @@ namespace Composable.Persistence.EventStore
                     Version = version;
                 }
 
-                public Guid Id { get; }
-                public int Version { get; }
+                [JsonProperty] Guid Id { get; }
+                [JsonProperty] int Version { get; }
 
                 internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                     (GetReadonlyCopyOfAggregateVersion<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopyOfVersion<TAggregate>(query.Id, query.Version));
@@ -62,7 +60,7 @@ namespace Composable.Persistence.EventStore
                 where TAggregate : IEventStored
             {
                 [JsonConstructor] internal SaveAggregate(TAggregate entity) => Entity = entity;
-                internal TAggregate Entity { get; }
+                TAggregate Entity { get; }
 
                 internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
                     (SaveAggregate<TAggregate> command, IEventStoreUpdater updater) => updater.Save(command.Entity));

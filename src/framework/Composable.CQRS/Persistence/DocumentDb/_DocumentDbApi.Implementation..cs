@@ -4,9 +4,6 @@ using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Newtonsoft.Json;
 
-// ReSharper disable MemberCanBeMadeStatic.Global we want composable fluent APIs. No statics please.
-// ReSharper disable UnusedTypeParameter it is vital for correct routing in the bus when more than one document type is registered in the document db.
-
 namespace Composable.Persistence.DocumentDb
 {
     public partial class DocumentDbApi
@@ -16,7 +13,7 @@ namespace Composable.Persistence.DocumentDb
             public class GetDocumentForUpdate<TDocument> : BusApi.Local.Queries.Query<TDocument>
             {
                 [JsonConstructor] internal GetDocumentForUpdate(Guid id) => Id = id;
-                internal Guid Id { get; private set; }
+                [JsonProperty] Guid Id { get; set; }
 
                 internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                     (GetDocumentForUpdate<TDocument> query, IDocumentDbUpdater updater) => updater.GetForUpdate<TDocument>(query.Id));
@@ -25,7 +22,7 @@ namespace Composable.Persistence.DocumentDb
             public class TryGetDocument<TDocument> : BusApi.Local.Queries.Query<Option<TDocument>>
             {
                 [JsonConstructor] internal TryGetDocument(string id) => Id = id;
-                internal string Id { get; private set; }
+                [JsonProperty] string Id { get; set; }
 
                 internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                     (TryGetDocument<TDocument> query, IDocumentDbReader updater) => updater.TryGet<TDocument>(query.Id, out var document) ? Option.Some(document) : Option.None<TDocument>());
@@ -34,7 +31,7 @@ namespace Composable.Persistence.DocumentDb
             public class GetReadonlyCopyOfDocument<TDocument> : BusApi.Local.Queries.Query<TDocument>
             {
                 [JsonConstructor] internal GetReadonlyCopyOfDocument(Guid id) => Id = id;
-                internal Guid Id { get; private set; }
+                [JsonProperty] Guid Id { get; set; }
 
                 internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                     (GetReadonlyCopyOfDocument<TDocument> query, IDocumentDbReader reader) => reader.Get<TDocument>(query.Id));
@@ -45,8 +42,8 @@ namespace Composable.Persistence.DocumentDb
         {
             public class DeleteDocument<TDocument> : BusApi.Local.Commands.Command
             {
-                [JsonConstructor] internal DeleteDocument(string key) => Key = key;
-                internal string Key { get; }
+                internal DeleteDocument(string key) => Key = key;
+                string Key { get; }
 
                 internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
                     (DeleteDocument<TDocument> command, IDocumentDbUpdater updater) => updater.Delete<TDocument>(command.Key));
@@ -60,8 +57,8 @@ namespace Composable.Persistence.DocumentDb
                     Entity = entity;
                 }
 
-                internal string Key { get; }
-                internal TDocument Entity { get; }
+                string Key { get; }
+                TDocument Entity { get; }
 
                 internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
                     (DocumentDbApi.Command.SaveDocument<TDocument> command, IDocumentDbUpdater updater) => updater.Save(command.Key, command.Entity));

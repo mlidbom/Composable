@@ -174,7 +174,7 @@ namespace Composable.DependencyInjection
                 _instantiationSpec = instantiationSpec;
             }
 
-            internal ComponentRegistration<TService> LifestyleSingleton() => new ComponentRegistration<TService>(Lifestyle.Singleton, _serviceTypes, _instantiationSpec);
+            public ComponentRegistration<TService> LifestyleSingleton() => new ComponentRegistration<TService>(Lifestyle.Singleton, _serviceTypes, _instantiationSpec);
             public ComponentRegistration<TService> LifestyleScoped() => new ComponentRegistration<TService>(Lifestyle.Scoped, _serviceTypes, _instantiationSpec);
 
         }

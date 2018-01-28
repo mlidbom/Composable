@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Persistence.EventStore;
 
 namespace Composable.Messaging.Events
 {
@@ -10,7 +11,7 @@ namespace Composable.Messaging.Events
     /// Calls all matching handlers in the order they were registered when an event is Dispatched.
     /// Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
     /// </summary>
-    class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
+    public class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
         where TEvent : class
     {
         readonly List<KeyValuePair<Type, Action<object>>> _handlers = new List<KeyValuePair<Type, Action<object>>>();
@@ -93,7 +94,7 @@ namespace Composable.Messaging.Events
         // ReSharper disable once StaticMemberInGenericType
         static readonly Action<object>[] NullHandlerList = new Action<object>[0];
 
-        Action<object>[] GetHandlers(Type type)
+        Action<object>[] GetHandlers(Type type, bool validateHandlerExists = true)
         {
             if(_cachedTotalHandlers != _totalHandlers)
             {
@@ -107,25 +108,28 @@ namespace Composable.Messaging.Events
             }
 
             var result = new List<Action<object>>();
-            var hasDispatchedEvent = false;
-
-            result.AddRange(_runBeforeHandlers);
+            var hasFoundHandler = false;
 
             for(var index = 0; index < _handlers.Count; index++)
             {
                 if(_handlers[index].Key.IsAssignableFrom(type))
                 {
-                    hasDispatchedEvent = true;
+                    if(!hasFoundHandler)
+                    {
+                        result.AddRange(_runBeforeHandlers);
+                        hasFoundHandler = true;
+                    }
+
                     result.Add(_handlers[index].Value);
                 }
             }
 
-            if(hasDispatchedEvent)
+            if(hasFoundHandler)
             {
                 result.AddRange(_runAfterHandlers);
             } else
             {
-                if(!_ignoredEvents.Any(ignoredEventType => ignoredEventType.IsAssignableFrom(type)))
+                if(validateHandlerExists && !_ignoredEvents.Any(ignoredEventType => ignoredEventType.IsAssignableFrom(type)))
                 {
                     throw new EventUnhandledException(GetType(), type);
                 }
@@ -149,6 +153,9 @@ namespace Composable.Messaging.Events
                 handlers[i](evt);
             }
         }
+
+        public bool HandlesEvent<THandled>() => GetHandlers(typeof(THandled), validateHandlerExists: false).Any();
+        public bool Handles(IAggregateEvent @event) => GetHandlers(@event.GetType(), validateHandlerExists: false).Any();
     }
 
     class EventUnhandledException : Exception

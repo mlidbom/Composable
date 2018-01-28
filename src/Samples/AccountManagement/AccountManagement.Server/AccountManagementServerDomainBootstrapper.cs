@@ -3,19 +3,14 @@ using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.UI;
 using AccountManagement.UI.QueryModels;
-using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.Messaging.Buses;
-using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
 
 namespace AccountManagement
 {
     public class AccountManagementServerDomainBootstrapper
     {
-        SqlServerEventStoreRegistrationBuilder _eventStore;
-        DocumentDbRegistrationBuilder _documentDb;
-
         public IEndpoint RegisterWith(IEndpointHost host)
         {
             return host.RegisterAndStartEndpoint(name: "AccountManagement",
@@ -23,29 +18,32 @@ namespace AccountManagement
                                                  setup: builder =>
                                                  {
                                                      TypeMapper.MapTypes(builder.TypeMapper);
-                                                     RegisterDomainComponents(builder.Container, builder.Configuration);
-                                                     RegisterHandlers(builder.RegisterHandlers);
+                                                     RegisterDomainComponents(builder);
+                                                     RegisterHandlers(builder);
                                                  });
         }
 
-        void RegisterDomainComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
+        static void RegisterDomainComponents(IEndpointBuilder builder)
         {
-            _eventStore = container.RegisterSqlServerEventStore(configuration.ConnectionStringName);
+            builder.Container.RegisterSqlServerEventStore(builder.Configuration.ConnectionStringName)
+                   .HandleAggregate<Account, AccountEvent.Root>(builder.RegisterHandlers);
 
-            _documentDb = container.RegisterSqlServerDocumentDb(configuration.ConnectionStringName);
+            builder.Container.RegisterSqlServerDocumentDb(builder.Configuration.ConnectionStringName)
+                   .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(builder.RegisterHandlers)
+                   .HandleDocumentType<AccountStatistics.SingletonStatisticsQuerymodel>(builder.RegisterHandlers);
         }
 
-        void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
+        static void RegisterHandlers(IEndpointBuilder builder)
         {
-            _eventStore.HandleAggregate<Account, AccountEvent.Root>(registrar);
-            _documentDb.HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(registrar);
+            UIAdapterLayer.Register(builder.RegisterHandlers);
 
-            UIAdapterLayer.Register(registrar);
+            //todo: This should not be called synchronously. We should have it in a separate consistency boundary so that it does not slow down every operation on an account.
+            AccountStatistics.Register(builder);
 
-            AccountQueryModel.Api.RegisterHandlers(registrar);
+            AccountQueryModel.Api.RegisterHandlers(builder.RegisterHandlers);
 
-            EmailToAccountMapper.UpdateMappingWhenEmailChanges(registrar);
-            EmailToAccountMapper.TryGetAccountByEmail(registrar);
+            EmailToAccountMapper.UpdateMappingWhenEmailChanges(builder.RegisterHandlers);
+            EmailToAccountMapper.TryGetAccountByEmail(builder.RegisterHandlers);
         }
     }
 }

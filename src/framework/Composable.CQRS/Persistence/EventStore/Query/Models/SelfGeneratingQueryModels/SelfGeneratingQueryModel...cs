@@ -32,6 +32,9 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             _eventDispatcher.Dispatch(theEvent);
         }
 
+        public bool HandlesEvent(TAggregateEvent @event) => _eventDispatcher.Handles(@event);
+        public bool HandlesEvent<THandled>() => _eventDispatcher.HandlesEvent<THandled>();
+
         public void LoadFromHistory(IEnumerable<IAggregateEvent> history)
         {
             Assert.State.Assert(Version == 0);

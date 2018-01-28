@@ -6,7 +6,7 @@ namespace Composable.Messaging.Buses
 {
     public class MessageHandlerRegistrarWithDependencyInjectionSupport
     {
-        public MessageHandlerRegistrarWithDependencyInjectionSupport(IMessageHandlerRegistrar register, IServiceLocator serviceLocator)
+        public MessageHandlerRegistrarWithDependencyInjectionSupport(IMessageHandlerRegistrar register, Lazy<IServiceLocator> serviceLocator)
         {
             Register = register;
             ServiceLocator = serviceLocator;
@@ -14,9 +14,9 @@ namespace Composable.Messaging.Buses
 
         internal IMessageHandlerRegistrar Register { get; }
 
-        internal IServiceLocator ServiceLocator { get; }
+        internal Lazy<IServiceLocator> ServiceLocator { get; }
 
-        internal TService Resolve<TService>() where TService : class => ServiceLocator.Resolve<TService>();
+        internal TService Resolve<TService>() where TService : class => ServiceLocator.Value.Resolve<TService>();
     }
 
     public static class MessageHandlerRegistrarWithDependencyInjectionSupportExtensions

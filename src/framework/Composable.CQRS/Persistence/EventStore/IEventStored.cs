@@ -16,6 +16,7 @@ namespace Composable.Persistence.EventStore
         IObservable<IAggregateEvent> EventStream { get; }
     }
 
+    // ReSharper disable once UnusedTypeParameter it is used for type information in various parts of the framework.
     public interface IEventStored<TEvent> : IEventStored where TEvent : IAggregateEvent
     {
 

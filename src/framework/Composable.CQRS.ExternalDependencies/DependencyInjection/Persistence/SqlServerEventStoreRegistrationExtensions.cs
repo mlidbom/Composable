@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Castle.DynamicProxy;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
@@ -232,6 +233,7 @@ namespace Composable.DependencyInjection.Persistence
             Get<TAggregate>(registrar);
             GetReadonlyCopyOfLatestVersion<TAggregate>(registrar);
             GetReadonlyCopyOfVersion<TAggregate>(registrar);
+            GetHistory<TEvent>(registrar);
             return this;
         }
 
@@ -246,5 +248,8 @@ namespace Composable.DependencyInjection.Persistence
 
         static void GetReadonlyCopyOfVersion<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForQuery(
             (EventStoreApi.Query.GetReadonlyCopyOfAggregateVersion<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopyOfVersion<TAggregate>(query.Id, query.Version));
+
+        static void GetHistory<TEvent>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TEvent : IAggregateEvent => registrar.ForQuery(
+            (EventStoreApi.Query.GetAggregateHistory<TEvent> query, IEventStoreReader reader) => reader.GetHistory(query.Id).Cast<TEvent>());
     }
 }

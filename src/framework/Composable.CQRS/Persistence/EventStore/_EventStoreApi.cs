@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Composable.Messaging;
 using Newtonsoft.Json;
 
@@ -19,9 +20,17 @@ namespace Composable.Persistence.EventStore
 
             public GetReadonlyCopyOfAggregateVersion<TAggregate> GetReadOnlyCopyOfVersion<TAggregate>(Guid id, int version) => new GetReadonlyCopyOfAggregateVersion<TAggregate>(id, version);
 
+            public GetAggregateHistory<TEvent> GetHistory<TEvent>(Guid id) where TEvent : IAggregateEvent => new GetAggregateHistory<TEvent>(id);
+
             public class AggregateLink<TEntity> : BusApi.Local.Queries.Query<TEntity>
             {
                 [JsonConstructor]internal AggregateLink(Guid id) => Id = id;
+                public Guid Id { get; }
+            }
+
+            public class GetAggregateHistory<TEvent> : BusApi.Local.Queries.Query<IEnumerable<TEvent>> where TEvent : IAggregateEvent
+            {
+                [JsonConstructor]internal GetAggregateHistory(Guid id) => Id = id;
                 public Guid Id { get; }
             }
 

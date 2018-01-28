@@ -39,6 +39,7 @@ namespace AccountManagement
         {
             UIAdapterLayer.Register(builder.RegisterHandlers);
 
+            //todo: This should not be called synchronously. We should have it in a separate consistency boundary so that it does not slow down every operation on an account.
             AccountStatistics.Register(builder);
 
             AccountQueryModel.Api.RegisterHandlers(builder.RegisterHandlers);

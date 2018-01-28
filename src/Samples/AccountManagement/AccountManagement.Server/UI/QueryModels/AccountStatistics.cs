@@ -8,7 +8,7 @@ using Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels;
 
 namespace AccountManagement.UI.QueryModels
 {
-    class AccountStatistics
+    static class AccountStatistics
     {
         /// <summary>
         /// Note that we use a <see cref="SelfGeneratingQueryModel{TQueryModel,TAggregateEvent}"/> even though we will store it in a document database. 
@@ -25,10 +25,10 @@ namespace AccountManagement.UI.QueryModels
                    .For<AccountEvent.LoginFailed>(loginFailed => NumberOfFailedLogins++);
             }
 
-            public int NumberOfAccounts { get; internal set; }
-            public int NumberOfLoginsAttempts { get; internal set; }
-            public int NumberOfSuccessfulLogins { get; internal set; }
-            public int NumberOfFailedLogins { get; internal set; }
+            public int NumberOfAccounts { get; private set; }
+            public int NumberOfLoginsAttempts { get; private set; }
+            public int NumberOfSuccessfulLogins { get; private set; }
+            public int NumberOfFailedLogins { get; private set; }
 
             //Since this is a singleton query model and not bound to a specific Aggregate's events we override the Id member to always be the singleton Id.
             public override Guid Id => StaticId;

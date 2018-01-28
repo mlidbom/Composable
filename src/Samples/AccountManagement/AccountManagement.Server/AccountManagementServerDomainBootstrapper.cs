@@ -3,10 +3,8 @@ using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.UI;
 using AccountManagement.UI.QueryModels;
-using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.Messaging.Buses;
-using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
 
 namespace AccountManagement

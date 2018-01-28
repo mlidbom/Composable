@@ -13,9 +13,6 @@ namespace AccountManagement
 {
     public class AccountManagementServerDomainBootstrapper
     {
-        SqlServerEventStoreRegistrationBuilder _eventStore;
-        DocumentDbRegistrationBuilder _documentDb;
-
         public IEndpoint RegisterWith(IEndpointHost host)
         {
             return host.RegisterAndStartEndpoint(name: "AccountManagement",
@@ -23,23 +20,22 @@ namespace AccountManagement
                                                  setup: builder =>
                                                  {
                                                      TypeMapper.MapTypes(builder.TypeMapper);
-                                                     RegisterDomainComponents(builder.Container, builder.Configuration);
+                                                     RegisterDomainComponents(builder.Container, builder.Configuration, builder.RegisterHandlers);
                                                      RegisterHandlers(builder.RegisterHandlers);
                                                  });
         }
 
-        void RegisterDomainComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration)
+        void RegisterDomainComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration, MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            _eventStore = container.RegisterSqlServerEventStore(configuration.ConnectionStringName);
+            container.RegisterSqlServerEventStore(configuration.ConnectionStringName)
+                                   .HandleAggregate<Account, AccountEvent.Root>(registrar);
 
-            _documentDb = container.RegisterSqlServerDocumentDb(configuration.ConnectionStringName);
+            container.RegisterSqlServerDocumentDb(configuration.ConnectionStringName)
+                                   .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(registrar);
         }
 
         void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            _eventStore.HandleAggregate<Account, AccountEvent.Root>(registrar);
-            _documentDb.HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(registrar);
-
             UIAdapterLayer.Register(registrar);
 
             AccountQueryModel.Api.RegisterHandlers(registrar);

@@ -49,10 +49,10 @@ namespace Composable.Messaging.Events
 
     public static class EventHandlerRegistrar
     {
-        internal static IEventHandlerRegistrar<TEvent> BeforeHandlers<TEvent>
+        public static IEventHandlerRegistrar<TEvent> BeforeHandlers<TEvent>
             (this IEventHandlerRegistrar<TEvent> @this, Action<TEvent> handler) where TEvent : class => @this.BeforeHandlers(handler);
 
-        internal static IEventHandlerRegistrar<TEvent> AfterHandlers<TEvent>
+        public static IEventHandlerRegistrar<TEvent> AfterHandlers<TEvent>
             (this IEventHandlerRegistrar<TEvent> @this, Action<TEvent> handler) where TEvent : class => @this.AfterHandlers(handler);
 
         public static IEventHandlerRegistrar<TDownCastEvent> DownCast<TEvent, TDownCastEvent>(this IEventHandlerRegistrar<TEvent> @this)

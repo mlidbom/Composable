@@ -1,4 +1,5 @@
-﻿using Composable.DependencyInjection;
+﻿using System;
+using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
@@ -20,6 +21,7 @@ namespace Composable.Messaging.Buses
         readonly string _name;
         readonly TypeMapper _typeMapper;
         readonly EndpointId _endpointId;
+        MessageHandlerRegistry _registry;
 
         public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, string name, EndpointId endpointId)
         {
@@ -27,13 +29,14 @@ namespace Composable.Messaging.Buses
             _name = name;
             _endpointId = endpointId;
             _typeMapper = new TypeMapper();
+            _registry = new MessageHandlerRegistry(_typeMapper);
 
             Configuration = new EndpointConfiguration(name);
 
-            DefaultWiring(globalStateTracker, _container, endpointId, Configuration, _typeMapper);
+            DefaultWiring(globalStateTracker, _container, endpointId, Configuration, _typeMapper, _registry);
         }
 
-        internal static void DefaultWiring(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointId endpointId, EndpointConfiguration configuration, TypeMapper typeMapper)
+        internal static void DefaultWiring(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointId endpointId, EndpointConfiguration configuration, TypeMapper typeMapper, MessageHandlerRegistry registry)
         {
             container.Register(
                 Component.For<ITaskRunner>().ImplementedBy<TaskRunner>().LifestyleSingleton(),
@@ -59,7 +62,7 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod(() => globalStateTracker)
                          .LifestyleSingleton(),
                 Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>()
-                         .UsingFactoryMethod(() => new MessageHandlerRegistry(typeMapper))
+                         .UsingFactoryMethod(() => registry)
                          .LifestyleSingleton(),
                 Component.For<IEventStoreEventSerializer>()
                          .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
@@ -100,8 +103,7 @@ namespace Composable.Messaging.Buses
         public ITypeMappingRegistar TypeMapper => _typeMapper;
         public EndpointConfiguration Configuration { get; }
 
-        public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers =>
-            new MessageHandlerRegistrarWithDependencyInjectionSupport(_container.CreateServiceLocator().Resolve<IMessageHandlerRegistrar>(), _container.CreateServiceLocator());
+        public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers => new MessageHandlerRegistrarWithDependencyInjectionSupport(_registry, new Lazy<IServiceLocator>(() => _container.CreateServiceLocator()));
 
         public IEndpoint Build()
         {

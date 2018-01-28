@@ -29,7 +29,9 @@ namespace Composable.DependencyInjection.Testing
             var endpointId = new EndpointId(Guid.NewGuid());
             var configuration = new EndpointConfiguration(endpointId.ToString());
 
-            EndpointBuilder.DefaultWiring(globalBusStateTracker, @this, endpointId, configuration, new TypeMapper());
+            var typeMapper = new TypeMapper();
+            var registry = new MessageHandlerRegistry(typeMapper);
+            EndpointBuilder.DefaultWiring(globalBusStateTracker, @this, endpointId, configuration, typeMapper, registry);
         }
 
         static readonly IReadOnlyList<Type> TypesThatAreFacadesForTheContainer = Seq.OfTypes<IDependencyInjectionContainer, IServiceLocator, SimpleInjectorDependencyInjectionContainer, WindsorDependencyInjectionContainer>()

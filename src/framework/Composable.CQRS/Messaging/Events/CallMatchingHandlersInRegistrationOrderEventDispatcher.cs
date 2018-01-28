@@ -10,7 +10,7 @@ namespace Composable.Messaging.Events
     /// Calls all matching handlers in the order they were registered when an event is Dispatched.
     /// Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
     /// </summary>
-    class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
+    public class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
         where TEvent : class
     {
         readonly List<KeyValuePair<Type, Action<object>>> _handlers = new List<KeyValuePair<Type, Action<object>>>();
@@ -107,20 +107,23 @@ namespace Composable.Messaging.Events
             }
 
             var result = new List<Action<object>>();
-            var hasDispatchedEvent = false;
-
-            result.AddRange(_runBeforeHandlers);
+            var hasFoundHandler = false;
 
             for(var index = 0; index < _handlers.Count; index++)
             {
                 if(_handlers[index].Key.IsAssignableFrom(type))
                 {
-                    hasDispatchedEvent = true;
+                    if(!hasFoundHandler)
+                    {
+                        result.AddRange(_runBeforeHandlers);
+                        hasFoundHandler = true;
+                    }
+
                     result.Add(_handlers[index].Value);
                 }
             }
 
-            if(hasDispatchedEvent)
+            if(hasFoundHandler)
             {
                 result.AddRange(_runAfterHandlers);
             } else

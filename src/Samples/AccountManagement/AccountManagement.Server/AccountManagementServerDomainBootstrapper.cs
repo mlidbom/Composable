@@ -42,7 +42,7 @@ namespace AccountManagement
 
             UIAdapterLayer.Register(registrar);
 
-            AccountQueryModel.GetById(registrar);
+            AccountQueryModel.Api.RegisterHandlers(registrar);
 
             EmailToAccountMapper.UpdateMappingWhenEmailChanges(registrar);
             EmailToAccountMapper.TryGetAccountByEmail(registrar);

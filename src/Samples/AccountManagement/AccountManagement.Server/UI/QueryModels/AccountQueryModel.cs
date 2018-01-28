@@ -16,7 +16,7 @@ namespace AccountManagement.UI.QueryModels
         public Password Password { get; private set; }
         public Email Email { get; private set; }
 
-        public AccountQueryModel(IEnumerable<AccountEvent.Root> events)
+        AccountQueryModel(IEnumerable<AccountEvent.Root> events)
         {
             RegisterEventAppliers()
                .For<AccountEvent.PropertyUpdated.Email>(@event => Email = @event.Email)
@@ -25,12 +25,7 @@ namespace AccountManagement.UI.QueryModels
             LoadFromHistory(events);
         }
 
-
-        public static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (BusApi.Local.Queries.EntityQuery<AccountQueryModel> query, ILocalServiceBusSession bus) =>
-                new AccountQueryModel(bus.GetLocal(new EventStoreApi().Queries.GetHistory<AccountEvent.Root>(query.EntityId))));
-
-
+        // ReSharper disable MemberCanBeMadeStatic.Global fluent composable APIs and statics do not mix
         internal class Api
         {
             internal Query Queries => new Query();
@@ -38,6 +33,12 @@ namespace AccountManagement.UI.QueryModels
             {
                 public BusApi.Local.Queries.EntityQuery<AccountQueryModel> Get(Guid id) => new BusApi.Local.Queries.EntityQuery<AccountQueryModel>(id);
             }
+
+            public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => Get(registrar);
+
+            static void Get(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
+                (BusApi.Local.Queries.EntityQuery<AccountQueryModel> query, ILocalServiceBusSession bus) =>
+                    new AccountQueryModel(bus.GetLocal(new EventStoreApi().Queries.GetHistory<AccountEvent.Root>(query.EntityId))));
         }
     }
 }

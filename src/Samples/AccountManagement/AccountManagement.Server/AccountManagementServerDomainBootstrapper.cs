@@ -28,15 +28,18 @@ namespace AccountManagement
         static void RegisterDomainComponents(IEndpointBuilder builder)
         {
             builder.Container.RegisterSqlServerEventStore(builder.Configuration.ConnectionStringName)
-                                   .HandleAggregate<Account, AccountEvent.Root>(builder.RegisterHandlers);
+                   .HandleAggregate<Account, AccountEvent.Root>(builder.RegisterHandlers);
 
             builder.Container.RegisterSqlServerDocumentDb(builder.Configuration.ConnectionStringName)
-                                   .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(builder.RegisterHandlers);
+                   .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(builder.RegisterHandlers)
+                   .HandleDocumentType<AccountStatistics.QueryModel>(builder.RegisterHandlers);
         }
 
         static void RegisterHandlers(IEndpointBuilder builder)
         {
             UIAdapterLayer.Register(builder.RegisterHandlers);
+
+            AccountStatistics.RegisterHandlers(builder.RegisterHandlers);
 
             AccountQueryModel.Api.RegisterHandlers(builder.RegisterHandlers);
 

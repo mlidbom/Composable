@@ -1,5 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain;
+using AccountManagement.Domain.Events;
 using AccountManagement.UI;
 using AccountManagement.UI.QueryModels;
 using Composable.DependencyInjection;
@@ -36,7 +37,7 @@ namespace AccountManagement
 
         void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            _eventStore.HandleAggregate<Account>(registrar);
+            _eventStore.HandleAggregate<Account, AccountEvent.Root>(registrar);
             _documentDb.HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(registrar);
 
             UIAdapterLayer.Register(registrar);

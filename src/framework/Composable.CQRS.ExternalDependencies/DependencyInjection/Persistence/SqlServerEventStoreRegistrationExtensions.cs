@@ -224,7 +224,9 @@ namespace Composable.DependencyInjection.Persistence
 
     public class SqlServerEventStoreRegistrationBuilder
     {
-        public SqlServerEventStoreRegistrationBuilder HandleAggregate<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored
+        public SqlServerEventStoreRegistrationBuilder HandleAggregate<TAggregate, TEvent>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
+            where TAggregate : IEventStored<TEvent>
+            where TEvent : IAggregateEvent
         {
             Save<TAggregate>(registrar);
             Get<TAggregate>(registrar);

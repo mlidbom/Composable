@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.Messaging;
+using Newtonsoft.Json;
 
 // ReSharper disable MemberCanBeMadeStatic.Global we want composable fluent APIs. No statics please.
 
@@ -20,32 +21,26 @@ namespace Composable.Persistence.EventStore
 
             public class AggregateLink<TEntity> : BusApi.Local.Queries.Query<TEntity>
             {
-                public AggregateLink() {}
-                public AggregateLink(Guid id) => Id = id;
-                public Guid Id { get; set; }
-                public AggregateLink<TEntity> WithId(Guid id) => new AggregateLink<TEntity> {Id = id};
+                [JsonConstructor]internal AggregateLink(Guid id) => Id = id;
+                public Guid Id { get; }
             }
 
             public class GetReadonlyCopyOfAggregate<TEntity> : BusApi.Local.Queries.Query<TEntity>
             {
-                public GetReadonlyCopyOfAggregate() {}
-                public GetReadonlyCopyOfAggregate(Guid id) => Id = id;
-                public Guid Id { get; set; }
-                public AggregateLink<TEntity> WithId(Guid id) => new AggregateLink<TEntity> {Id = id};
+                internal GetReadonlyCopyOfAggregate(Guid id) => Id = id;
+                public Guid Id { get; }
             }
 
             public class GetReadonlyCopyOfAggregateVersion<TEntity> : BusApi.Local.Queries.Query<TEntity>
             {
-                public GetReadonlyCopyOfAggregateVersion() {}
-                public GetReadonlyCopyOfAggregateVersion(Guid id, int version)
+                [JsonConstructor]internal GetReadonlyCopyOfAggregateVersion(Guid id, int version)
                 {
                     Id = id;
                     Version = version;
                 }
 
-                public Guid Id { get; set; }
-                public int Version { get; set; }
-                public AggregateLink<TEntity> WithId(Guid id) => new AggregateLink<TEntity> {Id = id};
+                public Guid Id { get; }
+                public int Version { get; }
             }
         }
 
@@ -55,8 +50,8 @@ namespace Composable.Persistence.EventStore
 
             public class SaveAggregate<TEntity> : BusApi.Local.Commands.Command
             {
-                public SaveAggregate(TEntity entity) => Entity = entity;
-                public TEntity Entity { get; }
+                [JsonConstructor] internal SaveAggregate(TEntity entity) => Entity = entity;
+                internal TEntity Entity { get; }
             }
         }
     }

@@ -229,27 +229,8 @@ namespace Composable.DependencyInjection.Persistence
             where TAggregate : IEventStored<TEvent>
             where TEvent : IAggregateEvent
         {
-            Save<TAggregate>(registrar);
-            Get<TAggregate>(registrar);
-            GetReadonlyCopyOfLatestVersion<TAggregate>(registrar);
-            GetReadonlyCopyOfVersion<TAggregate>(registrar);
-            GetHistory<TEvent>(registrar);
+           EventStoreApi.RegisterHandlersForAggregate<TAggregate, TEvent>(registrar);
             return this;
         }
-
-        static void Save<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForCommand(
-            (EventStoreApi.Command.SaveAggregate<TAggregate> command, IEventStoreUpdater updater) => updater.Save(command.Entity));
-
-        static void Get<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForQuery(
-            (EventStoreApi.Query.AggregateLink<TAggregate> query, IEventStoreUpdater updater) => updater.Get<TAggregate>(query.Id));
-
-        static void GetReadonlyCopyOfLatestVersion<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForQuery(
-            (EventStoreApi.Query.GetReadonlyCopyOfAggregate<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopy<TAggregate>(query.Id));
-
-        static void GetReadonlyCopyOfVersion<TAggregate>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TAggregate : IEventStored => registrar.ForQuery(
-            (EventStoreApi.Query.GetReadonlyCopyOfAggregateVersion<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopyOfVersion<TAggregate>(query.Id, query.Version));
-
-        static void GetHistory<TEvent>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) where TEvent : IAggregateEvent => registrar.ForQuery(
-            (EventStoreApi.Query.GetAggregateHistory<TEvent> query, IEventStoreReader reader) => reader.GetHistory(query.Id).Cast<TEvent>());
     }
 }

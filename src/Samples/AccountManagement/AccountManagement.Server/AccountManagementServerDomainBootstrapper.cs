@@ -20,28 +20,28 @@ namespace AccountManagement
                                                  setup: builder =>
                                                  {
                                                      TypeMapper.MapTypes(builder.TypeMapper);
-                                                     RegisterDomainComponents(builder.Container, builder.Configuration, builder.RegisterHandlers);
-                                                     RegisterHandlers(builder.RegisterHandlers);
+                                                     RegisterDomainComponents(builder);
+                                                     RegisterHandlers(builder);
                                                  });
         }
 
-        void RegisterDomainComponents(IDependencyInjectionContainer container, EndpointConfiguration configuration, MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
+        static void RegisterDomainComponents(IEndpointBuilder builder)
         {
-            container.RegisterSqlServerEventStore(configuration.ConnectionStringName)
-                                   .HandleAggregate<Account, AccountEvent.Root>(registrar);
+            builder.Container.RegisterSqlServerEventStore(builder.Configuration.ConnectionStringName)
+                                   .HandleAggregate<Account, AccountEvent.Root>(builder.RegisterHandlers);
 
-            container.RegisterSqlServerDocumentDb(configuration.ConnectionStringName)
-                                   .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(registrar);
+            builder.Container.RegisterSqlServerDocumentDb(builder.Configuration.ConnectionStringName)
+                                   .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(builder.RegisterHandlers);
         }
 
-        void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
+        static void RegisterHandlers(IEndpointBuilder builder)
         {
-            UIAdapterLayer.Register(registrar);
+            UIAdapterLayer.Register(builder.RegisterHandlers);
 
-            AccountQueryModel.Api.RegisterHandlers(registrar);
+            AccountQueryModel.Api.RegisterHandlers(builder.RegisterHandlers);
 
-            EmailToAccountMapper.UpdateMappingWhenEmailChanges(registrar);
-            EmailToAccountMapper.TryGetAccountByEmail(registrar);
+            EmailToAccountMapper.UpdateMappingWhenEmailChanges(builder.RegisterHandlers);
+            EmailToAccountMapper.TryGetAccountByEmail(builder.RegisterHandlers);
         }
     }
 }

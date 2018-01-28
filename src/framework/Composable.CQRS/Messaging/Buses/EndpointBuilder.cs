@@ -21,7 +21,17 @@ namespace Composable.Messaging.Buses
         readonly string _name;
         readonly TypeMapper _typeMapper;
         readonly EndpointId _endpointId;
-        MessageHandlerRegistry _registry;
+
+        public IDependencyInjectionContainer Container => _container;
+        public ITypeMappingRegistar TypeMapper => _typeMapper;
+        public EndpointConfiguration Configuration { get; }
+
+        public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers { get; }
+
+        public IEndpoint Build()
+        {
+            return new Endpoint(_container.CreateServiceLocator(), _endpointId, _name);
+        }
 
         public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, string name, EndpointId endpointId)
         {
@@ -29,11 +39,13 @@ namespace Composable.Messaging.Buses
             _name = name;
             _endpointId = endpointId;
             _typeMapper = new TypeMapper();
-            _registry = new MessageHandlerRegistry(_typeMapper);
+            var registry = new MessageHandlerRegistry(_typeMapper);
 
             Configuration = new EndpointConfiguration(name);
 
-            DefaultWiring(globalStateTracker, _container, endpointId, Configuration, _typeMapper, _registry);
+            RegisterHandlers = new MessageHandlerRegistrarWithDependencyInjectionSupport(registry, new Lazy<IServiceLocator>(() => _container.CreateServiceLocator()));
+
+            DefaultWiring(globalStateTracker, _container, endpointId, Configuration, _typeMapper, registry);
         }
 
         internal static void DefaultWiring(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointId endpointId, EndpointConfiguration configuration, TypeMapper typeMapper, MessageHandlerRegistry registry)
@@ -97,17 +109,6 @@ namespace Composable.Messaging.Buses
                                             .LifestyleSingleton()
                                             .DelegateToParentServiceLocatorWhenCloning());
             }
-        }
-
-        public IDependencyInjectionContainer Container => _container;
-        public ITypeMappingRegistar TypeMapper => _typeMapper;
-        public EndpointConfiguration Configuration { get; }
-
-        public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers => new MessageHandlerRegistrarWithDependencyInjectionSupport(_registry, new Lazy<IServiceLocator>(() => _container.CreateServiceLocator()));
-
-        public IEndpoint Build()
-        {
-            return new Endpoint(_container.CreateServiceLocator(), _endpointId, _name);
         }
     }
 }

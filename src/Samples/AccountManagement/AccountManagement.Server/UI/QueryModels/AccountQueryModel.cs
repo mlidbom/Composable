@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using AccountManagement.API;
 using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
@@ -28,8 +27,8 @@ namespace AccountManagement.UI.QueryModels
 
 
         public static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (BusApi.Local.Queries.EntityQuery<AccountQueryModel> query, IEventStoreReader eventStoreReader) =>
-                new AccountQueryModel(eventStoreReader.GetHistory(query.EntityId).Cast<AccountEvent.Root>()));
+            (BusApi.Local.Queries.EntityQuery<AccountQueryModel> query, ILocalServiceBusSession bus) =>
+                new AccountQueryModel(bus.GetLocal(new EventStoreApi().Queries.GetHistory<AccountEvent.Root>(query.EntityId))));
 
 
         internal class Api

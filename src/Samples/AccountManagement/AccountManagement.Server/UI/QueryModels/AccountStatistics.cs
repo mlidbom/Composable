@@ -11,7 +11,7 @@ namespace AccountManagement.UI.QueryModels
     static class AccountStatistics
     {
         /// <summary>
-        /// Note that we use a <see cref="SelfGeneratingQueryModel{TQueryModel,TAggregateEvent}"/> even though we will store it in a document database. 
+        /// Note that we use a <see cref="SelfGeneratingQueryModel{TQueryModel,TAggregateEvent}"/> even though we will store it in a document database.
         /// Doing so let'st the querymodel cleanly encapsulate how it maintains its own state when it receives events.
         /// </summary>
         public class SingletonStatisticsQuerymodel : SelfGeneratingQueryModel<SingletonStatisticsQuerymodel, AccountEvent.Root>

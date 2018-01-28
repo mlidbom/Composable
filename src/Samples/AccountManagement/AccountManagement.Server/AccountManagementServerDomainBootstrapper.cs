@@ -32,14 +32,14 @@ namespace AccountManagement
 
             builder.Container.RegisterSqlServerDocumentDb(builder.Configuration.ConnectionStringName)
                    .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(builder.RegisterHandlers)
-                   .HandleDocumentType<AccountStatistics.QueryModel>(builder.RegisterHandlers);
+                   .HandleDocumentType<AccountStatistics.SingletonStatisticsQuerymodel>(builder.RegisterHandlers);
         }
 
         static void RegisterHandlers(IEndpointBuilder builder)
         {
             UIAdapterLayer.Register(builder.RegisterHandlers);
 
-            AccountStatistics.RegisterHandlers(builder.RegisterHandlers);
+            AccountStatistics.Register(builder);
 
             AccountQueryModel.Api.RegisterHandlers(builder.RegisterHandlers);
 

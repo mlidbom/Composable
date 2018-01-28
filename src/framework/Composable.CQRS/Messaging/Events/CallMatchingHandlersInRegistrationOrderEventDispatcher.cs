@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Persistence.EventStore;
 
 namespace Composable.Messaging.Events
 {
@@ -93,7 +94,7 @@ namespace Composable.Messaging.Events
         // ReSharper disable once StaticMemberInGenericType
         static readonly Action<object>[] NullHandlerList = new Action<object>[0];
 
-        Action<object>[] GetHandlers(Type type)
+        Action<object>[] GetHandlers(Type type, bool validateHandlerExists = true)
         {
             if(_cachedTotalHandlers != _totalHandlers)
             {
@@ -128,7 +129,7 @@ namespace Composable.Messaging.Events
                 result.AddRange(_runAfterHandlers);
             } else
             {
-                if(!_ignoredEvents.Any(ignoredEventType => ignoredEventType.IsAssignableFrom(type)))
+                if(validateHandlerExists && !_ignoredEvents.Any(ignoredEventType => ignoredEventType.IsAssignableFrom(type)))
                 {
                     throw new EventUnhandledException(GetType(), type);
                 }
@@ -152,6 +153,9 @@ namespace Composable.Messaging.Events
                 handlers[i](evt);
             }
         }
+
+        public bool HandlesEvent<THandled>() => GetHandlers(typeof(THandled), validateHandlerExists: false).Any();
+        public bool Handles(IAggregateEvent @event) => GetHandlers(@event.GetType(), validateHandlerExists: false).Any();
     }
 
     class EventUnhandledException : Exception

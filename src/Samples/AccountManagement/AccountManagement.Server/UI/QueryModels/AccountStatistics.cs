@@ -1,66 +1,77 @@
 ﻿using System;
 using AccountManagement.Domain.Events;
-using Composable.DDD;
+using Composable.DependencyInjection;
 using Composable.Functional;
 using Composable.Messaging.Buses;
-using Composable.Messaging.Events;
 using Composable.Persistence.DocumentDb;
+using Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels;
 
 namespace AccountManagement.UI.QueryModels
 {
     class AccountStatistics
     {
-        public class QueryModel : IHasPersistentIdentity<Guid>
+        /// <summary>
+        /// Note that we use a <see cref="SelfGeneratingQueryModel{TQueryModel,TAggregateEvent}"/> even though we will store it in a document database. 
+        /// Doing so let'st the querymodel cleanly encapsulate how it maintains its own state when it receives events.
+        /// </summary>
+        public class SingletonStatisticsQuerymodel : SelfGeneratingQueryModel<SingletonStatisticsQuerymodel, AccountEvent.Root>
         {
+            public SingletonStatisticsQuerymodel()
+            {
+                RegisterEventAppliers()
+                   .For<AccountEvent.Created>(created => NumberOfAccounts++)
+                   .For<AccountEvent.LoginAttempted>(loginAttempted => NumberOfLoginsAttempts++)
+                   .For<AccountEvent.LoggedIn>(loggedIn => NumberOfSuccessfulLogins++)
+                   .For<AccountEvent.LoginFailed>(loginFailed => NumberOfFailedLogins++);
+            }
+
             public int NumberOfAccounts { get; internal set; }
             public int NumberOfLoginsAttempts { get; internal set; }
             public int NumberOfSuccessfulLogins { get; internal set; }
             public int NumberOfFailedLogins { get; internal set; }
-            public Guid Id => StaticId;
 
+            //Since this is a singleton query model and not bound to a specific Aggregate's events we override the Id member to always be the singleton Id.
+            public override Guid Id => StaticId;
             internal static Guid StaticId = Guid.Parse("93498554-5C2E-4D6A-862D-2DA7BCCAC747");
         }
 
+        static void MaintainStatisticsWhenRelevantEventsAreReceived(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
+            (AccountEvent.Root @event, ILocalServiceBusSession bus, StatisticsSingletonInitializer initializer) =>
+            {
+                initializer.EnsureInitialized(bus);
+
+                if(new SingletonStatisticsQuerymodel().HandlesEvent(@event))
+                {
+                    bus.GetLocal(new DocumentDbApi().Queries.GetForUpdate<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId))
+                       .ApplyEvent(@event);
+                }
+            });
 
         internal static void Register(IEndpointBuilder builder)
         {
-            RegisterHandlers(builder.RegisterHandlers);
+            builder.Container.Register(Component.For<StatisticsSingletonInitializer>().UsingFactoryMethod(() => new StatisticsSingletonInitializer()).LifestyleSingleton());
+            MaintainStatisticsWhenRelevantEventsAreReceived(builder.RegisterHandlers);
         }
 
-        static readonly object _initializationlock = new object();
-        static bool IsInitialized;
-        static readonly DocumentDbApi DocumentDbApi = new DocumentDbApi();
-        static void EnsureInitialized(ILocalServiceBusSession bus)
+        class StatisticsSingletonInitializer
         {
-            lock(_initializationlock)
+            readonly object _initializationlock = new object();
+            bool _isInitialized;
+            readonly DocumentDbApi _documentDbApi = new DocumentDbApi();
+            public void EnsureInitialized(ILocalServiceBusSession bus)
             {
-                if(!IsInitialized)
+                lock(_initializationlock)
                 {
-                    if(bus.GetLocal(DocumentDbApi.Queries.TryGet<QueryModel>(QueryModel.StaticId)) is None<QueryModel>)
+                    if(!_isInitialized)
                     {
-                        bus.PostLocal(DocumentDbApi.Commands.Save(new QueryModel()));
+                        _isInitialized = true;
+                        if(bus.GetLocal(_documentDbApi.Queries.TryGet<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId)) is None<SingletonStatisticsQuerymodel>)
+                        {
+                            bus.PostLocal(_documentDbApi.Commands.Save(new SingletonStatisticsQuerymodel()));
+                        }
                     }
                 }
             }
         }
-
-        internal static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
-            (AccountEvent.Root @event, ILocalServiceBusSession bus) =>
-            {
-                EnsureInitialized(bus);
-                var eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<AccountEvent.Root>();
-
-                QueryModel model = null;
-
-                eventDispatcher.Register()
-                               .BeforeHandlers(_ => model = bus.GetLocal(DocumentDbApi.Queries.GetForUpdate<QueryModel>(QueryModel.StaticId)))
-                               .IgnoreUnhandled<AccountEvent.Root>()
-                               .For<AccountEvent.Created>(created => model.NumberOfAccounts++)
-                               .For<AccountEvent.LoginAttempted>(loginAttempted => model.NumberOfLoginsAttempts++)
-                               .For<AccountEvent.LoggedIn>(loggedIn => model.NumberOfSuccessfulLogins++)
-                               .For<AccountEvent.LoginFailed>(loginFailed => model.NumberOfFailedLogins++);
-
-                eventDispatcher.Dispatch(@event);
-            });
     }
 }

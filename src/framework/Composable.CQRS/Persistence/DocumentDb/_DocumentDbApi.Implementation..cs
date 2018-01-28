@@ -1,54 +1,81 @@
 ﻿using System;
 using Composable.Functional;
 using Composable.Messaging;
+using Composable.Messaging.Buses;
+using Newtonsoft.Json;
+
 // ReSharper disable MemberCanBeMadeStatic.Global we want composable fluent APIs. No statics please.
 // ReSharper disable UnusedTypeParameter it is vital for correct routing in the bus when more than one document type is registered in the document db.
 
 namespace Composable.Persistence.DocumentDb
-
 {
     public partial class DocumentDbApi
     {
         public partial class Query
         {
-            public class GetDocumentForUpdate<TEntity> : BusApi.Local.Queries.Query<TEntity>
+            public class GetDocumentForUpdate<TDocument> : BusApi.Local.Queries.Query<TDocument>
             {
-                internal GetDocumentForUpdate(Guid id) => Id = id;
+                [JsonConstructor] internal GetDocumentForUpdate(Guid id) => Id = id;
                 internal Guid Id { get; private set; }
+
+                internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
+                    (GetDocumentForUpdate<TDocument> query, IDocumentDbUpdater updater) => updater.GetForUpdate<TDocument>(query.Id));
             }
 
-            public class TryGetDocument<TEntity> : BusApi.Local.Queries.Query<Option<TEntity>>
+            public class TryGetDocument<TDocument> : BusApi.Local.Queries.Query<Option<TDocument>>
             {
-                internal TryGetDocument(string id) => Id = id;
+                [JsonConstructor] internal TryGetDocument(string id) => Id = id;
                 internal string Id { get; private set; }
+
+                internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
+                    (TryGetDocument<TDocument> query, IDocumentDbReader updater) => updater.TryGet<TDocument>(query.Id, out var document) ? Option.Some(document) : Option.None<TDocument>());
             }
 
-            public class GetReadonlyCopyOfDocument<TEntity> : BusApi.Local.Queries.Query<TEntity>
+            public class GetReadonlyCopyOfDocument<TDocument> : BusApi.Local.Queries.Query<TDocument>
             {
-                internal GetReadonlyCopyOfDocument(Guid id) => Id = id;
+                [JsonConstructor] internal GetReadonlyCopyOfDocument(Guid id) => Id = id;
                 internal Guid Id { get; private set; }
+
+                internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
+                    (GetReadonlyCopyOfDocument<TDocument> query, IDocumentDbReader reader) => reader.Get<TDocument>(query.Id));
             }
         }
 
         public partial class Command
         {
-            public class DeleteDocument<TEntity> : BusApi.Local.Commands.Command
+            public class DeleteDocument<TDocument> : BusApi.Local.Commands.Command
             {
-                internal DeleteDocument(string key) => Key = key;
+                [JsonConstructor] internal DeleteDocument(string key) => Key = key;
                 internal string Key { get; }
+
+                internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
+                    (DeleteDocument<TDocument> command, IDocumentDbUpdater updater) => updater.Delete<TDocument>(command.Key));
             }
 
-            public class SaveDocument<TEntity> : BusApi.Local.Commands.Command
+            public class SaveDocument<TDocument> : BusApi.Local.Commands.Command
             {
-                public SaveDocument(string key, TEntity entity)
+                internal SaveDocument(string key, TDocument entity)
                 {
                     Key = key;
                     Entity = entity;
                 }
 
                 internal string Key { get; }
-                internal TEntity Entity { get; }
+                internal TDocument Entity { get; }
+
+                internal static void RegisterHandler(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
+                    (DocumentDbApi.Command.SaveDocument<TDocument> command, IDocumentDbUpdater updater) => updater.Save(command.Key, command.Entity));
             }
         }
+
+        internal static void HandleDocumentType<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
+        {
+            Query.TryGetDocument<TDocument>.RegisterHandler(registrar);
+            Query.GetReadonlyCopyOfDocument<TDocument>.RegisterHandler(registrar);
+            Query.GetDocumentForUpdate<TDocument>.RegisterHandler(registrar);
+            Command.SaveDocument<TDocument>.RegisterHandler(registrar);
+            Command.DeleteDocument<TDocument>.RegisterHandler(registrar);
+        }
+
     }
 }

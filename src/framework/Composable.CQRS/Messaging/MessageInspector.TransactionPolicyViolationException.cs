@@ -19,11 +19,11 @@ In order to minimize your risk of encountering such problems we have runtime val
 
 Rules: 
 
-* Within a transaction you are not allowed send any {typeof(BusApi.Remotable.NonTransactional.IMessage).FullName}
+* Within a transaction you are not allowed send any {typeof(BusApi.IForbidTransactionalRemoteSender).FullName}
 These messages will not respect the transaction so if you want to send them during a transaction you have to aknowledge that they will not by suppressing the current transaction before sending them.
 
 
-* There must be a transaction for you to send a {typeof(BusApi.Remotable.ExactlyOnce.IMessage).FullName}
+* There must be a transaction for you to send a {typeof(BusApi.IRequireTransactionalSender).FullName}
 The whole point of these message types is to guarantee you exactly once delivery. Without a transaction while sending this guarantee is lost.
 
 ";

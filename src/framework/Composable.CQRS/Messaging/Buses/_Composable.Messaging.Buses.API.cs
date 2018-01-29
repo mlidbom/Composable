@@ -125,7 +125,7 @@ namespace Composable.Messaging.Buses
 
     interface IMessageDispatchingRule
     {
-        bool CanBeDispatched(IReadOnlyList<BusApi.IMessage> executingMessages, BusApi.IMessage message);
+        bool CanBeDispatched(IReadOnlyList<TransportMessage.InComing> executingMessages, TransportMessage.InComing message);
     }
 
     interface IGlobalBusStateTracker

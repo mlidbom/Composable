@@ -44,7 +44,7 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     const int MaxConcurrentlyExecutingHandlers = 20;
                     readonly IGlobalBusStateTracker _globalStateTracker;
-                    readonly List<BusApi.IMessage> _executingMessages = new List<BusApi.IMessage>();
+                    readonly List<TransportMessage.InComing> _executingMessages = new List<TransportMessage.InComing>();
                     readonly List<QueuedMessage> _messagesWaitingToExecute = new List<QueuedMessage>();
                     public NonThreadsafeImplementation(IGlobalBusStateTracker globalStateTracker) => _globalStateTracker = globalStateTracker;
 
@@ -57,14 +57,14 @@ namespace Composable.Messaging.Buses.Implementation
                         }
 
                         dispatchable = _messagesWaitingToExecute
-                                .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(_executingMessages, queuedTask.Message)));
+                                .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(_executingMessages, queuedTask.TransportMessage)));
 
                         if(dispatchable == null)
                         {
                             return false;
                         }
 
-                        _executingMessages.Add(dispatchable.Message);
+                        _executingMessages.Add(dispatchable.TransportMessage);
                         _messagesWaitingToExecute.Remove(dispatchable);
                         return true;
                     }
@@ -77,7 +77,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     void DoneDispatching(QueuedMessage queuedMessageInformation, Exception exception = null)
                     {
-                        _executingMessages.Remove(queuedMessageInformation.Message);
+                        _executingMessages.Remove(queuedMessageInformation.TransportMessage);
                         _globalStateTracker.DoneWith(queuedMessageInformation.MessageId, exception);
                     }
                 }
@@ -85,11 +85,11 @@ namespace Composable.Messaging.Buses.Implementation
 
                 internal class QueuedMessage
                 {
-                    readonly TransportMessage.InComing _message;
+                    internal readonly TransportMessage.InComing TransportMessage;
                     readonly Coordinator _coordinator;
                     readonly Action      _messageTask;
                     readonly ITaskRunner _taskRunner;
-                    public BusApi.IMessage Message => _message.DeserializeMessageAndCacheForNextCall();
+                    public BusApi.IMessage Message => TransportMessage.DeserializeMessageAndCacheForNextCall();
                     public   Guid        MessageId   { get; }
 
                     public void Run()
@@ -108,10 +108,10 @@ namespace Composable.Messaging.Buses.Implementation
                         });
                     }
 
-                    public QueuedMessage(TransportMessage.InComing message, Coordinator coordinator, Action messageTask, ITaskRunner taskRunner)
+                    public QueuedMessage(TransportMessage.InComing transportMessage, Coordinator coordinator, Action messageTask, ITaskRunner taskRunner)
                     {
-                        MessageId    = message.MessageId;
-                        _message = message;
+                        MessageId    = transportMessage.MessageId;
+                        TransportMessage = transportMessage;
                         _coordinator = coordinator;
                         _messageTask = messageTask;
                         _taskRunner = taskRunner;

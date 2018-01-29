@@ -26,6 +26,8 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly string Body;
             internal readonly TypeId MessageTypeId;
             internal readonly Type MessageType;
+            internal bool IsOfType<TType>() => typeof(TType).IsAssignableFrom(MessageType);
+            internal bool IsOfType(Type type) => type.IsAssignableFrom(MessageType);
 
             BusApi.IMessage _message;
 

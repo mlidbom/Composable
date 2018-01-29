@@ -5,21 +5,21 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class QueriesExecuteAfterAllCommandsAndEventsAreDone : IMessageDispatchingRule
     {
-        public bool CanBeDispatched(IReadOnlyList<BusApi.IMessage> executingMessages, BusApi.IMessage message)
+        public bool CanBeDispatched(IReadOnlyList<TransportMessage.InComing> executingMessages, TransportMessage.InComing message)
         {
-            if(!(message is BusApi.IQuery)) return true;
+            if(!(message.IsOfType<BusApi.IQuery>())) return true;
 
-            return executingMessages.None(executing => executing is BusApi.IEvent || executing is BusApi.ICommand);
+            return executingMessages.None(executing => executing.IsOfType<BusApi.IEvent>() || executing.IsOfType<BusApi.ICommand>());
         }
     }
 
     class CommandsAndEventHandlersDoNotRunInParallelWithEachOtherInTheSameEndpoint : IMessageDispatchingRule
     {
-        public bool CanBeDispatched(IReadOnlyList<BusApi.IMessage> executingMessages, BusApi.IMessage message)
+        public bool CanBeDispatched(IReadOnlyList<TransportMessage.InComing> executingMessages, TransportMessage.InComing message)
         {
-            if(message is BusApi.IQuery) return true;
+            if(message.IsOfType<BusApi.IQuery>()) return true;
 
-            return executingMessages.None(executing => executing is BusApi.IEvent || executing is BusApi.ICommand);
+            return executingMessages.None(executing => executing.IsOfType<BusApi.IEvent>() || executing.IsOfType<BusApi.ICommand>());
         }
     }
 }

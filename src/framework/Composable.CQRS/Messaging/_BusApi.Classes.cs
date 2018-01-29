@@ -70,7 +70,7 @@ namespace Composable.Messaging
 
             public static partial class ExactlyOnce
             {
-                public abstract class Message : BusApi.IMessage, BusApi.RemoteSupport.ExactlyOnce.IExactlyOnceMessage
+                public abstract class Message : BusApi.IMessage, BusApi.RemoteSupport.ExactlyOnce.IMessage
                 {
                     protected Message() : this(Guid.NewGuid()) {}
                     protected Message(Guid id) => MessageId = id;

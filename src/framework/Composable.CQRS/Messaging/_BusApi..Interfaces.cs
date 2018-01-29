@@ -55,21 +55,21 @@ namespace Composable.Messaging
 
             public static partial class AtMostOnce
             {
-                public interface ICommand : BusApi.RemoteSupport.ICommand, IRequireRemoteResponse { }
-                public interface ICommand<TResult> : BusApi.RemoteSupport.AtMostOnce.ICommand, BusApi.RemoteSupport.ICommand<TResult> { }
+                public interface ICommand : RemoteSupport.ICommand, IRequireRemoteResponse { }
+                public interface ICommand<TResult> : AtMostOnce.ICommand, RemoteSupport.ICommand<TResult> { }
             }
 
             public static partial class ExactlyOnce
             {
+                public interface IMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId {}
                 public interface IRequireTransactionalSender : RemoteSupport.IMessage{ }
                 public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSender, IRequireTransactionalReceiver {}
 
                 public interface IProvidesOwnMessageId { Guid MessageId { get; } }
-                public interface IExactlyOnceMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId {}
 
-                public interface IEvent : BusApi.IEvent, IExactlyOnceMessage { }
-                public interface ICommand : BusApi.RemoteSupport.ICommand, IExactlyOnceMessage { }
-                public interface ICommand<TResult> : BusApi.RemoteSupport.ICommand<TResult>, BusApi.RemoteSupport.ExactlyOnce.ICommand { }
+                public interface IEvent : BusApi.IEvent, IMessage { }
+                public interface ICommand : RemoteSupport.ICommand, IMessage { }
+                public interface ICommand<TResult> : RemoteSupport.ICommand<TResult>, ExactlyOnce.ICommand { }
             }
         }
     }

@@ -35,7 +35,7 @@ namespace Composable.Messaging.Buses.Implementation
                     _message = (BusApi.IMessage)JsonConvert.DeserializeObject(Body, typeMapper.GetType(MessageType), JsonSettings.JsonSerializerSettings);
 
 
-                    Assert.State.Assert(!(_message is BusApi.RemoteSupport.ExactlyOnce.IExactlyOnceMessage) || MessageId == (_message as BusApi.RemoteSupport.ExactlyOnce.IExactlyOnceMessage).MessageId);
+                    Assert.State.Assert(!(_message is BusApi.RemoteSupport.ExactlyOnce.IMessage) || MessageId == (_message as BusApi.RemoteSupport.ExactlyOnce.IMessage).MessageId);
                 }
                 return _message;
             }
@@ -95,7 +95,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 var messageId = (message as BusApi.RemoteSupport.ExactlyOnce.IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
-                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, GetMessageType(message), message is BusApi.RemoteSupport.ExactlyOnce.IExactlyOnceMessage);
+                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, GetMessageType(message), message is BusApi.RemoteSupport.ExactlyOnce.IMessage);
             }
 
             static TransportMessageType GetMessageType(BusApi.IMessage message)

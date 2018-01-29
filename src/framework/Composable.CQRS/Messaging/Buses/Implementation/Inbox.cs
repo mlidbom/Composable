@@ -95,9 +95,9 @@ namespace Composable.Messaging.Buses.Implementation
 
         void MessageReceiverThread()
         {
-            while(!_cancellationTokenSource.Token.IsCancellationRequested)
+            try
             {
-                try
+                while(true)
                 {
                     var transportMessageBatch = _receivedMessageBatches.Take(_cancellationTokenSource.Token);
                     foreach(var transportMessage in transportMessageBatch)
@@ -126,10 +126,9 @@ namespace Composable.Messaging.Buses.Implementation
                         });
                     }
                 }
-                catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException || exception is ThreadAbortException)
-                {
-                    return;
-                }
+            }
+            catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException || exception is ThreadAbortException)
+            {
             }
         }
 

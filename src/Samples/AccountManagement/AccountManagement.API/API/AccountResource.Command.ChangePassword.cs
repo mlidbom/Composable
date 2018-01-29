@@ -10,7 +10,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public class ChangePassword : BusApi.RemoteSupport.AtMostOnce.Command, IValidatableObject
+            public class ChangePassword : BusApi.Remotable.AtMostOnce.Command, IValidatableObject
             {
                 public ChangePassword(Guid accountId) => AccountId = accountId;
 

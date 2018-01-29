@@ -2,8 +2,6 @@
 // ReSharper disable MemberCanBeMadeStatic.Local
 using System;
 using Composable.Messaging;
-using Composable.Messaging.Buses;
-
 
 namespace AccountManagement.API
 {
@@ -15,7 +13,7 @@ namespace AccountManagement.API
     /// </summary>
     public static class AccountWebClientApi
     {
-        public static readonly BusApi.RemoteSupport.Query.SelfGeneratingResourceQuery<StartResource> Start = BusApi.RemoteSupport.Query.SelfGeneratingResourceQuery<StartResource>.Instance;
+        public static BusApi.Remotable.NonTransactional.Queries.NewableResultLink<StartResource> Start => new BusApi.Remotable.NonTransactional.Queries.NewableResultLink<StartResource>();
     }
 
 

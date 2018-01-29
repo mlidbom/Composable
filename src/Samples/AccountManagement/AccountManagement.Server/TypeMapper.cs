@@ -1,5 +1,4 @@
-using Composable.Persistence.DocumentDb;
-using Composable.Persistence.EventStore;
+using Composable.Messaging;
 using Composable.Refactoring.Naming;
 
 namespace AccountManagement
@@ -34,7 +33,7 @@ namespace AccountManagement
                .Map<Domain.Events.AccountEvent.UserChangedPassword>("0f7e4685-20d6-4f3e-ab32-9d153bbdbfee")
                .Map<Domain.Events.AccountEvent.UserRegistered>("2c648c9f-4860-46e3-a672-6d81ea35cd3f")
                .Map<Domain.Events.AccountEvent.LoginAttempted>("e6f64c0d-bd21-45d1-8737-4764912fc303")
-               .Map<Composable.Messaging.BusApi.RemoteSupport.Query.RemoteEntityResourceQuery<API.AccountResource>>("93292073-d1d2-40b3-9d89-66781a19de7b");
+               .Map<BusApi.Remotable.NonTransactional.Queries.EntityLink<API.AccountResource>>("93292073-d1d2-40b3-9d89-66781a19de7b");
         }
     }
 }

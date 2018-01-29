@@ -27,9 +27,9 @@ namespace Composable.Tests.CQRS
     {
         class EventSpy
         {
-            public IEnumerable<BusApi.RemoteSupport.ExactlyOnce.IEvent> DispatchedMessages => _events.ToList();
-            public void Receive(BusApi.RemoteSupport.ExactlyOnce.IEvent @event) { _events.Add(@event); }
-            readonly List<BusApi.RemoteSupport.ExactlyOnce.IEvent> _events = new List<BusApi.RemoteSupport.ExactlyOnce.IEvent>();
+            public IEnumerable<BusApi.Remotable.ExactlyOnce.IEvent> DispatchedMessages => _events.ToList();
+            public void Receive(BusApi.Remotable.ExactlyOnce.IEvent @event) { _events.Add(@event); }
+            readonly List<BusApi.Remotable.ExactlyOnce.IEvent> _events = new List<BusApi.Remotable.ExactlyOnce.IEvent>();
         }
 
         EventSpy _eventSpy;
@@ -44,7 +44,7 @@ namespace Composable.Tests.CQRS
             _eventSpy = new EventSpy();
 
             ServiceLocator.Resolve<IMessageHandlerRegistrar>()
-                          .ForEvent<BusApi.RemoteSupport.ExactlyOnce.IEvent>(_eventSpy.Receive);
+                          .ForEvent<BusApi.Remotable.ExactlyOnce.IEvent>(_eventSpy.Receive);
 
             ServiceLocator.Resolve<ITypeMappingRegistar>()
                           .Map<Composable.Tests.CQRS.User>("2cfabb11-5e5a-494d-898f-8bfc654544eb")

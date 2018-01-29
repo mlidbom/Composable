@@ -10,7 +10,7 @@ using Composable.System.Reactive;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent> : VersionedPersistentEntity<TAggregate>, IEventStored<TAggregateEvent>
+    public partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent> : VersionedEntity<TAggregate>, IEventStored<TAggregateEvent>
         where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
         where TAggregateEvent : class, IAggregateEvent
         where TAggregateEventImplementation : AggregateEvent, TAggregateEvent

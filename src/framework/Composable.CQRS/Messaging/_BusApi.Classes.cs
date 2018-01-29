@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.DDD;
+using Newtonsoft.Json;
 
 // ReSharper disable RedundantNameQualifier
 // ReSharper disable UnusedTypeParameter
@@ -13,72 +14,68 @@ namespace Composable.Messaging
         {
             public static class Queries
             {
-                public abstract class Query<TResult> : BusApi.StrictlyLocal.IQuery<TResult> {}
+                public abstract class Query<TResult> : StrictlyLocal.IQuery<TResult> {}
 
-                public class EntityQuery<TResource> : Query<TResource> where TResource : IHasPersistentIdentity<Guid>
+                public class EntityLink<TResult> : StrictlyLocal.Queries.Query<TResult> where TResult : IHasPersistentIdentity<Guid>
                 {
-                    public EntityQuery() {}
-                    public EntityQuery(Guid entityId) => EntityId = entityId;
-                    public EntityQuery<TResource> WithId(Guid id) => new EntityQuery<TResource>(id);
+                    [JsonConstructor]public EntityLink(Guid entityId) => EntityId = entityId;
                     public Guid EntityId { get; private set; }
                 }
             }
 
             public static class Commands
             {
-                public abstract class Command : BusApi.StrictlyLocal.ICommand
+                public abstract class Command : StrictlyLocal.ICommand
                 {
                 }
 
-                public abstract class Command<TResult> : BusApi.StrictlyLocal.ICommand<TResult>
+                public abstract class Command<TResult> : StrictlyLocal.ICommand<TResult>
                 {
                 }
             }
         }
 
-        public static partial class RemoteSupport
+        public static partial class Remotable
         {
-            public static class Query
-            {
-                public abstract class RemoteQuery<TResult> : BusApi.RemoteSupport.NonTransactional.IQuery<TResult> {}
-
-                public class RemoteEntityResourceQuery<TResource> : RemoteQuery<TResource> where TResource : IHasPersistentIdentity<Guid>
-                {
-                    public RemoteEntityResourceQuery() {}
-                    public RemoteEntityResourceQuery(Guid entityId) => EntityId = entityId;
-                    public RemoteEntityResourceQuery<TResource> WithId(Guid id) => new RemoteEntityResourceQuery<TResource>(id);
-                    public Guid EntityId { get; private set; }
-                }
-
-                public class SelfGeneratingResourceQuery<TResource> : RemoteQuery<TResource>, ICreateMyOwnResultQuery<TResource> where TResource : new()
-                {
-                    SelfGeneratingResourceQuery() {}
-                    public static readonly SelfGeneratingResourceQuery<TResource> Instance = new SelfGeneratingResourceQuery<TResource>();
-                    public TResource CreateResult() => new TResource();
-                }
-            }
-
             public static partial class AtMostOnce
             {
-                public class Command : BusApi.RemoteSupport.AtMostOnce.ICommand {}
-                public class Command<TResult> : BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> {}
+                public class Command : Remotable.AtMostOnce.ICommand {}
+                public class Command<TResult> : Remotable.AtMostOnce.ICommand<TResult> {}
             }
 
             public static partial class NonTransactional
             {
+                public static class Queries
+                {
+                    public abstract class Query<TResult> : Remotable.NonTransactional.IQuery<TResult> {}
+
+                    public class EntityLink<TResult> : Remotable.NonTransactional.Queries.Query<TResult> where TResult : IHasPersistentIdentity<Guid>
+                    {
+                        public EntityLink() {}
+                        public EntityLink(Guid entityId) => EntityId = entityId;
+                        public EntityLink<TResult> WithId(Guid id) => new EntityLink<TResult>(id);
+                        public Guid EntityId { get; private set; }
+                    }
+
+                    ///<summary>Implement <see cref="ICreateMyOwnResultQuery{TResult}"/> by passing a func to this base class.</summary>
+                    public abstract class FuncResultQuery<TResult> : Query<TResult>, ICreateMyOwnResultQuery<TResult>
+                    {
+                        readonly Func<TResult> _factory;
+                        protected FuncResultQuery(Func<TResult> factory) => _factory = factory;
+                        public TResult CreateResult() => _factory();
+                    }
+
+                    /// <summary>Implements <see cref="ICreateMyOwnResultQuery{TResult}"/> by calling the default constructor on <typeparamref name="TResult"/></summary>
+                    public class NewableResultLink<TResult> : Query<TResult>, ICreateMyOwnResultQuery<TResult> where TResult : new()
+                    {
+                        public TResult CreateResult() => new TResult();
+                    }
+                }
             }
 
             public static partial class ExactlyOnce
             {
-                public abstract class Message : BusApi.IMessage, BusApi.RemoteSupport.ExactlyOnce.IMessage
-                {
-                    protected Message() : this(Guid.NewGuid()) {}
-                    protected Message(Guid id) => MessageId = id;
-
-                    public Guid MessageId { get; private set; } //Do not remove setter. Required for serialization
-                }
-
-                public class Command : ValueObject<Command>, BusApi.RemoteSupport.ExactlyOnce.ICommand
+                public class Command : ValueObject<Command>, Remotable.ExactlyOnce.ICommand
                 {
                     public Guid MessageId { get; private set; }
 
@@ -87,8 +84,6 @@ namespace Composable.Messaging
 
                     Command(Guid id) => MessageId = id;
                 }
-
-                public class Command<TResult> : Command, BusApi.RemoteSupport.ExactlyOnce.ICommand<TResult> {}
             }
         }
     }

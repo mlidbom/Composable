@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Composable.Contracts;
 using FluentAssertions;
-using NUnit.Framework;
 using Assert = NUnit.Framework.Assert;
 
 namespace Composable.Tests.Contracts

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Composable.Messaging.Buses
 {
-    partial class ApiBrowserSession
+    partial class ApiNavigatorSession
     {
         static class CommandValidator
         {

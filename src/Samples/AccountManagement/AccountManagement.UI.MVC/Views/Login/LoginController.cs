@@ -7,8 +7,8 @@ namespace AccountManagement.UI.MVC.Views.Login
 {
     public class LoginController : ControllerBase
     {
-        readonly IRemoteApiBrowserSession _bus;
-        public LoginController(IRemoteApiBrowserSession remoteApiBrowser) => _bus = remoteApiBrowser;
+        readonly IRemoteApiNavigatorSession _bus;
+        public LoginController(IRemoteApiNavigatorSession remoteApiNavigator) => _bus = remoteApiNavigator;
 
         public IActionResult Login(AccountResource.Command.LogIn loginCommand)
         {

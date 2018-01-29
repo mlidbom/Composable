@@ -1,11 +1,11 @@
 ﻿using AccountManagement.Domain;
 using AccountManagement.Domain.Passwords;
-using Composable.Messaging;
+using Composable.DDD;
 using JetBrains.Annotations;
 
 namespace AccountManagement.API
 {
-    public partial class AccountResource : EntityResource<AccountResource>
+    public partial class AccountResource : Entity<AccountResource>
     {
         [UsedImplicitly] AccountResource() {}
 

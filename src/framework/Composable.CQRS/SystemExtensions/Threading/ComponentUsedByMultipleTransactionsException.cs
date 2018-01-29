@@ -1,5 +1,4 @@
 ﻿using System;
-using Composable.Persistence.EventStore;
 
 namespace Composable.SystemExtensions.Threading
 {

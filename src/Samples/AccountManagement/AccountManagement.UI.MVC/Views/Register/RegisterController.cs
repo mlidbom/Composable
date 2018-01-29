@@ -1,6 +1,5 @@
 ﻿using System;
 using AccountManagement.API;
-using AccountManagement.Domain;
 using AccountManagement.Domain.Registration;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
@@ -10,8 +9,8 @@ namespace AccountManagement.UI.MVC.Views.Register
 {
     public class RegisterController : ControllerBase
     {
-        readonly IRemoteApiBrowserSession _bus;
-        public RegisterController(IRemoteApiBrowserSession remoteApiBrowser) => _bus = remoteApiBrowser;
+        readonly IRemoteApiNavigatorSession _bus;
+        public RegisterController(IRemoteApiNavigatorSession remoteApiNavigator) => _bus = remoteApiNavigator;
 
         public IActionResult Register(AccountResource.Command.Register registrationCommand)
         {

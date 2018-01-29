@@ -7,7 +7,7 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
-    public partial class SelfGeneratingQueryModel<TQueryModel, TAggregateEvent> : VersionedPersistentEntity<TQueryModel>
+    public partial class SelfGeneratingQueryModel<TQueryModel, TAggregateEvent> : VersionedEntity<TQueryModel>
         where TQueryModel : SelfGeneratingQueryModel<TQueryModel, TAggregateEvent>
         where TAggregateEvent : class, IAggregateEvent
     {

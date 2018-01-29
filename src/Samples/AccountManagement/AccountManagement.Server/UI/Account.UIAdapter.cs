@@ -13,7 +13,7 @@ namespace AccountManagement.UI
     static class AccountUIAdapter
     {
         public static void Login(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
-            (AccountResource.Command.LogIn logIn, ILocalApiBrowserSession bus) =>
+            (AccountResource.Command.LogIn logIn, ILocalApiNavigatorSession bus) =>
             {
                 var email = Email.Parse(logIn.Email);
 
@@ -34,15 +34,15 @@ namespace AccountManagement.UI
             });
 
         internal static void ChangePassword(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
-            (AccountResource.Command.ChangePassword command, ILocalApiBrowserSession bus) =>
+            (AccountResource.Command.ChangePassword command, ILocalApiNavigatorSession bus) =>
                 bus.Execute(AccountApi.Queries.GetForUpdate(command.AccountId)).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
 
         internal static void ChangeEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
-            (AccountResource.Command.ChangeEmail command, ILocalApiBrowserSession bus) =>
+            (AccountResource.Command.ChangeEmail command, ILocalApiNavigatorSession bus) =>
                 bus.Execute(AccountApi.Queries.GetForUpdate(command.AccountId)).ChangeEmail(Email.Parse(command.Email)));
 
         internal static void Register(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
-            (AccountResource.Command.Register command, ILocalApiBrowserSession bus) =>
+            (AccountResource.Command.Register command, ILocalApiNavigatorSession bus) =>
             {
                 var (status, account) = Account.Register(command.AccountId, Email.Parse(command.Email), new Password(command.Password), bus);
                 switch(status)
@@ -57,7 +57,7 @@ namespace AccountManagement.UI
             });
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (BusApi.RemoteSupport.Query.RemoteEntityResourceQuery<AccountResource> accountQuery, ILocalApiBrowserSession bus)
+            (BusApi.Remotable.NonTransactional.Queries.EntityLink<AccountResource> accountQuery, ILocalApiNavigatorSession bus)
                 => new AccountResource(bus.Execute(AccountApi.AccountQueryModel.Queries.Get(accountQuery.EntityId))));
     }
 }

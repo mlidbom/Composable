@@ -1,5 +1,4 @@
 ﻿using Composable.Messaging;
-using Composable.Messaging.Buses;
 
 namespace AccountManagement.API
 {
@@ -11,7 +10,7 @@ namespace AccountManagement.API
 
         public class Query
         {
-            public BusApi.RemoteSupport.Query.RemoteEntityResourceQuery<AccountResource> AccountById { get; private set; } = new BusApi.RemoteSupport.Query.RemoteEntityResourceQuery<AccountResource>();
+            public BusApi.Remotable.NonTransactional.Queries.EntityLink<AccountResource> AccountById { get; private set; } = new BusApi.Remotable.NonTransactional.Queries.EntityLink<AccountResource>();
         }
 
         public class Command

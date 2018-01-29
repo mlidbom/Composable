@@ -35,7 +35,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                                    .ForEvent((UserRegisteredEvent myEvent) => queryResults.Add(new UserResource(myEvent.Name)))
                                    .ForQuery((GetUserQuery query) => queryResults.Single(result => result.Name == query.Name))
                                    .ForQuery((UserApiStartPageQuery query) => new UserApiStartPage())
-                                   .ForCommandWithResult((RegisterUserCommand command, ITransactionalMessageHandlerServiceBusSession bus) =>
+                                   .ForCommandWithResult((RegisterUserCommand command, IServiceBusSession bus) =>
                                     {
                                         bus.Publish(new UserRegisteredEvent(command.Name));
                                         return new UserRegisteredConfirmationResource(command.Name);
@@ -53,7 +53,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_get_command_result()
             {
-                var commandResult1 = Host.RemoteBrowser.Post(new RegisterUserCommand("new-user-name"));
+                var commandResult1 = Host.RemoteNavigator.Post(new RegisterUserCommand("new-user-name"));
                 commandResult1.Name.Should().Be("new-user-name");
             }
 
@@ -61,7 +61,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             {
                 var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
                                                                 .Post(startpage => startpage.RegisterUser("new-user-name"))
-                                                                .Get(registerUserResult => registerUserResult.User).NavigateOn(Host.RemoteBrowser);
+                                                                .Get(registerUserResult => registerUserResult.User).NavigateOn(Host.RemoteNavigator);
 
                 userResource.Name.Should().Be("new-user-name");
             }
@@ -71,7 +71,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
                                                                 .Post(startpage => startpage.RegisterUser("new-user-name"))
                                                                 .Get(registerUserResult => registerUserResult.User)
-                                                                .NavigateOnAsync(Host.RemoteBrowser);
+                                                                .NavigateOnAsync(Host.RemoteNavigator);
 
                 (await userResource).Name.Should().Be("new-user-name");
             }
@@ -82,7 +82,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 Host.Dispose();
             }
 
-            class UserApiStartPage : QueryResult
+            class UserApiStartPage
             {
                 public static UserApiStartPageQuery Self => new UserApiStartPageQuery();
                 public RegisterUserCommand RegisterUser(string userName) => new RegisterUserCommand(userName);
@@ -94,32 +94,32 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class GetUserQuery : BusApi.RemoteSupport.Query.RemoteQuery<UserResource>
+            protected class GetUserQuery : BusApi.Remotable.NonTransactional.Queries.Query<UserResource>
             {
                 public GetUserQuery(string name) => Name = name;
                 public string Name { get; }
             }
 
-            protected class UserResource : QueryResult
+            protected class UserResource
             {
                 public UserResource(string name) => Name = name;
                 public string Name { get; }
             }
 
-            protected class RegisterUserCommand : BusApi.RemoteSupport.AtMostOnce.Command<UserRegisteredConfirmationResource>
+            protected class RegisterUserCommand : BusApi.Remotable.AtMostOnce.Command<UserRegisteredConfirmationResource>
             {
                 public RegisterUserCommand(string name) => Name = name;
                 public string Name { get; }
             }
 
-            protected class UserRegisteredConfirmationResource : BusApi.RemoteSupport.ExactlyOnce.Message
+            protected class UserRegisteredConfirmationResource
             {
                 public UserRegisteredConfirmationResource(string name) => Name = name;
                 public GetUserQuery User => new GetUserQuery(Name);
                 public string Name { get; }
             }
 
-            class UserApiStartPageQuery : BusApi.RemoteSupport.Query.RemoteQuery<UserApiStartPage> {}
+            class UserApiStartPageQuery : BusApi.Remotable.NonTransactional.Queries.Query<UserApiStartPage> {}
         }
     }
 }

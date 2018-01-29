@@ -1,14 +1,10 @@
 using System;
 using Castle.DynamicProxy;
 using Composable.Contracts;
-using Composable.DDD;
-using Composable.Functional;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
-using Composable.Persistence.EventStore;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;

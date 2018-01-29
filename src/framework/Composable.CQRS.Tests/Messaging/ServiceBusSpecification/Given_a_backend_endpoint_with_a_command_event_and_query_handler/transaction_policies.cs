@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Transactions;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
@@ -55,19 +54,19 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
 
         [Fact] void Calling_PostRemoteAsync_within_a_transaction_with_AtLeastOnceCommand_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Async<TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.PostAsync(new MyAtMostOnceCommandWithResult())))).Wait();
+            AssertThrows.Async<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.PostAsync(new MyAtMostOnceCommandWithResult())))).Wait();
 
         [Fact] void Calling_PostRemoteAsync_within_a_transaction_AtLeastOnceCommand_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Exception<TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.Post(new MyAtMostOnceCommandWithResult()))));
+            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.Post(new MyAtMostOnceCommandWithResult()))));
 
 
         [Fact] void Calling_PostRemoteAsync_without_a_transaction_with_ExactlyOnceCommand_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Exception<TransactionPolicyViolationException>(() => ClientEndpoint.ExecuteRequest(session => session.Send(new MyExactlyOnceCommand())));
+            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => ClientEndpoint.ExecuteRequest(session => session.Send(new MyExactlyOnceCommand())));
 
         [Fact] void Calling_GetRemoteAsync_within_a_transaction_with_Query_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Async<TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.GetAsync(new MyQuery())))).Wait();
+            AssertThrows.Async<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.GetAsync(new MyQuery())))).Wait();
 
         [Fact] void Calling_GetRemote_within_a_transaction_with_Query_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Exception<TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.Get(new MyQuery()))));
+            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.Get(new MyQuery()))));
     }
 }

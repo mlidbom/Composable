@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Persistence.EventStore;
 using FluentAssertions;
 using Xunit;
 
@@ -32,20 +31,18 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                         builder =>
                         {
                             builder.RegisterHandlers
-                                   .ForEvent((UserRegisteredEvent myEvent) => queryResults.Add(new UserResource(myEvent.Name)))
                                    .ForQuery((GetUserQuery query) => queryResults.Single(result => result.Name == query.Name))
                                    .ForQuery((UserApiStartPageQuery query) => new UserApiStartPage())
                                    .ForCommandWithResult((RegisterUserCommand command, IServiceBusSession bus) =>
                                     {
-                                        bus.Publish(new UserRegisteredEvent(command.Name));
+                                        queryResults.Add(new UserResource(command.Name));
                                         return new UserRegisteredConfirmationResource(command.Name);
                                     });
 
                             builder.TypeMapper
                                    .Map<GetUserQuery>("44b8b0b6-fe09-4e3b-a22c-8d09bd51dbb0")
                                    .Map<RegisterUserCommand>("ed799a31-0de9-41ae-ae7a-421438f2d857")
-                                   .Map<UserApiStartPageQuery>("4367ec6e-ddbc-42ea-91ad-9af1e6e4e29a")
-                                   .Map<UserRegisteredEvent>("8a42968e-f18f-4126-9743-1a97cdd2ccab");
+                                   .Map<UserApiStartPageQuery>("4367ec6e-ddbc-42ea-91ad-9af1e6e4e29a");
                         }));
 
                 _scope = Host.ClientEndpoint.ServiceLocator.BeginScope();
@@ -86,12 +83,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             {
                 public static UserApiStartPageQuery Self => new UserApiStartPageQuery();
                 public RegisterUserCommand RegisterUser(string userName) => new RegisterUserCommand(userName);
-            }
-
-            class UserRegisteredEvent : AggregateEvent
-            {
-                public UserRegisteredEvent(string name) => Name = name;
-                public string Name { get; }
             }
 
             protected class GetUserQuery : BusApi.Remotable.NonTransactional.Queries.Query<UserResource>

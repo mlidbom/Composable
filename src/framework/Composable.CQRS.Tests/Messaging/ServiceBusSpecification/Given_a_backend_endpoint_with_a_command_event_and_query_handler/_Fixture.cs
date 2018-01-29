@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
@@ -6,6 +7,7 @@ using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
+using Composable.System.Linq;
 using Composable.Testing.Threading;
 using FluentAssertions;
 
@@ -22,6 +24,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         internal readonly IThreadGate MyLocalAggregateEventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate EventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate QueryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(5.Seconds());
+
+        internal readonly IReadOnlyList<IThreadGate> AllGates;
 
         protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
         protected readonly IEndpoint ClientEndpoint;
@@ -66,6 +70,18 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                           builder => builder.RegisterHandlers.ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyRemoteAggregateEventHandlerThreadGate.AwaitPassthrough()));
 
             ClientEndpoint = Host.ClientEndpoint;
+
+            AllGates = new List<IThreadGate>()
+                       {
+                           CommandHandlerThreadGate,
+                           CommandHandlerWithResultThreadGate,
+                           MyCreateAggregateCommandHandlerThreadGate,
+                           MyUpdateAggregateCommandHandlerThreadGate,
+                           MyRemoteAggregateEventHandlerThreadGate,
+                           MyLocalAggregateEventHandlerThreadGate,
+                           EventHandlerThreadGate,
+                           QueryHandlerThreadGate
+                       };
         }
 
         public virtual void Dispose()
@@ -75,21 +91,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             Host.Dispose();
         }
 
-        protected void CloseGates()
-        {
-            EventHandlerThreadGate.Close();
-            CommandHandlerThreadGate.Close();
-            CommandHandlerWithResultThreadGate.Close();
-            QueryHandlerThreadGate.Close();
-        }
+        protected void CloseGates() => AllGates.ForEach(gate => gate.Close());
 
-        protected void OpenGates()
-        {
-            EventHandlerThreadGate.Open();
-            CommandHandlerThreadGate.Open();
-            CommandHandlerWithResultThreadGate.Open();
-            QueryHandlerThreadGate.Open();
-        }
+        protected void OpenGates() => AllGates.ForEach(gate => gate.Open());
 
         protected static class MyAggregateEvent
         {

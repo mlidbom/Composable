@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Transactions;
 using Composable.Messaging.Buses;
 using Composable.System;
 using Composable.System.Transactions;
@@ -30,9 +31,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void If_transaction_fails_after_successfully_calling_Publish_event_never_reaches_remote_handler()
         {
-            MyCreateAggregateCommandHandlerThreadGate.FailTransactionOnPreparePostPassThrough(new Exception("Something"));
+            var exceptionMessage = "82369B6E-80D4-4E64-92B6-A564A7195CC5";
+            MyCreateAggregateCommandHandlerThreadGate.FailTransactionOnPreparePostPassThrough(new Exception(exceptionMessage));
 
-            var (backendException, frontEndException) = Host.AssertThatRunningScenarioThrowsBackendAndClientTransaction<Exception>(() => ClientEndpoint.ExecuteRequest(session => Host.RemoteNavigator.Post(new MyCreateAggregateCommand())));
+            var (backendException, frontEndException) = Host.AssertThatRunningScenarioThrowsBackendAndClientTransaction<TransactionAbortedException>(() => ClientEndpoint.ExecuteRequest(session => Host.RemoteNavigator.Post(new MyCreateAggregateCommand())));
+
+            backendException.InnerException.Message.Should().Contain(exceptionMessage);
+            frontEndException.Message.Should().Contain(exceptionMessage);
+
 
             MyRemoteAggregateEventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
                                   .Should()

@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses.Implementation
             readonly IServiceLocator _serviceLocator;
             readonly MessageStorage _storage;
             readonly ITypeMapper _typeMapper;
-            readonly Thread _messagePumpThread;
+            Thread _messagePumpThread;
             CancellationTokenSource _cancellationTokenSource;
 
             readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
@@ -39,12 +39,6 @@ namespace Composable.Messaging.Buses.Implementation
                 _storage = storage;
                 _typeMapper = typeMapper;
                 _coordinator =  new Coordinator(globalStateTracker, typeMapper, taskRunner);
-
-                _messagePumpThread = new Thread(AwaitDispatchableMessageThread)
-                                     {
-                                         Name = nameof(AwaitDispatchableMessageThread),
-                                         Priority = ThreadPriority.AboveNormal
-                                     };
             }
 
 
@@ -181,6 +175,11 @@ namespace Composable.Messaging.Buses.Implementation
             public void Start()
             {
                 _cancellationTokenSource = new CancellationTokenSource();
+                _messagePumpThread = new Thread(AwaitDispatchableMessageThread)
+                                     {
+                                         Name = nameof(AwaitDispatchableMessageThread),
+                                         Priority = ThreadPriority.AboveNormal
+                                     };
                 _messagePumpThread.Start();
             }
 
@@ -188,6 +187,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 _cancellationTokenSource.Cancel();
                 _messagePumpThread.InterruptAndJoin();
+                _messagePumpThread = null;
             }
         }
     }

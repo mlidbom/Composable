@@ -6,11 +6,17 @@ using Composable.System.Linq;
 
 namespace Composable.System.Data.SqlClient
 {
-    class SqlServerConnection : ISqlConnection
+    class SqlServerConnection : LazySqlServerConnection
     {
-        public string ConnectionString { get; }
+        public SqlServerConnection(string connectionString) : base(new Lazy<string>(() => connectionString)) {}
+    }
 
-        public SqlServerConnection(string connectionString) => ConnectionString = connectionString;
+    class LazySqlServerConnection : ISqlConnection
+    {
+        readonly Lazy<string> _connectionString;
+        public string ConnectionString => _connectionString.Value;
+
+        public LazySqlServerConnection(Lazy<string> connectionString) => _connectionString = connectionString;
 
         public SqlConnection OpenConnection()
         {

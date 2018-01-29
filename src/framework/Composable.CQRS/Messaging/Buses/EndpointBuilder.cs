@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
@@ -28,10 +29,7 @@ namespace Composable.Messaging.Buses
 
         public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers { get; }
 
-        public IEndpoint Build()
-        {
-            return new Endpoint(_container.CreateServiceLocator(), _endpointId, _name);
-        }
+        public IEndpoint Build() => new Endpoint(_container.CreateServiceLocator(), _endpointId, _name);
 
         public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, string name, EndpointId endpointId)
         {
@@ -50,6 +48,10 @@ namespace Composable.Messaging.Buses
 
         internal static void DefaultWiring(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointId endpointId, EndpointConfiguration configuration, TypeMapper typeMapper, MessageHandlerRegistry registry)
         {
+            var sqlServerConnection = container.RunMode.IsTesting
+                                          ? new LazySqlServerConnection(new Lazy<string>(() => container.CreateServiceLocator().Resolve<ISqlConnectionProvider>().GetConnectionProvider(configuration.ConnectionStringName).ConnectionString))
+                                          : new SqlServerConnection(ConfigurationManager.ConnectionStrings[configuration.ConnectionStringName].ConnectionString);
+
             container.Register(
                 Component.For<ITaskRunner>().ImplementedBy<TaskRunner>().LifestyleSingleton(),
                 Component.For<EndpointId>().UsingFactoryMethod(() => endpointId).LifestyleSingleton(),
@@ -65,7 +67,7 @@ namespace Composable.Messaging.Buses
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
                          .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, EndpointId id, ITaskRunner taskRunner) =>
-                                                 new InterprocessTransport(globalStateTracker, timeSource, connectionProvider.GetConnectionProvider(configuration.ConnectionStringName), typeMapper, id, taskRunner))
+                                                 new InterprocessTransport(globalStateTracker, timeSource, sqlServerConnection, typeMapper, id, taskRunner))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
@@ -80,7 +82,7 @@ namespace Composable.Messaging.Buses
                          .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
                          .LifestyleScoped(),
                 Component.For<IInbox>()
-                         .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), k.Resolve<ISqlConnectionProvider>().GetConnectionProvider(configuration.ConnectionStringName), k.Resolve<ITypeMapper>(), k.Resolve<ITaskRunner>()))
+                         .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), sqlServerConnection, k.Resolve<ITypeMapper>(), k.Resolve<ITaskRunner>()))
                          .LifestyleSingleton(),
                 Component.For<CommandScheduler>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))

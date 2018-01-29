@@ -85,12 +85,14 @@ namespace Composable.Messaging.Buses
                        : _handlerRegistry.GetQueryHandler(query).Invoke(query);
         }
 
-        void IUIInteractionApiBrowser.PostRemote(BusApi.Remote.AtMostOnce.ICommand command)
+        void IUIInteractionApiBrowser.PostRemote(BusApi.Remote.AtMostOnce.ICommand command) => ((IUIInteractionApiBrowser)this).PostRemoteAsync(command).WaitUnwrappingException();
+
+        async Task IUIInteractionApiBrowser.PostRemoteAsync(BusApi.Remote.AtMostOnce.ICommand command)
         {
             MessageInspector.AssertValidToSend(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
             CommandValidator.AssertCommandIsValid(command);
-            _transport.Dispatch(command);
+            await _transport.DispatchAsync(command);
         }
 
         TResult IUIInteractionApiBrowser.PostRemote<TResult>(BusApi.Remote.AtMostOnce.ICommand<TResult> command) => ((IUIInteractionApiBrowser)this).PostRemoteAsync(command).ResultUnwrappingException();

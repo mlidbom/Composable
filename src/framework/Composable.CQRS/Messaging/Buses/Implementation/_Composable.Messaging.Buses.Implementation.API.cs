@@ -18,7 +18,7 @@ namespace Composable.Messaging.Buses.Implementation
         void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.ICommand exactlyOnceCommand);
         Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.Remote.ExactlyOnce.ICommand<TCommandResult> exactlyOnceCommand);
 
-        void Dispatch(BusApi.Remote.AtMostOnce.ICommand atMostOnceCommand);
+        Task DispatchAsync(BusApi.Remote.AtMostOnce.ICommand atMostOnceCommand);
         Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remote.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand);
 
         Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remote.NonTransactional.IQuery<TQueryResult> query);

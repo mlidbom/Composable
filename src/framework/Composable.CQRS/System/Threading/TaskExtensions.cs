@@ -29,6 +29,7 @@ namespace Composable.System.Threading
             try
             {
                 task.Wait();
+                return;
             }
             catch(AggregateException exception)
             {

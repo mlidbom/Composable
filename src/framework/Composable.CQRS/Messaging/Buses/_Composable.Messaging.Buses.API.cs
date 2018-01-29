@@ -29,11 +29,11 @@ namespace Composable.Messaging.Buses
     }
 
 
-    public interface IUIInteractionApiBrowser
+    public interface IRemoteApiBrowser
     {
-        //todo: Consider this. Does it really make sense to be void and non-async. Should this not at least throw if remote execution fails!?
         void PostRemote(BusApi.RemoteSupport.AtMostOnce.ICommand command);
         Task PostRemoteAsync(BusApi.RemoteSupport.AtMostOnce.ICommand command);
+
         TResult PostRemote<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command);
         Task<TResult> PostRemoteAsync<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command);
 
@@ -57,16 +57,10 @@ namespace Composable.Messaging.Buses
 
         ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver. NOTE: The result CANNOT be awaited within the sending transaction since it has not been sent yet.</summary>
         Task<TResult> PostRemoteAsync<TResult>(BusApi.RemoteSupport.ExactlyOnce.ICommand<TResult> command);
-
-        /////<summary>Syncronous wrapper for: <see cref="GetRemoteAsync{TResult}"/>. Gets the result of a handler somewhere on the bus handling the <paramref name="query"/>.</summary>
-        //TResult GetRemote<TResult>(BusApi.Remote.NonTransactional.IQuery<TResult> query);
-
-        /////<summary>Gets the result of a handler somewhere on the bus handling the <paramref name="query"/></summary>
-        //Task<TResult> GetRemoteAsync<TResult>(BusApi.Remote.NonTransactional.IQuery<TResult> query);
     }
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IApiBrowser : ILocalApiBrowser, IUIInteractionApiBrowser, ITransactionalMessageHandlerApiBrowser
+    public interface IApiBrowser : ILocalApiBrowser, IRemoteApiBrowser, ITransactionalMessageHandlerApiBrowser
     {
     }
 

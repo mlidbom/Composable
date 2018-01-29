@@ -12,9 +12,9 @@ namespace Composable.Messaging
         public static RemoteNavigationSpecification<TResult> GetRemote<TResult>(this BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query) => RemoteNavigationSpecification.GetRemote(query);
 
 
-        public static TResult PostRemoteOn<TResult>(this BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command, IUIInteractionApiBrowser bus) => RemoteNavigationSpecification.PostRemote(command).ExecuteRemoteOn(bus);
+        public static TResult PostRemoteOn<TResult>(this BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command, IRemoteApiBrowser bus) => RemoteNavigationSpecification.PostRemote(command).ExecuteRemoteOn(bus);
 
-        public static TResult GetRemoteOn<TResult>(this BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query, IUIInteractionApiBrowser bus) => RemoteNavigationSpecification.GetRemote(query).ExecuteRemoteOn(bus);
+        public static TResult GetRemoteOn<TResult>(this BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query, IRemoteApiBrowser bus) => RemoteNavigationSpecification.GetRemote(query).ExecuteRemoteOn(bus);
 
 
         public static TResult PostLocalOn<TResult>(this BusApi.StrictlyLocal.ICommand<TResult> command, ILocalApiBrowser bus) => bus.PostLocal(command);

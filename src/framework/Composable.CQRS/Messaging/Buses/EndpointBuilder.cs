@@ -88,7 +88,7 @@ namespace Composable.Messaging.Buses
                 Component.For<IServiceBusControl>()
                          .ImplementedBy<ServiceBusControl>()
                          .LifestyleSingleton(),
-                Component.For<IApiBrowser, IUIInteractionApiBrowser, ILocalApiBrowser, IEventstoreEventPublisher>()
+                Component.For<IApiBrowser, IRemoteApiBrowser, ILocalApiBrowser, IEventstoreEventPublisher>()
                          .ImplementedBy<ApiBrowser>()
                          .LifestyleScoped(),
                 Component.For<ISqlConnectionProvider>()

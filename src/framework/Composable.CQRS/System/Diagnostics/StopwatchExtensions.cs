@@ -41,6 +41,10 @@ namespace Composable.System.Diagnostics
 
         internal static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle]Action action, int iterations = 1, bool timeIndividualExecutions = false, int maxDegreeOfParallelism = -1)
         {
+            maxDegreeOfParallelism = maxDegreeOfParallelism == -1
+                                         ? Math.Max(Environment.ProcessorCount, 8) / 2
+                                         : maxDegreeOfParallelism;
+
             var executionTimes = new List<TimeSpan>();
             TimeSpan TimedAction() => TimeExecution(action);
 

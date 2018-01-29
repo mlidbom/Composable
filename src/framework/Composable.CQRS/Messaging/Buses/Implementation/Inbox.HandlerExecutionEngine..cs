@@ -72,43 +72,48 @@ namespace Composable.Messaging.Buses.Implementation
 
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-                _coordinator.EnqueueMessageTask(message, () => _serviceLocator.ExecuteInIsolatedScope(() =>
-                {
-                    try
+                _coordinator.EnqueueMessageTask(
+                    message,
+                    () => _serviceLocator.ExecuteInIsolatedScope(() =>
                     {
-                        var result = handler((BusApi.IQuery)message.DeserializeMessageAndCacheForNextCall());
-                        taskCompletionSource.SetResult(result);
-                    }
-                    catch(Exception exception)
-                    {
-                        taskCompletionSource.SetException(exception);
-                        throw;
-                    }
-                }));
+                        try
+                        {
+                            var query = (BusApi.IQuery)message.DeserializeMessageAndCacheForNextCall();
+                            var result = handler(query);
+                            taskCompletionSource.SetResult(result);
+                        }
+                        catch(Exception exception)
+                        {
+                            taskCompletionSource.SetException(exception);
+                            throw;
+                        }
+                    }));
 
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
             async Task<object> DispatchExactlyOnceEventAsync(TransportMessage.InComing message)
             {
-                var handler = _handlerRegistry.GetEventHandlers(message.MessageType);
+                var eventHandlers = _handlerRegistry.GetEventHandlers(message.MessageType);
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-                _coordinator.EnqueueMessageTask(message,
-                                                () =>
-                                                {
-                                                    try
-                                                    {
-                                                        _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler.ForEach(action: @this => @this((BusApi.Remotable.ExactlyOnce.IEvent)message.DeserializeMessageAndCacheForNextCall())));
-                                                        _storage.MarkAsHandled(message);
-                                                        taskCompletionSource.SetResult(result: null);
-                                                    }
-                                                    catch(Exception exception)
-                                                    {
-                                                        taskCompletionSource.SetException(exception);
-                                                        throw;
-                                                    }
-                                                });
+                _coordinator.EnqueueMessageTask(
+                    message,
+                    () =>
+                    {
+                        try
+                        {
+                            var @event = (BusApi.Remotable.ExactlyOnce.IEvent)message.DeserializeMessageAndCacheForNextCall();
+                            _serviceLocator.ExecuteTransactionInIsolatedScope(() => eventHandlers.ForEach(handler => handler(@event)));
+                            _storage.MarkAsHandled(message);
+                            taskCompletionSource.SetResult(null);
+                        }
+                        catch(Exception exception)
+                        {
+                            taskCompletionSource.SetException(exception);
+                            throw;
+                        }
+                    });
 
                 return await taskCompletionSource.Task.NoMarshalling();
             }
@@ -119,21 +124,23 @@ namespace Composable.Messaging.Buses.Implementation
 
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-                _coordinator.EnqueueMessageTask(message,
-                                                () =>
-                                                {
-                                                    try
-                                                    {
-                                                        var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler((BusApi.Remotable.ExactlyOnce.ICommand)message.DeserializeMessageAndCacheForNextCall()));
-                                                        _storage.MarkAsHandled(message);
-                                                        taskCompletionSource.SetResult(result);
-                                                    }
-                                                    catch(Exception exception)
-                                                    {
-                                                        taskCompletionSource.SetException(exception);
-                                                        throw;
-                                                    }
-                                                });
+                _coordinator.EnqueueMessageTask(
+                    message,
+                    () =>
+                    {
+                        try
+                        {
+                            var exactlyOnceCommand = (BusApi.Remotable.ExactlyOnce.ICommand)message.DeserializeMessageAndCacheForNextCall();
+                            var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler(exactlyOnceCommand));
+                            _storage.MarkAsHandled(message);
+                            taskCompletionSource.SetResult(result);
+                        }
+                        catch(Exception exception)
+                        {
+                            taskCompletionSource.SetException(exception);
+                            throw;
+                        }
+                    });
 
                 return await taskCompletionSource.Task.NoMarshalling();
             }
@@ -144,19 +151,22 @@ namespace Composable.Messaging.Buses.Implementation
 
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-                _coordinator.EnqueueMessageTask(message, () =>
-                {
-                    try
+                _coordinator.EnqueueMessageTask(
+                    message,
+                    () =>
                     {
-                        var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler((BusApi.Remotable.AtMostOnce.ICommand)message.DeserializeMessageAndCacheForNextCall()));
-                        taskCompletionSource.SetResult(result);
-                    }
-                    catch(Exception exception)
-                    {
-                        taskCompletionSource.SetException(exception);
-                        throw;
-                    }
-                });
+                        try
+                        {
+                            var atMostOnceCommand = (BusApi.Remotable.AtMostOnce.ICommand)message.DeserializeMessageAndCacheForNextCall();
+                            var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler(atMostOnceCommand));
+                            taskCompletionSource.SetResult(result);
+                        }
+                        catch(Exception exception)
+                        {
+                            taskCompletionSource.SetException(exception);
+                            throw;
+                        }
+                    });
 
                 return await taskCompletionSource.Task.NoMarshalling();
             }

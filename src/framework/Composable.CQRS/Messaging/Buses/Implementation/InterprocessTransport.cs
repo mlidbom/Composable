@@ -107,7 +107,13 @@ namespace Composable.Messaging.Buses.Implementation
         });
 
 
-        public void Dispatch(BusApi.Remote.AtMostOnce.ICommand exactlyOnceCommand) { throw new NotImplementedException(); }
+        public void Dispatch(BusApi.Remote.AtMostOnce.ICommand atMostOnceCommand)  => _state.WithExclusiveAccess(async state =>
+        {
+            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand);
+            var connection = state.EndpointConnections[endPointId];
+
+            connection.DispatchAsync(atMostOnceCommand).WaitUnwrappingException();
+        });
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remote.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand) => await _state.WithExclusiveAccess(async state =>
         {

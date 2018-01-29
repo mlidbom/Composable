@@ -35,6 +35,18 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task;
         });
 
+        public async Task DispatchAsync(BusApi.Remote.AtMostOnce.ICommand command) => await _state.WithExclusiveAccess(async state =>
+        {
+            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper);
+
+            state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+            DispatchMessage(state, outGoingMessage);
+
+            return await taskCompletionSource.Task;
+        });
+
         public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.Remote.ExactlyOnce.ICommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);

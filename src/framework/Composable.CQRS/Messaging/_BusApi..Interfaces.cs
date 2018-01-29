@@ -23,9 +23,10 @@ namespace Composable.Messaging
 
         public interface IQuery : IForbidTransactionalRemoteSender { }
 
-        ///<summary>An instructs the receiver to return a resource based upon the data in the query.</summary>
+        ///<summary>An instructs the receiver to return a result based upon the data in the query.</summary>
         public interface IQuery<TResult> : BusApi.IQuery { }
 
+        ///<summary>Many resources in a hypermedia API do not actually need access to backend data. The data in the query is sufficient to create the result. For such queries implement this interface. That way no network roundtrip etc is required to perform the query. Greatly enhancing performance</summary>
         public interface ICreateMyOwnResultQuery<TResult> : IQuery<TResult>
         {
             TResult CreateResult();

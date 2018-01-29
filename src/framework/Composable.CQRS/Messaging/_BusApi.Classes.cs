@@ -1,5 +1,7 @@
 ﻿using System;
 using Composable.DDD;
+using NetMQ.Sockets;
+using Newtonsoft.Json;
 
 // ReSharper disable RedundantNameQualifier
 // ReSharper disable UnusedTypeParameter
@@ -15,11 +17,9 @@ namespace Composable.Messaging
             {
                 public abstract class Query<TResult> : BusApi.StrictlyLocal.IQuery<TResult> {}
 
-                public class EntityQuery<TResource> : Query<TResource> where TResource : IHasPersistentIdentity<Guid>
+                public class EntityLink<TResult> : Query<TResult> where TResult : IHasPersistentIdentity<Guid>
                 {
-                    public EntityQuery() {}
-                    public EntityQuery(Guid entityId) => EntityId = entityId;
-                    public EntityQuery<TResource> WithId(Guid id) => new EntityQuery<TResource>(id);
+                    [JsonConstructor]public EntityLink(Guid entityId) => EntityId = entityId;
                     public Guid EntityId { get; private set; }
                 }
             }
@@ -42,19 +42,26 @@ namespace Composable.Messaging
             {
                 public abstract class RemoteQuery<TResult> : BusApi.Remotable.NonTransactional.IQuery<TResult> {}
 
-                public class EntityLink<TResource> : RemoteQuery<TResource> where TResource : IHasPersistentIdentity<Guid>
+                public class EntityLink<TResult> : RemoteQuery<TResult> where TResult : IHasPersistentIdentity<Guid>
                 {
                     public EntityLink() {}
                     public EntityLink(Guid entityId) => EntityId = entityId;
-                    public EntityLink<TResource> WithId(Guid id) => new EntityLink<TResource>(id);
+                    public EntityLink<TResult> WithId(Guid id) => new EntityLink<TResult>(id);
                     public Guid EntityId { get; private set; }
                 }
 
-                public class SelfGeneratingResourceQuery<TResource> : RemoteQuery<TResource>, ICreateMyOwnResultQuery<TResource> where TResource : new()
+                ///<summary>Inherit to trivially easily implement <see cref="ICreateMyOwnResultQuery{TResult}"/> </summary>
+                public abstract class FuncResultQuery<TResult> : RemoteQuery<TResult>, ICreateMyOwnResultQuery<TResult>
                 {
-                    SelfGeneratingResourceQuery() {}
-                    public static readonly SelfGeneratingResourceQuery<TResource> Instance = new SelfGeneratingResourceQuery<TResource>();
-                    public TResource CreateResult() => new TResource();
+                    readonly Func<TResult> _factory;
+                    protected FuncResultQuery(Func<TResult> factory) => _factory = factory;
+                    public TResult CreateResult() => _factory();
+                }
+
+                /// <summary>Implements <see cref="ICreateMyOwnResultQuery{TResult}"/> by calling the default constructor on <typeparamref name="TResult"/></summary>
+                public class NewableResultLink<TResult> : RemoteQuery<TResult>, ICreateMyOwnResultQuery<TResult> where TResult : new()
+                {
+                    public TResult CreateResult() => new TResult();
                 }
             }
 
@@ -79,6 +86,16 @@ namespace Composable.Messaging
 
                     Command(Guid id) => MessageId = id;
                 }
+            }
+        }
+
+        public static class Response
+        {
+            public abstract class Entity<TResult> : IHasPersistentIdentity<Guid> where TResult : Entity<TResult>
+            {
+                protected Entity() {}
+                protected Entity(Guid id) => Id = id;
+                public Guid Id { get; private set; }
             }
         }
     }

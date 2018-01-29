@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace AccountManagement.API
 {
-    public partial class AccountResource : EntityResource<AccountResource>
+    public partial class AccountResource : BusApi.Response.Entity<AccountResource>
     {
         [UsedImplicitly] AccountResource() {}
 

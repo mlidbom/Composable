@@ -13,7 +13,7 @@ namespace AccountManagement.API
     /// </summary>
     public static class AccountWebClientApi
     {
-        public static readonly BusApi.Remotable.Query.SelfGeneratingResourceQuery<StartResource> Start = BusApi.Remotable.Query.SelfGeneratingResourceQuery<StartResource>.Instance;
+        public static BusApi.Remotable.Query.NewableResultLink<StartResource> Start => new BusApi.Remotable.Query.NewableResultLink<StartResource>();
     }
 
 

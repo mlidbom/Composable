@@ -31,13 +31,13 @@ namespace AccountManagement.UI.QueryModels
             internal Query Queries => new Query();
             internal class Query
             {
-                public BusApi.StrictlyLocal.Queries.EntityQuery<AccountQueryModel> Get(Guid id) => new BusApi.StrictlyLocal.Queries.EntityQuery<AccountQueryModel>(id);
+                public BusApi.StrictlyLocal.Queries.EntityLink<AccountQueryModel> Get(Guid id) => new BusApi.StrictlyLocal.Queries.EntityLink<AccountQueryModel>(id);
             }
 
             public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => Get(registrar);
 
             static void Get(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-                (BusApi.StrictlyLocal.Queries.EntityQuery<AccountQueryModel> query, ILocalApiNavigatorSession bus) =>
+                (BusApi.StrictlyLocal.Queries.EntityLink<AccountQueryModel> query, ILocalApiNavigatorSession bus) =>
                     new AccountQueryModel(bus.Execute(new EventStoreApi().Queries.GetHistory<AccountEvent.Root>(query.EntityId))));
         }
     }

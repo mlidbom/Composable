@@ -70,14 +70,6 @@ namespace Composable.Messaging
 
             public static partial class ExactlyOnce
             {
-                public abstract class Message : BusApi.IMessage, BusApi.Remotable.ExactlyOnce.IMessage
-                {
-                    protected Message() : this(Guid.NewGuid()) {}
-                    protected Message(Guid id) => MessageId = id;
-
-                    public Guid MessageId { get; private set; } //Do not remove setter. Required for serialization
-                }
-
                 public class Command : ValueObject<Command>, BusApi.Remotable.ExactlyOnce.ICommand
                 {
                     public Guid MessageId { get; private set; }
@@ -87,8 +79,6 @@ namespace Composable.Messaging
 
                     Command(Guid id) => MessageId = id;
                 }
-
-                public class Command<TResult> : Command, BusApi.Remotable.ExactlyOnce.ICommand<TResult> {}
             }
         }
     }

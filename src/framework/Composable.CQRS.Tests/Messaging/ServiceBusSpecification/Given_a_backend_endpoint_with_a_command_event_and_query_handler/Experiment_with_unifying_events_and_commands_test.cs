@@ -176,7 +176,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public UserResource(IEnumerable<IAggregateEvent> history) { History = history; }
         }
 
-        public class RegisterUserResult : BusApi.Remotable.ExactlyOnce.Message
+        public class RegisterUserResult
         {
             public GetUserQuery UserLink { get; private set; }
             public RegisterUserResult(Guid userId) => UserLink = new GetUserQuery(userId);

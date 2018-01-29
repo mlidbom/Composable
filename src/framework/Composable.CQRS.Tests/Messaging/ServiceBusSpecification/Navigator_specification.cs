@@ -112,7 +112,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class UserRegisteredConfirmationResource : BusApi.Remotable.ExactlyOnce.Message
+            protected class UserRegisteredConfirmationResource
             {
                 public UserRegisteredConfirmationResource(string name) => Name = name;
                 public GetUserQuery User => new GetUserQuery(Name);

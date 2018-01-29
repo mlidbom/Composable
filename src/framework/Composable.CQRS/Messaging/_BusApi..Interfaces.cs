@@ -69,7 +69,6 @@ namespace Composable.Messaging
 
                 public interface IEvent : BusApi.IEvent, IMessage { }
                 public interface ICommand : Remotable.ICommand, IMessage { }
-                public interface ICommand<TResult> : Remotable.ICommand<TResult>, ExactlyOnce.ICommand { }
             }
         }
     }

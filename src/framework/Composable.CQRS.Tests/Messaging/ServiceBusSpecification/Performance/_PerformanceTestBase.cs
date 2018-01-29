@@ -46,7 +46,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         protected class MyRemoteQuery : BusApi.Remotable.Query.RemoteQuery<MyQueryResult> {}
         protected class MyLocalQuery : BusApi.StrictlyLocal.Queries.Query<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
-        protected class MyCommandWithResult : BusApi.Remotable.ExactlyOnce.Command<MyCommandResult> {}
-        protected class MyCommandResult : BusApi.Remotable.ExactlyOnce.Message {}
+        protected class MyCommandWithResult : BusApi.Remotable.AtMostOnce.Command<MyCommandResult> {}
+        protected class MyCommandResult {}
     }
 }

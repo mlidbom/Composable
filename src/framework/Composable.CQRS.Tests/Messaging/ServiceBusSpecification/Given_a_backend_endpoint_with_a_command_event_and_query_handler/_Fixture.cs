@@ -70,8 +70,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         protected class MyExactlyOnceEvent : AggregateEvent {}
         protected class MyQuery : BusApi.Remotable.Query.RemoteQuery<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
-        protected class MyAtExactlyOnceCommand : BusApi.Remotable.ExactlyOnce.Command<MyCommandResult> {}
+        protected class MyAtMostOnceCommand : BusApi.Remotable.AtMostOnce.Command<MyCommandResult> {}
         protected class MyAtMostOnceCommandWithResult : BusApi.Remotable.AtMostOnce.Command<MyCommandResult> {}
-        protected class MyCommandResult : BusApi.Remotable.ExactlyOnce.Message {}
+        protected class MyCommandResult {}
     }
 }

@@ -98,7 +98,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 }
 
                 // ReSharper disable once MemberHidesStaticFromOuterClass
-                public class Updated : Root, MyAggregateEvent.Created
+                public class Updated : Root, MyAggregateEvent.Updated
                 {
                 }
             }

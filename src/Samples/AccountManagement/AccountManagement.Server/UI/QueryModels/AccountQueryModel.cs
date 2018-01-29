@@ -38,7 +38,7 @@ namespace AccountManagement.UI.QueryModels
 
             static void Get(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
                 (BusApi.StrictlyLocal.Queries.EntityQuery<AccountQueryModel> query, ILocalApiBrowser bus) =>
-                    new AccountQueryModel(bus.GetLocal(new EventStoreApi().Queries.GetHistory<AccountEvent.Root>(query.EntityId))));
+                    new AccountQueryModel(bus.Execute(new EventStoreApi().Queries.GetHistory<AccountEvent.Root>(query.EntityId))));
         }
     }
 }

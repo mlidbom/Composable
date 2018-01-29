@@ -17,7 +17,7 @@ namespace AccountManagement.UI.MVC.Views.Register
         {
             if(!ModelState.IsValid) return View("RegistrationForm");
 
-            var result = registrationCommand.PostRemoteOn(_bus);
+            var result = registrationCommand.PostOn(_bus);
             switch(result.Status)
             {
                 case RegistrationAttemptStatus.Successful:
@@ -30,6 +30,6 @@ namespace AccountManagement.UI.MVC.Views.Register
             }
         }
 
-        public IActionResult RegistrationForm() => View("RegistrationForm", Api.Accounts.Command.Register().ExecuteRemoteOn(_bus));
+        public IActionResult RegistrationForm() => View("RegistrationForm", Api.Accounts.Command.Register().NavigateOn(_bus));
     }
 }

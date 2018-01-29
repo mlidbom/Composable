@@ -17,7 +17,7 @@ namespace AccountManagement.UI
             {
                 var email = Email.Parse(logIn.Email);
 
-                if(bus.GetLocal(AccountApi.Queries.TryGetByEmail(email)) is Some<Account> account)
+                if(bus.Execute(AccountApi.Queries.TryGetByEmail(email)) is Some<Account> account)
                 {
                     switch(account.Value.Login(logIn.Password))
                     {
@@ -35,11 +35,11 @@ namespace AccountManagement.UI
 
         internal static void ChangePassword(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Command.ChangePassword command, ILocalApiBrowser bus) =>
-                AccountApi.Queries.GetForUpdate(command.AccountId).GetLocalOn(bus).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
+                AccountApi.Queries.GetForUpdate(command.AccountId).ExecuteOn(bus).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
 
         internal static void ChangeEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Command.ChangeEmail command, ILocalApiBrowser bus) =>
-                AccountApi.Queries.GetForUpdate(command.AccountId).GetLocalOn(bus).ChangeEmail(Email.Parse(command.Email)));
+                AccountApi.Queries.GetForUpdate(command.AccountId).ExecuteOn(bus).ChangeEmail(Email.Parse(command.Email)));
 
         internal static void Register(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
             (AccountResource.Command.Register command, ILocalApiBrowser bus) =>
@@ -58,6 +58,6 @@ namespace AccountManagement.UI
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (BusApi.RemoteSupport.Query.RemoteEntityResourceQuery<AccountResource> accountQuery, ILocalApiBrowser bus)
-                => new AccountResource(bus.GetLocal(AccountApi.AccountQueryModel.Queries.Get(accountQuery.EntityId))));
+                => new AccountResource(bus.Execute(AccountApi.AccountQueryModel.Queries.Get(accountQuery.EntityId))));
     }
 }

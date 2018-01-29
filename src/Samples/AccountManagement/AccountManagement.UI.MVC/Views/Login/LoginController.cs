@@ -14,7 +14,7 @@ namespace AccountManagement.UI.MVC.Views.Login
         {
             if(!ModelState.IsValid) return View("LoginForm");
 
-            var result = loginCommand.PostRemoteOn(_bus);
+            var result = loginCommand.PostOn(_bus);
             if(result.Succeeded)
             {
                 return View("LoggedIn");
@@ -24,6 +24,6 @@ namespace AccountManagement.UI.MVC.Views.Login
             return View("LoginForm");
         }
 
-        public IActionResult LoginForm() => View("LoginForm", Api.Accounts.Command.Login().ExecuteRemoteOn(_bus));
+        public IActionResult LoginForm() => View("LoginForm", Api.Accounts.Command.Login().NavigateOn(_bus));
     }
 }

@@ -6,14 +6,14 @@ namespace Composable.Messaging
 {
     public abstract partial class RemoteNavigationSpecification<TResult>
     {
-        public abstract TResult ExecuteRemoteOn(IRemoteApiBrowser busSession);
-        public abstract Task<TResult> ExecuteRemoteAsyncOn(IRemoteApiBrowser busSession);
+        public abstract TResult NavigateOn(IRemoteApiBrowser busSession);
+        public abstract Task<TResult> NavigateOnAsync(IRemoteApiBrowser busSession);
 
         public RemoteNavigationSpecification<TNext> Select<TNext>(Func<TResult, TNext> select) => new RemoteNavigationSpecification<TNext>.SelectQuery<TResult>(this, select);
 
-        public RemoteNavigationSpecification PostRemote(Func<TResult, BusApi.RemoteSupport.AtMostOnce.ICommand> next) => new Remote.PostVoidCommand<TResult>(this, next);
-        public RemoteNavigationSpecification<TNext> GetRemote<TNext>(Func<TResult, BusApi.RemoteSupport.NonTransactional.IQuery<TNext>> next) => new RemoteNavigationSpecification<TNext>.Remote.ContinuationQuery<TResult>(this, next);
-        public RemoteNavigationSpecification<TNext> PostRemote<TNext>(Func<TResult, BusApi.RemoteSupport.AtMostOnce.ICommand<TNext>> next) => new RemoteNavigationSpecification<TNext>.Remote.PostCommand<TResult>(this, next);
+        public RemoteNavigationSpecification Post(Func<TResult, BusApi.RemoteSupport.AtMostOnce.ICommand> next) => new Remote.PostVoidCommand<TResult>(this, next);
+        public RemoteNavigationSpecification<TNext> Get<TNext>(Func<TResult, BusApi.RemoteSupport.NonTransactional.IQuery<TNext>> next) => new RemoteNavigationSpecification<TNext>.Remote.ContinuationQuery<TResult>(this, next);
+        public RemoteNavigationSpecification<TNext> Post<TNext>(Func<TResult, BusApi.RemoteSupport.AtMostOnce.ICommand<TNext>> next) => new RemoteNavigationSpecification<TNext>.Remote.PostCommand<TResult>(this, next);
 
         class SelectQuery<TPrevious> : RemoteNavigationSpecification<TResult>
         {
@@ -26,13 +26,13 @@ namespace Composable.Messaging
                 _select = select;
             }
 
-            public override TResult ExecuteRemoteOn(IRemoteApiBrowser busSession)
+            public override TResult NavigateOn(IRemoteApiBrowser busSession)
             {
-                var previousResult = _previous.ExecuteRemoteOn(busSession);
+                var previousResult = _previous.NavigateOn(busSession);
                 return _select(previousResult);
             }
 
-            public override Task<TResult> ExecuteRemoteAsyncOn(IRemoteApiBrowser busSession) => Task.FromResult(ExecuteRemoteOn(busSession));
+            public override Task<TResult> NavigateOnAsync(IRemoteApiBrowser busSession) => Task.FromResult(NavigateOn(busSession));
         }
     }
 }

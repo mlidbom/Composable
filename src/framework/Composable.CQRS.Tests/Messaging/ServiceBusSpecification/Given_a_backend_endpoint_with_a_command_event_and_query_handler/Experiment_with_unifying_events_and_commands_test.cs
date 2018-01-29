@@ -69,7 +69,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             var registrationResult = _userDomainServiceLocator.ExecuteInIsolatedScope(() =>  UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IApiBrowser>()));
 
-            var user = _host.ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() =>_host.ClientBusSession.GetRemote(registrationResult.UserLink));
+            var user = _host.ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() =>_host.ClientBusSession.Get(registrationResult.UserLink));
 
             user.Should().NotBe(null);
             user.History.Count().Should().Be(1);
@@ -147,7 +147,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 => RegisterEventAppliers()
                     .IgnoreUnhandled<UserRegistrarEvent.IRoot>();
 
-            internal static RegisterUserResult RegisterUser(IApiBrowser bus) => new UserRegistrarCommand.RegisterUserCommand().PostRemoteOn(bus);
+            internal static RegisterUserResult RegisterUser(IApiBrowser bus) => new UserRegistrarCommand.RegisterUserCommand().PostOn(bus);
         }
 
         public class UserAggregate : Aggregate<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>

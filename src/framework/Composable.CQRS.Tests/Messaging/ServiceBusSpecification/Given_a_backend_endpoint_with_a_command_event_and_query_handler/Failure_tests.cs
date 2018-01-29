@@ -12,19 +12,19 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public async Task If_command_handler_with_result_throws_awaiting_SendAsync_throws()
         {
             CommandHandlerWithResultThreadGate.ThrowOnPassThrough(_thrownException);
-            await AssertThrows.Async<Exception>(async () => await ClientEndpoint.ExecuteRequestAsync(session => session.PostRemoteAsync(new MyAtMostOnceCommandWithResult())));
+            await AssertThrows.Async<Exception>(async () => await ClientEndpoint.ExecuteRequestAsync(session => session.PostAsync(new MyAtMostOnceCommandWithResult())));
         }
 
         [Fact] public async Task If_query_handler_throws_awaiting_QueryAsync_throws()
         {
             QueryHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            await AssertThrows.Async<Exception>(() => ClientEndpoint.ExecuteRequestAsync(session => session.GetRemoteAsync(new MyQuery())));
+            await AssertThrows.Async<Exception>(() => ClientEndpoint.ExecuteRequestAsync(session => session.GetAsync(new MyQuery())));
         }
 
         [Fact] public void If_query_handler_throws_Query_throws()
         {
             QueryHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            Assert.ThrowsAny<Exception>(() => ClientEndpoint.ExecuteRequest(session => session.GetRemote(new MyQuery())));
+            Assert.ThrowsAny<Exception>(() => ClientEndpoint.ExecuteRequest(session => session.Get(new MyQuery())));
         }
 
         public override void Dispose()

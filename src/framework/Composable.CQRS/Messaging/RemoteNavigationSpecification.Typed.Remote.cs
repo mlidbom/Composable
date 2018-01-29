@@ -14,8 +14,8 @@ namespace Composable.Messaging
 
                 internal StartQuery(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> start) => _start = start;
 
-                public override TResult ExecuteRemoteOn(IRemoteApiBrowser busSession) => busSession.GetRemote(_start);
-                public override Task<TResult> ExecuteRemoteAsyncOn(IRemoteApiBrowser busSession) => busSession.GetRemoteAsync(_start);
+                public override TResult NavigateOn(IRemoteApiBrowser busSession) => busSession.Get(_start);
+                public override Task<TResult> NavigateOnAsync(IRemoteApiBrowser busSession) => busSession.GetAsync(_start);
             }
 
             internal class StartCommand : RemoteNavigationSpecification<TResult>
@@ -24,8 +24,8 @@ namespace Composable.Messaging
 
                 internal StartCommand(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> start) => _start = start;
 
-                public override TResult ExecuteRemoteOn(IRemoteApiBrowser busSession) => busSession.PostRemote(_start);
-                public override Task<TResult> ExecuteRemoteAsyncOn(IRemoteApiBrowser busSession) => busSession.PostRemoteAsync(_start);
+                public override TResult NavigateOn(IRemoteApiBrowser busSession) => busSession.Post(_start);
+                public override Task<TResult> NavigateOnAsync(IRemoteApiBrowser busSession) => busSession.PostAsync(_start);
             }
 
             internal class ContinuationQuery<TPrevious> : RemoteNavigationSpecification<TResult>
@@ -39,18 +39,18 @@ namespace Composable.Messaging
                     _nextQuery = nextQuery;
                 }
 
-                public override TResult ExecuteRemoteOn(IRemoteApiBrowser busSession)
+                public override TResult NavigateOn(IRemoteApiBrowser busSession)
                 {
-                    var previousResult = _previous.ExecuteRemoteOn(busSession);
+                    var previousResult = _previous.NavigateOn(busSession);
                     var currentQuery = _nextQuery(previousResult);
-                    return busSession.GetRemote(currentQuery);
+                    return busSession.Get(currentQuery);
                 }
 
-                public override async Task<TResult> ExecuteRemoteAsyncOn(IRemoteApiBrowser busSession)
+                public override async Task<TResult> NavigateOnAsync(IRemoteApiBrowser busSession)
                 {
-                    var previousResult = await _previous.ExecuteRemoteAsyncOn(busSession);
+                    var previousResult = await _previous.NavigateOnAsync(busSession);
                     var currentQuery = _nextQuery(previousResult);
-                    return await busSession.GetRemoteAsync(currentQuery);
+                    return await busSession.GetAsync(currentQuery);
                 }
             }
 
@@ -64,18 +64,18 @@ namespace Composable.Messaging
                     _next = next;
                 }
 
-                public override TResult ExecuteRemoteOn(IRemoteApiBrowser busSession)
+                public override TResult NavigateOn(IRemoteApiBrowser busSession)
                 {
-                    var previousResult = _previous.ExecuteRemoteOn(busSession);
+                    var previousResult = _previous.NavigateOn(busSession);
                     var currentCommand = _next(previousResult);
-                    return busSession.PostRemote(currentCommand);
+                    return busSession.Post(currentCommand);
                 }
 
-                public override async Task<TResult> ExecuteRemoteAsyncOn(IRemoteApiBrowser busSession)
+                public override async Task<TResult> NavigateOnAsync(IRemoteApiBrowser busSession)
                 {
-                    var previousResult = await _previous.ExecuteRemoteAsyncOn(busSession);
+                    var previousResult = await _previous.NavigateOnAsync(busSession);
                     var currentCommand = _next(previousResult);
-                    return await busSession.PostRemoteAsync(currentCommand);
+                    return await busSession.PostAsync(currentCommand);
                 }
             }
 
@@ -89,18 +89,18 @@ namespace Composable.Messaging
                     _next = next;
                 }
 
-                public override void ExecuteRemoteOn(IRemoteApiBrowser busSession)
+                public override void NavigateOn(IRemoteApiBrowser busSession)
                 {
-                    var previousResult = _previous.ExecuteRemoteOn(busSession);
+                    var previousResult = _previous.NavigateOn(busSession);
                     var currentCommand = _next(previousResult);
-                    busSession.PostRemote(currentCommand);
+                    busSession.Post(currentCommand);
                 }
 
-                public override async Task ExecuteRemoteAsyncOn(IRemoteApiBrowser busSession)
+                public override async Task NavigateOnAsync(IRemoteApiBrowser busSession)
                 {
-                    var previousResult = await _previous.ExecuteRemoteAsyncOn(busSession);
+                    var previousResult = await _previous.NavigateOnAsync(busSession);
                     var currentCommand = _next(previousResult);
-                    busSession.PostRemote(currentCommand);
+                    busSession.Post(currentCommand);
                 }
             }
         }

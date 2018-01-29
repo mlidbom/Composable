@@ -37,8 +37,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             public class With_no_registered_handlers : Given_a_bus
             {
-                [Fact] public void Send_new_ACommand_throws_an_Exception() => TransactionScopeCe.Execute(() => BusSession.Invoking(_ => BusSession.PostLocal(new ACommand())).ShouldThrow<NoHandlerException>());
-                [Fact] public void Get_new_AQuery_throws_an_Exception() => BusSession.Invoking(_ => TransactionScopeCe.Execute(() => BusSession.PostLocal(new ACommand()))).ShouldThrow<NoHandlerException>();
+                [Fact] public void Send_new_ACommand_throws_an_Exception() => TransactionScopeCe.Execute(() => BusSession.Invoking(_ => BusSession.Execute(new ACommand())).ShouldThrow<NoHandlerException>());
+                [Fact] public void Get_new_AQuery_throws_an_Exception() => BusSession.Invoking(_ => TransactionScopeCe.Execute(() => BusSession.Execute(new ACommand()))).ShouldThrow<NoHandlerException>();
                 [Fact] public void Publish_new_AnEvent_throws_no_exception() => TransactionScopeCe.Execute(() =>  BusSession.Publish(new AnEvent()));
             }
 
@@ -53,7 +53,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
                 [Fact] public void Sending_new_ACommand_calls_the_handler()
                 {
-                    TransactionScopeCe.Execute(() => BusSession.PostLocal(new ACommand()));
+                    TransactionScopeCe.Execute(() => BusSession.Execute(new ACommand()));
                     _commandHandled.Should().Be(true);
                 }
             }
@@ -67,7 +67,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                     Registrar.ForQuery((AQuery query) => _aQueryResult);
                 }
 
-                [Fact] public void Getting_new_AQuery_returns_the_instance_returned_by_the_handler() => new AQuery().GetLocalOn(BusSession).Should().Be(_aQueryResult);
+                [Fact] public void Getting_new_AQuery_returns_the_instance_returned_by_the_handler() => new AQuery().ExecuteOn(BusSession).Should().Be(_aQueryResult);
             }
 
             public class With_one_registered_handler_for_AnEvent : Given_a_bus

@@ -48,7 +48,7 @@ namespace AccountManagement.Domain
             Contract.Argument(() => accountId, () => email, () => password, () => bus).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so duplicates are forbidden.
-            if(AccountApi.Queries.TryGetByEmail(email).GetLocalOn(bus) is Some<Account>)
+            if(AccountApi.Queries.TryGetByEmail(email).ExecuteOn(bus) is Some<Account>)
             {
                 return (RegistrationAttemptStatus.EmailAlreadyRegistered, null);
             }
@@ -56,7 +56,7 @@ namespace AccountManagement.Domain
             var newAccount = new Account();
             newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
 
-            AccountApi.Commands.Save(newAccount).PostLocalOn(bus);
+            AccountApi.Commands.Save(newAccount).ExecuteOn(bus);
 
             return (RegistrationAttemptStatus.Successful, newAccount);
         }

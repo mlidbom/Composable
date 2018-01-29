@@ -5,22 +5,22 @@ namespace Composable.Messaging
 {
     public static class NavigationSpecificationMessageExtensions
     {
-        public static RemoteNavigationSpecification PostRemote(this BusApi.RemoteSupport.AtMostOnce.ICommand command) => RemoteNavigationSpecification.PostRemote(command);
+        public static RemoteNavigationSpecification Post(this BusApi.RemoteSupport.AtMostOnce.ICommand command) => RemoteNavigationSpecification.Post(command);
 
-        public static RemoteNavigationSpecification<TResult> PostRemote<TResult>(this BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command) => RemoteNavigationSpecification.PostRemote(command);
+        public static RemoteNavigationSpecification<TResult> Post<TResult>(this BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command) => RemoteNavigationSpecification.Post(command);
 
-        public static RemoteNavigationSpecification<TResult> GetRemote<TResult>(this BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query) => RemoteNavigationSpecification.GetRemote(query);
-
-
-        public static TResult PostRemoteOn<TResult>(this BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command, IRemoteApiBrowser bus) => RemoteNavigationSpecification.PostRemote(command).ExecuteRemoteOn(bus);
-
-        public static TResult GetRemoteOn<TResult>(this BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query, IRemoteApiBrowser bus) => RemoteNavigationSpecification.GetRemote(query).ExecuteRemoteOn(bus);
+        public static RemoteNavigationSpecification<TResult> Get<TResult>(this BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query) => RemoteNavigationSpecification.Get(query);
 
 
-        public static TResult PostLocalOn<TResult>(this BusApi.StrictlyLocal.ICommand<TResult> command, ILocalApiBrowser bus) => bus.PostLocal(command);
+        public static TResult PostOn<TResult>(this BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command, IRemoteApiBrowser bus) => RemoteNavigationSpecification.Post(command).NavigateOn(bus);
 
-        public static void PostLocalOn(this BusApi.StrictlyLocal.ICommand command, ILocalApiBrowser bus) => bus.PostLocal(command);
+        public static TResult GetOn<TResult>(this BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query, IRemoteApiBrowser bus) => RemoteNavigationSpecification.Get(query).NavigateOn(bus);
 
-        public static TResult GetLocalOn<TResult>(this BusApi.StrictlyLocal.IQuery<TResult> query, ILocalApiBrowser bus) => bus.GetLocal(query);
+
+        public static TResult ExecuteOn<TResult>(this BusApi.StrictlyLocal.ICommand<TResult> command, ILocalApiBrowser bus) => bus.Execute(command);
+
+        public static void ExecuteOn(this BusApi.StrictlyLocal.ICommand command, ILocalApiBrowser bus) => bus.Execute(command);
+
+        public static TResult ExecuteOn<TResult>(this BusApi.StrictlyLocal.IQuery<TResult> query, ILocalApiBrowser bus) => bus.Execute(query);
     }
 }

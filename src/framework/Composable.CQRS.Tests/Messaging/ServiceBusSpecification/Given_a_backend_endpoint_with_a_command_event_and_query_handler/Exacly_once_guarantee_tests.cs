@@ -20,7 +20,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             {
                 TransactionScopeCe.Execute(() =>
                 {
-                    ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyExactlyOnceCommand()));
+                    ClientEndpoint.ExecuteRequest(session => session.Send(new MyExactlyOnceCommand()));
                     throw new Exception("MyException");
                 });
             }

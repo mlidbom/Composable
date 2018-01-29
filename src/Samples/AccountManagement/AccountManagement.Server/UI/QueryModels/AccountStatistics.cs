@@ -42,7 +42,7 @@ namespace AccountManagement.UI.QueryModels
 
                 if(new SingletonStatisticsQuerymodel().HandlesEvent(@event))
                 {
-                    bus.GetLocal(new DocumentDbApi().Queries.GetForUpdate<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId))
+                    bus.Execute(new DocumentDbApi().Queries.GetForUpdate<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId))
                        .ApplyEvent(@event);
                 }
             });
@@ -65,9 +65,9 @@ namespace AccountManagement.UI.QueryModels
                     if(!_isInitialized)
                     {
                         _isInitialized = true;
-                        if(bus.GetLocal(_documentDbApi.Queries.TryGet<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId)) is None<SingletonStatisticsQuerymodel>)
+                        if(bus.Execute(_documentDbApi.Queries.TryGet<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId)) is None<SingletonStatisticsQuerymodel>)
                         {
-                            bus.PostLocal(_documentDbApi.Commands.Save(new SingletonStatisticsQuerymodel()));
+                            bus.Execute(_documentDbApi.Commands.Save(new SingletonStatisticsQuerymodel()));
                         }
                     }
                 }

@@ -119,8 +119,6 @@ namespace Composable.Messaging.Buses
 
     public interface ITestingEndpointHost : IEndpointHost
     {
-        void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null);
-
         TException AssertThrown<TException>() where TException : Exception;
 
         IEndpoint ClientEndpoint { get; }
@@ -140,24 +138,5 @@ namespace Composable.Messaging.Buses
         void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage);
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
         void DoneWith(Guid message, Exception exception);
-    }
-
-    //todo: Actually use this attribute to do caching.
-    public class ClientCacheableAttribute : Attribute
-    {
-        public ClientCachingStrategy Strategy { get; }
-        public TimeSpan ValidFor { get; }
-
-        public ClientCacheableAttribute(ClientCachingStrategy strategy, int validForSeconds)
-        {
-            Strategy = strategy;
-            ValidFor = TimeSpan.FromSeconds(validForSeconds);
-        }
-    }
-
-    public enum ClientCachingStrategy
-    {
-        ReuseSingletonInstance = 1,
-        ReuseOriginalSerializedData = 2
     }
 }

@@ -110,7 +110,7 @@ namespace Composable.Messaging.Buses.Implementation
                         dispatchTask.ContinueWith(dispatchResult =>
                         {
                             var message = transportMessage.DeserializeMessageAndCacheForNextCall(_typeMapper);
-                            if(message.RequiresResponse())
+                            if(message is BusApi.Remote.IRequireRemoteResponse)
                             {
                                 if(dispatchResult.IsFaulted)
                                 {

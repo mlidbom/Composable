@@ -15,7 +15,7 @@ namespace Composable.Messaging
 
         /// <summary>Instructs the recevier to perform an action.</summary>
         public interface ICommand : IMessage { }
-        public interface ICommand<TResult> : ICommand { }
+        public interface ICommand<TResult> : ICommand{ }
 
         public interface IQuery : IMessage { }
 
@@ -39,8 +39,9 @@ namespace Composable.Messaging
         public partial class Remote
         {
             public interface ISupportRemoteReceiverMessage : IMessage {}
+            public interface IRequireRemoteResponse : ISupportRemoteReceiverMessage {}
             public interface ICommand : BusApi.ICommand, ISupportRemoteReceiverMessage { }
-            public interface ICommand<TResult> : ICommand, BusApi.ICommand<TResult> { }
+            public interface ICommand<TResult> : ICommand, BusApi.ICommand<TResult>, IRequireRemoteResponse { }
 
 
             public partial class NonTransactional
@@ -49,13 +50,13 @@ namespace Composable.Messaging
                 public interface IForbidTransactionalSend { }
 
                 public interface IMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteReceiverMessage {}
-                public interface IQuery : BusApi.IQuery, IMessage { }
+                public interface IQuery : BusApi.Remote.IRequireRemoteResponse, BusApi.Remote.NonTransactional.IMessage, BusApi.IQuery { }
                 public interface IQuery<TResult> : BusApi.Remote.NonTransactional.IQuery, BusApi.IQuery<TResult> { }
             }
 
             public partial class AtMostOnce
             {
-                public interface ICommand : BusApi.Remote.ICommand, ISupportRemoteReceiverMessage { }
+                public interface ICommand : BusApi.Remote.ICommand, IRequireRemoteResponse { }
                 public interface ICommand<TResult> : BusApi.Remote.AtMostOnce.ICommand, BusApi.Remote.ICommand<TResult> { }
             }
 

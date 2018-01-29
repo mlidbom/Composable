@@ -47,6 +47,8 @@ namespace Composable.Testing.Threading
 
         public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _resourceGuard.TryAwaitCondition(timeout, condition);
 
+        public IThreadGate SetPostPassThroughAction(Action<ThreadSnapshot> action) => _resourceGuard.UpdateAndReturn(() => _postPassThroughAction = action, this);
+        public IThreadGate SetPrePassThroughAction(Action<ThreadSnapshot> action) => _resourceGuard.UpdateAndReturn(() => _prePassThroughAction = action, this);
         public IThreadGate SetPassThroughAction(Action<ThreadSnapshot> action) => _resourceGuard.UpdateAndReturn(() => _passThroughAction = action, this);
 
         public IThreadGate ExecuteWithExclusiveLockWhen(TimeSpan timeout, Func<bool> condition, Action action)
@@ -96,7 +98,9 @@ Current state of gate:
 
                 _queuedThreads.Remove(currentThread);
                 _passedThreads.Add(currentThread);
+                _prePassThroughAction?.Invoke(currentThread);
                 _passThroughAction?.Invoke(currentThread);
+                _postPassThroughAction?.Invoke(currentThread);
             }
         }
 
@@ -116,6 +120,8 @@ Current state of gate:
         readonly IResourceGuard _resourceGuard;
         bool _lockOnNextPass;
         Action<ThreadSnapshot> _passThroughAction;
+        Action<ThreadSnapshot> _prePassThroughAction;
+        Action<ThreadSnapshot> _postPassThroughAction;
         bool _isOpen;
         readonly List<ThreadSnapshot> _requestsThreads = new List<ThreadSnapshot>();
         readonly LinkedList<ThreadSnapshot> _queuedThreads = new LinkedList<ThreadSnapshot>();

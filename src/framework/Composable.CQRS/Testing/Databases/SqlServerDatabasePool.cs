@@ -55,7 +55,7 @@ namespace Composable.Testing.Databases
 
         public SqlServerDatabasePool(string masterConnectionString)
         {
-            _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 1.Minutes();
+            _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 30.Seconds();
 
             var connectionStringWithoutInvalidChars = masterConnectionString.Replace("\\", "_");
 
@@ -83,7 +83,7 @@ namespace Composable.Testing.Databases
             }
 
             var startTime = DateTime.Now;
-            var timeoutAt = startTime + 15.Seconds();
+            var timeoutAt = startTime + 45.Seconds();
             while(reservedDatabase == null)
             {
                 if(DateTime.Now > timeoutAt)

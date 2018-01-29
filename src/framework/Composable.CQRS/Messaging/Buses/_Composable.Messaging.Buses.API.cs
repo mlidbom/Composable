@@ -11,13 +11,8 @@ using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses
 {
-    public interface IEventstoreEventPublisher
-    {
-        void Publish(IAggregateEvent anEvent);
-    }
-
     ///<summary>Dispatches messages within a process.</summary>
-    public interface ILocalApiNavigatorSession : IEventstoreEventPublisher
+    public interface ILocalApiNavigatorSession
     {
         ///<summary>Syncronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
         TResult Execute<TResult>(BusApi.StrictlyLocal.IQuery<TResult> query);

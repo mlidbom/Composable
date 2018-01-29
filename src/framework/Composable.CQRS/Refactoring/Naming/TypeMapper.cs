@@ -52,15 +52,9 @@ namespace Composable.Refactoring.Naming
 
         public void MergeMappingsWith(TypeMapper other) => _state.WithExclusiveAccess(state => other._state.WithExclusiveAccess(otherState =>
         {
-            state.TypeToTypeIdMap.ForEach(pair =>
-            {
-                other.InternalMap(pair.Key, pair.Value);
-            });
-
-            otherState.TypeToTypeIdMap.ForEach(pair =>
-            {
-                InternalMap(pair.Key, pair.Value);
-            });
+            var originalOtherMap = otherState.TypeToTypeIdMap.ToList();
+            state.TypeToTypeIdMap.ForEach(pair => other.InternalMap(pair.Key, pair.Value));
+            originalOtherMap.ForEach(pair => InternalMap(pair.Key, pair.Value));
         }));
 
         public ITypeMappingRegistar Map<TType>(Guid typeIdGuid) => InternalMap(typeof(TType), new TypeId(typeIdGuid));

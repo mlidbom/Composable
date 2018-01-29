@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Transactions;
 
-namespace Composable.Tests.System.TransactionsApiExploration
+namespace Composable.Testing.Transactions
 {
     class TransactionInterceptor : IEnlistmentNotification
     {

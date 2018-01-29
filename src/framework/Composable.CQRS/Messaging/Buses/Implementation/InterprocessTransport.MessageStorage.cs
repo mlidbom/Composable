@@ -34,7 +34,8 @@ INSERT {OutboxMessages.TableName}
                             .AddParameter(OutboxMessages.MessageId, message.MessageId)
                             .AddParameter(OutboxMessages.TypeIdGuidValue, _typeMapper.GetId(message.GetType()).GuidValue)
                             //todo: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
-                            .AddNVarcharMaxParameter(OutboxMessages.Body, JsonConvert.SerializeObject(message, JsonSettings.JsonSerializerSettings));
+                            .AddNVarcharMaxParameter(OutboxMessages.Body, JsonConvert.SerializeObject(message, JsonSettings.JsonSerializerSettings))
+                           .AddParameter(MessageDispatching.IsReceived, 0);
 
                         receiverEndpointIds.ForEach(
                             (endpointId, index)
@@ -44,8 +45,7 @@ INSERT {MessageDispatching.TableName}
             ({MessageDispatching.MessageId},  {MessageDispatching.EndpointId},          {MessageDispatching.IsReceived}) 
     VALUES (@{MessageDispatching.MessageId}, @{MessageDispatching.EndpointId}_{index}, @{MessageDispatching.IsReceived})
 ")
-                                          .AddParameter($"{MessageDispatching.EndpointId}_{index}", endpointId.GuidValue)
-                                          .AddParameter(MessageDispatching.IsReceived, 0));
+                                          .AddParameter($"{MessageDispatching.EndpointId}_{index}", endpointId.GuidValue));
 
                         command.ExecuteNonQuery();
                     });

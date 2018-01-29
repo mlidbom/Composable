@@ -36,9 +36,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Event_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            ClientEndpoint.ExecuteRequestInTransaction(session => session.Publish(new MyExactlyOnceEvent()));
+            ClientEndpoint.ExecuteRequest(session => session.Post(new MyCreateAggregateCommand()));
 
-            var transaction = EventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
+            var transaction = MyRemoteAggregateEventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                      .PassedThrough.Single().Transaction;
             transaction.Should().NotBeNull();
             transaction.IsolationLevel.Should().Be(IsolationLevel.Serializable);

@@ -90,7 +90,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-                _coordinator.EnqueueMessageTask(message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(() =>
+                _coordinator.EnqueueMessageTask(message, () => _serviceLocator.ExecuteInIsolatedScope(() =>
                 {
                     try
                     {
@@ -112,20 +112,21 @@ namespace Composable.Messaging.Buses.Implementation
                 var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-                _coordinator.EnqueueMessageTask(message, messageTask: () => _serviceLocator.ExecuteTransactionInIsolatedScope(() => TransactionScopeCe.Execute(() =>
-                {
-                    try
-                    {
-                        handler.ForEach(action: @this => @this(@event));
-                        _storage.MarkAsHandled(message);
-                        taskCompletionSource.SetResult(result: null);
-                    }
-                    catch(Exception exception)
-                    {
-                        taskCompletionSource.SetException(exception);
-                        throw;
-                    }
-                })));
+                _coordinator.EnqueueMessageTask(message,
+                                                () =>
+                                                {
+                                                    try
+                                                    {
+                                                        _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler.ForEach(action: @this => @this(@event)));
+                                                        _storage.MarkAsHandled(message);
+                                                        taskCompletionSource.SetResult(result: null);
+                                                    }
+                                                    catch(Exception exception)
+                                                    {
+                                                        taskCompletionSource.SetException(exception);
+                                                        throw;
+                                                    }
+                                                });
 
                 return await taskCompletionSource.Task.NoMarshalling();
             }
@@ -136,20 +137,21 @@ namespace Composable.Messaging.Buses.Implementation
 
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-                _coordinator.EnqueueMessageTask(message, messageTask: () => _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
-                {
-                    try
-                    {
-                        var result = handler(command);
-                        _storage.MarkAsHandled(message);
-                        taskCompletionSource.SetResult(result);
-                    }
-                    catch(Exception exception)
-                    {
-                        taskCompletionSource.SetException(exception);
-                        throw;
-                    }
-                }));
+                _coordinator.EnqueueMessageTask(message,
+                                                () =>
+                                                {
+                                                    try
+                                                    {
+                                                        var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler(command));
+                                                        _storage.MarkAsHandled(message);
+                                                        taskCompletionSource.SetResult(result);
+                                                    }
+                                                    catch(Exception exception)
+                                                    {
+                                                        taskCompletionSource.SetException(exception);
+                                                        throw;
+                                                    }
+                                                });
 
                 return await taskCompletionSource.Task.NoMarshalling();
             }
@@ -160,11 +162,11 @@ namespace Composable.Messaging.Buses.Implementation
 
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-                _coordinator.EnqueueMessageTask(message, messageTask: () => _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
+                _coordinator.EnqueueMessageTask(message, () =>
                 {
                     try
                     {
-                        var result = handler(command);
+                        var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler(command));
                         taskCompletionSource.SetResult(result);
                     }
                     catch(Exception exception)
@@ -172,7 +174,7 @@ namespace Composable.Messaging.Buses.Implementation
                         taskCompletionSource.SetException(exception);
                         throw;
                     }
-                }));
+                });
 
                 return await taskCompletionSource.Task.NoMarshalling();
             }

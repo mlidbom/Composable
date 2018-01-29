@@ -20,6 +20,8 @@ namespace Composable.Testing.Threading
         ///<summary>Blocks all threads from passing.</summary>
         IThreadGate Close();
 
+        IThreadGate SetPrePassThroughAction(Action<ThreadSnapshot> action);
+        IThreadGate SetPostPassThroughAction(Action<ThreadSnapshot> action);
         IThreadGate SetPassThroughAction(Action<ThreadSnapshot> action);
 
         Action<ThreadSnapshot> PassThroughAction { get; }

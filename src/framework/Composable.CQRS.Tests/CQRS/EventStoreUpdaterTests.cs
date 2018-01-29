@@ -15,6 +15,7 @@ using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;
 using Composable.Testing.Performance;
+using Composable.Testing.Transactions;
 using Composable.Tests.System.TransactionsApiExploration;
 using FluentAssertions;
 using JetBrains.Annotations;

@@ -54,15 +54,17 @@ namespace Composable.Messaging.Buses
 
             endpoint.Start();
             var endpointTransport = endpoint.ServiceLocator.Resolve<IInterprocessTransport>();
-            endpointTransport.Connect(endpoint);//Yes connect it to itself so that it can send messages to itself :)
+
+            //Any existing endpoint contains all the types since it is merged with any and all other existing endpoints.
+            existingEndpoints.FirstOrDefault()?.ServiceLocator.Resolve<TypeMapper>().MergeMappingsWith(endpoint.ServiceLocator.Resolve<TypeMapper>());
 
             existingEndpoints.ForEach(existingEndpoint =>
             {
-                existingEndpoint.ServiceLocator.Resolve<TypeMapper>().MergeMappingsWith(endpoint.ServiceLocator.Resolve<TypeMapper>());
-
                 existingEndpoint.ServiceLocator.Resolve<IInterprocessTransport>().Connect(endpoint);
                 endpointTransport.Connect(existingEndpoint);
             });
+
+            endpointTransport.Connect(endpoint); //Yes connect it to itself so that it can send messages to itself :)
 
             return endpoint;
         }

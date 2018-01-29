@@ -136,7 +136,7 @@ namespace Composable.Messaging.Buses.Implementation
             public ITypeMapper TypeMapper { get; set; }
         }
 
-        readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
+        readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
 
         //Runs on poller thread so NO BLOCKING HERE!
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)

@@ -32,7 +32,7 @@ namespace Composable.Messaging.Buses.Implementation
             public Thread PollerThread;
         }
 
-        readonly IThreadShared<State> _state = ThreadShared<State>.WithTimeout(10.Seconds());
+        readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
         ITaskRunner _taskRunner;
 
         public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeMapper typeMapper, EndpointId endpointId, ITaskRunner taskRunner) => _state.WithExclusiveAccess(@this =>
@@ -76,15 +76,15 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent exectlyOnceEvent) => _state.WithExclusiveAccess(state =>
         {
-            var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(exectlyOnceEvent);
+            var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(exectlyOnceEvent)
+                                               .Where(id => id != state.EndpointId)
+                                               .ToArray();//We dispatch events to ourself synchronously so don't go doing it again here.;
 
-            var connections = eventHandlerEndpointIds.Where(id => id != state.EndpointId)//We dispatch events to ourself synchronously so don't go doing it again here.
-                                                     .Select(endpointId => state.EndpointConnections[endpointId])
-                                                     .ToArray();
-
-            if(connections.Any())//Don't waste time persisting if there are no receivers
+            if(eventHandlerEndpointIds.Length != 0)//Don't waste time if there are no receivers
             {
-                state.MessageStorage.SaveMessage(exectlyOnceEvent, eventHandlerEndpointIds.ToArray());
+                var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId])
+                                                         .ToArray();
+                state.MessageStorage.SaveMessage(exectlyOnceEvent, eventHandlerEndpointIds);
                 connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(exectlyOnceEvent));
             }
         });

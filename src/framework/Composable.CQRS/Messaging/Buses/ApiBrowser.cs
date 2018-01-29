@@ -24,15 +24,6 @@ namespace Composable.Messaging.Buses
             _handlerRegistry = handlerRegistry;
         }
 
-        //todo: This _REALLY_ does not belong here.
-        void IEventstoreEventPublisher.Publish(IAggregateEvent @event)
-        {
-            _contextGuard.AssertNoContextChangeOccurred(this);
-            MessageInspector.AssertValidToSendRemote(@event);
-            _handlerRegistry.CreateEventDispatcher().Dispatch(@event);
-            _transport.DispatchIfTransactionCommits(@event);
-        }
-
         void IIntegrationBusSession.Send(BusApi.Remotable.ExactlyOnce.ICommand command)
         {
             _contextGuard.AssertNoContextChangeOccurred(this);

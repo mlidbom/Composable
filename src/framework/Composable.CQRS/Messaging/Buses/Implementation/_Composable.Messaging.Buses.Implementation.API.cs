@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Composable.Persistence.EventStore;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -7,6 +8,11 @@ namespace Composable.Messaging.Buses.Implementation
     {
         void Start();
         void Stop();
+    }
+
+    interface IEventstoreEventPublisher
+    {
+        void Publish(IAggregateEvent anEvent);
     }
 
     interface IInterprocessTransport

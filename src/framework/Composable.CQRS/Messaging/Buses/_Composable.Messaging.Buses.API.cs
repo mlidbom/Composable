@@ -6,13 +6,14 @@ using Composable.DDD;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Messaging.Events;
+using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses
 {
     public interface IEventstoreEventPublisher
     {
-        void Publish(BusApi.RemoteSupport.ExactlyOnce.IEvent anEvent);
+        void Publish(IAggregateEvent anEvent);
     }
 
     ///<summary>Dispatches messages within a process.</summary>

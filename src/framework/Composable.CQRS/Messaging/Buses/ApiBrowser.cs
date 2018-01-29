@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.EventStore;
 using Composable.System.Threading;
 using Composable.System.Transactions;
 using Composable.SystemExtensions.Threading;
@@ -24,7 +25,8 @@ namespace Composable.Messaging.Buses
             _handlerRegistry = handlerRegistry;
         }
 
-        void IEventstoreEventPublisher.Publish(BusApi.RemoteSupport.ExactlyOnce.IEvent @event)
+        //todo: This _REALLY_ does not belong here.
+        void IEventstoreEventPublisher.Publish(IAggregateEvent @event)
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSendRemote(@event);

@@ -15,9 +15,9 @@ namespace Composable.Messaging
         {
             public static class Queries
             {
-                public abstract class Query<TResult> : BusApi.StrictlyLocal.IQuery<TResult> {}
+                public abstract class Query<TResult> : StrictlyLocal.IQuery<TResult> {}
 
-                public class EntityLink<TResult> : Query<TResult> where TResult : IHasPersistentIdentity<Guid>
+                public class EntityLink<TResult> : StrictlyLocal.Queries.Query<TResult> where TResult : IHasPersistentIdentity<Guid>
                 {
                     [JsonConstructor]public EntityLink(Guid entityId) => EntityId = entityId;
                     public Guid EntityId { get; private set; }
@@ -26,11 +26,11 @@ namespace Composable.Messaging
 
             public static class Commands
             {
-                public abstract class Command : BusApi.StrictlyLocal.ICommand
+                public abstract class Command : StrictlyLocal.ICommand
                 {
                 }
 
-                public abstract class Command<TResult> : BusApi.StrictlyLocal.ICommand<TResult>
+                public abstract class Command<TResult> : StrictlyLocal.ICommand<TResult>
                 {
                 }
             }
@@ -38,11 +38,11 @@ namespace Composable.Messaging
 
         public static partial class Remotable
         {
-            public static class Query
+            public static class Queries
             {
-                public abstract class RemoteQuery<TResult> : BusApi.Remotable.NonTransactional.IQuery<TResult> {}
+                public abstract class Query<TResult> : Remotable.NonTransactional.IQuery<TResult> {}
 
-                public class EntityLink<TResult> : RemoteQuery<TResult> where TResult : IHasPersistentIdentity<Guid>
+                public class EntityLink<TResult> : Remotable.Queries.Query<TResult> where TResult : IHasPersistentIdentity<Guid>
                 {
                     public EntityLink() {}
                     public EntityLink(Guid entityId) => EntityId = entityId;
@@ -50,8 +50,8 @@ namespace Composable.Messaging
                     public Guid EntityId { get; private set; }
                 }
 
-                ///<summary>Inherit to trivially easily implement <see cref="ICreateMyOwnResultQuery{TResult}"/> </summary>
-                public abstract class FuncResultQuery<TResult> : RemoteQuery<TResult>, ICreateMyOwnResultQuery<TResult>
+                ///<summary>Implement <see cref="ICreateMyOwnResultQuery{TResult}"/> by passing a func to this base class.</summary>
+                public abstract class FuncResultQuery<TResult> : Query<TResult>, ICreateMyOwnResultQuery<TResult>
                 {
                     readonly Func<TResult> _factory;
                     protected FuncResultQuery(Func<TResult> factory) => _factory = factory;
@@ -59,7 +59,7 @@ namespace Composable.Messaging
                 }
 
                 /// <summary>Implements <see cref="ICreateMyOwnResultQuery{TResult}"/> by calling the default constructor on <typeparamref name="TResult"/></summary>
-                public class NewableResultLink<TResult> : RemoteQuery<TResult>, ICreateMyOwnResultQuery<TResult> where TResult : new()
+                public class NewableResultLink<TResult> : Query<TResult>, ICreateMyOwnResultQuery<TResult> where TResult : new()
                 {
                     public TResult CreateResult() => new TResult();
                 }
@@ -67,8 +67,8 @@ namespace Composable.Messaging
 
             public static partial class AtMostOnce
             {
-                public class Command : BusApi.Remotable.AtMostOnce.ICommand {}
-                public class Command<TResult> : BusApi.Remotable.AtMostOnce.ICommand<TResult> {}
+                public class Command : Remotable.AtMostOnce.ICommand {}
+                public class Command<TResult> : Remotable.AtMostOnce.ICommand<TResult> {}
             }
 
             public static partial class NonTransactional
@@ -77,7 +77,7 @@ namespace Composable.Messaging
 
             public static partial class ExactlyOnce
             {
-                public class Command : ValueObject<Command>, BusApi.Remotable.ExactlyOnce.ICommand
+                public class Command : ValueObject<Command>, Remotable.ExactlyOnce.ICommand
                 {
                     public Guid MessageId { get; private set; }
 

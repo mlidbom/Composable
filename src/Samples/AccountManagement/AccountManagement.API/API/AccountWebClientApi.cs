@@ -13,7 +13,7 @@ namespace AccountManagement.API
     /// </summary>
     public static class AccountWebClientApi
     {
-        public static BusApi.Remotable.Query.NewableResultLink<StartResource> Start => new BusApi.Remotable.Query.NewableResultLink<StartResource>();
+        public static BusApi.Remotable.Queries.NewableResultLink<StartResource> Start => new BusApi.Remotable.Queries.NewableResultLink<StartResource>();
     }
 
 

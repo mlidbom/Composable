@@ -13,7 +13,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 {
     public class When_scheduling_commands_to_be_sent_in_the_future : IDisposable
     {
-        readonly IApiBrowser _busSession;
+        readonly ITransactionalMessageHandlerServiceBusSession _busSession;
         readonly IUtcTimeTimeSource _timeSource;
         readonly IThreadGate _receivedCommandGate;
         readonly ITestingEndpointHost _host;
@@ -39,14 +39,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             _timeSource = serviceLocator.Resolve<IUtcTimeTimeSource>();
             _scope = serviceLocator.BeginScope();
-            _busSession = serviceLocator.Resolve<IApiBrowser>();
+            _busSession = serviceLocator.Resolve<ITransactionalMessageHandlerServiceBusSession>();
         }
 
         [Fact] public void Messages_whose_due_time_has_passed_are_delivered()
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            TransactionScopeCe.Execute(() => _busSession.SchedulePostRemote(now + .1.Seconds(), inOneHour));
+            TransactionScopeCe.Execute(() => _busSession.ScheduleSend(now + .1.Seconds(), inOneHour));
 
             _receivedCommandGate.AwaitPassedThroughCountEqualTo(1, timeout: .5.Seconds());
         }
@@ -55,7 +55,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            TransactionScopeCe.Execute(() => _busSession.SchedulePostRemote(now + TimeSpanExtensions.Seconds(2), inOneHour));
+            TransactionScopeCe.Execute(() => _busSession.ScheduleSend(now + TimeSpanExtensions.Seconds(2), inOneHour));
 
             _receivedCommandGate.TryAwaitPassededThroughCountEqualTo(1, timeout: .5.Seconds())
                                 .Should().Be(false);

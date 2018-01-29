@@ -10,14 +10,14 @@ namespace AccountManagement.UI.MVC.Views.Register
 {
     public class RegisterController : ControllerBase
     {
-        readonly IRemoteApiBrowser _bus;
-        public RegisterController(IRemoteApiBrowser remoteApiBrowser) => _bus = remoteApiBrowser;
+        readonly IRemoteApiBrowserSession _bus;
+        public RegisterController(IRemoteApiBrowserSession remoteApiBrowser) => _bus = remoteApiBrowser;
 
         public IActionResult Register(AccountResource.Command.Register registrationCommand)
         {
             if(!ModelState.IsValid) return View("RegistrationForm");
 
-            var result = registrationCommand.PostRemoteOn(_bus);
+            var result = registrationCommand.PostOn(_bus);
             switch(result.Status)
             {
                 case RegistrationAttemptStatus.Successful:
@@ -30,6 +30,6 @@ namespace AccountManagement.UI.MVC.Views.Register
             }
         }
 
-        public IActionResult RegistrationForm() => View("RegistrationForm", Api.Accounts.Command.Register().ExecuteRemoteOn(_bus));
+        public IActionResult RegistrationForm() => View("RegistrationForm", Api.Accounts.Command.Register().NavigateOn(_bus));
     }
 }

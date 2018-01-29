@@ -13,11 +13,11 @@ namespace AccountManagement.UI
     static class AccountUIAdapter
     {
         public static void Login(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
-            (AccountResource.Command.LogIn logIn, ILocalApiBrowser bus) =>
+            (AccountResource.Command.LogIn logIn, ILocalApiBrowserSession bus) =>
             {
                 var email = Email.Parse(logIn.Email);
 
-                if(bus.GetLocal(AccountApi.Queries.TryGetByEmail(email)) is Some<Account> account)
+                if(bus.Execute(AccountApi.Queries.TryGetByEmail(email)) is Some<Account> account)
                 {
                     switch(account.Value.Login(logIn.Password))
                     {
@@ -34,15 +34,15 @@ namespace AccountManagement.UI
             });
 
         internal static void ChangePassword(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
-            (AccountResource.Command.ChangePassword command, ILocalApiBrowser bus) =>
-                AccountApi.Queries.GetForUpdate(command.AccountId).GetLocalOn(bus).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
+            (AccountResource.Command.ChangePassword command, ILocalApiBrowserSession bus) =>
+                bus.Execute(AccountApi.Queries.GetForUpdate(command.AccountId)).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
 
         internal static void ChangeEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
-            (AccountResource.Command.ChangeEmail command, ILocalApiBrowser bus) =>
-                AccountApi.Queries.GetForUpdate(command.AccountId).GetLocalOn(bus).ChangeEmail(Email.Parse(command.Email)));
+            (AccountResource.Command.ChangeEmail command, ILocalApiBrowserSession bus) =>
+                bus.Execute(AccountApi.Queries.GetForUpdate(command.AccountId)).ChangeEmail(Email.Parse(command.Email)));
 
         internal static void Register(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
-            (AccountResource.Command.Register command, ILocalApiBrowser bus) =>
+            (AccountResource.Command.Register command, ILocalApiBrowserSession bus) =>
             {
                 var (status, account) = Account.Register(command.AccountId, Email.Parse(command.Email), new Password(command.Password), bus);
                 switch(status)
@@ -57,7 +57,7 @@ namespace AccountManagement.UI
             });
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (BusApi.RemoteSupport.Query.RemoteEntityResourceQuery<AccountResource> accountQuery, ILocalApiBrowser bus)
-                => new AccountResource(bus.GetLocal(AccountApi.AccountQueryModel.Queries.Get(accountQuery.EntityId))));
+            (BusApi.RemoteSupport.Query.RemoteEntityResourceQuery<AccountResource> accountQuery, ILocalApiBrowserSession bus)
+                => new AccountResource(bus.Execute(AccountApi.AccountQueryModel.Queries.Get(accountQuery.EntityId))));
     }
 }

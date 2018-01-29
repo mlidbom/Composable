@@ -12,8 +12,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         protected ITestingEndpointHost Host;
         protected IEndpoint ServerEndpoint;
         public IEndpoint ClientEndpoint;
-        protected IApiBrowser ClientBusSession => Host.ClientBusSession;
-        protected IApiBrowser ServerBusSession => ServerEndpoint.ServiceLocator.Resolve<IApiBrowser>();
+        protected IRemoteApiBrowserSession RemoteBrowser => Host.RemoteBrowser;
+        protected ITransactionalMessageHandlerServiceBusSession ServerBusSession => ServerEndpoint.ServiceLocator.Resolve<ITransactionalMessageHandlerServiceBusSession>();
 
         [SetUp] public void Setup()
         {

@@ -26,27 +26,27 @@ namespace AccountManagement.API
     {
         public static AccountApi Instance => new AccountApi();
 
-        RemoteNavigationSpecification<StartResource> Start => RemoteNavigationSpecification.GetRemote(AccountWebClientApi.Start);
+        NavigationSpecification<StartResource> Start => NavigationSpecification.Get(AccountWebClientApi.Start);
 
         public QuerySection Query => new QuerySection();
         public CommandsSection Command => new CommandsSection();
 
         public class QuerySection
         {
-            static readonly RemoteNavigationSpecification<StartResource.Query> Queries = Instance.Start.Select(start => start.Queries);
+            static readonly NavigationSpecification<StartResource.Query> Queries = Instance.Start.Select(start => start.Queries);
 
-            public RemoteNavigationSpecification<AccountResource> AccountById(Guid accountId) => Queries.GetRemote(queries => queries.AccountById.WithId(accountId));
+            public NavigationSpecification<AccountResource> AccountById(Guid accountId) => Queries.Get(queries => queries.AccountById.WithId(accountId));
         }
 
         public class CommandsSection
         {
-            static RemoteNavigationSpecification<StartResource.Command> Commands => Instance.Start.Select(start => start.Commands);
+            static NavigationSpecification<StartResource.Command> Commands => Instance.Start.Select(start => start.Commands);
 
-            public RemoteNavigationSpecification<AccountResource.Command.Register> Register() => Commands.Select(commands => commands.Register);
-            public RemoteNavigationSpecification<AccountResource.Command.Register.RegistrationAttemptResult> Register(Guid accountId, string email, string password) => Commands.PostRemote(commands =>  commands.Register.WithValues(accountId, email, password));
+            public NavigationSpecification<AccountResource.Command.Register> Register() => Commands.Select(commands => commands.Register);
+            public NavigationSpecification<AccountResource.Command.Register.RegistrationAttemptResult> Register(Guid accountId, string email, string password) => Commands.Post(commands =>  commands.Register.WithValues(accountId, email, password));
 
-            public RemoteNavigationSpecification<AccountResource.Command.LogIn> Login() => Commands.Select(commands => commands.Login);
-            public RemoteNavigationSpecification<AccountResource.Command.LogIn.LoginAttemptResult> Login(string email, string password) => Commands.PostRemote(commands => commands.Login.WithValues(email, password));
+            public NavigationSpecification<AccountResource.Command.LogIn> Login() => Commands.Select(commands => commands.Login);
+            public NavigationSpecification<AccountResource.Command.LogIn.LoginAttemptResult> Login(string email, string password) => Commands.Post(commands => commands.Login.WithValues(email, password));
         }
     }
 }

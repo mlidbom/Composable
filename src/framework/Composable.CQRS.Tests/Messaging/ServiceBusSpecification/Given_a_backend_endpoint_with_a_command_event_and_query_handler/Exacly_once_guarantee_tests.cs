@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Threading.Tasks;
-using System.Transactions;
 using Composable.Messaging.Buses;
 using Composable.System;
-using Composable.System.Threading;
 using Composable.System.Transactions;
-using Composable.Testing;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -20,7 +16,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             {
                 TransactionScopeCe.Execute(() =>
                 {
-                    ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyExactlyOnceCommand()));
+                    ClientEndpoint.ExecuteRequest(session => session.Send(new MyExactlyOnceCommand()));
                     throw new Exception("MyException");
                 });
             }

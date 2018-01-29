@@ -17,14 +17,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void If_command_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             CommandHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            ClientEndpoint.ExecuteRequestInTransaction(session => session.PostRemote(new MyExactlyOnceCommand()));
+            ClientEndpoint.ExecuteRequestInTransaction(session => session.Send(new MyExactlyOnceCommand()));
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
         [Fact] public async Task If_command_handler_with_result_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception_and_SendAsync_throws_MessageDispatchingFailedException()
         {
             CommandHandlerWithResultThreadGate.ThrowOnPassThrough(_thrownException);
-            await AssertThrows.Async<MessageDispatchingFailedException>(async () => await ClientEndpoint.ExecuteRequest(session => session.PostRemoteAsync(new MyAtMostOnceCommandWithResult())));
+            await AssertThrows.Async<MessageDispatchingFailedException>(async () => await ClientEndpoint.ExecuteRequest(session => session.PostAsync(new MyAtMostOnceCommandWithResult())));
 
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
@@ -39,7 +39,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public async Task If_query_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception_and_SendAsync_throws_MessageDispatchingFailedException()
         {
             QueryHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            await AssertThrows.Async<MessageDispatchingFailedException>(() => ClientEndpoint.ExecuteRequest(session => session.GetRemoteAsync(new MyQuery())));
+            await AssertThrows.Async<MessageDispatchingFailedException>(() => ClientEndpoint.ExecuteRequest(session => session.GetAsync(new MyQuery())));
 
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }

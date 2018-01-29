@@ -36,7 +36,7 @@ namespace AccountManagement.UserStories.Scenarios
 
         public override AccountResource Execute()
         {
-            Account.Commands.ChangePassword.WithValues(OldPassword, NewPassword).PostRemote().ExecuteAsRequestOn(_clientEndpoint);
+            Account.Commands.ChangePassword.WithValues(OldPassword, NewPassword).Post().ExecuteAsRequestOn(_clientEndpoint);
 
             return Account = Api.Query.AccountById(Account.Id).ExecuteAsRequestOn(_clientEndpoint);
         }

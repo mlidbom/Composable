@@ -17,45 +17,45 @@ namespace Composable.Messaging.Buses
     }
 
     ///<summary>Dispatches messages within a process.</summary>
-    public interface ILocalApiBrowser : IEventstoreEventPublisher
+    public interface ILocalApiBrowserSession : IEventstoreEventPublisher
     {
         ///<summary>Syncronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        TResult GetLocal<TResult>(BusApi.StrictlyLocal.IQuery<TResult> query);
+        TResult Execute<TResult>(BusApi.StrictlyLocal.IQuery<TResult> query);
 
         ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        TResult PostLocal<TResult>(BusApi.StrictlyLocal.ICommand<TResult> command);
+        TResult Execute<TResult>(BusApi.StrictlyLocal.ICommand<TResult> command);
 
         ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        void PostLocal(BusApi.StrictlyLocal.ICommand command);
+        void Execute(BusApi.StrictlyLocal.ICommand command);
     }
 
 
-    public interface IRemoteApiBrowser
+    public interface IRemoteApiBrowserSession
     {
-        void PostRemote(BusApi.RemoteSupport.AtMostOnce.ICommand command);
-        Task PostRemoteAsync(BusApi.RemoteSupport.AtMostOnce.ICommand command);
+        Task PostAsync(BusApi.RemoteSupport.AtMostOnce.ICommand command);
+        void Post(BusApi.RemoteSupport.AtMostOnce.ICommand command);
 
-        TResult PostRemote<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command);
-        Task<TResult> PostRemoteAsync<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command);
+        Task<TResult> PostAsync<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command);
+        TResult Post<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command);
 
         ///<summary>Gets the result of a handler somewhere on the bus handling the <paramref name="query"/></summary>
-        Task<TResult> GetRemoteAsync<TResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query);
+        Task<TResult> GetAsync<TResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query);
 
-        ///<summary>Syncronous wrapper for: <see cref="GetRemoteAsync{TResult}"/>.</summary>
-        TResult GetRemote<TResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query);
+        ///<summary>Syncronous wrapper for: <see cref="GetAsync{TResult}"/>.</summary>
+        TResult Get<TResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query);
     }
 
-    public interface ITransactionalMessageHandlerApiBrowser : ILocalApiBrowser
+    public interface IIntegrationBusSession
     {
         ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
-        void PostRemote(BusApi.RemoteSupport.ExactlyOnce.ICommand command);
+        void Send(BusApi.RemoteSupport.ExactlyOnce.ICommand command);
 
         ///<summary>Schedules a command to be sent later if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
-        void SchedulePostRemote(DateTime sendAt, BusApi.RemoteSupport.ExactlyOnce.ICommand command);
+        void ScheduleSend(DateTime sendAt, BusApi.RemoteSupport.ExactlyOnce.ICommand command);
     }
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IApiBrowser : ILocalApiBrowser, IRemoteApiBrowser, ITransactionalMessageHandlerApiBrowser
+    public interface ITransactionalMessageHandlerServiceBusSession : ILocalApiBrowserSession, IRemoteApiBrowserSession, IIntegrationBusSession
     {
     }
 
@@ -124,7 +124,9 @@ namespace Composable.Messaging.Buses
 
         IEndpoint ClientEndpoint { get; }
 
-        IApiBrowser ClientBusSession { get; }
+        ITransactionalMessageHandlerServiceBusSession ClientBusSession { get; }
+
+        IRemoteApiBrowserSession RemoteBrowser { get; }
     }
 
     interface IMessageDispatchingRule

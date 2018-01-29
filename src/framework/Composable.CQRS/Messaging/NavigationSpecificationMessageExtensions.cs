@@ -5,15 +5,15 @@ namespace Composable.Messaging
 {
     public static class NavigationSpecificationMessageExtensions
     {
-        public static RemoteNavigationSpecification Post(this BusApi.RemoteSupport.AtMostOnce.ICommand command) => RemoteNavigationSpecification.Post(command);
+        public static NavigationSpecification Post(this BusApi.RemoteSupport.AtMostOnce.ICommand command) => NavigationSpecification.Post(command);
 
-        public static RemoteNavigationSpecification<TResult> Post<TResult>(this BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command) => RemoteNavigationSpecification.Post(command);
+        public static NavigationSpecification<TResult> Post<TResult>(this BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command) => NavigationSpecification.Post(command);
 
-        public static RemoteNavigationSpecification<TResult> Get<TResult>(this BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query) => RemoteNavigationSpecification.Get(query);
+        public static NavigationSpecification<TResult> Get<TResult>(this BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query) => NavigationSpecification.Get(query);
 
 
-        public static TResult PostOn<TResult>(this BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command, IRemoteApiBrowserSession bus) => RemoteNavigationSpecification.Post(command).NavigateOn(bus);
+        public static TResult PostOn<TResult>(this BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command, IRemoteApiBrowserSession bus) => NavigationSpecification.Post(command).NavigateOn(bus);
 
-        public static TResult GetOn<TResult>(this BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query, IRemoteApiBrowserSession bus) => RemoteNavigationSpecification.Get(query).NavigateOn(bus);
+        public static TResult GetOn<TResult>(this BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query, IRemoteApiBrowserSession bus) => NavigationSpecification.Get(query).NavigateOn(bus);
     }
 }

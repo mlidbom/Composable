@@ -11,7 +11,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
     {
         [Test] public void Given_30_client_threads_Runs_100_remote_queries_in_50_milliSecond()
         {
-            var navigationSpecification = RemoteNavigationSpecification.Get(new MyRemoteQuery());
+            var navigationSpecification = NavigationSpecification.Get(new MyRemoteQuery());
 
             //Warmup
             StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(ClientBusSession)), iterations: 10, maxDegreeOfParallelism: 30);
@@ -21,7 +21,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 
         [Test] public void Given_1_client_thread_Runs_100_remote_queries_in_100_milliseconds()
         {
-            var navigationSpecification = RemoteNavigationSpecification.Get(new MyRemoteQuery());
+            var navigationSpecification = NavigationSpecification.Get(new MyRemoteQuery());
 
             //Warmup
             StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(ClientBusSession)), iterations: 10, maxDegreeOfParallelism: 30);

@@ -59,7 +59,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_navigate_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = RemoteNavigationSpecification.Get(UserApiStartPage.Self)
+                var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
                                                                 .Post(startpage => startpage.RegisterUser("new-user-name"))
                                                                 .Get(registerUserResult => registerUserResult.User).NavigateOn(Host.ClientBusSession);
 
@@ -68,7 +68,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] async Task Can_navigate_async_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = RemoteNavigationSpecification.Get(UserApiStartPage.Self)
+                var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
                                                                 .Post(startpage => startpage.RegisterUser("new-user-name"))
                                                                 .Get(registerUserResult => registerUserResult.User)
                                                                 .NavigateOnAsync(Host.ClientBusSession);

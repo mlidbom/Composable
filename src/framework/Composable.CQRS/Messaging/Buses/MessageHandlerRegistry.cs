@@ -93,19 +93,11 @@ namespace Composable.Messaging.Buses
             throw new NoHandlerException(message.GetType());
         }
 
-        public bool TryGetCommandHandler(BusApi.ICommand message, out Action<object> handler)
+        bool TryGetCommandHandler(BusApi.ICommand message, out Action<object> handler)
         {
             lock(_lock)
             {
                 return _commandHandlers.TryGetValue(message.GetType(), out handler);
-            }
-        }
-
-        public bool TryGetCommandHandlerWithResult(BusApi.ICommand message, out Func<object, object> handler)
-        {
-            lock(_lock)
-            {
-                return _commandHandlersReturningResults.TryGetValue(message.GetType(), out handler);
             }
         }
 

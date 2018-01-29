@@ -62,10 +62,6 @@ namespace Composable.Messaging.Buses
     {
         Action<object> GetCommandHandler(BusApi.ICommand message);
 
-        bool TryGetCommandHandler(BusApi.ICommand message, out Action<object> handler);
-
-        bool TryGetCommandHandlerWithResult(BusApi.ICommand message, out Func<object, object> handler);
-
         Func<BusApi.ICommand, object> GetCommandHandler(Type commandType);
         Func<BusApi.IQuery, object> GetQueryHandler(Type commandType);
         IReadOnlyList<Action<BusApi.IEvent>> GetEventHandlers(Type eventType);

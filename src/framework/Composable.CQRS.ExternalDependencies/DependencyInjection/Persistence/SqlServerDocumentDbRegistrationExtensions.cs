@@ -59,13 +59,9 @@ namespace Composable.DependencyInjection.Persistence
             }
 
 
-            @this.Register(Component.For<IDocumentDbSession>()
-                                     .ImplementedBy<DocumentDbSession>()
-                                     .LifestyleScoped());
-            @this.Register(Component.For<IDocumentDbUpdater, IDocumentDbReader, IDocumentDbBulkReader>()
+            @this.Register(Component.For<IDocumentDbSession, IDocumentDbUpdater, IDocumentDbReader, IDocumentDbBulkReader>()
                                     .ImplementedBy<DocumentDbSession>()
-                                    .LifestyleScoped()
-                          );
+                                    .LifestyleScoped());
 
             return new DocumentDbRegistrationBuilder();
         }

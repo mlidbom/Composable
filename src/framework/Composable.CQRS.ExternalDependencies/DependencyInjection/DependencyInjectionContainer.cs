@@ -1,6 +1,7 @@
 ﻿using System;
 using Composable.DependencyInjection.SimpleInjectorImplementation;
 using Composable.DependencyInjection.Testing;
+using Composable.DependencyInjection.Windsor;
 using JetBrains.Annotations;
 
 namespace Composable.DependencyInjection
@@ -28,6 +29,7 @@ namespace Composable.DependencyInjection
         public static IDependencyInjectionContainer Create(IRunMode runMode = null)
         {
             IDependencyInjectionContainer container = new SimpleInjectorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);
+            //IDependencyInjectionContainer container = new WindsorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);
             container.Register(Component.For<IServiceLocator>()
                                         .UsingFactoryMethod(() => container.CreateServiceLocator())
                                         .LifestyleSingleton());

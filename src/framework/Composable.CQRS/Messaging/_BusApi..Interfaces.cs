@@ -40,36 +40,36 @@ namespace Composable.Messaging
             public interface IQuery<TResult> : IRequireLocalReceiver, BusApi.IQuery<TResult> { }
         }
 
-        public static partial class RemoteSupport
+        public static partial class Remotable
         {
             public interface IMessage : BusApi.IMessage {}
-            public interface IRequireRemoteResponse : RemoteSupport.IMessage {}
-            public interface ICommand : BusApi.ICommand, RemoteSupport.IMessage { }
+            public interface IRequireRemoteResponse : Remotable.IMessage {}
+            public interface ICommand : BusApi.ICommand, Remotable.IMessage { }
             public interface ICommand<TResult> : ICommand, BusApi.ICommand<TResult>, IRequireRemoteResponse { }
 
             public static partial class NonTransactional
             {
-                public interface IMessage : IForbidTransactionalRemoteSender, RemoteSupport.IMessage {}
-                public interface IQuery : RemoteSupport.IRequireRemoteResponse, NonTransactional.IMessage, BusApi.IQuery { }
+                public interface IMessage : IForbidTransactionalRemoteSender, Remotable.IMessage {}
+                public interface IQuery : Remotable.IRequireRemoteResponse, NonTransactional.IMessage, BusApi.IQuery { }
                 public interface IQuery<TResult> : NonTransactional.IQuery, BusApi.IQuery<TResult> { }
             }
 
             public static partial class AtMostOnce
             {
-                public interface ICommand : RemoteSupport.ICommand, IRequireRemoteResponse, IForbidTransactionalRemoteSender { }
-                public interface ICommand<TResult> : AtMostOnce.ICommand, RemoteSupport.ICommand<TResult> { }
+                public interface ICommand : Remotable.ICommand, IRequireRemoteResponse, IForbidTransactionalRemoteSender { }
+                public interface ICommand<TResult> : AtMostOnce.ICommand, Remotable.ICommand<TResult> { }
             }
 
             public static partial class ExactlyOnce
             {
-                public interface IMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId, BusApi.RemoteSupport.IMessage {}
+                public interface IMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId, BusApi.Remotable.IMessage {}
                 public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSender, IRequireTransactionalReceiver {}
 
                 public interface IProvidesOwnMessageId { Guid MessageId { get; } }
 
                 public interface IEvent : BusApi.IEvent, IMessage { }
-                public interface ICommand : RemoteSupport.ICommand, IMessage { }
-                public interface ICommand<TResult> : RemoteSupport.ICommand<TResult>, ExactlyOnce.ICommand { }
+                public interface ICommand : Remotable.ICommand, IMessage { }
+                public interface ICommand<TResult> : Remotable.ICommand<TResult>, ExactlyOnce.ICommand { }
             }
         }
     }

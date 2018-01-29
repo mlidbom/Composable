@@ -36,11 +36,11 @@ namespace Composable.Messaging
             }
         }
 
-        public static partial class RemoteSupport
+        public static partial class Remotable
         {
             public static class Query
             {
-                public abstract class RemoteQuery<TResult> : BusApi.RemoteSupport.NonTransactional.IQuery<TResult> {}
+                public abstract class RemoteQuery<TResult> : BusApi.Remotable.NonTransactional.IQuery<TResult> {}
 
                 public class RemoteEntityResourceQuery<TResource> : RemoteQuery<TResource> where TResource : IHasPersistentIdentity<Guid>
                 {
@@ -60,8 +60,8 @@ namespace Composable.Messaging
 
             public static partial class AtMostOnce
             {
-                public class Command : BusApi.RemoteSupport.AtMostOnce.ICommand {}
-                public class Command<TResult> : BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> {}
+                public class Command : BusApi.Remotable.AtMostOnce.ICommand {}
+                public class Command<TResult> : BusApi.Remotable.AtMostOnce.ICommand<TResult> {}
             }
 
             public static partial class NonTransactional
@@ -70,7 +70,7 @@ namespace Composable.Messaging
 
             public static partial class ExactlyOnce
             {
-                public abstract class Message : BusApi.IMessage, BusApi.RemoteSupport.ExactlyOnce.IMessage
+                public abstract class Message : BusApi.IMessage, BusApi.Remotable.ExactlyOnce.IMessage
                 {
                     protected Message() : this(Guid.NewGuid()) {}
                     protected Message(Guid id) => MessageId = id;
@@ -78,7 +78,7 @@ namespace Composable.Messaging
                     public Guid MessageId { get; private set; } //Do not remove setter. Required for serialization
                 }
 
-                public class Command : ValueObject<Command>, BusApi.RemoteSupport.ExactlyOnce.ICommand
+                public class Command : ValueObject<Command>, BusApi.Remotable.ExactlyOnce.ICommand
                 {
                     public Guid MessageId { get; private set; }
 
@@ -88,7 +88,7 @@ namespace Composable.Messaging
                     Command(Guid id) => MessageId = id;
                 }
 
-                public class Command<TResult> : Command, BusApi.RemoteSupport.ExactlyOnce.ICommand<TResult> {}
+                public class Command<TResult> : Command, BusApi.Remotable.ExactlyOnce.ICommand<TResult> {}
             }
         }
     }

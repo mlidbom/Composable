@@ -173,7 +173,7 @@ namespace Composable.Messaging.Buses
             var handledTypes = _commandHandlers.Keys
                                                .Concat(_commandHandlersReturningResults.Keys).Concat(_queryHandlers.Keys)
                                                .Concat(_eventHandlerRegistrations.Select(reg => reg.Type))
-                                               .Where(messageType => messageType.Implements<BusApi.RemoteSupport.IMessage>())
+                                               .Where(messageType => messageType.Implements<BusApi.Remotable.IMessage>())
                                                .ToSet();
 
             _typeMapper.AssertMappingsExistFor(handledTypes);

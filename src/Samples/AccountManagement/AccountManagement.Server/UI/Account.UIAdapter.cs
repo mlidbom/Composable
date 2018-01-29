@@ -57,7 +57,7 @@ namespace AccountManagement.UI
             });
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (BusApi.RemoteSupport.Query.RemoteEntityResourceQuery<AccountResource> accountQuery, ILocalApiNavigatorSession bus)
+            (BusApi.Remotable.Query.RemoteEntityResourceQuery<AccountResource> accountQuery, ILocalApiNavigatorSession bus)
                 => new AccountResource(bus.Execute(AccountApi.AccountQueryModel.Queries.Get(accountQuery.EntityId))));
     }
 }

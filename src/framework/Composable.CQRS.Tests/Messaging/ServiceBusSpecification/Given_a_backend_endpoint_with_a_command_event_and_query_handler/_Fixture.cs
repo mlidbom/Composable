@@ -66,12 +66,12 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             QueryHandlerThreadGate.Open();
         }
 
-        protected class MyExactlyOnceCommand : BusApi.RemoteSupport.ExactlyOnce.Command {}
+        protected class MyExactlyOnceCommand : BusApi.Remotable.ExactlyOnce.Command {}
         protected class MyExactlyOnceEvent : AggregateEvent {}
-        protected class MyQuery : BusApi.RemoteSupport.Query.RemoteQuery<MyQueryResult> {}
+        protected class MyQuery : BusApi.Remotable.Query.RemoteQuery<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
-        protected class MyAtExactlyOnceCommand : BusApi.RemoteSupport.ExactlyOnce.Command<MyCommandResult> {}
-        protected class MyAtMostOnceCommandWithResult : BusApi.RemoteSupport.AtMostOnce.Command<MyCommandResult> {}
-        protected class MyCommandResult : BusApi.RemoteSupport.ExactlyOnce.Message {}
+        protected class MyAtExactlyOnceCommand : BusApi.Remotable.ExactlyOnce.Command<MyCommandResult> {}
+        protected class MyAtMostOnceCommandWithResult : BusApi.Remotable.AtMostOnce.Command<MyCommandResult> {}
+        protected class MyCommandResult : BusApi.Remotable.ExactlyOnce.Message {}
     }
 }

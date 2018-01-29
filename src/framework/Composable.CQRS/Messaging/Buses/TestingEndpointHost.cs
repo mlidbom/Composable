@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses
 
         public IEndpoint ClientEndpoint => _clientEndpoint;
 
-        public ITransactionalMessageHandlerServiceBusSession ClientBusSession => _clientEndpoint.ServiceLocator.Resolve<ITransactionalMessageHandlerServiceBusSession>();
+        public IServiceBusSession ClientBusSession => _clientEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
 
         public IRemoteApiNavigatorSession RemoteNavigator => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
 

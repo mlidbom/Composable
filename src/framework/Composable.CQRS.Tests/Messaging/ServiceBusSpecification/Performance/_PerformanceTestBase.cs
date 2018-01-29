@@ -13,7 +13,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         protected IEndpoint ServerEndpoint;
         public IEndpoint ClientEndpoint;
         protected IRemoteApiNavigatorSession RemoteNavigator => Host.RemoteNavigator;
-        protected ITransactionalMessageHandlerServiceBusSession ServerBusSession => ServerEndpoint.ServiceLocator.Resolve<ITransactionalMessageHandlerServiceBusSession>();
+        protected IServiceBusSession ServerBusSession => ServerEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
 
         [SetUp] public void Setup()
         {
@@ -41,12 +41,12 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 
         [TearDown] public void TearDown() { Host.Dispose(); }
 
-        protected class MyCommand : BusApi.RemoteSupport.ExactlyOnce.Command {}
+        protected class MyCommand : BusApi.Remotable.ExactlyOnce.Command {}
         protected class MyEvent : AggregateEvent {}
-        protected class MyRemoteQuery : BusApi.RemoteSupport.Query.RemoteQuery<MyQueryResult> {}
+        protected class MyRemoteQuery : BusApi.Remotable.Query.RemoteQuery<MyQueryResult> {}
         protected class MyLocalQuery : BusApi.StrictlyLocal.Queries.Query<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
-        protected class MyCommandWithResult : BusApi.RemoteSupport.ExactlyOnce.Command<MyCommandResult> {}
-        protected class MyCommandResult : BusApi.RemoteSupport.ExactlyOnce.Message {}
+        protected class MyCommandWithResult : BusApi.Remotable.ExactlyOnce.Command<MyCommandResult> {}
+        protected class MyCommandResult : BusApi.Remotable.ExactlyOnce.Message {}
     }
 }

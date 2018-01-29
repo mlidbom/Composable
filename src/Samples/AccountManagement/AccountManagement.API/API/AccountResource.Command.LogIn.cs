@@ -10,7 +10,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public partial class LogIn : BusApi.RemoteSupport.AtMostOnce.Command<LogIn.LoginAttemptResult>
+            public partial class LogIn : BusApi.Remotable.AtMostOnce.Command<LogIn.LoginAttemptResult>
             {
                     [Required] [Email] public string Email { get; set; }
                     [Required] public string Password { get; set; }

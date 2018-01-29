@@ -15,23 +15,23 @@ namespace Composable.Messaging.Buses.Implementation
         void Start();
         void Connect(IEndpoint endpoint);
 
-        void DispatchIfTransactionCommits(BusApi.RemoteSupport.ExactlyOnce.IEvent exectlyOnceEvent);
-        void DispatchIfTransactionCommits(BusApi.RemoteSupport.ExactlyOnce.ICommand exactlyOnceCommand);
+        void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent exectlyOnceEvent);
+        void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);
 
-        Task DispatchAsync(BusApi.RemoteSupport.AtMostOnce.ICommand atMostOnceCommand);
-        Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand);
+        Task DispatchAsync(BusApi.Remotable.AtMostOnce.ICommand atMostOnceCommand);
+        Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand);
 
-        Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TQueryResult> query);
+        Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remotable.NonTransactional.IQuery<TQueryResult> query);
     }
 
     interface IClientConnection : IDisposable
     {
-        void DispatchIfTransactionCommits(BusApi.RemoteSupport.ExactlyOnce.IEvent @event);
-        void DispatchIfTransactionCommits(BusApi.RemoteSupport.ExactlyOnce.ICommand command);
+        void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent @event);
+        void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.ICommand command);
 
-        Task DispatchAsync(BusApi.RemoteSupport.AtMostOnce.ICommand command);
-        Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TCommandResult> command);
-        Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TQueryResult> query);
+        Task DispatchAsync(BusApi.Remotable.AtMostOnce.ICommand command);
+        Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remotable.AtMostOnce.ICommand<TCommandResult> command);
+        Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remotable.NonTransactional.IQuery<TQueryResult> query);
     }
 
     interface IInbox

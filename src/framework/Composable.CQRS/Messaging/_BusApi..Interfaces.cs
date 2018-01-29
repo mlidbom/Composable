@@ -7,6 +7,8 @@ namespace Composable.Messaging
 {
     public static partial class BusApi
     {
+        public interface IForbidTransactionalRemoteDispatching { }
+
         ///<summary>Any object that is used to transfer data from a sender to a receiver through a messaging infrastructure.</summary>
         public interface IMessage {}
 
@@ -17,7 +19,7 @@ namespace Composable.Messaging
         public interface ICommand : IMessage { }
         public interface ICommand<TResult> : ICommand{ }
 
-        public interface IQuery : IMessage { }
+        public interface IQuery : IMessage, IForbidTransactionalRemoteDispatching { }
 
         ///<summary>An instructs the receiver to return a resource based upon the data in the query.</summary>
         public interface IQuery<TResult> : BusApi.IQuery { }
@@ -45,12 +47,9 @@ namespace Composable.Messaging
 
             public static partial class NonTransactional
             {
-                public interface IAtMostOnceDelivery {}
-                public interface IForbidTransactionalSend { }
-
-                public interface IMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteReceiverMessage {}
-                public interface IQuery : BusApi.Remote.IRequireRemoteResponse, BusApi.Remote.NonTransactional.IMessage, BusApi.IQuery { }
-                public interface IQuery<TResult> : BusApi.Remote.NonTransactional.IQuery, BusApi.IQuery<TResult> { }
+                public interface IMessage : IForbidTransactionalRemoteDispatching, ISupportRemoteReceiverMessage {}
+                public interface IQuery : Remote.IRequireRemoteResponse, Remote.NonTransactional.IMessage, BusApi.IQuery { }
+                public interface IQuery<TResult> : Remote.NonTransactional.IQuery, BusApi.IQuery<TResult> { }
             }
 
             public static partial class AtMostOnce

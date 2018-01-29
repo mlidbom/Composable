@@ -14,10 +14,17 @@ namespace Composable.Messaging
 
         internal static void AssertValid<TMessage>() => AssertValid(typeof(TMessage));
 
-        internal static void AssertValidToSend(BusApi.IMessage message)
+        internal static void AssertValidToSendRemote(BusApi.IMessage message)
         {
-            if(message is BusApi.Remote.ExactlyOnce.IRequireTransactionalSender && Transaction.Current == null)                              throw new Exception($"{message.GetType().FullName} is {nameof(BusApi.Remote.ExactlyOnce.IRequireTransactionalSender)} but there is no transaction.");
-            if(message is BusApi.Remote.NonTransactional.IForbidTransactionalSend && Transaction.Current != null)                                 throw new Exception($"{message.GetType().FullName} is {nameof(BusApi.Remote.NonTransactional.IForbidTransactionalSend)} but there is a transaction.");
+            if(message is BusApi.Remote.ExactlyOnce.IRequireTransactionalSender && Transaction.Current == null) throw new Exception($"{message.GetType().FullName} is {nameof(BusApi.Remote.ExactlyOnce.IRequireTransactionalSender)} but there is no transaction.");
+            if(message is BusApi.IForbidTransactionalRemoteDispatching && Transaction.Current != null) throw new Exception($"{message.GetType().FullName} is {nameof(BusApi.IForbidTransactionalRemoteDispatching)} but there is a transaction.");
+
+            AssertValid(message.GetType());
+        }
+
+        internal static void AssertValidToSendLocal(BusApi.IMessage message)
+        {
+            if(message is BusApi.Remote.ExactlyOnce.IRequireTransactionalSender && Transaction.Current == null) throw new Exception($"{message.GetType().FullName} is {nameof(BusApi.Remote.ExactlyOnce.IRequireTransactionalSender)} but there is no transaction.");
 
             AssertValid(message.GetType());
         }
@@ -28,13 +35,13 @@ namespace Composable.Messaging
             {
                 if(SuccessfullyInspectedTypes.Contains(type)) return;
 
-                if(!type.Implements<BusApi.IMessage>())                                                                   throw new Exception($"{type.FullName} is not an {nameof(BusApi.IMessage)}");
-                if(type.Implements<BusApi.ICommand>() && type.Implements<BusApi.IEvent>())                                       throw new Exception($"{type.FullName} implements both {typeof(BusApi.ICommand)} and {typeof(BusApi.IEvent)}.");
-                if(type.Implements<BusApi.ICommand>() && type.Implements<BusApi.IQuery>())                                       throw new Exception($"{type.FullName} implements both {typeof(BusApi.ICommand)} and {typeof(BusApi.IQuery)}.");
-                if(type.Implements<BusApi.IEvent>() && type.Implements<BusApi.IQuery>())                                         throw new Exception($"{type.FullName} implements both {typeof(BusApi.IEvent)} and {typeof(BusApi.IQuery)}.");
-                if(type.Implements<BusApi.Remote.ISupportRemoteReceiverMessage>() && type.Implements<BusApi.Local.IRequireLocalReceiver>())             throw new Exception($"{type.FullName} implements both {typeof(BusApi.Remote.ISupportRemoteReceiverMessage)} and {typeof(BusApi.Local.IRequireLocalReceiver)}.");
-                if(type.Implements<BusApi.Remote.ExactlyOnce.IRequireTransactionalSender>() && type.Implements<BusApi.Remote.NonTransactional.IForbidTransactionalSend>())  throw new Exception($"{type.FullName} implements both {typeof(BusApi.Remote.ExactlyOnce.IRequireTransactionalSender)} and {typeof(BusApi.Remote.NonTransactional.IForbidTransactionalSend)}.");
-                if(type.Implements<BusApi.IQuery>() && !type.IsAbstract && !type.Implements(typeof(BusApi.IQuery<>)))            throw new Exception($"{type.FullName} implements only: {nameof(BusApi.IQuery)}. Concrete types must implement {typeof(BusApi.IQuery<>).GetFullNameCompilable()}");
+                if(!type.Implements<BusApi.IMessage>()) throw new Exception($"{type.FullName} is not an {nameof(BusApi.IMessage)}");
+                if(type.Implements<BusApi.ICommand>() && type.Implements<BusApi.IEvent>()) throw new Exception($"{type.FullName} implements both {typeof(BusApi.ICommand)} and {typeof(BusApi.IEvent)}.");
+                if(type.Implements<BusApi.ICommand>() && type.Implements<BusApi.IQuery>()) throw new Exception($"{type.FullName} implements both {typeof(BusApi.ICommand)} and {typeof(BusApi.IQuery)}.");
+                if(type.Implements<BusApi.IEvent>() && type.Implements<BusApi.IQuery>()) throw new Exception($"{type.FullName} implements both {typeof(BusApi.IEvent)} and {typeof(BusApi.IQuery)}.");
+                if(type.Implements<BusApi.Remote.ISupportRemoteReceiverMessage>() && type.Implements<BusApi.Local.IRequireLocalReceiver>()) throw new Exception($"{type.FullName} implements both {typeof(BusApi.Remote.ISupportRemoteReceiverMessage)} and {typeof(BusApi.Local.IRequireLocalReceiver)}.");
+                if(type.Implements<BusApi.Remote.ExactlyOnce.IRequireTransactionalSender>() && type.Implements<BusApi.IForbidTransactionalRemoteDispatching>()) throw new Exception($"{type.FullName} implements both {typeof(BusApi.Remote.ExactlyOnce.IRequireTransactionalSender)} and {typeof(BusApi.IForbidTransactionalRemoteDispatching)}.");
+                if(type.Implements<BusApi.IQuery>() && !type.IsAbstract && !type.Implements(typeof(BusApi.IQuery<>))) throw new Exception($"{type.FullName} implements only: {nameof(BusApi.IQuery)}. Concrete types must implement {typeof(BusApi.IQuery<>).GetFullNameCompilable()}");
 
                 SuccessfullyInspectedTypes.Add(type);
             }

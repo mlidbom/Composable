@@ -14,9 +14,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             var navigationSpecification = NavigationSpecification.Get(new MyRemoteQuery());
 
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(RemoteBrowser)), iterations: 10, maxDegreeOfParallelism: 30);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(RemoteNavigator)), iterations: 10, maxDegreeOfParallelism: 30);
 
-            TimeAsserter.ExecuteThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(RemoteBrowser)), iterations: 100, maxTotal: 50.Milliseconds(), maxDegreeOfParallelism: 30);
+            TimeAsserter.ExecuteThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(RemoteNavigator)), iterations: 100, maxTotal: 50.Milliseconds(), maxDegreeOfParallelism: 30);
         }
 
         [Test] public void Given_1_client_thread_Runs_100_remote_queries_in_100_milliseconds()
@@ -24,9 +24,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             var navigationSpecification = NavigationSpecification.Get(new MyRemoteQuery());
 
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(RemoteBrowser)), iterations: 10, maxDegreeOfParallelism: 30);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(RemoteNavigator)), iterations: 10, maxDegreeOfParallelism: 30);
 
-            TimeAsserter.Execute(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(RemoteBrowser)), iterations: 100, maxTotal: 100.Milliseconds());
+            TimeAsserter.Execute(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(RemoteNavigator)), iterations: 100, maxTotal: 100.Milliseconds());
         }
     }
 }

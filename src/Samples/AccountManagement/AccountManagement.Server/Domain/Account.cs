@@ -41,7 +41,7 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        internal static (RegistrationAttemptStatus Status, Account Registered) Register(Guid accountId, Email email ,Password password, ILocalApiBrowserSession bus)
+        internal static (RegistrationAttemptStatus Status, Account Registered) Register(Guid accountId, Email email ,Password password, ILocalApiNavigatorSession bus)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.

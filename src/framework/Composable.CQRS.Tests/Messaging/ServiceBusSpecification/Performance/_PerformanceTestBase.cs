@@ -12,7 +12,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         protected ITestingEndpointHost Host;
         protected IEndpoint ServerEndpoint;
         public IEndpoint ClientEndpoint;
-        protected IRemoteApiBrowserSession RemoteBrowser => Host.RemoteBrowser;
+        protected IRemoteApiNavigatorSession RemoteNavigator => Host.RemoteNavigator;
         protected ITransactionalMessageHandlerServiceBusSession ServerBusSession => ServerEndpoint.ServiceLocator.Resolve<ITransactionalMessageHandlerServiceBusSession>();
 
         [SetUp] public void Setup()

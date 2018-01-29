@@ -36,7 +36,7 @@ namespace AccountManagement.UI.QueryModels
         }
 
         static void MaintainStatisticsWhenRelevantEventsAreReceived(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
-            (AccountEvent.Root @event, ILocalApiBrowserSession bus, StatisticsSingletonInitializer initializer) =>
+            (AccountEvent.Root @event, ILocalApiNavigatorSession bus, StatisticsSingletonInitializer initializer) =>
             {
                 initializer.EnsureInitialized(bus);
 
@@ -58,7 +58,7 @@ namespace AccountManagement.UI.QueryModels
             readonly object _initializationlock = new object();
             bool _isInitialized;
             readonly DocumentDbApi _documentDbApi = new DocumentDbApi();
-            public void EnsureInitialized(ILocalApiBrowserSession bus)
+            public void EnsureInitialized(ILocalApiNavigatorSession bus)
             {
                 lock(_initializationlock)
                 {

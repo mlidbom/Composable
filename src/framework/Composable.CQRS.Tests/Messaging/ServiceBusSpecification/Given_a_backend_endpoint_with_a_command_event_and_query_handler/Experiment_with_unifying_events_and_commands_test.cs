@@ -69,7 +69,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             var registrationResult = _userDomainServiceLocator.ExecuteInIsolatedScope(() =>  UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<ITransactionalMessageHandlerServiceBusSession>()));
 
-            var user = _host.ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() =>_host.RemoteBrowser.Get(registrationResult.UserLink));
+            var user = _host.ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() =>_host.RemoteNavigator.Get(registrationResult.UserLink));
 
             user.Should().NotBe(null);
             user.History.Count().Should().Be(1);

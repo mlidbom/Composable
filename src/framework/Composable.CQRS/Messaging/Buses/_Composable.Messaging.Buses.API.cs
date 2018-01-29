@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses
     }
 
     ///<summary>Dispatches messages within a process.</summary>
-    public interface ILocalApiBrowserSession : IEventstoreEventPublisher
+    public interface ILocalApiNavigatorSession : IEventstoreEventPublisher
     {
         ///<summary>Syncronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
         TResult Execute<TResult>(BusApi.StrictlyLocal.IQuery<TResult> query);
@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses
     }
 
 
-    public interface IRemoteApiBrowserSession
+    public interface IRemoteApiNavigatorSession
     {
         Task PostAsync(BusApi.RemoteSupport.AtMostOnce.ICommand command);
         void Post(BusApi.RemoteSupport.AtMostOnce.ICommand command);
@@ -55,7 +55,7 @@ namespace Composable.Messaging.Buses
     }
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface ITransactionalMessageHandlerServiceBusSession : ILocalApiBrowserSession, IRemoteApiBrowserSession, IIntegrationBusSession
+    public interface ITransactionalMessageHandlerServiceBusSession : ILocalApiNavigatorSession, IRemoteApiNavigatorSession, IIntegrationBusSession
     {
     }
 
@@ -126,7 +126,7 @@ namespace Composable.Messaging.Buses
 
         ITransactionalMessageHandlerServiceBusSession ClientBusSession { get; }
 
-        IRemoteApiBrowserSession RemoteBrowser { get; }
+        IRemoteApiNavigatorSession RemoteNavigator { get; }
     }
 
     interface IMessageDispatchingRule

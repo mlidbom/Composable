@@ -9,7 +9,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
     [TestFixture] public class RemoteQueryPerformanceTests : PerformanceTestBase
     {
-        [Test] public void MultiThreaded_Runs_100_remote_queries_in_20_milliSecond()
+        [Test] public void MultiThreaded_Runs_100_remote_queries_in_20_milliSeconds()
         {
             var navigationSpecification = NavigationSpecification.Get(new MyRemoteQuery());
 

@@ -11,7 +11,7 @@ using JetBrains.Annotations;
 
 namespace Composable.System.Threading
 {
-    public interface ITaskRunner
+    interface ITaskRunner
     {
         void MonitorAndCrashProcessIfTaskThrows(IEnumerable<Task> tasks);
         void MonitorAndCrashProcessIfTaskThrows(params Task[] tasks);
@@ -70,10 +70,7 @@ namespace Composable.System.Threading
 
             protected override void EnqueueWrappedTask(Action action) => Task.Run(action, _cancellationTokenSource.Token);
 
-            public void Dispose()
-            {
-                _cancellationTokenSource.Cancel();
-            }
+            public void Dispose() => _cancellationTokenSource.Cancel();
         }
 
         // ReSharper disable once UnusedMember.Local

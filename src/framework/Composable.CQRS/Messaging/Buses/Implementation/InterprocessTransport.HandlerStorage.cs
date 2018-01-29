@@ -44,7 +44,7 @@ namespace Composable.Messaging.Buses.Implementation
                 }
             }
 
-            internal EndpointId GetCommandHandlerEndpoint(BusApi.Remote.ExactlyOnce.ICommand command)
+            internal EndpointId GetCommandHandlerEndpoint(BusApi.Remote.ICommand command)
             {
                 _handlerHasBeenResolved = true;
                 var commandTypeId = _typeMapper.GetId(command.GetType());
@@ -87,7 +87,7 @@ namespace Composable.Messaging.Buses.Implementation
                        .ToList();
             }
 
-            static bool IsRemoteCommand(Type type) => typeof(BusApi.Remote.ExactlyOnce.ICommand).IsAssignableFrom(type);
+            static bool IsRemoteCommand(Type type) => typeof(BusApi.Remote.ICommand).IsAssignableFrom(type);
             static bool IsRemoteEvent(Type type) => typeof(BusApi.Remote.ExactlyOnce.IEvent).IsAssignableFrom(type);
             static bool IsRemoteQuery(Type type) => typeof(BusApi.Remote.NonTransactional.IQuery).IsAssignableFrom(type);
         }

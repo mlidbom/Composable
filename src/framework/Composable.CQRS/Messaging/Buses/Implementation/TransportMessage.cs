@@ -103,9 +103,9 @@ namespace Composable.Messaging.Buses.Implementation
                 switch(message) {
                     case BusApi.Remote.ExactlyOnce.IEvent _:
                         return TransportMessageType.Event;
-                    case BusApi.Remote.ExactlyOnce.ICommand _:
+                    case BusApi.Remote.ICommand _:
                         return TransportMessageType.Command;
-                    case BusApi.IQuery _:
+                    case BusApi.Remote.NonTransactional.IQuery _:
                         return TransportMessageType.Query;
                     default:
                         throw new ArgumentOutOfRangeException();

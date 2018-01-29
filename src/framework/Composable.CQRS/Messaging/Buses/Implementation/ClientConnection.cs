@@ -23,7 +23,17 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
 
-        public void Dispatch<TResult>(BusApi.Remote.AtMostOnce.ICommand<TResult> command) => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper)));
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remote.AtMostOnce.ICommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
+        {
+            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper);
+
+            state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+            DispatchMessage(state, outGoingMessage);
+
+            return await taskCompletionSource.Task;
+        });
 
         public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.Remote.ExactlyOnce.ICommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
         {

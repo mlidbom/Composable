@@ -1,6 +1,7 @@
 ﻿using System;
 // ReSharper disable UnusedTypeParameter
 // ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable RedundantNameQualifier
 
 namespace Composable.Messaging
 {
@@ -38,6 +39,9 @@ namespace Composable.Messaging
         public partial class Remote
         {
             public interface ISupportRemoteReceiverMessage : IMessage {}
+            public interface ICommand : BusApi.ICommand, ISupportRemoteReceiverMessage { }
+            public interface ICommand<TResult> : ICommand, BusApi.ICommand<TResult> { }
+
 
             public partial class NonTransactional
             {
@@ -46,13 +50,13 @@ namespace Composable.Messaging
 
                 public interface IMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteReceiverMessage {}
                 public interface IQuery : BusApi.IQuery, IMessage { }
-                public interface IQuery<TResult> : BusApi.IQuery<TResult>, BusApi.Remote.NonTransactional.IQuery, IMessage { }
+                public interface IQuery<TResult> : BusApi.Remote.NonTransactional.IQuery, BusApi.IQuery<TResult> { }
             }
 
             public partial class AtMostOnce
             {
-                public interface ICommand : BusApi.ICommand, ISupportRemoteReceiverMessage { }
-                public interface ICommand<TResult> : ICommand, BusApi.ICommand<TResult> { }
+                public interface ICommand : BusApi.Remote.ICommand, ISupportRemoteReceiverMessage { }
+                public interface ICommand<TResult> : BusApi.Remote.AtMostOnce.ICommand, BusApi.Remote.ICommand<TResult> { }
             }
 
             public partial class ExactlyOnce
@@ -65,8 +69,8 @@ namespace Composable.Messaging
                 public interface IExactlyOnceMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId {}
 
                 public interface IEvent : BusApi.IEvent, IExactlyOnceMessage { }
-                public interface ICommand : BusApi.ICommand, IExactlyOnceMessage { }
-                public interface ICommand<TResult> : BusApi.ICommand<TResult>, BusApi.Remote.ExactlyOnce.ICommand { }
+                public interface ICommand : BusApi.Remote.ICommand, IExactlyOnceMessage { }
+                public interface ICommand<TResult> : BusApi.Remote.ICommand<TResult>, BusApi.Remote.ExactlyOnce.ICommand { }
             }
         }
     }

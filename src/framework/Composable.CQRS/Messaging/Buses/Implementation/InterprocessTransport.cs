@@ -107,7 +107,15 @@ namespace Composable.Messaging.Buses.Implementation
         });
 
 
-        public Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remote.ExactlyOnce.ICommand<TCommandResult> exactlyOnceCommand) { throw new NotImplementedException(); }
+        public void Dispatch(BusApi.Remote.AtMostOnce.ICommand exactlyOnceCommand) { throw new NotImplementedException(); }
+
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remote.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand) => await _state.WithExclusiveAccess(async state =>
+        {
+            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand);
+            var connection = state.EndpointConnections[endPointId];
+
+            return await connection.DispatchAsync(atMostOnceCommand);
+        });
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remote.NonTransactional.IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>
         {

@@ -31,6 +31,7 @@ namespace Composable.Messaging.Buses
 
     public interface IUIInteractionApiBrowser
     {
+        //todo: Consider this. Does it really make sense to be void and non-async. Should this not at least throw if remote execution fails!?
         void PostRemote(BusApi.Remote.AtMostOnce.ICommand command);
         TResult PostRemote<TResult>(BusApi.Remote.AtMostOnce.ICommand<TResult> command);
         Task<TResult> PostRemoteAsync<TResult>(BusApi.Remote.AtMostOnce.ICommand<TResult> command);

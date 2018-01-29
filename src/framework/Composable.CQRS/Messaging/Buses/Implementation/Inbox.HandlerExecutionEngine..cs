@@ -57,6 +57,8 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     case BusApi.Remote.ExactlyOnce.ICommand command:
                         return await DispatchAsync(command, message);
+                    case BusApi.Remote.AtMostOnce.ICommand command:
+                        return await DispatchAsync(command, message);
                     case BusApi.Remote.ExactlyOnce.IEvent @event:
                         return await DispatchAsync(@event, message);
                     case BusApi.IQuery query:
@@ -140,6 +142,29 @@ namespace Composable.Messaging.Buses.Implementation
                     {
                         var result = handler(command);
                         _storage.MarkAsHandled(message);
+                        taskCompletionSource.SetResult(result);
+                    }
+                    catch(Exception exception)
+                    {
+                        taskCompletionSource.SetException(exception);
+                        throw;
+                    }
+                }));
+
+                return await taskCompletionSource.Task.NoMarshalling();
+            }
+
+            async Task<object> DispatchAsync(BusApi.Remote.AtMostOnce.ICommand command, TransportMessage.InComing message)
+            {
+                var handler = _handlerRegistry.GetCommandHandler(command.GetType());
+
+                var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                _coordinator.EnqueueMessageTask(message, messageTask: () => _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
+                {
+                    try
+                    {
+                        var result = handler(command);
                         taskCompletionSource.SetResult(result);
                     }
                     catch(Exception exception)

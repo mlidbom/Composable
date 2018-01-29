@@ -55,18 +55,15 @@ namespace Composable.Messaging.Buses.Implementation
 
             void AwaitDispatchableMessageThread()
             {
-                while(!_cancellationTokenSource.Token.IsCancellationRequested)
+                try
                 {
-                    try
+                    while(true)
                     {
                         var dispatchableMessage = _coordinator.AwaitDispatchableMessage(_dispatchingRules);
                         dispatchableMessage.Run();
                     }
-                    catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException)
-                    {
-                        return;
-                    }
                 }
+                catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException) {}
             }
 
             async Task<object> DispatchQueryAsync(TransportMessage.InComing message)

@@ -1,6 +1,5 @@
 ﻿using System;
 using Composable.DDD;
-using Composable.Messaging.Buses;
 
 // ReSharper disable RedundantNameQualifier
 // ReSharper disable UnusedTypeParameter
@@ -8,11 +7,11 @@ using Composable.Messaging.Buses;
 
 namespace Composable.Messaging
 {
-    public partial class BusApi
+    public static partial class BusApi
     {
         public partial class Local
         {
-            public class Queries
+            public static class Queries
             {
                 public abstract class Query<TResult> : BusApi.Local.IQuery<TResult> {}
 
@@ -25,7 +24,7 @@ namespace Composable.Messaging
                 }
             }
 
-            public class Commands
+            public static class Commands
             {
                 public abstract class Command : BusApi.Local.ICommand
                 {
@@ -37,9 +36,9 @@ namespace Composable.Messaging
             }
         }
 
-        public partial class Remote
+        public static partial class Remote
         {
-            public class Query
+            public static class Query
             {
                 public abstract class RemoteQuery<TResult> : BusApi.Remote.NonTransactional.IQuery<TResult> {}
 
@@ -59,17 +58,17 @@ namespace Composable.Messaging
                 }
             }
 
-            public partial class AtMostOnce
+            public static partial class AtMostOnce
             {
                 public class Command : BusApi.Remote.AtMostOnce.ICommand {}
                 public class Command<TResult> : BusApi.Remote.AtMostOnce.ICommand<TResult> {}
             }
 
-            public partial class NonTransactional
+            public static partial class NonTransactional
             {
             }
 
-            public partial class ExactlyOnce
+            public static partial class ExactlyOnce
             {
                 public abstract class Message : BusApi.IMessage, BusApi.Remote.ExactlyOnce.IExactlyOnceMessage
                 {

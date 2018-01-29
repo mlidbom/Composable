@@ -5,7 +5,7 @@
 
 namespace Composable.Messaging
 {
-    public partial class BusApi
+    public static partial class BusApi
     {
         ///<summary>Any object that is used to transfer data from a sender to a receiver through a messaging infrastructure.</summary>
         public interface IMessage {}
@@ -27,7 +27,7 @@ namespace Composable.Messaging
             TResult CreateResult();
         }
 
-        public partial class Local
+        public static partial class Local
         {
             public interface IRequireLocalReceiver {}
             public interface IEvent : BusApi.IEvent, IRequireLocalReceiver { }
@@ -36,15 +36,14 @@ namespace Composable.Messaging
             public interface IQuery<TResult> : IRequireLocalReceiver, BusApi.IQuery<TResult> { }
         }
 
-        public partial class Remote
+        public static partial class Remote
         {
             public interface ISupportRemoteReceiverMessage : IMessage {}
             public interface IRequireRemoteResponse : ISupportRemoteReceiverMessage {}
             public interface ICommand : BusApi.ICommand, ISupportRemoteReceiverMessage { }
             public interface ICommand<TResult> : ICommand, BusApi.ICommand<TResult>, IRequireRemoteResponse { }
 
-
-            public partial class NonTransactional
+            public static partial class NonTransactional
             {
                 public interface IAtMostOnceDelivery {}
                 public interface IForbidTransactionalSend { }
@@ -54,13 +53,13 @@ namespace Composable.Messaging
                 public interface IQuery<TResult> : BusApi.Remote.NonTransactional.IQuery, BusApi.IQuery<TResult> { }
             }
 
-            public partial class AtMostOnce
+            public static partial class AtMostOnce
             {
                 public interface ICommand : BusApi.Remote.ICommand, IRequireRemoteResponse { }
                 public interface ICommand<TResult> : BusApi.Remote.AtMostOnce.ICommand, BusApi.Remote.ICommand<TResult> { }
             }
 
-            public partial class ExactlyOnce
+            public static partial class ExactlyOnce
             {
                 public interface IRequireTransactionalSender : ISupportRemoteReceiverMessage{ }
                 public interface IRequireTransactionalReceiver : ISupportRemoteReceiverMessage { }

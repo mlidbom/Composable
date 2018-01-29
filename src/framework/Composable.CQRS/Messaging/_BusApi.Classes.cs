@@ -1,6 +1,5 @@
 ﻿using System;
 using Composable.DDD;
-using NetMQ.Sockets;
 using Newtonsoft.Json;
 
 // ReSharper disable RedundantNameQualifier
@@ -85,16 +84,6 @@ namespace Composable.Messaging
 
                     Command(Guid id) => MessageId = id;
                 }
-            }
-        }
-
-        public static class Response
-        {
-            public abstract class Entity<TResult> : IHasPersistentIdentity<Guid> where TResult : Entity<TResult>
-            {
-                protected Entity() {}
-                protected Entity(Guid id) => Id = id;
-                public Guid Id { get; private set; }
             }
         }
     }

@@ -13,10 +13,10 @@ namespace Composable.DDD
     /// 
     /// </summary>
     [DebuggerDisplay("{" + nameof(ToString) + "()}")]
-    public class IdEqualityObject<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : IdEqualityObject<TEntity, TKEy>
+    public class Entity<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : Entity<TEntity, TKEy>
     {
         ///<summary>Construct an instance with <param name="id"> as the <see cref="Id"/></param>.</summary>
-        protected IdEqualityObject(TKEy id) => Id = id;
+        protected Entity(TKEy id) => Id = id;
 
         TKEy _id;
 
@@ -48,7 +48,7 @@ namespace Composable.DDD
         public override int GetHashCode() => Id.GetHashCode();
 
         ///<summary>True if both instances have the same ID</summary>
-        public static bool operator ==(IdEqualityObject<TEntity, TKEy> lhs, IdEqualityObject<TEntity, TKEy> rhs)
+        public static bool operator ==(Entity<TEntity, TKEy> lhs, Entity<TEntity, TKEy> rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -59,7 +59,7 @@ namespace Composable.DDD
         }
 
         ///<summary>True if both instances do not have the same ID</summary>
-        public static bool operator !=(IdEqualityObject<TEntity, TKEy> lhs, IdEqualityObject<TEntity, TKEy> rhs) => !(lhs == rhs);
+        public static bool operator !=(Entity<TEntity, TKEy> lhs, Entity<TEntity, TKEy> rhs) => !(lhs == rhs);
 
         ///<summary>Returns a string similar to: MyType:MyId</summary>
         public override string ToString() => $"{GetType().Name}:{Id}";
@@ -77,13 +77,13 @@ namespace Composable.DDD
     [DebuggerDisplay("{GetType().Name} Id={Id}")]
     [Serializable]
 #pragma warning disable 660,661
-    public class PersistentEntity<TEntity> : IdEqualityObject<TEntity, Guid>, IPersistentEntity<Guid> where TEntity : PersistentEntity<TEntity>
+    public class Entity<TEntity> : Entity<TEntity, Guid>, IPersistentEntity<Guid> where TEntity : Entity<TEntity>
 #pragma warning restore 660,661
     {
         /// <summary>
         /// Creates an instance using the supplied <paramref name="id"/> as the Id.
         /// </summary>
-        protected PersistentEntity(Guid id):base(id)
+        protected Entity(Guid id):base(id)
         {
             SetIdBeVerySureYouKnowWhatYouAreDoing(id);
         }
@@ -91,12 +91,12 @@ namespace Composable.DDD
         /// <summary>
         /// Creates a new instance with an automatically generated Id
         /// </summary>
-        protected PersistentEntity():base(Guid.NewGuid())
+        protected Entity():base(Guid.NewGuid())
         {
         }
 
         ///<summary>True if both instances have the same ID</summary>
-        public static bool operator ==(PersistentEntity<TEntity> lhs, PersistentEntity<TEntity> rhs)
+        public static bool operator ==(Entity<TEntity> lhs, Entity<TEntity> rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -107,6 +107,6 @@ namespace Composable.DDD
         }
 
         ///<summary>True if both instances do not have the same ID</summary>
-        public static bool operator !=(PersistentEntity<TEntity> lhs, PersistentEntity<TEntity> rhs) => !(lhs == rhs);
+        public static bool operator !=(Entity<TEntity> lhs, Entity<TEntity> rhs) => !(lhs == rhs);
     }
 }

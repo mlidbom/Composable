@@ -1,6 +1,9 @@
 using System;
 using System.Threading.Tasks;
+using System.Transactions;
 using Composable.System;
+using Composable.System.Transactions;
+using Composable.Testing.Transactions;
 
 namespace Composable.Testing.Threading
 {
@@ -41,7 +44,11 @@ namespace Composable.Testing.Threading
         public static IThreadGate AwaitEmptyQueue(this IThreadGate @this) => @this.Await(() => @this.Queued == 0);
         public static bool TryAwaitEmptyQueue(this IThreadGate @this, TimeSpan timeout) => @this.TryAwait(timeout, () => @this.Queued == 0);
 
-        public static IThreadGate ThrowOnPassThrough(this IThreadGate @this, Exception exception) => @this.SetPassThroughAction(_ => throw exception);
+        public static IThreadGate ThrowPostPassThrough(this IThreadGate @this, Exception exception) => @this.SetPostPassThroughAction(_ => throw exception);
+        public static IThreadGate ThrowPrePassThrough(this IThreadGate @this, Exception exception) => @this.SetPostPassThroughAction(_ => throw exception);
+
+        public static IThreadGate FailTransactionOnPreparePostPassThrough(this IThreadGate @this, Exception exception) => @this.SetPostPassThroughAction(_ => Transaction.Current.FailOnPrepare(exception));
+
 
         public static Task<IThreadGate> ThrowOnNextPassThroughAsync(this IThreadGate @this, Func<ThreadSnapshot, Exception> exceptionFactory)
         {

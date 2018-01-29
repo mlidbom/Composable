@@ -2,6 +2,7 @@
 using Composable.Messaging.Buses;
 using Composable.System;
 using Composable.System.Transactions;
+using Composable.Testing;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -20,28 +21,22 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                     throw new Exception("MyException");
                 });
             }
-            catch(Exception exception) when (exception.Message == "MyException"){}
+            catch(Exception exception) when(exception.Message == "MyException") {}
 
             CommandHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
-                                              .Should()
-                                              .Be(false, "command should not reach handler");
+                                    .Should()
+                                    .Be(false, "command should not reach handler");
         }
 
-        [Fact] void If_transaction_fails_after_successfully_calling_Publish_event_never_reaches_handler()
+        [Fact] void If_transaction_fails_after_successfully_calling_Publish_event_never_reaches_remote_handler()
         {
-            try
-            {
-                ClientEndpoint.ExecuteRequest(session => TransactionScopeCe.Execute(() =>
-                {
-                    Host.ClientBusSession.Publish(new MyExactlyOnceEvent());
-                    throw new Exception("MyException");
-                }));
-            }
-            catch(Exception exception) when (exception.Message == "MyException"){}
+            MyCreateAggregateCommandHandlerThreadGate.FailTransactionOnPreparePostPassThrough(new Exception("Something"));
 
-            EventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
-                                    .Should()
-                                    .Be(false, "event should not reach handler");
+            var (backendException, frontEndException) = Host.AssertThatRunningScenarioThrowsBackendAndClientTransaction<Exception>(() => ClientEndpoint.ExecuteRequest(session => Host.RemoteNavigator.Post(new MyCreateAggregateCommand())));
+
+            MyRemoteAggregateEventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
+                                  .Should()
+                                  .Be(false, "event should not reach handler");
         }
     }
 }

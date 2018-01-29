@@ -18,17 +18,17 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         internal readonly IThreadGate CommandHandlerWithResultThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate MyCreateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate MyUpdateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
+        internal readonly IThreadGate MyRemoteAggregateEventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate EventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate QueryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(5.Seconds());
 
         protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
-        protected readonly IEndpoint DomainEndpoint;
         protected readonly IEndpoint ClientEndpoint;
 
         protected Fixture()
         {
             Host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
-            DomainEndpoint = Host.RegisterAndStartEndpoint(
+            Host.RegisterAndStartEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
                 builder =>
@@ -49,8 +49,22 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                            .Map<MyExactlyOnceEvent>("2fdde21f-c6d4-46a2-95e5-3429b820dfc3")
                            .Map<MyQuery>("b9d62f22-514b-4e3c-9ac1-66940a7a8144")
                            .Map<MyCreateAggregateCommand>("86bf04d8-8e6d-4e21-a95e-8af237f69f0f")
-                           .Map<MyUpdateAggregateCommand>("c4ce3662-d068-4ec1-9c02-8d8f08640414");
+                           .Map<MyUpdateAggregateCommand>("c4ce3662-d068-4ec1-9c02-8d8f08640414")
+                           .Map<MyAggregateEvent.IRoot>("8b19a261-b74b-4c05-91e3-d062dc879635")
+                           .Map<MyAggregate>("8b7df016-3763-4033-8240-f46fa836ebfb")
+                           .Map<MyAggregateEvent.Created>("41f96e37-657f-464a-a4d1-004eba4e8e7b")
+                           .Map<MyAggregateEvent.Implementation.Created>("0ea2f548-0d24-4bb0-a59a-820bc35f3935")
+                           .Map<MyAggregateEvent.Implementation.Root>("5a792961-3fbc-4d50-b06e-77fc35cb6edf")
+                           .Map<MyAggregateEvent.Implementation.Updated>("bead75b3-9ecf-4f6b-b8c6-973a02168256")
+                           .Map<MyAggregateEvent.Updated>("2a8b19f0-20df-480d-b120-71ed5151b174");
                 });
+
+            Host.RegisterAndStartEndpoint("Remote",
+                new EndpointId(Guid.Parse("E72924D3-5279-44B5-B20D-D682E537672B")),
+                                          builder =>
+                                          {
+                                              builder.RegisterHandlers.ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyRemoteAggregateEventHandlerThreadGate.AwaitPassthrough());
+                                          });
 
             ClientEndpoint = Host.ClientEndpoint;
         }
@@ -106,7 +120,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         protected class MyAggregate : Aggregate<MyAggregate, MyAggregateEvent.Implementation.Root, MyAggregateEvent.IRoot>
         {
-            public MyAggregate():base(new DateTimeNowTimeSource()) {}
+            public MyAggregate() : base(new DateTimeNowTimeSource())
+            {
+                RegisterEventAppliers()
+                   .IgnoreUnhandled<MyAggregateEvent.IRoot>();
+            }
 
             internal void Update() => Publish(new MyAggregateEvent.Implementation.Updated());
 
@@ -118,12 +136,12 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        protected class MyCreateAggregateCommand : BusApi.Remotable.ICommand
+        protected class MyCreateAggregateCommand : BusApi.Remotable.AtMostOnce.ICommand
         {
             public Guid AggregateId { get; private set; } = Guid.NewGuid();
         }
 
-        protected class MyUpdateAggregateCommand : BusApi.Remotable.ICommand
+        protected class MyUpdateAggregateCommand : BusApi.Remotable.AtMostOnce.ICommand
         {
             public MyUpdateAggregateCommand(Guid aggregateId) => AggregateId = aggregateId;
             public Guid AggregateId { get; private set; }

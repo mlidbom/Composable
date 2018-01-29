@@ -11,19 +11,19 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
     {
         [Fact] public async Task If_command_handler_with_result_throws_awaiting_SendAsync_throws()
         {
-            CommandHandlerWithResultThreadGate.ThrowOnPassThrough(_thrownException);
+            CommandHandlerWithResultThreadGate.ThrowPostPassThrough(_thrownException);
             await AssertThrows.Async<Exception>(async () => await ClientEndpoint.ExecuteRequestAsync(session => session.PostAsync(new MyAtMostOnceCommandWithResult())));
         }
 
         [Fact] public async Task If_query_handler_throws_awaiting_QueryAsync_throws()
         {
-            QueryHandlerThreadGate.ThrowOnPassThrough(_thrownException);
+            QueryHandlerThreadGate.ThrowPostPassThrough(_thrownException);
             await AssertThrows.Async<Exception>(() => ClientEndpoint.ExecuteRequestAsync(session => session.GetAsync(new MyQuery())));
         }
 
         [Fact] public void If_query_handler_throws_Query_throws()
         {
-            QueryHandlerThreadGate.ThrowOnPassThrough(_thrownException);
+            QueryHandlerThreadGate.ThrowPostPassThrough(_thrownException);
             Assert.ThrowsAny<Exception>(() => ClientEndpoint.ExecuteRequest(session => session.Get(new MyQuery())));
         }
 

@@ -10,7 +10,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         partial class HandlerExecutionEngine
         {
-            class Coordinator
+            partial class Coordinator
             {
                 readonly ITaskRunner _taskRunner;
                 readonly AwaitableOptimizedThreadShared<NonThreadsafeImplementation> _implementation;
@@ -133,42 +133,6 @@ namespace Composable.Messaging.Buses.Implementation
                     readonly List<TransportMessage.InComing> _executingAtMostOnceCommands = new List<TransportMessage.InComing>();
                     readonly List<TransportMessage.InComing> _executingExactlyOnceEvents = new List<TransportMessage.InComing>();
                     readonly List<TransportMessage.InComing> _executingNonTransactionalQueries = new List<TransportMessage.InComing>();
-                }
-
-                internal class QueuedMessage
-                {
-                    internal readonly TransportMessage.InComing TransportMessage;
-                    readonly Coordinator _coordinator;
-                    readonly Action _messageTask;
-                    readonly ITaskRunner _taskRunner;
-                    // ReSharper disable once UnusedMember.Local
-                    public BusApi.IMessage DeserializeMessageAndCache() => TransportMessage.DeserializeMessageAndCacheForNextCall();
-                    public Guid MessageId { get; }
-
-                    public void Run()
-                    {
-                        _taskRunner.RunAndCrashProcessIfTaskThrows(() =>
-                        {
-                            try
-                            {
-                                _messageTask();
-                                _coordinator.Succeeded(this);
-                            }
-                            catch(Exception exception)
-                            {
-                                _coordinator.Failed(this, exception);
-                            }
-                        });
-                    }
-
-                    public QueuedMessage(TransportMessage.InComing transportMessage, Coordinator coordinator, Action messageTask, ITaskRunner taskRunner)
-                    {
-                        MessageId = transportMessage.MessageId;
-                        TransportMessage = transportMessage;
-                        _coordinator = coordinator;
-                        _messageTask = messageTask;
-                        _taskRunner = taskRunner;
-                    }
                 }
             }
         }

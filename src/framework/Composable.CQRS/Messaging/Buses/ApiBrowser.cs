@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 namespace Composable.Messaging.Buses
 {
     //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
-    [UsedImplicitly] partial class ApiNavigatorSession : IServiceBusSession, ILocalApiNavigatorSession, IEventstoreEventPublisher
+    [UsedImplicitly] partial class ApiNavigatorSession : IServiceBusSession, ILocalApiNavigatorSession
     {
         readonly IInterprocessTransport _transport;
         readonly CommandScheduler _commandScheduler;
@@ -22,15 +22,6 @@ namespace Composable.Messaging.Buses
             _transport = transport;
             _commandScheduler = commandScheduler;
             _handlerRegistry = handlerRegistry;
-        }
-
-        //todo: This _REALLY_ does not belong here.
-        void IEventstoreEventPublisher.Publish(IAggregateEvent @event)
-        {
-            _contextGuard.AssertNoContextChangeOccurred(this);
-            MessageInspector.AssertValidToSendRemote(@event);
-            _handlerRegistry.CreateEventDispatcher().Dispatch(@event);
-            _transport.DispatchIfTransactionCommits(@event);
         }
 
         void IIntegrationBusSession.Send(BusApi.Remotable.ExactlyOnce.ICommand command)

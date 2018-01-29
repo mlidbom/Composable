@@ -38,33 +38,6 @@ namespace Composable.Messaging
 
         public static partial class Remotable
         {
-            public static class Queries
-            {
-                public abstract class Query<TResult> : Remotable.NonTransactional.IQuery<TResult> {}
-
-                public class EntityLink<TResult> : Remotable.Queries.Query<TResult> where TResult : IHasPersistentIdentity<Guid>
-                {
-                    public EntityLink() {}
-                    public EntityLink(Guid entityId) => EntityId = entityId;
-                    public EntityLink<TResult> WithId(Guid id) => new EntityLink<TResult>(id);
-                    public Guid EntityId { get; private set; }
-                }
-
-                ///<summary>Implement <see cref="ICreateMyOwnResultQuery{TResult}"/> by passing a func to this base class.</summary>
-                public abstract class FuncResultQuery<TResult> : Query<TResult>, ICreateMyOwnResultQuery<TResult>
-                {
-                    readonly Func<TResult> _factory;
-                    protected FuncResultQuery(Func<TResult> factory) => _factory = factory;
-                    public TResult CreateResult() => _factory();
-                }
-
-                /// <summary>Implements <see cref="ICreateMyOwnResultQuery{TResult}"/> by calling the default constructor on <typeparamref name="TResult"/></summary>
-                public class NewableResultLink<TResult> : Query<TResult>, ICreateMyOwnResultQuery<TResult> where TResult : new()
-                {
-                    public TResult CreateResult() => new TResult();
-                }
-            }
-
             public static partial class AtMostOnce
             {
                 public class Command : Remotable.AtMostOnce.ICommand {}
@@ -73,6 +46,32 @@ namespace Composable.Messaging
 
             public static partial class NonTransactional
             {
+                public static class Queries
+                {
+                    public abstract class Query<TResult> : Remotable.NonTransactional.IQuery<TResult> {}
+
+                    public class EntityLink<TResult> : Remotable.NonTransactional.Queries.Query<TResult> where TResult : IHasPersistentIdentity<Guid>
+                    {
+                        public EntityLink() {}
+                        public EntityLink(Guid entityId) => EntityId = entityId;
+                        public EntityLink<TResult> WithId(Guid id) => new EntityLink<TResult>(id);
+                        public Guid EntityId { get; private set; }
+                    }
+
+                    ///<summary>Implement <see cref="ICreateMyOwnResultQuery{TResult}"/> by passing a func to this base class.</summary>
+                    public abstract class FuncResultQuery<TResult> : Query<TResult>, ICreateMyOwnResultQuery<TResult>
+                    {
+                        readonly Func<TResult> _factory;
+                        protected FuncResultQuery(Func<TResult> factory) => _factory = factory;
+                        public TResult CreateResult() => _factory();
+                    }
+
+                    /// <summary>Implements <see cref="ICreateMyOwnResultQuery{TResult}"/> by calling the default constructor on <typeparamref name="TResult"/></summary>
+                    public class NewableResultLink<TResult> : Query<TResult>, ICreateMyOwnResultQuery<TResult> where TResult : new()
+                    {
+                        public TResult CreateResult() => new TResult();
+                    }
+                }
             }
 
             public static partial class ExactlyOnce

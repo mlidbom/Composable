@@ -164,7 +164,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        public class GetUserQuery : BusApi.Remotable.Queries.Query<UserResource>
+        public class GetUserQuery : BusApi.Remotable.NonTransactional.Queries.Query<UserResource>
         {
             public Guid UserId { get; private set; }
             public GetUserQuery(Guid userId) => UserId = userId;

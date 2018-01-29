@@ -10,7 +10,7 @@ namespace AccountManagement.API
 
         public class Query
         {
-            public BusApi.Remotable.Queries.EntityLink<AccountResource> AccountById { get; private set; } = new BusApi.Remotable.Queries.EntityLink<AccountResource>();
+            public BusApi.Remotable.NonTransactional.Queries.EntityLink<AccountResource> AccountById { get; private set; } = new BusApi.Remotable.NonTransactional.Queries.EntityLink<AccountResource>();
         }
 
         public class Command

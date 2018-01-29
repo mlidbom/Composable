@@ -94,7 +94,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class GetUserQuery : BusApi.Remotable.Queries.Query<UserResource>
+            protected class GetUserQuery : BusApi.Remotable.NonTransactional.Queries.Query<UserResource>
             {
                 public GetUserQuery(string name) => Name = name;
                 public string Name { get; }
@@ -119,7 +119,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            class UserApiStartPageQuery : BusApi.Remotable.Queries.Query<UserApiStartPage> {}
+            class UserApiStartPageQuery : BusApi.Remotable.NonTransactional.Queries.Query<UserApiStartPage> {}
         }
     }
 }

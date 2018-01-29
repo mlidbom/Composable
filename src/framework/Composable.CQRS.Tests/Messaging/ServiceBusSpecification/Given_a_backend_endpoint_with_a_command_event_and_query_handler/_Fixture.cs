@@ -19,6 +19,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         internal readonly IThreadGate MyCreateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate MyUpdateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate MyRemoteAggregateEventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
+        internal readonly IThreadGate MyLocalAggregateEventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate EventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate QueryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(5.Seconds());
 
@@ -41,6 +42,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                            .ForCommand((MyCreateAggregateCommand command, ILocalApiNavigatorSession navigator) => MyCreateAggregateCommandHandlerThreadGate.AwaitPassthroughAndExecute(() => MyAggregate.Create(command.AggregateId, navigator)))
                            .ForCommand((MyUpdateAggregateCommand command, ILocalApiNavigatorSession navigator) => MyUpdateAggregateCommandHandlerThreadGate.AwaitPassthroughAndExecute(() => navigator.Execute(new ComposableApi().EventStore.Queries.GetForUpdate<MyAggregate>(command.AggregateId)).Update()))
                            .ForEvent((MyExactlyOnceEvent myEvent) => EventHandlerThreadGate.AwaitPassthrough())
+                           .ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyLocalAggregateEventHandlerThreadGate.AwaitPassthrough())
                            .ForQuery((MyQuery query) => QueryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
                            .ForCommandWithResult((MyAtMostOnceCommandWithResult command) => CommandHandlerWithResultThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()));
 
@@ -61,10 +63,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             Host.RegisterAndStartEndpoint("Remote",
                 new EndpointId(Guid.Parse("E72924D3-5279-44B5-B20D-D682E537672B")),
-                                          builder =>
-                                          {
-                                              builder.RegisterHandlers.ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyRemoteAggregateEventHandlerThreadGate.AwaitPassthrough());
-                                          });
+                                          builder => builder.RegisterHandlers.ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyRemoteAggregateEventHandlerThreadGate.AwaitPassthrough()));
 
             ClientEndpoint = Host.ClientEndpoint;
         }

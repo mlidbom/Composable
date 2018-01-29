@@ -32,6 +32,8 @@ namespace Composable.Messaging.Buses
 
         public ITransactionalMessageHandlerServiceBusSession ClientBusSession => _clientEndpoint.ServiceLocator.Resolve<ITransactionalMessageHandlerServiceBusSession>();
 
+        public IRemoteApiBrowserSession ClientApiBrowser => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiBrowserSession>();
+
         protected override void InternalDispose()
         {
             WaitForEndpointsToBeAtRest();

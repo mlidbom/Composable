@@ -125,6 +125,8 @@ namespace Composable.Messaging.Buses
         IEndpoint ClientEndpoint { get; }
 
         ITransactionalMessageHandlerServiceBusSession ClientBusSession { get; }
+
+        IRemoteApiBrowserSession ClientApiBrowser { get; }
     }
 
     interface IMessageDispatchingRule

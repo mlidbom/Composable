@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.System;
-using Composable.System.Transactions;
 using Composable.Testing.Transactions;
 
 namespace Composable.Testing.Threading

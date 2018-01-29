@@ -6,7 +6,6 @@ using Composable.DDD;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Messaging.Events;
-using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses

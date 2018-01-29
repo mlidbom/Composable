@@ -6,7 +6,6 @@ using Composable.DependencyInjection;
 using Composable.Refactoring.Naming;
 using Composable.System.Linq;
 using Composable.System.Threading;
-using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses.Implementation
 {

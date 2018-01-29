@@ -3,7 +3,6 @@ using System.Transactions;
 using Composable.Messaging.Buses;
 using Composable.System;
 using Composable.System.Transactions;
-using Composable.Testing;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;

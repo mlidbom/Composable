@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Persistence.EventStore;
 using Composable.System.Threading;
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;

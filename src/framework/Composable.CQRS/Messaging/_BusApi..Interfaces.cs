@@ -34,11 +34,11 @@ namespace Composable.Messaging
 
         public static partial class StrictlyLocal
         {
-            public interface IRequireLocalReceiver {}
-            public interface IEvent : BusApi.IEvent, IRequireLocalReceiver { }
-            public interface ICommand : BusApi.ICommand, IRequireLocalReceiver, IRequireTransactionalSender { }
-            public interface ICommand<TResult> : BusApi.ICommand<TResult>, IRequireLocalReceiver  { }
-            public interface IQuery<TResult> : IRequireLocalReceiver, BusApi.IQuery<TResult> { }
+            public interface IMessage {}
+            public interface IEvent : BusApi.IEvent, StrictlyLocal.IMessage { }
+            public interface ICommand : BusApi.ICommand, IRequireTransactionalSender, StrictlyLocal.IMessage { }
+            public interface ICommand<TResult> : BusApi.ICommand<TResult>, IRequireTransactionalSender, StrictlyLocal.ICommand, StrictlyLocal.IMessage  { }
+            public interface IQuery<TResult> : BusApi.IQuery<TResult>, StrictlyLocal.IMessage { }
         }
 
         public static partial class Remotable

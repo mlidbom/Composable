@@ -54,7 +54,7 @@ namespace Composable.Messaging.Buses.Implementation
                     internal bool TryGetDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules, out QueuedMessage dispatchable)
                     {
                         dispatchable = null;
-                        if(_executingMessages.Count >= MaxConcurrentlyExecutingHandlers)
+                        if(_executingMessages >= MaxConcurrentlyExecutingHandlers)
                         {
                             return false;
                         }
@@ -67,7 +67,7 @@ namespace Composable.Messaging.Buses.Implementation
                             return false;
                         }
 
-                        _executingMessages.Add(dispatchable.TransportMessage);
+                        _executingMessages++;
 
                         switch(dispatchable.TransportMessage.MessageTypeEnum)
                         {
@@ -99,7 +99,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     void DoneDispatching(QueuedMessage doneExecuting, Exception exception = null)
                     {
-                        _executingMessages.Remove(doneExecuting.TransportMessage);
+                        _executingMessages--;
 
                         switch(doneExecuting.TransportMessage.MessageTypeEnum)
                         {
@@ -122,7 +122,7 @@ namespace Composable.Messaging.Buses.Implementation
                         _globalStateTracker.DoneWith(doneExecuting.MessageId, exception);
                     }
 
-                    readonly List<TransportMessage.InComing> _executingMessages = new List<TransportMessage.InComing>();
+                    int _executingMessages;
                     readonly List<TransportMessage.InComing> _executingExactlyOnceCommands = new List<TransportMessage.InComing>();
                     readonly List<TransportMessage.InComing> _executingAtMostOnceCommands = new List<TransportMessage.InComing>();
                     readonly List<TransportMessage.InComing> _executingExactlyOnceEvents = new List<TransportMessage.InComing>();

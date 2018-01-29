@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
-using Composable.Refactoring.Naming;
 using Composable.System.Linq;
 using Composable.System.Threading;
 
@@ -16,8 +15,7 @@ namespace Composable.Messaging.Buses.Implementation
             readonly IMessageHandlerRegistry _handlerRegistry;
             readonly IServiceLocator _serviceLocator;
             readonly MessageStorage _storage;
-            readonly ITypeMapper _typeMapper;
-            Thread _messagePumpThread;
+            Thread _awaitDispatchableMessageThread;
             CancellationTokenSource _cancellationTokenSource;
 
             readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
@@ -31,34 +29,28 @@ namespace Composable.Messaging.Buses.Implementation
                                           IMessageHandlerRegistry handlerRegistry,
                                           IServiceLocator serviceLocator,
                                           MessageStorage storage,
-                                          ITypeMapper typeMapper,
                                           ITaskRunner taskRunner)
             {
                 _handlerRegistry = handlerRegistry;
                 _serviceLocator = serviceLocator;
                 _storage = storage;
-                _typeMapper = typeMapper;
-                _coordinator =  new Coordinator(globalStateTracker, typeMapper, taskRunner);
+                _coordinator =  new Coordinator(globalStateTracker, taskRunner);
             }
 
 
-            internal async Task<object> Enqueue(TransportMessage.InComing message)
+            internal Task<object> Enqueue(TransportMessage.InComing message)
             {
-                var innerMessage = message.DeserializeMessageAndCacheForNextCall(_typeMapper);
+                if(typeof(BusApi.IQuery).IsAssignableFrom(message.MessageType))
+                    return DispatchQueryAsync(message);
+                if(typeof(BusApi.Remotable.AtMostOnce.ICommand).IsAssignableFrom(message.MessageType))
+                    return DispatchAtMostOnceCommandAsync(message);
+                else if(typeof(BusApi.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(message.MessageType))
+                    return DispatchExactlyOnceEventAsync(message);
+                if(typeof(BusApi.Remotable.ExactlyOnce.ICommand).IsAssignableFrom(message.MessageType))
+                        return DispatchExactlyOnceCommandAsync(message);
+                else
+                    throw new ArgumentOutOfRangeException();
 
-                switch(innerMessage)
-                {
-                    case BusApi.Remotable.ExactlyOnce.ICommand command:
-                        return await DispatchAsync(command, message);
-                    case BusApi.Remotable.AtMostOnce.ICommand command:
-                        return await DispatchAsync(command, message);
-                    case BusApi.Remotable.ExactlyOnce.IEvent @event:
-                        return await DispatchAsync(@event, message);
-                    case BusApi.IQuery query:
-                        return await DispatchAsync(query, message);
-                    default:
-                        throw new Exception($"Unsupported message type: {message.GetType()}");
-                }
             }
 
             void AwaitDispatchableMessageThread()
@@ -77,9 +69,9 @@ namespace Composable.Messaging.Buses.Implementation
                 }
             }
 
-            async Task<object> DispatchAsync(BusApi.IQuery query, TransportMessage.InComing message)
+            async Task<object> DispatchQueryAsync(TransportMessage.InComing message)
             {
-                var handler = _handlerRegistry.GetQueryHandler(query.GetType());
+                var handler = _handlerRegistry.GetQueryHandler(message.MessageType);
 
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -87,7 +79,7 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     try
                     {
-                        var result = handler(query);
+                        var result = handler((BusApi.IQuery)message.DeserializeMessageAndCacheForNextCall());
                         taskCompletionSource.SetResult(result);
                     }
                     catch(Exception exception)
@@ -100,9 +92,9 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(BusApi.Remotable.ExactlyOnce.IEvent @event, TransportMessage.InComing message)
+            async Task<object> DispatchExactlyOnceEventAsync(TransportMessage.InComing message)
             {
-                var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
+                var handler = _handlerRegistry.GetEventHandlers(message.MessageType);
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
                 _coordinator.EnqueueMessageTask(message,
@@ -110,7 +102,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                 {
                                                     try
                                                     {
-                                                        _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler.ForEach(action: @this => @this(@event)));
+                                                        _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler.ForEach(action: @this => @this((BusApi.Remotable.ExactlyOnce.IEvent)message.DeserializeMessageAndCacheForNextCall())));
                                                         _storage.MarkAsHandled(message);
                                                         taskCompletionSource.SetResult(result: null);
                                                     }
@@ -124,9 +116,9 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(BusApi.Remotable.ExactlyOnce.ICommand command, TransportMessage.InComing message)
+            async Task<object> DispatchExactlyOnceCommandAsync(TransportMessage.InComing message)
             {
-                var handler = _handlerRegistry.GetCommandHandler(command.GetType());
+                var handler = _handlerRegistry.GetCommandHandler(message.MessageType);
 
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -135,7 +127,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                 {
                                                     try
                                                     {
-                                                        var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler(command));
+                                                        var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler((BusApi.Remotable.ExactlyOnce.ICommand)message.DeserializeMessageAndCacheForNextCall()));
                                                         _storage.MarkAsHandled(message);
                                                         taskCompletionSource.SetResult(result);
                                                     }
@@ -149,9 +141,9 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(BusApi.Remotable.AtMostOnce.ICommand command, TransportMessage.InComing message)
+            async Task<object> DispatchAtMostOnceCommandAsync(TransportMessage.InComing message)
             {
-                var handler = _handlerRegistry.GetCommandHandler(command.GetType());
+                var handler = _handlerRegistry.GetCommandHandler(message.MessageType);
 
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -159,7 +151,7 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     try
                     {
-                        var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler(command));
+                        var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler((BusApi.Remotable.AtMostOnce.ICommand)message.DeserializeMessageAndCacheForNextCall()));
                         taskCompletionSource.SetResult(result);
                     }
                     catch(Exception exception)
@@ -175,19 +167,19 @@ namespace Composable.Messaging.Buses.Implementation
             public void Start()
             {
                 _cancellationTokenSource = new CancellationTokenSource();
-                _messagePumpThread = new Thread(AwaitDispatchableMessageThread)
+                _awaitDispatchableMessageThread = new Thread(AwaitDispatchableMessageThread)
                                      {
                                          Name = nameof(AwaitDispatchableMessageThread),
                                          Priority = ThreadPriority.AboveNormal
                                      };
-                _messagePumpThread.Start();
+                _awaitDispatchableMessageThread.Start();
             }
 
             public void Stop()
             {
                 _cancellationTokenSource.Cancel();
-                _messagePumpThread.InterruptAndJoin();
-                _messagePumpThread = null;
+                _awaitDispatchableMessageThread.InterruptAndJoin();
+                _awaitDispatchableMessageThread = null;
             }
         }
     }

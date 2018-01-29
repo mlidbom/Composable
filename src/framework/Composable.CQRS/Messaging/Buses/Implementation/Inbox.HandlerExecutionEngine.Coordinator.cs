@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.Refactoring.Naming;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 
@@ -16,10 +15,10 @@ namespace Composable.Messaging.Buses.Implementation
                 readonly ITaskRunner _taskRunner;
                 readonly AwaitableOptimizedThreadShared<NonThreadsafeImplementation> _implementation;
 
-                public Coordinator(IGlobalBusStateTracker globalStateTracker, ITypeMapper typeMapper, ITaskRunner taskRunner)
+                public Coordinator(IGlobalBusStateTracker globalStateTracker, ITaskRunner taskRunner)
                 {
                     _taskRunner = taskRunner;
-                    _implementation = new AwaitableOptimizedThreadShared<NonThreadsafeImplementation>(new NonThreadsafeImplementation(globalStateTracker, typeMapper));
+                    _implementation = new AwaitableOptimizedThreadShared<NonThreadsafeImplementation>(new NonThreadsafeImplementation(globalStateTracker));
                 }
 
                 internal QueuedMessage AwaitDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
@@ -31,7 +30,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 public void EnqueueMessageTask(TransportMessage.InComing message, Action messageTask) => _implementation.Update(implementation =>
                 {
-                    var inflightMessage = new QueuedMessage(message, this, messageTask, implementation.TypeMapper, _taskRunner);
+                    var inflightMessage = new QueuedMessage(message, this, messageTask, _taskRunner);
                     implementation.EnqueueMessageTask(inflightMessage);
                 });
 
@@ -45,14 +44,9 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     const int MaxConcurrentlyExecutingHandlers = 20;
                     readonly IGlobalBusStateTracker _globalStateTracker;
-                    internal readonly ITypeMapper TypeMapper;
                     readonly List<BusApi.IMessage> _executingMessages = new List<BusApi.IMessage>();
                     readonly List<QueuedMessage> _messagesWaitingToExecute = new List<QueuedMessage>();
-                    public NonThreadsafeImplementation(IGlobalBusStateTracker globalStateTracker, ITypeMapper typeMapper)
-                    {
-                        _globalStateTracker = globalStateTracker;
-                        TypeMapper = typeMapper;
-                    }
+                    public NonThreadsafeImplementation(IGlobalBusStateTracker globalStateTracker) => _globalStateTracker = globalStateTracker;
 
                     internal bool TryGetDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules, out QueuedMessage dispatchable)
                     {
@@ -91,10 +85,11 @@ namespace Composable.Messaging.Buses.Implementation
 
                 internal class QueuedMessage
                 {
+                    readonly TransportMessage.InComing _message;
                     readonly Coordinator _coordinator;
                     readonly Action      _messageTask;
                     readonly ITaskRunner _taskRunner;
-                    public   BusApi.IMessage    Message     { get; }
+                    public BusApi.IMessage Message => _message.DeserializeMessageAndCacheForNextCall();
                     public   Guid        MessageId   { get; }
 
                     public void Run()
@@ -113,13 +108,13 @@ namespace Composable.Messaging.Buses.Implementation
                         });
                     }
 
-                    public QueuedMessage(TransportMessage.InComing message, Coordinator coordinator, Action messageTask, ITypeMapper typeMapper, ITaskRunner taskRunner)
+                    public QueuedMessage(TransportMessage.InComing message, Coordinator coordinator, Action messageTask, ITaskRunner taskRunner)
                     {
                         MessageId    = message.MessageId;
+                        _message = message;
                         _coordinator = coordinator;
                         _messageTask = messageTask;
                         _taskRunner = taskRunner;
-                        Message      = message.DeserializeMessageAndCacheForNextCall(typeMapper);
                     }
                 }
             }

@@ -23,7 +23,7 @@ INSERT {InboxMessages.TableName}
     VALUES (@{InboxMessages.MessageId}, @{InboxMessages.TypeId}, @{InboxMessages.Body}, 0)
 ")
                             .AddParameter(InboxMessages.MessageId, message.MessageId)
-                            .AddParameter(InboxMessages.TypeId, message.MessageType.GuidValue)
+                            .AddParameter(InboxMessages.TypeId, message.MessageTypeId.GuidValue)
                             //todo: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
                             .AddNVarcharMaxParameter(InboxMessages.Body, message.Body)
                             .ExecuteNonQuery();

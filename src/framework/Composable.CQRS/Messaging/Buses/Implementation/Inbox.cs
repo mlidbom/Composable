@@ -31,7 +31,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly BlockingCollection<IReadOnlyList<TransportMessage.InComing>> _receivedMessageBatches = new BlockingCollection<IReadOnlyList<TransportMessage.InComing>>();
         readonly MessageStorage _storage;
         readonly HandlerExecutionEngine _handlerExecutionEngine;
-        Thread _messagePumpThread;
+        Thread _messageReceiverThread;
         Thread _pollerThread;
         CancellationTokenSource _cancellationTokenSource;
 
@@ -41,7 +41,7 @@ namespace Composable.Messaging.Buses.Implementation
             _typeMapper = typeMapper;
             _address = configuration.Address;
             _storage = new MessageStorage(connectionFactory);
-            _handlerExecutionEngine = new HandlerExecutionEngine(globalStateTracker, handlerRegistry, serviceLocator, _storage, _typeMapper, taskRunner);
+            _handlerExecutionEngine = new HandlerExecutionEngine(globalStateTracker, handlerRegistry, serviceLocator, _storage, taskRunner);
         }
 
         public EndPointAddress Address => new EndPointAddress(_address);
@@ -71,8 +71,8 @@ namespace Composable.Messaging.Buses.Implementation
             _pollerThread = new Thread(() => _poller.Run()){Name = $"{_configuration.Name}_{nameof(Inbox)}_{nameof(_pollerThread)}"};
             _pollerThread.Start();
 
-            _messagePumpThread = new Thread(MessageReceiverThread){Name = $"{_configuration.Name}_{nameof(Inbox)}_{nameof(MessageReceiverThread)}"};
-            _messagePumpThread.Start();
+            _messageReceiverThread = new Thread(MessageReceiverThread){Name = $"{_configuration.Name}_{nameof(Inbox)}_{nameof(MessageReceiverThread)}"};
+            _messageReceiverThread.Start();
 
             _handlerExecutionEngine.Start();
             _storage.Start();
@@ -83,7 +83,7 @@ namespace Composable.Messaging.Buses.Implementation
             Assert.Invariant.Assert(_running);
             _running = false;
             _cancellationTokenSource.Cancel();
-            _messagePumpThread.InterruptAndJoin();
+            _messageReceiverThread.InterruptAndJoin();
             _poller.StopAsync();
             _pollerThread.Join();
             _poller.Dispose();
@@ -102,8 +102,7 @@ namespace Composable.Messaging.Buses.Implementation
                     var transportMessageBatch = _receivedMessageBatches.Take(_cancellationTokenSource.Token);
                     foreach(var transportMessage in transportMessageBatch)
                     {
-                        var innerMessage = transportMessage.DeserializeMessageAndCacheForNextCall(_typeMapper);
-                        if(innerMessage is BusApi.Remotable.ExactlyOnce.IMessage)
+                        if(typeof(BusApi.Remotable.ExactlyOnce.IMessage).IsAssignableFrom(transportMessage.MessageType))
                         {
                             _storage.SaveMessage(transportMessage);
                             _responseQueue.Enqueue(transportMessage.CreatePersistedResponse());
@@ -113,7 +112,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                         dispatchTask.ContinueWith(dispatchResult =>
                         {
-                            var message = transportMessage.DeserializeMessageAndCacheForNextCall(_typeMapper);
+                            var message = transportMessage.DeserializeMessageAndCacheForNextCall();
                             if(message is BusApi.Remotable.IRequireRemoteResponse)
                             {
                                 if(dispatchResult.IsFaulted)
@@ -145,7 +144,7 @@ namespace Composable.Messaging.Buses.Implementation
         void HandleIncomingMessage(object sender, NetMQSocketEventArgs e)
         {
             Assert.Argument.Assert(e.IsReadyToReceive);
-            _receivedMessageBatches.Add(TransportMessage.InComing.ReceiveBatch(_serverSocket));
+            _receivedMessageBatches.Add(TransportMessage.InComing.ReceiveBatch(_serverSocket, _typeMapper));
         }
 
         public void Dispose()

@@ -25,6 +25,7 @@ namespace Composable.System.Threading
         public TaskRunner()
         {
             var physicalCores = Math.Max(Environment.ProcessorCount, 2) / 2;
+            // ReSharper disable once UnusedVariable
             var maxParallelTasks = Math.Max(physicalCores, 8);
             //_inner = new ManualThreadsRunner(maxParallelTasks);
             //_inner = new ThrottledSystemTasksRunner(maxParallelTasks);

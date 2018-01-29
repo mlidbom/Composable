@@ -18,7 +18,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         IDisposable _scope;
 
         IMessageHandlerRegistrar Registrar => _container.Resolve<IMessageHandlerRegistrar>();
-        ILocalServiceBusSession BusSession => _container.Resolve<ILocalServiceBusSession>();
+        ILocalApiBrowser BusSession => _container.Resolve<ILocalApiBrowser>();
 
         InProcessBusSpecification()
         {

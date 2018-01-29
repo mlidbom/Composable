@@ -13,10 +13,14 @@ namespace Composable.Messaging.Buses.Implementation
     {
         void Stop();
         void Start();
-        void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.IEvent message);
-        void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.ICommand command);
-        Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.Remote.ExactlyOnce.ICommand<TCommandResult> command);
-        Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.IQuery<TQueryResult> command);
+
+        void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.IEvent exectlyOnceEvent);
+        void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.ICommand exactlyOnceCommand);
+        Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.Remote.ExactlyOnce.ICommand<TCommandResult> exactlyOnceCommand);
+
+        Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remote.ExactlyOnce.ICommand<TCommandResult> exactlyOnceCommand);
+
+        Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remote.NonTransactional.IQuery<TQueryResult> query);
         void Connect(IEndpoint endpoint);
     }
 
@@ -24,8 +28,10 @@ namespace Composable.Messaging.Buses.Implementation
     {
         void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.IEvent @event);
         void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.ICommand command);
+        void Dispatch<TResult>(BusApi.Remote.AtMostOnce.ICommand<TResult> command);
+
         Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.Remote.ExactlyOnce.ICommand<TCommandResult> command);
-        Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.IQuery<TQueryResult> query);
+        Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remote.NonTransactional.IQuery<TQueryResult> query);
     }
 
     interface IInbox

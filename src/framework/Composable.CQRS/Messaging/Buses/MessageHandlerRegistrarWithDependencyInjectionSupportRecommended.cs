@@ -6,27 +6,27 @@ namespace Composable.Messaging.Buses
 {
     public static class MessageHandlerRegistrarWithDependencyInjectionSupportRecommended
     {
-        public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand>(this MessageHandlerRegistrarWithDependencyInjectionSupport @this, Action<TCommand, ILocalServiceBusSession> action) where TCommand : BusApi.Remote.ExactlyOnce.ICommand
+        public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand>(this MessageHandlerRegistrarWithDependencyInjectionSupport @this, Action<TCommand, ILocalApiBrowser> action) where TCommand : BusApi.ICommand
         {
-            @this.Register.ForCommand<TCommand>(command =>  action(command, @this.Resolve<ILocalServiceBusSession>()));
+            @this.Register.ForCommand<TCommand>(command =>  action(command, @this.Resolve<ILocalApiBrowser>()));
             return @this;
         }
 
-        public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommandWithResultMine<TCommand, TResult>(this MessageHandlerRegistrarWithDependencyInjectionSupport @this, Func<TCommand, ILocalServiceBusSession, TResult> action) where TCommand : BusApi.Remote.ExactlyOnce.ICommand<TResult>
+        public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommandWithResultMine<TCommand, TResult>(this MessageHandlerRegistrarWithDependencyInjectionSupport @this, Func<TCommand, ILocalApiBrowser, TResult> action) where TCommand : BusApi.ICommand<TResult>
         {
-            @this.Register.ForCommand<TCommand, TResult>(command =>  action(command, @this.Resolve<ILocalServiceBusSession>()));
+            @this.Register.ForCommand<TCommand, TResult>(command =>  action(command, @this.Resolve<ILocalApiBrowser>()));
             return @this;
         }
 
-      public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent>(this MessageHandlerRegistrarWithDependencyInjectionSupport @this, Action<TEvent, ILocalServiceBusSession> action) where TEvent : BusApi.Remote.ExactlyOnce.IEvent
+      public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent>(this MessageHandlerRegistrarWithDependencyInjectionSupport @this, Action<TEvent, ILocalApiBrowser> action) where TEvent : BusApi.IEvent
         {
-            @this.ForEvent<TEvent>(@event => action(@event, @this.Resolve<ILocalServiceBusSession>()));
+            @this.ForEvent<TEvent>(@event => action(@event, @this.Resolve<ILocalApiBrowser>()));
             return @this;
         }
 
-      public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TResult>(this MessageHandlerRegistrarWithDependencyInjectionSupport @this, Func<TQuery, ILocalServiceBusSession, TResult> action) where TQuery : BusApi.IQuery<TResult>
+      public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TResult>(this MessageHandlerRegistrarWithDependencyInjectionSupport @this, Func<TQuery, ILocalApiBrowser, TResult> action) where TQuery : BusApi.IQuery<TResult>
         {
-            @this.Register.ForQuery<TQuery, TResult>(query => action(query, @this.Resolve<ILocalServiceBusSession>()));
+            @this.Register.ForQuery<TQuery, TResult>(query => action(query, @this.Resolve<ILocalApiBrowser>()));
             return @this;
         }
     }

@@ -91,7 +91,7 @@ namespace Composable.Messaging.Buses.Implementation
                 socket.SendMultipartMessage(message);
             }
 
-            public static OutGoing Create(BusApi.IMessage message, ITypeMapper typeMapper)
+            public static OutGoing Create(BusApi.Remote.ISupportRemoteReceiverMessage message, ITypeMapper typeMapper)
             {
                 var messageId = (message as BusApi.Remote.ExactlyOnce.IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);

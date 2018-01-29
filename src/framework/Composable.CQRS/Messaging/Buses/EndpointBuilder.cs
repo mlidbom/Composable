@@ -88,8 +88,8 @@ namespace Composable.Messaging.Buses
                 Component.For<IServiceBusControl>()
                          .ImplementedBy<ServiceBusControl>()
                          .LifestyleSingleton(),
-                Component.For<IServiceBusSession, ILocalServiceBusSession, IEventstoreEventPublisher>()
-                         .ImplementedBy<ServiceBusSession>()
+                Component.For<IApiBrowser, IUIInteractionApiBrowser, ILocalApiBrowser, IEventstoreEventPublisher>()
+                         .ImplementedBy<ApiBrowser>()
                          .LifestyleScoped(),
                 Component.For<ISqlConnectionProvider>()
                          .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))

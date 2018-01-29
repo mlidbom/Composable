@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses
 
         public IEndpoint ClientEndpoint => _clientEndpoint;
 
-        public IServiceBusSession ClientBusSession => _clientEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
+        public IApiBrowser ClientBusSession => _clientEndpoint.ServiceLocator.Resolve<IApiBrowser>();
 
         protected override void InternalDispose()
         {

@@ -9,14 +9,14 @@ using JetBrains.Annotations;
 namespace Composable.Messaging.Buses
 {
     //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
-    [UsedImplicitly] partial class ServiceBusSession : IServiceBusSession, ILocalServiceBusSession
+    [UsedImplicitly] partial class ApiBrowser : IApiBrowser, ILocalApiBrowser
     {
         readonly IInterprocessTransport _transport;
         readonly CommandScheduler _commandScheduler;
         readonly IMessageHandlerRegistry _handlerRegistry;
         readonly ISingleContextUseGuard _contextGuard;
 
-        public ServiceBusSession(IInterprocessTransport transport, CommandScheduler commandScheduler, IMessageHandlerRegistry handlerRegistry)
+        public ApiBrowser(IInterprocessTransport transport, CommandScheduler commandScheduler, IMessageHandlerRegistry handlerRegistry)
         {
             _contextGuard = new CombinationUsageGuard(new SingleTransactionUsageGuard());
             _transport = transport;
@@ -24,16 +24,16 @@ namespace Composable.Messaging.Buses
             _handlerRegistry = handlerRegistry;
         }
 
-        async Task<TResult> IRemoteServiceBusSession.GetRemoteAsync<TResult>(BusApi.IQuery<TResult> query)
-        {
-            _contextGuard.AssertNoContextChangeOccurred(this);
-            MessageInspector.AssertValidToSend(query);
-            return query is BusApi.ICreateMyOwnResultQuery<TResult> selfCreating
-                       ? selfCreating.CreateResult()
-                       : await _transport.DispatchAsync(query).NoMarshalling();
-        }
+        //async Task<TResult> ITransactionalMessageHandlerApiBrowser.GetRemoteAsync<TResult>(BusApi.Remote.NonTransactional.IQuery<TResult> query)
+        //{
+        //    _contextGuard.AssertNoContextChangeOccurred(this);
+        //    MessageInspector.AssertValidToSend(query);
+        //    return query is BusApi.ICreateMyOwnResultQuery<TResult> selfCreating
+        //               ? selfCreating.CreateResult()
+        //               : await _transport.DispatchAsync(query).NoMarshalling();
+        //}
 
-        TResult IRemoteServiceBusSession.GetRemote<TResult>(BusApi.IQuery<TResult> query) => ((IRemoteServiceBusSession)this).GetRemoteAsync(query).ResultUnwrappingException();
+        //TResult ITransactionalMessageHandlerApiBrowser.GetRemote<TResult>(BusApi.Remote.NonTransactional.IQuery<TResult> query) => ((ITransactionalMessageHandlerApiBrowser)this).GetRemoteAsync(query).ResultUnwrappingException();
 
         void IEventstoreEventPublisher.Publish(BusApi.Remote.ExactlyOnce.IEvent @event) => TransactionScopeCe.Execute(() =>
         {
@@ -43,7 +43,7 @@ namespace Composable.Messaging.Buses
             _transport.DispatchIfTransactionCommits(@event);
         });
 
-        void IRemoteServiceBusSession.PostRemote(BusApi.Remote.ExactlyOnce.ICommand command) => TransactionScopeCe.Execute(() =>
+        void ITransactionalMessageHandlerApiBrowser.PostRemote(BusApi.Remote.ExactlyOnce.ICommand command) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSend(command);
@@ -51,7 +51,7 @@ namespace Composable.Messaging.Buses
             _transport.DispatchIfTransactionCommits(command);
         });
 
-        void IRemoteServiceBusSession.SchedulePostRemote(DateTime sendAt, BusApi.Remote.ExactlyOnce.ICommand command) => TransactionScopeCe.Execute(() =>
+        void ITransactionalMessageHandlerApiBrowser.SchedulePostRemote(DateTime sendAt, BusApi.Remote.ExactlyOnce.ICommand command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSend(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -59,7 +59,7 @@ namespace Composable.Messaging.Buses
             _commandScheduler.Schedule(sendAt, command);
         });
 
-        Task<TResult> IRemoteServiceBusSession.PostRemoteAsync<TResult>(BusApi.Remote.ExactlyOnce.ICommand<TResult> command) => TransactionScopeCe.Execute(() =>
+        Task<TResult> ITransactionalMessageHandlerApiBrowser.PostRemoteAsync<TResult>(BusApi.Remote.ExactlyOnce.ICommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSend(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -67,9 +67,9 @@ namespace Composable.Messaging.Buses
             return _transport.DispatchIfTransactionCommitsAsync(command);
         });
 
-        TResult IRemoteServiceBusSession.PostRemote<TResult>(BusApi.Remote.ExactlyOnce.ICommand<TResult> command) => ((IRemoteServiceBusSession)this).PostRemoteAsync(command).ResultUnwrappingException();
+        TResult ITransactionalMessageHandlerApiBrowser.PostRemote<TResult>(BusApi.Remote.ExactlyOnce.ICommand<TResult> command) => ((ITransactionalMessageHandlerApiBrowser)this).PostRemoteAsync(command).ResultUnwrappingException();
 
-        TResult ILocalServiceBusSession.PostLocal<TResult>(BusApi.Local.ICommand<TResult> command) => TransactionScopeCe.Execute(() =>
+        TResult ILocalApiBrowser.PostLocal<TResult>(BusApi.Local.ICommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSend(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -77,7 +77,7 @@ namespace Composable.Messaging.Buses
             return _handlerRegistry.GetCommandHandler(command).Invoke(command);
         });
 
-        void ILocalServiceBusSession.PostLocal(BusApi.Local.ICommand command) => TransactionScopeCe.Execute(() =>
+        void ILocalApiBrowser.PostLocal(BusApi.Local.ICommand command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSend(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -85,7 +85,7 @@ namespace Composable.Messaging.Buses
             _handlerRegistry.GetCommandHandler(command).Invoke(command);
         });
 
-        TResult ILocalServiceBusSession.GetLocal<TResult>(BusApi.Local.IQuery<TResult> query)
+        TResult ILocalApiBrowser.GetLocal<TResult>(BusApi.Local.IQuery<TResult> query)
         {
             MessageInspector.AssertValidToSend(query);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -95,5 +95,20 @@ namespace Composable.Messaging.Buses
                        ? selfCreating.CreateResult()
                        : _handlerRegistry.GetQueryHandler(query).Invoke(query);
         }
+
+        void IUIInteractionApiBrowser.PostRemote(BusApi.Remote.AtMostOnce.ICommand command) { throw new NotImplementedException(); }
+        TResult IUIInteractionApiBrowser.PostRemote<TResult>(BusApi.Remote.AtMostOnce.ICommand<TResult> command) { throw new NotImplementedException(); }
+        Task<TResult> IUIInteractionApiBrowser.PostRemoteAsync<TResult>(BusApi.Remote.AtMostOnce.ICommand<TResult> command) { throw new NotImplementedException(); }
+
+        async Task<TResult> IUIInteractionApiBrowser.GetRemoteAsync<TResult>(BusApi.Remote.NonTransactional.IQuery<TResult> query)
+        {
+            _contextGuard.AssertNoContextChangeOccurred(this);
+            MessageInspector.AssertValidToSend(query);
+            return query is BusApi.ICreateMyOwnResultQuery<TResult> selfCreating
+                       ? selfCreating.CreateResult()
+                       : await _transport.DispatchAsync(query).NoMarshalling();
+        }
+
+        TResult IUIInteractionApiBrowser.GetRemote<TResult>(BusApi.Remote.NonTransactional.IQuery<TResult> query) => ((IUIInteractionApiBrowser)this).GetRemoteAsync(query).ResultUnwrappingException();
     }
 }

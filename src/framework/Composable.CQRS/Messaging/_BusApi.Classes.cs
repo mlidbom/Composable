@@ -51,12 +51,18 @@ namespace Composable.Messaging
                     public Guid EntityId { get; private set; }
                 }
 
-                public class SelfGeneratingResourceQuery<TResource> : ICreateMyOwnResultQuery<TResource> where TResource : new()
+                public class SelfGeneratingResourceQuery<TResource> : RemoteQuery<TResource>, ICreateMyOwnResultQuery<TResource> where TResource : new()
                 {
                     SelfGeneratingResourceQuery() {}
                     public static readonly SelfGeneratingResourceQuery<TResource> Instance = new SelfGeneratingResourceQuery<TResource>();
                     public TResource CreateResult() => new TResource();
                 }
+            }
+
+            public partial class AtMostOnce
+            {
+                public class Command : BusApi.Remote.AtMostOnce.ICommand {}
+                public class Command<TResult> : BusApi.Remote.AtMostOnce.ICommand<TResult> {}
             }
 
             public partial class NonTransactional

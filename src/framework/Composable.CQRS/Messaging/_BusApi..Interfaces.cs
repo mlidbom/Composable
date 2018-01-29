@@ -37,23 +37,28 @@ namespace Composable.Messaging
 
         public partial class Remote
         {
-            public interface ISupportRemoteReceiver {}
+            public interface ISupportRemoteReceiverMessage : IMessage {}
 
             public partial class NonTransactional
             {
                 public interface IAtMostOnceDelivery {}
                 public interface IForbidTransactionalSend { }
 
-                public interface IMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteReceiver {}
-                public interface ICommand<TResult> : BusApi.ICommand<TResult>, IMessage  { }
+                public interface IMessage : IForbidTransactionalSend, IAtMostOnceDelivery, ISupportRemoteReceiverMessage {}
                 public interface IQuery : BusApi.IQuery, IMessage { }
                 public interface IQuery<TResult> : BusApi.IQuery<TResult>, BusApi.Remote.NonTransactional.IQuery, IMessage { }
             }
 
+            public partial class AtMostOnce
+            {
+                public interface ICommand : BusApi.ICommand, ISupportRemoteReceiverMessage { }
+                public interface ICommand<TResult> : ICommand, BusApi.ICommand<TResult> { }
+            }
+
             public partial class ExactlyOnce
             {
-                public interface IRequireTransactionalSender : ISupportRemoteReceiver{ }
-                public interface IRequireTransactionalReceiver : ISupportRemoteReceiver { }
+                public interface IRequireTransactionalSender : ISupportRemoteReceiverMessage{ }
+                public interface IRequireTransactionalReceiver : ISupportRemoteReceiverMessage { }
                 public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSender, IRequireTransactionalReceiver {}
 
                 public interface IProvidesOwnMessageId { Guid MessageId { get; } }

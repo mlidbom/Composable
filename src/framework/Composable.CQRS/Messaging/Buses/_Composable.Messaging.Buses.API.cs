@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses
     }
 
     ///<summary>Dispatches messages within a process.</summary>
-    public interface ILocalApiBrowser : IEventstoreEventPublisher
+    public interface ILocalApiBrowserSession : IEventstoreEventPublisher
     {
         ///<summary>Syncronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
         TResult Execute<TResult>(BusApi.StrictlyLocal.IQuery<TResult> query);
@@ -30,13 +30,13 @@ namespace Composable.Messaging.Buses
     }
 
 
-    public interface IRemoteApiBrowser
+    public interface IRemoteApiBrowserSession
     {
-        void Post(BusApi.RemoteSupport.AtMostOnce.ICommand command);
         Task PostAsync(BusApi.RemoteSupport.AtMostOnce.ICommand command);
+        void Post(BusApi.RemoteSupport.AtMostOnce.ICommand command);
 
-        TResult Post<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command);
         Task<TResult> PostAsync<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command);
+        TResult Post<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command);
 
         ///<summary>Gets the result of a handler somewhere on the bus handling the <paramref name="query"/></summary>
         Task<TResult> GetAsync<TResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query);
@@ -45,7 +45,7 @@ namespace Composable.Messaging.Buses
         TResult Get<TResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query);
     }
 
-    public interface ITransactionalMessageHandlerApiBrowser : ILocalApiBrowser
+    public interface IIntegrationBusSession
     {
         ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
         void Send(BusApi.RemoteSupport.ExactlyOnce.ICommand command);
@@ -55,7 +55,7 @@ namespace Composable.Messaging.Buses
     }
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IApiBrowser : ILocalApiBrowser, IRemoteApiBrowser, ITransactionalMessageHandlerApiBrowser
+    public interface ITransactionalMessageHandlerServiceBusSession : ILocalApiBrowserSession, IRemoteApiBrowserSession, IIntegrationBusSession
     {
     }
 
@@ -124,7 +124,7 @@ namespace Composable.Messaging.Buses
 
         IEndpoint ClientEndpoint { get; }
 
-        IApiBrowser ClientBusSession { get; }
+        ITransactionalMessageHandlerServiceBusSession ClientBusSession { get; }
     }
 
     interface IMessageDispatchingRule

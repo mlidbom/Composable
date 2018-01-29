@@ -25,7 +25,7 @@ namespace AccountManagement.UI.MVC
 
             _host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
             new AccountManagementServerDomainBootstrapper().RegisterWith(_host);
-            services.AddScoped(_ => _host.ClientEndpoint.ServiceLocator.Resolve<IApiBrowser>());
+            services.AddScoped(_ => _host.ClientEndpoint.ServiceLocator.Resolve<ITransactionalMessageHandlerServiceBusSession>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

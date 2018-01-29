@@ -13,7 +13,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 {
     public class When_scheduling_commands_to_be_sent_in_the_future : IDisposable
     {
-        readonly IApiBrowser _busSession;
+        readonly ITransactionalMessageHandlerServiceBusSession _busSession;
         readonly IUtcTimeTimeSource _timeSource;
         readonly IThreadGate _receivedCommandGate;
         readonly ITestingEndpointHost _host;
@@ -39,7 +39,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             _timeSource = serviceLocator.Resolve<IUtcTimeTimeSource>();
             _scope = serviceLocator.BeginScope();
-            _busSession = serviceLocator.Resolve<IApiBrowser>();
+            _busSession = serviceLocator.Resolve<ITransactionalMessageHandlerServiceBusSession>();
         }
 
         [Fact] public void Messages_whose_due_time_has_passed_are_delivered()

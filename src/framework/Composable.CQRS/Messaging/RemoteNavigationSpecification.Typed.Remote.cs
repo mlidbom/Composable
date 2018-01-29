@@ -14,8 +14,8 @@ namespace Composable.Messaging
 
                 internal StartQuery(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> start) => _start = start;
 
-                public override TResult NavigateOn(IRemoteApiBrowser busSession) => busSession.Get(_start);
-                public override Task<TResult> NavigateOnAsync(IRemoteApiBrowser busSession) => busSession.GetAsync(_start);
+                public override TResult NavigateOn(IRemoteApiBrowserSession busSession) => busSession.Get(_start);
+                public override Task<TResult> NavigateOnAsync(IRemoteApiBrowserSession busSession) => busSession.GetAsync(_start);
             }
 
             internal class StartCommand : RemoteNavigationSpecification<TResult>
@@ -24,8 +24,8 @@ namespace Composable.Messaging
 
                 internal StartCommand(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> start) => _start = start;
 
-                public override TResult NavigateOn(IRemoteApiBrowser busSession) => busSession.Post(_start);
-                public override Task<TResult> NavigateOnAsync(IRemoteApiBrowser busSession) => busSession.PostAsync(_start);
+                public override TResult NavigateOn(IRemoteApiBrowserSession busSession) => busSession.Post(_start);
+                public override Task<TResult> NavigateOnAsync(IRemoteApiBrowserSession busSession) => busSession.PostAsync(_start);
             }
 
             internal class ContinuationQuery<TPrevious> : RemoteNavigationSpecification<TResult>
@@ -39,14 +39,14 @@ namespace Composable.Messaging
                     _nextQuery = nextQuery;
                 }
 
-                public override TResult NavigateOn(IRemoteApiBrowser busSession)
+                public override TResult NavigateOn(IRemoteApiBrowserSession busSession)
                 {
                     var previousResult = _previous.NavigateOn(busSession);
                     var currentQuery = _nextQuery(previousResult);
                     return busSession.Get(currentQuery);
                 }
 
-                public override async Task<TResult> NavigateOnAsync(IRemoteApiBrowser busSession)
+                public override async Task<TResult> NavigateOnAsync(IRemoteApiBrowserSession busSession)
                 {
                     var previousResult = await _previous.NavigateOnAsync(busSession);
                     var currentQuery = _nextQuery(previousResult);
@@ -64,14 +64,14 @@ namespace Composable.Messaging
                     _next = next;
                 }
 
-                public override TResult NavigateOn(IRemoteApiBrowser busSession)
+                public override TResult NavigateOn(IRemoteApiBrowserSession busSession)
                 {
                     var previousResult = _previous.NavigateOn(busSession);
                     var currentCommand = _next(previousResult);
                     return busSession.Post(currentCommand);
                 }
 
-                public override async Task<TResult> NavigateOnAsync(IRemoteApiBrowser busSession)
+                public override async Task<TResult> NavigateOnAsync(IRemoteApiBrowserSession busSession)
                 {
                     var previousResult = await _previous.NavigateOnAsync(busSession);
                     var currentCommand = _next(previousResult);
@@ -89,14 +89,14 @@ namespace Composable.Messaging
                     _next = next;
                 }
 
-                public override void NavigateOn(IRemoteApiBrowser busSession)
+                public override void NavigateOn(IRemoteApiBrowserSession busSession)
                 {
                     var previousResult = _previous.NavigateOn(busSession);
                     var currentCommand = _next(previousResult);
                     busSession.Post(currentCommand);
                 }
 
-                public override async Task NavigateOnAsync(IRemoteApiBrowser busSession)
+                public override async Task NavigateOnAsync(IRemoteApiBrowserSession busSession)
                 {
                     var previousResult = await _previous.NavigateOnAsync(busSession);
                     var currentCommand = _next(previousResult);

@@ -13,7 +13,7 @@ namespace AccountManagement.Domain
         static DocumentDbApi DocumentDb => new ComposableApi().DocumentDb;
 
         internal static void UpdateMappingWhenEmailChanges(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
-            (AccountEvent.PropertyUpdated.Email emailUpdated, ILocalApiBrowser bus) =>
+            (AccountEvent.PropertyUpdated.Email emailUpdated, ILocalApiBrowserSession bus) =>
             {
                 if(emailUpdated.AggregateVersion > 1)
                 {
@@ -26,7 +26,7 @@ namespace AccountManagement.Domain
             });
 
         internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (AccountApi.Query.TryGetByEmailQuery query, ILocalApiBrowser bus) =>
+            (AccountApi.Query.TryGetByEmailQuery query, ILocalApiBrowserSession bus) =>
                 bus.Execute(DocumentDb.Queries.TryGet<AccountLink>(query.Email.StringValue)) is Some<AccountLink> accountLink
                     ? Option.Some(bus.Execute(accountLink.Value))
                     : Option.None<Account>());

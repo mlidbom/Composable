@@ -15,8 +15,8 @@ namespace Composable.Messaging
 
                 public VoidCommand(BusApi.RemoteSupport.AtMostOnce.ICommand command) => _command = command;
 
-                public override void NavigateOn(IRemoteApiBrowser busSession) => busSession.Post(_command);
-                public override Task NavigateOnAsync(IRemoteApiBrowser busSession)
+                public override void NavigateOn(IRemoteApiBrowserSession busSession) => busSession.Post(_command);
+                public override Task NavigateOnAsync(IRemoteApiBrowserSession busSession)
                 {
                     busSession.Post(_command);
                     return Task.CompletedTask;
@@ -26,7 +26,7 @@ namespace Composable.Messaging
         public static RemoteNavigationSpecification<TResult> Get<TResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query) => new RemoteNavigationSpecification<TResult>.Remote.StartQuery(query);
         public static RemoteNavigationSpecification<TResult> Post<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command) => new RemoteNavigationSpecification<TResult>.Remote.StartCommand(command);
 
-        public abstract void NavigateOn(IRemoteApiBrowser busSession);
-        public abstract Task NavigateOnAsync(IRemoteApiBrowser busSession);
+        public abstract void NavigateOn(IRemoteApiBrowserSession busSession);
+        public abstract Task NavigateOnAsync(IRemoteApiBrowserSession busSession);
     }
 }

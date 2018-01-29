@@ -6,8 +6,8 @@ namespace Composable.Messaging
 {
     public abstract partial class RemoteNavigationSpecification<TResult>
     {
-        public abstract TResult NavigateOn(IRemoteApiBrowser busSession);
-        public abstract Task<TResult> NavigateOnAsync(IRemoteApiBrowser busSession);
+        public abstract TResult NavigateOn(IRemoteApiBrowserSession busSession);
+        public abstract Task<TResult> NavigateOnAsync(IRemoteApiBrowserSession busSession);
 
         public RemoteNavigationSpecification<TNext> Select<TNext>(Func<TResult, TNext> select) => new RemoteNavigationSpecification<TNext>.SelectQuery<TResult>(this, select);
 
@@ -26,13 +26,13 @@ namespace Composable.Messaging
                 _select = select;
             }
 
-            public override TResult NavigateOn(IRemoteApiBrowser busSession)
+            public override TResult NavigateOn(IRemoteApiBrowserSession busSession)
             {
                 var previousResult = _previous.NavigateOn(busSession);
                 return _select(previousResult);
             }
 
-            public override Task<TResult> NavigateOnAsync(IRemoteApiBrowser busSession) => Task.FromResult(NavigateOn(busSession));
+            public override Task<TResult> NavigateOnAsync(IRemoteApiBrowserSession busSession) => Task.FromResult(NavigateOn(busSession));
         }
     }
 }

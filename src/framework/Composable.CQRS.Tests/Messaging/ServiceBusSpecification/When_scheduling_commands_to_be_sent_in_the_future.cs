@@ -4,6 +4,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.System;
+using Composable.System.Transactions;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -12,7 +13,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 {
     public class When_scheduling_commands_to_be_sent_in_the_future : IDisposable
     {
-        readonly IServiceBusSession _busSession;
+        readonly IApiBrowser _busSession;
         readonly IUtcTimeTimeSource _timeSource;
         readonly IThreadGate _receivedCommandGate;
         readonly ITestingEndpointHost _host;
@@ -38,14 +39,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             _timeSource = serviceLocator.Resolve<IUtcTimeTimeSource>();
             _scope = serviceLocator.BeginScope();
-            _busSession = serviceLocator.Resolve<IServiceBusSession>();
+            _busSession = serviceLocator.Resolve<IApiBrowser>();
         }
 
         [Fact] public void Messages_whose_due_time_has_passed_are_delivered()
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _busSession.SchedulePostRemote(now + .1.Seconds(), inOneHour);
+            TransactionScopeCe.Execute(() => _busSession.SchedulePostRemote(now + .1.Seconds(), inOneHour));
 
             _receivedCommandGate.AwaitPassedThroughCountEqualTo(1, timeout: .5.Seconds());
         }
@@ -54,7 +55,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _busSession.SchedulePostRemote(now + TimeSpanExtensions.Seconds(2), inOneHour);
+            TransactionScopeCe.Execute(() => _busSession.SchedulePostRemote(now + TimeSpanExtensions.Seconds(2), inOneHour));
 
             _receivedCommandGate.TryAwaitPassededThroughCountEqualTo(1, timeout: .5.Seconds())
                                 .Should().Be(false);
@@ -66,6 +67,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             _host.Dispose();
         }
 
-        class ScheduledCommand : BusApi.Remote.ExactlyOnce.Command {}
+        class ScheduledCommand : BusApi.RemoteSupport.ExactlyOnce.Command {}
     }
 }

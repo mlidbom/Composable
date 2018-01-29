@@ -55,9 +55,11 @@ namespace Composable.Messaging.Buses.Implementation
 
                 switch(innerMessage)
                 {
-                    case BusApi.Remote.ExactlyOnce.ICommand command:
+                    case BusApi.RemoteSupport.ExactlyOnce.ICommand command:
                         return await DispatchAsync(command, message);
-                    case BusApi.Remote.ExactlyOnce.IEvent @event:
+                    case BusApi.RemoteSupport.AtMostOnce.ICommand command:
+                        return await DispatchAsync(command, message);
+                    case BusApi.RemoteSupport.ExactlyOnce.IEvent @event:
                         return await DispatchAsync(@event, message);
                     case BusApi.IQuery query:
                         return await DispatchAsync(query, message);
@@ -105,7 +107,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(BusApi.Remote.ExactlyOnce.IEvent @event, TransportMessage.InComing message)
+            async Task<object> DispatchAsync(BusApi.RemoteSupport.ExactlyOnce.IEvent @event, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
                 var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -128,7 +130,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return await taskCompletionSource.Task.NoMarshalling();
             }
 
-            async Task<object> DispatchAsync(BusApi.Remote.ExactlyOnce.ICommand command, TransportMessage.InComing message)
+            async Task<object> DispatchAsync(BusApi.RemoteSupport.ExactlyOnce.ICommand command, TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetCommandHandler(command.GetType());
 
@@ -140,6 +142,29 @@ namespace Composable.Messaging.Buses.Implementation
                     {
                         var result = handler(command);
                         _storage.MarkAsHandled(message);
+                        taskCompletionSource.SetResult(result);
+                    }
+                    catch(Exception exception)
+                    {
+                        taskCompletionSource.SetException(exception);
+                        throw;
+                    }
+                }));
+
+                return await taskCompletionSource.Task.NoMarshalling();
+            }
+
+            async Task<object> DispatchAsync(BusApi.RemoteSupport.AtMostOnce.ICommand command, TransportMessage.InComing message)
+            {
+                var handler = _handlerRegistry.GetCommandHandler(command.GetType());
+
+                var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                _coordinator.EnqueueMessageTask(message, messageTask: () => _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
+                {
+                    try
+                    {
+                        var result = handler(command);
                         taskCompletionSource.SetResult(result);
                     }
                     catch(Exception exception)

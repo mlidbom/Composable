@@ -29,14 +29,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 builder =>
                 {
                     builder.RegisterHandlers
-                           .ForCommand((MyCommand command) => CommandHandlerThreadGate.AwaitPassthrough())
-                           .ForEvent((MyEvent myEvent) => EventHandlerThreadGate.AwaitPassthrough())
+                           .ForCommand((MyExactlyOnceCommand command) => CommandHandlerThreadGate.AwaitPassthrough())
+                           .ForEvent((MyExactlyOnceEvent myEvent) => EventHandlerThreadGate.AwaitPassthrough())
                            .ForQuery((MyQuery query) => QueryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
-                           .ForCommandWithResult((MyCommandWithResult command) => CommandHandlerWithResultThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()));
+                           .ForCommandWithResult((MyAtMostOnceCommandWithResult command) => CommandHandlerWithResultThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()));
 
-                    builder.TypeMapper.Map<MyCommand>("0ddefcaa-4d4d-48b2-9e1a-762c0b835275")
-                           .Map<MyCommandWithResult>("24248d03-630b-4909-a6ea-e7fdaf82baa2")
-                           .Map<MyEvent>("2fdde21f-c6d4-46a2-95e5-3429b820dfc3")
+                    builder.TypeMapper.Map<MyExactlyOnceCommand>("0ddefcaa-4d4d-48b2-9e1a-762c0b835275")
+                           .Map<MyAtMostOnceCommandWithResult>("24248d03-630b-4909-a6ea-e7fdaf82baa2")
+                           .Map<MyExactlyOnceEvent>("2fdde21f-c6d4-46a2-95e5-3429b820dfc3")
                            .Map<MyQuery>("b9d62f22-514b-4e3c-9ac1-66940a7a8144");
                 });
 
@@ -66,11 +66,12 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             QueryHandlerThreadGate.Open();
         }
 
-        protected class MyCommand : BusApi.Remote.ExactlyOnce.Command {}
-        protected class MyEvent : AggregateEvent {}
-        protected class MyQuery : BusApi.Remote.Query.RemoteQuery<MyQueryResult> {}
+        protected class MyExactlyOnceCommand : BusApi.RemoteSupport.ExactlyOnce.Command {}
+        protected class MyExactlyOnceEvent : AggregateEvent {}
+        protected class MyQuery : BusApi.RemoteSupport.Query.RemoteQuery<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
-        protected class MyCommandWithResult : BusApi.Remote.ExactlyOnce.Command<MyCommandResult> {}
-        protected class MyCommandResult : BusApi.Remote.ExactlyOnce.Message {}
+        protected class MyAtExactlyOnceCommand : BusApi.RemoteSupport.ExactlyOnce.Command<MyCommandResult> {}
+        protected class MyAtMostOnceCommandWithResult : BusApi.RemoteSupport.AtMostOnce.Command<MyCommandResult> {}
+        protected class MyCommandResult : BusApi.RemoteSupport.ExactlyOnce.Message {}
     }
 }

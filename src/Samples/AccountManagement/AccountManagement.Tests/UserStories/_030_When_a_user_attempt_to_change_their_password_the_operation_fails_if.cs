@@ -1,5 +1,4 @@
 ﻿using System;
-using Composable.Messaging.Buses;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
@@ -15,8 +14,10 @@ namespace AccountManagement.UserStories
 
         [Test] public void OldPassword_is_empty_string() => Scenario.ChangePassword().WithOldPassword("").ExecutingShouldThrow<Exception>();
 
-        [Test] public void OldPassword_is_not_the_current_password_of_the_account() =>
-            Host.AssertThatRunningScenarioThrowsBackendException<Exception>(() => Scenario.ChangePassword().WithOldPassword("Wrong").Execute())
-                .Message.ToLower().Should().Contain("wrongpassword");
+        [Test] public void OldPassword_is_not_the_current_password_of_the_account()
+        {
+            Scenario.ChangePassword().WithOldPassword("Wrong").ExecutingShouldThrow<Exception>().And.Message.ToLower().Should().Contain("password").And.Contain("wrong");
+            Host.AssertThrown<Exception>().Message.ToLower().Should().Contain("password").And.Contain("wrong");
+        }
     }
 }

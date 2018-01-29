@@ -3,6 +3,7 @@ using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
+using Composable.System.Transactions;
 using FluentAssertions;
 using Xunit;
 
@@ -18,7 +19,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         IDisposable _scope;
 
         IMessageHandlerRegistrar Registrar => _container.Resolve<IMessageHandlerRegistrar>();
-        ILocalServiceBusSession BusSession => _container.Resolve<ILocalServiceBusSession>();
+        ILocalApiBrowser BusSession => _container.Resolve<ILocalApiBrowser>();
 
         InProcessBusSpecification()
         {
@@ -36,9 +37,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             public class With_no_registered_handlers : Given_a_bus
             {
-                [Fact] public void Send_new_ACommand_throws_an_Exception() => BusSession.Invoking(_ => BusSession.PostLocal(new ACommand())).ShouldThrow<NoHandlerException>();
-                [Fact] public void Get_new_AQuery_throws_an_Exception() => BusSession.Invoking(_ => BusSession.PostLocal(new ACommand())).ShouldThrow<NoHandlerException>();
-                [Fact] public void Publish_new_AnEvent_throws_no_exception() => BusSession.Publish(new AnEvent());
+                [Fact] public void Send_new_ACommand_throws_an_Exception() => TransactionScopeCe.Execute(() => BusSession.Invoking(_ => BusSession.PostLocal(new ACommand())).ShouldThrow<NoHandlerException>());
+                [Fact] public void Get_new_AQuery_throws_an_Exception() => BusSession.Invoking(_ => TransactionScopeCe.Execute(() => BusSession.PostLocal(new ACommand()))).ShouldThrow<NoHandlerException>();
+                [Fact] public void Publish_new_AnEvent_throws_no_exception() => TransactionScopeCe.Execute(() =>  BusSession.Publish(new AnEvent()));
             }
 
             public class With_registered_handler_for_ACommand : Given_a_bus
@@ -52,7 +53,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
                 [Fact] public void Sending_new_ACommand_calls_the_handler()
                 {
-                    BusSession.PostLocal(new ACommand());
+                    TransactionScopeCe.Execute(() => BusSession.PostLocal(new ACommand()));
                     _commandHandled.Should().Be(true);
                 }
             }
@@ -80,7 +81,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
                 [Fact] public void Publishing_new_AnEvent_calls_the_handler()
                 {
-                    BusSession.Publish(new AnEvent());
+                    TransactionScopeCe.Execute(() => BusSession.Publish(new AnEvent()));
                     _eventHandler1Called.Should().BeTrue();
                 }
             }
@@ -100,7 +101,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
                 [Fact] public void Publishing_new_AnEvent_calls_both_handlers()
                 {
-                    BusSession.Publish(new AnEvent());
+                    TransactionScopeCe.Execute(() => BusSession.Publish(new AnEvent()));
 
                     _eventHandler1Called.Should().BeTrue();
                     _eventHandler2Called.Should().BeTrue();
@@ -108,11 +109,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             }
         }
 
-        class ACommand : BusApi.Local.ICommand
+        class ACommand : BusApi.StrictlyLocal.ICommand
         {
         }
 
-        class AQuery : BusApi.Local.Queries.Query<AQueryResult> {}
+        class AQuery : BusApi.StrictlyLocal.Queries.Query<AQueryResult> {}
 
         class AQueryResult : QueryResult {}
 

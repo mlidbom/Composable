@@ -93,19 +93,11 @@ namespace Composable.Messaging.Buses
             throw new NoHandlerException(message.GetType());
         }
 
-        public bool TryGetCommandHandler(BusApi.ICommand message, out Action<object> handler)
+        bool TryGetCommandHandler(BusApi.ICommand message, out Action<object> handler)
         {
             lock(_lock)
             {
                 return _commandHandlers.TryGetValue(message.GetType(), out handler);
-            }
-        }
-
-        public bool TryGetCommandHandlerWithResult(BusApi.ICommand message, out Func<object, object> handler)
-        {
-            lock(_lock)
-            {
-                return _commandHandlersReturningResults.TryGetValue(message.GetType(), out handler);
             }
         }
 
@@ -181,7 +173,7 @@ namespace Composable.Messaging.Buses
             var handledTypes = _commandHandlers.Keys
                                                .Concat(_commandHandlersReturningResults.Keys).Concat(_queryHandlers.Keys)
                                                .Concat(_eventHandlerRegistrations.Select(reg => reg.Type))
-                                               .Where(messageType => messageType.Implements<BusApi.Remote.ISupportRemoteReceiver>())
+                                               .Where(messageType => messageType.Implements<BusApi.RemoteSupport.IMessage>())
                                                .ToSet();
 
             _typeMapper.AssertMappingsExistFor(handledTypes);

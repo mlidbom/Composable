@@ -22,7 +22,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             internal bool Running;
             public IGlobalBusStateTracker GlobalBusStateTracker;
-            internal readonly Dictionary<EndpointId, ClientConnection> EndpointConnections = new Dictionary<EndpointId, ClientConnection>();
+            internal readonly Dictionary<EndpointId, IClientConnection> EndpointConnections = new Dictionary<EndpointId, IClientConnection>();
             internal HandlerStorage HandlerStorage;
             internal NetMQPoller Poller;
             public IUtcTimeTimeSource TimeSource { get; set; }
@@ -74,9 +74,9 @@ namespace Composable.Messaging.Buses.Implementation
             state.Poller = null;
         });
 
-        public void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.IEvent @event) => _state.WithExclusiveAccess(state =>
+        public void DispatchIfTransactionCommits(BusApi.RemoteSupport.ExactlyOnce.IEvent exectlyOnceEvent) => _state.WithExclusiveAccess(state =>
         {
-            var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(@event);
+            var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(exectlyOnceEvent);
 
             var connections = eventHandlerEndpointIds.Where(id => id != state.EndpointId)//We dispatch events to ourself synchronously so don't go doing it again here.
                                                      .Select(endpointId => state.EndpointConnections[endpointId])
@@ -84,29 +84,36 @@ namespace Composable.Messaging.Buses.Implementation
 
             if(connections.Any())//Don't waste time persisting if there are no receivers
             {
-                state.MessageStorage.SaveMessage(@event, eventHandlerEndpointIds.ToArray());
-                connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(@event));
+                state.MessageStorage.SaveMessage(exectlyOnceEvent, eventHandlerEndpointIds.ToArray());
+                connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(exectlyOnceEvent));
             }
         });
 
-        public void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.ICommand command) => _state.WithExclusiveAccess(state =>
+        public void DispatchIfTransactionCommits(BusApi.RemoteSupport.ExactlyOnce.ICommand exactlyOnceCommand) => _state.WithExclusiveAccess(state =>
         {
-            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
+            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(exactlyOnceCommand);
             var connection = state.EndpointConnections[endPointId];
-            state.MessageStorage.SaveMessage(command, endPointId);
-            connection.DispatchIfTransactionCommits(command);
+            state.MessageStorage.SaveMessage(exactlyOnceCommand, endPointId);
+            connection.DispatchIfTransactionCommits(exactlyOnceCommand);
         });
 
-        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.Remote.ExactlyOnce.ICommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
+        public async Task DispatchAsync(BusApi.RemoteSupport.AtMostOnce.ICommand atMostOnceCommand)  => await _state.WithExclusiveAccess(async state =>
         {
-            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
+            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand);
             var connection = state.EndpointConnections[endPointId];
 
-            state.MessageStorage.SaveMessage(command, endPointId);
-            return await connection.DispatchIfTransactionCommitsAsync(command);
+            await connection.DispatchAsync(atMostOnceCommand).NoMarshalling();
         });
 
-        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand) => await _state.WithExclusiveAccess(async state =>
+        {
+            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand);
+            var connection = state.EndpointConnections[endPointId];
+
+            return await connection.DispatchAsync(atMostOnceCommand);
+        });
+
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>
         {
             var endPointId = state.HandlerStorage.GetQueryHandlerEndpoint(query);
             var connection = state.EndpointConnections[endPointId];

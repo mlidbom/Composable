@@ -19,28 +19,35 @@ namespace Composable.Messaging.Buses.Implementation
     class ClientConnection : IClientConnection
     {
         readonly ITaskRunner _taskRunner;
-        public void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(action: () => _state.WithExclusiveAccess(func: state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper))));
+        public void DispatchIfTransactionCommits(BusApi.RemoteSupport.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper))));
 
-        public void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(action: () => _state.WithExclusiveAccess(func: state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
+        public void DispatchIfTransactionCommits(BusApi.RemoteSupport.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
 
-        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.Remote.ExactlyOnce.ICommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(func: async state =>
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper);
 
-            Transaction.Current.OnCommittedSuccessfully(action: () => _state.WithExclusiveAccess(func: innerState =>
-            {
-                innerState.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-                DispatchMessage(innerState, outGoingMessage);
-            }));
-
-            Transaction.Current.OnAbort(action: () => taskCompletionSource.SetException(new TransactionAbortedException(message: "Transaction aborted so command was never dispatched")));
+            state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+            DispatchMessage(state, outGoingMessage);
 
             return await taskCompletionSource.Task;
         });
 
-        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(func: state =>
+        public async Task DispatchAsync(BusApi.RemoteSupport.AtMostOnce.ICommand command) => await _state.WithExclusiveAccess(async state =>
+        {
+            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper);
+
+            state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+            DispatchMessage(state, outGoingMessage);
+
+            return await taskCompletionSource.Task;
+        });
+
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -71,7 +78,7 @@ namespace Composable.Messaging.Buses.Implementation
                                 ITaskRunner taskRunner)
         {
             _taskRunner = taskRunner;
-            _state.WithExclusiveAccess(func: state =>
+            _state.WithExclusiveAccess(state =>
             {
                 state.TypeMapper = typeMapper;
                 state.TimeSource = timeSource;
@@ -104,12 +111,12 @@ namespace Composable.Messaging.Buses.Implementation
             });
         }
 
-        void DispatchQueuedMessages(object sender,NetMQQueueEventArgs<TransportMessage.OutGoing> netMQQueueEventArgs) => _state.WithExclusiveAccess(func: state =>
+        void DispatchQueuedMessages(object sender,NetMQQueueEventArgs<TransportMessage.OutGoing> netMQQueueEventArgs) => _state.WithExclusiveAccess(state =>
         {
             while(netMQQueueEventArgs.Queue.TryDequeue(out var message, TimeSpan.Zero)) state.Socket.Send(message);
         });
 
-        public void Dispose() => _state.WithExclusiveAccess(func: state =>
+        public void Dispose() => _state.WithExclusiveAccess(state =>
         {
             state.Socket.Dispose();
             state.DispatchQueue.Dispose();
@@ -134,9 +141,9 @@ namespace Composable.Messaging.Buses.Implementation
         //Runs on poller thread so NO BLOCKING HERE!
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
         {
-            var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, batchMaximum: 100);
+            var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, 100);
 
-            _state.WithExclusiveAccess(func: state =>
+            _state.WithExclusiveAccess(state =>
             {
                 foreach(var response in responseBatch)
                     switch(response.ResponseType)

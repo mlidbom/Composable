@@ -12,7 +12,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public partial class Register : BusApi.Remote.ExactlyOnce.Command<Register.RegistrationAttemptResult>, IValidatableObject
+            public partial class Register : BusApi.RemoteSupport.AtMostOnce.Command<Register.RegistrationAttemptResult>, IValidatableObject
             {
                 public Register() {}
                 public Register(Guid accountId, string email, string password)
@@ -36,7 +36,7 @@ namespace AccountManagement.API
 
                 public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Passwords.Password.Validate(Password, this, () => Password);
 
-                internal BusApi.Remote.ExactlyOnce.ICommand<RegistrationAttemptResult> WithValues(Guid accountId, string email, string password) => new Register(accountId, email, password);
+                internal Register WithValues(Guid accountId, string email, string password) => new Register(accountId, email, password);
             }
         }
     }

@@ -23,5 +23,19 @@ namespace Composable.System.Threading
             }
             throw new Exception("Impossible!");
         }
+
+        internal static void WaitUnwrappingException(this Task task)
+        {
+            try
+            {
+                task.Wait();
+                return;
+            }
+            catch(AggregateException exception)
+            {
+                ExceptionDispatchInfo.Capture(exception.InnerException).Throw();
+            }
+            throw new Exception("Impossible!");
+        }
     }
 }

@@ -67,7 +67,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Can_register_user_and_fetch_user_resource()
         {
-            var registrationResult = _userDomainServiceLocator.ExecuteInIsolatedScope(() =>  UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBusSession>()));
+            var registrationResult = _userDomainServiceLocator.ExecuteInIsolatedScope(() =>  UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IApiBrowser>()));
 
             var user = _host.ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() =>_host.ClientBusSession.GetRemote(registrationResult.UserLink));
 
@@ -109,12 +109,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarCommand
         {
-            public interface IRoot : BusApi.Remote.ExactlyOnce.ICommand {}
-
-            public class Root : BusApi.Remote.ExactlyOnce.Command, IRoot {}
-            public class Root<TResult> : BusApi.Remote.ExactlyOnce.Command<TResult>, IRoot where TResult : BusApi.IMessage {}
-
-            public class RegisterUserCommand : Root<RegisterUserResult>
+            public class RegisterUserCommand : BusApi.RemoteSupport.AtMostOnce.Command<RegisterUserResult>
             {
                 public Guid UserId { get; private set; } = Guid.NewGuid();
             }
@@ -152,7 +147,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 => RegisterEventAppliers()
                     .IgnoreUnhandled<UserRegistrarEvent.IRoot>();
 
-            internal static RegisterUserResult RegisterUser(IServiceBusSession bus) => new UserRegistrarCommand.RegisterUserCommand().PostRemoteOn(bus);
+            internal static RegisterUserResult RegisterUser(IApiBrowser bus) => new UserRegistrarCommand.RegisterUserCommand().PostRemoteOn(bus);
         }
 
         public class UserAggregate : Aggregate<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>
@@ -169,7 +164,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        public class GetUserQuery : BusApi.Remote.Query.RemoteQuery<UserResource>
+        public class GetUserQuery : BusApi.RemoteSupport.Query.RemoteQuery<UserResource>
         {
             public Guid UserId { get; private set; }
             public GetUserQuery(Guid userId) => UserId = userId;
@@ -181,7 +176,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public UserResource(IEnumerable<IAggregateEvent> history) { History = history; }
         }
 
-        public class RegisterUserResult : BusApi.Remote.ExactlyOnce.Message
+        public class RegisterUserResult : BusApi.RemoteSupport.ExactlyOnce.Message
         {
             public GetUserQuery UserLink { get; private set; }
             public RegisterUserResult(Guid userId) => UserLink = new GetUserQuery(userId);

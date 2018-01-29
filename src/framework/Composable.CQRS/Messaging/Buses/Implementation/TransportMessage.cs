@@ -35,7 +35,7 @@ namespace Composable.Messaging.Buses.Implementation
                     _message = (BusApi.IMessage)JsonConvert.DeserializeObject(Body, typeMapper.GetType(MessageType), JsonSettings.JsonSerializerSettings);
 
 
-                    Assert.State.Assert(!(_message is BusApi.Remote.ExactlyOnce.IExactlyOnceMessage) || MessageId == (_message as BusApi.Remote.ExactlyOnce.IExactlyOnceMessage).MessageId);
+                    Assert.State.Assert(!(_message is BusApi.RemoteSupport.ExactlyOnce.IMessage) || MessageId == (_message as BusApi.RemoteSupport.ExactlyOnce.IMessage).MessageId);
                 }
                 return _message;
             }
@@ -91,21 +91,21 @@ namespace Composable.Messaging.Buses.Implementation
                 socket.SendMultipartMessage(message);
             }
 
-            public static OutGoing Create(BusApi.IMessage message, ITypeMapper typeMapper)
+            public static OutGoing Create(BusApi.RemoteSupport.IMessage message, ITypeMapper typeMapper)
             {
-                var messageId = (message as BusApi.Remote.ExactlyOnce.IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
+                var messageId = (message as BusApi.RemoteSupport.ExactlyOnce.IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
-                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, GetMessageType(message), message is BusApi.Remote.ExactlyOnce.IExactlyOnceMessage);
+                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, GetMessageType(message), message is BusApi.RemoteSupport.ExactlyOnce.IMessage);
             }
 
             static TransportMessageType GetMessageType(BusApi.IMessage message)
             {
                 switch(message) {
-                    case BusApi.Remote.ExactlyOnce.IEvent _:
+                    case BusApi.RemoteSupport.ExactlyOnce.IEvent _:
                         return TransportMessageType.Event;
-                    case BusApi.Remote.ExactlyOnce.ICommand _:
+                    case BusApi.RemoteSupport.ICommand _:
                         return TransportMessageType.Command;
-                    case BusApi.IQuery _:
+                    case BusApi.RemoteSupport.NonTransactional.IQuery _:
                         return TransportMessageType.Query;
                     default:
                         throw new ArgumentOutOfRangeException();

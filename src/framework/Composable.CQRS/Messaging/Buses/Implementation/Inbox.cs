@@ -99,7 +99,7 @@ namespace Composable.Messaging.Buses.Implementation
                     foreach(var transportMessage in transportMessageBatch)
                     {
                         var innerMessage = transportMessage.DeserializeMessageAndCacheForNextCall(_typeMapper);
-                        if(innerMessage is BusApi.Remote.ExactlyOnce.IExactlyOnceMessage)
+                        if(innerMessage is BusApi.RemoteSupport.ExactlyOnce.IMessage)
                         {
                             _storage.SaveMessage(transportMessage);
                             _responseQueue.Enqueue(transportMessage.CreatePersistedResponse());
@@ -110,7 +110,7 @@ namespace Composable.Messaging.Buses.Implementation
                         dispatchTask.ContinueWith(dispatchResult =>
                         {
                             var message = transportMessage.DeserializeMessageAndCacheForNextCall(_typeMapper);
-                            if(message.RequiresResponse())
+                            if(message is BusApi.RemoteSupport.IRequireRemoteResponse)
                             {
                                 if(dispatchResult.IsFaulted)
                                 {

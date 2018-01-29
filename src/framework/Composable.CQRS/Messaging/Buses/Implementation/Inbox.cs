@@ -23,7 +23,7 @@ namespace Composable.Messaging.Buses.Implementation
         bool _running;
         string _address;
 
-        readonly NetMQQueue<TransportMessage.Response.Outgoing> _responseQueue = new NetMQQueue<TransportMessage.Response.Outgoing>();
+        NetMQQueue<TransportMessage.Response.Outgoing> _responseQueue;
 
         RouterSocket _serverSocket;
 
@@ -62,6 +62,8 @@ namespace Composable.Messaging.Buses.Implementation
             _address = _serverSocket.BindAndReturnActualAddress(_address);
             _serverSocket.ReceiveReady += HandleIncomingMessage;
 
+            _responseQueue = new NetMQQueue<TransportMessage.Response.Outgoing>();
+
             _responseQueue.ReceiveReady += SendResponseMessage;
 
             _cancellationTokenSource = new CancellationTokenSource();
@@ -87,6 +89,7 @@ namespace Composable.Messaging.Buses.Implementation
             _serverSocket.Close();
             _serverSocket.Dispose();
             _handlerExecutionEngine.Stop();
+            _responseQueue = null;
         }
 
         void MessageReceiverThread()

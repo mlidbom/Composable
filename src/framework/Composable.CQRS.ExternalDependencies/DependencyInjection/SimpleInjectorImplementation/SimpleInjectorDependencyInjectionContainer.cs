@@ -67,7 +67,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
                     var baseRegistration = GetSimpleInjectorLifestyle(componentRegistration.Lifestyle)
                        .CreateRegistration(
                             componentRegistration.InstantiationSpec.FactoryMethodReturnType,
-                            () => componentRegistration.InstantiationSpec.FactoryMethod(this),
+                            () => componentRegistration.InstantiationSpec.RunFactoryMethod(this),
                             _container);
                     foreach (var someCompletelyOtherName in componentRegistration.ServiceTypes)
                     {

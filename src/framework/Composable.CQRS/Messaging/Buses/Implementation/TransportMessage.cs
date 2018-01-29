@@ -23,7 +23,6 @@ namespace Composable.Messaging.Buses.Implementation
         {
             internal readonly byte[] Client;
             internal readonly Guid MessageId;
-            readonly ITypeMapper _typeMapper;
             internal readonly string Body;
             internal readonly TypeId MessageTypeId;
             internal readonly Type MessageType;
@@ -34,7 +33,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(_message == null)
                 {
-                    _message = (BusApi.IMessage)JsonConvert.DeserializeObject(Body, _typeMapper.GetType(MessageTypeId), JsonSettings.JsonSerializerSettings);
+                    _message = (BusApi.IMessage)JsonConvert.DeserializeObject(Body, MessageType, JsonSettings.JsonSerializerSettings);
 
 
                     Assert.State.Assert(!(_message is BusApi.Remotable.ExactlyOnce.IMessage) || MessageId == (_message as BusApi.Remotable.ExactlyOnce.IMessage).MessageId);
@@ -49,7 +48,6 @@ namespace Composable.Messaging.Buses.Implementation
                 MessageType = typeMapper.GetType(messageTypeId);
                 Client = client;
                 MessageId = messageId;
-                _typeMapper = typeMapper;
             }
 
             public static IReadOnlyList<InComing> ReceiveBatch(RouterSocket socket, ITypeMapper typeMapper)

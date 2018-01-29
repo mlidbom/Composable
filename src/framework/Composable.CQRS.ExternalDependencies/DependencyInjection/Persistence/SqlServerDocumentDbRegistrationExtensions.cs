@@ -54,7 +54,7 @@ namespace Composable.DependencyInjection.Persistence
             } else
             {
                 @this.Register(Component.For<IDocumentDb>()
-                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource) => new SqlServerDocumentDb(connectionProvider.GetConnectionProvider(connectionName), timeSource))
+                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource) => new SqlServerDocumentDb(new LazySqlServerConnection(new Lazy<string>(() => connectionProvider.GetConnectionProvider(connectionName).ConnectionString)), timeSource))
                                          .LifestyleSingleton());
             }
 

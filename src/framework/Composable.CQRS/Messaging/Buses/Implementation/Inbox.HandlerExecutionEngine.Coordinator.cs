@@ -38,8 +38,6 @@ namespace Composable.Messaging.Buses.Implementation
 
                 void Failed(QueuedMessage queuedMessageInformation, Exception exception) => _implementation.Update(implementation => implementation.Failed(queuedMessageInformation, exception));
 
-
-
                 class NonThreadsafeImplementation
                 {
                     const int MaxConcurrentlyExecutingHandlers = 20;
@@ -57,7 +55,7 @@ namespace Composable.Messaging.Buses.Implementation
                         }
 
                         dispatchable = _messagesWaitingToExecute
-                                .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(_executingMessages, queuedTask.TransportMessage)));
+                           .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(_executingMessages, queuedTask.TransportMessage)));
 
                         if(dispatchable == null)
                         {
@@ -82,15 +80,14 @@ namespace Composable.Messaging.Buses.Implementation
                     }
                 }
 
-
                 internal class QueuedMessage
                 {
                     internal readonly TransportMessage.InComing TransportMessage;
                     readonly Coordinator _coordinator;
-                    readonly Action      _messageTask;
+                    readonly Action _messageTask;
                     readonly ITaskRunner _taskRunner;
-                    public BusApi.IMessage Message => TransportMessage.DeserializeMessageAndCacheForNextCall();
-                    public   Guid        MessageId   { get; }
+                    public BusApi.IMessage DeserializeMessageAndCache() => TransportMessage.DeserializeMessageAndCacheForNextCall();
+                    public Guid MessageId { get; }
 
                     public void Run()
                     {
@@ -110,7 +107,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     public QueuedMessage(TransportMessage.InComing transportMessage, Coordinator coordinator, Action messageTask, ITaskRunner taskRunner)
                     {
-                        MessageId    = transportMessage.MessageId;
+                        MessageId = transportMessage.MessageId;
                         TransportMessage = transportMessage;
                         _coordinator = coordinator;
                         _messageTask = messageTask;

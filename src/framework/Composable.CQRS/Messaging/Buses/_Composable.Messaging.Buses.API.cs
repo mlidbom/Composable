@@ -11,11 +11,6 @@ using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses
 {
-    public interface IEventstoreEventPublisher
-    {
-        void Publish(IAggregateEvent anEvent);
-    }
-
     ///<summary>Dispatches messages within a process.</summary>
     public interface ILocalApiNavigatorSession
     {

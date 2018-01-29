@@ -67,6 +67,19 @@ namespace Composable.Messaging.Buses.Implementation
                             return false;
                         }
 
+                        Dispatching(dispatchable);
+                        return true;
+                    }
+
+                    public void EnqueueMessageTask(QueuedMessage message) => _messagesWaitingToExecute.Add(message);
+
+                    internal void Succeeded(QueuedMessage queuedMessageInformation) => DoneDispatching(queuedMessageInformation);
+
+                    internal void Failed(QueuedMessage queuedMessageInformation, Exception exception) => DoneDispatching(queuedMessageInformation, exception);
+
+
+                    void Dispatching(QueuedMessage dispatchable)
+                    {
                         _executingMessages++;
 
                         switch(dispatchable.TransportMessage.MessageTypeEnum)
@@ -88,14 +101,7 @@ namespace Composable.Messaging.Buses.Implementation
                         }
 
                         _messagesWaitingToExecute.Remove(dispatchable);
-                        return true;
                     }
-
-                    public void EnqueueMessageTask(QueuedMessage message) => _messagesWaitingToExecute.Add(message);
-
-                    internal void Succeeded(QueuedMessage queuedMessageInformation) => DoneDispatching(queuedMessageInformation);
-
-                    internal void Failed(QueuedMessage queuedMessageInformation, Exception exception) => DoneDispatching(queuedMessageInformation, exception);
 
                     void DoneDispatching(QueuedMessage doneExecuting, Exception exception = null)
                     {

@@ -67,7 +67,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                     Registrar.ForQuery((AQuery query) => _aQueryResult);
                 }
 
-                [Fact] public void Getting_new_AQuery_returns_the_instance_returned_by_the_handler() => new AQuery().ExecuteOn(BusSession).Should().Be(_aQueryResult);
+                [Fact] public void Getting_new_AQuery_returns_the_instance_returned_by_the_handler() => BusSession.Execute(new AQuery()).Should().Be(_aQueryResult);
             }
 
             public class With_one_registered_handler_for_AnEvent : Given_a_bus

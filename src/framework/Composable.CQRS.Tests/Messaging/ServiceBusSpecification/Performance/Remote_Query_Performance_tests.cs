@@ -9,24 +9,24 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
     [TestFixture] public class RemoteQueryPerformanceTests : PerformanceTestBase
     {
-        [Test] public void Given_30_client_threads_Runs_100_remote_queries_in_50_milliSecond()
+        [Test] public void MultiThreaded_Runs_100_remote_queries_in_20_milliSecond()
         {
             var navigationSpecification = NavigationSpecification.Get(new MyRemoteQuery());
 
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(RemoteNavigator)), iterations: 10);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 10);
 
-            TimeAsserter.ExecuteThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(RemoteNavigator)), iterations: 100, maxTotal: 50.Milliseconds());
+            TimeAsserter.ExecuteThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 100, maxTotal: 20.Milliseconds().NCrunchSlowdownFactor(2));
         }
 
-        [Test] public void Given_1_client_thread_Runs_100_remote_queries_in_100_milliseconds()
+        [Test] public void SingleThreaded_Runs_100_remote_queries_in_100_milliseconds()
         {
             var navigationSpecification = NavigationSpecification.Get(new MyRemoteQuery());
 
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(RemoteNavigator)), iterations: 10);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 10);
 
-            TimeAsserter.Execute(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => navigationSpecification.NavigateOn(RemoteNavigator)), iterations: 100, maxTotal: 100.Milliseconds());
+            TimeAsserter.Execute(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 100, maxTotal: 100.Milliseconds());
         }
     }
 }

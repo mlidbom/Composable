@@ -86,6 +86,7 @@ namespace Composable.Messaging.Buses.Implementation
                     readonly Coordinator _coordinator;
                     readonly Action _messageTask;
                     readonly ITaskRunner _taskRunner;
+                    // ReSharper disable once UnusedMember.Local
                     public BusApi.IMessage DeserializeMessageAndCache() => TransportMessage.DeserializeMessageAndCacheForNextCall();
                     public Guid MessageId { get; }
 

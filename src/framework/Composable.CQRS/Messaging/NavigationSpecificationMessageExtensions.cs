@@ -1,4 +1,5 @@
 ﻿
+using System.Threading.Tasks;
 using Composable.Messaging.Buses;
 
 namespace Composable.Messaging
@@ -15,5 +16,9 @@ namespace Composable.Messaging
         public static TResult PostOn<TResult>(this BusApi.Remotable.AtMostOnce.ICommand<TResult> command, IRemoteApiNavigatorSession bus) => NavigationSpecification.Post(command).NavigateOn(bus);
 
         public static TResult GetOn<TResult>(this BusApi.Remotable.NonTransactional.IQuery<TResult> query, IRemoteApiNavigatorSession bus) => NavigationSpecification.Get(query).NavigateOn(bus);
+
+        public static TResult Navigate<TResult>(this IRemoteApiNavigatorSession navigator, NavigationSpecification<TResult> navigationSpecification) => navigationSpecification.NavigateOn(navigator);
+
+        public static async Task<TResult> NavigateAsync<TResult>(this IRemoteApiNavigatorSession navigator, NavigationSpecification<TResult> navigationSpecification) => await navigationSpecification.NavigateOnAsync(navigator);
     }
 }

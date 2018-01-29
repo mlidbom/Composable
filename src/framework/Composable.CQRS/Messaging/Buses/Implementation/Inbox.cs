@@ -82,6 +82,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             Assert.Invariant.Assert(_running);
             _running = false;
+            _cancellationTokenSource.Cancel();
             _messagePumpThread.InterruptAndJoin();
             _poller.StopAsync();
             _pollerThread.Join();

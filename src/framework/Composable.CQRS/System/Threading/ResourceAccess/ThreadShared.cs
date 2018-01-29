@@ -82,7 +82,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public void ExecuteWithExclusiveAccessWhen(Func<TShared, bool> condition, Action<TShared> action)
+        public void UpdateWhen(Func<TShared, bool> condition, Action<TShared> update)
         {
             lock(_lock)
             {
@@ -91,7 +91,23 @@ namespace Composable.System.Threading.ResourceAccess
                     Monitor.Wait(_lock);
                 }
 
-                action(_shared);
+                update(_shared);
+                Monitor.PulseAll(_lock);
+            }
+        }
+
+        public TResult UpdateWhen<TResult>(Func<TShared, bool> condition, Func<TShared, TResult> update)
+        {
+            lock(_lock)
+            {
+                while(!condition(_shared))
+                {
+                    Monitor.Wait(_lock);
+                }
+
+                var result = update(_shared);
+                Monitor.PulseAll(_lock);
+                return result;
             }
         }
     }

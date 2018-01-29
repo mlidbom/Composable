@@ -8,18 +8,18 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
     [TestFixture] public class Local_Query_performance_tests : PerformanceTestBase
     {
-        [Test] public void Given_30_client_threads_Runs_100_local_queries_in_2_milliSecond()
+        [Test] public void Runs_100_MultiThreaded_local_queries_in_2_milliSecond()
         {
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10, maxDegreeOfParallelism: 30);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10);
 
-            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 100, maxTotal: 2.Milliseconds(), maxDegreeOfParallelism: 30);
+            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 100, maxTotal: 2.Milliseconds());
         }
 
-        [Test] public void Given_1_client_thread_Runs_100_local_queries_in_2_milliseconds()
+        [Test] public void Runs_100_SingleThreaded_local_queries_in_2_milliseconds()
         {
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10, maxDegreeOfParallelism: 30);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10);
 
             TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 100, maxTotal: 2.Milliseconds());
         }

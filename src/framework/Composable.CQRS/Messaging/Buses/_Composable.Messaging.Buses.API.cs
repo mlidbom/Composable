@@ -51,12 +51,6 @@ namespace Composable.Messaging.Buses
 
         ///<summary>Schedules a command to be sent later if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
         void SchedulePostRemote(DateTime sendAt, BusApi.RemoteSupport.ExactlyOnce.ICommand command);
-
-        ///<summary>Syncronous wrapper for <see cref="PostRemoteAsync{TResult}"/>. Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver. NOTE: The result CANNOT be awaited within the sending transaction since it has not been sent yet.</summary>
-        TResult PostRemote<TResult>(BusApi.RemoteSupport.ExactlyOnce.ICommand<TResult> command);
-
-        ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver. NOTE: The result CANNOT be awaited within the sending transaction since it has not been sent yet.</summary>
-        Task<TResult> PostRemoteAsync<TResult>(BusApi.RemoteSupport.ExactlyOnce.ICommand<TResult> command);
     }
 
     ///<summary>Dispatches messages between processes.</summary>

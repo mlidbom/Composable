@@ -47,23 +47,6 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task;
         });
 
-        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.RemoteSupport.ExactlyOnce.ICommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
-        {
-            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-            var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper);
-
-            Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(innerState =>
-            {
-                innerState.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-                DispatchMessage(innerState, outGoingMessage);
-            }));
-
-            Transaction.Current.OnAbort(() => taskCompletionSource.SetException(new TransactionAbortedException("Transaction aborted so command was never dispatched")));
-
-            return await taskCompletionSource.Task;
-        });
-
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);

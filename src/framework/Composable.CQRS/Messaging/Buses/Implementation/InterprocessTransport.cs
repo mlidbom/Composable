@@ -22,7 +22,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             internal bool Running;
             public IGlobalBusStateTracker GlobalBusStateTracker;
-            internal readonly Dictionary<EndpointId, ClientConnection> EndpointConnections = new Dictionary<EndpointId, ClientConnection>();
+            internal readonly Dictionary<EndpointId, IClientConnection> EndpointConnections = new Dictionary<EndpointId, IClientConnection>();
             internal HandlerStorage HandlerStorage;
             internal NetMQPoller Poller;
             public IUtcTimeTimeSource TimeSource { get; set; }
@@ -96,16 +96,6 @@ namespace Composable.Messaging.Buses.Implementation
             state.MessageStorage.SaveMessage(exactlyOnceCommand, endPointId);
             connection.DispatchIfTransactionCommits(exactlyOnceCommand);
         });
-
-        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.RemoteSupport.ExactlyOnce.ICommand<TCommandResult> exactlyOnceCommand) => await _state.WithExclusiveAccess(async state =>
-        {
-            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(exactlyOnceCommand);
-            var connection = state.EndpointConnections[endPointId];
-
-            state.MessageStorage.SaveMessage(exactlyOnceCommand, endPointId);
-            return await connection.DispatchIfTransactionCommitsAsync(exactlyOnceCommand);
-        });
-
 
         public async Task DispatchAsync(BusApi.RemoteSupport.AtMostOnce.ICommand atMostOnceCommand)  => await _state.WithExclusiveAccess(async state =>
         {

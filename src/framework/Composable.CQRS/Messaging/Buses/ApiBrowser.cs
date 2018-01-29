@@ -48,16 +48,6 @@ namespace Composable.Messaging.Buses
             _commandScheduler.Schedule(sendAt, command);
         }
 
-        Task<TResult> ITransactionalMessageHandlerApiBrowser.PostRemoteAsync<TResult>(BusApi.RemoteSupport.ExactlyOnce.ICommand<TResult> command)
-        {
-            MessageInspector.AssertValidToSendRemote(command);
-            _contextGuard.AssertNoContextChangeOccurred(this);
-            CommandValidator.AssertCommandIsValid(command);
-            return _transport.DispatchIfTransactionCommitsAsync(command);
-        }
-
-        TResult ITransactionalMessageHandlerApiBrowser.PostRemote<TResult>(BusApi.RemoteSupport.ExactlyOnce.ICommand<TResult> command) => ((ITransactionalMessageHandlerApiBrowser)this).PostRemoteAsync(command).ResultUnwrappingException();
-
         TResult ILocalApiBrowser.PostLocal<TResult>(BusApi.StrictlyLocal.ICommand<TResult> command)
         {
             MessageInspector.AssertValidToSendLocal(command);

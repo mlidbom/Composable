@@ -42,11 +42,11 @@ namespace Composable.Messaging
             {
                 public abstract class RemoteQuery<TResult> : BusApi.Remotable.NonTransactional.IQuery<TResult> {}
 
-                public class RemoteEntityResourceQuery<TResource> : RemoteQuery<TResource> where TResource : IHasPersistentIdentity<Guid>
+                public class EntityLink<TResource> : RemoteQuery<TResource> where TResource : IHasPersistentIdentity<Guid>
                 {
-                    public RemoteEntityResourceQuery() {}
-                    public RemoteEntityResourceQuery(Guid entityId) => EntityId = entityId;
-                    public RemoteEntityResourceQuery<TResource> WithId(Guid id) => new RemoteEntityResourceQuery<TResource>(id);
+                    public EntityLink() {}
+                    public EntityLink(Guid entityId) => EntityId = entityId;
+                    public EntityLink<TResource> WithId(Guid id) => new EntityLink<TResource>(id);
                     public Guid EntityId { get; private set; }
                 }
 

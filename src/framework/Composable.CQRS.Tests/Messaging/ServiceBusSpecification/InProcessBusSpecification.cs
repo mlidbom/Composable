@@ -115,7 +115,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
         class AQuery : BusApi.StrictlyLocal.Queries.Query<AQueryResult> {}
 
-        class AQueryResult : QueryResult {}
+        class AQueryResult {}
 
         class AnEvent : AggregateEvent {}
     }

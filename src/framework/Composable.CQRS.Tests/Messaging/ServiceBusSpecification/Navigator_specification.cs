@@ -82,7 +82,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 Host.Dispose();
             }
 
-            class UserApiStartPage : QueryResult
+            class UserApiStartPage
             {
                 public static UserApiStartPageQuery Self => new UserApiStartPageQuery();
                 public RegisterUserCommand RegisterUser(string userName) => new RegisterUserCommand(userName);
@@ -100,7 +100,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class UserResource : QueryResult
+            protected class UserResource
             {
                 public UserResource(string name) => Name = name;
                 public string Name { get; }

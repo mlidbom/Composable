@@ -19,11 +19,11 @@ namespace Composable.Messaging.Buses.Implementation
     class ClientConnection : IClientConnection
     {
         readonly ITaskRunner _taskRunner;
-        public void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper))));
+        public void DispatchIfTransactionCommits(BusApi.RemoteSupport.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper))));
 
-        public void DispatchIfTransactionCommits(BusApi.Remote.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
+        public void DispatchIfTransactionCommits(BusApi.RemoteSupport.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
 
-        public async Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remote.AtMostOnce.ICommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -35,7 +35,7 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task;
         });
 
-        public async Task DispatchAsync(BusApi.Remote.AtMostOnce.ICommand command) => await _state.WithExclusiveAccess(async state =>
+        public async Task DispatchAsync(BusApi.RemoteSupport.AtMostOnce.ICommand command) => await _state.WithExclusiveAccess(async state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -47,7 +47,7 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task;
         });
 
-        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.Remote.ExactlyOnce.ICommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
+        public async Task<TCommandResult> DispatchIfTransactionCommitsAsync<TCommandResult>(BusApi.RemoteSupport.ExactlyOnce.ICommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -64,7 +64,7 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task;
         });
 
-        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remote.NonTransactional.IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(state =>
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 

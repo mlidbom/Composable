@@ -11,9 +11,9 @@ namespace Composable.Messaging
 
         public RemoteNavigationSpecification<TNext> Select<TNext>(Func<TResult, TNext> select) => new RemoteNavigationSpecification<TNext>.SelectQuery<TResult>(this, select);
 
-        public RemoteNavigationSpecification PostRemote(Func<TResult, BusApi.Remote.AtMostOnce.ICommand> next) => new Remote.PostVoidCommand<TResult>(this, next);
-        public RemoteNavigationSpecification<TNext> GetRemote<TNext>(Func<TResult, BusApi.Remote.NonTransactional.IQuery<TNext>> next) => new RemoteNavigationSpecification<TNext>.Remote.ContinuationQuery<TResult>(this, next);
-        public RemoteNavigationSpecification<TNext> PostRemote<TNext>(Func<TResult, BusApi.Remote.AtMostOnce.ICommand<TNext>> next) => new RemoteNavigationSpecification<TNext>.Remote.PostCommand<TResult>(this, next);
+        public RemoteNavigationSpecification PostRemote(Func<TResult, BusApi.RemoteSupport.AtMostOnce.ICommand> next) => new Remote.PostVoidCommand<TResult>(this, next);
+        public RemoteNavigationSpecification<TNext> GetRemote<TNext>(Func<TResult, BusApi.RemoteSupport.NonTransactional.IQuery<TNext>> next) => new RemoteNavigationSpecification<TNext>.Remote.ContinuationQuery<TResult>(this, next);
+        public RemoteNavigationSpecification<TNext> PostRemote<TNext>(Func<TResult, BusApi.RemoteSupport.AtMostOnce.ICommand<TNext>> next) => new RemoteNavigationSpecification<TNext>.Remote.PostCommand<TResult>(this, next);
 
         class SelectQuery<TPrevious> : RemoteNavigationSpecification<TResult>
         {

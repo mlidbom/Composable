@@ -10,9 +10,9 @@ namespace Composable.Messaging
         {
             internal class StartQuery : RemoteNavigationSpecification<TResult>
             {
-                readonly BusApi.Remote.NonTransactional.IQuery<TResult> _start;
+                readonly BusApi.RemoteSupport.NonTransactional.IQuery<TResult> _start;
 
-                internal StartQuery(BusApi.Remote.NonTransactional.IQuery<TResult> start) => _start = start;
+                internal StartQuery(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> start) => _start = start;
 
                 public override TResult ExecuteRemoteOn(IUIInteractionApiBrowser busSession) => busSession.GetRemote(_start);
                 public override Task<TResult> ExecuteRemoteAsyncOn(IUIInteractionApiBrowser busSession) => busSession.GetRemoteAsync(_start);
@@ -20,9 +20,9 @@ namespace Composable.Messaging
 
             internal class StartCommand : RemoteNavigationSpecification<TResult>
             {
-                readonly BusApi.Remote.AtMostOnce.ICommand<TResult> _start;
+                readonly BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> _start;
 
-                internal StartCommand(BusApi.Remote.AtMostOnce.ICommand<TResult> start) => _start = start;
+                internal StartCommand(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> start) => _start = start;
 
                 public override TResult ExecuteRemoteOn(IUIInteractionApiBrowser busSession) => busSession.PostRemote(_start);
                 public override Task<TResult> ExecuteRemoteAsyncOn(IUIInteractionApiBrowser busSession) => busSession.PostRemoteAsync(_start);
@@ -31,9 +31,9 @@ namespace Composable.Messaging
             internal class ContinuationQuery<TPrevious> : RemoteNavigationSpecification<TResult>
             {
                 readonly RemoteNavigationSpecification<TPrevious> _previous;
-                readonly Func<TPrevious, BusApi.Remote.NonTransactional.IQuery<TResult>> _nextQuery;
+                readonly Func<TPrevious, BusApi.RemoteSupport.NonTransactional.IQuery<TResult>> _nextQuery;
 
-                internal ContinuationQuery(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, BusApi.Remote.NonTransactional.IQuery<TResult>> nextQuery)
+                internal ContinuationQuery(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, BusApi.RemoteSupport.NonTransactional.IQuery<TResult>> nextQuery)
                 {
                     _previous = previous;
                     _nextQuery = nextQuery;
@@ -57,8 +57,8 @@ namespace Composable.Messaging
             internal class PostCommand<TPrevious> : RemoteNavigationSpecification<TResult>
             {
                 readonly RemoteNavigationSpecification<TPrevious> _previous;
-                readonly Func<TPrevious, BusApi.Remote.AtMostOnce.ICommand<TResult>> _next;
-                internal PostCommand(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, BusApi.Remote.AtMostOnce.ICommand<TResult>> next)
+                readonly Func<TPrevious, BusApi.RemoteSupport.AtMostOnce.ICommand<TResult>> _next;
+                internal PostCommand(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, BusApi.RemoteSupport.AtMostOnce.ICommand<TResult>> next)
                 {
                     _previous = previous;
                     _next = next;
@@ -82,8 +82,8 @@ namespace Composable.Messaging
             internal class PostVoidCommand<TPrevious> : RemoteNavigationSpecification
             {
                 readonly RemoteNavigationSpecification<TPrevious> _previous;
-                readonly Func<TPrevious, BusApi.Remote.AtMostOnce.ICommand> _next;
-                internal PostVoidCommand(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, BusApi.Remote.AtMostOnce.ICommand> next)
+                readonly Func<TPrevious, BusApi.RemoteSupport.AtMostOnce.ICommand> _next;
+                internal PostVoidCommand(RemoteNavigationSpecification<TPrevious> previous, Func<TPrevious, BusApi.RemoteSupport.AtMostOnce.ICommand> next)
                 {
                     _previous = previous;
                     _next = next;

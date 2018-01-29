@@ -66,11 +66,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             QueryHandlerThreadGate.Open();
         }
 
-        protected class MyCommand : BusApi.Remote.ExactlyOnce.Command {}
+        protected class MyCommand : BusApi.RemoteSupport.ExactlyOnce.Command {}
         protected class MyEvent : AggregateEvent {}
-        protected class MyQuery : BusApi.Remote.Query.RemoteQuery<MyQueryResult> {}
+        protected class MyQuery : BusApi.RemoteSupport.Query.RemoteQuery<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
-        protected class MyCommandWithResult : BusApi.Remote.ExactlyOnce.Command<MyCommandResult> {}
-        protected class MyCommandResult : BusApi.Remote.ExactlyOnce.Message {}
+        protected class MyCommandWithResult : BusApi.RemoteSupport.ExactlyOnce.Command<MyCommandResult> {}
+        protected class MyCommandResult : BusApi.RemoteSupport.ExactlyOnce.Message {}
     }
 }

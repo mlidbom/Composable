@@ -11,7 +11,7 @@ namespace AccountManagement.API
 
         public class Query
         {
-            public BusApi.Remote.Query.RemoteEntityResourceQuery<AccountResource> AccountById { get; private set; } = new BusApi.Remote.Query.RemoteEntityResourceQuery<AccountResource>();
+            public BusApi.RemoteSupport.Query.RemoteEntityResourceQuery<AccountResource> AccountById { get; private set; } = new BusApi.RemoteSupport.Query.RemoteEntityResourceQuery<AccountResource>();
         }
 
         public class Command

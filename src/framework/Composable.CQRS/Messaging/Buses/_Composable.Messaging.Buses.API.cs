@@ -12,51 +12,51 @@ namespace Composable.Messaging.Buses
 {
     public interface IEventstoreEventPublisher
     {
-        void Publish(BusApi.Remote.ExactlyOnce.IEvent anEvent);
+        void Publish(BusApi.RemoteSupport.ExactlyOnce.IEvent anEvent);
     }
 
     ///<summary>Dispatches messages within a process.</summary>
     public interface ILocalApiBrowser : IEventstoreEventPublisher
     {
         ///<summary>Syncronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        TResult GetLocal<TResult>(BusApi.Local.IQuery<TResult> query);
+        TResult GetLocal<TResult>(BusApi.StrictlyLocal.IQuery<TResult> query);
 
         ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        TResult PostLocal<TResult>(BusApi.Local.ICommand<TResult> command);
+        TResult PostLocal<TResult>(BusApi.StrictlyLocal.ICommand<TResult> command);
 
         ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        void PostLocal(BusApi.Local.ICommand command);
+        void PostLocal(BusApi.StrictlyLocal.ICommand command);
     }
 
 
     public interface IUIInteractionApiBrowser
     {
         //todo: Consider this. Does it really make sense to be void and non-async. Should this not at least throw if remote execution fails!?
-        void PostRemote(BusApi.Remote.AtMostOnce.ICommand command);
-        Task PostRemoteAsync(BusApi.Remote.AtMostOnce.ICommand command);
-        TResult PostRemote<TResult>(BusApi.Remote.AtMostOnce.ICommand<TResult> command);
-        Task<TResult> PostRemoteAsync<TResult>(BusApi.Remote.AtMostOnce.ICommand<TResult> command);
+        void PostRemote(BusApi.RemoteSupport.AtMostOnce.ICommand command);
+        Task PostRemoteAsync(BusApi.RemoteSupport.AtMostOnce.ICommand command);
+        TResult PostRemote<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command);
+        Task<TResult> PostRemoteAsync<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command);
 
         ///<summary>Gets the result of a handler somewhere on the bus handling the <paramref name="query"/></summary>
-        Task<TResult> GetRemoteAsync<TResult>(BusApi.Remote.NonTransactional.IQuery<TResult> query);
+        Task<TResult> GetRemoteAsync<TResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query);
 
         ///<summary>Syncronous wrapper for: <see cref="GetRemoteAsync{TResult}"/>.</summary>
-        TResult GetRemote<TResult>(BusApi.Remote.NonTransactional.IQuery<TResult> query);
+        TResult GetRemote<TResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query);
     }
 
     public interface ITransactionalMessageHandlerApiBrowser : ILocalApiBrowser
     {
         ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
-        void PostRemote(BusApi.Remote.ExactlyOnce.ICommand command);
+        void PostRemote(BusApi.RemoteSupport.ExactlyOnce.ICommand command);
 
         ///<summary>Schedules a command to be sent later if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
-        void SchedulePostRemote(DateTime sendAt, BusApi.Remote.ExactlyOnce.ICommand command);
+        void SchedulePostRemote(DateTime sendAt, BusApi.RemoteSupport.ExactlyOnce.ICommand command);
 
         ///<summary>Syncronous wrapper for <see cref="PostRemoteAsync{TResult}"/>. Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver. NOTE: The result CANNOT be awaited within the sending transaction since it has not been sent yet.</summary>
-        TResult PostRemote<TResult>(BusApi.Remote.ExactlyOnce.ICommand<TResult> command);
+        TResult PostRemote<TResult>(BusApi.RemoteSupport.ExactlyOnce.ICommand<TResult> command);
 
         ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver. NOTE: The result CANNOT be awaited within the sending transaction since it has not been sent yet.</summary>
-        Task<TResult> PostRemoteAsync<TResult>(BusApi.Remote.ExactlyOnce.ICommand<TResult> command);
+        Task<TResult> PostRemoteAsync<TResult>(BusApi.RemoteSupport.ExactlyOnce.ICommand<TResult> command);
 
         /////<summary>Syncronous wrapper for: <see cref="GetRemoteAsync{TResult}"/>. Gets the result of a handler somewhere on the bus handling the <paramref name="query"/>.</summary>
         //TResult GetRemote<TResult>(BusApi.Remote.NonTransactional.IQuery<TResult> query);

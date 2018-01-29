@@ -24,7 +24,7 @@ namespace Composable.Messaging.Buses
             _handlerRegistry = handlerRegistry;
         }
 
-        void IEventstoreEventPublisher.Publish(BusApi.Remote.ExactlyOnce.IEvent @event) => TransactionScopeCe.Execute(() =>
+        void IEventstoreEventPublisher.Publish(BusApi.RemoteSupport.ExactlyOnce.IEvent @event) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSendRemote(@event);
@@ -32,7 +32,7 @@ namespace Composable.Messaging.Buses
             _transport.DispatchIfTransactionCommits(@event);
         });
 
-        void ITransactionalMessageHandlerApiBrowser.PostRemote(BusApi.Remote.ExactlyOnce.ICommand command) => TransactionScopeCe.Execute(() =>
+        void ITransactionalMessageHandlerApiBrowser.PostRemote(BusApi.RemoteSupport.ExactlyOnce.ICommand command) => TransactionScopeCe.Execute(() =>
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSendRemote(command);
@@ -40,7 +40,7 @@ namespace Composable.Messaging.Buses
             _transport.DispatchIfTransactionCommits(command);
         });
 
-        void ITransactionalMessageHandlerApiBrowser.SchedulePostRemote(DateTime sendAt, BusApi.Remote.ExactlyOnce.ICommand command) => TransactionScopeCe.Execute(() =>
+        void ITransactionalMessageHandlerApiBrowser.SchedulePostRemote(DateTime sendAt, BusApi.RemoteSupport.ExactlyOnce.ICommand command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSendRemote(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses
             _commandScheduler.Schedule(sendAt, command);
         });
 
-        Task<TResult> ITransactionalMessageHandlerApiBrowser.PostRemoteAsync<TResult>(BusApi.Remote.ExactlyOnce.ICommand<TResult> command) => TransactionScopeCe.Execute(() =>
+        Task<TResult> ITransactionalMessageHandlerApiBrowser.PostRemoteAsync<TResult>(BusApi.RemoteSupport.ExactlyOnce.ICommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSendRemote(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -56,9 +56,9 @@ namespace Composable.Messaging.Buses
             return _transport.DispatchIfTransactionCommitsAsync(command);
         });
 
-        TResult ITransactionalMessageHandlerApiBrowser.PostRemote<TResult>(BusApi.Remote.ExactlyOnce.ICommand<TResult> command) => ((ITransactionalMessageHandlerApiBrowser)this).PostRemoteAsync(command).ResultUnwrappingException();
+        TResult ITransactionalMessageHandlerApiBrowser.PostRemote<TResult>(BusApi.RemoteSupport.ExactlyOnce.ICommand<TResult> command) => ((ITransactionalMessageHandlerApiBrowser)this).PostRemoteAsync(command).ResultUnwrappingException();
 
-        TResult ILocalApiBrowser.PostLocal<TResult>(BusApi.Local.ICommand<TResult> command) => TransactionScopeCe.Execute(() =>
+        TResult ILocalApiBrowser.PostLocal<TResult>(BusApi.StrictlyLocal.ICommand<TResult> command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSendLocal(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -66,7 +66,7 @@ namespace Composable.Messaging.Buses
             return _handlerRegistry.GetCommandHandler(command).Invoke(command);
         });
 
-        void ILocalApiBrowser.PostLocal(BusApi.Local.ICommand command) => TransactionScopeCe.Execute(() =>
+        void ILocalApiBrowser.PostLocal(BusApi.StrictlyLocal.ICommand command) => TransactionScopeCe.Execute(() =>
         {
             MessageInspector.AssertValidToSendLocal(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -74,7 +74,7 @@ namespace Composable.Messaging.Buses
             _handlerRegistry.GetCommandHandler(command).Invoke(command);
         });
 
-        TResult ILocalApiBrowser.GetLocal<TResult>(BusApi.Local.IQuery<TResult> query)
+        TResult ILocalApiBrowser.GetLocal<TResult>(BusApi.StrictlyLocal.IQuery<TResult> query)
         {
             MessageInspector.AssertValidToSendLocal(query);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -85,9 +85,9 @@ namespace Composable.Messaging.Buses
                        : _handlerRegistry.GetQueryHandler(query).Invoke(query);
         }
 
-        void IUIInteractionApiBrowser.PostRemote(BusApi.Remote.AtMostOnce.ICommand command) => ((IUIInteractionApiBrowser)this).PostRemoteAsync(command).WaitUnwrappingException();
+        void IUIInteractionApiBrowser.PostRemote(BusApi.RemoteSupport.AtMostOnce.ICommand command) => ((IUIInteractionApiBrowser)this).PostRemoteAsync(command).WaitUnwrappingException();
 
-        async Task IUIInteractionApiBrowser.PostRemoteAsync(BusApi.Remote.AtMostOnce.ICommand command)
+        async Task IUIInteractionApiBrowser.PostRemoteAsync(BusApi.RemoteSupport.AtMostOnce.ICommand command)
         {
             MessageInspector.AssertValidToSendRemote(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -95,9 +95,9 @@ namespace Composable.Messaging.Buses
             await _transport.DispatchAsync(command);
         }
 
-        TResult IUIInteractionApiBrowser.PostRemote<TResult>(BusApi.Remote.AtMostOnce.ICommand<TResult> command) => ((IUIInteractionApiBrowser)this).PostRemoteAsync(command).ResultUnwrappingException();
+        TResult IUIInteractionApiBrowser.PostRemote<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command) => ((IUIInteractionApiBrowser)this).PostRemoteAsync(command).ResultUnwrappingException();
 
-        async Task<TResult> IUIInteractionApiBrowser.PostRemoteAsync<TResult>(BusApi.Remote.AtMostOnce.ICommand<TResult> command)
+        async Task<TResult> IUIInteractionApiBrowser.PostRemoteAsync<TResult>(BusApi.RemoteSupport.AtMostOnce.ICommand<TResult> command)
         {
             MessageInspector.AssertValidToSendRemote(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
@@ -105,7 +105,7 @@ namespace Composable.Messaging.Buses
             return await _transport.DispatchAsync(command).NoMarshalling();
         }
 
-        async Task<TResult> IUIInteractionApiBrowser.GetRemoteAsync<TResult>(BusApi.Remote.NonTransactional.IQuery<TResult> query)
+        async Task<TResult> IUIInteractionApiBrowser.GetRemoteAsync<TResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query)
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSendRemote(query);
@@ -114,6 +114,6 @@ namespace Composable.Messaging.Buses
                        : await _transport.DispatchAsync(query).NoMarshalling();
         }
 
-        TResult IUIInteractionApiBrowser.GetRemote<TResult>(BusApi.Remote.NonTransactional.IQuery<TResult> query) => ((IUIInteractionApiBrowser)this).GetRemoteAsync(query).ResultUnwrappingException();
+        TResult IUIInteractionApiBrowser.GetRemote<TResult>(BusApi.RemoteSupport.NonTransactional.IQuery<TResult> query) => ((IUIInteractionApiBrowser)this).GetRemoteAsync(query).ResultUnwrappingException();
     }
 }

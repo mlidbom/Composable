@@ -109,7 +109,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarCommand
         {
-            public class RegisterUserCommand : BusApi.Remote.AtMostOnce.Command<RegisterUserResult>
+            public class RegisterUserCommand : BusApi.RemoteSupport.AtMostOnce.Command<RegisterUserResult>
             {
                 public Guid UserId { get; private set; } = Guid.NewGuid();
             }
@@ -164,7 +164,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        public class GetUserQuery : BusApi.Remote.Query.RemoteQuery<UserResource>
+        public class GetUserQuery : BusApi.RemoteSupport.Query.RemoteQuery<UserResource>
         {
             public Guid UserId { get; private set; }
             public GetUserQuery(Guid userId) => UserId = userId;
@@ -176,7 +176,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public UserResource(IEnumerable<IAggregateEvent> history) { History = history; }
         }
 
-        public class RegisterUserResult : BusApi.Remote.ExactlyOnce.Message
+        public class RegisterUserResult : BusApi.RemoteSupport.ExactlyOnce.Message
         {
             public GetUserQuery UserLink { get; private set; }
             public RegisterUserResult(Guid userId) => UserLink = new GetUserQuery(userId);

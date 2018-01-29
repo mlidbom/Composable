@@ -12,7 +12,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public partial class Register : BusApi.Remote.AtMostOnce.Command<Register.RegistrationAttemptResult>, IValidatableObject
+            public partial class Register : BusApi.RemoteSupport.AtMostOnce.Command<Register.RegistrationAttemptResult>, IValidatableObject
             {
                 public Register() {}
                 public Register(Guid accountId, string email, string password)

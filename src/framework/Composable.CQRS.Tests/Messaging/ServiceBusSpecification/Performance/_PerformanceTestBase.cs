@@ -41,12 +41,12 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 
         [TearDown] public void TearDown() { Host.Dispose(); }
 
-        protected class MyCommand : BusApi.Remote.ExactlyOnce.Command {}
+        protected class MyCommand : BusApi.RemoteSupport.ExactlyOnce.Command {}
         protected class MyEvent : AggregateEvent {}
-        protected class MyRemoteQuery : BusApi.Remote.Query.RemoteQuery<MyQueryResult> {}
-        protected class MyLocalQuery : BusApi.Local.Queries.Query<MyQueryResult> {}
+        protected class MyRemoteQuery : BusApi.RemoteSupport.Query.RemoteQuery<MyQueryResult> {}
+        protected class MyLocalQuery : BusApi.StrictlyLocal.Queries.Query<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
-        protected class MyCommandWithResult : BusApi.Remote.ExactlyOnce.Command<MyCommandResult> {}
-        protected class MyCommandResult : BusApi.Remote.ExactlyOnce.Message {}
+        protected class MyCommandWithResult : BusApi.RemoteSupport.ExactlyOnce.Command<MyCommandResult> {}
+        protected class MyCommandResult : BusApi.RemoteSupport.ExactlyOnce.Message {}
     }
 }

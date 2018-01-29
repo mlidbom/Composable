@@ -17,14 +17,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void If_command_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             CommandHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyCommand()));
+            ClientEndpoint.ExecuteRequestInTransaction(session => session.PostRemote(new MyExactlyOnceCommand()));
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
         [Fact] public async Task If_command_handler_with_result_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception_and_SendAsync_throws_MessageDispatchingFailedException()
         {
             CommandHandlerWithResultThreadGate.ThrowOnPassThrough(_thrownException);
-            await AssertThrows.Async<MessageDispatchingFailedException>(async () => await ClientEndpoint.ExecuteRequest(session => session.PostRemoteAsync(new MyCommandWithResult())));
+            await AssertThrows.Async<MessageDispatchingFailedException>(async () => await ClientEndpoint.ExecuteRequest(session => session.PostRemoteAsync(new MyAtMostOnceCommandWithResult())));
 
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
@@ -32,7 +32,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void If_event_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             EventHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            ClientEndpoint.ExecuteRequest(session => session.Publish(new MyEvent()));
+            ClientEndpoint.ExecuteRequestInTransaction(session => session.Publish(new MyExactlyOnceEvent()));
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 

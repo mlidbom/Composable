@@ -14,34 +14,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 {
     public class Exacly_once_guarantee_tests : Fixture
     {
-        [Fact] void If_transaction_fails_after_successfully_calling_SendAsync_command_never_reaches_command_handler_and_awaiting_result_throws_TransactionAbortedException()
-        {
-            Task<MyCommandResult> commandResultTask = null;
-
-            try
-            {
-                TransactionScopeCe.Execute(() =>
-                {
-                    commandResultTask = ClientEndpoint.ExecuteRequest(session => session.PostRemoteAsync(new MyCommandWithResult()));
-                    throw new Exception("MyException");
-                });
-            }
-            catch(Exception exception) when (exception.Message == "MyException"){}
-
-            CommandHandlerWithResultThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
-                                              .Should()
-                                              .Be(false, "command should not reach handler");
-
-            AssertThrows.Exception<TransactionAbortedException>(() => commandResultTask.ResultUnwrappingException());
-        }
-
         [Fact] void If_transaction_fails_after_successfully_calling_Send_command_never_reaches_command_handler()
         {
             try
             {
                 TransactionScopeCe.Execute(() =>
                 {
-                    ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyCommand()));
+                    ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyExactlyOnceCommand()));
                     throw new Exception("MyException");
                 });
             }
@@ -58,7 +37,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             {
                 ClientEndpoint.ExecuteRequest(session => TransactionScopeCe.Execute(() =>
                 {
-                    Host.ClientBusSession.Publish(new MyEvent());
+                    Host.ClientBusSession.Publish(new MyExactlyOnceEvent());
                     throw new Exception("MyException");
                 }));
             }

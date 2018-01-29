@@ -1,6 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Transactions;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.System.Transactions;
+using Composable.Testing;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -11,7 +15,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
     {
         [Fact] void Command_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyCommand()));
+            ClientEndpoint.ExecuteRequestInTransaction(session => session.PostRemote(new MyExactlyOnceCommand()));
 
             var transaction = CommandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                        .PassedThrough.Single().Transaction;
@@ -21,7 +25,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Command_handler_with_result_runs_in_transaction_with_isolation_level_Serializable()
         {
-            var commandResult = ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyCommandWithResult()));
+            var commandResult = ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyAtMostOnceCommandWithResult()));
 
             commandResult.Should().NotBe(null);
 
@@ -33,7 +37,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Event_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            ClientEndpoint.ExecuteRequest(session => session.Publish(new MyEvent()));
+            ClientEndpoint.ExecuteRequestInTransaction(session => session.Publish(new MyExactlyOnceEvent()));
 
             var transaction = EventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                      .PassedThrough.Single().Transaction;
@@ -48,5 +52,22 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             QueryHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                    .PassedThrough.Single().Transaction.Should().Be(null);
         }
+
+
+        [Fact] void Calling_PostRemoteAsync_within_a_transaction_with_AtLeastOnceCommand_throws_TransactionPolicyViolationException() =>
+            AssertThrows.Async<TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.PostRemoteAsync(new MyAtMostOnceCommandWithResult())))).Wait();
+
+        [Fact] void Calling_PostRemoteAsync_within_a_transaction_AtLeastOnceCommand_throws_TransactionPolicyViolationException() =>
+            AssertThrows.Exception<TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyAtMostOnceCommandWithResult()))));
+
+
+        [Fact] void Calling_PostRemoteAsync_without_a_transaction_with_ExactlyOnceCommand_throws_TransactionPolicyViolationException() =>
+            AssertThrows.Exception<TransactionPolicyViolationException>(() => ClientEndpoint.ExecuteRequest(session => session.PostRemote(new MyExactlyOnceCommand())));
+
+        [Fact] void Calling_GetRemoteAsync_within_a_transaction_with_Query_throws_TransactionPolicyViolationException() =>
+            AssertThrows.Async<TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.GetRemoteAsync(new MyQuery())))).Wait();
+
+        [Fact] void Calling_GetRemote_within_a_transaction_with_Query_throws_TransactionPolicyViolationException() =>
+            AssertThrows.Exception<TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.GetRemote(new MyQuery()))));
     }
 }

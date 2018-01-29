@@ -4,6 +4,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.System;
+using Composable.System.Transactions;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -45,7 +46,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _busSession.SchedulePostRemote(now + .1.Seconds(), inOneHour);
+            TransactionScopeCe.Execute(() => _busSession.SchedulePostRemote(now + .1.Seconds(), inOneHour));
 
             _receivedCommandGate.AwaitPassedThroughCountEqualTo(1, timeout: .5.Seconds());
         }
@@ -54,7 +55,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _busSession.SchedulePostRemote(now + TimeSpanExtensions.Seconds(2), inOneHour);
+            TransactionScopeCe.Execute(() => _busSession.SchedulePostRemote(now + TimeSpanExtensions.Seconds(2), inOneHour));
 
             _receivedCommandGate.TryAwaitPassededThroughCountEqualTo(1, timeout: .5.Seconds())
                                 .Should().Be(false);

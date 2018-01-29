@@ -12,6 +12,7 @@ namespace Composable.Messaging
 
         public interface IForbidTransactionalRemoteSender : IMessage { }
         public interface IRequireTransactionalReceiver : IMessage { }
+        public interface IRequireTransactionalSender : IMessage{ }
 
         ///<summary>Informs the receiver that something has happened.</summary>
         public interface IEvent : IMessage { }
@@ -34,7 +35,7 @@ namespace Composable.Messaging
         {
             public interface IRequireLocalReceiver {}
             public interface IEvent : BusApi.IEvent, IRequireLocalReceiver { }
-            public interface ICommand : BusApi.ICommand, IRequireLocalReceiver { }
+            public interface ICommand : BusApi.ICommand, IRequireLocalReceiver, IRequireTransactionalSender { }
             public interface ICommand<TResult> : BusApi.ICommand<TResult>, IRequireLocalReceiver  { }
             public interface IQuery<TResult> : IRequireLocalReceiver, BusApi.IQuery<TResult> { }
         }
@@ -55,14 +56,13 @@ namespace Composable.Messaging
 
             public static partial class AtMostOnce
             {
-                public interface ICommand : RemoteSupport.ICommand, IRequireRemoteResponse { }
+                public interface ICommand : RemoteSupport.ICommand, IRequireRemoteResponse, IForbidTransactionalRemoteSender { }
                 public interface ICommand<TResult> : AtMostOnce.ICommand, RemoteSupport.ICommand<TResult> { }
             }
 
             public static partial class ExactlyOnce
             {
-                public interface IMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId {}
-                public interface IRequireTransactionalSender : RemoteSupport.IMessage{ }
+                public interface IMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId, BusApi.RemoteSupport.IMessage {}
                 public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSender, IRequireTransactionalReceiver {}
 
                 public interface IProvidesOwnMessageId { Guid MessageId { get; } }

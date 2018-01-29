@@ -10,8 +10,9 @@ namespace Composable.Messaging.Buses
         public static TResult ExecuteRequest<TResult>(this IEndpoint @this, Func<IApiBrowser, TResult> request) =>
             @this.ServiceLocator.ExecuteInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IApiBrowser>()));
 
-        public static void ExecuteRequest(this IEndpoint @this, Action<IApiBrowser> request) =>
-            @this.ServiceLocator.ExecuteInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IApiBrowser>()));
+
+        public static void ExecuteRequestInTransaction(this IEndpoint @this, Action<IApiBrowser> request) => @this.ServiceLocator.ExecuteTransactionInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IApiBrowser>()));
+        public static void ExecuteRequest(this IEndpoint @this, Action<IApiBrowser> request) => @this.ServiceLocator.ExecuteInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IApiBrowser>()));
 
         public static async Task<TResult> ExecuteRequestAsync<TResult>(this IEndpoint endpoint, Func<IApiBrowser, Task<TResult>> request) =>
             await endpoint.ServiceLocator.ExecuteInIsolatedScope(async () => await request(endpoint.ServiceLocator.Resolve<IApiBrowser>()));

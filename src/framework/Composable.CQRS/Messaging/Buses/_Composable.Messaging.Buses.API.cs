@@ -123,9 +123,22 @@ namespace Composable.Messaging.Buses
         IRemoteApiNavigatorSession RemoteNavigator { get; }
     }
 
+    interface IExecutingMessagesSnapshot
+    {
+        IReadOnlyList<TransportMessage.InComing> AtMostOnceCommands { get; }
+        IReadOnlyList<TransportMessage.InComing> ExactlyOnceCommands { get; }
+        IReadOnlyList<TransportMessage.InComing> ExactlyOnceEvents { get; }
+        IReadOnlyList<TransportMessage.InComing> ExecutingNonTransactionalQueries { get; }
+    }
+
+    interface IMessageDispatchingPolicy
+    {
+
+    }
+
     interface IMessageDispatchingRule
     {
-        bool CanBeDispatched(IReadOnlyList<TransportMessage.InComing> executingMessages, TransportMessage.InComing candidateMessage);
+        bool CanBeDispatched(IExecutingMessagesSnapshot executing, TransportMessage.InComing candidateMessage);
     }
 
     interface IGlobalBusStateTracker

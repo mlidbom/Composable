@@ -14,9 +14,10 @@ namespace Composable.Messaging.Buses.Implementation
     {
         internal enum TransportMessageType
         {
-            Event,
-            Command,
-            Query
+            ExactlyOnceEvent,
+            AtMostOnceCommand,
+            ExactlyOnceCommand,
+            NonTransactionalQuery
         }
 
         internal class InComing
@@ -26,6 +27,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly string Body;
             internal readonly TypeId MessageTypeId;
             internal readonly Type MessageType;
+            internal readonly TransportMessageType MessageTypeEnum;
             internal bool IsOfType<TType>() => typeof(TType).IsAssignableFrom(MessageType);
             internal bool IsOfType(Type type) => type.IsAssignableFrom(MessageType);
 
@@ -48,6 +50,7 @@ namespace Composable.Messaging.Buses.Implementation
                 Body = body;
                 MessageTypeId = messageTypeId;
                 MessageType = typeMapper.GetType(messageTypeId);
+                MessageTypeEnum = GetMessageType(MessageType);
                 Client = client;
                 MessageId = messageId;
             }
@@ -69,6 +72,20 @@ namespace Composable.Messaging.Buses.Implementation
                 return result;
             }
 
+            static TransportMessageType GetMessageType(Type messageType)
+            {
+                if(typeof(BusApi.IQuery).IsAssignableFrom(messageType))
+                    return TransportMessageType.NonTransactionalQuery;
+                if(typeof(BusApi.Remotable.AtMostOnce.ICommand).IsAssignableFrom(messageType))
+                    return TransportMessageType.AtMostOnceCommand;
+                else if(typeof(BusApi.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(messageType))
+                    return TransportMessageType.ExactlyOnceEvent;
+                if(typeof(BusApi.Remotable.ExactlyOnce.ICommand).IsAssignableFrom(messageType))
+                    return TransportMessageType.ExactlyOnceCommand;
+                else
+                    throw new ArgumentOutOfRangeException();
+            }
+
             public Response.Outgoing CreateFailureResponse(AggregateException exception) => Response.Outgoing.Failure(this, exception);
 
             public Response.Outgoing CreateSuccessResponse(object response) => Response.Outgoing.Success(this, response);
@@ -80,7 +97,6 @@ namespace Composable.Messaging.Buses.Implementation
         {
             public bool IsExactlyOnceDeliveryMessage { get; }
             public readonly Guid MessageId;
-            public readonly TransportMessageType Type;
 
             readonly TypeId _messageType;
             readonly string _messageBody;
@@ -99,27 +115,12 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 var messageId = (message as BusApi.Remotable.ExactlyOnce.IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
-                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, GetMessageType(message), message is BusApi.Remotable.ExactlyOnce.IMessage);
+                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is BusApi.Remotable.ExactlyOnce.IMessage);
             }
 
-            static TransportMessageType GetMessageType(BusApi.IMessage message)
-            {
-                switch(message) {
-                    case BusApi.Remotable.ExactlyOnce.IEvent _:
-                        return TransportMessageType.Event;
-                    case BusApi.Remotable.ICommand _:
-                        return TransportMessageType.Command;
-                    case BusApi.Remotable.NonTransactional.IQuery _:
-                        return TransportMessageType.Query;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-
-            OutGoing(TypeId messageType, Guid messageId, string messageBody, TransportMessageType type, bool isExactlyOnceDeliveryMessage)
+            OutGoing(TypeId messageType, Guid messageId, string messageBody, bool isExactlyOnceDeliveryMessage)
             {
                 IsExactlyOnceDeliveryMessage = isExactlyOnceDeliveryMessage;
-                Type = type;
                 _messageType = messageType;
                 MessageId = messageId;
                 _messageBody = messageBody;

@@ -38,11 +38,16 @@ namespace Composable.Messaging.Buses.Implementation
 
                 void Failed(QueuedMessage queuedMessageInformation, Exception exception) => _implementation.Update(implementation => implementation.Failed(queuedMessageInformation, exception));
 
-                class NonThreadsafeImplementation
+                class NonThreadsafeImplementation : IExecutingMessagesSnapshot
                 {
                     const int MaxConcurrentlyExecutingHandlers = 20;
                     readonly IGlobalBusStateTracker _globalStateTracker;
-                    readonly List<TransportMessage.InComing> _executingMessages = new List<TransportMessage.InComing>();
+
+                    public IReadOnlyList<TransportMessage.InComing> AtMostOnceCommands => _executingAtMostOnceCommands;
+                    public IReadOnlyList<TransportMessage.InComing> ExactlyOnceCommands => _executingExactlyOnceCommands;
+                    public IReadOnlyList<TransportMessage.InComing> ExactlyOnceEvents => _executingExactlyOnceEvents;
+                    public IReadOnlyList<TransportMessage.InComing> ExecutingNonTransactionalQueries => _executingNonTransactionalQueries;
+
                     readonly List<QueuedMessage> _messagesWaitingToExecute = new List<QueuedMessage>();
                     public NonThreadsafeImplementation(IGlobalBusStateTracker globalStateTracker) => _globalStateTracker = globalStateTracker;
 
@@ -55,14 +60,33 @@ namespace Composable.Messaging.Buses.Implementation
                         }
 
                         dispatchable = _messagesWaitingToExecute
-                           .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(_executingMessages, queuedTask.TransportMessage)));
+                           .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(this, queuedTask.TransportMessage)));
 
-                        if(dispatchable == null)
+                        if (dispatchable == null)
                         {
                             return false;
                         }
 
                         _executingMessages.Add(dispatchable.TransportMessage);
+
+                        switch(dispatchable.TransportMessage.MessageTypeEnum)
+                        {
+                            case TransportMessage.TransportMessageType.ExactlyOnceEvent:
+                                _executingExactlyOnceEvents.Add(dispatchable.TransportMessage);
+                                break;
+                            case TransportMessage.TransportMessageType.AtMostOnceCommand:
+                                _executingAtMostOnceCommands.Add(dispatchable.TransportMessage);
+                                break;
+                            case TransportMessage.TransportMessageType.ExactlyOnceCommand:
+                                _executingExactlyOnceCommands.Add(dispatchable.TransportMessage);
+                                break;
+                            case TransportMessage.TransportMessageType.NonTransactionalQuery:
+                                _executingNonTransactionalQueries.Add(dispatchable.TransportMessage);
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+
                         _messagesWaitingToExecute.Remove(dispatchable);
                         return true;
                     }
@@ -73,11 +97,36 @@ namespace Composable.Messaging.Buses.Implementation
 
                     internal void Failed(QueuedMessage queuedMessageInformation, Exception exception) => DoneDispatching(queuedMessageInformation, exception);
 
-                    void DoneDispatching(QueuedMessage queuedMessageInformation, Exception exception = null)
+                    void DoneDispatching(QueuedMessage doneExecuting, Exception exception = null)
                     {
-                        _executingMessages.Remove(queuedMessageInformation.TransportMessage);
-                        _globalStateTracker.DoneWith(queuedMessageInformation.MessageId, exception);
+                        _executingMessages.Remove(doneExecuting.TransportMessage);
+
+                        switch(doneExecuting.TransportMessage.MessageTypeEnum)
+                        {
+                            case TransportMessage.TransportMessageType.ExactlyOnceEvent:
+                                _executingExactlyOnceEvents.Remove(doneExecuting.TransportMessage);
+                                break;
+                            case TransportMessage.TransportMessageType.AtMostOnceCommand:
+                                _executingAtMostOnceCommands.Remove(doneExecuting.TransportMessage);
+                                break;
+                            case TransportMessage.TransportMessageType.ExactlyOnceCommand:
+                                _executingExactlyOnceCommands.Remove(doneExecuting.TransportMessage);
+                                break;
+                            case TransportMessage.TransportMessageType.NonTransactionalQuery:
+                                _executingNonTransactionalQueries.Remove(doneExecuting.TransportMessage);
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
+                        }
+
+                        _globalStateTracker.DoneWith(doneExecuting.MessageId, exception);
                     }
+
+                    readonly List<TransportMessage.InComing> _executingMessages = new List<TransportMessage.InComing>();
+                    readonly List<TransportMessage.InComing> _executingExactlyOnceCommands = new List<TransportMessage.InComing>();
+                    readonly List<TransportMessage.InComing> _executingAtMostOnceCommands = new List<TransportMessage.InComing>();
+                    readonly List<TransportMessage.InComing> _executingExactlyOnceEvents = new List<TransportMessage.InComing>();
+                    readonly List<TransportMessage.InComing> _executingNonTransactionalQueries = new List<TransportMessage.InComing>();
                 }
 
                 internal class QueuedMessage

@@ -1,25 +1,24 @@
-﻿using System.Collections.Generic;
-using Composable.System.Linq;
+﻿using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses.Implementation
 {
     class QueriesExecuteAfterAllCommandsAndEventsAreDone : IMessageDispatchingRule
     {
-        public bool CanBeDispatched(IReadOnlyList<TransportMessage.InComing> executingMessages, TransportMessage.InComing candidateMessage)
+        public bool CanBeDispatched(IExecutingMessagesSnapshot executing, TransportMessage.InComing candidateMessage)
         {
-            if(!(candidateMessage.IsOfType<BusApi.IQuery>())) return true;
+            if(candidateMessage.MessageTypeEnum != TransportMessage.TransportMessageType.NonTransactionalQuery) return true;
 
-            return executingMessages.None(executing => executing.IsOfType<BusApi.IEvent>() || executing.IsOfType<BusApi.ICommand>());
+            return executing.AtMostOnceCommands.None() && executing.ExactlyOnceCommands.None() && executing.ExactlyOnceEvents.None();
         }
     }
 
     class CommandsAndEventHandlersDoNotRunInParallelWithEachOtherInTheSameEndpoint : IMessageDispatchingRule
     {
-        public bool CanBeDispatched(IReadOnlyList<TransportMessage.InComing> executingMessages, TransportMessage.InComing candidateMessage)
+        public bool CanBeDispatched(IExecutingMessagesSnapshot executing, TransportMessage.InComing candidateMessage)
         {
-            if(candidateMessage.IsOfType<BusApi.IQuery>()) return true;
+            if(candidateMessage.MessageTypeEnum == TransportMessage.TransportMessageType.NonTransactionalQuery) return true;
 
-            return executingMessages.None(executing => executing.IsOfType<BusApi.IEvent>() || executing.IsOfType<BusApi.ICommand>());
+            return executing.AtMostOnceCommands.None() && executing.ExactlyOnceCommands.None() && executing.ExactlyOnceEvents.None();
         }
     }
 }

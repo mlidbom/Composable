@@ -1,5 +1,3 @@
-using Composable.Persistence.DocumentDb;
-using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 
 namespace AccountManagement

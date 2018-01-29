@@ -2,8 +2,6 @@
 // ReSharper disable MemberCanBeMadeStatic.Local
 using System;
 using Composable.Messaging;
-using Composable.Messaging.Buses;
-
 
 namespace AccountManagement.API
 {

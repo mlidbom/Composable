@@ -1,5 +1,4 @@
 ﻿using Composable.DependencyInjection;
-using Composable.Messaging;
 using Composable.System.Diagnostics;
 using Composable.Testing.Performance;
 using FluentAssertions;

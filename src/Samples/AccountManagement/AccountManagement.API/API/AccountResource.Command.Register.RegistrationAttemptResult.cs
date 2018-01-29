@@ -1,5 +1,4 @@
-﻿using AccountManagement.Domain;
-using AccountManagement.Domain.Registration;
+﻿using AccountManagement.Domain.Registration;
 using Composable.Contracts;
 using Newtonsoft.Json;
 

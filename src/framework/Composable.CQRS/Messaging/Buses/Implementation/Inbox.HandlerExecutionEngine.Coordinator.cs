@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Composable.Refactoring.Naming;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;

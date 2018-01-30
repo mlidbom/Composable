@@ -24,41 +24,16 @@ namespace Composable.DependencyInjection
 
         public IEnumerable<ComponentRegistration> RegisteredComponents() => _state.WithExclusiveAccess(state => state.RegisteredComponents);
 
-        bool _verified;
-
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => _state.WithExclusiveAccess(state => state.CreateServiceLocator());
 
         IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new ComponentLease<TComponent>(_state.WithExclusiveAccess(state => state.Resolve<TComponent>()));
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new MultiComponentLease<TComponent>(_state.WithExclusiveAccess(state => state.ResolveAll<TComponent>()));
         IDisposable IServiceLocator.BeginScope() => _state.WithExclusiveAccess(state => state.BeginScope());
 
+        TComponent IServiceLocatorKernel.Resolve<TComponent>() => _state.WithExclusiveAccess(state => state.Resolve<TComponent>());
 
         void IDisposable.Dispose() {}
 
-        sealed class ComponentLease<T> : IComponentLease<T>
-        {
-            readonly T _instance;
-
-            internal ComponentLease(T component) => _instance = component;
-
-            T IComponentLease<T>.Instance => _instance;
-            void IDisposable.Dispose() {}
-        }
-
-        sealed class MultiComponentLease<T> : IMultiComponentLease<T>
-        {
-            readonly T[] _instances;
-
-            internal MultiComponentLease(T[] components) => _instances = components;
-
-            T[] IMultiComponentLease<T>.Instances => _instances;
-            void IDisposable.Dispose() {}
-        }
-
-        TComponent IServiceLocatorKernel.Resolve<TComponent>() => _state.WithExclusiveAccess(state => state.Resolve<TComponent>());
-
-
-        IEnumerable<T> GetAllInstances<T>() { throw new NotImplementedException(); }
 
         class NonThreadSafeImplementation : IServiceLocatorKernel
         {
@@ -189,5 +164,25 @@ namespace Composable.DependencyInjection
                 return Disposable.Create(() => _parent._state.WithExclusiveAccess(state => state._scopedOverlay.Value = null));
             }
         }
+    }
+
+    sealed class ComponentLease<T> : IComponentLease<T>
+    {
+        readonly T _instance;
+
+        internal ComponentLease(T component) => _instance = component;
+
+        T IComponentLease<T>.Instance => _instance;
+        void IDisposable.Dispose() {}
+    }
+
+    sealed class MultiComponentLease<T> : IMultiComponentLease<T>
+    {
+        readonly T[] _instances;
+
+        internal MultiComponentLease(T[] components) => _instances = components;
+
+        T[] IMultiComponentLease<T>.Instances => _instances;
+        void IDisposable.Dispose() {}
     }
 }

@@ -30,6 +30,7 @@ namespace Composable.DependencyInjection.Persistence
 
         [UsedImplicitly] class InMemoryDocumentDb<TUpdater, TReader, TBulkReader> : InMemoryDocumentDb, IDocumentDb<TUpdater, TReader, TBulkReader>
         {
+            public InMemoryDocumentDb(IDocumentDbSerializer serializer) : base(serializer) {}
         }
 
         internal interface IDocumentDbSession<TUpdater, TReader, TBulkReader> : IDocumentDbSession { }

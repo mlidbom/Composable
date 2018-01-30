@@ -42,13 +42,13 @@ namespace Composable.DependencyInjection
             internal readonly Dictionary<Guid, ComponentRegistration> RegisteredComponents = new Dictionary<Guid, ComponentRegistration>();
             readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
-            readonly ComponentLifestyleOverlay _singletonOverlay;
-            readonly AsyncLocal<ComponentLifestyleOverlay> _scopedOverlay = new AsyncLocal<ComponentLifestyleOverlay>();
+            readonly OptimizedThreadShared<ComponentLifestyleOverlay> _singletonOverlay;
+            readonly AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>> _scopedOverlay = new AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>>();
 
             public NonThreadSafeImplementation(ComposableDependencyInjectionContainer parent)
             {
                 _parent = parent;
-                _singletonOverlay = new ComponentLifestyleOverlay(_parent);
+                _singletonOverlay = new OptimizedThreadShared<ComponentLifestyleOverlay>(new ComponentLifestyleOverlay(_parent));
             }
 
             public void Register(ComponentRegistration[] registrations)
@@ -111,9 +111,9 @@ namespace Composable.DependencyInjection
 
             object[] ResolveSingletonInstances(List<ComponentRegistration> registration)=> registration.Select(ResolveSingletonInstance).ToArray();
 
-            object ResolveScopedInstance(ComponentRegistration registration) => _scopedOverlay.Value.ResolveInstance(registration);
+            object ResolveScopedInstance(ComponentRegistration registration) => _scopedOverlay.Value.WithExclusiveAccess(overlay => overlay.ResolveInstance(registration));
 
-            object ResolveSingletonInstance(ComponentRegistration registration) => _singletonOverlay.ResolveInstance(registration);
+            object ResolveSingletonInstance(ComponentRegistration registration) => _singletonOverlay.WithExclusiveAccess(overlay  => overlay.ResolveInstance(registration));
 
 
             internal void Verify()
@@ -141,16 +141,16 @@ namespace Composable.DependencyInjection
                     throw new Exception("Already has scope....");
                 }
 
-                _scopedOverlay.Value = new ComponentLifestyleOverlay(_parent);
+                _scopedOverlay.Value = new OptimizedThreadShared<ComponentLifestyleOverlay>(new ComponentLifestyleOverlay(_parent));
 
                 return Disposable.Create(() =>
                 {
                     var componentLifestyleOverlay =_parent._state.WithExclusiveAccess(state => state.EndScopeAndReturnScopedComponents());
-                    componentLifestyleOverlay.Dispose();
+                    componentLifestyleOverlay.WithExclusiveAccess(overlay => overlay.Dispose());
                 });
             }
 
-            ComponentLifestyleOverlay EndScopeAndReturnScopedComponents()
+            OptimizedThreadShared<ComponentLifestyleOverlay> EndScopeAndReturnScopedComponents()
             {
                 var scopeOverlay = _scopedOverlay.Value;
                 _scopedOverlay.Value = null;
@@ -163,7 +163,7 @@ namespace Composable.DependencyInjection
                 if(!_disposed)
                 {
                     _disposed = true;
-                    _singletonOverlay.Dispose();
+                    _singletonOverlay.WithExclusiveAccess(overlay => overlay.Dispose());
                 }
             }
         }

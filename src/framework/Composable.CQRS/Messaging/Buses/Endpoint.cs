@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses
 {
@@ -56,10 +54,7 @@ namespace Composable.Messaging.Buses
 
         public void Dispose()
         {
-            if(IsRunning)
-            {
-                Stop();
-            }
+            if(IsRunning) Stop();
             ServiceLocator.Dispose();
         }
 

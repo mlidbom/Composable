@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Composable.System;
 using Composable.System.Collections.Collections;
+using Composable.System.Linq;
 using Composable.System.Reflection;
 using Composable.System.Threading.ResourceAccess;
 
@@ -32,7 +33,7 @@ namespace Composable.DependencyInjection
 
         TComponent IServiceLocatorKernel.Resolve<TComponent>() => _state.WithExclusiveAccess(state => state.Resolve<TComponent>());
 
-        void IDisposable.Dispose() {}
+        void IDisposable.Dispose() => _state.WithExclusiveAccess(state => state.Dispose());
 
 
         class NonThreadSafeImplementation : IServiceLocatorKernel
@@ -161,7 +162,21 @@ namespace Composable.DependencyInjection
 
                 _scopedOverlay.Value = new Dictionary<Guid, object>();
 
-                return Disposable.Create(() => _parent._state.WithExclusiveAccess(state => state._scopedOverlay.Value = null));
+                return Disposable.Create(() => _parent._state.WithExclusiveAccess(state => state.DisposeScope()));
+            }
+
+            void DisposeScope()
+            {
+                var scope = _scopedOverlay.Value;
+                _scopedOverlay.Value = null;
+
+                scope.Values.OfType<IDisposable>().ForEach(disposable => disposable.Dispose());
+
+            }
+
+            public void Dispose()
+            {
+                _singletonOverlay.Values.OfType<IDisposable>().ForEach(disposable => disposable.Dispose());
             }
         }
     }

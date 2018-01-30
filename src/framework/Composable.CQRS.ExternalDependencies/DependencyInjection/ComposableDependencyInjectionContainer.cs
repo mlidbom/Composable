@@ -145,8 +145,8 @@ namespace Composable.DependencyInjection
 
                 return Disposable.Create(() =>
                 {
-                    var scopedOverlay =_parent._state.WithExclusiveAccess(state => state.EndScopeAndReturnScopedComponents());
-                    scopedOverlay.InstantiatedComponents.OfType<IDisposable>().ForEach(disposable => disposable.Dispose());
+                    var componentLifestyleOverlay =_parent._state.WithExclusiveAccess(state => state.EndScopeAndReturnScopedComponents());
+                    componentLifestyleOverlay.Dispose();
                 });
             }
 

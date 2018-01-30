@@ -32,7 +32,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         protected Fixture()
         {
-            Host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
+            Host = EndpointHost.Testing.CreateHostWithClientEndpoint(DependencyInjectionContainer.Create);
             Host.RegisterAndStartEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),

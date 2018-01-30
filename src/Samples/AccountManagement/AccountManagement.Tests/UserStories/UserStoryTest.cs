@@ -12,7 +12,7 @@ namespace AccountManagement.UserStories
 
         [SetUp] public void SetupContainerAndBeginScope()
         {
-            Host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
+            Host = EndpointHost.Testing.CreateHostWithClientEndpoint(DependencyInjectionContainer.Create);
             new AccountManagementServerDomainBootstrapper().RegisterWith(Host);
         }
 

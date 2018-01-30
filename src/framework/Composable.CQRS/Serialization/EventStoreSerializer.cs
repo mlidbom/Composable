@@ -12,7 +12,7 @@ namespace Composable.Serialization
     {
         readonly JsonSerializerSettings _jsonSettings;
         readonly RenamingDecorator _renamingDecorator;
-        protected internal RenamingSupportingJsonSerializer(JsonSerializerSettings jsonSettings, TypeMapper typeMapper)
+        protected internal RenamingSupportingJsonSerializer(JsonSerializerSettings jsonSettings, ITypeMapper typeMapper)
         {
             _jsonSettings = jsonSettings;
             _renamingDecorator = new RenamingDecorator(typeMapper);
@@ -34,10 +34,10 @@ namespace Composable.Serialization
 
     class RenamingDecorator
     {
-        readonly TypeMapper _typeMapper;
+        readonly ITypeMapper _typeMapper;
 
         static readonly Regex  FindTypeNames = new Regex(@"""\$type""\: ""([^""]*)""", RegexOptions.Compiled);
-        public RenamingDecorator(TypeMapper typeMapper) => _typeMapper = typeMapper;
+        public RenamingDecorator(ITypeMapper typeMapper) => _typeMapper = typeMapper;
 
         public string ReplaceTypeNames(string json) => FindTypeNames.Replace(json, ReplaceTypeNamesWithTypeIds);
 
@@ -65,7 +65,7 @@ namespace Composable.Serialization
 
         readonly RenamingSupportingJsonSerializer _serializer;
 
-        public EventStoreSerializer(TypeMapper typeMapper) => _serializer = new RenamingSupportingJsonSerializer(JsonSettings, typeMapper);
+        public EventStoreSerializer(ITypeMapper typeMapper) => _serializer = new RenamingSupportingJsonSerializer(JsonSettings, typeMapper);
 
         public string Serialize(AggregateEvent @event) => _serializer.Serialize(@event);
         public IAggregateEvent Deserialize(Type eventType, string json) => (IAggregateEvent)_serializer.Deserialize(eventType, json);
@@ -73,14 +73,14 @@ namespace Composable.Serialization
 
     class DocumentDbSerializer : RenamingSupportingJsonSerializer, IDocumentDbSerializer
     {
-        public DocumentDbSerializer(TypeMapper typeMapper) : base(JsonSettings.SqlEventStoreSerializerSettings, typeMapper) {}
+        public DocumentDbSerializer(ITypeMapper typeMapper) : base(JsonSettings.SqlEventStoreSerializerSettings, typeMapper) {}
     }
 
     class RemotableMessageSerializer : IRemotableMessageSerializer
     {
         readonly RenamingSupportingJsonSerializer _serializer;
 
-        public RemotableMessageSerializer(TypeMapper typeMapper) => _serializer = new RenamingSupportingJsonSerializer(Serialization.JsonSettings.JsonSerializerSettings, typeMapper);
+        public RemotableMessageSerializer(ITypeMapper typeMapper) => _serializer = new RenamingSupportingJsonSerializer(Serialization.JsonSettings.JsonSerializerSettings, typeMapper);
 
         public string SerializeResponse(object response) => _serializer.Serialize(response);
         public object DeserializeResponse(Type responseType, string json) => _serializer.Deserialize(responseType, json);

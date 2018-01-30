@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
@@ -15,35 +14,6 @@ using Composable.SystemExtensions.Threading;
 
 namespace Composable.Messaging.Buses
 {
-    static class EndpointBuilderTypeMapperHelper
-    {
-        static string WithPostFix(this string guidTemplate, char postfix) => guidTemplate.Substring(0, guidTemplate.Length - 1) + postfix;
-
-        static class Postfix
-        {
-            internal const char TypeItself = '1';
-            internal const char Array = '2';
-            internal const char List = '3';
-            internal const char StringDictionary = '4';
-        }
-
-        public static ITypeMappingRegistar MapTypeAndStandardCollectionTypes<TType>(this ITypeMappingRegistar @this, string guidTemplate)
-        {
-            @this.Map<TType>(guidTemplate.WithPostFix(Postfix.TypeItself));
-
-            @this.MapStandardCollectionTypes<TType>(guidTemplate);
-            return @this;
-        }
-
-        public static ITypeMappingRegistar MapStandardCollectionTypes<TType>(this ITypeMappingRegistar @this, string guidTemplate)
-        {
-            @this.Map<TType[]>(guidTemplate.WithPostFix(Postfix.Array));
-            @this.Map<List<TType>>(guidTemplate.WithPostFix(Postfix.List));
-            @this.Map<Dictionary<string,TType>>(guidTemplate.WithPostFix(Postfix.StringDictionary));
-            return @this;
-        }
-    }
-
     class EndpointBuilder : IEndpointBuilder
     {
         static readonly ISqlConnection MasterDbConnection = new AppConfigSqlConnectionProvider().GetConnectionProvider(parameterName: "MasterDB");
@@ -65,7 +35,6 @@ namespace Composable.Messaging.Buses
             return new Endpoint(_container.CreateServiceLocator(), _endpointId, _name);
         }
 
-
         void SetupInternalTypeMap()
         {
             EventStoreApi.MapTypes(TypeMapper);
@@ -77,30 +46,26 @@ namespace Composable.Messaging.Buses
             _container = container;
             _name = name;
             _endpointId = endpointId;
-            _typeMapper = new TypeMapper();
-            var registry = new MessageHandlerRegistry(_typeMapper);
 
             Configuration = new EndpointConfiguration(name);
 
+            var endpointSqlConnection = container.RunMode.IsTesting
+                                            ? new LazySqlServerConnection(new Lazy<string>(() => container.CreateServiceLocator().Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString))
+                                            : new SqlServerConnection(ConfigurationManager.ConnectionStrings[Configuration.ConnectionStringName].ConnectionString);
+
+            _typeMapper = new TypeMapper(endpointSqlConnection);
+
+            var registry = new MessageHandlerRegistry(_typeMapper);
             RegisterHandlers = new MessageHandlerRegistrarWithDependencyInjectionSupport(registry, new Lazy<IServiceLocator>(() => _container.CreateServiceLocator()));
 
-            DefaultWiring(globalStateTracker, _container, endpointId, Configuration, _typeMapper, registry);
-        }
-
-        internal static void DefaultWiring(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointId endpointId, EndpointConfiguration configuration, TypeMapper typeMapper, MessageHandlerRegistry registry)
-        {
-            var sqlServerConnection = container.RunMode.IsTesting
-                                          ? new LazySqlServerConnection(new Lazy<string>(() => container.CreateServiceLocator().Resolve<ISqlConnectionProvider>().GetConnectionProvider(configuration.ConnectionStringName).ConnectionString))
-                                          : new SqlServerConnection(ConfigurationManager.ConnectionStrings[configuration.ConnectionStringName].ConnectionString);
-
-            container.Register(
+            _container.Register(
                 Component.For<ITaskRunner>().ImplementedBy<TaskRunner>().LifestyleSingleton(),
                 Component.For<EndpointId>().UsingFactoryMethod(() => endpointId).LifestyleSingleton(),
                 Component.For<EndpointConfiguration>()
-                         .UsingFactoryMethod(() => configuration)
+                         .UsingFactoryMethod(() => Configuration)
                          .LifestyleSingleton(),
                 Component.For<ITypeMappingRegistar, ITypeMapper, TypeMapper>()
-                         .UsingFactoryMethod(() => typeMapper)
+                         .UsingFactoryMethod(() => _typeMapper)
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning(),
                 Component.For<IAggregateTypeValidator>()
@@ -108,7 +73,7 @@ namespace Composable.Messaging.Buses
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
                          .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, EndpointId id, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
-                                                 new InterprocessTransport(globalStateTracker, timeSource, sqlServerConnection, typeMapper, id, taskRunner, serializer))
+                                                 new InterprocessTransport(globalStateTracker, timeSource, endpointSqlConnection, _typeMapper, id, taskRunner, serializer))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
@@ -130,7 +95,7 @@ namespace Composable.Messaging.Buses
                          .LifestyleSingleton(),
                 Component.For<IInbox>()
                          .UsingFactoryMethod((IServiceLocator serviceLocator, IGlobalBusStateTracker stateTracker, EndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
-                                                 new Inbox(serviceLocator,stateTracker, registry, endpointConfiguration, sqlServerConnection, typeMapper, taskRunner, serializer))
+                                                 new Inbox(serviceLocator, stateTracker, registry, endpointConfiguration, endpointSqlConnection, _typeMapper, taskRunner, serializer))
                          .LifestyleSingleton(),
                 Component.For<CommandScheduler>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))
@@ -149,18 +114,18 @@ namespace Composable.Messaging.Buses
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning());
 
-            if(container.RunMode == RunMode.Production)
+            if(_container.RunMode == RunMode.Production)
             {
-                container.Register(Component.For<IUtcTimeTimeSource>()
-                                            .UsingFactoryMethod(() => new DateTimeNowTimeSource())
-                                            .LifestyleSingleton()
-                                            .DelegateToParentServiceLocatorWhenCloning());
+                _container.Register(Component.For<IUtcTimeTimeSource>()
+                                             .UsingFactoryMethod(() => new DateTimeNowTimeSource())
+                                             .LifestyleSingleton()
+                                             .DelegateToParentServiceLocatorWhenCloning());
             } else
             {
-                container.Register(Component.For<IUtcTimeTimeSource, TestingTimeSource>()
-                                            .UsingFactoryMethod(() => TestingTimeSource.FollowingSystemClock)
-                                            .LifestyleSingleton()
-                                            .DelegateToParentServiceLocatorWhenCloning());
+                _container.Register(Component.For<IUtcTimeTimeSource, TestingTimeSource>()
+                                             .UsingFactoryMethod(() => TestingTimeSource.FollowingSystemClock)
+                                             .LifestyleSingleton()
+                                             .DelegateToParentServiceLocatorWhenCloning());
             }
         }
     }

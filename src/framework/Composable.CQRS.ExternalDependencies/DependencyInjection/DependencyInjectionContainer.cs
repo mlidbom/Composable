@@ -2,6 +2,7 @@
 using Composable.DependencyInjection.SimpleInjectorImplementation;
 using Composable.DependencyInjection.Testing;
 using Composable.DependencyInjection.Windsor;
+using Composable.Messaging.Buses;
 using JetBrains.Annotations;
 
 namespace Composable.DependencyInjection
@@ -16,14 +17,14 @@ namespace Composable.DependencyInjection
 
         public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup, TestingMode mode)
         {
-            var @this = Create(new RunMode(isTesting:true, testingMode: mode));
+            var host = EndpointHost.Testing.CreateHost(Create, mode);
+            var endpoint = host.RegisterTestingEndpoint(setup: builder =>
+            {
+                setup(builder.Container);
+                builder.Container.Register(Component.For<ITestingEndpointHost>().UsingFactoryMethod(() => host).LifestyleSingleton().DelegateToParentServiceLocatorWhenCloning());
+            });
 
-
-            @this.ConfigureWiringForTestsCallBeforeAllOtherWiring();
-
-            setup(@this);
-
-            return @this.CreateServiceLocator();
+            return endpoint.ServiceLocator;
         }
 
         public static IDependencyInjectionContainer Create(IRunMode runMode = null)

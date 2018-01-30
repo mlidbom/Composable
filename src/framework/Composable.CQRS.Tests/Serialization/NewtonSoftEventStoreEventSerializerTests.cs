@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using Composable.DependencyInjection;
 using Composable.Logging;
+using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
@@ -17,7 +19,16 @@ namespace Composable.Tests.Serialization
     [TestFixture, Performance]
     public class NewtonSoftEventStoreEventSerializerTests
     {
-        readonly IEventStoreSerializer _eventSerializer = new EventStoreSerializer(new TypeMapper());
+        IEventStoreSerializer _eventSerializer;
+        ITestingEndpointHost _host;
+
+        [OneTimeSetUp] public void SetupTask()
+        {
+            _host = EndpointHost.Testing.CreateHostWithClientEndpoint(DependencyInjectionContainer.Create);
+            _eventSerializer = _host.ClientEndpoint.ServiceLocator.Resolve<IEventStoreSerializer>();
+        }
+
+        [OneTimeSetUp] public void TearDownTask() => _host.Dispose();
 
         class TestEvent : AggregateEvent
         {
@@ -122,13 +133,11 @@ namespace Composable.Tests.Serialization
             //Warmup
             _eventSerializer.Deserialize(typeof(TestEvent), _eventSerializer.Serialize(@event));
 
-            var serializer = new EventStoreSerializer(new TypeMapper());
-
             TimeAsserter.Execute(
                                  () =>
                                  {
-                                     var eventJson = serializer.Serialize(@event);
-                                     serializer.Deserialize(typeof(TestEvent), eventJson);
+                                     var eventJson = _eventSerializer.Serialize(@event);
+                                     _eventSerializer.Deserialize(typeof(TestEvent), eventJson);
                                  },
                                  iterations:1000,
                                  maxTotal: 15.Milliseconds()
@@ -167,13 +176,12 @@ namespace Composable.Tests.Serialization
 
             var allowedTime = TimeSpan.FromMilliseconds(defaultSerializerPerformanceNumbers.TotalMilliseconds * allowedSlowdown);
 
-            var newtonSoftEventStoreSerializer = new EventStoreSerializer(new TypeMapper());
 
             TimeAsserter.Execute(() =>
                                  {
-                                     var eventJson = events.Select(newtonSoftEventStoreSerializer.Serialize)
+                                     var eventJson = events.Select(_eventSerializer.Serialize)
                                                             .ToList();
-                                     eventJson.ForEach(@this => newtonSoftEventStoreSerializer.Deserialize(typeof(TestEvent), @this));
+                                     eventJson.ForEach(@this => _eventSerializer.Deserialize(typeof(TestEvent), @this));
                                  },
                                  maxTotal: allowedTime);
         }

@@ -21,7 +21,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
         public When_scheduling_commands_to_be_sent_in_the_future()
         {
-            _host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
+            _host = EndpointHost.Testing.CreateHostWithClientEndpoint(DependencyInjectionContainer.Create);
 
             var endpoint = _host.RegisterAndStartEndpoint(
                 "endpoint",

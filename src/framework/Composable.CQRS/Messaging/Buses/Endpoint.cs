@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses
 {
     class Endpoint : IEndpoint
     {
-        bool _running;
+        public bool IsRunning { get; private set; }
         public Endpoint(IServiceLocator serviceLocator, EndpointId id, string name)
         {
             Assert.Argument.Assert(serviceLocator != null, id != null);
@@ -26,29 +24,29 @@ namespace Composable.Messaging.Buses
 
         public void Start()
         {
-            Assert.State.Assert(!_running);
+            Assert.State.Assert(!IsRunning);
 
-            _running = true;
+            IsRunning = true;
 
             RunSanityChecks();
 
             BusControl.Start();
         }
 
-        void RunSanityChecks()
+        static void RunSanityChecks()
         {
             AssertAllTypesNeedingMappingsAreMapped();
         }
 
         //todo: figure out how to do this sanely
-        void AssertAllTypesNeedingMappingsAreMapped()
+        static void AssertAllTypesNeedingMappingsAreMapped()
         {
         }
 
         public void Stop()
         {
-            Assert.State.Assert(_running);
-            _running = false;
+            Assert.State.Assert(IsRunning);
+            IsRunning = false;
             BusControl.Stop();
         }
 
@@ -56,10 +54,7 @@ namespace Composable.Messaging.Buses
 
         public void Dispose()
         {
-            if(_running)
-            {
-                Stop();
-            }
+            if(IsRunning) Stop();
             ServiceLocator.Dispose();
         }
 

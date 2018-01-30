@@ -4,6 +4,7 @@ using System.Linq;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Refactoring.Naming;
+using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
@@ -32,25 +33,22 @@ namespace Composable.Messaging.Buses
                                                          Action<ITestingEndpointHost> build,
                                                          TestingMode mode = TestingMode.DatabasePool)
             {
-                var testingEndpointHost = new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory);
+                var testingEndpointHost = new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: true);
                 build(testingEndpointHost);
                 return testingEndpointHost;
             }
-            public static ITestingEndpointHost CreateHost(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) =>
-                new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory);
+
+            public static ITestingEndpointHost CreateHostWithClientEndpoint(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: true);
+
+            public static ITestingEndpointHost CreateHost(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: false);
         }
 
         public IEndpoint RegisterAndStartEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
         {
-            var builder = new EndpointBuilder(_globalBusStateTracker, _containerFactory(_mode), name, id);
-
-            setup(builder);
-
-            var endpoint = builder.Build();
-
+            Start();
             var existingEndpoints = Endpoints.ToList();
 
-            Endpoints.Add(endpoint);
+            var endpoint = RegisterEndpoint(name, id, setup);
 
             endpoint.Start();
             var endpointTransport = endpoint.ServiceLocator.Resolve<IInterprocessTransport>();
@@ -68,8 +66,21 @@ namespace Composable.Messaging.Buses
 
             return endpoint;
         }
+        public void Start() => Endpoints.Where(endpoint => !endpoint.IsRunning).ForEach(endpoint => endpoint.Start());
 
-        public void Stop() { Endpoints.ForEach(endpoint => endpoint.Stop()); }
+        public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
+        {
+            var builder = new EndpointBuilder(_globalBusStateTracker, _containerFactory(_mode), name, id);
+
+            setup(builder);
+
+            var endpoint = builder.Build();
+
+            Endpoints.Add(endpoint);
+            return endpoint;
+        }
+
+        public void Stop() { Endpoints.Where(endpoint => endpoint.IsRunning).ForEach(endpoint => endpoint.Stop()); }
 
         protected virtual void InternalDispose()
         {

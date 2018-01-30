@@ -110,8 +110,8 @@ namespace Composable.Tests.Serialization
 
         [OneTimeSetUp] public void SetupTask()
         {
-            _originalHost = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
-            _renamedHost = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
+            _originalHost = EndpointHost.Testing.CreateHostWithClientEndpoint(DependencyInjectionContainer.Create);
+            _renamedHost = EndpointHost.Testing.CreateHostWithClientEndpoint(DependencyInjectionContainer.Create);
 
             _originaltypesMap = _originalHost.RegisterTestingEndpoint(
                 setup: builder => builder.TypeMapper

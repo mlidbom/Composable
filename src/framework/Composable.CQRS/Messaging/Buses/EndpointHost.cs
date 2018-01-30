@@ -33,13 +33,14 @@ namespace Composable.Messaging.Buses
                                                          Action<ITestingEndpointHost> build,
                                                          TestingMode mode = TestingMode.DatabasePool)
             {
-                var testingEndpointHost = new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory);
+                var testingEndpointHost = new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: true);
                 build(testingEndpointHost);
                 return testingEndpointHost;
             }
 
-            public static ITestingEndpointHost CreateHost(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) =>
-                new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory);
+            public static ITestingEndpointHost CreateHostWithClientEndpoint(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: true);
+
+            public static ITestingEndpointHost CreateHost(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: false);
         }
 
         public IEndpoint RegisterAndStartEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)

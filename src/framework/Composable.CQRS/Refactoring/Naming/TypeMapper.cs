@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Reflection;
 using Composable.System.Threading.ResourceAccess;
@@ -12,7 +13,9 @@ namespace Composable.Refactoring.Naming
 {
     class TypeMapper : ITypeMapper, ITypeMappingRegistar
     {
+        readonly LazySqlServerConnection _endpointSqlConnection;
         readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
+        public TypeMapper(LazySqlServerConnection endpointSqlConnection) => _endpointSqlConnection = endpointSqlConnection;
 
         public TypeId GetId(Type type) => _state.WithExclusiveAccess(state =>
         {

@@ -37,6 +37,7 @@ namespace Composable.Messaging.Buses
                 build(testingEndpointHost);
                 return testingEndpointHost;
             }
+
             public static ITestingEndpointHost CreateHost(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) =>
                 new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory);
         }

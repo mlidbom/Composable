@@ -20,7 +20,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
         readonly ISqlConnection _connectionManager;
         readonly IUtcTimeTimeSource _timeSource;
 
-        static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
+        static readonly JsonSerializerSettings JsonSettings = Composable.Serialization.JsonSettings.JsonSerializerSettings;
 
         const int UniqueConstraintViolationErrorNumber = 2627;
 

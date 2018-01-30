@@ -2,6 +2,7 @@
 using System.Linq;
 using Composable.Logging;
 using Composable.Persistence.EventStore;
+using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
@@ -11,12 +12,12 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace Composable.Tests.NewtonSoft
+namespace Composable.Tests.Serialization
 {
     [TestFixture, Performance]
     public class NewtonSoftEventStoreEventSerializerTests
     {
-        readonly IEventStoreSerializer _eventSerializer = new NewtonSoftEventStoreSerializer();
+        readonly IEventStoreSerializer _eventSerializer = new NewtonSoftEventStoreSerializer(new TypeMapper());
 
         class TestEvent : AggregateEvent
         {
@@ -124,18 +125,18 @@ namespace Composable.Tests.NewtonSoft
             TimeAsserter.Execute(
                                  () =>
                                  {
-                                     var eventJson = new NewtonSoftEventStoreSerializer().Serialize(@event);
-                                     new NewtonSoftEventStoreSerializer().Deserialize(typeof(TestEvent), eventJson);
+                                     var eventJson = new NewtonSoftEventStoreSerializer(new TypeMapper()).Serialize(@event);
+                                     new NewtonSoftEventStoreSerializer(new TypeMapper()).Deserialize(typeof(TestEvent), eventJson);
                                  },
                                  iterations:1000,
                                  maxTotal: 15.Milliseconds()
                                 );
         }
 
-        [Test] public void Should_roundtrip_simple_event_within_50_percent_of_default_serializer_performance_given_all_new_serializer_instances()
+        [Test] public void Should_roundtrip_simple_event_within_70_percent_of_default_serializer_performance_given_all_new_serializer_instances()
         {
-            const int iterations = 1000;
-            const double allowedSlowdown = 1.5;
+            const int iterations = 10000;
+            const double allowedSlowdown = 1.7;
 
             var events = 1.Through(iterations).Select( index =>  new TestEvent(
                                             test1: "Test1",
@@ -166,9 +167,9 @@ namespace Composable.Tests.NewtonSoft
 
             TimeAsserter.Execute(() =>
                                  {
-                                     var eventJson = events.Select(new NewtonSoftEventStoreSerializer().Serialize)
+                                     var eventJson = events.Select(new NewtonSoftEventStoreSerializer(new TypeMapper()).Serialize)
                                                             .ToList();
-                                     eventJson.ForEach(@this => new NewtonSoftEventStoreSerializer().Deserialize(typeof(TestEvent), @this));
+                                     eventJson.ForEach(@this => new NewtonSoftEventStoreSerializer(new TypeMapper()).Deserialize(typeof(TestEvent), @this));
                                  },
                                  maxTotal: allowedTime);
         }

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DDD;
-using Composable.NewtonSoft;
 using Composable.System.Collections.Collections;
+using Composable.Serialization;
 using Newtonsoft.Json;
 
 namespace Composable.Persistence.DocumentDb

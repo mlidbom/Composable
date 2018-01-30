@@ -1,35 +1,82 @@
 using System;
+using System.Collections.Generic;
 using Composable.Persistence.EventStore;
+using Composable.Refactoring.Naming;
 using Newtonsoft.Json;
 
 namespace Composable.Serialization
 {
 
-    abstract class NewtonSoftSerializer : IJsonSerializer
+    class RenamingSupportingJsonSerializer : IJsonSerializer
     {
         readonly JsonSerializerSettings _jsonSettings;
-        protected NewtonSoftSerializer(JsonSerializerSettings jsonSettings) => _jsonSettings = jsonSettings;
+        readonly TypeMapper _typeMapper;
+        readonly RenamingDecorator _renamingDecorator;
+        protected internal RenamingSupportingJsonSerializer(JsonSerializerSettings jsonSettings, TypeMapper typeMapper)
+        {
+            _jsonSettings = jsonSettings;
+            _renamingDecorator = new RenamingDecorator(_typeMapper);
+            _typeMapper = typeMapper;
+        }
 
-        public string Serialize(object @event) => JsonConvert.SerializeObject(@event, Formatting.Indented, _jsonSettings);
+        public string Serialize(object @event)
+        {
+            var json = JsonConvert.SerializeObject(@event, Formatting.Indented, _jsonSettings);
+            json = _renamingDecorator.ReplaceTypeNames(json);
+            return json;
+        }
 
-        public IAggregateEvent Deserialize(Type eventType, string eventData) => (IAggregateEvent)JsonConvert.DeserializeObject(eventData, eventType, _jsonSettings);
+        public IAggregateEvent Deserialize(Type eventType, string eventData)
+        {
+            eventData = _renamingDecorator.RestoreTypeNames(eventData);
+            return (IAggregateEvent)JsonConvert.DeserializeObject(eventData, eventType, _jsonSettings);
+        }
     }
 
-    class NewtonSoftEventStoreSerializer : NewtonSoftSerializer, IEventStoreSerializer
+    class RenamingDecorator
     {
-        public static readonly JsonSerializerSettings JsonSettings = Composable.NewtonSoft.JsonSettings.SqlEventStoreSerializerSettings;
-        public NewtonSoftEventStoreSerializer() : base(JsonSettings) {}
+        readonly IReadOnlyList<string> NoTypeNames = new List<string>();
+        readonly TypeMapper _typeMapper;
+        public RenamingDecorator(TypeMapper typeMapper) => _typeMapper = typeMapper;
+
+
+        public string ReplaceTypeNames(string json)
+        {
+            var typeNames = FindTypeNames(json);
+
+            return json;
+        }
+
+        IReadOnlyList<string> FindTypeNames(string json)
+        {
+            if(json.IndexOf("$type:") == -1)
+            {
+                return NoTypeNames;
+            }
+
+            return NoTypeNames;
+        }
+
+        public string RestoreTypeNames(string json)
+        {
+            return json;
+        }
     }
 
-    class NewtonDocumentDbSerializer : NewtonSoftSerializer, IDocumentDbSerializer
+
+    class NewtonSoftEventStoreSerializer : RenamingSupportingJsonSerializer, IEventStoreSerializer
     {
-        public static readonly JsonSerializerSettings JsonSettings = Composable.NewtonSoft.JsonSettings.SqlEventStoreSerializerSettings;
-        public NewtonDocumentDbSerializer() : base(JsonSettings) {}
+        public static readonly JsonSerializerSettings JsonSettings = Serialization.JsonSettings.SqlEventStoreSerializerSettings;
+        public NewtonSoftEventStoreSerializer(TypeMapper typeMapper) : base(JsonSettings, typeMapper) {}
     }
 
-    class NewtonBusMessageSerializer : NewtonSoftSerializer, IBusMessageSerializer
+    class NewtonDocumentDbSerializer : RenamingSupportingJsonSerializer, IDocumentDbSerializer
     {
-        public static readonly JsonSerializerSettings JsonSettings = Composable.NewtonSoft.JsonSettings.SqlEventStoreSerializerSettings;
-        public NewtonBusMessageSerializer() : base(JsonSettings) {}
+        public NewtonDocumentDbSerializer(TypeMapper typeMapper) : base(JsonSettings.SqlEventStoreSerializerSettings, typeMapper) {}
+    }
+
+    class NewtonBusMessageSerializer : RenamingSupportingJsonSerializer, IBusMessageSerializer
+    {
+        public NewtonBusMessageSerializer(TypeMapper typeMapper) : base(JsonSettings.SqlEventStoreSerializerSettings, typeMapper) {}
     }
 }

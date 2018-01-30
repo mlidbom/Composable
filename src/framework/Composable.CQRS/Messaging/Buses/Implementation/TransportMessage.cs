@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.Contracts;
-using Composable.NewtonSoft;
 using Composable.Refactoring.Naming;
+using Composable.Serialization;
 using Composable.System.Reflection;
 using NetMQ;
 using NetMQ.Sockets;

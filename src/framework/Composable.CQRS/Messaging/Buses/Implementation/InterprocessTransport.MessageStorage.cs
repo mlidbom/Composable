@@ -1,5 +1,4 @@
 ﻿using Composable.Contracts;
-using Composable.NewtonSoft;
 using Composable.Refactoring.Naming;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
@@ -34,7 +33,7 @@ INSERT {OutboxMessages.TableName}
                             .AddParameter(OutboxMessages.MessageId, message.MessageId)
                             .AddParameter(OutboxMessages.TypeIdGuidValue, _typeMapper.GetId(message.GetType()).GuidValue)
                             //todo: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
-                            .AddNVarcharMaxParameter(OutboxMessages.Body, JsonConvert.SerializeObject(message, JsonSettings.JsonSerializerSettings))
+                            .AddNVarcharMaxParameter(OutboxMessages.Body, JsonConvert.SerializeObject(message, Serialization.JsonSettings.JsonSerializerSettings))
                            .AddParameter(MessageDispatching.IsReceived, 0);
 
                         receiverEndpointIds.ForEach(

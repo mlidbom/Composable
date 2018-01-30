@@ -122,13 +122,11 @@ namespace Composable.Tests.Serialization
             //Warmup
             _eventSerializer.Deserialize(typeof(TestEvent), _eventSerializer.Serialize(@event));
 
-            var serializer = new EventStoreSerializer(new TypeMapper());
-
             TimeAsserter.Execute(
                                  () =>
                                  {
-                                     var eventJson = serializer.Serialize(@event);
-                                     serializer.Deserialize(typeof(TestEvent), eventJson);
+                                     var eventJson = _eventSerializer.Serialize(@event);
+                                     _eventSerializer.Deserialize(typeof(TestEvent), eventJson);
                                  },
                                  iterations:1000,
                                  maxTotal: 15.Milliseconds()
@@ -167,13 +165,12 @@ namespace Composable.Tests.Serialization
 
             var allowedTime = TimeSpan.FromMilliseconds(defaultSerializerPerformanceNumbers.TotalMilliseconds * allowedSlowdown);
 
-            var newtonSoftEventStoreSerializer = new EventStoreSerializer(new TypeMapper());
 
             TimeAsserter.Execute(() =>
                                  {
-                                     var eventJson = events.Select(newtonSoftEventStoreSerializer.Serialize)
+                                     var eventJson = events.Select(_eventSerializer.Serialize)
                                                             .ToList();
-                                     eventJson.ForEach(@this => newtonSoftEventStoreSerializer.Deserialize(typeof(TestEvent), @this));
+                                     eventJson.ForEach(@this => _eventSerializer.Deserialize(typeof(TestEvent), @this));
                                  },
                                  maxTotal: allowedTime);
         }

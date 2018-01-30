@@ -42,10 +42,14 @@ namespace Composable.DependencyInjection
             internal readonly Dictionary<Guid, ComponentRegistration> RegisteredComponents = new Dictionary<Guid, ComponentRegistration>();
             readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
-            readonly Dictionary<Guid, object> _singletonOverlay = new Dictionary<Guid, object>();
-            readonly AsyncLocal<Dictionary<Guid, object>> _scopedOverlay = new AsyncLocal<Dictionary<Guid, object>>();
+            readonly ComponentLifestyleOverlay _singletonOverlay;
+            readonly AsyncLocal<ComponentLifestyleOverlay> _scopedOverlay = new AsyncLocal<ComponentLifestyleOverlay>();
 
-            public NonThreadSafeImplementation(ComposableDependencyInjectionContainer parent) => _parent = parent;
+            public NonThreadSafeImplementation(ComposableDependencyInjectionContainer parent)
+            {
+                _parent = parent;
+                _singletonOverlay = new ComponentLifestyleOverlay(_parent);
+            }
 
             public void Register(ComponentRegistration[] registrations)
             {
@@ -107,45 +111,10 @@ namespace Composable.DependencyInjection
 
             object[] ResolveSingletonInstances(List<ComponentRegistration> registration)=> registration.Select(ResolveSingletonInstance).ToArray();
 
-            object ResolveScopedInstance(ComponentRegistration registration)
-            {
-                if(_scopedOverlay.Value.TryGetValue(registration.Id, out var instance))
-                {
-                    return instance;
-                } else
-                {
-                    instance = CreateRegistrationInstance(registration);
-                    _scopedOverlay.Value.Add(registration.Id, instance);
-                    return instance;
-                }
-            }
+            object ResolveScopedInstance(ComponentRegistration registration) => _scopedOverlay.Value.ResolveInstance(registration);
 
-            object ResolveSingletonInstance(ComponentRegistration registration)
-            {
-                if(_singletonOverlay.TryGetValue(registration.Id, out var instance))
-                {
-                    return instance;
-                } else
-                {
-                    instance = CreateRegistrationInstance(registration);
-                    _singletonOverlay.Add(registration.Id, instance);
-                    return instance;
-                }
-            }
+            object ResolveSingletonInstance(ComponentRegistration registration) => _singletonOverlay.ResolveInstance(registration);
 
-            object CreateRegistrationInstance(ComponentRegistration registration)
-            {
-                if(registration.InstantiationSpec.FactoryMethod != null)
-                {
-                    return registration.InstantiationSpec.FactoryMethod(this);
-                } else if(registration.InstantiationSpec.Instance is object instance)
-                {
-                    return instance;
-                }else
-                {
-                    throw new Exception("Failed to create instance");
-                }
-            }
 
             internal void Verify()
             {
@@ -172,16 +141,16 @@ namespace Composable.DependencyInjection
                     throw new Exception("Already has scope....");
                 }
 
-                _scopedOverlay.Value = new Dictionary<Guid, object>();
+                _scopedOverlay.Value = new ComponentLifestyleOverlay(_parent);
 
                 return Disposable.Create(() =>
                 {
-                    var scopedComponents =_parent._state.WithExclusiveAccess(state => state.EndScopeAndReturnScopedComponents());
-                    scopedComponents.Values.OfType<IDisposable>().ForEach(disposable => disposable.Dispose());
+                    var scopedOverlay =_parent._state.WithExclusiveAccess(state => state.EndScopeAndReturnScopedComponents());
+                    scopedOverlay.InstantiatedComponents.OfType<IDisposable>().ForEach(disposable => disposable.Dispose());
                 });
             }
 
-            Dictionary<Guid, object> EndScopeAndReturnScopedComponents()
+            ComponentLifestyleOverlay EndScopeAndReturnScopedComponents()
             {
                 var scopeOverlay = _scopedOverlay.Value;
                 _scopedOverlay.Value = null;
@@ -194,13 +163,68 @@ namespace Composable.DependencyInjection
                 if(!_disposed)
                 {
                     _disposed = true;
-                    _singletonOverlay
-                       .ToList()
-                       .Where(singleton => RegisteredComponents[singleton.Key].InstantiationSpec.Instance == null)
-                       .Select(singleton => singleton.Value)
-                       .OfType<IDisposable>()
-                       .ForEach(disposable => disposable.Dispose());
+                    _singletonOverlay.Dispose();
                 }
+            }
+        }
+
+        class ComponentLifestyleOverlay
+        {
+            readonly ComposableDependencyInjectionContainer _parent;
+            public ComponentLifestyleOverlay(ComposableDependencyInjectionContainer parent) => _parent = parent;
+            internal readonly Dictionary<Guid, CachedInstance> InstantiatedComponents = new Dictionary<Guid, CachedInstance>();
+            bool _disposed;
+            public void Dispose()
+            {
+                if(!_disposed)
+                {
+                    _disposed = true;
+                    InstantiatedComponents
+                        .ToList()
+                       .Where(cached => !cached.Value.CreationSpecIsInstance)
+                        .Select(singleton => singleton.Value.Instance)
+                        .OfType<IDisposable>()
+                        .ForEach(disposable => disposable.Dispose());
+                }
+            }
+
+            public object ResolveInstance(ComponentRegistration registration)
+            {
+                if(InstantiatedComponents.TryGetValue(registration.Id, out var cachedInstance))
+                {
+                    return cachedInstance.Instance;
+                } else
+                {
+                    cachedInstance = CreateRegistrationInstance(registration);
+                    InstantiatedComponents.Add(registration.Id, cachedInstance);
+                    return cachedInstance.Instance;
+                }
+            }
+
+            CachedInstance CreateRegistrationInstance(ComponentRegistration registration)
+            {
+                if(registration.InstantiationSpec.FactoryMethod != null)
+                {
+                    return new CachedInstance(creationSpecIsInstance: false, instance: registration.InstantiationSpec.FactoryMethod(_parent));
+                } else if(registration.InstantiationSpec.Instance is object instance)
+                {
+                    return new CachedInstance(creationSpecIsInstance: true, instance: instance);;
+                }else
+                {
+                    throw new Exception("Failed to create instance");
+                }
+            }
+
+            internal class CachedInstance
+            {
+                public CachedInstance(bool creationSpecIsInstance, object instance)
+                {
+                    CreationSpecIsInstance = creationSpecIsInstance;
+                    Instance = instance;
+                }
+
+                internal bool CreationSpecIsInstance{get;}
+                internal object Instance { get; }
             }
         }
     }

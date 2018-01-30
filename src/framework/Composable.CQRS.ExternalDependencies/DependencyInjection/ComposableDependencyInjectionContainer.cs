@@ -23,7 +23,7 @@ namespace Composable.DependencyInjection
         public IRunMode RunMode { get; }
         public void Register(params ComponentRegistration[] registrations) => _state.WithExclusiveAccess(state => state.Register(registrations));
 
-        public IEnumerable<ComponentRegistration> RegisteredComponents() => _state.WithExclusiveAccess(state => state.RegisteredComponents);
+        public IEnumerable<ComponentRegistration> RegisteredComponents() => _state.WithExclusiveAccess(state => state.RegisteredComponents.Values.ToList());
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => _state.WithExclusiveAccess(state => state.CreateServiceLocator());
 
@@ -39,7 +39,7 @@ namespace Composable.DependencyInjection
         class NonThreadSafeImplementation : IServiceLocatorKernel
         {
             readonly ComposableDependencyInjectionContainer _parent;
-            internal readonly List<ComponentRegistration> RegisteredComponents = new List<ComponentRegistration>();
+            internal readonly Dictionary<Guid, ComponentRegistration> RegisteredComponents = new Dictionary<Guid, ComponentRegistration>();
             readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
             readonly Dictionary<Guid, object> _singletonOverlay = new Dictionary<Guid, object>();
@@ -49,7 +49,7 @@ namespace Composable.DependencyInjection
 
             public void Register(ComponentRegistration[] registrations)
             {
-                RegisteredComponents.AddRange(registrations);
+                registrations.ForEach(registration => RegisteredComponents.Add(registration.Id, registration));
                 foreach(var registration in registrations)
                 {
                     foreach(var registrationServiceType in registration.ServiceTypes)
@@ -192,7 +192,12 @@ namespace Composable.DependencyInjection
                 if(!_disposed)
                 {
                     _disposed = true;
-                    _singletonOverlay.Values.ToList().OfType<IDisposable>().ForEach(disposable => disposable.Dispose());
+                    _singletonOverlay
+                       .ToList()
+                       .Where(singleton => RegisteredComponents[singleton.Key].InstantiationSpec.Instance == null)
+                       .Select(singleton => singleton.Value)
+                       .OfType<IDisposable>()
+                       .ForEach(disposable => disposable.Dispose());
                 }
             }
         }

@@ -5,12 +5,14 @@ namespace Composable.Serialization
 {
     interface IJsonSerializer
     {
-        string Serialize(object @event);
-        IAggregateEvent Deserialize(Type eventType, string eventData);
+        string Serialize(object instance);
+        object Deserialize(Type eventType, string json);
     }
 
-    interface IEventStoreSerializer : IJsonSerializer
+    interface IEventStoreSerializer
     {
+        string Serialize(object @event);
+        IAggregateEvent Deserialize(Type eventType, string json);
     }
 
     interface IDocumentDbSerializer : IJsonSerializer

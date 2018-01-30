@@ -19,17 +19,17 @@ namespace Composable.Serialization
             _typeMapper = typeMapper;
         }
 
-        public string Serialize(object @event)
+        public string Serialize(object instance)
         {
-            var json = JsonConvert.SerializeObject(@event, Formatting.Indented, _jsonSettings);
+            var json = JsonConvert.SerializeObject(instance, Formatting.Indented, _jsonSettings);
             json = _renamingDecorator.ReplaceTypeNames(json);
             return json;
         }
 
-        public IAggregateEvent Deserialize(Type eventType, string eventData)
+        public object Deserialize(Type eventType, string json)
         {
-            eventData = _renamingDecorator.RestoreTypeNames(eventData);
-            return (IAggregateEvent)JsonConvert.DeserializeObject(eventData, eventType, _jsonSettings);
+            json = _renamingDecorator.RestoreTypeNames(json);
+            return JsonConvert.DeserializeObject(json, eventType, _jsonSettings);
         }
     }
 
@@ -64,10 +64,16 @@ namespace Composable.Serialization
     }
 
 
-    class NewtonSoftEventStoreSerializer : RenamingSupportingJsonSerializer, IEventStoreSerializer
+    class NewtonSoftEventStoreSerializer : IEventStoreSerializer
     {
-        public static readonly JsonSerializerSettings JsonSettings = Serialization.JsonSettings.SqlEventStoreSerializerSettings;
-        public NewtonSoftEventStoreSerializer(TypeMapper typeMapper) : base(JsonSettings, typeMapper) {}
+        internal static readonly JsonSerializerSettings JsonSettings = Serialization.JsonSettings.SqlEventStoreSerializerSettings;
+
+        readonly RenamingSupportingJsonSerializer _serializer;
+
+        public NewtonSoftEventStoreSerializer(TypeMapper typeMapper) => _serializer = new RenamingSupportingJsonSerializer(JsonSettings, typeMapper);
+
+        public string Serialize(object @event) => _serializer.Serialize(@event);
+        public IAggregateEvent Deserialize(Type eventType, string json) => (IAggregateEvent)_serializer.Deserialize(eventType, json);
     }
 
     class NewtonDocumentDbSerializer : RenamingSupportingJsonSerializer, IDocumentDbSerializer

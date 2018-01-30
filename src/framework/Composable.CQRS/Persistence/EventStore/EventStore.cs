@@ -88,7 +88,7 @@ namespace Composable.Persistence.EventStore
 
         AggregateEvent HydrateEvent(EventReadDataRow eventDataRowRow)
         {
-            var @event = (AggregateEvent)_serializer.Deserialize(eventType: _schemaManager.IdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
+            var @event = (AggregateEvent)_serializer.Deserialize(eventType: _schemaManager.IdMapper.GetType(eventDataRowRow.EventType), json: eventDataRowRow.EventJson);
             @event.AggregateId = eventDataRowRow.AggregateId;
             @event.AggregateVersion = eventDataRowRow.AggregateVersion;
             @event.EventId = eventDataRowRow.EventId;

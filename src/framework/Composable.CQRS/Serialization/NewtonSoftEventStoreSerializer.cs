@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 using Newtonsoft.Json;
@@ -37,8 +38,8 @@ namespace Composable.Serialization
     {
         readonly IReadOnlyList<string> NoTypeNames = new List<string>();
         readonly TypeMapper _typeMapper;
+        readonly Regex findThem = new Regex(@"""$type""");
         public RenamingDecorator(TypeMapper typeMapper) => _typeMapper = typeMapper;
-
 
         public string ReplaceTypeNames(string json)
         {

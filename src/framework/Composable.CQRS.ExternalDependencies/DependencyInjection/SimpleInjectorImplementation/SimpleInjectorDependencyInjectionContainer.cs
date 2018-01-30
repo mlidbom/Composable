@@ -99,6 +99,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
             return this;
         }
 
+        public TComponent Resolve<TComponent>() where TComponent : class => _container.GetInstance<TComponent>();
         IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new SimpleInjectorComponentLease<TComponent>(_container.GetInstance<TComponent>());
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new SimpleInjectorMultiComponentLease<TComponent>(_container.GetAllInstances<TComponent>().ToArray());
         IDisposable IServiceLocator.BeginScope() => AsyncScopedLifestyle.BeginScope(_container);

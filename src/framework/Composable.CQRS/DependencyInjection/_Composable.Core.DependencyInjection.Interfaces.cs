@@ -57,6 +57,7 @@ namespace Composable.DependencyInjection
     ///<summary></summary>
     public interface IServiceLocator : IDisposable
     {
+        TComponent Resolve<TComponent>() where TComponent : class;
         IComponentLease<TComponent> Lease<TComponent>() where TComponent : class;
         IMultiComponentLease<TComponent> LeaseAll<TComponent>() where TComponent : class;
         IDisposable BeginScope();

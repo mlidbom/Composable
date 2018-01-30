@@ -27,6 +27,7 @@ namespace Composable.DependencyInjection
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => _state.WithExclusiveAccess(state => state.CreateServiceLocator());
 
+        TComponent IServiceLocator.Resolve<TComponent>() => ((IServiceLocatorKernel)this).Resolve<TComponent>();
         IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new ComponentLease<TComponent>(((IServiceLocatorKernel)this).Resolve<TComponent>());
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new MultiComponentLease<TComponent>(_state.WithExclusiveAccess(state => state.ResolveAll<TComponent>()));
         IDisposable IServiceLocator.BeginScope() => _state.WithExclusiveAccess(state => state.BeginScope());
@@ -58,7 +59,10 @@ namespace Composable.DependencyInjection
                 }
             });
 
-            return (TService)overlay.WithExclusiveAccess(someOverlay => someOverlay.ResolveInstance(registration));
+            return (TService)overlay.WithExclusiveAccess(someOverlay =>
+            {
+                return someOverlay.ResolveInstance(registration);
+            });
         }
 
         void IDisposable.Dispose() => _state.WithExclusiveAccess(state => state.Dispose());
@@ -149,14 +153,14 @@ namespace Composable.DependencyInjection
         {
             readonly ComposableDependencyInjectionContainer _parent;
             public ComponentLifestyleOverlay(ComposableDependencyInjectionContainer parent) => _parent = parent;
-            readonly Dictionary<Guid, CachedInstance> InstantiatedComponents = new Dictionary<Guid, CachedInstance>();
+            readonly Dictionary<Guid, CachedInstance> _instantiatedComponents = new Dictionary<Guid, CachedInstance>();
             bool _disposed;
             public void Dispose()
             {
                 if(!_disposed)
                 {
                     _disposed = true;
-                    InstantiatedComponents
+                    _instantiatedComponents
                         .ToList()
                        .Where(cached => !cached.Value.CreationSpecIsInstance)
                         .Select(singleton => singleton.Value.Instance)
@@ -167,13 +171,13 @@ namespace Composable.DependencyInjection
 
             public object ResolveInstance(ComponentRegistration registration)
             {
-                if(InstantiatedComponents.TryGetValue(registration.Id, out var cachedInstance))
+                if(_instantiatedComponents.TryGetValue(registration.Id, out var cachedInstance))
                 {
                     return cachedInstance.Instance;
                 } else
                 {
                     cachedInstance = CreateRegistrationInstance(registration);
-                    InstantiatedComponents.Add(registration.Id, cachedInstance);
+                    _instantiatedComponents.Add(registration.Id, cachedInstance);
                     return cachedInstance.Instance;
                 }
             }

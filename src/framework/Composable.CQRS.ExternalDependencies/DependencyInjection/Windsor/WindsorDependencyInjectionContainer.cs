@@ -43,6 +43,7 @@ namespace Composable.DependencyInjection.Windsor
             return this;
         }
 
+        public TComponent Resolve<TComponent>() where TComponent : class => _windsorContainer.Resolve<TComponent>();
         IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new WindsorComponentLease<TComponent>(_windsorContainer.Resolve<TComponent>(), _windsorContainer.Kernel);
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new WindsorMultiComponentLease<TComponent>(_windsorContainer.ResolveAll<TComponent>().ToArray(), _windsorContainer.Kernel);
         IDisposable IServiceLocator.BeginScope() => _windsorContainer.BeginScope();

@@ -33,6 +33,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal bool IsOfType(Type type) => type.IsAssignableFrom(MessageType);
 
             BusApi.IMessage _message;
+            ITypeMapper _typeMapper;
 
             public BusApi.IMessage DeserializeMessageAndCacheForNextCall()
             {
@@ -47,13 +48,14 @@ namespace Composable.Messaging.Buses.Implementation
 
             InComing(string body, TypeId messageTypeId, byte[] client, Guid messageId, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
+                _serializer = serializer;
+                _typeMapper = typeMapper;
                 Body = body;
                 MessageTypeId = messageTypeId;
                 MessageType = typeMapper.GetType(messageTypeId);
                 MessageTypeEnum = GetMessageType(MessageType);
                 Client = client;
                 MessageId = messageId;
-                _serializer = serializer;
             }
 
             public static IReadOnlyList<InComing> ReceiveBatch(RouterSocket socket, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
@@ -89,7 +91,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public Response.Outgoing CreateFailureResponse(AggregateException exception) => Response.Outgoing.Failure(this, exception);
 
-            public Response.Outgoing CreateSuccessResponse(object response) => Response.Outgoing.Success(this, response, _serializer);
+            public Response.Outgoing CreateSuccessResponse(object response) => Response.Outgoing.Success(this, response, _serializer, _typeMapper);
 
             public Response.Outgoing CreatePersistedResponse() => Response.Outgoing.Persisted(this);
         }
@@ -150,7 +152,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 public void Send(IOutgoingSocket socket) => socket.SendMultipartMessage(_response);
 
-                public static Outgoing Success(TransportMessage.InComing incoming, object response, IRemotableMessageSerializer serializer)
+                public static Outgoing Success(TransportMessage.InComing incoming, object response, IRemotableMessageSerializer serializer, ITypeMapper typeMapper)
                 {
                     var responseMessage = new NetMQMessage();
 
@@ -160,7 +162,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     if(response != null)
                     {
-                        responseMessage.Append(response.GetType().FullName);
+                        responseMessage.Append(typeMapper.GetId(response.GetType()).GuidValue);
                         responseMessage.Append(serializer.SerializeResponse(response));
                     } else
                     {
@@ -204,7 +206,8 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 internal readonly string Body;
                 //todo:bug: Not string!
-                readonly string _responseType;
+                readonly TypeId _responseTypeId;
+                readonly ITypeMapper _typeMapper;
                 object _result;
                 internal ResponseType ResponseType { get; }
                 internal Guid RespondingToMessageId { get; }
@@ -217,23 +220,23 @@ namespace Composable.Messaging.Buses.Implementation
                         {
                             return null;
                         }
-                        _result = serializer.DeserializeResponse(_responseType.AsType(), Body);
+                        _result = serializer.DeserializeResponse(_typeMapper.GetType(_responseTypeId), Body);
                     }
                     return _result;
                 }
 
-                public static IReadOnlyList<Response.Incoming> ReceiveBatch(IReceivingSocket socket, int batchMaximum)
+                public static IReadOnlyList<Response.Incoming> ReceiveBatch(IReceivingSocket socket, ITypeMapper typeMapper, int batchMaximum)
                 {
                     var result = new List<Response.Incoming>();
                     NetMQMessage received = null;
                     while(socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref received))
                     {
-                        result.Add(FromMultipartMessage(received));
+                        result.Add(FromMultipartMessage(received, typeMapper));
                     }
                     return result;
                 }
 
-                static Incoming FromMultipartMessage(NetMQMessage message)
+                static Incoming FromMultipartMessage(NetMQMessage message, ITypeMapper typeMapper)
                 {
                     var messageId = new Guid(message[0].ToByteArray());
                     var type = (ResponseType)message[1].ConvertToInt32();
@@ -241,22 +244,23 @@ namespace Composable.Messaging.Buses.Implementation
                     switch(type)
                     {
                         case ResponseType.Success:
-                            var responseType = message[2].ConvertToString();
+                            var responseType = new TypeId(new Guid(message[2].ToByteArray()));
                             var responseBody = message[3].ConvertToString();
-                            return new Incoming(type: type, respondingToMessageId: messageId, body: responseBody, responseType: responseType);
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: responseBody, responseTypeId: responseType, typeMapper: typeMapper);
                         case ResponseType.Failure:
-                            return new Incoming(type: type, respondingToMessageId: messageId, body: message[2].ConvertToString(), responseType: null);
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: message[2].ConvertToString(), responseTypeId: null, typeMapper: typeMapper);
                         case ResponseType.Received:
-                            return new Incoming(type: type, respondingToMessageId: messageId, body: null, responseType: null);
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: null, responseTypeId: null, typeMapper: typeMapper);
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
                 }
 
-                Incoming(ResponseType type, Guid respondingToMessageId, string body, string responseType)
+                Incoming(ResponseType type, Guid respondingToMessageId, string body, TypeId responseTypeId, ITypeMapper typeMapper)
                 {
                     Body = body;
-                    _responseType = responseType;
+                    _responseTypeId = responseTypeId;
+                    _typeMapper = typeMapper;
                     ResponseType = type;
                     RespondingToMessageId = respondingToMessageId;
                 }

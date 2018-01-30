@@ -19,6 +19,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
+        readonly ITypeMapper _typeMapper;
         readonly ITaskRunner _taskRunner;
         public void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper, state.Serializer))));
 
@@ -79,6 +80,7 @@ namespace Composable.Messaging.Buses.Implementation
                                 ITaskRunner taskRunner,
                                 IRemotableMessageSerializer serializer)
         {
+            _typeMapper = typeMapper;
             _taskRunner = taskRunner;
             _state.WithExclusiveAccess(state =>
             {
@@ -146,7 +148,7 @@ namespace Composable.Messaging.Buses.Implementation
         //Runs on poller thread so NO BLOCKING HERE!
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
         {
-            var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, 100);
+            var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, _typeMapper, 100);
 
             _state.WithExclusiveAccess(state =>
             {

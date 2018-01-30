@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
+using Composable.System.Reflection;
 using Newtonsoft.Json;
 
 namespace Composable.Serialization
@@ -11,13 +12,11 @@ namespace Composable.Serialization
     class RenamingSupportingJsonSerializer : IJsonSerializer
     {
         readonly JsonSerializerSettings _jsonSettings;
-        readonly TypeMapper _typeMapper;
         readonly RenamingDecorator _renamingDecorator;
         protected internal RenamingSupportingJsonSerializer(JsonSerializerSettings jsonSettings, TypeMapper typeMapper)
         {
             _jsonSettings = jsonSettings;
-            _renamingDecorator = new RenamingDecorator(_typeMapper);
-            _typeMapper = typeMapper;
+            _renamingDecorator = new RenamingDecorator(typeMapper);
         }
 
         public string Serialize(object instance)
@@ -36,31 +35,27 @@ namespace Composable.Serialization
 
     class RenamingDecorator
     {
-        readonly IReadOnlyList<string> NoTypeNames = new List<string>();
         readonly TypeMapper _typeMapper;
-        readonly Regex findThem = new Regex(@"""$type""");
+
+        static readonly Regex  FindTypeNames = new Regex(@"""\$type""\: ""([^""]*)""", RegexOptions.Compiled);
         public RenamingDecorator(TypeMapper typeMapper) => _typeMapper = typeMapper;
 
-        public string ReplaceTypeNames(string json)
-        {
-            var typeNames = FindTypeNames(json);
+        public string ReplaceTypeNames(string json) => FindTypeNames.Replace(json, ReplaceTypeNamesWithTypeIds);
 
-            return json;
+        string ReplaceTypeNamesWithTypeIds(Match match)
+        {
+            var type = Type.GetType(match.Groups[1].Value);
+            var typeId = _typeMapper.GetId(type);
+            return $@"""$type"": ""{typeId.GuidValue}""";
         }
 
-        IReadOnlyList<string> FindTypeNames(string json)
-        {
-            if(json.IndexOf("$type:") == -1)
-            {
-                return NoTypeNames;
-            }
+        public string RestoreTypeNames(string json) => FindTypeNames.Replace(json, ReplaceTypeIdsWithTypeNames);
 
-            return NoTypeNames;
-        }
-
-        public string RestoreTypeNames(string json)
+        string ReplaceTypeIdsWithTypeNames(Match match)
         {
-            return json;
+            var typeId = new TypeId(Guid.Parse(match.Groups[1].Value));
+            var type = _typeMapper.GetType(typeId);
+            return $@"""$type"": ""{type.AssemblyQualifiedName}""";
         }
     }
 

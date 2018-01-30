@@ -174,16 +174,18 @@ namespace Composable.DependencyInjection
 
                 _scopedOverlay.Value = new Dictionary<Guid, object>();
 
-                return Disposable.Create(() => _parent._state.WithExclusiveAccess(state => state.DisposeScope()));
+                return Disposable.Create(() =>
+                {
+                    var scopedComponents =_parent._state.WithExclusiveAccess(state => state.EndScopeAndReturnScopedComponents());
+                    scopedComponents.Values.OfType<IDisposable>().ForEach(disposable => disposable.Dispose());
+                });
             }
 
-            void DisposeScope()
+            Dictionary<Guid, object> EndScopeAndReturnScopedComponents()
             {
-                var scope = _scopedOverlay.Value;
+                var scopeOverlay = _scopedOverlay.Value;
                 _scopedOverlay.Value = null;
-
-                scope.Values.OfType<IDisposable>().ForEach(disposable => disposable.Dispose());
-
+                return scopeOverlay;
             }
 
             bool _disposed;

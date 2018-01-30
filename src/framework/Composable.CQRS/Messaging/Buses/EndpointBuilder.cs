@@ -5,8 +5,8 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
-using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.Refactoring.Naming;
+using Composable.Serialization;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Threading;
@@ -78,8 +78,8 @@ namespace Composable.Messaging.Buses
                 Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>()
                          .UsingFactoryMethod(() => registry)
                          .LifestyleSingleton(),
-                Component.For<IEventStoreEventSerializer>()
-                         .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
+                Component.For<IEventStoreSerializer>()
+                         .ImplementedBy<NewtonSoftEventStoreSerializer>()
                          .LifestyleScoped(),
                 Component.For<IInbox>()
                          .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), sqlServerConnection, k.Resolve<ITypeMapper>(), k.Resolve<ITaskRunner>()))

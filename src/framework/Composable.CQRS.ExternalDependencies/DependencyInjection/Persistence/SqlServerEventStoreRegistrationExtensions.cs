@@ -9,6 +9,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Refactoring.Naming;
+using Composable.Serialization;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
@@ -27,7 +28,7 @@ namespace Composable.DependencyInjection.Persistence
 
         class EventStore<TSessionInterface, TReaderInterface> : EventStore, IEventStore<TSessionInterface, TReaderInterface>
         {
-            public EventStore(IEventStoreEventSerializer serializer,
+            public EventStore(IEventStoreSerializer serializer,
                               IEventStorePersistenceLayer persistenceLayer,
                               ISingleContextUseGuard usageGuard,
                               EventCache<TSessionInterface> cache,
@@ -180,7 +181,7 @@ namespace Composable.DependencyInjection.Persistence
 
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
                                         .UsingFactoryMethod(
-                                            (IEventStorePersistenceLayer<TSessionInterface> persistenceLayer, IEventStoreEventSerializer serializer, EventCache<TSessionInterface> cache) =>
+                                            (IEventStorePersistenceLayer<TSessionInterface> persistenceLayer, IEventStoreSerializer serializer, EventCache<TSessionInterface> cache) =>
                                                 new EventStore<TSessionInterface, TReaderInterface>(
                                                     persistenceLayer: persistenceLayer,
                                                     serializer: serializer,

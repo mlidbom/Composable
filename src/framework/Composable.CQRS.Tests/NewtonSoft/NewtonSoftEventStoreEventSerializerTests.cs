@@ -2,7 +2,7 @@
 using System.Linq;
 using Composable.Logging;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.Serialization.NewtonSoft;
+using Composable.Serialization;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.Testing.Performance;
@@ -16,7 +16,7 @@ namespace Composable.Tests.NewtonSoft
     [TestFixture, Performance]
     public class NewtonSoftEventStoreEventSerializerTests
     {
-        readonly IEventStoreEventSerializer _eventSerializer = new NewtonSoftEventStoreEventSerializer();
+        readonly IEventStoreSerializer _eventSerializer = new NewtonSoftEventStoreSerializer();
 
         class TestEvent : AggregateEvent
         {
@@ -124,8 +124,8 @@ namespace Composable.Tests.NewtonSoft
             TimeAsserter.Execute(
                                  () =>
                                  {
-                                     var eventJson = new NewtonSoftEventStoreEventSerializer().Serialize(@event);
-                                     new NewtonSoftEventStoreEventSerializer().Deserialize(typeof(TestEvent), eventJson);
+                                     var eventJson = new NewtonSoftEventStoreSerializer().Serialize(@event);
+                                     new NewtonSoftEventStoreSerializer().Deserialize(typeof(TestEvent), eventJson);
                                  },
                                  iterations:1000,
                                  maxTotal: 15.Milliseconds()
@@ -149,7 +149,7 @@ namespace Composable.Tests.NewtonSoft
                                             insertionOrder: 40,
                                             utcTimeStamp: DateTime.Now + 1.Minutes())).ToList();
 
-            var settings = NewtonSoftEventStoreEventSerializer.JsonSettings;
+            var settings = NewtonSoftEventStoreSerializer.JsonSettings;
 
             //Warmup
             _eventSerializer.Deserialize(typeof(TestEvent), _eventSerializer.Serialize(events.First()));
@@ -166,9 +166,9 @@ namespace Composable.Tests.NewtonSoft
 
             TimeAsserter.Execute(() =>
                                  {
-                                     var eventJson = events.Select(new NewtonSoftEventStoreEventSerializer().Serialize)
+                                     var eventJson = events.Select(new NewtonSoftEventStoreSerializer().Serialize)
                                                             .ToList();
-                                     eventJson.ForEach(@this => new NewtonSoftEventStoreEventSerializer().Deserialize(typeof(TestEvent), @this));
+                                     eventJson.ForEach(@this => new NewtonSoftEventStoreSerializer().Deserialize(typeof(TestEvent), @this));
                                  },
                                  maxTotal: allowedTime);
         }

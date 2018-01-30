@@ -114,7 +114,7 @@ namespace Composable.DependencyInjection
                     return instance;
                 } else
                 {
-                    instance = registration.InstantiationSpec.FactoryMethod.Invoke(this);
+                    instance = CreateRegistrationInstance(registration);
                     _scopedOverlay.Value.Add(registration.Id, instance);
                     return instance;
                 }
@@ -127,9 +127,23 @@ namespace Composable.DependencyInjection
                     return instance;
                 } else
                 {
-                    instance = registration.InstantiationSpec.FactoryMethod.Invoke(this);
+                    instance = CreateRegistrationInstance(registration);
                     _singletonOverlay.Add(registration.Id, instance);
                     return instance;
+                }
+            }
+
+            object CreateRegistrationInstance(ComponentRegistration registration)
+            {
+                if(registration.InstantiationSpec.FactoryMethod != null)
+                {
+                    return registration.InstantiationSpec.FactoryMethod(this);
+                } else if(registration.InstantiationSpec.Instance is object instance)
+                {
+                    return instance;
+                }else
+                {
+                    throw new Exception("Failed to create instance");
                 }
             }
 

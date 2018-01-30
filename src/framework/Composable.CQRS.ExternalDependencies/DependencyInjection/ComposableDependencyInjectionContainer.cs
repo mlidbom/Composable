@@ -33,7 +33,8 @@ namespace Composable.DependencyInjection
 
         TService IServiceLocatorKernel.Resolve<TService>()
         {
-            var instance = _state.WithExclusiveAccess(state =>
+            ComponentRegistration registration = null;
+            var overlay = _state.WithExclusiveAccess(state =>
             {
                 if(!state.ServiceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
                 {
@@ -45,19 +46,19 @@ namespace Composable.DependencyInjection
                     throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
                 }
 
-                var registration = registrations.Single();
+                registration = registrations.Single();
                 switch(registration.Lifestyle)
                 {
                     case Lifestyle.Singleton:
-                        return (TService)state.ResolveSingletonInstance(registration);
+                        return state._singletonOverlay;
                     case Lifestyle.Scoped:
-                        return (TService)state.ResolveScopedInstance(registration);
+                        return state._scopedOverlay.Value;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
             });
 
-            return instance;
+            return (TService)overlay.WithExclusiveAccess(someOverlay => someOverlay.ResolveInstance(registration));
         }
 
         void IDisposable.Dispose() => _state.WithExclusiveAccess(state => state.Dispose());
@@ -69,8 +70,8 @@ namespace Composable.DependencyInjection
             internal readonly Dictionary<Guid, ComponentRegistration> RegisteredComponents = new Dictionary<Guid, ComponentRegistration>();
             public readonly IDictionary<Type, List<ComponentRegistration>> ServiceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
-            readonly OptimizedThreadShared<ComponentLifestyleOverlay> _singletonOverlay;
-            readonly AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>> _scopedOverlay = new AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>>();
+            internal readonly OptimizedThreadShared<ComponentLifestyleOverlay> _singletonOverlay;
+            internal readonly AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>> _scopedOverlay = new AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>>();
 
             public NonThreadSafeImplementation(ComposableDependencyInjectionContainer parent)
             {

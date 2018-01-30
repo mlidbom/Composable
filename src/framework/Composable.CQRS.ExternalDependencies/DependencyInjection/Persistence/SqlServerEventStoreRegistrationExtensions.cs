@@ -6,6 +6,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.Aggregates;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Refactoring.Naming;
@@ -83,7 +84,7 @@ namespace Composable.DependencyInjection.Persistence
                                     .LifestyleSingleton());
 
             @this.Register(Component.For<EventCache>()
-                                    .ImplementedBy<EventCache>()
+                                    .UsingFactoryMethod(() => new EventCache())
                                     .LifestyleSingleton());
 
             if (@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
@@ -109,12 +110,13 @@ namespace Composable.DependencyInjection.Persistence
 
 
                 @this.Register(Component.For<IEventStore>()
-                                        .ImplementedBy<EventStore>()
+                                        .UsingFactoryMethod((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, ISingleContextUseGuard singleContextUseGuard, EventCache eventCache) => new EventStore(persistenceLayer, serializer, singleContextUseGuard, eventCache, migrations))
                                         .LifestyleScoped());
             }
 
             @this.Register(Component.For<IEventStoreUpdater, IEventStoreReader>()
-                                    .ImplementedBy<EventStoreUpdater>()
+                                    .UsingFactoryMethod((IEventstoreEventPublisher eventPublisher, IEventStore eventStore, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
+                                                            new EventStoreUpdater(eventPublisher, eventStore, usageGuard, timeSource, aggregateTypeValidator))
                                     .LifestyleScoped());
 
             return new SqlServerEventStoreRegistrationBuilder();
@@ -146,7 +148,7 @@ namespace Composable.DependencyInjection.Persistence
 
 
             @this.Register(Component.For<EventCache<TSessionInterface>>()
-                                    .ImplementedBy<EventCache<TSessionInterface>>()
+                                    .UsingFactoryMethod(() => new EventCache<TSessionInterface>())
                                     .LifestyleSingleton());
 
             if (@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
@@ -192,7 +194,8 @@ namespace Composable.DependencyInjection.Persistence
             }
 
             @this.Register(Component.For<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()
-                                    .ImplementedBy<EventStoreUpdater<TSessionInterface, TReaderInterface>>()
+                                    .UsingFactoryMethod((IEventstoreEventPublisher eventPublisher, IEventStore<TSessionInterface, TReaderInterface> eventStore, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) => 
+                                                            new EventStoreUpdater<TSessionInterface, TReaderInterface>(eventPublisher, eventStore, usageGuard, timeSource, aggregateTypeValidator))
                                     .LifestyleScoped());
 
             @this.Register(Component.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())

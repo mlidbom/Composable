@@ -49,7 +49,7 @@ namespace Composable.DependencyInjection.Persistence
             if(@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
                 @this.Register(Component.For<IDocumentDb>()
-                                         .ImplementedBy<InMemoryDocumentDb>()
+                                         .UsingFactoryMethod((IDocumentDbSerializer serializer) => new InMemoryDocumentDb(serializer))
                                          .LifestyleSingleton()
                                          .DelegateToParentServiceLocatorWhenCloning());
 
@@ -62,7 +62,7 @@ namespace Composable.DependencyInjection.Persistence
 
 
             @this.Register(Component.For<IDocumentDbSession, IDocumentDbUpdater, IDocumentDbReader, IDocumentDbBulkReader>()
-                                    .ImplementedBy<DocumentDbSession>()
+                                    .UsingFactoryMethod((IDocumentDb documentDb, ISingleContextUseGuard usageGuard) => new DocumentDbSession(documentDb, usageGuard))
                                     .LifestyleScoped());
 
             return new DocumentDbRegistrationBuilder();
@@ -82,7 +82,7 @@ namespace Composable.DependencyInjection.Persistence
             if(@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
                 @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .ImplementedBy<InMemoryDocumentDb<TUpdater, TReader, TBulkReader>>()
+                                         .UsingFactoryMethod((IDocumentDbSerializer serializer) => new InMemoryDocumentDb<TUpdater, TReader, TBulkReader>(serializer))
                                          .LifestyleSingleton()
                                          .DelegateToParentServiceLocatorWhenCloning());
 
@@ -95,7 +95,7 @@ namespace Composable.DependencyInjection.Persistence
 
 
             @this.Register(Component.For<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()
-                                     .ImplementedBy<DocumentDbSession<TUpdater, TReader, TBulkReader>>()
+                                     .UsingFactoryMethod((IDocumentDb<TUpdater, TReader, TBulkReader> documentDb, ISingleContextUseGuard usageGuard) => new DocumentDbSession<TUpdater, TReader, TBulkReader>(documentDb, usageGuard))
                                      .LifestyleScoped());
             @this.Register(Component.For<TUpdater, TReader, TBulkReader>()
                                     .UsingFactoryMethod(EventStoreSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType,

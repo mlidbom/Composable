@@ -56,10 +56,6 @@ namespace Composable.DependencyInjection.Windsor
             {
                 registration.Instance(componentRegistration.InstantiationSpec.Instance);
             }
-            else if (componentRegistration.InstantiationSpec.ImplementationType != null)
-            {
-                registration.ImplementedBy(componentRegistration.InstantiationSpec.ImplementationType);
-            }
             else if (componentRegistration.InstantiationSpec.FactoryMethod != null)
             {
                 registration.UsingFactoryMethod(kernel => componentRegistration.InstantiationSpec.FactoryMethod(new WindsorServiceLocatorKernel(kernel)));

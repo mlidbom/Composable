@@ -133,8 +133,6 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            object CreateInstanceForComponent<TService>(ComponentRegistration registration) => registration.InstantiationSpec.FactoryMethod.Invoke(this);
-
             internal void Verify()
             {
                 //todo: Implement some validation here?

@@ -194,7 +194,7 @@ namespace Composable.DependencyInjection.Persistence
             }
 
             @this.Register(Component.For<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()
-                                    .UsingFactoryMethod((IEventstoreEventPublisher eventPublisher, IEventStore<TSessionInterface, TReaderInterface> eventStore, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) => 
+                                    .UsingFactoryMethod((IEventstoreEventPublisher eventPublisher, IEventStore<TSessionInterface, TReaderInterface> eventStore, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
                                                             new EventStoreUpdater<TSessionInterface, TReaderInterface>(eventPublisher, eventStore, usageGuard, timeSource, aggregateTypeValidator))
                                     .LifestyleScoped());
 

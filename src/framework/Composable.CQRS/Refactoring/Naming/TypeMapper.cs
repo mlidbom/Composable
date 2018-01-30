@@ -13,6 +13,7 @@ namespace Composable.Refactoring.Naming
 {
     class TypeMapper : ITypeMapper, ITypeMappingRegistar
     {
+        // ReSharper disable once NotAccessedField.Local todo: implement
         readonly LazySqlServerConnection _endpointSqlConnection;
         readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
         public TypeMapper(LazySqlServerConnection endpointSqlConnection) => _endpointSqlConnection = endpointSqlConnection;

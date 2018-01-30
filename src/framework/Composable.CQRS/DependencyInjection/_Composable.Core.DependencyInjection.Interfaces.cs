@@ -130,12 +130,6 @@ namespace Composable.DependencyInjection
         {
             internal ComponentRegistrationBuilderInitial(IEnumerable<Type> serviceTypes) : base(serviceTypes.Concat(new List<Type>() {typeof(TService)})) {}
 
-            public ComponentRegistrationBuilderWithInstantiationSpec<TService> ImplementedBy<TImplementation>()
-            {
-                AssertImplementsAllServices(typeof(TImplementation));
-                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.ImplementedBy(typeof(TImplementation)));
-            }
-
             internal ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod<TImplementation>(Func<IServiceLocatorKernel, TImplementation> factoryMethod)
                 where TImplementation : TService
             {
@@ -189,18 +183,13 @@ namespace Composable.DependencyInjection
     class InstantiationSpec
     {
         internal object Instance { get; }
-        internal Type ImplementationType { get; }
         internal object RunFactoryMethod(IServiceLocatorKernel kern) => FactoryMethod(kern);
         internal Func<IServiceLocatorKernel, object> FactoryMethod { get; }
         internal Type FactoryMethodReturnType { get; }
 
         internal static InstantiationSpec FromInstance(object instance) => new InstantiationSpec(instance);
 
-        internal static InstantiationSpec ImplementedBy(Type implementationType) => new InstantiationSpec(implementationType);
-
         internal static InstantiationSpec FromFactoryMethod(Func<IServiceLocatorKernel, object> factoryMethod, Type factoryMethodReturnType) => new InstantiationSpec(factoryMethod, factoryMethodReturnType);
-
-        InstantiationSpec(Type implementationType) => ImplementationType = implementationType;
 
         InstantiationSpec(Func<IServiceLocatorKernel, object> factoryMethod, Type factoryMethodReturnType)
         {

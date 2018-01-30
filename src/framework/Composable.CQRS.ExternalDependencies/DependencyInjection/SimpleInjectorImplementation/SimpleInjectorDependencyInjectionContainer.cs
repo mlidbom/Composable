@@ -53,15 +53,6 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
                     {
                         _container.RegisterSingleton(serviceType, componentRegistration.InstantiationSpec.Instance);
                     }
-                } else if(componentRegistration.InstantiationSpec.ImplementationType != null)
-                {
-                    var baseRegistration = GetSimpleInjectorLifestyle(componentRegistration.Lifestyle).CreateRegistration(componentRegistration.InstantiationSpec.ImplementationType, _container);
-
-                    foreach (var serviceType in componentRegistration.ServiceTypes)
-                    {
-                        _container.AddRegistration(serviceType, baseRegistration);
-                    }
-
                 } else if(componentRegistration.InstantiationSpec.FactoryMethod != null)
                 {
                     var baseRegistration = GetSimpleInjectorLifestyle(componentRegistration.Lifestyle)

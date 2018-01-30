@@ -123,7 +123,14 @@ namespace Composable.Messaging.Buses.Implementation
                                     _responseQueue.Enqueue(transportMessage.CreateFailureResponse(dispatchResult.Exception));
                                 } else if(dispatchResult.IsCompleted)
                                 {
-                                    _responseQueue.Enqueue(transportMessage.CreateSuccessResponse(dispatchResult.Result));
+                                    try
+                                    {
+                                        _responseQueue.Enqueue(transportMessage.CreateSuccessResponse(dispatchResult.Result));
+                                    }
+                                    catch(Exception exception)
+                                    {
+                                        _responseQueue.Enqueue(transportMessage.CreateFailureResponse(new AggregateException(exception)));
+                                    }
                                 }
                             }
                         });

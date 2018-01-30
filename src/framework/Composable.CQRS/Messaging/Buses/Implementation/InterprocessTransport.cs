@@ -28,6 +28,7 @@ namespace Composable.Messaging.Buses.Implementation
             public IUtcTimeTimeSource TimeSource { get; set; }
             public MessageStorage MessageStorage { get; set; }
             public ITypeMapper TypeMapper { get; set; }
+            public IRemotableMessageSerializer Serializer { get; set; }
             public EndpointId EndpointId;
             public Thread PollerThread;
         }
@@ -39,6 +40,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             _taskRunner = taskRunner;
             @this.EndpointId = endpointId;
+            @this.Serializer = serializer;
             @this.HandlerStorage = new HandlerStorage(typeMapper);
             @this.TypeMapper = typeMapper;
             @this.MessageStorage = new MessageStorage(connectionFactory, typeMapper, serializer);
@@ -48,7 +50,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Connect(IEndpoint endpoint) => _state.WithExclusiveAccess(@this =>
         {
-            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner));
+            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer));
             @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds());
         });
 

@@ -38,8 +38,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(_message == null)
                 {
-                    _message = (BusApi.IMessage)JsonConvert.DeserializeObject(Body, MessageType, JsonSettings.JsonSerializerSettings);
-
+                    _message = _serializer.DeserializeMessage(MessageType, Body);
 
                     Assert.State.Assert(!(_message is BusApi.Remotable.ExactlyOnce.IMessage) || MessageId == (_message as BusApi.Remotable.ExactlyOnce.IMessage).MessageId);
                 }
@@ -90,7 +89,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public Response.Outgoing CreateFailureResponse(AggregateException exception) => Response.Outgoing.Failure(this, exception);
 
-            public Response.Outgoing CreateSuccessResponse(object response) => Response.Outgoing.Success(this, response);
+            public Response.Outgoing CreateSuccessResponse(object response) => Response.Outgoing.Success(this, response, _serializer);
 
             public Response.Outgoing CreatePersistedResponse() => Response.Outgoing.Persisted(this);
         }
@@ -113,10 +112,10 @@ namespace Composable.Messaging.Buses.Implementation
                 socket.SendMultipartMessage(message);
             }
 
-            public static OutGoing Create(BusApi.Remotable.IMessage message, ITypeMapper typeMapper)
+            public static OutGoing Create(BusApi.Remotable.IMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 var messageId = (message as BusApi.Remotable.ExactlyOnce.IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
-                var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
+                var body = serializer.SerializeMessage(message);
                 return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is BusApi.Remotable.ExactlyOnce.IMessage);
             }
 
@@ -151,7 +150,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 public void Send(IOutgoingSocket socket) => socket.SendMultipartMessage(_response);
 
-                public static Outgoing Success(TransportMessage.InComing incoming, object result)
+                public static Outgoing Success(TransportMessage.InComing incoming, object response, IRemotableMessageSerializer serializer)
                 {
                     var responseMessage = new NetMQMessage();
 
@@ -159,10 +158,10 @@ namespace Composable.Messaging.Buses.Implementation
                     responseMessage.Append(incoming.MessageId);
                     responseMessage.Append((int)ResponseType.Success);
 
-                    if(result != null)
+                    if(response != null)
                     {
-                        responseMessage.Append(result.GetType().FullName);
-                        responseMessage.Append(JsonConvert.SerializeObject(result, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+                        responseMessage.Append(response.GetType().FullName);
+                        responseMessage.Append(serializer.SerializeResponse(response));
                     } else
                     {
                         responseMessage.Append(Constants.NullString);
@@ -204,12 +203,13 @@ namespace Composable.Messaging.Buses.Implementation
             internal class Incoming
             {
                 internal readonly string Body;
+                //todo:bug: Not string!
                 readonly string _responseType;
                 object _result;
                 internal ResponseType ResponseType { get; }
                 internal Guid RespondingToMessageId { get; }
 
-                public object DeserializeResult()
+                public object DeserializeResult(IRemotableMessageSerializer serializer)
                 {
                     if(_result == null)
                     {
@@ -217,7 +217,7 @@ namespace Composable.Messaging.Buses.Implementation
                         {
                             return null;
                         }
-                        _result = JsonConvert.DeserializeObject(Body, _responseType.AsType(), JsonSettings.JsonSerializerSettings);
+                        _result = serializer.DeserializeResponse(_responseType.AsType(), Body);
                     }
                     return _result;
                 }

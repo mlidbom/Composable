@@ -25,10 +25,10 @@ namespace Composable.Serialization
             return json;
         }
 
-        public object Deserialize(Type eventType, string json)
+        public object Deserialize(Type type, string json)
         {
             json = _renamingDecorator.RestoreTypeNames(json);
-            return JsonConvert.DeserializeObject(json, eventType, _jsonSettings);
+            return JsonConvert.DeserializeObject(json, type, _jsonSettings);
         }
     }
 
@@ -82,7 +82,10 @@ namespace Composable.Serialization
 
         public RemotableMessageSerializer(TypeMapper typeMapper) => _serializer = new RenamingSupportingJsonSerializer(Serialization.JsonSettings.JsonSerializerSettings, typeMapper);
 
-        public string Serialize(BusApi.Remotable.IMessage message) => _serializer.Serialize(message);
-        public BusApi.Remotable.IMessage Deserialize(Type eventType, string json) => (BusApi.Remotable.IMessage)_serializer.Deserialize(eventType, json);
+        public string SerializeResponse(object response) => _serializer.Serialize(response);
+        public object DeserializeResponse(Type responseType, string json) => _serializer.Deserialize(responseType, json);
+
+        public string SerializeMessage(BusApi.Remotable.IMessage message) => _serializer.Serialize(message);
+        public BusApi.Remotable.IMessage DeserializeMessage(Type messageType, string json) => (BusApi.Remotable.IMessage)_serializer.Deserialize(messageType, json);
     }
 }

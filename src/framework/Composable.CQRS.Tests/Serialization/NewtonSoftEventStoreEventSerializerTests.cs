@@ -135,10 +135,10 @@ namespace Composable.Tests.Serialization
                                 );
         }
 
-        [Test] public void Should_roundtrip_simple_event_within_70_percent_of_default_serializer_performance()
+        [Test] public void Should_roundtrip_simple_event_within_50_percent_of_default_serializer_performance()
         {
-            const int iterations = 10000;
-            const double allowedSlowdown = 1.7;
+            const int iterations = 1000;
+            const double allowedSlowdown = 1.5;
 
             var events = 1.Through(iterations).Select( index =>  new TestEvent(
                                             test1: "Test1",

@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
-using Composable.System.Reflection;
 using Newtonsoft.Json;
 
 namespace Composable.Serialization

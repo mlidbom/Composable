@@ -40,7 +40,7 @@ namespace Composable.DependencyInjection
         {
             readonly ComposableDependencyInjectionContainer _parent;
             internal readonly List<ComponentRegistration> RegisteredComponents = new List<ComponentRegistration>();
-            readonly IDictionary<Type, List<ComponentRegistration>> ServiceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
+            readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
             readonly Dictionary<Guid, object> _singletonOverlay = new Dictionary<Guid, object>();
             readonly AsyncLocal<Dictionary<Guid, object>> _scopedOverlay = new AsyncLocal<Dictionary<Guid, object>>();
@@ -54,14 +54,14 @@ namespace Composable.DependencyInjection
                 {
                     foreach(var registrationServiceType in registration.ServiceTypes)
                     {
-                        ServiceToRegistrationDictionary.GetOrAdd(registrationServiceType, () => new List<ComponentRegistration>()).Add(registration);
+                        _serviceToRegistrationDictionary.GetOrAdd(registrationServiceType, () => new List<ComponentRegistration>()).Add(registration);
                     }
                 }
             }
 
             public TService Resolve<TService>() where TService : class
             {
-                if(!ServiceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
+                if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
                 {
                     throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
                 }
@@ -85,7 +85,7 @@ namespace Composable.DependencyInjection
 
             public TService[] ResolveAll<TService>() where TService : class
             {
-                if(!ServiceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
+                if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
                 {
                     throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
                 }

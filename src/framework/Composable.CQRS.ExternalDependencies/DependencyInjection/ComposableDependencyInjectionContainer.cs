@@ -192,7 +192,7 @@ namespace Composable.DependencyInjection
                 if(!_disposed)
                 {
                     _disposed = true;
-                    _singletonOverlay.Values.OfType<IDisposable>().ForEach(disposable => disposable.Dispose());
+                    _singletonOverlay.Values.ToList().OfType<IDisposable>().ForEach(disposable => disposable.Dispose());
                 }
             }
         }

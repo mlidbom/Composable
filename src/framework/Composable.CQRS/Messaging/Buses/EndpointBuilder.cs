@@ -52,7 +52,6 @@ namespace Composable.Messaging.Buses
         readonly string _name;
         readonly TypeMapper _typeMapper;
         readonly EndpointId _endpointId;
-        LazySqlServerConnection _endpointSqlConnection;
 
         public IDependencyInjectionContainer Container => _container;
         public ITypeMappingRegistar TypeMapper => _typeMapper;
@@ -81,26 +80,20 @@ namespace Composable.Messaging.Buses
 
             Configuration = new EndpointConfiguration(name);
 
-            _endpointSqlConnection = container.RunMode.IsTesting
-                                      ? new LazySqlServerConnection(new Lazy<string>(() => container.CreateServiceLocator().Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString))
-                                      : new SqlServerConnection(ConfigurationManager.ConnectionStrings[Configuration.ConnectionStringName].ConnectionString);
+            var endpointSqlConnection = container.RunMode.IsTesting
+                                                                 ? new LazySqlServerConnection(new Lazy<string>(() => container.CreateServiceLocator().Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString))
+                                                                 : new SqlServerConnection(ConfigurationManager.ConnectionStrings[Configuration.ConnectionStringName].ConnectionString);
 
-            _typeMapper = new TypeMapper(_endpointSqlConnection);
+            _typeMapper = new TypeMapper(endpointSqlConnection);
+
             var registry = new MessageHandlerRegistry(_typeMapper);
             RegisterHandlers = new MessageHandlerRegistrarWithDependencyInjectionSupport(registry, new Lazy<IServiceLocator>(() => _container.CreateServiceLocator()));
 
-            DefaultWiring(globalStateTracker, _container, endpointId, Configuration, _typeMapper, registry, _endpointSqlConnection);
+            DefaultWiring(globalStateTracker, _container, endpointId, Configuration, _typeMapper, registry, endpointSqlConnection);
         }
 
-        internal static void DefaultWiring(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointId endpointId, EndpointConfiguration configuration, TypeMapper typeMapper, MessageHandlerRegistry registry, ISqlConnection sqlServerConnection = null)
+        static void DefaultWiring(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointId endpointId, EndpointConfiguration configuration, TypeMapper typeMapper, MessageHandlerRegistry registry, ISqlConnection sqlServerConnection)
         {
-            if(sqlServerConnection == null)
-            {
-                sqlServerConnection = container.RunMode.IsTesting
-                                              ? new LazySqlServerConnection(new Lazy<string>(() => container.CreateServiceLocator().Resolve<ISqlConnectionProvider>().GetConnectionProvider(configuration.ConnectionStringName).ConnectionString))
-                                              : new SqlServerConnection(ConfigurationManager.ConnectionStrings[configuration.ConnectionStringName].ConnectionString);
-            }
-
             container.Register(
                 Component.For<ITaskRunner>().ImplementedBy<TaskRunner>().LifestyleSingleton(),
                 Component.For<EndpointId>().UsingFactoryMethod(() => endpointId).LifestyleSingleton(),

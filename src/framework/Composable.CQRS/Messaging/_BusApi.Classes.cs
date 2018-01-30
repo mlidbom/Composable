@@ -1,5 +1,7 @@
 ﻿using System;
 using Composable.DDD;
+using Composable.Messaging.Buses;
+using Composable.Refactoring.Naming;
 using Newtonsoft.Json;
 
 // ReSharper disable RedundantNameQualifier
@@ -85,6 +87,12 @@ namespace Composable.Messaging
                     Command(Guid id) => MessageId = id;
                 }
             }
+        }
+
+        internal static void MapTypes(ITypeMappingRegistar typeMapper)
+        {
+            typeMapper
+               .MapTypeAndStandardCollectionTypes<BusApi.Remotable.IEvent>("1E0DB1B4-71A6-4D2E-901F-E238ABA30B63");
         }
     }
 }

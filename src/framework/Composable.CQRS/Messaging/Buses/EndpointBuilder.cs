@@ -66,8 +66,8 @@ namespace Composable.Messaging.Buses
                          .ImplementedBy<AggregateTypeValidator>()
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
-                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, EndpointId id, ITaskRunner taskRunner) =>
-                                                 new InterprocessTransport(globalStateTracker, timeSource, sqlServerConnection, typeMapper, id, taskRunner))
+                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, EndpointId id, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
+                                                 new InterprocessTransport(globalStateTracker, timeSource, sqlServerConnection, typeMapper, id, taskRunner, serializer))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
@@ -88,7 +88,8 @@ namespace Composable.Messaging.Buses
                          .ImplementedBy<RemotableMessageSerializer>()
                          .LifestyleSingleton(),
                 Component.For<IInbox>()
-                         .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), sqlServerConnection, k.Resolve<ITypeMapper>(), k.Resolve<ITaskRunner>()))
+                         .UsingFactoryMethod((IServiceLocator serviceLocator, IGlobalBusStateTracker stateTracker, EndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
+                                                 new Inbox(serviceLocator,stateTracker, registry, endpointConfiguration, sqlServerConnection, typeMapper, taskRunner, serializer))
                          .LifestyleSingleton(),
                 Component.For<CommandScheduler>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))

@@ -7,6 +7,7 @@ using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Refactoring.Naming;
+using Composable.Serialization;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Threading;
@@ -34,13 +35,13 @@ namespace Composable.Messaging.Buses.Implementation
         readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
         ITaskRunner _taskRunner;
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeMapper typeMapper, EndpointId endpointId, ITaskRunner taskRunner) => _state.WithExclusiveAccess(@this =>
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeMapper typeMapper, EndpointId endpointId, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => _state.WithExclusiveAccess(@this =>
         {
             _taskRunner = taskRunner;
             @this.EndpointId = endpointId;
             @this.HandlerStorage = new HandlerStorage(typeMapper);
             @this.TypeMapper = typeMapper;
-            @this.MessageStorage = new MessageStorage(connectionFactory, typeMapper);
+            @this.MessageStorage = new MessageStorage(connectionFactory, typeMapper, serializer);
             @this.TimeSource = timeSource;
             @this.GlobalBusStateTracker = globalBusStateTracker;
         });

@@ -1,8 +1,8 @@
 ﻿using Composable.Contracts;
 using Composable.Refactoring.Naming;
+using Composable.Serialization;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
-using Newtonsoft.Json;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -12,11 +12,13 @@ namespace Composable.Messaging.Buses.Implementation
         {
             readonly ISqlConnection _connectionFactory;
             readonly ITypeMapper _typeMapper;
+            readonly IRemotableMessageSerializer _serializer;
 
-            public MessageStorage(ISqlConnection connectionFactory, ITypeMapper typeMapper)
+            public MessageStorage(ISqlConnection connectionFactory, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 _connectionFactory = connectionFactory;
                 _typeMapper = typeMapper;
+                _serializer = serializer;
             }
 
             public void SaveMessage(BusApi.Remotable.ExactlyOnce.IMessage message, params EndpointId[] receiverEndpointIds) =>
@@ -33,7 +35,7 @@ INSERT {OutboxMessages.TableName}
                             .AddParameter(OutboxMessages.MessageId, message.MessageId)
                             .AddParameter(OutboxMessages.TypeIdGuidValue, _typeMapper.GetId(message.GetType()).GuidValue)
                             //todo: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
-                            .AddNVarcharMaxParameter(OutboxMessages.Body, JsonConvert.SerializeObject(message, Serialization.JsonSettings.JsonSerializerSettings))
+                            .AddNVarcharMaxParameter(OutboxMessages.Body, _serializer.Serialize(message))
                            .AddParameter(MessageDispatching.IsReceived, 0);
 
                         receiverEndpointIds.ForEach(

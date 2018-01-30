@@ -5,6 +5,7 @@ using System.Threading;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Refactoring.Naming;
+using Composable.Serialization;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Threading;
@@ -34,11 +35,13 @@ namespace Composable.Messaging.Buses.Implementation
         Thread _messageReceiverThread;
         Thread _pollerThread;
         CancellationTokenSource _cancellationTokenSource;
+        IRemotableMessageSerializer _serializer;
 
-        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory, ITypeMapper typeMapper, ITaskRunner taskRunner)
+        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory, ITypeMapper typeMapper, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
         {
             _configuration = configuration;
             _typeMapper = typeMapper;
+            _serializer = serializer;
             _address = configuration.Address;
             _storage = new MessageStorage(connectionFactory);
             _handlerExecutionEngine = new HandlerExecutionEngine(globalStateTracker, handlerRegistry, serviceLocator, _storage, taskRunner);
@@ -143,7 +146,7 @@ namespace Composable.Messaging.Buses.Implementation
         void HandleIncomingMessage(object sender, NetMQSocketEventArgs e)
         {
             Assert.Argument.Assert(e.IsReadyToReceive);
-            _receivedMessageBatches.Add(TransportMessage.InComing.ReceiveBatch(_serverSocket, _typeMapper));
+            _receivedMessageBatches.Add(TransportMessage.InComing.ReceiveBatch(_serverSocket, _typeMapper, _serializer));
         }
 
         public void Dispose()

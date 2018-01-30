@@ -24,6 +24,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             internal readonly byte[] Client;
             internal readonly Guid MessageId;
+            readonly IRemotableMessageSerializer _serializer;
             internal readonly string Body;
             internal readonly TypeId MessageTypeId;
             internal readonly Type MessageType;
@@ -45,7 +46,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return _message;
             }
 
-            InComing(string body, TypeId messageTypeId, byte[] client, Guid messageId, ITypeMapper typeMapper)
+            InComing(string body, TypeId messageTypeId, byte[] client, Guid messageId, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 Body = body;
                 MessageTypeId = messageTypeId;
@@ -53,9 +54,10 @@ namespace Composable.Messaging.Buses.Implementation
                 MessageTypeEnum = GetMessageType(MessageType);
                 Client = client;
                 MessageId = messageId;
+                _serializer = serializer;
             }
 
-            public static IReadOnlyList<InComing> ReceiveBatch(RouterSocket socket, ITypeMapper typeMapper)
+            public static IReadOnlyList<InComing> ReceiveBatch(RouterSocket socket, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 var result = new List<TransportMessage.InComing>();
                 NetMQMessage receivedMessage = null;
@@ -67,7 +69,7 @@ namespace Composable.Messaging.Buses.Implementation
                     var messageType = new TypeId(new Guid(receivedMessage[2].ToByteArray()));
                     var messageBody = receivedMessage[3].ConvertToString();
 
-                    result.Add(new InComing(messageBody, messageType, client, messageId, typeMapper));
+                    result.Add(new InComing(messageBody, messageType, client, messageId, typeMapper, serializer));
                 }
                 return result;
             }

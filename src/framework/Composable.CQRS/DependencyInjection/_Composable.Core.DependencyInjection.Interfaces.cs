@@ -213,6 +213,7 @@ namespace Composable.DependencyInjection
 
     public abstract class ComponentRegistration
     {
+        internal Guid Id { get; } = Guid.NewGuid();
         internal IEnumerable<Type> ServiceTypes { get; }
         internal InstantiationSpec InstantiationSpec { get; }
         internal Lifestyle Lifestyle { get; }

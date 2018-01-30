@@ -27,7 +27,7 @@ namespace Composable.System.Threading.ResourceAccess
         public void WithExclusiveAccess(Action<TResource> func) => _guard.Update(() => func(_resource));
     }
 
-    class OptimizedThreadShared<TResource> : IThreadShared<TResource> where TResource : new()
+    class OptimizedThreadShared<TResource> : IThreadShared<TResource>
     {
         readonly TResource _resource;
         readonly object _lock = new object();

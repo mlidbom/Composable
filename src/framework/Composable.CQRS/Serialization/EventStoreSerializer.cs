@@ -66,7 +66,7 @@ namespace Composable.Serialization
 
         public EventStoreSerializer(TypeMapper typeMapper) => _serializer = new RenamingSupportingJsonSerializer(JsonSettings, typeMapper);
 
-        public string Serialize(IAggregateEvent @event) => _serializer.Serialize(@event);
+        public string Serialize(AggregateEvent @event) => _serializer.Serialize(@event);
         public IAggregateEvent Deserialize(Type eventType, string json) => (IAggregateEvent)_serializer.Deserialize(eventType, json);
     }
 

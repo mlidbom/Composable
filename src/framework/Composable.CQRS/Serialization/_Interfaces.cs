@@ -11,7 +11,7 @@ namespace Composable.Serialization
 
     interface IEventStoreSerializer
     {
-        string Serialize(IAggregateEvent @event);
+        string Serialize(AggregateEvent @event);
         IAggregateEvent Deserialize(Type eventType, string json);
     }
 

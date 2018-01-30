@@ -93,10 +93,6 @@ namespace Composable.DependencyInjection
 
             public TService[] ResolveAll<TService>() where TService : class => throw new NotImplementedException();
 
-            public object ResolveScopedInstance(ComponentRegistration registration) => _scopedOverlay.Value.WithExclusiveAccess(overlay => overlay.ResolveInstance(registration));
-
-            public object ResolveSingletonInstance(ComponentRegistration registration) => _singletonOverlay.WithExclusiveAccess(overlay  => overlay.ResolveInstance(registration));
-
             void Verify()
             {
                 //todo: Implement some validation here?

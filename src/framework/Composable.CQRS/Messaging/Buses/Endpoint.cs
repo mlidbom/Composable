@@ -35,13 +35,13 @@ namespace Composable.Messaging.Buses
             BusControl.Start();
         }
 
-        void RunSanityChecks()
+        static void RunSanityChecks()
         {
             AssertAllTypesNeedingMappingsAreMapped();
         }
 
         //todo: figure out how to do this sanely
-        void AssertAllTypesNeedingMappingsAreMapped()
+        static void AssertAllTypesNeedingMappingsAreMapped()
         {
         }
 

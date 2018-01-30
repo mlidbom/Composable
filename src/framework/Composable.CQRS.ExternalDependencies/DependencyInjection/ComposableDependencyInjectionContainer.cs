@@ -33,7 +33,7 @@ namespace Composable.DependencyInjection
 
         TService IServiceLocatorKernel.Resolve<TService>()
         {
-            return _state.WithExclusiveAccess(state =>
+            var instance = _state.WithExclusiveAccess(state =>
             {
                 if(!state.ServiceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
                 {
@@ -56,6 +56,8 @@ namespace Composable.DependencyInjection
                         throw new ArgumentOutOfRangeException();
                 }
             });
+
+            return instance;
         }
 
         void IDisposable.Dispose() => _state.WithExclusiveAccess(state => state.Dispose());

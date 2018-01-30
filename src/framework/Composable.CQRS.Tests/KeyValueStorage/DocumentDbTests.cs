@@ -718,7 +718,7 @@ namespace Composable.Tests.KeyValueStorage
                                                   });
         }
 
-        [Test, Ignore("Bug found while refactoring. Fix soon but ignore for now")]
+        [Test]
         public void GetAllIdsShouldOnlyReturnResultsWithTheGivenTypeWhenCalledWithinTheInsertingTransaction()
         {
             var userid1 = Guid.Parse("00000000-0000-0000-0000-000000000001");

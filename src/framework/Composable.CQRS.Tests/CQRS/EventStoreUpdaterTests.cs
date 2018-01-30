@@ -239,19 +239,6 @@ namespace Composable.Tests.CQRS
             Assert.That(((IEventStored)user).GetChanges(), Is.Empty);
         }
 
-        [Test, Ignore("TODO. Fix this long standing design issue. This test will probably be removed because get changes is refactored out of existence as we force the store updater to create the instances and it will immediately track updates via observables")]
-        public void Resets_aggregate_immediately_upon_save()
-        {
-            var user = new User();
-            user.Register("OriginalEmail", "password", Guid.NewGuid());
-
-            UseInTransactionalScope(session =>
-                                    {
-                                        session.Save(user);
-                                        Assert.That((user as IEventStored).GetChanges(), Is.Empty);
-                                    });
-        }
-
         [Test]
         public void ThrowsWhenAttemptingToSaveExistingAggregate()
         {
@@ -336,12 +323,13 @@ namespace Composable.Tests.CQRS
             Assert.That(published.Last(), Is.InstanceOf<UserChangedEmail>());
         }
 
-        [Test,Ignore("TODO: Fix this long standing issue")] public void Events_should_be_published_immediately()
+        [Test] public void Events_should_be_published_immediately()
         {
             UseInTransactionalScope(session =>
                                     {
                                         var user1 = new User();
                                         user1.Register("email1@email.se", "password", Guid.NewGuid());
+                                        session.Save(user1);
 
                                         _eventSpy.DispatchedMessages.Last()
                                                   .Should()

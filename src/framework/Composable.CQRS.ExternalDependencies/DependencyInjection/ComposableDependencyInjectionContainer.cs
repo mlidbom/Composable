@@ -27,16 +27,19 @@ namespace Composable.DependencyInjection
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => _state.WithExclusiveAccess(state => state.CreateServiceLocator());
 
-        IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new ComponentLease<TComponent>(_state.WithExclusiveAccess(state => state.Resolve<TComponent>()));
+        IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new ComponentLease<TComponent>(((IServiceLocatorKernel)this).Resolve<TComponent>());
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new MultiComponentLease<TComponent>(_state.WithExclusiveAccess(state => state.ResolveAll<TComponent>()));
         IDisposable IServiceLocator.BeginScope() => _state.WithExclusiveAccess(state => state.BeginScope());
 
-        TComponent IServiceLocatorKernel.Resolve<TComponent>() => _state.WithExclusiveAccess(state => state.Resolve<TComponent>());
+        TComponent IServiceLocatorKernel.Resolve<TComponent>()
+        {
+            return _state.WithExclusiveAccess(state => state.Resolve<TComponent>());
+        }
 
         void IDisposable.Dispose() => _state.WithExclusiveAccess(state => state.Dispose());
 
 
-        class NonThreadSafeImplementation : IServiceLocatorKernel
+        class NonThreadSafeImplementation
         {
             readonly ComposableDependencyInjectionContainer _parent;
             internal readonly Dictionary<Guid, ComponentRegistration> RegisteredComponents = new Dictionary<Guid, ComponentRegistration>();
@@ -115,8 +118,7 @@ namespace Composable.DependencyInjection
 
             object ResolveSingletonInstance(ComponentRegistration registration) => _singletonOverlay.WithExclusiveAccess(overlay  => overlay.ResolveInstance(registration));
 
-
-            internal void Verify()
+            void Verify()
             {
                 //todo: Implement some validation here?
             }
@@ -172,7 +174,7 @@ namespace Composable.DependencyInjection
         {
             readonly ComposableDependencyInjectionContainer _parent;
             public ComponentLifestyleOverlay(ComposableDependencyInjectionContainer parent) => _parent = parent;
-            internal readonly Dictionary<Guid, CachedInstance> InstantiatedComponents = new Dictionary<Guid, CachedInstance>();
+            readonly Dictionary<Guid, CachedInstance> InstantiatedComponents = new Dictionary<Guid, CachedInstance>();
             bool _disposed;
             public void Dispose()
             {
@@ -208,14 +210,14 @@ namespace Composable.DependencyInjection
                     return new CachedInstance(creationSpecIsInstance: false, instance: registration.InstantiationSpec.FactoryMethod(_parent));
                 } else if(registration.InstantiationSpec.Instance is object instance)
                 {
-                    return new CachedInstance(creationSpecIsInstance: true, instance: instance);;
+                    return new CachedInstance(creationSpecIsInstance: true, instance: instance);
                 }else
                 {
                     throw new Exception("Failed to create instance");
                 }
             }
 
-            internal class CachedInstance
+            class CachedInstance
             {
                 public CachedInstance(bool creationSpecIsInstance, object instance)
                 {

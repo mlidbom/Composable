@@ -10,7 +10,7 @@ using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.DependencyInjection
 {
-    public class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
+    class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
         internal ComposableDependencyInjectionContainer(IRunMode runMode)
         {

@@ -88,29 +88,7 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            public TService[] ResolveAll<TService>() where TService : class
-            {
-                if(!ServiceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
-                {
-                    throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
-                }
-
-                var lifestyle = registrations.GroupBy(registration => registration.Lifestyle).Single().Key;
-
-                switch(lifestyle)
-                {
-                    case Lifestyle.Singleton:
-                        return (TService[])ResolveSingletonInstances(registrations);
-                    case Lifestyle.Scoped:
-                        return (TService[])ResolveScopedInstances(registrations);
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-
-            object[] ResolveScopedInstances(List<ComponentRegistration> registration) => registration.Select(ResolveScopedInstance).ToArray();
-
-            object[] ResolveSingletonInstances(List<ComponentRegistration> registration)=> registration.Select(ResolveSingletonInstance).ToArray();
+            public TService[] ResolveAll<TService>() where TService : class => throw new NotImplementedException();
 
             public object ResolveScopedInstance(ComponentRegistration registration) => _scopedOverlay.Value.WithExclusiveAccess(overlay => overlay.ResolveInstance(registration));
 

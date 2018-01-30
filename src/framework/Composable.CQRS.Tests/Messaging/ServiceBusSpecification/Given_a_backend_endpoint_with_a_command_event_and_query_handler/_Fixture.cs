@@ -62,7 +62,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                            .Map<MyAggregateEvent.Implementation.Created>("0ea2f548-0d24-4bb0-a59a-820bc35f3935")
                            .Map<MyAggregateEvent.Implementation.Root>("5a792961-3fbc-4d50-b06e-77fc35cb6edf")
                            .Map<MyAggregateEvent.Implementation.Updated>("bead75b3-9ecf-4f6b-b8c6-973a02168256")
-                           .Map<MyAggregateEvent.Updated>("2a8b19f0-20df-480d-b120-71ed5151b174");
+                           .Map<MyAggregateEvent.Updated>("2a8b19f0-20df-480d-b120-71ed5151b174")
+                           .Map<MyCommandResult>("4b2f17d2-2997-4532-9296-689495ed6958")
+                           .Map<MyQueryResult>("9f3c69f0-0886-483c-a726-b79fb1c56120");
                 });
 
             Host.RegisterAndStartEndpoint("Remote",

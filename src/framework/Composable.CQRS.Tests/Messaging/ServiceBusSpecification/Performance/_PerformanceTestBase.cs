@@ -35,7 +35,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
                            .Map<MyCommandWithResult>("24248d03-630b-4909-a6ea-e7fdaf82baa2")
                            .Map<MyEvent>("2fdde21f-c6d4-46a2-95e5-3429b820dfc3")
                            .Map<MyRemoteQuery>("b9d62f22-514b-4e3c-9ac1-66940a7a8144")
-                           .Map<MyLocalQuery>("5640cfb1-0dbc-4e2b-9915-b5b91a289e86");
+                           .Map<MyLocalQuery>("5640cfb1-0dbc-4e2b-9915-b5b91a289e86")
+                           .Map<MyCommandResult>("f53db8b6-4344-4719-9fa9-b43714706434")
+                           .Map<MyQueryResult>("07e144ab-af3c-4c2c-9d83-492deffd24aa");
                 });
         }
 

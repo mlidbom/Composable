@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
-using Composable.System.Reflection;
 using NetMQ;
 using NetMQ.Sockets;
-using Newtonsoft.Json;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -33,7 +31,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal bool IsOfType(Type type) => type.IsAssignableFrom(MessageType);
 
             BusApi.IMessage _message;
-            ITypeMapper _typeMapper;
+            readonly ITypeMapper _typeMapper;
 
             public BusApi.IMessage DeserializeMessageAndCacheForNextCall()
             {
@@ -162,7 +160,8 @@ namespace Composable.Messaging.Buses.Implementation
 
                     if(response != null)
                     {
-                        responseMessage.Append(typeMapper.GetId(response.GetType()).GuidValue);
+                        var guidValue = typeMapper.GetId(response.GetType()).GuidValue;
+                        responseMessage.Append(guidValue);
                         responseMessage.Append(serializer.SerializeResponse(response));
                     } else
                     {
@@ -244,9 +243,16 @@ namespace Composable.Messaging.Buses.Implementation
                     switch(type)
                     {
                         case ResponseType.Success:
-                            var responseType = new TypeId(new Guid(message[2].ToByteArray()));
+                        {
                             var responseBody = message[3].ConvertToString();
+                            TypeId responseType = null;
+                            if(responseBody != Constants.NullString)
+                            {
+                                responseType = new TypeId(new Guid(message[2].ToByteArray()));
+                            }
+
                             return new Incoming(type: type, respondingToMessageId: messageId, body: responseBody, responseTypeId: responseType, typeMapper: typeMapper);
+                        }
                         case ResponseType.Failure:
                             return new Incoming(type: type, respondingToMessageId: messageId, body: message[2].ConvertToString(), responseTypeId: null, typeMapper: typeMapper);
                         case ResponseType.Received:

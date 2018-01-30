@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses
 {
@@ -28,9 +30,20 @@ namespace Composable.Messaging.Buses
 
             _running = true;
 
+            RunSanityChecks();
+
             BusControl.Start();
         }
 
+        void RunSanityChecks()
+        {
+            AssertAllTypesNeedingMappingsAreMapped();
+        }
+
+        //todo: figure out how to do this sanely
+        void AssertAllTypesNeedingMappingsAreMapped()
+        {
+        }
 
         public void Stop()
         {

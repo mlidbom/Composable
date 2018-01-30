@@ -15,8 +15,8 @@ namespace Composable.Messaging.Buses
         readonly ITypeMapper _typeMapper;
         readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
         readonly Dictionary<Type, List<Action<BusApi.IEvent>>> _eventHandlers = new Dictionary<Type, List<Action<BusApi.IEvent>>>();
-        readonly Dictionary<Type, Func<object, object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
-        readonly Dictionary<Type, Func<object, object>> _commandHandlersReturningResults = new Dictionary<Type, Func<object, object>>();
+        readonly Dictionary<Type, HandlerWithResultRegistration> _queryHandlers = new Dictionary<Type, HandlerWithResultRegistration>();
+        readonly Dictionary<Type, HandlerWithResultRegistration> _commandHandlersReturningResults = new Dictionary<Type, HandlerWithResultRegistration>();
         readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
 
         readonly object _lock = new object();
@@ -58,16 +58,7 @@ namespace Composable.Messaging.Buses
             lock (_lock)
             {
                 Assert.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(BusApi.IEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(BusApi.IQuery)));
-                _commandHandlersReturningResults.Add(typeof(TCommand), command =>
-                {
-                    var result = handler((TCommand)command);
-                    // ReSharper disable once CompareNonConstrainedGenericWithNull (null is never OK, but defaults might possibly be fine for structs.)
-                    if(result == null)
-                    {
-                        throw new Exception("You cannot return null from a command handler");
-                    }
-                    return result;
-                });
+                _commandHandlersReturningResults.Add(typeof(TCommand), new CommandHandlerWithResultRegistration<TCommand, TResult>(handler));
                 return this;
             }
         }
@@ -78,9 +69,26 @@ namespace Composable.Messaging.Buses
             lock(_lock)
             {
                 Assert.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(BusApi.IEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(BusApi.ICommand)));
-                _queryHandlers.Add(typeof(TQuery), query => handler((TQuery)query));
+                _queryHandlers.Add(typeof(TQuery), new QueryHandlerRegistration<TQuery, TResult>(handler));
                 return this;
             }
+        }
+
+        public IReadOnlyList<Type> GetTypesNeedingMappings()
+        {
+            var handledTypes = _commandHandlers.Keys
+                                               .Concat(_commandHandlersReturningResults.Keys)
+                                               .Concat(_queryHandlers.Keys)
+                                               .Concat(_eventHandlerRegistrations.Select(reg => reg.Type))
+                                               .Where(messageType => messageType.Implements<BusApi.Remotable.IMessage>())
+                                               .ToSet();
+
+            var remoteResultTypes = _commandHandlersReturningResults.Concat(_queryHandlers)
+                                                                    .Where(handler => handler.Key.Implements<BusApi.Remotable.IMessage>())
+                                                                    .Select(handler => handler.Value.ReturnValueType)
+                                                                    .ToList();
+
+            return handledTypes.Concat(remoteResultTypes).ToList();
         }
 
         Action<object> IMessageHandlerRegistry.GetCommandHandler(BusApi.ICommand message)
@@ -112,10 +120,10 @@ namespace Composable.Messaging.Buses
                 };
             }
 
-            return _commandHandlersReturningResults[commandType];
+            return _commandHandlersReturningResults[commandType].HandlerMethod;
         }
 
-        public Func<BusApi.IQuery, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType];
+        public Func<BusApi.IQuery, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType].HandlerMethod;
 
         public IReadOnlyList<Action<BusApi.IEvent>> GetEventHandlers(Type eventType)
         {
@@ -128,7 +136,7 @@ namespace Composable.Messaging.Buses
             {
                 lock(_lock)
                 {
-                    var typeUnsafeQuery = _queryHandlers[query.GetType()];
+                    var typeUnsafeQuery = _queryHandlers[query.GetType()].HandlerMethod;
                     return actualQuery => (TResult)typeUnsafeQuery(actualQuery);
                 }
             }
@@ -144,7 +152,7 @@ namespace Composable.Messaging.Buses
             {
                 lock (_lock)
                 {
-                    var typeUnsafeHandler = _commandHandlersReturningResults[command.GetType()];
+                    var typeUnsafeHandler = _commandHandlersReturningResults[command.GetType()].HandlerMethod;
                     return actualCommand => (TResult)typeUnsafeHandler(command);
                 }
             }
@@ -176,13 +184,21 @@ namespace Composable.Messaging.Buses
                                                .Where(messageType => messageType.Implements<BusApi.Remotable.IMessage>())
                                                .ToSet();
 
-            _typeMapper.AssertMappingsExistFor(handledTypes);
+
+            var remoteResultTypes = _commandHandlersReturningResults
+                                   .Where(handler => handler.Key.Implements<BusApi.Remotable.IMessage>())
+                                   .Select(handler => handler.Value.ReturnValueType)
+                                   .ToList();
+
+            var typesNeedingMappings = handledTypes.Concat(remoteResultTypes);
+
+            _typeMapper.AssertMappingsExistFor(typesNeedingMappings);
 
             return handledTypes.Select(_typeMapper.GetId)
                             .ToSet();
         }
 
-        internal class EventHandlerRegistration
+        class EventHandlerRegistration
         {
             public Type Type { get; }
             public Action<IEventHandlerRegistrar<BusApi.IEvent>> RegisterHandlerWithRegistrar { get; }
@@ -191,6 +207,50 @@ namespace Composable.Messaging.Buses
                 Type = type;
                 RegisterHandlerWithRegistrar = registerHandlerWithRegistrar;
             }
+        }
+
+        abstract class HandlerWithResultRegistration
+        {
+            protected HandlerWithResultRegistration(Type returnValueType, Func<object, object> handlerMethod)
+            {
+                ReturnValueType = returnValueType;
+                HandlerMethod = handlerMethod;
+            }
+
+            internal Type ReturnValueType { get; }
+            internal Func<object, object> HandlerMethod{get;}
+        }
+
+        class CommandHandlerWithResultRegistration<TCommand, TResult> : HandlerWithResultRegistration
+        {
+            public CommandHandlerWithResultRegistration(Func<TCommand, TResult> handlerMethod) : base(typeof(TResult),
+                                                                                                                            command =>
+                                                                                                                            {
+                                                                                                                                var result = handlerMethod((TCommand)command);
+                                                                                                                                // ReSharper disable once CompareNonConstrainedGenericWithNull (null is never OK, but defaults might possibly be fine for structs.)
+                                                                                                                                if(result == null)
+                                                                                                                                {
+                                                                                                                                    throw new Exception("You cannot return null from a command handler");
+                                                                                                                                }
+
+                                                                                                                                return result;
+                                                                                                                            }) {}
+        }
+
+        class QueryHandlerRegistration<TQuery, TResult> : HandlerWithResultRegistration
+        {
+            public QueryHandlerRegistration(Func<TQuery, TResult> handlerMethod) : base(typeof(TResult),
+                                                                                                      command =>
+                                                                                                      {
+                                                                                                          var result = handlerMethod((TQuery)command);
+                                                                                                          // ReSharper disable once CompareNonConstrainedGenericWithNull (null is never OK, but defaults might possibly be fine for structs.)
+                                                                                                          if(result == null)
+                                                                                                          {
+                                                                                                              throw new Exception("You cannot return null from a query handler");
+                                                                                                          }
+
+                                                                                                          return result;
+                                                                                                      }) {}
         }
     }
 }

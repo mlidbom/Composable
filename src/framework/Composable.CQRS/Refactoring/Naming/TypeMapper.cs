@@ -66,7 +66,13 @@ namespace Composable.Refactoring.Naming
             if(state.TypeToTypeIdMap.TryGetValue(type, out var existingTypeId))
             {
                 if(existingTypeId == typeId) return this;
-                throw new Exception($"Attempted to map Type:{type.FullName} to: {typeId}, but it is already mapped to: {existingTypeId}");
+                throw new Exception($"Attempted to map Type:{type.FullName} to: {typeId}, but it is already mapped to: TypeId: {existingTypeId}");
+            }
+
+            if(state.TypeIdToTypeMap.TryGetValue(typeId, out var existingType))
+            {
+                if(existingType == type) return this;
+                throw new Exception($"Attempted to map TypeId:{typeId.GuidValue} to: {type.FullName}, but it is already mapped to Type: {existingType.FullName}");
             }
 
             AssertTypeValidForMapping(type);

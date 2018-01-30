@@ -1,5 +1,6 @@
 using System;
 using System.Text.RegularExpressions;
+using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 using Newtonsoft.Json;
@@ -75,8 +76,13 @@ namespace Composable.Serialization
         public DocumentDbSerializer(TypeMapper typeMapper) : base(JsonSettings.SqlEventStoreSerializerSettings, typeMapper) {}
     }
 
-    class BusMessageSerializer : RenamingSupportingJsonSerializer, IBusMessageSerializer
+    class RemotableMessageSerializer : IRemotableMessageSerializer
     {
-        public BusMessageSerializer(TypeMapper typeMapper) : base(JsonSettings.SqlEventStoreSerializerSettings, typeMapper) {}
+        readonly RenamingSupportingJsonSerializer _serializer;
+
+        public RemotableMessageSerializer(TypeMapper typeMapper) => _serializer = new RenamingSupportingJsonSerializer(Serialization.JsonSettings.JsonSerializerSettings, typeMapper);
+
+        public string Serialize(BusApi.Remotable.IMessage message) => _serializer.Serialize(message);
+        public BusApi.Remotable.IMessage Deserialize(Type eventType, string json) => (BusApi.Remotable.IMessage)_serializer.Deserialize(eventType, json);
     }
 }

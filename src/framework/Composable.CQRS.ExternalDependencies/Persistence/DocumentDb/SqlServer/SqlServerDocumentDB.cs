@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
+using Composable.Serialization;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Data.SqlClient;
@@ -19,8 +20,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
     {
         readonly ISqlConnection _connectionManager;
         readonly IUtcTimeTimeSource _timeSource;
-
-        static readonly JsonSerializerSettings JsonSettings = Composable.Serialization.JsonSettings.JsonSerializerSettings;
+        readonly IDocumentDbSerializer _serializer;
 
         const int UniqueConstraintViolationErrorNumber = 2627;
 
@@ -29,11 +29,12 @@ namespace Composable.Persistence.DocumentDb.SqlServer
         ConcurrentDictionary<Type, int> _knownTypes = null;
         SchemaManager _schemaManager;
 
-        internal SqlServerDocumentDb(ISqlConnection connection, IUtcTimeTimeSource timeSource)
+        internal SqlServerDocumentDb(ISqlConnection connection, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
         {
             _schemaManager = new SqlServerDocumentDb.SchemaManager(connection);
             _connectionManager = connection;
             _timeSource = timeSource;
+            _serializer = serializer;
         }
 
         Type GetTypeFromId(int id) { return _knownTypes.Single(pair => pair.Value == id).Key; }
@@ -73,11 +74,11 @@ WHERE Id=@Id AND ValueTypeId
                         }
 
                         var stringValue = reader.GetString(0);
-                        found = JsonConvert.DeserializeObject(stringValue, GetTypeFromId(reader.GetInt32(1)), JsonSettings);
+                        found = _serializer.Deserialize(GetTypeFromId(reader.GetInt32(1)), stringValue);
 
                         //Things such as TimeZone etc can cause roundtripping serialization to result in different values from the original so don't cache the read string. Cache the result of serializing it again.
                         //Todo: Try to find a way to remove the need to do this so that we can get rid of the overhead of an extra serialization.
-                        persistentValues.GetOrAddDefault(found.GetType())[idString] = JsonConvert.SerializeObject(found, Formatting.None, JsonSettings);
+                        persistentValues.GetOrAddDefault(found.GetType())[idString] = _serializer.Serialize(found);
                     }
                 }
             }
@@ -106,7 +107,7 @@ WHERE Id=@Id AND ValueTypeId
                     command.Parameters.Add(new SqlParameter("Created", SqlDbType.DateTime2) {Value = now});
                     command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) {Value = now});
 
-                    var stringValue = JsonConvert.SerializeObject(value, Formatting.None, JsonSettings);
+                    var stringValue = _serializer.Serialize(value);
                     command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
 
                     persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
@@ -189,7 +190,7 @@ WHERE Id=@Id AND ValueTypeId
                     using(var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
-                        var stringValue = JsonConvert.SerializeObject(entry.Value, Formatting.None, JsonSettings);
+                        var stringValue = _serializer.Serialize(entry.Value);
 
                         var idString = GetIdString(entry.Key);
                         var needsUpdate = !persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(idString, out var oldValue) || stringValue != oldValue;
@@ -234,7 +235,7 @@ WHERE Id=@Id AND ValueTypeId
                     {
                         while(reader.Read())
                         {
-                            yield return (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), JsonSettings);
+                            yield return (T)_serializer.Deserialize(GetTypeFromId(reader.GetInt32(2)), reader.GetString(1));
                         }
                     }
                 }
@@ -263,7 +264,7 @@ WHERE Id=@Id AND ValueTypeId
                     {
                         while(reader.Read())
                         {
-                            yield return (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), JsonSettings);
+                            yield return (T)_serializer.Deserialize(GetTypeFromId(reader.GetInt32(2)), reader.GetString(1));
                         }
                     }
                 }

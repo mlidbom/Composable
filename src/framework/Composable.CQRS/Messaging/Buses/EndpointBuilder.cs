@@ -81,6 +81,12 @@ namespace Composable.Messaging.Buses
                 Component.For<IEventStoreSerializer>()
                          .ImplementedBy<EventStoreSerializer>()
                          .LifestyleSingleton(),
+                Component.For<IDocumentDbSerializer>()
+                         .ImplementedBy<DocumentDbSerializer>()
+                         .LifestyleSingleton(),
+                Component.For<IRemotableMessageSerializer>()
+                         .ImplementedBy<RemotableMessageSerializer>()
+                         .LifestyleSingleton(),
                 Component.For<IInbox>()
                          .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), sqlServerConnection, k.Resolve<ITypeMapper>(), k.Resolve<ITaskRunner>()))
                          .LifestyleSingleton(),

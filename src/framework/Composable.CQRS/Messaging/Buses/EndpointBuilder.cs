@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
-using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.Refactoring.Naming;
+using Composable.Serialization;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Threading;
@@ -14,6 +15,35 @@ using Composable.SystemExtensions.Threading;
 
 namespace Composable.Messaging.Buses
 {
+    static class EndpointBuilderTypeMapperHelper
+    {
+        static string WithPostFix(this string guidTemplate, char postfix) => guidTemplate.Substring(0, guidTemplate.Length - 1) + postfix;
+
+        static class Postfix
+        {
+            internal const char TypeItself = '1';
+            internal const char Array = '2';
+            internal const char List = '3';
+            internal const char StringDictionary = '4';
+        }
+
+        public static ITypeMappingRegistar MapTypeAndStandardCollectionTypes<TType>(this ITypeMappingRegistar @this, string guidTemplate)
+        {
+            @this.Map<TType>(guidTemplate.WithPostFix(Postfix.TypeItself));
+
+            @this.MapStandardCollectionTypes<TType>(guidTemplate);
+            return @this;
+        }
+
+        public static ITypeMappingRegistar MapStandardCollectionTypes<TType>(this ITypeMappingRegistar @this, string guidTemplate)
+        {
+            @this.Map<TType[]>(guidTemplate.WithPostFix(Postfix.Array));
+            @this.Map<List<TType>>(guidTemplate.WithPostFix(Postfix.List));
+            @this.Map<Dictionary<string,TType>>(guidTemplate.WithPostFix(Postfix.StringDictionary));
+            return @this;
+        }
+    }
+
     class EndpointBuilder : IEndpointBuilder
     {
         static readonly ISqlConnection MasterDbConnection = new AppConfigSqlConnectionProvider().GetConnectionProvider(parameterName: "MasterDB");
@@ -29,7 +59,18 @@ namespace Composable.Messaging.Buses
 
         public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers { get; }
 
-        public IEndpoint Build() => new Endpoint(_container.CreateServiceLocator(), _endpointId, _name);
+        public IEndpoint Build()
+        {
+            SetupInternalTypeMap();
+            return new Endpoint(_container.CreateServiceLocator(), _endpointId, _name);
+        }
+
+
+        void SetupInternalTypeMap()
+        {
+            EventStoreApi.MapTypes(TypeMapper);
+            BusApi.MapTypes(TypeMapper);
+        }
 
         public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, string name, EndpointId endpointId)
         {
@@ -66,8 +107,8 @@ namespace Composable.Messaging.Buses
                          .ImplementedBy<AggregateTypeValidator>()
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
-                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, EndpointId id, ITaskRunner taskRunner) =>
-                                                 new InterprocessTransport(globalStateTracker, timeSource, sqlServerConnection, typeMapper, id, taskRunner))
+                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, EndpointId id, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
+                                                 new InterprocessTransport(globalStateTracker, timeSource, sqlServerConnection, typeMapper, id, taskRunner, serializer))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
@@ -78,11 +119,18 @@ namespace Composable.Messaging.Buses
                 Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>()
                          .UsingFactoryMethod(() => registry)
                          .LifestyleSingleton(),
-                Component.For<IEventStoreEventSerializer>()
-                         .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
-                         .LifestyleScoped(),
+                Component.For<IEventStoreSerializer>()
+                         .ImplementedBy<EventStoreSerializer>()
+                         .LifestyleSingleton(),
+                Component.For<IDocumentDbSerializer>()
+                         .ImplementedBy<DocumentDbSerializer>()
+                         .LifestyleSingleton(),
+                Component.For<IRemotableMessageSerializer>()
+                         .ImplementedBy<RemotableMessageSerializer>()
+                         .LifestyleSingleton(),
                 Component.For<IInbox>()
-                         .UsingFactoryMethod(k => new Inbox(k.Resolve<IServiceLocator>(), k.Resolve<IGlobalBusStateTracker>(), k.Resolve<IMessageHandlerRegistry>(), k.Resolve<EndpointConfiguration>(), sqlServerConnection, k.Resolve<ITypeMapper>(), k.Resolve<ITaskRunner>()))
+                         .UsingFactoryMethod((IServiceLocator serviceLocator, IGlobalBusStateTracker stateTracker, EndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
+                                                 new Inbox(serviceLocator,stateTracker, registry, endpointConfiguration, sqlServerConnection, typeMapper, taskRunner, serializer))
                          .LifestyleSingleton(),
                 Component.For<CommandScheduler>()
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))

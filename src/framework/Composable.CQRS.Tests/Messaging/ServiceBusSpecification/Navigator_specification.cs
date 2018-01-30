@@ -42,7 +42,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                             builder.TypeMapper
                                    .Map<GetUserQuery>("44b8b0b6-fe09-4e3b-a22c-8d09bd51dbb0")
                                    .Map<RegisterUserCommand>("ed799a31-0de9-41ae-ae7a-421438f2d857")
-                                   .Map<UserApiStartPageQuery>("4367ec6e-ddbc-42ea-91ad-9af1e6e4e29a");
+                                   .Map<UserApiStartPageQuery>("4367ec6e-ddbc-42ea-91ad-9af1e6e4e29a")
+                                   .Map<UserRegisteredConfirmationResource>("c60604b2-2917-450b-bcbf-7d023065c005")
+                                   .Map<UserApiStartPage>("10b699df-35ac-430b-acb5-131df3cec5e1")
+                                   .Map<UserResource>("7e2c57ef-e079-4615-a402-1a76c70b5b0b");
                         }));
 
                 _scope = Host.ClientEndpoint.ServiceLocator.BeginScope();

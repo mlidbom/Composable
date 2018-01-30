@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.Contracts;
-using Composable.NewtonSoft;
 using Composable.Refactoring.Naming;
-using Composable.System.Reflection;
+using Composable.Serialization;
 using NetMQ;
 using NetMQ.Sockets;
-using Newtonsoft.Json;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -24,6 +22,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             internal readonly byte[] Client;
             internal readonly Guid MessageId;
+            readonly IRemotableMessageSerializer _serializer;
             internal readonly string Body;
             internal readonly TypeId MessageTypeId;
             internal readonly Type MessageType;
@@ -32,21 +31,23 @@ namespace Composable.Messaging.Buses.Implementation
             internal bool IsOfType(Type type) => type.IsAssignableFrom(MessageType);
 
             BusApi.IMessage _message;
+            readonly ITypeMapper _typeMapper;
 
             public BusApi.IMessage DeserializeMessageAndCacheForNextCall()
             {
                 if(_message == null)
                 {
-                    _message = (BusApi.IMessage)JsonConvert.DeserializeObject(Body, MessageType, JsonSettings.JsonSerializerSettings);
-
+                    _message = _serializer.DeserializeMessage(MessageType, Body);
 
                     Assert.State.Assert(!(_message is BusApi.Remotable.ExactlyOnce.IMessage) || MessageId == (_message as BusApi.Remotable.ExactlyOnce.IMessage).MessageId);
                 }
                 return _message;
             }
 
-            InComing(string body, TypeId messageTypeId, byte[] client, Guid messageId, ITypeMapper typeMapper)
+            InComing(string body, TypeId messageTypeId, byte[] client, Guid messageId, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
+                _serializer = serializer;
+                _typeMapper = typeMapper;
                 Body = body;
                 MessageTypeId = messageTypeId;
                 MessageType = typeMapper.GetType(messageTypeId);
@@ -55,7 +56,7 @@ namespace Composable.Messaging.Buses.Implementation
                 MessageId = messageId;
             }
 
-            public static IReadOnlyList<InComing> ReceiveBatch(RouterSocket socket, ITypeMapper typeMapper)
+            public static IReadOnlyList<InComing> ReceiveBatch(RouterSocket socket, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 var result = new List<TransportMessage.InComing>();
                 NetMQMessage receivedMessage = null;
@@ -67,7 +68,7 @@ namespace Composable.Messaging.Buses.Implementation
                     var messageType = new TypeId(new Guid(receivedMessage[2].ToByteArray()));
                     var messageBody = receivedMessage[3].ConvertToString();
 
-                    result.Add(new InComing(messageBody, messageType, client, messageId, typeMapper));
+                    result.Add(new InComing(messageBody, messageType, client, messageId, typeMapper, serializer));
                 }
                 return result;
             }
@@ -88,7 +89,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public Response.Outgoing CreateFailureResponse(AggregateException exception) => Response.Outgoing.Failure(this, exception);
 
-            public Response.Outgoing CreateSuccessResponse(object response) => Response.Outgoing.Success(this, response);
+            public Response.Outgoing CreateSuccessResponse(object response) => Response.Outgoing.Success(this, response, _serializer, _typeMapper);
 
             public Response.Outgoing CreatePersistedResponse() => Response.Outgoing.Persisted(this);
         }
@@ -111,10 +112,10 @@ namespace Composable.Messaging.Buses.Implementation
                 socket.SendMultipartMessage(message);
             }
 
-            public static OutGoing Create(BusApi.Remotable.IMessage message, ITypeMapper typeMapper)
+            public static OutGoing Create(BusApi.Remotable.IMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 var messageId = (message as BusApi.Remotable.ExactlyOnce.IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
-                var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
+                var body = serializer.SerializeMessage(message);
                 return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is BusApi.Remotable.ExactlyOnce.IMessage);
             }
 
@@ -149,7 +150,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 public void Send(IOutgoingSocket socket) => socket.SendMultipartMessage(_response);
 
-                public static Outgoing Success(TransportMessage.InComing incoming, object result)
+                public static Outgoing Success(TransportMessage.InComing incoming, object response, IRemotableMessageSerializer serializer, ITypeMapper typeMapper)
                 {
                     var responseMessage = new NetMQMessage();
 
@@ -157,10 +158,11 @@ namespace Composable.Messaging.Buses.Implementation
                     responseMessage.Append(incoming.MessageId);
                     responseMessage.Append((int)ResponseType.Success);
 
-                    if(result != null)
+                    if(response != null)
                     {
-                        responseMessage.Append(result.GetType().FullName);
-                        responseMessage.Append(JsonConvert.SerializeObject(result, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+                        var guidValue = typeMapper.GetId(response.GetType()).GuidValue;
+                        responseMessage.Append(guidValue);
+                        responseMessage.Append(serializer.SerializeResponse(response));
                     } else
                     {
                         responseMessage.Append(Constants.NullString);
@@ -202,12 +204,14 @@ namespace Composable.Messaging.Buses.Implementation
             internal class Incoming
             {
                 internal readonly string Body;
-                readonly string _responseType;
+                //todo:bug: Not string!
+                readonly TypeId _responseTypeId;
+                readonly ITypeMapper _typeMapper;
                 object _result;
                 internal ResponseType ResponseType { get; }
                 internal Guid RespondingToMessageId { get; }
 
-                public object DeserializeResult()
+                public object DeserializeResult(IRemotableMessageSerializer serializer)
                 {
                     if(_result == null)
                     {
@@ -215,23 +219,23 @@ namespace Composable.Messaging.Buses.Implementation
                         {
                             return null;
                         }
-                        _result = JsonConvert.DeserializeObject(Body, _responseType.AsType(), JsonSettings.JsonSerializerSettings);
+                        _result = serializer.DeserializeResponse(_typeMapper.GetType(_responseTypeId), Body);
                     }
                     return _result;
                 }
 
-                public static IReadOnlyList<Response.Incoming> ReceiveBatch(IReceivingSocket socket, int batchMaximum)
+                public static IReadOnlyList<Response.Incoming> ReceiveBatch(IReceivingSocket socket, ITypeMapper typeMapper, int batchMaximum)
                 {
                     var result = new List<Response.Incoming>();
                     NetMQMessage received = null;
                     while(socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref received))
                     {
-                        result.Add(FromMultipartMessage(received));
+                        result.Add(FromMultipartMessage(received, typeMapper));
                     }
                     return result;
                 }
 
-                static Incoming FromMultipartMessage(NetMQMessage message)
+                static Incoming FromMultipartMessage(NetMQMessage message, ITypeMapper typeMapper)
                 {
                     var messageId = new Guid(message[0].ToByteArray());
                     var type = (ResponseType)message[1].ConvertToInt32();
@@ -239,22 +243,30 @@ namespace Composable.Messaging.Buses.Implementation
                     switch(type)
                     {
                         case ResponseType.Success:
-                            var responseType = message[2].ConvertToString();
+                        {
                             var responseBody = message[3].ConvertToString();
-                            return new Incoming(type: type, respondingToMessageId: messageId, body: responseBody, responseType: responseType);
+                            TypeId responseType = null;
+                            if(responseBody != Constants.NullString)
+                            {
+                                responseType = new TypeId(new Guid(message[2].ToByteArray()));
+                            }
+
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: responseBody, responseTypeId: responseType, typeMapper: typeMapper);
+                        }
                         case ResponseType.Failure:
-                            return new Incoming(type: type, respondingToMessageId: messageId, body: message[2].ConvertToString(), responseType: null);
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: message[2].ConvertToString(), responseTypeId: null, typeMapper: typeMapper);
                         case ResponseType.Received:
-                            return new Incoming(type: type, respondingToMessageId: messageId, body: null, responseType: null);
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: null, responseTypeId: null, typeMapper: typeMapper);
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
                 }
 
-                Incoming(ResponseType type, Guid respondingToMessageId, string body, string responseType)
+                Incoming(ResponseType type, Guid respondingToMessageId, string body, TypeId responseTypeId, ITypeMapper typeMapper)
                 {
                     Body = body;
-                    _responseType = responseType;
+                    _responseTypeId = responseTypeId;
+                    _typeMapper = typeMapper;
                     ResponseType = type;
                     RespondingToMessageId = respondingToMessageId;
                 }

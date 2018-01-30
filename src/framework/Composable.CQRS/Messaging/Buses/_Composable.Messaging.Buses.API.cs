@@ -55,6 +55,8 @@ namespace Composable.Messaging.Buses
 
     interface IMessageHandlerRegistry
     {
+        IReadOnlyList<Type> GetTypesNeedingMappings();
+
         Action<object> GetCommandHandler(BusApi.ICommand message);
 
         Func<BusApi.ICommand, object> GetCommandHandler(Type commandType);

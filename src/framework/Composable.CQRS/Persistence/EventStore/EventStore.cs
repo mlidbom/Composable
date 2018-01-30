@@ -5,6 +5,7 @@ using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
+using Composable.Serialization;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
@@ -13,7 +14,7 @@ namespace Composable.Persistence.EventStore
 {
     class EventStore : IEventStore
     {
-        readonly IEventStoreEventSerializer _serializer;
+        readonly IEventStoreSerializer _serializer;
         static readonly ILogger Log = Logger.For<EventStore>();
 
         readonly ISingleContextUseGuard _usageGuard;
@@ -24,7 +25,7 @@ namespace Composable.Persistence.EventStore
         readonly IEventStoreSchemaManager _schemaManager;
         readonly IReadOnlyList<IEventMigration> _migrationFactories;
 
-        public EventStore(IEventStorePersistenceLayer persistenceLayer, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard, EventCache cache, IEnumerable<IEventMigration> migrations)
+        public EventStore(IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, ISingleContextUseGuard usageGuard, EventCache cache, IEnumerable<IEventMigration> migrations)
         {
             _serializer = serializer;
             Log.Debug("Constructor called");
@@ -87,7 +88,7 @@ namespace Composable.Persistence.EventStore
 
         AggregateEvent HydrateEvent(EventReadDataRow eventDataRowRow)
         {
-            var @event = (AggregateEvent)_serializer.Deserialize(eventType: _schemaManager.IdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
+            var @event = (AggregateEvent)_serializer.Deserialize(eventType: _schemaManager.IdMapper.GetType(eventDataRowRow.EventType), json: eventDataRowRow.EventJson);
             @event.AggregateId = eventDataRowRow.AggregateId;
             @event.AggregateVersion = eventDataRowRow.AggregateVersion;
             @event.EventId = eventDataRowRow.EventId;

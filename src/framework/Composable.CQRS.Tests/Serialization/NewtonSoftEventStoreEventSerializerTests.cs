@@ -2,7 +2,8 @@
 using System.Linq;
 using Composable.Logging;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.Serialization.NewtonSoft;
+using Composable.Refactoring.Naming;
+using Composable.Serialization;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.Testing.Performance;
@@ -11,12 +12,12 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace Composable.Tests.NewtonSoft
+namespace Composable.Tests.Serialization
 {
     [TestFixture, Performance]
     public class NewtonSoftEventStoreEventSerializerTests
     {
-        readonly IEventStoreEventSerializer _eventSerializer = new NewtonSoftEventStoreEventSerializer();
+        readonly IEventStoreSerializer _eventSerializer = new EventStoreSerializer(new TypeMapper());
 
         class TestEvent : AggregateEvent
         {
@@ -104,7 +105,7 @@ namespace Composable.Tests.NewtonSoft
                 );
         }
 
-        [Test] public void Should_roundtrip_simple_event_1000_times_in_15_milliseconds_with_new_instance_for_each_serialization()
+        [Test] public void Should_roundtrip_simple_event_1000_times_in_15_milliseconds()
         {
             var @event = new TestEvent(
                                             test1: "Test1",
@@ -121,18 +122,20 @@ namespace Composable.Tests.NewtonSoft
             //Warmup
             _eventSerializer.Deserialize(typeof(TestEvent), _eventSerializer.Serialize(@event));
 
+            var serializer = new EventStoreSerializer(new TypeMapper());
+
             TimeAsserter.Execute(
                                  () =>
                                  {
-                                     var eventJson = new NewtonSoftEventStoreEventSerializer().Serialize(@event);
-                                     new NewtonSoftEventStoreEventSerializer().Deserialize(typeof(TestEvent), eventJson);
+                                     var eventJson = serializer.Serialize(@event);
+                                     serializer.Deserialize(typeof(TestEvent), eventJson);
                                  },
                                  iterations:1000,
                                  maxTotal: 15.Milliseconds()
                                 );
         }
 
-        [Test] public void Should_roundtrip_simple_event_within_50_percent_of_default_serializer_performance_given_all_new_serializer_instances()
+        [Test] public void Should_roundtrip_simple_event_within_50_percent_of_default_serializer_performance()
         {
             const int iterations = 1000;
             const double allowedSlowdown = 1.5;
@@ -149,7 +152,7 @@ namespace Composable.Tests.NewtonSoft
                                             insertionOrder: 40,
                                             utcTimeStamp: DateTime.Now + 1.Minutes())).ToList();
 
-            var settings = NewtonSoftEventStoreEventSerializer.JsonSettings;
+            var settings = EventStoreSerializer.JsonSettings;
 
             //Warmup
             _eventSerializer.Deserialize(typeof(TestEvent), _eventSerializer.Serialize(events.First()));
@@ -164,11 +167,13 @@ namespace Composable.Tests.NewtonSoft
 
             var allowedTime = TimeSpan.FromMilliseconds(defaultSerializerPerformanceNumbers.TotalMilliseconds * allowedSlowdown);
 
+            var newtonSoftEventStoreSerializer = new EventStoreSerializer(new TypeMapper());
+
             TimeAsserter.Execute(() =>
                                  {
-                                     var eventJson = events.Select(new NewtonSoftEventStoreEventSerializer().Serialize)
+                                     var eventJson = events.Select(newtonSoftEventStoreSerializer.Serialize)
                                                             .ToList();
-                                     eventJson.ForEach(@this => new NewtonSoftEventStoreEventSerializer().Deserialize(typeof(TestEvent), @this));
+                                     eventJson.ForEach(@this => newtonSoftEventStoreSerializer.Deserialize(typeof(TestEvent), @this));
                                  },
                                  maxTotal: allowedTime);
         }

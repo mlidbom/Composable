@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DDD;
-using Composable.NewtonSoft;
 using Composable.System.Collections.Collections;
-using Newtonsoft.Json;
+using Composable.Serialization;
 
 namespace Composable.Persistence.DocumentDb
 {
     //todo: Refactor to use the same serialization code as the sql document db so that tests actually tests roundtrip serialization
     class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb
     {
+        readonly IDocumentDbSerializer _serializer;
+        public InMemoryDocumentDb(IDocumentDbSerializer serializer) => _serializer = serializer;
         readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
         public bool TryGet<T>(object id, out T value, Dictionary<Type, Dictionary<string, string>> persistentValues) => TryGet(id, out value);
@@ -20,7 +21,7 @@ namespace Composable.Persistence.DocumentDb
             lock(LockObject)
             {
                 var idString = GetIdString(id);
-                var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
+                var stringValue = _serializer.Serialize(value);
                 SetPersistedValue(value, idString, stringValue);
                 base.Add(id, value);
             }
@@ -46,7 +47,7 @@ namespace Composable.Persistence.DocumentDb
             lock(LockObject)
             {
                 var idString = GetIdString(key);
-                var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
+                var stringValue = _serializer.Serialize(value);
                 var needsUpdate = !_persistentValues
                     .GetOrAdd(value.GetType(), () => new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase))
                     .TryGetValue(idString, out var oldValue) || stringValue != oldValue;

@@ -3,7 +3,7 @@ using Composable.Persistence.EventStore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Composable.NewtonSoft
+namespace Composable.Serialization
 {
     class IgnoreAggregateEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql : IncludeMembersWithPrivateSettersResolver
     {

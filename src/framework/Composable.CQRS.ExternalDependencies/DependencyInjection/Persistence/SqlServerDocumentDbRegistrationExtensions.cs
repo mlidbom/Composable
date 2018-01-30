@@ -5,6 +5,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
+using Composable.Serialization;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
@@ -22,13 +23,14 @@ namespace Composable.DependencyInjection.Persistence
 
         [UsedImplicitly] class SqlServerDocumentDb<TUpdater, TReader, TBulkReader> : SqlServerDocumentDb, IDocumentDb<TUpdater, TReader, TBulkReader>
         {
-            public SqlServerDocumentDb(ISqlConnection connection, IUtcTimeTimeSource timeSource) : base(connection, timeSource)
+            public SqlServerDocumentDb(ISqlConnection connection, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) : base(connection, timeSource, serializer)
             {
             }
         }
 
         [UsedImplicitly] class InMemoryDocumentDb<TUpdater, TReader, TBulkReader> : InMemoryDocumentDb, IDocumentDb<TUpdater, TReader, TBulkReader>
         {
+            public InMemoryDocumentDb(IDocumentDbSerializer serializer) : base(serializer) {}
         }
 
         internal interface IDocumentDbSession<TUpdater, TReader, TBulkReader> : IDocumentDbSession { }
@@ -54,7 +56,7 @@ namespace Composable.DependencyInjection.Persistence
             } else
             {
                 @this.Register(Component.For<IDocumentDb>()
-                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource) => new SqlServerDocumentDb(new LazySqlServerConnection(new Lazy<string>(() => connectionProvider.GetConnectionProvider(connectionName).ConnectionString)), timeSource))
+                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb(new LazySqlServerConnection(new Lazy<string>(() => connectionProvider.GetConnectionProvider(connectionName).ConnectionString)), timeSource, serializer))
                                          .LifestyleSingleton());
             }
 
@@ -87,7 +89,7 @@ namespace Composable.DependencyInjection.Persistence
             } else
             {
                 @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource) => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionProvider.GetConnectionProvider(connectionName), timeSource))
+                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionProvider.GetConnectionProvider(connectionName), timeSource, serializer))
                                          .LifestyleSingleton());
             }
 

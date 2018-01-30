@@ -6,6 +6,7 @@ using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
+using Composable.Serialization;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Threading;
@@ -18,16 +19,17 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
+        readonly ITypeMapper _typeMapper;
         readonly ITaskRunner _taskRunner;
-        public void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper))));
+        public void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper, state.Serializer))));
 
-        public void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper))));
+        public void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper, state.Serializer))));
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remotable.AtMostOnce.ICommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper);
+            var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper, state.Serializer);
 
             state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
             DispatchMessage(state, outGoingMessage);
@@ -39,7 +41,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper);
+            var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper, state.Serializer);
 
             state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
             DispatchMessage(state, outGoingMessage);
@@ -51,7 +53,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var outGoingMessage = TransportMessage.OutGoing.Create(query, state.TypeMapper);
+            var outGoingMessage = TransportMessage.OutGoing.Create(query, state.TypeMapper, state.Serializer);
 
             state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
             state.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
@@ -75,8 +77,10 @@ namespace Composable.Messaging.Buses.Implementation
                                 IUtcTimeTimeSource timeSource,
                                 InterprocessTransport.MessageStorage messageStorage,
                                 ITypeMapper typeMapper,
-                                ITaskRunner taskRunner)
+                                ITaskRunner taskRunner,
+                                IRemotableMessageSerializer serializer)
         {
+            _typeMapper = typeMapper;
             _taskRunner = taskRunner;
             _state.WithExclusiveAccess(state =>
             {
@@ -84,6 +88,8 @@ namespace Composable.Messaging.Buses.Implementation
                 state.TimeSource = timeSource;
 
                 state.MessageStorage = messageStorage;
+
+                state.Serializer = serializer;
 
                 state.GlobalBusStateTracker = globalBusStateTracker;
 
@@ -134,6 +140,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal InterprocessTransport.MessageStorage MessageStorage { get; set; }
             public EndpointId RemoteEndpointId { get; set; }
             public ITypeMapper TypeMapper { get; set; }
+            public IRemotableMessageSerializer Serializer { get; set; }
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
@@ -141,7 +148,7 @@ namespace Composable.Messaging.Buses.Implementation
         //Runs on poller thread so NO BLOCKING HERE!
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
         {
-            var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, 100);
+            var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, _typeMapper, 100);
 
             _state.WithExclusiveAccess(state =>
             {
@@ -154,7 +161,7 @@ namespace Composable.Messaging.Buses.Implementation
                             {
                                 try
                                 {
-                                    successResponse.SetResult(response.DeserializeResult());
+                                    successResponse.SetResult(response.DeserializeResult(state.Serializer));
                                 }
                                 catch(Exception exception)
                                 {

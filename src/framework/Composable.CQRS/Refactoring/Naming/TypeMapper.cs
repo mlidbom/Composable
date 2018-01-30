@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
 using Composable.System.Reflection;
@@ -64,19 +65,34 @@ namespace Composable.Refactoring.Naming
         {
             if(state.TypeToTypeIdMap.TryGetValue(type, out var existingTypeId))
             {
-                throw new Exception($"Type:{type.FullName} is already mapped to: {existingTypeId}");
+                if(existingTypeId == typeId) return this;
+                throw new Exception($"Attempted to map Type:{type.FullName} to: {typeId}, but it is already mapped to: TypeId: {existingTypeId}");
             }
 
-            if(state.TypeIdToTypeMap.TryGetValue(typeId, out var existingType ))
+            if(state.TypeIdToTypeMap.TryGetValue(typeId, out var existingType))
             {
-                throw new Exception($"TypeId: {typeId} is already mapped to type: {existingType}" );
+                if(existingType == type) return this;
+                throw new Exception($"Attempted to map TypeId:{typeId.GuidValue} to: {type.FullName}, but it is already mapped to Type: {existingType.FullName}");
             }
+
+            AssertTypeValidForMapping(type);
 
             state.TypeIdToTypeMap.Add(typeId, type);
             state.TypeToTypeIdMap.Add(type, typeId);
 
             return this;
         });
+
+        static void AssertTypeValidForMapping(Type type)
+        {
+            if(type.IsAbstract)
+            {
+                if(!(typeof(BusApi.Remotable.IEvent).IsAssignableFrom(type)))
+                {
+                    throw new Exception($"Type: {type.FullName} is abstract and is not a {typeof(BusApi.Remotable.IEvent).FullName}. For other types you should only map concrete types.");
+                }
+            }
+        }
 
         Exception BuildExceptionDescribingHowToAddMissingMappings(List<Type> typesWithMissingMappings)
         {

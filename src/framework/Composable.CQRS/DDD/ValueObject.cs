@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Linq;
+using Composable.Serialization;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
 
@@ -126,7 +127,7 @@ namespace Composable.DDD
         {
             try
             {
-                return GetType().FullName + ":" + JsonConvert.SerializeObject(this);
+                return GetType().FullName + ":" + JsonConvert.SerializeObject(this, JsonSettings.JsonSerializerSettings);
             }
             catch (Exception)
             {

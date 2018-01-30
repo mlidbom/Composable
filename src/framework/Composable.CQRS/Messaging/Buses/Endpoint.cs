@@ -9,7 +9,7 @@ namespace Composable.Messaging.Buses
 {
     class Endpoint : IEndpoint
     {
-        bool _running;
+        public bool IsRunning { get; private set; }
         public Endpoint(IServiceLocator serviceLocator, EndpointId id, string name)
         {
             Assert.Argument.Assert(serviceLocator != null, id != null);
@@ -26,9 +26,9 @@ namespace Composable.Messaging.Buses
 
         public void Start()
         {
-            Assert.State.Assert(!_running);
+            Assert.State.Assert(!IsRunning);
 
-            _running = true;
+            IsRunning = true;
 
             RunSanityChecks();
 
@@ -47,8 +47,8 @@ namespace Composable.Messaging.Buses
 
         public void Stop()
         {
-            Assert.State.Assert(_running);
-            _running = false;
+            Assert.State.Assert(IsRunning);
+            IsRunning = false;
             BusControl.Stop();
         }
 
@@ -56,7 +56,7 @@ namespace Composable.Messaging.Buses
 
         public void Dispose()
         {
-            if(_running)
+            if(IsRunning)
             {
                 Stop();
             }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using Composable.DependencyInjection;
 using Composable.Logging;
+using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
@@ -17,7 +19,16 @@ namespace Composable.Tests.Serialization
     [TestFixture, Performance]
     public class NewtonSoftEventStoreEventSerializerTests
     {
-        readonly IEventStoreSerializer _eventSerializer = new EventStoreSerializer(new TypeMapper());
+        IEventStoreSerializer _eventSerializer;
+        ITestingEndpointHost _host;
+
+        [SetUp] public void SetupTask()
+        {
+            _host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
+            _eventSerializer = _host.ClientEndpoint.ServiceLocator.Resolve<IEventStoreSerializer>();
+        }
+
+        [TearDown] public void TearDownTask() => _host.Dispose();
 
         class TestEvent : AggregateEvent
         {

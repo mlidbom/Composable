@@ -4,6 +4,7 @@ using System.Linq;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Refactoring.Naming;
+using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
@@ -42,15 +43,9 @@ namespace Composable.Messaging.Buses
 
         public IEndpoint RegisterAndStartEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
         {
-            var builder = new EndpointBuilder(_globalBusStateTracker, _containerFactory(_mode), name, id);
-
-            setup(builder);
-
-            var endpoint = builder.Build();
-
             var existingEndpoints = Endpoints.ToList();
 
-            Endpoints.Add(endpoint);
+            var endpoint = RegisterEndpoint(name, id, setup);
 
             endpoint.Start();
             var endpointTransport = endpoint.ServiceLocator.Resolve<IInterprocessTransport>();
@@ -69,7 +64,19 @@ namespace Composable.Messaging.Buses
             return endpoint;
         }
 
-        public void Stop() { Endpoints.ForEach(endpoint => endpoint.Stop()); }
+        public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
+        {
+            var builder = new EndpointBuilder(_globalBusStateTracker, _containerFactory(_mode), name, id);
+
+            setup(builder);
+
+            var endpoint = builder.Build();
+
+            Endpoints.Add(endpoint);
+            return endpoint;
+        }
+
+        public void Stop() { Endpoints.Where(endpoint => endpoint.IsRunning).ForEach(endpoint => endpoint.Stop()); }
 
         protected virtual void InternalDispose()
         {

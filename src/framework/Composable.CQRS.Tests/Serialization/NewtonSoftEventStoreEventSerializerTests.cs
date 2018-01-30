@@ -17,7 +17,7 @@ namespace Composable.Tests.Serialization
     [TestFixture, Performance]
     public class NewtonSoftEventStoreEventSerializerTests
     {
-        readonly IEventStoreSerializer _eventSerializer = new NewtonSoftEventStoreSerializer(new TypeMapper());
+        readonly IEventStoreSerializer _eventSerializer = new EventStoreSerializer(new TypeMapper());
 
         class TestEvent : AggregateEvent
         {
@@ -122,7 +122,7 @@ namespace Composable.Tests.Serialization
             //Warmup
             _eventSerializer.Deserialize(typeof(TestEvent), _eventSerializer.Serialize(@event));
 
-            var serializer = new NewtonSoftEventStoreSerializer(new TypeMapper());
+            var serializer = new EventStoreSerializer(new TypeMapper());
 
             TimeAsserter.Execute(
                                  () =>
@@ -152,7 +152,7 @@ namespace Composable.Tests.Serialization
                                             insertionOrder: 40,
                                             utcTimeStamp: DateTime.Now + 1.Minutes())).ToList();
 
-            var settings = NewtonSoftEventStoreSerializer.JsonSettings;
+            var settings = EventStoreSerializer.JsonSettings;
 
             //Warmup
             _eventSerializer.Deserialize(typeof(TestEvent), _eventSerializer.Serialize(events.First()));
@@ -167,7 +167,7 @@ namespace Composable.Tests.Serialization
 
             var allowedTime = TimeSpan.FromMilliseconds(defaultSerializerPerformanceNumbers.TotalMilliseconds * allowedSlowdown);
 
-            var newtonSoftEventStoreSerializer = new NewtonSoftEventStoreSerializer(new TypeMapper());
+            var newtonSoftEventStoreSerializer = new EventStoreSerializer(new TypeMapper());
 
             TimeAsserter.Execute(() =>
                                  {

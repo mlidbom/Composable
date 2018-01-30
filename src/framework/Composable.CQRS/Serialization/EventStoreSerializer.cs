@@ -58,25 +58,25 @@ namespace Composable.Serialization
     }
 
 
-    class NewtonSoftEventStoreSerializer : IEventStoreSerializer
+    class EventStoreSerializer : IEventStoreSerializer
     {
         internal static readonly JsonSerializerSettings JsonSettings = Serialization.JsonSettings.SqlEventStoreSerializerSettings;
 
         readonly RenamingSupportingJsonSerializer _serializer;
 
-        public NewtonSoftEventStoreSerializer(TypeMapper typeMapper) => _serializer = new RenamingSupportingJsonSerializer(JsonSettings, typeMapper);
+        public EventStoreSerializer(TypeMapper typeMapper) => _serializer = new RenamingSupportingJsonSerializer(JsonSettings, typeMapper);
 
         public string Serialize(object @event) => _serializer.Serialize(@event);
         public IAggregateEvent Deserialize(Type eventType, string json) => (IAggregateEvent)_serializer.Deserialize(eventType, json);
     }
 
-    class NewtonDocumentDbSerializer : RenamingSupportingJsonSerializer, IDocumentDbSerializer
+    class DocumentDbSerializer : RenamingSupportingJsonSerializer, IDocumentDbSerializer
     {
-        public NewtonDocumentDbSerializer(TypeMapper typeMapper) : base(JsonSettings.SqlEventStoreSerializerSettings, typeMapper) {}
+        public DocumentDbSerializer(TypeMapper typeMapper) : base(JsonSettings.SqlEventStoreSerializerSettings, typeMapper) {}
     }
 
-    class NewtonBusMessageSerializer : RenamingSupportingJsonSerializer, IBusMessageSerializer
+    class BusMessageSerializer : RenamingSupportingJsonSerializer, IBusMessageSerializer
     {
-        public NewtonBusMessageSerializer(TypeMapper typeMapper) : base(JsonSettings.SqlEventStoreSerializerSettings, typeMapper) {}
+        public BusMessageSerializer(TypeMapper typeMapper) : base(JsonSettings.SqlEventStoreSerializerSettings, typeMapper) {}
     }
 }

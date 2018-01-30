@@ -43,6 +43,7 @@ namespace Composable.Messaging.Buses
 
         public IEndpoint RegisterAndStartEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
         {
+            Start();
             var existingEndpoints = Endpoints.ToList();
 
             var endpoint = RegisterEndpoint(name, id, setup);
@@ -63,6 +64,7 @@ namespace Composable.Messaging.Buses
 
             return endpoint;
         }
+        public void Start() => Endpoints.Where(endpoint => !endpoint.IsRunning).ForEach(endpoint => endpoint.Start());
 
         public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
         {

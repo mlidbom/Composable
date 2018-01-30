@@ -22,13 +22,13 @@ namespace Composable.Tests.Serialization
         IEventStoreSerializer _eventSerializer;
         ITestingEndpointHost _host;
 
-        [SetUp] public void SetupTask()
+        [OneTimeSetUp] public void SetupTask()
         {
             _host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
             _eventSerializer = _host.ClientEndpoint.ServiceLocator.Resolve<IEventStoreSerializer>();
         }
 
-        [TearDown] public void TearDownTask() => _host.Dispose();
+        [OneTimeSetUp] public void TearDownTask() => _host.Dispose();
 
         class TestEvent : AggregateEvent
         {

@@ -31,9 +31,31 @@ namespace Composable.DependencyInjection
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new MultiComponentLease<TComponent>(_state.WithExclusiveAccess(state => state.ResolveAll<TComponent>()));
         IDisposable IServiceLocator.BeginScope() => _state.WithExclusiveAccess(state => state.BeginScope());
 
-        TComponent IServiceLocatorKernel.Resolve<TComponent>()
+        TService IServiceLocatorKernel.Resolve<TService>()
         {
-            return _state.WithExclusiveAccess(state => state.Resolve<TComponent>());
+            return _state.WithExclusiveAccess(state =>
+            {
+                if(!state.ServiceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
+                {
+                    throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
+                }
+
+                if(registrations.Count > 1)
+                {
+                    throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
+                }
+
+                var registration = registrations.Single();
+                switch(registration.Lifestyle)
+                {
+                    case Lifestyle.Singleton:
+                        return (TService)state.ResolveSingletonInstance(registration);
+                    case Lifestyle.Scoped:
+                        return (TService)state.ResolveScopedInstance(registration);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            });
         }
 
         void IDisposable.Dispose() => _state.WithExclusiveAccess(state => state.Dispose());
@@ -43,7 +65,7 @@ namespace Composable.DependencyInjection
         {
             readonly ComposableDependencyInjectionContainer _parent;
             internal readonly Dictionary<Guid, ComponentRegistration> RegisteredComponents = new Dictionary<Guid, ComponentRegistration>();
-            readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
+            public readonly IDictionary<Type, List<ComponentRegistration>> ServiceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
             readonly OptimizedThreadShared<ComponentLifestyleOverlay> _singletonOverlay;
             readonly AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>> _scopedOverlay = new AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>>();
@@ -61,38 +83,14 @@ namespace Composable.DependencyInjection
                 {
                     foreach(var registrationServiceType in registration.ServiceTypes)
                     {
-                        _serviceToRegistrationDictionary.GetOrAdd(registrationServiceType, () => new List<ComponentRegistration>()).Add(registration);
+                        ServiceToRegistrationDictionary.GetOrAdd(registrationServiceType, () => new List<ComponentRegistration>()).Add(registration);
                     }
-                }
-            }
-
-            public TService Resolve<TService>() where TService : class
-            {
-                if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
-                {
-                    throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
-                }
-
-                if(registrations.Count > 1)
-                {
-                    throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
-                }
-
-                var registration = registrations.Single();
-                switch(registration.Lifestyle)
-                {
-                    case Lifestyle.Singleton:
-                        return (TService)ResolveSingletonInstance(registration);
-                    case Lifestyle.Scoped:
-                        return (TService)ResolveScopedInstance(registration);
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             }
 
             public TService[] ResolveAll<TService>() where TService : class
             {
-                if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
+                if(!ServiceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
                 {
                     throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
                 }
@@ -114,9 +112,9 @@ namespace Composable.DependencyInjection
 
             object[] ResolveSingletonInstances(List<ComponentRegistration> registration)=> registration.Select(ResolveSingletonInstance).ToArray();
 
-            object ResolveScopedInstance(ComponentRegistration registration) => _scopedOverlay.Value.WithExclusiveAccess(overlay => overlay.ResolveInstance(registration));
+            public object ResolveScopedInstance(ComponentRegistration registration) => _scopedOverlay.Value.WithExclusiveAccess(overlay => overlay.ResolveInstance(registration));
 
-            object ResolveSingletonInstance(ComponentRegistration registration) => _singletonOverlay.WithExclusiveAccess(overlay  => overlay.ResolveInstance(registration));
+            public object ResolveSingletonInstance(ComponentRegistration registration) => _singletonOverlay.WithExclusiveAccess(overlay  => overlay.ResolveInstance(registration));
 
             void Verify()
             {

@@ -201,7 +201,7 @@ namespace Composable.DependencyInjection
                     Instance = instance;
                 }
 
-                internal bool CreationSpecIsInstance{get;}
+                bool CreationSpecIsInstance{get;}
                 internal object Instance { get; }
 
                 bool _disposed;
@@ -216,9 +216,6 @@ namespace Composable.DependencyInjection
                             {
                                 disposable.Dispose();
                             }
-                        } else
-                        {
-                            int notDisposed = 12;
                         }
                     }
                 }

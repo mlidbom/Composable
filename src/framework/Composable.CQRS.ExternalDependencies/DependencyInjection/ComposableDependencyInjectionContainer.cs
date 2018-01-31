@@ -13,7 +13,11 @@ namespace Composable.DependencyInjection
     //todo: Cache singletons (and other registrations) with the components that need them.
     class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
-        internal ComposableDependencyInjectionContainer(IRunMode runMode) => RunMode = runMode;
+        internal ComposableDependencyInjectionContainer(IRunMode runMode)
+        {
+            _scopeDisposer = Disposable.Create(EndScope);
+            RunMode = runMode;
+        }
 
         public IRunMode RunMode { get; }
 
@@ -80,7 +84,7 @@ namespace Composable.DependencyInjection
 
             _scopedOverlay.Value = new ComponentLifestyleOverlay();
 
-            return Disposable.Create(EndScope);
+            return _scopeDisposer;
         }
 
         void EndScope() => _scopedOverlay.Value.Dispose();
@@ -137,6 +141,7 @@ namespace Composable.DependencyInjection
 
 
         bool _disposed;
+        IDisposable _scopeDisposer ;
         public void Dispose()
         {
             if(!_disposed)

@@ -13,6 +13,7 @@ namespace Composable.DependencyInjection
     //todo: Cache singletons (and other registrations) with the components that need them.
     class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
+        readonly IDisposable _scopeDisposer;
         internal ComposableDependencyInjectionContainer(IRunMode runMode)
         {
             _scopeDisposer = Disposable.Create(EndScope);
@@ -32,6 +33,7 @@ namespace Composable.DependencyInjection
                 {
                     _singletons.Add(registration);
                 }
+
                 foreach(var registrationServiceType in registration.ServiceTypes)
                 {
                     _serviceToRegistrationDictionary.GetOrAdd(registrationServiceType, () => new List<ComponentRegistration>()).Add(registration);
@@ -48,6 +50,7 @@ namespace Composable.DependencyInjection
                 _createdServiceLocator = true;
                 Verify();
             }
+
             return this;
         }
 
@@ -74,7 +77,6 @@ namespace Composable.DependencyInjection
         IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new ComponentLease<TComponent>(Resolve<TComponent>());
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => throw new NotImplementedException();
 
-
         IDisposable IServiceLocator.BeginScope()
         {
             if(_scopedOverlay.Value?.IsDisposed == false)
@@ -91,10 +93,7 @@ namespace Composable.DependencyInjection
 
         TService Resolve<TService>() => (TService)Resolve(typeof(TService));
 
-        [ThreadStatic]
-        static ComponentRegistration _resolvingComponent;
-
-
+        [ThreadStatic] static ComponentRegistration _resolvingComponent;
         object Resolve(Type serviceType)
         {
             if(!_serviceToRegistrationDictionary.TryGetValue(serviceType, out var registrations))
@@ -139,9 +138,7 @@ namespace Composable.DependencyInjection
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
-
         bool _disposed;
-        IDisposable _scopeDisposer ;
         public void Dispose()
         {
             if(!_disposed)
@@ -184,6 +181,7 @@ namespace Composable.DependencyInjection
                     {
                         _disposables.Add(disposable);
                     }
+
                     return cachedInstance;
                 }
             }

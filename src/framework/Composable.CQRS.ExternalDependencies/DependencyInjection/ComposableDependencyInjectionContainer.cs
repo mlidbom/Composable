@@ -11,7 +11,6 @@ using Composable.System.Reflection;
 namespace Composable.DependencyInjection
 {
     //todo: Cache singletons (and other registrations) with the components that need them.
-    //todo: Validate lifetime dependencies when first creating container.
     class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
         internal ComposableDependencyInjectionContainer(IRunMode runMode) => RunMode = runMode;

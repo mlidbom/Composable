@@ -22,32 +22,52 @@ namespace Composable.DependencyInjection
         readonly IThreadShared<NonThreadSafeImplementation> _state;
 
         public IRunMode RunMode { get; }
-        public void Register(params ComponentRegistration[] registrations) => _state.WithExclusiveAccess(state => state.Register(registrations));
 
-        public IEnumerable<ComponentRegistration> RegisteredComponents() => _state.WithExclusiveAccess(state => state.RegisteredComponents.Values.ToList());
+        public void Register(params ComponentRegistration[] registrations)
+        {
+            Assert.State.Assert(!_createdServiceLocator);
+            registrations.ForEach(registration => _registeredComponents.Add(registration.Id, registration));
+            foreach(var registration in registrations)
+            {
+                foreach(var registrationServiceType in registration.ServiceTypes)
+                {
+                    _serviceToRegistrationDictionary.GetOrAdd(registrationServiceType, () => new List<ComponentRegistration>()).Add(registration);
+                }
+            }
+        }
 
-        IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => _state.WithExclusiveAccess(state => state.CreateServiceLocator());
+        public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents.Values.ToList();
 
-        TComponent IServiceLocator.Resolve<TComponent>() => ((IServiceLocatorKernel)this).Resolve<TComponent>();
-        IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new ComponentLease<TComponent>(((IServiceLocatorKernel)this).Resolve<TComponent>());
+        IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
+        {
+            _createdServiceLocator = true;
+            return _state.WithExclusiveAccess(state => state.CreateServiceLocator());
+        }
+        bool _createdServiceLocator;
+
+        TService IServiceLocator.Resolve<TService>() => Resolve<TService>();
+        TService IServiceLocatorKernel.Resolve<TService>() => Resolve<TService>();
+        IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new ComponentLease<TComponent>(Resolve<TComponent>());
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new MultiComponentLease<TComponent>(_state.WithExclusiveAccess(state => state.ResolveAll<TComponent>()));
+
+
         IDisposable IServiceLocator.BeginScope() => _state.WithExclusiveAccess(state => state.BeginScope());
 
-        TService IServiceLocatorKernel.Resolve<TService>()
+        TService Resolve<TService>()
         {
             ComponentRegistration registration = null;
+            if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
+            {
+                throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
+            }
+
+            if(registrations.Count > 1)
+            {
+                throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
+            }
+
             var overlay = _state.WithExclusiveAccess(state =>
             {
-                if(!state.ServiceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
-                {
-                    throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
-                }
-
-                if(registrations.Count > 1)
-                {
-                    throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
-                }
-
                 registration = registrations.Single();
                 switch(registration.Lifestyle)
                 {
@@ -66,14 +86,16 @@ namespace Composable.DependencyInjection
             });
         }
 
+        internal readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
+        public readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
+
+
         void IDisposable.Dispose() => _state.WithExclusiveAccess(state => state.Dispose());
 
 
         class NonThreadSafeImplementation
         {
             readonly ComposableDependencyInjectionContainer _parent;
-            internal readonly Dictionary<Guid, ComponentRegistration> RegisteredComponents = new Dictionary<Guid, ComponentRegistration>();
-            public readonly IDictionary<Type, List<ComponentRegistration>> ServiceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
             internal readonly OptimizedThreadShared<ComponentLifestyleOverlay> _singletonOverlay;
             internal readonly AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>> _scopedOverlay = new AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>>();
@@ -82,19 +104,6 @@ namespace Composable.DependencyInjection
             {
                 _parent = parent;
                 _singletonOverlay = new OptimizedThreadShared<ComponentLifestyleOverlay>(new ComponentLifestyleOverlay(_parent));
-            }
-
-            public void Register(ComponentRegistration[] registrations)
-            {
-                Assert.State.Assert(!_createdServiceLocator);
-                registrations.ForEach(registration => RegisteredComponents.Add(registration.Id, registration));
-                foreach(var registration in registrations)
-                {
-                    foreach(var registrationServiceType in registration.ServiceTypes)
-                    {
-                        ServiceToRegistrationDictionary.GetOrAdd(registrationServiceType, () => new List<ComponentRegistration>()).Add(registration);
-                    }
-                }
             }
 
             public TService[] ResolveAll<TService>() where TService : class => throw new NotImplementedException();

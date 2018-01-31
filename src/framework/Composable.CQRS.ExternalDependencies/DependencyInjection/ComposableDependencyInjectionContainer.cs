@@ -41,9 +41,15 @@ namespace Composable.DependencyInjection
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
         {
-            _createdServiceLocator = true;
-            return _state.WithExclusiveAccess(state => state.CreateServiceLocator());
+            if(!_createdServiceLocator)
+            {
+                _createdServiceLocator = true;
+                _state.WithExclusiveAccess(state => state.Verify());
+            }
+
+            return this;
         }
+
         bool _createdServiceLocator;
 
         TService IServiceLocator.Resolve<TService>() => Resolve<TService>();
@@ -116,22 +122,9 @@ namespace Composable.DependencyInjection
 
             public TService[] ResolveAll<TService>() where TService : class => throw new NotImplementedException();
 
-            void Verify()
+            internal void Verify()
             {
                 //todo: Implement some validation here?
-            }
-
-            bool _createdServiceLocator;
-
-            internal IServiceLocator CreateServiceLocator()
-            {
-                if(!_createdServiceLocator)
-                {
-                    _createdServiceLocator = true;
-                    Verify();
-                }
-
-                return _parent;
             }
 
             public IDisposable BeginScope()

@@ -124,7 +124,7 @@ namespace Composable.DependencyInjection
             }
         });
 
-        TResult Locked<TResult>(object @lock, Func<TResult> locked)
+        static TResult Locked<TResult>(object @lock, Func<TResult> locked)
         {
 
             lock(@lock)
@@ -133,7 +133,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        void Locked(object @lock, Action locked)
+        static void Locked(object @lock, Action locked)
         {
             lock(@lock)
             {

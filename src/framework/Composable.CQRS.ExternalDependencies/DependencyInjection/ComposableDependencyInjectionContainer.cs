@@ -73,9 +73,8 @@ namespace Composable.DependencyInjection
         bool _createdServiceLocator;
 
         TService IServiceLocator.Resolve<TService>() => Resolve<TService>();
+        TService[] IServiceLocator.ResolveAll<TService>() => throw new NotImplementedException();
         TService IServiceLocatorKernel.Resolve<TService>() => Resolve<TService>();
-        IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new ComponentLease<TComponent>(Resolve<TComponent>());
-        IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => throw new NotImplementedException();
 
         IDisposable IServiceLocator.BeginScope()
         {
@@ -186,25 +185,5 @@ namespace Composable.DependencyInjection
                 }
             }
         }
-    }
-
-    sealed class ComponentLease<T> : IComponentLease<T>
-    {
-        readonly T _instance;
-
-        internal ComponentLease(T component) => _instance = component;
-
-        T IComponentLease<T>.Instance => _instance;
-        void IDisposable.Dispose() {}
-    }
-
-    sealed class MultiComponentLease<T> : IMultiComponentLease<T>
-    {
-        readonly T[] _instances;
-
-        internal MultiComponentLease(T[] components) => _instances = components;
-
-        T[] IMultiComponentLease<T>.Instances => _instances;
-        void IDisposable.Dispose() {}
     }
 }

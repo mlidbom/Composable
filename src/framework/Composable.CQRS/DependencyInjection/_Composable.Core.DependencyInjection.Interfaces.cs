@@ -58,55 +58,13 @@ namespace Composable.DependencyInjection
     public interface IServiceLocator : IDisposable
     {
         TComponent Resolve<TComponent>() where TComponent : class;
-        IComponentLease<TComponent> Lease<TComponent>() where TComponent : class;
-        IMultiComponentLease<TComponent> LeaseAll<TComponent>() where TComponent : class;
+        TComponent[] ResolveAll<TComponent>() where TComponent : class;
         IDisposable BeginScope();
     }
 
     interface IServiceLocatorKernel
     {
         TComponent Resolve<TComponent>() where TComponent : class;
-    }
-
-    public static class ServiceLocator
-    {
-        public static TComponent Resolve<TComponent>(this IServiceLocator @this) where TComponent : class => @this.Lease<TComponent>()
-                                                                                         .Instance;
-
-        internal static TComponent[] ResolveAll<TComponent>(this IServiceLocator @this) where TComponent : class => @this.LeaseAll<TComponent>()
-                                                                                         .Instances;
-
-        public static void Use<TComponent>(this IServiceLocator @this,[InstantHandle] Action<TComponent> useComponent) where TComponent : class
-        {
-            using (var lease = @this.Lease<TComponent>())
-            {
-                useComponent(lease.Instance);
-            }
-        }
-
-        public static TResult Use<TComponent, TResult>(this IServiceLocator @this, Func<TComponent, TResult> useComponent) where TComponent : class
-        {
-            using (var lease = @this.Lease<TComponent>())
-            {
-                return useComponent(lease.Instance);
-            }
-        }
-
-        internal static void UseAll<TComponent>(this IServiceLocator @this, [InstantHandle] Action<TComponent[]> useComponent) where TComponent : class
-        {
-            using (var lease = @this.LeaseAll<TComponent>())
-            {
-                useComponent(lease.Instances);
-            }
-        }
-
-        public static TResult UseAll<TComponent, TResult>(this IServiceLocator @this, Func<TComponent[], TResult> useComponent) where TComponent : class
-        {
-            using (var lease = @this.LeaseAll<TComponent>())
-            {
-                return useComponent(lease.Instances);
-            }
-        }
     }
 
     public static class Component

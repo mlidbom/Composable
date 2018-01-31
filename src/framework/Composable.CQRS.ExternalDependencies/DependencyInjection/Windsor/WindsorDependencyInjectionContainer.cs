@@ -7,7 +7,6 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Composable.Contracts;
-using Composable.System.Linq;
 
 namespace Composable.DependencyInjection.Windsor
 {
@@ -44,8 +43,7 @@ namespace Composable.DependencyInjection.Windsor
         }
 
         public TComponent Resolve<TComponent>() where TComponent : class => _windsorContainer.Resolve<TComponent>();
-        IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new WindsorComponentLease<TComponent>(_windsorContainer.Resolve<TComponent>(), _windsorContainer.Kernel);
-        IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new WindsorMultiComponentLease<TComponent>(_windsorContainer.ResolveAll<TComponent>().ToArray(), _windsorContainer.Kernel);
+        public TComponent[] ResolveAll<TComponent>() where TComponent : class => _windsorContainer.ResolveAll<TComponent>().ToArray();
         IDisposable IServiceLocator.BeginScope() => _windsorContainer.BeginScope();
         void IDisposable.Dispose() => _windsorContainer.Dispose();
 
@@ -83,36 +81,6 @@ namespace Composable.DependencyInjection.Windsor
             internal WindsorServiceLocatorKernel(IKernel kernel) => _kernel = kernel;
 
             TComponent IServiceLocatorKernel.Resolve<TComponent>() => _kernel.Resolve<TComponent>();
-        }
-
-        sealed class WindsorComponentLease<T> : IComponentLease<T>
-        {
-            readonly IKernel _kernel;
-            readonly T _instance;
-
-            internal WindsorComponentLease(T component, IKernel kernel)
-            {
-                _kernel = kernel;
-                _instance = component;
-            }
-
-            T IComponentLease<T>.Instance => _instance;
-            void IDisposable.Dispose() => _kernel.ReleaseComponent(_instance);
-        }
-
-        sealed class WindsorMultiComponentLease<T> : IMultiComponentLease<T>
-        {
-            readonly IKernel _kernel;
-            readonly T[] _instances;
-
-            internal WindsorMultiComponentLease(T[] components, IKernel kernel)
-            {
-                _kernel = kernel;
-                _instances = components;
-            }
-
-            T[] IMultiComponentLease<T>.Instances => _instances;
-            void IDisposable.Dispose() => _instances.ForEach(instance => _kernel.ReleaseComponent(instance));
         }
     }
 }

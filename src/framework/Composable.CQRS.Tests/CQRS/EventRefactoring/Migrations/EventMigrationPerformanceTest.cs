@@ -41,7 +41,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             _currentMigrations = Seq.Empty<IEventMigration>().ToList();
             _container = CreateServiceLocatorForEventStoreType(migrationsfactory: () => _currentMigrations, eventStoreType: EventStoreType);
 
-            _container.ExecuteTransactionInIsolatedScope(()=> _container.Use<IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>>(store => store.SaveEvents(_history)));
+            _container.ExecuteTransactionInIsolatedScope(()=> _container.Resolve<IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>>().SaveEvents(_history));
         }
 
         [OneTimeTearDown] public void TearDownTask() { _container?.Dispose(); }

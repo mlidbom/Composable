@@ -109,23 +109,6 @@ namespace Composable.DependencyInjection
             }
         }
 
-        static TResult Locked<TResult>(object @lock, Func<TResult> locked)
-        {
-
-            lock(@lock)
-            {
-                return locked();
-            }
-        }
-
-        static void Locked(object @lock, Action locked)
-        {
-            lock(@lock)
-            {
-                locked();
-            }
-        }
-
         class ComponentLifestyleOverlay
         {
             readonly ComposableDependencyInjectionContainer _parent;

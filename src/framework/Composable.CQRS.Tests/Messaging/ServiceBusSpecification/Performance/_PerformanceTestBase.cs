@@ -3,11 +3,12 @@ using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
+using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
-    [TestFixture]public class PerformanceTestBase
+    [TestFixture, Performance, Serial]public class PerformanceTestBase
     {
         protected ITestingEndpointHost Host;
         protected IEndpoint ServerEndpoint;

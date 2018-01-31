@@ -88,6 +88,10 @@ namespace Composable.DependencyInjection
 
         TService Resolve<TService>() => (TService)Resolve(typeof(TService));
 
+        [ThreadStatic]
+        static ComponentRegistration _resolvingComponent;
+
+
         object Resolve(Type serviceType)
         {
             if(!_serviceToRegistrationDictionary.TryGetValue(serviceType, out var registrations))
@@ -102,14 +106,28 @@ namespace Composable.DependencyInjection
 
             var registration = registrations[0];
 
-            switch(registration.Lifestyle)
+            if(_resolvingComponent?.Lifestyle == Lifestyle.Singleton && registration.Lifestyle != Lifestyle.Singleton)
             {
-                case Lifestyle.Singleton:
-                    return registration.GetSingletonInstance(this);
-                case Lifestyle.Scoped:
-                    return _scopedOverlay.Value.ResolveInstance(registration, this);
-                default:
-                    throw new ArgumentOutOfRangeException();
+                throw new Exception($"{Lifestyle.Singleton} service: {_resolvingComponent.ServiceTypes.First().FullName} depends on {registration.Lifestyle} service: {registration.ServiceTypes.First().FullName} ");
+            }
+
+            var previousResolvingComponent = _resolvingComponent;
+            _resolvingComponent = registration;
+            try
+            {
+                switch(registration.Lifestyle)
+                {
+                    case Lifestyle.Singleton:
+                        return registration.GetSingletonInstance(this);
+                    case Lifestyle.Scoped:
+                        return _scopedOverlay.Value.ResolveInstance(registration, this);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            finally
+            {
+                _resolvingComponent = previousResolvingComponent;
             }
         }
 

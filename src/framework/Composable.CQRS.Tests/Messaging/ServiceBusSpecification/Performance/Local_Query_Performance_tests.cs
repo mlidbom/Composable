@@ -13,7 +13,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             //Warmup
             StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10_000);
 
-            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10_000, maxTotal: 30.Milliseconds().NCrunchSlowdownFactor(7));
+            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10_000, maxTotal: 30.Milliseconds().NCrunchSlowdownFactor(1));
         }
 
         [Test] public void Runs_10000_SingleThreaded_local_queries_in_60_milliseconds()
@@ -21,7 +21,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             //Warmup
             StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10);
 
-            TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10_000, maxTotal: 60.Milliseconds().NCrunchSlowdownFactor(4));
+            TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10_000, maxTotal: 60.Milliseconds().NCrunchSlowdownFactor(1));
         }
     }
 }

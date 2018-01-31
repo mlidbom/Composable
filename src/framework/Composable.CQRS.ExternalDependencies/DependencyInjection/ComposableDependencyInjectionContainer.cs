@@ -53,11 +53,18 @@ namespace Composable.DependencyInjection
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => throw new NotImplementedException();
 
 
-        IDisposable IServiceLocator.BeginScope() => Locked(_scopedOverlay, () =>
+        IDisposable IServiceLocator.BeginScope()
         {
             if(_scopedOverlay.Value == null)
             {
-                _scopedOverlay.Value = new OverlayHolder();
+                Locked(_scopedOverlay,
+                       () =>
+                       {
+                           if(_scopedOverlay.Value == null)
+                           {
+                               _scopedOverlay.Value = new OverlayHolder();
+                           }
+                       });
             }
 
             if(_scopedOverlay.Value.Overlay != null)
@@ -68,7 +75,7 @@ namespace Composable.DependencyInjection
             _scopedOverlay.Value.Overlay = new ComponentLifestyleOverlay(this);
 
             return Disposable.Create(EndScope);
-        });
+        }
 
         void EndScope()
         {

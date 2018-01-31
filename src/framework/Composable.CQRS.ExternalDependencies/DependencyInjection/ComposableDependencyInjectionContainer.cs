@@ -63,13 +63,20 @@ namespace Composable.DependencyInjection
 
             _scopedOverlay.Value = new ComponentLifestyleOverlay(this);
 
-            return Disposable.Create(() => Locked(() =>
-            {
-                    var scopeOverlay = _scopedOverlay.Value;
-                    _scopedOverlay.Value = null;
-                    scopeOverlay.Dispose();
-            }));
+            return Disposable.Create(EndScope);
         });
+
+        void EndScope()
+        {
+            var overlay = Locked(() =>
+            {
+                var scopeOverlay = _scopedOverlay.Value;
+                _scopedOverlay.Value = null;
+                return scopeOverlay;
+            });
+
+            overlay.Dispose();
+        }
 
         TService Resolve<TService>() => Locked(() =>
         {
@@ -119,9 +126,16 @@ namespace Composable.DependencyInjection
         });
 
         readonly object _lock = new object();
+        bool _uselock = true;
         TResult Locked<TResult>(Func<TResult> locked)
         {
-            lock(_lock)
+            if(_uselock)
+            {
+                lock(_lock)
+                {
+                    return locked();
+                }
+            } else
             {
                 return locked();
             }
@@ -129,7 +143,13 @@ namespace Composable.DependencyInjection
 
         void Locked(Action locked)
         {
-            lock(_lock)
+            if(_uselock)
+            {
+                lock(_lock)
+                {
+                    locked();
+                }
+            } else
             {
                 locked();
             }

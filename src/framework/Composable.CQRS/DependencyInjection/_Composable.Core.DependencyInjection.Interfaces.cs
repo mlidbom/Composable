@@ -208,6 +208,24 @@ namespace Composable.DependencyInjection
         internal InstantiationSpec InstantiationSpec { get; }
         internal Lifestyle Lifestyle { get; }
 
+        readonly object _lock = new object();
+        object _singletonInstance;
+        internal object GetSingletonInstance(Func<object> factory)
+        {
+            if(_singletonInstance == null)
+            {
+                lock(_lock)
+                {
+                    if(_singletonInstance == null)
+                    {
+                        _singletonInstance = factory();
+                    }
+                }
+            }
+
+            return _singletonInstance;
+        }
+
         internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
         {
             serviceTypes = serviceTypes.ToList();
@@ -237,7 +255,7 @@ namespace Composable.DependencyInjection
         {
             if(!ShouldDelegateToParentWhenCloning)
             {
-                return this;
+                return new ComponentRegistration<TService>(Lifestyle, ServiceTypes, InstantiationSpec);
             }
 
             //We must use singleton instance registrations when delegating because otherwise the containers will both attempt to dispose the service.

@@ -92,7 +92,7 @@ namespace Composable.DependencyInjection
             switch(registration.Lifestyle)
             {
                 case Lifestyle.Singleton:
-                    return (TService)Locked(_singletonOverlay, () => _singletonOverlay.ResolveInstance(registration));
+                    return (TService)registration.GetSingletonInstance(() => Locked(_singletonOverlay, () => _singletonOverlay.ResolveInstance(registration)));
                 case Lifestyle.Scoped:
                     return (TService)_scopedOverlay.Value.Overlay.ResolveInstance(registration);
                 default:

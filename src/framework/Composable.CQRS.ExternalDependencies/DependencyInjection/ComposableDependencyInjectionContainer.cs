@@ -86,6 +86,7 @@ namespace Composable.DependencyInjection
 
             public void Register(ComponentRegistration[] registrations)
             {
+                Assert.State.Assert(!_createdServiceLocator);
                 registrations.ForEach(registration => RegisteredComponents.Add(registration.Id, registration));
                 foreach(var registration in registrations)
                 {
@@ -103,13 +104,13 @@ namespace Composable.DependencyInjection
                 //todo: Implement some validation here?
             }
 
-            bool _verified;
+            bool _createdServiceLocator;
 
             internal IServiceLocator CreateServiceLocator()
             {
-                if(!_verified)
+                if(!_createdServiceLocator)
                 {
-                    _verified = true;
+                    _createdServiceLocator = true;
                     Verify();
                 }
 

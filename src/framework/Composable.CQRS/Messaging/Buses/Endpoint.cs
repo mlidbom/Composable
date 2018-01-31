@@ -18,7 +18,10 @@ namespace Composable.Messaging.Buses
         public EndpointId Id { get; }
         public string Name { get; }
         public IServiceLocator ServiceLocator { get; }
-        public EndPointAddress Address => Inbox.Address;
+
+        public EndPointAddress Address => _inbox.Address;
+        IGlobalBusStateTracker _globalStateTracker;
+        IInbox _inbox;
 
         IServiceBusControl BusControl => ServiceLocator.Resolve<IServiceBusControl>();
 
@@ -27,6 +30,9 @@ namespace Composable.Messaging.Buses
             Assert.State.Assert(!IsRunning);
 
             IsRunning = true;
+
+            _globalStateTracker = ServiceLocator.Resolve<IGlobalBusStateTracker>();
+            _inbox = ServiceLocator.Resolve<IInbox>();
 
             RunSanityChecks();
 
@@ -50,15 +56,12 @@ namespace Composable.Messaging.Buses
             BusControl.Stop();
         }
 
-        public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) => GlobalStateTracker.AwaitNoMessagesInFlight(timeoutOverride);
+        public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) => _globalStateTracker?.AwaitNoMessagesInFlight(timeoutOverride);
 
         public void Dispose()
         {
             if(IsRunning) Stop();
             ServiceLocator.Dispose();
         }
-
-        IGlobalBusStateTracker GlobalStateTracker => ServiceLocator.Resolve<IGlobalBusStateTracker>();
-        IInbox Inbox => ServiceLocator.Resolve<IInbox>();
     }
 }

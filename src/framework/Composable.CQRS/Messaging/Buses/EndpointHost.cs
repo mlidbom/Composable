@@ -14,7 +14,7 @@ namespace Composable.Messaging.Buses
         readonly Func<IRunMode, IDependencyInjectionContainer> _containerFactory;
         bool _disposed;
         protected readonly List<IEndpoint> Endpoints = new List<IEndpoint>();
-        readonly IGlobalBusStateTracker _globalBusStateTracker = new GlobalBusStateTracker();
+        internal readonly IGlobalBusStateTracker GlobalBusStateTracker = new GlobalBusStateTracker();
 
         protected EndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory)
         {
@@ -70,7 +70,7 @@ namespace Composable.Messaging.Buses
 
         public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
         {
-            var builder = new EndpointBuilder(_globalBusStateTracker, _containerFactory(_mode), name, id);
+            var builder = new EndpointBuilder(GlobalBusStateTracker, _containerFactory(_mode), name, id);
 
             setup(builder);
 

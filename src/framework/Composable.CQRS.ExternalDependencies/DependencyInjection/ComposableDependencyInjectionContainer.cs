@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Composable.Contracts;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
@@ -160,17 +161,13 @@ namespace Composable.DependencyInjection
                 if(!_disposed)
                 {
                     _disposed = true;
-                    _instantiatedComponents
-                        .ToList()
-                       .Where(cached => !cached.Value.CreationSpecIsInstance)
-                        .Select(singleton => singleton.Value.Instance)
-                        .OfType<IDisposable>()
-                        .ForEach(disposable => disposable.Dispose());
+                    _instantiatedComponents.ForEach(cached => cached.Value.Dispose());
                 }
             }
 
             public object ResolveInstance(ComponentRegistration registration)
             {
+                Assert.State.Assert(!_disposed);
                 if(_instantiatedComponents.TryGetValue(registration.Id, out var cachedInstance))
                 {
                     return cachedInstance.Instance;
@@ -196,7 +193,7 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            class CachedInstance
+            class CachedInstance : IDisposable
             {
                 public CachedInstance(bool creationSpecIsInstance, object instance)
                 {
@@ -206,6 +203,25 @@ namespace Composable.DependencyInjection
 
                 internal bool CreationSpecIsInstance{get;}
                 internal object Instance { get; }
+
+                bool _disposed;
+                public void Dispose()
+                {
+                    if(!_disposed)
+                    {
+                        _disposed = true;
+                        if(!CreationSpecIsInstance)
+                        {
+                            if(Instance is IDisposable disposable)
+                            {
+                                disposable.Dispose();
+                            }
+                        } else
+                        {
+                            int notDisposed = 12;
+                        }
+                    }
+                }
             }
         }
     }

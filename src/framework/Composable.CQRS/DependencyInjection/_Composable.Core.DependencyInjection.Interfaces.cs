@@ -239,7 +239,13 @@ namespace Composable.DependencyInjection
 
         internal abstract ComponentRegistration CreateCloneRegistration(IServiceLocator currentLocator);
 
-        internal void Dispose() => (_singletonInstance as IDisposable)?.Dispose();
+        internal void Dispose()
+        {
+            if(InstantiationSpec.Instance == null && _singletonInstance is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 
     public class ComponentRegistration<TService> : ComponentRegistration where TService : class

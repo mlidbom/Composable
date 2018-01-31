@@ -9,20 +9,20 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
     [TestFixture, Performance, Serial] public class Local_Query_performance_tests : PerformanceTestBase
     {
-        [Test] public void Runs_100_000_MultiThreaded_local_queries_in_100_milliSeconds()
+        [Test] public void Runs_10_000_MultiThreaded_local_queries_in_10_milliSeconds()
         {
             //Warmup
             StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10_000);
 
-            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 100_000, maxTotal: 100.Milliseconds().NCrunchSlowdownFactor(1));
+            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10_000, maxTotal: 10.Milliseconds().NCrunchSlowdownFactor(17));
         }
 
-        [Test] public void Runs_100_000_SingleThreaded_local_queries_in_270_milliseconds()
+        [Test] public void Runs_10_000_SingleThreaded_local_queries_in_27_milliseconds()
         {
             //Warmup
             StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10);
 
-            TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 100_000, maxTotal: 270.Milliseconds().NCrunchSlowdownFactor(1));
+            TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10_000, maxTotal: 27.Milliseconds().NCrunchSlowdownFactor(5));
         }
     }
 }

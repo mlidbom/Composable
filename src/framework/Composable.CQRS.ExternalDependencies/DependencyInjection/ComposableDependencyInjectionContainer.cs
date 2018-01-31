@@ -56,12 +56,17 @@ namespace Composable.DependencyInjection
 
         IDisposable IServiceLocator.BeginScope() => Locked(() =>
         {
-            if(_scopedOverlay.Value != null)
+            if(_scopedOverlay.Value == null)
+            {
+                _scopedOverlay.Value = new OverlayHolder();
+            }
+
+            if(_scopedOverlay.Value.Overlay != null)
             {
                 throw new Exception("Already has scope....");
             }
 
-            _scopedOverlay.Value = new ComponentLifestyleOverlay(this);
+            _scopedOverlay.Value.Overlay = new ComponentLifestyleOverlay(this);
 
             return Disposable.Create(EndScope);
         });
@@ -75,7 +80,7 @@ namespace Composable.DependencyInjection
                 return scopeOverlay;
             });
 
-            overlay.Dispose();
+            overlay.Overlay.Dispose();
         }
 
         TService Resolve<TService>() => Locked(() =>
@@ -100,7 +105,7 @@ namespace Composable.DependencyInjection
                     overlay = _singletonOverlay;
                     break;
                 case Lifestyle.Scoped:
-                    overlay = _scopedOverlay.Value;
+                    overlay = _scopedOverlay.Value.Overlay;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -110,7 +115,7 @@ namespace Composable.DependencyInjection
         });
 
         readonly ComponentLifestyleOverlay _singletonOverlay;
-        readonly AsyncLocal<ComponentLifestyleOverlay> _scopedOverlay = new AsyncLocal<ComponentLifestyleOverlay>();
+        readonly AsyncLocal<OverlayHolder> _scopedOverlay = new AsyncLocal<OverlayHolder>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
@@ -153,6 +158,11 @@ namespace Composable.DependencyInjection
             {
                 locked();
             }
+        }
+
+        class OverlayHolder
+        {
+            internal ComponentLifestyleOverlay Overlay;
         }
 
         class ComponentLifestyleOverlay

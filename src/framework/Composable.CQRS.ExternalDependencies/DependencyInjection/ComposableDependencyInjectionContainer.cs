@@ -77,7 +77,7 @@ namespace Composable.DependencyInjection
                 throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
             }
 
-            registration = registrations.Single();
+            registration = registrations[0];
 
             switch(registration.Lifestyle)
             {

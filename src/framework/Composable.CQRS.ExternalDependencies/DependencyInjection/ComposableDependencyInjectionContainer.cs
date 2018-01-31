@@ -17,6 +17,7 @@ namespace Composable.DependencyInjection
         {
             RunMode = runMode;
             _state = new OptimizedThreadShared<NonThreadSafeImplementation>(new NonThreadSafeImplementation(this));
+            _singletonOverlay = new OptimizedThreadShared<ComponentLifestyleOverlay>(new ComponentLifestyleOverlay(this));
         }
 
         readonly IThreadShared<NonThreadSafeImplementation> _state;
@@ -66,19 +67,20 @@ namespace Composable.DependencyInjection
                 throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
             }
 
-            var overlay = _state.WithExclusiveAccess(state =>
+            registration = registrations.Single();
+            OptimizedThreadShared<ComponentLifestyleOverlay> overlay;
+
+            switch(registration.Lifestyle)
             {
-                registration = registrations.Single();
-                switch(registration.Lifestyle)
-                {
-                    case Lifestyle.Singleton:
-                        return state._singletonOverlay;
-                    case Lifestyle.Scoped:
-                        return state._scopedOverlay.Value;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            });
+                case Lifestyle.Singleton:
+                    overlay = _singletonOverlay;
+                    break;
+                case Lifestyle.Scoped:
+                    overlay = _state.WithExclusiveAccess(state => state._scopedOverlay.Value);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
             return (TService)overlay.WithExclusiveAccess(someOverlay =>
             {
@@ -86,24 +88,30 @@ namespace Composable.DependencyInjection
             });
         }
 
-        internal readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
-        public readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
+        readonly OptimizedThreadShared<ComponentLifestyleOverlay> _singletonOverlay;
+        readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
+        readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
 
-        void IDisposable.Dispose() => _state.WithExclusiveAccess(state => state.Dispose());
-
+        bool _disposed;
+        public void Dispose()
+        {
+            if(!_disposed)
+            {
+                _disposed = true;
+                _singletonOverlay.WithExclusiveAccess(overlay => overlay.Dispose());
+            }
+        }
 
         class NonThreadSafeImplementation
         {
             readonly ComposableDependencyInjectionContainer _parent;
 
-            internal readonly OptimizedThreadShared<ComponentLifestyleOverlay> _singletonOverlay;
             internal readonly AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>> _scopedOverlay = new AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>>();
 
             public NonThreadSafeImplementation(ComposableDependencyInjectionContainer parent)
             {
                 _parent = parent;
-                _singletonOverlay = new OptimizedThreadShared<ComponentLifestyleOverlay>(new ComponentLifestyleOverlay(_parent));
             }
 
             public TService[] ResolveAll<TService>() where TService : class => throw new NotImplementedException();
@@ -147,16 +155,6 @@ namespace Composable.DependencyInjection
                 var scopeOverlay = _scopedOverlay.Value;
                 _scopedOverlay.Value = null;
                 return scopeOverlay;
-            }
-
-            bool _disposed;
-            public void Dispose()
-            {
-                if(!_disposed)
-                {
-                    _disposed = true;
-                    _singletonOverlay.WithExclusiveAccess(overlay => overlay.Dispose());
-                }
             }
         }
 

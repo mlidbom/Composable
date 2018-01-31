@@ -92,15 +92,9 @@ namespace Composable.DependencyInjection
 
         TService Resolve<TService>()
         {
-            if(_resolvingComponent != null)
+            if(_resolvingComponent != null && _resolvingComponent.TryResolveDependency<TService>(out var service))
             {
-                foreach(var cachedSingletonDependency in _resolvingComponent?.CachedSingletonDependencies)
-                {
-                    if(cachedSingletonDependency is TService service)
-                    {
-                        return service;
-                    }
-                }
+                return service;
             }
 
             return (TService)Resolve(typeof(TService));
@@ -134,9 +128,13 @@ namespace Composable.DependencyInjection
                 {
                     case Lifestyle.Singleton:
                     {
-                        var result = registration.GetSingletonInstance(this);
-                        previousResolvingComponent?.CachedSingletonDependencies.Add(result);
-                        return result;
+                        if(previousResolvingComponent != null)
+                        {
+                            return previousResolvingComponent.ResolveSingletonDependency(serviceType, registration, this);
+                        } else
+                        {
+                            return registration.GetSingletonInstance(this);
+                        }
                     }
                     case Lifestyle.Scoped:
                         return _scopedOverlay.Value.ResolveInstance(registration, this);

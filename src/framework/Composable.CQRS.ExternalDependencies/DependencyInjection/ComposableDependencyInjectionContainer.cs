@@ -35,9 +35,8 @@ namespace Composable.DependencyInjection
 
         public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents.Values.ToList();
 
-        IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => Locked(() =>
+        IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => Locked(_singletonOverlay, () =>
         {
-
             if(!_createdServiceLocator)
             {
                 _createdServiceLocator = true;
@@ -54,7 +53,7 @@ namespace Composable.DependencyInjection
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => throw new NotImplementedException();
 
 
-        IDisposable IServiceLocator.BeginScope() => Locked(() =>
+        IDisposable IServiceLocator.BeginScope() => Locked(_scopedOverlay, () =>
         {
             if(_scopedOverlay.Value == null)
             {
@@ -73,7 +72,7 @@ namespace Composable.DependencyInjection
 
         void EndScope()
         {
-            var overlay = Locked(() =>
+            var overlay = Locked(_scopedOverlay, () =>
             {
                 var scopeOverlay = _scopedOverlay.Value;
                 _scopedOverlay.Value = null;
@@ -83,7 +82,7 @@ namespace Composable.DependencyInjection
             overlay.Overlay.Dispose();
         }
 
-        TService Resolve<TService>() => Locked(() =>
+        TService Resolve<TService>()
         {
             ComponentRegistration registration = null;
             if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
@@ -97,22 +96,17 @@ namespace Composable.DependencyInjection
             }
 
             registration = registrations.Single();
-            ComponentLifestyleOverlay overlay;
 
             switch(registration.Lifestyle)
             {
                 case Lifestyle.Singleton:
-                    overlay = _singletonOverlay;
-                    break;
+                    return (TService)Locked(_singletonOverlay, () => _singletonOverlay.ResolveInstance(registration));
                 case Lifestyle.Scoped:
-                    overlay = _scopedOverlay.Value.Overlay;
-                    break;
+                    return (TService)Locked(_scopedOverlay, () => _scopedOverlay.Value.Overlay.ResolveInstance(registration));
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            return (TService)overlay.ResolveInstance(registration);
-        });
+        }
 
         readonly ComponentLifestyleOverlay _singletonOverlay;
         readonly AsyncLocal<OverlayHolder> _scopedOverlay = new AsyncLocal<OverlayHolder>();
@@ -121,7 +115,7 @@ namespace Composable.DependencyInjection
 
 
         bool _disposed;
-        public void Dispose() => Locked(() =>
+        public void Dispose() => Locked(_singletonOverlay, () =>
         {
             if(!_disposed)
             {
@@ -130,31 +124,18 @@ namespace Composable.DependencyInjection
             }
         });
 
-        readonly object _lock = new object();
-        bool _uselock = true;
-        TResult Locked<TResult>(Func<TResult> locked)
+        TResult Locked<TResult>(object @lock, Func<TResult> locked)
         {
-            if(_uselock)
-            {
-                lock(_lock)
-                {
-                    return locked();
-                }
-            } else
+
+            lock(@lock)
             {
                 return locked();
             }
         }
 
-        void Locked(Action locked)
+        void Locked(object @lock, Action locked)
         {
-            if(_uselock)
-            {
-                lock(_lock)
-                {
-                    locked();
-                }
-            } else
+            lock(@lock)
             {
                 locked();
             }

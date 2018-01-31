@@ -90,7 +90,21 @@ namespace Composable.DependencyInjection
 
         void EndScope() => _scopedOverlay.Value.Dispose();
 
-        TService Resolve<TService>() => (TService)Resolve(typeof(TService));
+        TService Resolve<TService>()
+        {
+            if(_resolvingComponent != null)
+            {
+                foreach(var cachedSingletonDependency in _resolvingComponent?.CachedSingletonDependencies)
+                {
+                    if(cachedSingletonDependency is TService service)
+                    {
+                        return service;
+                    }
+                }
+            }
+
+            return (TService)Resolve(typeof(TService));
+        }
 
         [ThreadStatic] static ComponentRegistration _resolvingComponent;
         object Resolve(Type serviceType)
@@ -119,7 +133,11 @@ namespace Composable.DependencyInjection
                 switch(registration.Lifestyle)
                 {
                     case Lifestyle.Singleton:
-                        return registration.GetSingletonInstance(this);
+                    {
+                        var result = registration.GetSingletonInstance(this);
+                        previousResolvingComponent?.CachedSingletonDependencies.Add(result);
+                        return result;
+                    }
                     case Lifestyle.Scoped:
                         return _scopedOverlay.Value.ResolveInstance(registration, this);
                     default:

@@ -165,6 +165,7 @@ namespace Composable.DependencyInjection
         internal IEnumerable<Type> ServiceTypes { get; }
         internal InstantiationSpec InstantiationSpec { get; }
         internal Lifestyle Lifestyle { get; }
+        internal List<object> CachedSingletonDependencies = new List<object>();
 
         readonly object _lock = new object();
         object _singletonInstance;

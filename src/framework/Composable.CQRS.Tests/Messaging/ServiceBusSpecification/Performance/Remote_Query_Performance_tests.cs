@@ -26,7 +26,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             //Warmup
             StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 10);
 
-            TimeAsserter.Execute(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 100, maxTotal: 60.Milliseconds().NCrunchSlowdownFactor(1.1));
+            TimeAsserter.Execute(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 100, maxTotal: 60.Milliseconds().NCrunchSlowdownFactor(1.2));
         }
     }
 }

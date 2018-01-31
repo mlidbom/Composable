@@ -57,7 +57,7 @@ namespace Composable.DependencyInjection
                 throw new Exception("Someone failed to dispose a scope.");
             }
 
-            _scopedOverlay.Value = new ComponentLifestyleOverlay(this);
+            _scopedOverlay.Value = new ComponentLifestyleOverlay();
 
             return Disposable.Create(EndScope);
         }
@@ -84,7 +84,7 @@ namespace Composable.DependencyInjection
                 case Lifestyle.Singleton:
                     return (TService)registration.GetSingletonInstance(this);
                 case Lifestyle.Scoped:
-                    return (TService)_scopedOverlay.Value.ResolveInstance(registration);
+                    return (TService)_scopedOverlay.Value.ResolveInstance(registration, this);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -111,8 +111,6 @@ namespace Composable.DependencyInjection
 
         class ComponentLifestyleOverlay
         {
-            readonly ComposableDependencyInjectionContainer _parent;
-            public ComponentLifestyleOverlay(ComposableDependencyInjectionContainer parent) => _parent = parent;
             readonly List<IDisposable> _disposables = new List<IDisposable>();
             readonly Dictionary<Guid, object> _instantiatedComponents = new Dictionary<Guid, object>();
             internal bool IsDisposed { get; private set; }
@@ -128,15 +126,14 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            public object ResolveInstance(ComponentRegistration registration)
+            public object ResolveInstance(ComponentRegistration registration, IServiceLocatorKernel parent)
             {
-                Assert.State.Assert(!IsDisposed);
                 if(_instantiatedComponents.TryGetValue(registration.Id, out var cachedInstance))
                 {
                     return cachedInstance;
                 } else
                 {
-                    cachedInstance = registration.CreateInstance(_parent);
+                    cachedInstance = registration.CreateInstance(parent);
                     _instantiatedComponents.Add(registration.Id, cachedInstance);
                     if(cachedInstance is IDisposable disposable)
                     {

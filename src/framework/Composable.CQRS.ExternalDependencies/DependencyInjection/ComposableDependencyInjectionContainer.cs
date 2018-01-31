@@ -71,38 +71,42 @@ namespace Composable.DependencyInjection
             });
         }
 
+        object _lock = new object();
         TService Resolve<TService>()
         {
-            ComponentRegistration registration = null;
-            if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
+            lock(_lock)
             {
-                throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
+                ComponentRegistration registration = null;
+                if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
+                {
+                    throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
+                }
+
+                if(registrations.Count > 1)
+                {
+                    throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
+                }
+
+                registration = registrations.Single();
+                OptimizedThreadShared<ComponentLifestyleOverlay> overlay;
+
+                switch(registration.Lifestyle)
+                {
+                    case Lifestyle.Singleton:
+                        overlay = _singletonOverlay;
+                        break;
+                    case Lifestyle.Scoped:
+                        overlay = _scopedOverlay.Value;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                return (TService)overlay.WithExclusiveAccess(someOverlay =>
+                {
+                    return someOverlay.ResolveInstance(registration);
+                });
             }
-
-            if(registrations.Count > 1)
-            {
-                throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
-            }
-
-            registration = registrations.Single();
-            OptimizedThreadShared<ComponentLifestyleOverlay> overlay;
-
-            switch(registration.Lifestyle)
-            {
-                case Lifestyle.Singleton:
-                    overlay = _singletonOverlay;
-                    break;
-                case Lifestyle.Scoped:
-                    overlay = _scopedOverlay.Value;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return (TService)overlay.WithExclusiveAccess(someOverlay =>
-            {
-                return someOverlay.ResolveInstance(registration);
-            });
         }
 
         readonly OptimizedThreadShared<ComponentLifestyleOverlay> _singletonOverlay;

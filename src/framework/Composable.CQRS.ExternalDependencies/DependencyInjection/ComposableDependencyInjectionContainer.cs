@@ -121,7 +121,10 @@ namespace Composable.DependencyInjection
                 if(!IsDisposed)
                 {
                     IsDisposed = true;
-                    _disposables.ForEach(cached => cached.Dispose());
+                    foreach(var disposable in _disposables)
+                    {
+                        disposable.Dispose();
+                    }
                 }
             }
 

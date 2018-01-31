@@ -53,32 +53,25 @@ namespace Composable.DependencyInjection
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => throw new NotImplementedException();
 
 
-        IDisposable IServiceLocator.BeginScope() => Locked(_scopedOverlay,
-                                                           () =>
-                                                           {
-                                                               if(_scopedOverlay.Value?.Overlay != null)
-                                                               {
-                                                                   throw new Exception("Already has scope....");
-                                                               }
+        IDisposable IServiceLocator.BeginScope()
+        {
+            if(_scopedOverlay.Value?.Overlay != null)
+            {
+                throw new Exception("Already has scope....");
+            }
 
-                                                               _scopedOverlay.Value = new OverlayHolder
-                                                                                      {
-                                                                                          Overlay = new ComponentLifestyleOverlay(this)
-                                                                                      };
+            _scopedOverlay.Value = new OverlayHolder
+                                   {
+                                       Overlay = new ComponentLifestyleOverlay(this)
+                                   };
 
-                                                               return Disposable.Create(EndScope);
-                                                           });
+            return Disposable.Create(EndScope);
+        }
 
         void EndScope()
         {
-            var overlay = Locked(_scopedOverlay, () =>
-            {
-                var scopeOverlay = _scopedOverlay.Value.Overlay;
-                _scopedOverlay.Value.Overlay = null;
-                return scopeOverlay;
-            });
-
-            overlay.Dispose();
+            _scopedOverlay.Value.Overlay.Dispose();
+            _scopedOverlay.Value.Overlay = null;
         }
 
         TService Resolve<TService>()
@@ -101,7 +94,7 @@ namespace Composable.DependencyInjection
                 case Lifestyle.Singleton:
                     return (TService)Locked(_singletonOverlay, () => _singletonOverlay.ResolveInstance(registration));
                 case Lifestyle.Scoped:
-                    return (TService)Locked(_scopedOverlay, () => _scopedOverlay.Value.Overlay.ResolveInstance(registration));
+                    return (TService)_scopedOverlay.Value.Overlay.ResolveInstance(registration);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

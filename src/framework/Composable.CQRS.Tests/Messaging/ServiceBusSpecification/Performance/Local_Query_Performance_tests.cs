@@ -11,7 +11,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         [Test] public void Runs_10000_MultiThreaded_local_queries_in_30_milliSecond()
         {
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10000);
 
             TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10000, maxTotal: 30.Milliseconds(), maxTries: 1);
         }

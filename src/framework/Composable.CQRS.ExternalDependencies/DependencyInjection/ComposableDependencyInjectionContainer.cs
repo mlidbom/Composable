@@ -66,7 +66,6 @@ namespace Composable.DependencyInjection
 
         TService Resolve<TService>()
         {
-            ComponentRegistration registration = null;
             if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
             {
                 throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
@@ -77,7 +76,7 @@ namespace Composable.DependencyInjection
                 throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
             }
 
-            registration = registrations[0];
+            var registration = registrations[0];
 
             switch(registration.Lifestyle)
             {

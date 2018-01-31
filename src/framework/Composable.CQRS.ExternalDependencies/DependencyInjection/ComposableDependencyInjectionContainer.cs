@@ -10,6 +10,8 @@ using Composable.System.Reflection;
 
 namespace Composable.DependencyInjection
 {
+    //todo: Cache singletons (and other registrations) with the components that need them.
+    //todo: Validate lifetime dependencies when first creating container.
     class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
         internal ComposableDependencyInjectionContainer(IRunMode runMode) => RunMode = runMode;
@@ -38,8 +40,28 @@ namespace Composable.DependencyInjection
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
         {
-            _createdServiceLocator = true;
+            if(!_createdServiceLocator)
+            {
+                _createdServiceLocator = true;
+                Verify();
+            }
             return this;
+        }
+
+        void Verify()
+        {
+            using(((IServiceLocator)this).BeginScope())
+            {
+                var allServiceTypes = _serviceToRegistrationDictionary.Values
+                                                                      .SelectMany(registrations => registrations)
+                                                                      .SelectMany(registration => registration.ServiceTypes)
+                                                                      .ToList();
+
+                foreach(var serviceType in allServiceTypes)
+                {
+                    Resolve(serviceType);
+                }
+            }
         }
 
         bool _createdServiceLocator;
@@ -64,16 +86,18 @@ namespace Composable.DependencyInjection
 
         void EndScope() => _scopedOverlay.Value.Dispose();
 
-        TService Resolve<TService>()
+        TService Resolve<TService>() => (TService)Resolve(typeof(TService));
+
+        object Resolve(Type serviceType)
         {
-            if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
+            if(!_serviceToRegistrationDictionary.TryGetValue(serviceType, out var registrations))
             {
-                throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
+                throw new Exception($"No service of type: {serviceType.GetFullNameCompilable()} is registered.");
             }
 
             if(registrations.Count > 1)
             {
-                throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
+                throw new Exception($"Requested single instance for service:{serviceType}, but there were multiple services registered.");
             }
 
             var registration = registrations[0];
@@ -81,9 +105,9 @@ namespace Composable.DependencyInjection
             switch(registration.Lifestyle)
             {
                 case Lifestyle.Singleton:
-                    return (TService)registration.GetSingletonInstance(this);
+                    return registration.GetSingletonInstance(this);
                 case Lifestyle.Scoped:
-                    return (TService)_scopedOverlay.Value.ResolveInstance(registration, this);
+                    return _scopedOverlay.Value.ResolveInstance(registration, this);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

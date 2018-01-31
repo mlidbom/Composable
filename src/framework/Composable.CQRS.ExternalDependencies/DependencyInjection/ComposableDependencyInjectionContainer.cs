@@ -55,9 +55,9 @@ namespace Composable.DependencyInjection
 
         IDisposable IServiceLocator.BeginScope()
         {
-            if(_scopedOverlay.Value != null)
+            if(_scopedOverlay.Value?.IsDisposed == false)
             {
-                throw new Exception("Already has scope....");
+                throw new Exception("Someone failed to dispose a scope.");
             }
 
             _scopedOverlay.Value = new ComponentLifestyleOverlay(this);
@@ -65,11 +65,7 @@ namespace Composable.DependencyInjection
             return Disposable.Create(EndScope);
         }
 
-        void EndScope()
-        {
-            _scopedOverlay.Value.Dispose();
-            _scopedOverlay.Value = null;
-        }
+        void EndScope() => _scopedOverlay.Value.Dispose();
 
         TService Resolve<TService>()
         {
@@ -135,19 +131,19 @@ namespace Composable.DependencyInjection
             readonly ComposableDependencyInjectionContainer _parent;
             public ComponentLifestyleOverlay(ComposableDependencyInjectionContainer parent) => _parent = parent;
             readonly Dictionary<Guid, CachedInstance> _instantiatedComponents = new Dictionary<Guid, CachedInstance>();
-            bool _disposed;
+            internal bool IsDisposed { get; private set; }
             public void Dispose()
             {
-                if(!_disposed)
+                if(!IsDisposed)
                 {
-                    _disposed = true;
+                    IsDisposed = true;
                     _instantiatedComponents.ForEach(cached => cached.Value.Dispose());
                 }
             }
 
             public object ResolveInstance(ComponentRegistration registration)
             {
-                Assert.State.Assert(!_disposed);
+                Assert.State.Assert(!IsDisposed);
                 if(_instantiatedComponents.TryGetValue(registration.Id, out var cachedInstance))
                 {
                     return cachedInstance.Instance;

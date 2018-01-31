@@ -12,11 +12,7 @@ namespace Composable.DependencyInjection
 {
     class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
-        internal ComposableDependencyInjectionContainer(IRunMode runMode)
-        {
-            RunMode = runMode;
-            _singletonOverlay = new ComponentLifestyleOverlay(this);
-        }
+        internal ComposableDependencyInjectionContainer(IRunMode runMode) => RunMode = runMode;
 
         public IRunMode RunMode { get; }
 
@@ -40,15 +36,11 @@ namespace Composable.DependencyInjection
 
         public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents.Values.ToList();
 
-        IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => Locked(_singletonOverlay, () =>
+        IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
         {
-            if(!_createdServiceLocator)
-            {
-                _createdServiceLocator = true;
-            }
-
+            _createdServiceLocator = true;
             return this;
-        });
+        }
 
         bool _createdServiceLocator;
 
@@ -99,7 +91,6 @@ namespace Composable.DependencyInjection
         }
 
         readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
-        readonly ComponentLifestyleOverlay _singletonOverlay;
         readonly AsyncLocal<ComponentLifestyleOverlay> _scopedOverlay = new AsyncLocal<ComponentLifestyleOverlay>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();

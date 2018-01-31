@@ -12,7 +12,7 @@ namespace Composable.System
         ///<summary>Constructs an instance that will call <param name="action"> when disposed.</param></summary>
         Disposable(Action action)
         {
-            Contract.Argument(() => action).NotNull();
+            Assert.Argument.NotNull(action);
             _action = action;
         }
 

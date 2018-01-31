@@ -130,14 +130,15 @@ namespace Composable.DependencyInjection
         {
             readonly ComposableDependencyInjectionContainer _parent;
             public ComponentLifestyleOverlay(ComposableDependencyInjectionContainer parent) => _parent = parent;
-            readonly Dictionary<Guid, CachedInstance> _instantiatedComponents = new Dictionary<Guid, CachedInstance>();
+            readonly List<IDisposable> _disposables = new List<IDisposable>();
+            readonly Dictionary<Guid, object> _instantiatedComponents = new Dictionary<Guid, object>();
             internal bool IsDisposed { get; private set; }
             public void Dispose()
             {
                 if(!IsDisposed)
                 {
                     IsDisposed = true;
-                    _instantiatedComponents.ForEach(cached => cached.Value.Dispose());
+                    _disposables.ForEach(cached => cached.Dispose());
                 }
             }
 
@@ -146,54 +147,16 @@ namespace Composable.DependencyInjection
                 Assert.State.Assert(!IsDisposed);
                 if(_instantiatedComponents.TryGetValue(registration.Id, out var cachedInstance))
                 {
-                    return cachedInstance.Instance;
+                    return cachedInstance;
                 } else
                 {
-                    cachedInstance = CreateRegistrationInstance(registration);
+                    cachedInstance = registration.CreateInstance(_parent);
                     _instantiatedComponents.Add(registration.Id, cachedInstance);
-                    return cachedInstance.Instance;
-                }
-            }
-
-            CachedInstance CreateRegistrationInstance(ComponentRegistration registration)
-            {
-                if(registration.InstantiationSpec.FactoryMethod != null)
-                {
-                    return new CachedInstance(creationSpecIsInstance: false, instance: registration.InstantiationSpec.FactoryMethod(_parent));
-                } else if(registration.InstantiationSpec.Instance is object instance)
-                {
-                    return new CachedInstance(creationSpecIsInstance: true, instance: instance);
-                }else
-                {
-                    throw new Exception("Failed to create instance");
-                }
-            }
-
-            class CachedInstance : IDisposable
-            {
-                public CachedInstance(bool creationSpecIsInstance, object instance)
-                {
-                    CreationSpecIsInstance = creationSpecIsInstance;
-                    Instance = instance;
-                }
-
-                bool CreationSpecIsInstance{get;}
-                internal object Instance { get; }
-
-                bool _disposed;
-                public void Dispose()
-                {
-                    if(!_disposed)
+                    if(cachedInstance is IDisposable disposable)
                     {
-                        _disposed = true;
-                        if(!CreationSpecIsInstance)
-                        {
-                            if(Instance is IDisposable disposable)
-                            {
-                                disposable.Dispose();
-                            }
-                        }
+                        _disposables.Add(disposable);
                     }
+                    return cachedInstance;
                 }
             }
         }

@@ -210,6 +210,18 @@ namespace Composable.DependencyInjection
 
         readonly object _lock = new object();
         object _singletonInstance;
+
+        internal object CreateInstance(IServiceLocatorKernel kernel)
+        {
+            if(InstantiationSpec.Instance is object instance)
+            {
+                return instance;
+            } else
+            {
+                return InstantiationSpec.FactoryMethod(kernel);
+            }
+        }
+
         internal object GetSingletonInstance(IServiceLocatorKernel kernel)
         {
             if(_singletonInstance == null)
@@ -218,13 +230,7 @@ namespace Composable.DependencyInjection
                 {
                     if(_singletonInstance == null)
                     {
-                        if(InstantiationSpec.Instance is object instance)
-                        {
-                            _singletonInstance = instance;
-                        } else
-                        {
-                            _singletonInstance = InstantiationSpec.FactoryMethod(kernel);
-                        }
+                        _singletonInstance = CreateInstance(kernel);
                     }
                 }
             }

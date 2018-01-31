@@ -53,40 +53,32 @@ namespace Composable.DependencyInjection
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => throw new NotImplementedException();
 
 
-        IDisposable IServiceLocator.BeginScope()
-        {
-            if(_scopedOverlay.Value == null)
-            {
-                Locked(_scopedOverlay,
-                       () =>
-                       {
-                           if(_scopedOverlay.Value == null)
-                           {
-                               _scopedOverlay.Value = new OverlayHolder();
-                           }
-                       });
-            }
+        IDisposable IServiceLocator.BeginScope() => Locked(_scopedOverlay,
+                                                           () =>
+                                                           {
+                                                               if(_scopedOverlay.Value?.Overlay != null)
+                                                               {
+                                                                   throw new Exception("Already has scope....");
+                                                               }
 
-            if(_scopedOverlay.Value.Overlay != null)
-            {
-                throw new Exception("Already has scope....");
-            }
+                                                               _scopedOverlay.Value = new OverlayHolder
+                                                                                      {
+                                                                                          Overlay = new ComponentLifestyleOverlay(this)
+                                                                                      };
 
-            _scopedOverlay.Value.Overlay = new ComponentLifestyleOverlay(this);
-
-            return Disposable.Create(EndScope);
-        }
+                                                               return Disposable.Create(EndScope);
+                                                           });
 
         void EndScope()
         {
             var overlay = Locked(_scopedOverlay, () =>
             {
-                var scopeOverlay = _scopedOverlay.Value;
-                _scopedOverlay.Value = null;
+                var scopeOverlay = _scopedOverlay.Value.Overlay;
+                _scopedOverlay.Value.Overlay = null;
                 return scopeOverlay;
             });
 
-            overlay.Overlay.Dispose();
+            overlay.Dispose();
         }
 
         TService Resolve<TService>()

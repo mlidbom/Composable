@@ -16,11 +16,8 @@ namespace Composable.DependencyInjection
         internal ComposableDependencyInjectionContainer(IRunMode runMode)
         {
             RunMode = runMode;
-            _state = new OptimizedThreadShared<NonThreadSafeImplementation>(new NonThreadSafeImplementation(this));
             _singletonOverlay = new OptimizedThreadShared<ComponentLifestyleOverlay>(new ComponentLifestyleOverlay(this));
         }
-
-        readonly IThreadShared<NonThreadSafeImplementation> _state;
 
         public IRunMode RunMode { get; }
 
@@ -44,7 +41,6 @@ namespace Composable.DependencyInjection
             if(!_createdServiceLocator)
             {
                 _createdServiceLocator = true;
-                _state.WithExclusiveAccess(state => state.Verify());
             }
 
             return this;
@@ -55,10 +51,25 @@ namespace Composable.DependencyInjection
         TService IServiceLocator.Resolve<TService>() => Resolve<TService>();
         TService IServiceLocatorKernel.Resolve<TService>() => Resolve<TService>();
         IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new ComponentLease<TComponent>(Resolve<TComponent>());
-        IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new MultiComponentLease<TComponent>(_state.WithExclusiveAccess(state => state.ResolveAll<TComponent>()));
+        IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => throw new NotImplementedException();
 
 
-        IDisposable IServiceLocator.BeginScope() => _state.WithExclusiveAccess(state => state.BeginScope());
+        IDisposable IServiceLocator.BeginScope()
+        {
+            if(_scopedOverlay.Value != null)
+            {
+                throw new Exception("Already has scope....");
+            }
+
+            _scopedOverlay.Value = new OptimizedThreadShared<ComponentLifestyleOverlay>(new ComponentLifestyleOverlay(this));
+
+            return Disposable.Create(() =>
+            {
+                var scopeOverlay = _scopedOverlay.Value;
+                _scopedOverlay.Value = null;
+                scopeOverlay.WithExclusiveAccess(overlay => overlay.Dispose());
+            });
+        }
 
         TService Resolve<TService>()
         {
@@ -82,7 +93,7 @@ namespace Composable.DependencyInjection
                     overlay = _singletonOverlay;
                     break;
                 case Lifestyle.Scoped:
-                    overlay = _state.WithExclusiveAccess(state => state._scopedOverlay.Value);
+                    overlay = _scopedOverlay.Value;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -95,6 +106,7 @@ namespace Composable.DependencyInjection
         }
 
         readonly OptimizedThreadShared<ComponentLifestyleOverlay> _singletonOverlay;
+        readonly AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>> _scopedOverlay = new AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
@@ -106,48 +118,6 @@ namespace Composable.DependencyInjection
             {
                 _disposed = true;
                 _singletonOverlay.WithExclusiveAccess(overlay => overlay.Dispose());
-            }
-        }
-
-        class NonThreadSafeImplementation
-        {
-            readonly ComposableDependencyInjectionContainer _parent;
-
-            internal readonly AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>> _scopedOverlay = new AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>>();
-
-            public NonThreadSafeImplementation(ComposableDependencyInjectionContainer parent)
-            {
-                _parent = parent;
-            }
-
-            public TService[] ResolveAll<TService>() where TService : class => throw new NotImplementedException();
-
-            internal void Verify()
-            {
-                //todo: Implement some validation here?
-            }
-
-            public IDisposable BeginScope()
-            {
-                if(_scopedOverlay.Value != null)
-                {
-                    throw new Exception("Already has scope....");
-                }
-
-                _scopedOverlay.Value = new OptimizedThreadShared<ComponentLifestyleOverlay>(new ComponentLifestyleOverlay(_parent));
-
-                return Disposable.Create(() =>
-                {
-                    var componentLifestyleOverlay =_parent._state.WithExclusiveAccess(state => state.EndScopeAndReturnScopedComponents());
-                    componentLifestyleOverlay.WithExclusiveAccess(overlay => overlay.Dispose());
-                });
-            }
-
-            OptimizedThreadShared<ComponentLifestyleOverlay> EndScopeAndReturnScopedComponents()
-            {
-                var scopeOverlay = _scopedOverlay.Value;
-                _scopedOverlay.Value = null;
-                return scopeOverlay;
             }
         }
 

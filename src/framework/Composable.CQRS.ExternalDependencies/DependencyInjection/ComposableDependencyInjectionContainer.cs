@@ -23,9 +23,14 @@ namespace Composable.DependencyInjection
         public void Register(params ComponentRegistration[] registrations)
         {
             Assert.State.Assert(!_createdServiceLocator);
+
             registrations.ForEach(registration => _registeredComponents.Add(registration.Id, registration));
             foreach(var registration in registrations)
             {
+                if(registration.Lifestyle == Lifestyle.Singleton)
+                {
+                    _singletons.Add(registration);
+                }
                 foreach(var registrationServiceType in registration.ServiceTypes)
                 {
                     _serviceToRegistrationDictionary.GetOrAdd(registrationServiceType, () => new List<ComponentRegistration>()).Add(registration);
@@ -93,6 +98,7 @@ namespace Composable.DependencyInjection
             }
         }
 
+        readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
         readonly ComponentLifestyleOverlay _singletonOverlay;
         readonly AsyncLocal<ComponentLifestyleOverlay> _scopedOverlay = new AsyncLocal<ComponentLifestyleOverlay>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
@@ -100,14 +106,17 @@ namespace Composable.DependencyInjection
 
 
         bool _disposed;
-        public void Dispose() => Locked(_singletonOverlay, () =>
+        public void Dispose()
         {
             if(!_disposed)
             {
                 _disposed = true;
-                _singletonOverlay.Dispose();
+                foreach(var singleton in _singletons)
+                {
+                    singleton.Dispose();
+                }
             }
-        });
+        }
 
         static TResult Locked<TResult>(object @lock, Func<TResult> locked)
         {

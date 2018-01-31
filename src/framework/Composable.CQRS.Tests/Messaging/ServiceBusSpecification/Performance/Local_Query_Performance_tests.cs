@@ -8,7 +8,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
     [TestFixture] public class Local_Query_performance_tests : PerformanceTestBase
     {
-        [Test] public void Runs_10000_MultiThreaded_local_queries_in_12_milliSecond()
+        [Test] public void Runs_10000_MultiThreaded_local_queries_in_12_milliSeconds()
         {
             //Warmup
             StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10_000);

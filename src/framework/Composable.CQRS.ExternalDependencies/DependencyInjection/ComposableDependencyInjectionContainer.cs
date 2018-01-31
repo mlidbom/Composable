@@ -55,23 +55,20 @@ namespace Composable.DependencyInjection
 
         IDisposable IServiceLocator.BeginScope()
         {
-            if(_scopedOverlay.Value?.Overlay != null)
+            if(_scopedOverlay.Value != null)
             {
                 throw new Exception("Already has scope....");
             }
 
-            _scopedOverlay.Value = new OverlayHolder
-                                   {
-                                       Overlay = new ComponentLifestyleOverlay(this)
-                                   };
+            _scopedOverlay.Value = new ComponentLifestyleOverlay(this);
 
             return Disposable.Create(EndScope);
         }
 
         void EndScope()
         {
-            _scopedOverlay.Value.Overlay.Dispose();
-            _scopedOverlay.Value.Overlay = null;
+            _scopedOverlay.Value.Dispose();
+            _scopedOverlay.Value = null;
         }
 
         TService Resolve<TService>()
@@ -94,14 +91,14 @@ namespace Composable.DependencyInjection
                 case Lifestyle.Singleton:
                     return (TService)registration.GetSingletonInstance(() => Locked(_singletonOverlay, () => _singletonOverlay.ResolveInstance(registration)));
                 case Lifestyle.Scoped:
-                    return (TService)_scopedOverlay.Value.Overlay.ResolveInstance(registration);
+                    return (TService)_scopedOverlay.Value.ResolveInstance(registration);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
         readonly ComponentLifestyleOverlay _singletonOverlay;
-        readonly AsyncLocal<OverlayHolder> _scopedOverlay = new AsyncLocal<OverlayHolder>();
+        readonly AsyncLocal<ComponentLifestyleOverlay> _scopedOverlay = new AsyncLocal<ComponentLifestyleOverlay>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
@@ -131,11 +128,6 @@ namespace Composable.DependencyInjection
             {
                 locked();
             }
-        }
-
-        class OverlayHolder
-        {
-            internal ComponentLifestyleOverlay Overlay;
         }
 
         class ComponentLifestyleOverlay

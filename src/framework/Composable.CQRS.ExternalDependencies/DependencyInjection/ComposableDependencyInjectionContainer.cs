@@ -7,7 +7,6 @@ using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Reflection;
-using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.DependencyInjection
 {
@@ -16,7 +15,7 @@ namespace Composable.DependencyInjection
         internal ComposableDependencyInjectionContainer(IRunMode runMode)
         {
             RunMode = runMode;
-            _singletonOverlay = new OptimizedThreadShared<ComponentLifestyleOverlay>(new ComponentLifestyleOverlay(this));
+            _singletonOverlay = new ComponentLifestyleOverlay(this);
         }
 
         public IRunMode RunMode { get; }
@@ -36,15 +35,16 @@ namespace Composable.DependencyInjection
 
         public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents.Values.ToList();
 
-        IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
+        IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => Locked(() =>
         {
+
             if(!_createdServiceLocator)
             {
                 _createdServiceLocator = true;
             }
 
             return this;
-        }
+        });
 
         bool _createdServiceLocator;
 
@@ -54,74 +54,84 @@ namespace Composable.DependencyInjection
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => throw new NotImplementedException();
 
 
-        IDisposable IServiceLocator.BeginScope()
+        IDisposable IServiceLocator.BeginScope() => Locked(() =>
         {
             if(_scopedOverlay.Value != null)
             {
                 throw new Exception("Already has scope....");
             }
 
-            _scopedOverlay.Value = new OptimizedThreadShared<ComponentLifestyleOverlay>(new ComponentLifestyleOverlay(this));
+            _scopedOverlay.Value = new ComponentLifestyleOverlay(this);
 
-            return Disposable.Create(() =>
+            return Disposable.Create(() => Locked(() =>
             {
-                var scopeOverlay = _scopedOverlay.Value;
-                _scopedOverlay.Value = null;
-                scopeOverlay.WithExclusiveAccess(overlay => overlay.Dispose());
-            });
-        }
+                    var scopeOverlay = _scopedOverlay.Value;
+                    _scopedOverlay.Value = null;
+                    scopeOverlay.Dispose();
+            }));
+        });
 
-        object _lock = new object();
-        TService Resolve<TService>()
+        TService Resolve<TService>() => Locked(() =>
         {
-            lock(_lock)
+            ComponentRegistration registration = null;
+            if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
             {
-                ComponentRegistration registration = null;
-                if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
-                {
-                    throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
-                }
-
-                if(registrations.Count > 1)
-                {
-                    throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
-                }
-
-                registration = registrations.Single();
-                OptimizedThreadShared<ComponentLifestyleOverlay> overlay;
-
-                switch(registration.Lifestyle)
-                {
-                    case Lifestyle.Singleton:
-                        overlay = _singletonOverlay;
-                        break;
-                    case Lifestyle.Scoped:
-                        overlay = _scopedOverlay.Value;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
-                return (TService)overlay.WithExclusiveAccess(someOverlay =>
-                {
-                    return someOverlay.ResolveInstance(registration);
-                });
+                throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
             }
-        }
 
-        readonly OptimizedThreadShared<ComponentLifestyleOverlay> _singletonOverlay;
-        readonly AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>> _scopedOverlay = new AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>>();
+            if(registrations.Count > 1)
+            {
+                throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
+            }
+
+            registration = registrations.Single();
+            ComponentLifestyleOverlay overlay;
+
+            switch(registration.Lifestyle)
+            {
+                case Lifestyle.Singleton:
+                    overlay = _singletonOverlay;
+                    break;
+                case Lifestyle.Scoped:
+                    overlay = _scopedOverlay.Value;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return (TService)overlay.ResolveInstance(registration);
+        });
+
+        readonly ComponentLifestyleOverlay _singletonOverlay;
+        readonly AsyncLocal<ComponentLifestyleOverlay> _scopedOverlay = new AsyncLocal<ComponentLifestyleOverlay>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
 
         bool _disposed;
-        public void Dispose()
+        public void Dispose() => Locked(() =>
         {
             if(!_disposed)
             {
                 _disposed = true;
-                _singletonOverlay.WithExclusiveAccess(overlay => overlay.Dispose());
+                _singletonOverlay.Dispose();
+            }
+        });
+
+        readonly object _lock = new object();
+        TResult Locked<TResult>(Func<TResult> locked)
+        {
+            lock(_lock)
+            {
+                return locked();
+            }
+        }
+
+        void Locked(Action locked)
+        {
+            lock(_lock)
+            {
+                locked();
             }
         }
 

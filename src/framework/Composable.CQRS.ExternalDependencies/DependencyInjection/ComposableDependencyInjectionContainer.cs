@@ -84,7 +84,7 @@ namespace Composable.DependencyInjection
                 throw new Exception("Someone failed to dispose a scope.");
             }
 
-            _scopedOverlay.Value = new ComponentLifestyleOverlay();
+            _scopedOverlay.Value = new ScopedComponentOverlay();
 
             return _scopeDisposer;
         }
@@ -134,7 +134,7 @@ namespace Composable.DependencyInjection
         }
 
         readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
-        readonly AsyncLocal<ComponentLifestyleOverlay> _scopedOverlay = new AsyncLocal<ComponentLifestyleOverlay>();
+        readonly AsyncLocal<ScopedComponentOverlay> _scopedOverlay = new AsyncLocal<ScopedComponentOverlay>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
@@ -151,7 +151,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        class ComponentLifestyleOverlay
+        class ScopedComponentOverlay
         {
             readonly List<IDisposable> _disposables = new List<IDisposable>();
             readonly Dictionary<Guid, object> _instantiatedComponents = new Dictionary<Guid, object>();

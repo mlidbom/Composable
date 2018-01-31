@@ -8,20 +8,20 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
     [TestFixture] public class Local_Query_performance_tests : PerformanceTestBase
     {
-        [Test] public void Runs_100_MultiThreaded_local_queries_in_2_milliSecond()
+        [Test] public void Runs_10000_MultiThreaded_local_queries_in_30_milliSecond()
         {
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10000);
 
-            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 100, maxTotal: 2.Milliseconds());
+            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10000, maxTotal: 30.Milliseconds().NCrunchSlowdownFactor(7));
         }
 
-        [Test] public void Runs_100_SingleThreaded_local_queries_in_2_milliseconds()
+        [Test] public void Runs_10000_SingleThreaded_local_queries_in_60_milliseconds()
         {
             //Warmup
             StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10);
 
-            TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 100, maxTotal: 2.Milliseconds());
+            TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10000, maxTotal: 60.Milliseconds().NCrunchSlowdownFactor(4));
         }
     }
 }

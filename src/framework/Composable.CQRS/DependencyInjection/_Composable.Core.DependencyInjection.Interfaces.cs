@@ -208,6 +208,36 @@ namespace Composable.DependencyInjection
         internal InstantiationSpec InstantiationSpec { get; }
         internal Lifestyle Lifestyle { get; }
 
+        readonly object _lock = new object();
+        object _singletonInstance;
+
+        internal object CreateInstance(IServiceLocatorKernel kernel)
+        {
+            if(InstantiationSpec.Instance is object instance)
+            {
+                return instance;
+            } else
+            {
+                return InstantiationSpec.FactoryMethod(kernel);
+            }
+        }
+
+        internal object GetSingletonInstance(IServiceLocatorKernel kernel)
+        {
+            if(_singletonInstance == null)
+            {
+                lock(_lock)
+                {
+                    if(_singletonInstance == null)
+                    {
+                        _singletonInstance = CreateInstance(kernel);
+                    }
+                }
+            }
+
+            return _singletonInstance;
+        }
+
         internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
         {
             serviceTypes = serviceTypes.ToList();
@@ -220,6 +250,14 @@ namespace Composable.DependencyInjection
         }
 
         internal abstract ComponentRegistration CreateCloneRegistration(IServiceLocator currentLocator);
+
+        internal void Dispose()
+        {
+            if(InstantiationSpec.Instance == null && _singletonInstance is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 
     public class ComponentRegistration<TService> : ComponentRegistration where TService : class
@@ -237,7 +275,7 @@ namespace Composable.DependencyInjection
         {
             if(!ShouldDelegateToParentWhenCloning)
             {
-                return this;
+                return new ComponentRegistration<TService>(Lifestyle, ServiceTypes, InstantiationSpec);
             }
 
             //We must use singleton instance registrations when delegating because otherwise the containers will both attempt to dispose the service.

@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
-    public class PerformanceTestBase
+    [TestFixture]public class PerformanceTestBase
     {
         protected ITestingEndpointHost Host;
         protected IEndpoint ServerEndpoint;

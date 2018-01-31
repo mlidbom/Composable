@@ -7,220 +7,138 @@ using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Reflection;
-using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.DependencyInjection
 {
     class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
-        internal ComposableDependencyInjectionContainer(IRunMode runMode)
-        {
-            RunMode = runMode;
-            _state = new OptimizedThreadShared<NonThreadSafeImplementation>(new NonThreadSafeImplementation(this));
-        }
-
-        readonly IThreadShared<NonThreadSafeImplementation> _state;
+        internal ComposableDependencyInjectionContainer(IRunMode runMode) => RunMode = runMode;
 
         public IRunMode RunMode { get; }
-        public void Register(params ComponentRegistration[] registrations) => _state.WithExclusiveAccess(state => state.Register(registrations));
 
-        public IEnumerable<ComponentRegistration> RegisteredComponents() => _state.WithExclusiveAccess(state => state.RegisteredComponents.Values.ToList());
-
-        IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => _state.WithExclusiveAccess(state => state.CreateServiceLocator());
-
-        TComponent IServiceLocator.Resolve<TComponent>() => ((IServiceLocatorKernel)this).Resolve<TComponent>();
-        IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new ComponentLease<TComponent>(((IServiceLocatorKernel)this).Resolve<TComponent>());
-        IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new MultiComponentLease<TComponent>(_state.WithExclusiveAccess(state => state.ResolveAll<TComponent>()));
-        IDisposable IServiceLocator.BeginScope() => _state.WithExclusiveAccess(state => state.BeginScope());
-
-        TService IServiceLocatorKernel.Resolve<TService>()
+        public void Register(params ComponentRegistration[] registrations)
         {
-            ComponentRegistration registration = null;
-            var overlay = _state.WithExclusiveAccess(state =>
+            Assert.State.Assert(!_createdServiceLocator);
+
+            registrations.ForEach(registration => _registeredComponents.Add(registration.Id, registration));
+            foreach(var registration in registrations)
             {
-                if(!state.ServiceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
+                if(registration.Lifestyle == Lifestyle.Singleton)
                 {
-                    throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
+                    _singletons.Add(registration);
                 }
-
-                if(registrations.Count > 1)
+                foreach(var registrationServiceType in registration.ServiceTypes)
                 {
-                    throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
+                    _serviceToRegistrationDictionary.GetOrAdd(registrationServiceType, () => new List<ComponentRegistration>()).Add(registration);
                 }
-
-                registration = registrations.Single();
-                switch(registration.Lifestyle)
-                {
-                    case Lifestyle.Singleton:
-                        return state._singletonOverlay;
-                    case Lifestyle.Scoped:
-                        return state._scopedOverlay.Value;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            });
-
-            return (TService)overlay.WithExclusiveAccess(someOverlay =>
-            {
-                return someOverlay.ResolveInstance(registration);
-            });
+            }
         }
 
-        void IDisposable.Dispose() => _state.WithExclusiveAccess(state => state.Dispose());
+        public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents.Values.ToList();
 
-
-        class NonThreadSafeImplementation
+        IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
         {
-            readonly ComposableDependencyInjectionContainer _parent;
-            internal readonly Dictionary<Guid, ComponentRegistration> RegisteredComponents = new Dictionary<Guid, ComponentRegistration>();
-            public readonly IDictionary<Type, List<ComponentRegistration>> ServiceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
+            _createdServiceLocator = true;
+            return this;
+        }
 
-            internal readonly OptimizedThreadShared<ComponentLifestyleOverlay> _singletonOverlay;
-            internal readonly AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>> _scopedOverlay = new AsyncLocal<OptimizedThreadShared<ComponentLifestyleOverlay>>();
+        bool _createdServiceLocator;
 
-            public NonThreadSafeImplementation(ComposableDependencyInjectionContainer parent)
+        TService IServiceLocator.Resolve<TService>() => Resolve<TService>();
+        TService IServiceLocatorKernel.Resolve<TService>() => Resolve<TService>();
+        IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new ComponentLease<TComponent>(Resolve<TComponent>());
+        IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => throw new NotImplementedException();
+
+
+        IDisposable IServiceLocator.BeginScope()
+        {
+            if(_scopedOverlay.Value?.IsDisposed == false)
             {
-                _parent = parent;
-                _singletonOverlay = new OptimizedThreadShared<ComponentLifestyleOverlay>(new ComponentLifestyleOverlay(_parent));
+                throw new Exception("Someone failed to dispose a scope.");
             }
 
-            public void Register(ComponentRegistration[] registrations)
+            _scopedOverlay.Value = new ComponentLifestyleOverlay();
+
+            return Disposable.Create(EndScope);
+        }
+
+        void EndScope() => _scopedOverlay.Value.Dispose();
+
+        TService Resolve<TService>()
+        {
+            if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
             {
-                registrations.ForEach(registration => RegisteredComponents.Add(registration.Id, registration));
-                foreach(var registration in registrations)
+                throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
+            }
+
+            if(registrations.Count > 1)
+            {
+                throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
+            }
+
+            var registration = registrations[0];
+
+            switch(registration.Lifestyle)
+            {
+                case Lifestyle.Singleton:
+                    return (TService)registration.GetSingletonInstance(this);
+                case Lifestyle.Scoped:
+                    return (TService)_scopedOverlay.Value.ResolveInstance(registration, this);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
+        readonly AsyncLocal<ComponentLifestyleOverlay> _scopedOverlay = new AsyncLocal<ComponentLifestyleOverlay>();
+        readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
+        readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
+
+
+        bool _disposed;
+        public void Dispose()
+        {
+            if(!_disposed)
+            {
+                _disposed = true;
+                foreach(var singleton in _singletons)
                 {
-                    foreach(var registrationServiceType in registration.ServiceTypes)
-                    {
-                        ServiceToRegistrationDictionary.GetOrAdd(registrationServiceType, () => new List<ComponentRegistration>()).Add(registration);
-                    }
-                }
-            }
-
-            public TService[] ResolveAll<TService>() where TService : class => throw new NotImplementedException();
-
-            void Verify()
-            {
-                //todo: Implement some validation here?
-            }
-
-            bool _verified;
-
-            internal IServiceLocator CreateServiceLocator()
-            {
-                if(!_verified)
-                {
-                    _verified = true;
-                    Verify();
-                }
-
-                return _parent;
-            }
-
-            public IDisposable BeginScope()
-            {
-                if(_scopedOverlay.Value != null)
-                {
-                    throw new Exception("Already has scope....");
-                }
-
-                _scopedOverlay.Value = new OptimizedThreadShared<ComponentLifestyleOverlay>(new ComponentLifestyleOverlay(_parent));
-
-                return Disposable.Create(() =>
-                {
-                    var componentLifestyleOverlay =_parent._state.WithExclusiveAccess(state => state.EndScopeAndReturnScopedComponents());
-                    componentLifestyleOverlay.WithExclusiveAccess(overlay => overlay.Dispose());
-                });
-            }
-
-            OptimizedThreadShared<ComponentLifestyleOverlay> EndScopeAndReturnScopedComponents()
-            {
-                var scopeOverlay = _scopedOverlay.Value;
-                _scopedOverlay.Value = null;
-                return scopeOverlay;
-            }
-
-            bool _disposed;
-            public void Dispose()
-            {
-                if(!_disposed)
-                {
-                    _disposed = true;
-                    _singletonOverlay.WithExclusiveAccess(overlay => overlay.Dispose());
+                    singleton.Dispose();
                 }
             }
         }
 
         class ComponentLifestyleOverlay
         {
-            readonly ComposableDependencyInjectionContainer _parent;
-            public ComponentLifestyleOverlay(ComposableDependencyInjectionContainer parent) => _parent = parent;
-            readonly Dictionary<Guid, CachedInstance> _instantiatedComponents = new Dictionary<Guid, CachedInstance>();
-            bool _disposed;
+            readonly List<IDisposable> _disposables = new List<IDisposable>();
+            readonly Dictionary<Guid, object> _instantiatedComponents = new Dictionary<Guid, object>();
+            internal bool IsDisposed { get; private set; }
             public void Dispose()
             {
-                if(!_disposed)
+                if(!IsDisposed)
                 {
-                    _disposed = true;
-                    _instantiatedComponents.ForEach(cached => cached.Value.Dispose());
+                    IsDisposed = true;
+                    foreach(var disposable in _disposables)
+                    {
+                        disposable.Dispose();
+                    }
                 }
             }
 
-            public object ResolveInstance(ComponentRegistration registration)
+            public object ResolveInstance(ComponentRegistration registration, IServiceLocatorKernel parent)
             {
-                Assert.State.Assert(!_disposed);
                 if(_instantiatedComponents.TryGetValue(registration.Id, out var cachedInstance))
                 {
-                    return cachedInstance.Instance;
+                    return cachedInstance;
                 } else
                 {
-                    cachedInstance = CreateRegistrationInstance(registration);
+                    cachedInstance = registration.CreateInstance(parent);
                     _instantiatedComponents.Add(registration.Id, cachedInstance);
-                    return cachedInstance.Instance;
-                }
-            }
-
-            CachedInstance CreateRegistrationInstance(ComponentRegistration registration)
-            {
-                if(registration.InstantiationSpec.FactoryMethod != null)
-                {
-                    return new CachedInstance(creationSpecIsInstance: false, instance: registration.InstantiationSpec.FactoryMethod(_parent));
-                } else if(registration.InstantiationSpec.Instance is object instance)
-                {
-                    return new CachedInstance(creationSpecIsInstance: true, instance: instance);
-                }else
-                {
-                    throw new Exception("Failed to create instance");
-                }
-            }
-
-            class CachedInstance : IDisposable
-            {
-                public CachedInstance(bool creationSpecIsInstance, object instance)
-                {
-                    CreationSpecIsInstance = creationSpecIsInstance;
-                    Instance = instance;
-                }
-
-                internal bool CreationSpecIsInstance{get;}
-                internal object Instance { get; }
-
-                bool _disposed;
-                public void Dispose()
-                {
-                    if(!_disposed)
+                    if(cachedInstance is IDisposable disposable)
                     {
-                        _disposed = true;
-                        if(!CreationSpecIsInstance)
-                        {
-                            if(Instance is IDisposable disposable)
-                            {
-                                disposable.Dispose();
-                            }
-                        } else
-                        {
-                            int notDisposed = 12;
-                        }
+                        _disposables.Add(disposable);
                     }
+                    return cachedInstance;
                 }
             }
         }

@@ -29,8 +29,9 @@ namespace Composable.DependencyInjection
 
         public static IDependencyInjectionContainer Create(IRunMode runMode = null)
         {
-            IDependencyInjectionContainer container = new SimpleInjectorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);
+            //IDependencyInjectionContainer container = new SimpleInjectorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);
             //IDependencyInjectionContainer container = new WindsorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);
+            IDependencyInjectionContainer container = new ComposableDependencyInjectionContainer(runMode);
             container.Register(Component.For<IServiceLocator>()
                                         .UsingFactoryMethod(() => container.CreateServiceLocator())
                                         .LifestyleSingleton());

@@ -59,7 +59,9 @@ namespace Composable.Messaging.Buses
             RegisterHandlers = new MessageHandlerRegistrarWithDependencyInjectionSupport(registry, new Lazy<IServiceLocator>(() => _container.CreateServiceLocator()));
 
             _container.Register(
-                Component.For<ITaskRunner>().ImplementedBy<TaskRunner>().LifestyleSingleton(),
+                Component.For<ITaskRunner>()
+                         .UsingFactoryMethod(() => new TaskRunner())
+                         .LifestyleSingleton(),
                 Component.For<EndpointId>().UsingFactoryMethod(() => endpointId).LifestyleSingleton(),
                 Component.For<EndpointConfiguration>()
                          .UsingFactoryMethod(() => Configuration)
@@ -69,14 +71,14 @@ namespace Composable.Messaging.Buses
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning(),
                 Component.For<IAggregateTypeValidator>()
-                         .ImplementedBy<AggregateTypeValidator>()
+                         .UsingFactoryMethod(() => new AggregateTypeValidator(_typeMapper))
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
                          .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, EndpointId id, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
                                                  new InterprocessTransport(globalStateTracker, timeSource, endpointSqlConnection, _typeMapper, id, taskRunner, serializer))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
-                         .ImplementedBy<SingleThreadUseGuard>()
+                         .UsingFactoryMethod(() => new SingleThreadUseGuard())
                          .LifestyleScoped(),
                 Component.For<IGlobalBusStateTracker>()
                          .UsingFactoryMethod(() => globalStateTracker)
@@ -85,13 +87,13 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod(() => registry)
                          .LifestyleSingleton(),
                 Component.For<IEventStoreSerializer>()
-                         .ImplementedBy<EventStoreSerializer>()
+                         .UsingFactoryMethod(() => new EventStoreSerializer(_typeMapper))
                          .LifestyleSingleton(),
                 Component.For<IDocumentDbSerializer>()
-                         .ImplementedBy<DocumentDbSerializer>()
+                         .UsingFactoryMethod(() => new DocumentDbSerializer(_typeMapper))
                          .LifestyleSingleton(),
                 Component.For<IRemotableMessageSerializer>()
-                         .ImplementedBy<RemotableMessageSerializer>()
+                         .UsingFactoryMethod(() => new RemotableMessageSerializer(_typeMapper))
                          .LifestyleSingleton(),
                 Component.For<IInbox>()
                          .UsingFactoryMethod((IServiceLocator serviceLocator, IGlobalBusStateTracker stateTracker, EndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
@@ -101,13 +103,14 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))
                          .LifestyleSingleton(),
                 Component.For<IServiceBusControl>()
-                         .ImplementedBy<ServiceBusControl>()
+                         .UsingFactoryMethod((IInterprocessTransport interprocessTransport, IInbox inbox, CommandScheduler commandScheduler) => new ServiceBusControl(interprocessTransport, inbox, commandScheduler))
                          .LifestyleSingleton(),
                 Component.For<IServiceBusSession, IRemoteApiNavigatorSession, ILocalApiNavigatorSession>()
-                         .ImplementedBy<ApiNavigatorSession>()
+                         .UsingFactoryMethod((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry) =>
+                                                 new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry))
                          .LifestyleScoped(),
                 Component.For<IEventstoreEventPublisher>()
-                         .ImplementedBy<EventstoreEventPublisher>()
+                         .UsingFactoryMethod((IInterprocessTransport interprocessTransport, IMessageHandlerRegistry messageHandlerRegistry) => new EventstoreEventPublisher(interprocessTransport, messageHandlerRegistry))
                          .LifestyleScoped(),
                 Component.For<ISqlConnectionProvider>()
                          .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))

@@ -53,15 +53,6 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
                     {
                         _container.RegisterSingleton(serviceType, componentRegistration.InstantiationSpec.Instance);
                     }
-                } else if(componentRegistration.InstantiationSpec.ImplementationType != null)
-                {
-                    var baseRegistration = GetSimpleInjectorLifestyle(componentRegistration.Lifestyle).CreateRegistration(componentRegistration.InstantiationSpec.ImplementationType, _container);
-
-                    foreach (var serviceType in componentRegistration.ServiceTypes)
-                    {
-                        _container.AddRegistration(serviceType, baseRegistration);
-                    }
-
                 } else if(componentRegistration.InstantiationSpec.FactoryMethod != null)
                 {
                     var baseRegistration = GetSimpleInjectorLifestyle(componentRegistration.Lifestyle)
@@ -108,6 +99,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
             return this;
         }
 
+        public TComponent Resolve<TComponent>() where TComponent : class => _container.GetInstance<TComponent>();
         IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new SimpleInjectorComponentLease<TComponent>(_container.GetInstance<TComponent>());
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new SimpleInjectorMultiComponentLease<TComponent>(_container.GetAllInstances<TComponent>().ToArray());
         IDisposable IServiceLocator.BeginScope() => AsyncScopedLifestyle.BeginScope(_container);

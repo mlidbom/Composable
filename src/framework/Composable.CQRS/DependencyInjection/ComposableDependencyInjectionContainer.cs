@@ -10,7 +10,6 @@ using Composable.System.Reflection;
 
 namespace Composable.DependencyInjection
 {
-    //todo: Cache singletons (and other registrations) with the components that need them.
     class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
         readonly IDisposable _scopeDisposer;

@@ -66,6 +66,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         {
             var navigationSpecification = NavigationSpecification.Get(new MyRemoteQuery());
 
+            //ncrunch: no coverage start
             async Task RunRequestAsync()
             {
                 await ClientEndpoint.ServiceLocator.ExecuteInIsolatedScopeAsync(
@@ -75,6 +76,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             }
 
             async Task RunScenario() => await Task.WhenAll(1.Through(requests).Select(_ => RunRequestAsync()).ToArray());
+            //ncrunch: no coverage end
 
             RunScenario().Wait();
 

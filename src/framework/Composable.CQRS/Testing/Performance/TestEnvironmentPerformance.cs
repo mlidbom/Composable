@@ -20,17 +20,9 @@ namespace Composable.Testing.Performance
         static readonly bool IsInstrumented = CheckIfInstrumented();
         static bool CheckIfInstrumented()
         {
-#if NCRUNCH
-    const bool runningUnderNCrunch = true;
-#else
-    const bool runningUnderNCrunch = false;
-#endif
-
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-            if(!runningUnderNCrunch) return false;
+            if(!IsRunningUnderNCrunch) return false;
 
-#pragma warning disable 162
-            // ReSharper disable once HeuristicUnreachableCode
             var time = StopwatchExtensions.TimeExecution(() =>
                                                          {
                                                              for(int i = 0; i < 100; i++)
@@ -41,8 +33,19 @@ namespace Composable.Testing.Performance
                                                          },
                                                          iterations: 500);
 
-           return time.Total.TotalMilliseconds > 1;
-#pragma warning restore 162
+            return time.Total.TotalMilliseconds > 1;
+        }
+
+        static bool IsRunningUnderNCrunch
+        {
+            get
+            {
+#if NCRUNCH
+    return true;
+#else
+    return false;
+#endif
+            }
         }
     }
 }

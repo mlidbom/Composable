@@ -8,7 +8,6 @@ namespace Composable.DependencyInjection
         class Scope
         {
             readonly List<IDisposable> _disposables = new List<IDisposable>();
-            readonly Dictionary<Guid, object> _instantiatedComponents = new Dictionary<Guid, object>();
             internal readonly ComponentCache Cache;
             internal bool IsDisposed { get; private set; }
 
@@ -30,7 +29,6 @@ namespace Composable.DependencyInjection
             {
                 var newInstance = registration.CreateInstance(parent);
                 Cache.Set(newInstance, registration);
-                _instantiatedComponents.Add(registration.Id, newInstance);
                 if(newInstance is IDisposable disposable)
                 {
                     _disposables.Add(disposable);

@@ -166,8 +166,9 @@ namespace Composable.DependencyInjection
         internal IEnumerable<Type> ServiceTypes { get; }
         internal InstantiationSpec InstantiationSpec { get; }
         internal Lifestyle Lifestyle { get; }
+        internal abstract int ComponentIndex {get;}
 
-        object[] _cachedSingletons = new object[0];
+        internal readonly int[] ServiceTypeIndexes;
 
         readonly object _lock = new object();
         object _singletonInstance;
@@ -199,49 +200,11 @@ namespace Composable.DependencyInjection
             return _singletonInstance;
         }
 
-        internal object ResolveSingletonDependency(Type serviceType, ComponentRegistration registration, IServiceLocatorKernel kernel)
-        {
-            lock(_lock)
-            {
-                foreach(var cachedSingleton in _cachedSingletons)
-                {
-                    if(serviceType.IsInstanceOfType(cachedSingleton))
-                    {
-                        return cachedSingleton;
-                    }
-                }
-
-                var singletonInstance = registration.GetSingletonInstance(kernel);
-
-                var newSingletonCache = new object[_cachedSingletons.Length + 1];
-                Array.Copy(_cachedSingletons, newSingletonCache, _cachedSingletons.Length);
-                newSingletonCache[newSingletonCache.Length - 1] = singletonInstance;
-
-                _cachedSingletons = newSingletonCache;
-
-                return singletonInstance;
-            }
-        }
-
-        internal bool TryResolveDependency<T>(out T service)
-        {
-            // ReSharper disable once ForCanBeConvertedToForeach optimization...
-            for(var i = 0; i < _cachedSingletons.Length; i++)
-            {
-                if(_cachedSingletons[i] is T foundService)
-                {
-                    service = foundService;
-                    return true;
-                }
-            }
-
-            service = default(T);
-            return false;
-        }
-
         internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
         {
             serviceTypes = serviceTypes.ToList();
+
+            ServiceTypeIndexes = serviceTypes.Select(ComposableDependencyInjectionContainer.ServiceTypeIndex.For).ToArray();
 
             Contract.Arguments.That(lifestyle == Lifestyle.Singleton || instantiationSpec.Instance == null, $"{nameof(InstantiationSpec.Instance)} registrations must be {nameof(Lifestyle.Singleton)}s");
 
@@ -259,6 +222,8 @@ namespace Composable.DependencyInjection
                 disposable.Dispose();
             }
         }
+
+        internal abstract object Resolve(IServiceLocator serviceLocator);
     }
 
     public class ComponentRegistration<TService> : ComponentRegistration where TService : class
@@ -272,6 +237,7 @@ namespace Composable.DependencyInjection
             return this;
         }
 
+        internal override int ComponentIndex => ComposableDependencyInjectionContainer.ServiceTypeIndex.ForService<TService>.Index;
         internal override ComponentRegistration CreateCloneRegistration(IServiceLocator currentLocator)
         {
             if(!ShouldDelegateToParentWhenCloning)
@@ -287,6 +253,8 @@ namespace Composable.DependencyInjection
                 instantiationSpec: InstantiationSpec.FromInstance(currentLocator.Resolve<TService>())
             );
         }
+
+        internal override object Resolve(IServiceLocator locator) => locator.Resolve<TService>();
 
         internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
             :base(lifestyle, serviceTypes, instantiationSpec)

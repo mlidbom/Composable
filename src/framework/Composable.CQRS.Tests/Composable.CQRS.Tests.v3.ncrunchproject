@@ -3,5 +3,6 @@
     <HiddenComponentWarnings>
       <Value>AbnormalReferenceResolution</Value>
     </HiddenComponentWarnings>
+    <InstrumentOutputAssembly>False</InstrumentOutputAssembly>
   </Settings>
 </ProjectConfiguration>

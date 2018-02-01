@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
-    [TestFixture, Performance, Serial] public class RemoteQueryPerformanceTests : PerformanceTestBase
+    [TestFixture, Performance, Isolated, Serial] public class RemoteQueryPerformanceTests : PerformanceTestBase
     {
         [Test] public void MultiThreaded_Runs_100_remote_queries_in_15_milliSeconds()
         {

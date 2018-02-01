@@ -102,7 +102,7 @@ namespace Composable.DependencyInjection
                 return singleton;
             }
 
-            if(_scope.Value._cache.TryGet<TService>() is TService scoped)
+            if(_scope.Value.Cache.TryGet<TService>() is TService scoped)
             {
                 return scoped;
             }

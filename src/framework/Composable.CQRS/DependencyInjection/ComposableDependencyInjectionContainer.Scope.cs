@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Composable.DependencyInjection
@@ -10,10 +9,10 @@ namespace Composable.DependencyInjection
         {
             readonly List<IDisposable> _disposables = new List<IDisposable>();
             readonly Dictionary<Guid, object> _instantiatedComponents = new Dictionary<Guid, object>();
-            internal ComponentCache _cache;
+            internal readonly ComponentCache Cache;
             internal bool IsDisposed { get; private set; }
 
-            public Scope(ComposableDependencyInjectionContainer container) => _cache = container._singletonCache.Clone();
+            public Scope(ComposableDependencyInjectionContainer container) => Cache = container._singletonCache.Clone();
 
             public void Dispose()
             {
@@ -29,21 +28,15 @@ namespace Composable.DependencyInjection
 
             public object ResolveInstance(ComponentRegistration registration, IServiceLocatorKernel parent)
             {
-                if(_instantiatedComponents.TryGetValue(registration.Id, out var cachedInstance))
+                var newInstance = registration.CreateInstance(parent);
+                Cache.Set(newInstance, registration);
+                _instantiatedComponents.Add(registration.Id, newInstance);
+                if(newInstance is IDisposable disposable)
                 {
-                    return cachedInstance;
-                } else
-                {
-                    cachedInstance = registration.CreateInstance(parent);
-                    _cache.Set(cachedInstance, registration);
-                    _instantiatedComponents.Add(registration.Id, cachedInstance);
-                    if(cachedInstance is IDisposable disposable)
-                    {
-                        _disposables.Add(disposable);
-                    }
-
-                    return cachedInstance;
+                    _disposables.Add(disposable);
                 }
+
+                return newInstance;
             }
         }
     }

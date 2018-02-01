@@ -12,7 +12,6 @@ namespace Composable.DependencyInjection
             readonly ComponentRegistration[][] _components;
             readonly int[] _serviceTypeIndexToComponentIndex;
             readonly object[] _instances;
-            readonly LinkedList<IDisposable> _disposables = new LinkedList<IDisposable>();
 
             internal ComponentCache(IReadOnlyList<ComponentRegistration> registrations) : this(CreateArrays(registrations))
             {
@@ -20,14 +19,7 @@ namespace Composable.DependencyInjection
 
             internal ScopeCache Clone() => new ScopeCache(_serviceTypeIndexToComponentIndex);
 
-            public void Set(object instance, ComponentRegistration registration)
-            {
-                _instances[registration.ComponentIndex] = instance;
-                if(instance is IDisposable disposable)
-                {
-                    _disposables.AddLast(disposable);
-                }
-            }
+            public void Set(object instance, ComponentRegistration registration) => _instances[registration.ComponentIndex] = instance;
 
             internal TService TryGet<TService>() => (TService)_instances[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
 

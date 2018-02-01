@@ -61,7 +61,7 @@ namespace Composable.DependencyInjection
         {
             if(!_createdServiceLocator)
             {
-                _cache = new ComponentCache(_registeredComponents.Values);//Don't create in the constructor because not all registrations are done and thus new component indexes might appear thus breaking the cache.
+                _cache = new ComponentCache(_registeredComponents.Values.ToList());//Don't create in the constructor because no registrations are done and thus new component indexes will appear, thus breaking the cache.
                 _createdServiceLocator = true;
                 Verify();
             }
@@ -105,6 +105,11 @@ namespace Composable.DependencyInjection
 
         TService Resolve<TService>()
         {
+            if(_cache.TryGet<TService>() is TService cached)
+            {
+                return cached;
+            }
+
             if(_resolvingComponent != null && _resolvingComponent.TryResolveDependency<TService>(out var service))
             {
                 return service;

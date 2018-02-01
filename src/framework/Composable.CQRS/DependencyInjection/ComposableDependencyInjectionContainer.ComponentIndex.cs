@@ -19,6 +19,17 @@ namespace Composable.DependencyInjection
             {
                 internal static readonly int Index = ComponentIndex.For(typeof(TType));
             }
+
+            public static void InitAll(IReadOnlyList<ComponentRegistration> registrations)
+            {
+                foreach(var registration in registrations)
+                {
+                    foreach(var serviceType in registration.ServiceTypes)
+                    {
+                        For(serviceType);
+                    }
+                }
+            }
         }
     }
 }

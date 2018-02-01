@@ -17,8 +17,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         [Test, Isolated, Serial] public void Runs_100_000_SingleThreaded_local_requests_making_a_single_local_query_in_260_milliseconds() =>
             RunScenario(threaded: false, requests: 100_000, queriesPerRequest: 1, maxTotal: 260.Milliseconds());
 
-        [Test, Isolated, Serial] public void Runs_10_000__MultiThreaded_local_requests_making_10_local_queríes_each_in_60_milliseconds() =>
-            RunScenario(threaded: true, requests: 10_000, queriesPerRequest: 10, maxTotal: 60.Milliseconds());
+        [Test, Isolated, Serial] public void Runs_10_000__MultiThreaded_local_requests_making_10_local_queríes_each_in_70_milliseconds() =>
+            RunScenario(threaded: true, requests: 10_000, queriesPerRequest: 10, maxTotal: 70.Milliseconds());
 
         [Test, Isolated, Serial] public void Runs_10_000__SingleThreaded_local_requests_making_10_local_queríes_each_in_100_milliseconds() =>
             RunScenario(threaded: false, requests: 10_000, queriesPerRequest: 10, maxTotal: 100.Milliseconds());

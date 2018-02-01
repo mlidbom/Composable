@@ -15,6 +15,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             const int iterations = 100;
             const int locksPerIteration = totalLocks / iterations;
 
+            //ncrunch: no coverage start
             void HammerUpdateLocks()
             {
                 for (var i = 0; i < locksPerIteration; i++)
@@ -22,6 +23,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
                     using(guard.AwaitUpdateLock()) {}
                 }
             }
+            //ncrunch: no coverage end
 
             TimeAsserter.ExecuteThreaded(HammerUpdateLocks,
                                          iterations: iterations,
@@ -37,6 +39,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             const int iterations = 100;
             const int locksPerIteration = totalLocks / iterations;
 
+            //ncrunch: no coverage start
             void HammerUpdateLocks()
             {
                 for (var i = 0; i < locksPerIteration; i++)
@@ -44,6 +47,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
                     using(guard.AwaitUpdateLock()) {}
                 }
             }
+            //ncrunch: no coverage end
 
             TimeAsserter.ExecuteThreaded(HammerUpdateLocks,
                                          iterations: iterations,

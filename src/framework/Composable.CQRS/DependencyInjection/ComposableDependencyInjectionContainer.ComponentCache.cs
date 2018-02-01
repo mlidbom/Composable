@@ -9,6 +9,7 @@ namespace Composable.DependencyInjection
     {
         internal class ComponentCache : IDisposable
         {
+            internal bool IsDisposed;
             readonly ComponentRegistration[][] _components;
             readonly int[] _typeIndexToComponentIndex;
             readonly object[] _instances;
@@ -67,9 +68,13 @@ namespace Composable.DependencyInjection
 
             public void Dispose()
             {
-                foreach(var disposable in _disposables)
+                if(!IsDisposed)
                 {
-                    disposable.Dispose();
+                    IsDisposed = true;
+                    foreach (var disposable in _disposables)
+                    {
+                        disposable.Dispose();
+                    }
                 }
             }
         }

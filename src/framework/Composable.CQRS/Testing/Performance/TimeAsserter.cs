@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Diagnostics;
@@ -10,6 +11,29 @@ namespace Composable.Testing.Performance
     public static class TimeAsserter
     {
         const string DefaultTimeFormat = "ss\\.fff";
+
+        static readonly double MachineSlowdownFactor = DetectEnvironmentPerformanceAdjustment();
+
+        static double DetectEnvironmentPerformanceAdjustment()
+        {
+            const string machineSlowdownfactor = "COMPOSABLE_MACHINE_SLOWNESS";
+            var enviromentOverride = Environment.GetEnvironmentVariable(machineSlowdownfactor);
+            if(enviromentOverride != null)
+            {
+                if(!double.TryParse(enviromentOverride, NumberStyles.Any, CultureInfo.InvariantCulture, out var adjustment))
+                {
+                    throw new Exception($"Environment varible har invalid value: {machineSlowdownfactor}. It should be parsable as a double.");
+                }
+
+                return adjustment;
+            }
+
+            return 1.0;
+        }
+
+        static TimeSpan AdjustTime(TimeSpan? timespan) => timespan != null
+                                                              ? TimeSpan.FromMilliseconds(timespan.Value.TotalMilliseconds * MachineSlowdownFactor)
+                                                              : TimeSpan.MaxValue;
 
         static readonly MachineWideSingleThreaded MachineWideSingleThreaded = MachineWideSingleThreaded.For(typeof(TimeAsserter));
 
@@ -24,8 +48,8 @@ namespace Composable.Testing.Performance
              [InstantHandle]Action setup = null,
              [InstantHandle]Action tearDown = null)
         {
-            maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
-            maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
+            maxAverage = AdjustTime(maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue);
+            maxTotal = AdjustTime(maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue);
 
             string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
 
@@ -76,8 +100,9 @@ namespace Composable.Testing.Performance
         {
             StopwatchExtensions.TimedThreadedExecutionSummary executionSummary = null;
 
-            maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
-            maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
+            maxAverage = AdjustTime(maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue);
+            maxTotal = AdjustTime(maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue);
+
 
             // ReSharper disable AccessToModifiedClosure
 

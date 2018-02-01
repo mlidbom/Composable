@@ -134,7 +134,7 @@ namespace Composable.DependencyInjection
                 {
                     case Lifestyle.Singleton:
                     {
-                        object createdSingleton = registration.GetSingletonInstance(this);
+                        var createdSingleton = registration.GetSingletonInstance(this);
                         _singletonCache.Set(createdSingleton, registration);
                         return (TService)createdSingleton;
                     }

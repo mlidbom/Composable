@@ -87,7 +87,7 @@ namespace Composable.DependencyInjection
                 throw new Exception("Someone failed to dispose a scope.");
             }
 
-            _scopeCache.Value = _cache.Clone();
+            _scopeCache.Value = _cache.CreateScopeCache();
 
             return _scopeDisposer;
         }

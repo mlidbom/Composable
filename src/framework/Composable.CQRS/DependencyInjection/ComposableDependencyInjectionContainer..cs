@@ -115,11 +115,6 @@ namespace Composable.DependencyInjection
                 return scoped;
             }
 
-            if (_resolvingComponent != null && _resolvingComponent.TryResolveDependency<TService>(out var service))
-            {
-                return service;
-            }
-
             return (TService)Resolve(typeof(TService));
         }
 
@@ -151,14 +146,7 @@ namespace Composable.DependencyInjection
                 {
                     case Lifestyle.Singleton:
                     {
-                        object singleton;
-                        if(previousResolvingComponent != null)
-                        {
-                            singleton = previousResolvingComponent.ResolveSingletonDependency(serviceType, registration, this);
-                        } else
-                        {
-                            singleton = registration.GetSingletonInstance(this);
-                        }
+                        object singleton = registration.GetSingletonInstance(this);
 
                         _singletonCache.Set(singleton, registration);
 

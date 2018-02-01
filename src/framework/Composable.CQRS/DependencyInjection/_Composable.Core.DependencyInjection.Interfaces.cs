@@ -168,8 +168,6 @@ namespace Composable.DependencyInjection
         internal Lifestyle Lifestyle { get; }
         internal abstract int ComponentIndex {get;}
 
-        object[] _cachedSingletons = new object[0];
-
         readonly object _lock = new object();
         object _singletonInstance;
 
@@ -198,46 +196,6 @@ namespace Composable.DependencyInjection
             }
 
             return _singletonInstance;
-        }
-
-        internal object ResolveSingletonDependency(Type serviceType, ComponentRegistration registration, IServiceLocatorKernel kernel)
-        {
-            lock(_lock)
-            {
-                foreach(var cachedSingleton in _cachedSingletons)
-                {
-                    if(serviceType.IsInstanceOfType(cachedSingleton))
-                    {
-                        return cachedSingleton;
-                    }
-                }
-
-                var singletonInstance = registration.GetSingletonInstance(kernel);
-
-                var newSingletonCache = new object[_cachedSingletons.Length + 1];
-                Array.Copy(_cachedSingletons, newSingletonCache, _cachedSingletons.Length);
-                newSingletonCache[newSingletonCache.Length - 1] = singletonInstance;
-
-                _cachedSingletons = newSingletonCache;
-
-                return singletonInstance;
-            }
-        }
-
-        internal bool TryResolveDependency<T>(out T service)
-        {
-            // ReSharper disable once ForCanBeConvertedToForeach optimization...
-            for(var i = 0; i < _cachedSingletons.Length; i++)
-            {
-                if(_cachedSingletons[i] is T foundService)
-                {
-                    service = foundService;
-                    return true;
-                }
-            }
-
-            service = default(T);
-            return false;
         }
 
         internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)

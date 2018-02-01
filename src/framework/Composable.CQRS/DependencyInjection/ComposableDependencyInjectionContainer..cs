@@ -97,14 +97,10 @@ namespace Composable.DependencyInjection
         [ThreadStatic] static ComponentRegistration _resolvingComponent;
         TService Resolve<TService>()
         {
-            var lifestyle = _singletonCache.GetLifeStyle<TService>();
 
-            if(lifestyle == Lifestyle.Singleton)
+            if(_singletonCache.TryGet<TService>() is TService singleton)
             {
-                if(_singletonCache.TryGet<TService>() is TService singleton)
-                {
-                    return singleton;
-                }
+                return singleton;
             }
 
             var scopeCache = _scopeCache.Value;

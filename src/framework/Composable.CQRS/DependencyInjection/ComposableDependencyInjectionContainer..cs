@@ -69,14 +69,9 @@ namespace Composable.DependencyInjection
         {
             using(((IServiceLocator)this).BeginScope())
             {
-                var allServiceTypes = _serviceToRegistrationDictionary.Values
-                                                                      .SelectMany(registrations => registrations)
-                                                                      .SelectMany(registration => registration.ServiceTypes)
-                                                                      .ToList();
-
-                foreach(var serviceType in allServiceTypes)
+                foreach(var component in _registeredComponents.Values)
                 {
-                    Resolve(serviceType);
+                    component.Resolve(this);
                 }
             }
         }
@@ -111,20 +106,14 @@ namespace Composable.DependencyInjection
                 return scoped;
             }
 
-            return (TService)Resolve(typeof(TService));
-        }
-
-        [ThreadStatic] static ComponentRegistration _resolvingComponent;
-        object Resolve(Type serviceType)
-        {
-            if(!_serviceToRegistrationDictionary.TryGetValue(serviceType, out var registrations))
+            if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
             {
-                throw new Exception($"No service of type: {serviceType.GetFullNameCompilable()} is registered.");
+                throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
             }
 
             if(registrations.Count > 1)
             {
-                throw new Exception($"Requested single instance for service:{serviceType}, but there were multiple services registered.");
+                throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
             }
 
             var registration = registrations[0];
@@ -142,14 +131,12 @@ namespace Composable.DependencyInjection
                 {
                     case Lifestyle.Singleton:
                     {
-                        object singleton = registration.GetSingletonInstance(this);
-
-                        _singletonCache.Set(singleton, registration);
-
-                        return singleton;
+                        object createdSingleton = registration.GetSingletonInstance(this);
+                        _singletonCache.Set(createdSingleton, registration);
+                        return (TService)createdSingleton;
                     }
                     case Lifestyle.Scoped:
-                        return _scope.Value.ResolveInstance(registration, this);
+                        return (TService)_scope.Value.ResolveInstance(registration, this);
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -159,6 +146,8 @@ namespace Composable.DependencyInjection
                 _resolvingComponent = previousResolvingComponent;
             }
         }
+
+        [ThreadStatic] static ComponentRegistration _resolvingComponent;
 
         bool _disposed;
         public void Dispose()

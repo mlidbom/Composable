@@ -218,6 +218,8 @@ namespace Composable.DependencyInjection
                 disposable.Dispose();
             }
         }
+
+        internal abstract object Resolve(IServiceLocator serviceLocator);
     }
 
     public class ComponentRegistration<TService> : ComponentRegistration where TService : class
@@ -247,6 +249,8 @@ namespace Composable.DependencyInjection
                 instantiationSpec: InstantiationSpec.FromInstance(currentLocator.Resolve<TService>())
             );
         }
+
+        internal override object Resolve(IServiceLocator locator) => locator.Resolve<TService>();
 
         internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
             :base(lifestyle, serviceTypes, instantiationSpec)

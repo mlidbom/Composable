@@ -30,7 +30,7 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            internal object TryGet<TService>() => _instances[_typeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
+            internal TService TryGet<TService>() => (TService)_instances[_typeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
 
             internal ComponentRegistration[] GetRegistration<TService>() => _components[ServiceTypeIndex.ForService<TService>.Index];
 

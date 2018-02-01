@@ -101,7 +101,7 @@ namespace Composable.DependencyInjection
             {
                 AssertImplementsAllServices(implementationType);
                 return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes,
-                                                                                       InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator), implementationType));
+                                                                                       InstantiationSpec.FromFactoryMethod(factoryMethod, implementationType));
             }
 
             void AssertImplementsAllServices(Type implementationType)

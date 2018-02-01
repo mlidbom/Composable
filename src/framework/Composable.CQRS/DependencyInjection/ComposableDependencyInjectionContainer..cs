@@ -57,8 +57,8 @@ namespace Composable.DependencyInjection
         {
             if(!_createdServiceLocator)
             {
-                _cache = new RootCache(_registeredComponents.Values.ToList());//Don't create in the constructor because no registrations are done and thus new component indexes will appear, thus breaking the cache.
                 _createdServiceLocator = true;
+                _cache = new RootCache(_registeredComponents.Values.ToList());//Don't create in the constructor because no registrations are done and thus new component indexes will appear, thus breaking the cache.
                 Verify();
             }
 

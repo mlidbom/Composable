@@ -12,7 +12,7 @@ namespace Composable.DependencyInjection
     partial class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
         bool _createdServiceLocator;
-        readonly AsyncLocal<Scope> _scope = new AsyncLocal<Scope>();
+        readonly AsyncLocal<ComponentCache> _scopeCache = new AsyncLocal<ComponentCache>();
         readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
@@ -82,17 +82,17 @@ namespace Composable.DependencyInjection
 
         IDisposable IServiceLocator.BeginScope()
         {
-            if(_scope.Value?.IsDisposed == false)
+            if(_scopeCache.Value?.IsDisposed == false)
             {
                 throw new Exception("Someone failed to dispose a scope.");
             }
 
-            _scope.Value = new Scope(this);
+            _scopeCache.Value = _singletonCache.Clone();
 
             return _scopeDisposer;
         }
 
-        void EndScope() => _scope.Value.Dispose();
+        void EndScope() => _scopeCache.Value.Dispose();
 
         [ThreadStatic] static ComponentRegistration _resolvingComponent;
         TService Resolve<TService>()
@@ -107,7 +107,9 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            if(_scope.Value.Cache.TryGet<TService>() is TService scoped)
+            var scopeCache = _scopeCache.Value;
+
+            if (scopeCache.TryGet<TService>() is TService scoped)
             {
                 return scoped;
             }
@@ -144,7 +146,11 @@ namespace Composable.DependencyInjection
                         return (TService)createdSingleton;
                     }
                     case Lifestyle.Scoped:
-                        return (TService)_scope.Value.ResolveInstance(registration, this);
+                    {
+                        var newInstance = registration.CreateInstance(this);
+                        scopeCache.Set(newInstance, registration);
+                        return (TService)newInstance;
+                    }
                     default:
                         throw new ArgumentOutOfRangeException();
                 }

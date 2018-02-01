@@ -15,6 +15,7 @@ namespace Composable.DependencyInjection
 
             internal ComponentCache Clone() => new ComponentCache(_components);
 
+            public void Set(object instance, ComponentRegistration registration) => _instances[registration.ComponentIndex] = instance;
             internal object TryGet<TService>() => _instances[ComponentIndex.For<TService>()];
 
             ComponentCache(ComponentRegistration[] components)

@@ -22,7 +22,7 @@ namespace Composable.DependencyInjection
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
         readonly IDisposable _scopeDisposer;
 
-        ComponentCache _cache;
+        ComponentCache _singletonCache;
 
         int _maxComponentIndex;
 
@@ -61,7 +61,7 @@ namespace Composable.DependencyInjection
         {
             if(!_createdServiceLocator)
             {
-                _cache = new ComponentCache(_registeredComponents.Values.ToList());//Don't create in the constructor because no registrations are done and thus new component indexes will appear, thus breaking the cache.
+                _singletonCache = new ComponentCache(_registeredComponents.Values.ToList());//Don't create in the constructor because no registrations are done and thus new component indexes will appear, thus breaking the cache.
                 _createdServiceLocator = true;
                 Verify();
             }
@@ -105,7 +105,7 @@ namespace Composable.DependencyInjection
 
         TService Resolve<TService>()
         {
-            if(_cache.TryGet<TService>() is TService cached)
+            if(_singletonCache.TryGet<TService>() is TService cached)
             {
                 return cached;
             }
@@ -146,13 +146,18 @@ namespace Composable.DependencyInjection
                 {
                     case Lifestyle.Singleton:
                     {
+                        object singleton;
                         if(previousResolvingComponent != null)
                         {
-                            return previousResolvingComponent.ResolveSingletonDependency(serviceType, registration, this);
+                            singleton = previousResolvingComponent.ResolveSingletonDependency(serviceType, registration, this);
                         } else
                         {
-                            return registration.GetSingletonInstance(this);
+                            singleton = registration.GetSingletonInstance(this);
                         }
+
+                        _singletonCache.Set(singleton, registration);
+
+                        return singleton;
                     }
                     case Lifestyle.Scoped:
                         return _scope.Value.ResolveInstance(registration, this);

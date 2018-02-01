@@ -6,6 +6,8 @@ using Composable.Persistence.EventStore;
 using NCrunch.Framework;
 using NUnit.Framework;
 
+//ncrunch: no coverage start
+
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
     [TestFixture, Performance, Serial] public class PerformanceTestBase

@@ -24,6 +24,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 
         void RunScenario(bool threaded, int requests, int queriesPerRequest, TimeSpan maxTotal)
         {
+            //ncrunch: no coverage start
             void RunRequest()
             {
                 ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() =>
@@ -34,6 +35,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
                     }
                 });
             }
+            //ncrunch: no coverage end
 
             if(threaded)
             {

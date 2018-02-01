@@ -18,7 +18,7 @@ namespace Composable.DependencyInjection
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
         readonly IDisposable _scopeDisposer;
 
-        ComponentCache _singletonCache;
+        ComponentCache _cache;
 
         int _maxComponentIndex;
 
@@ -57,7 +57,7 @@ namespace Composable.DependencyInjection
         {
             if(!_createdServiceLocator)
             {
-                _singletonCache = new ComponentCache(_registeredComponents.Values.ToList());//Don't create in the constructor because no registrations are done and thus new component indexes will appear, thus breaking the cache.
+                _cache = new ComponentCache(_registeredComponents.Values.ToList());//Don't create in the constructor because no registrations are done and thus new component indexes will appear, thus breaking the cache.
                 _createdServiceLocator = true;
                 Verify();
             }
@@ -87,7 +87,7 @@ namespace Composable.DependencyInjection
                 throw new Exception("Someone failed to dispose a scope.");
             }
 
-            _scopeCache.Value = _singletonCache.Clone();
+            _scopeCache.Value = _cache.Clone();
 
             return _scopeDisposer;
         }
@@ -97,7 +97,7 @@ namespace Composable.DependencyInjection
         [ThreadStatic] static ComponentRegistration _resolvingComponent;
         TService Resolve<TService>()
         {
-            if(_singletonCache.TryGet<TService>() is TService singleton)
+            if(_cache.TryGet<TService>() is TService singleton)
             {
                 return singleton;
             }
@@ -109,7 +109,7 @@ namespace Composable.DependencyInjection
                 return scoped;
             }
 
-            var registrations = _singletonCache.GetRegistration<TService>();
+            var registrations = _cache.GetRegistration<TService>();
 
             if (registrations == null)
             {
@@ -137,7 +137,7 @@ namespace Composable.DependencyInjection
                     case Lifestyle.Singleton:
                     {
                         var createdSingleton = registration.GetSingletonInstance(this);
-                        _singletonCache.Set(createdSingleton, registration);
+                        _cache.Set(createdSingleton, registration);
                         return (TService)createdSingleton;
                     }
                     case Lifestyle.Scoped:

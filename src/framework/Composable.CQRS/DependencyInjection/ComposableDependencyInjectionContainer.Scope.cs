@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Composable.DependencyInjection
+﻿namespace Composable.DependencyInjection
 {
     partial class ComposableDependencyInjectionContainer
     {
         class Scope
         {
-            readonly List<IDisposable> _disposables = new List<IDisposable>();
             internal readonly ComponentCache Cache;
             internal bool IsDisposed { get; private set; }
 
@@ -18,10 +14,7 @@ namespace Composable.DependencyInjection
                 if(!IsDisposed)
                 {
                     IsDisposed = true;
-                    foreach(var disposable in _disposables)
-                    {
-                        disposable.Dispose();
-                    }
+                    Cache.Dispose();
                 }
             }
 
@@ -29,11 +22,6 @@ namespace Composable.DependencyInjection
             {
                 var newInstance = registration.CreateInstance(parent);
                 Cache.Set(newInstance, registration);
-                if(newInstance is IDisposable disposable)
-                {
-                    _disposables.Add(disposable);
-                }
-
                 return newInstance;
             }
         }

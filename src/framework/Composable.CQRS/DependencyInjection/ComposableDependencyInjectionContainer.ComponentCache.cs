@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Composable.System.Linq;
 
@@ -6,11 +7,12 @@ namespace Composable.DependencyInjection
 {
     partial class ComposableDependencyInjectionContainer
     {
-        internal class ComponentCache
+        internal class ComponentCache : IDisposable
         {
             readonly ComponentRegistration[][] _components;
             readonly int[] _typeIndexToComponentIndex;
             readonly object[] _instances;
+            readonly LinkedList<IDisposable> _disposables = new LinkedList<IDisposable>();
 
             internal ComponentCache(IReadOnlyList<ComponentRegistration> registrations) : this(CreateComponentArray(registrations), CreateTypeToComponentIndex(registrations))
             {
@@ -18,7 +20,14 @@ namespace Composable.DependencyInjection
 
             internal ComponentCache Clone() => new ComponentCache(_components, _typeIndexToComponentIndex);
 
-            public void Set(object instance, ComponentRegistration registration) => _instances[registration.ComponentIndex] = instance;
+            public void Set(object instance, ComponentRegistration registration)
+            {
+                _instances[registration.ComponentIndex] = instance;
+                if(instance is IDisposable disposable)
+                {
+                    _disposables.AddLast(disposable);
+                }
+            }
 
             internal object TryGet<TService>() => _instances[_typeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
 
@@ -54,6 +63,14 @@ namespace Composable.DependencyInjection
                 }
 
                 return typeToComponentIndex;
+            }
+
+            public void Dispose()
+            {
+                foreach(var disposable in _disposables)
+                {
+                    disposable.Dispose();
+                }
             }
         }
     }

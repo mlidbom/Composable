@@ -12,7 +12,7 @@ namespace Composable.DependencyInjection
     partial class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
         bool _createdServiceLocator;
-        readonly AsyncLocal<ComponentCache> _scopeCache = new AsyncLocal<ComponentCache>();
+        readonly AsyncLocal<ScopeCache> _scopeCache = new AsyncLocal<ScopeCache>();
         readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();

@@ -20,7 +20,7 @@ namespace Composable.DependencyInjection
             {
             }
 
-            internal ComponentCache Clone() => new ComponentCache((_components, _typeIndexToComponentIndex, _serviceLifestyles));
+            internal ScopeCache Clone() => new ScopeCache((_typeIndexToComponentIndex, _serviceLifestyles));
 
             public void Set(object instance, ComponentRegistration registration)
             {
@@ -66,6 +66,44 @@ namespace Composable.DependencyInjection
                 }
 
                 return (componentArray, typeToComponentIndex, serviceLifeStyles);
+            }
+
+
+            public void Dispose()
+            {
+                if(!IsDisposed)
+                {
+                    IsDisposed = true;
+                    foreach (var disposable in _disposables)
+                    {
+                        disposable.Dispose();
+                    }
+                }
+            }
+        }
+
+        internal class ScopeCache : IDisposable
+        {
+            internal bool IsDisposed;
+            readonly int[] _typeIndexToComponentIndex;
+            readonly object[] _instances;
+            readonly LinkedList<IDisposable> _disposables = new LinkedList<IDisposable>();
+
+            public void Set(object instance, ComponentRegistration registration)
+            {
+                _instances[registration.ComponentIndex] = instance;
+                if(instance is IDisposable disposable)
+                {
+                    _disposables.AddLast(disposable);
+                }
+            }
+
+            internal TService TryGet<TService>() => (TService)_instances[_typeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
+
+            internal ScopeCache((int[], Lifestyle[]) arrays)
+            {
+                _typeIndexToComponentIndex = arrays.Item1;
+                _instances = new object[_typeIndexToComponentIndex.Length];
             }
 
 

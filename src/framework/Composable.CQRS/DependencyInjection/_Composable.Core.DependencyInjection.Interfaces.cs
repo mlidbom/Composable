@@ -157,7 +157,11 @@ namespace Composable.DependencyInjection
             FactoryMethodReturnType = factoryMethodReturnType;
         }
 
-        InstantiationSpec(object instance) => Instance = instance;
+        InstantiationSpec(object instance)
+        {
+            Instance = instance;
+            FactoryMethod = kern => instance;
+        }
     }
 
     public abstract class ComponentRegistration
@@ -173,16 +177,7 @@ namespace Composable.DependencyInjection
         readonly object _lock = new object();
         object _singletonInstance;
 
-        internal object CreateInstance(IServiceLocatorKernel kernel)
-        {
-            if(InstantiationSpec.Instance is object instance)
-            {
-                return instance;
-            } else
-            {
-                return InstantiationSpec.FactoryMethod(kernel);
-            }
-        }
+        internal object CreateInstance(IServiceLocatorKernel kernel) => InstantiationSpec.FactoryMethod(kernel);
 
         internal object GetSingletonInstance(IServiceLocatorKernel kernel)
         {

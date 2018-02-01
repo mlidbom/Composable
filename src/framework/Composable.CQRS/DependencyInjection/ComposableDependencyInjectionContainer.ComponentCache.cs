@@ -16,21 +16,6 @@ namespace Composable.DependencyInjection
             {
             }
 
-
-            static int[] CreateTypeToComponentIndex(IReadOnlyList<ComponentRegistration> registrations)
-            {
-                var typeToComponentIndex = new int[ServiceTypeIndex.ComponentCount];
-                foreach(var registration in registrations)
-                {
-                    foreach(var serviceTypeIndex in registration.ServiceTypeIndexes)
-                    {
-                        typeToComponentIndex[serviceTypeIndex] = registration.ComponentIndex;
-                    }
-                }
-
-                return typeToComponentIndex;
-            }
-
             internal ComponentCache Clone() => new ComponentCache(_components, _typeIndexToComponentIndex);
 
             public void Set(object instance, ComponentRegistration registration) => _instances[registration.ComponentIndex] = instance;
@@ -55,6 +40,20 @@ namespace Composable.DependencyInjection
                              .ForEach(registrationsOnTypeindex => componentArray[registrationsOnTypeindex.Key] = registrationsOnTypeindex.Select(regs => regs.registration).ToArray());
 
                 return componentArray;
+            }
+
+            static int[] CreateTypeToComponentIndex(IReadOnlyList<ComponentRegistration> registrations)
+            {
+                var typeToComponentIndex = new int[ServiceTypeIndex.ComponentCount];
+                foreach (var registration in registrations)
+                {
+                    foreach (var serviceTypeIndex in registration.ServiceTypeIndexes)
+                    {
+                        typeToComponentIndex[serviceTypeIndex] = registration.ComponentIndex;
+                    }
+                }
+
+                return typeToComponentIndex;
             }
         }
     }

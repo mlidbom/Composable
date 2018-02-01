@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.System.Linq;
 
 namespace Composable.DependencyInjection
 {
@@ -30,26 +31,11 @@ namespace Composable.DependencyInjection
 
             static ComponentRegistration[][] CreateComponentArray(IReadOnlyList<ComponentRegistration> registrations)
             {
-                var componentArray = new ComponentRegistration[ServiceTypeIndex.ComponentCount][];
-                foreach(var registration in registrations)
-                {
-                    var serviceTypeIndexes = registration.ServiceTypeIndexes;
-                    foreach(var serviceTypeIndex in serviceTypeIndexes)
-                    {
-                        var current = componentArray[serviceTypeIndex];
-                        if (current == null)
-                        {
-                            componentArray[serviceTypeIndex] = new[] { registration };
-                        }
-                        else
-                        {
-                            var newReg = new ComponentRegistration[current.Length + 1];
-                            Array.Copy(current, newReg, current.Length);
-                            newReg[newReg.Length - 1] = registration;
-                            componentArray[serviceTypeIndex] = newReg;
-                        }
-                    }
-                }
+               var componentArray = new ComponentRegistration[ServiceTypeIndex.ComponentCount][];
+
+                registrations.SelectMany(registration => registration.ServiceTypeIndexes.Select(typeIndex => new {registration, typeIndex}))
+                             .GroupBy(registrationPerTypeIndex => registrationPerTypeIndex.typeIndex)
+                             .ForEach(registrationsOnTypeindex => componentArray[registrationsOnTypeindex.Key] = registrationsOnTypeindex.Select(regs => regs.registration).ToArray());
 
                 return componentArray;
             }

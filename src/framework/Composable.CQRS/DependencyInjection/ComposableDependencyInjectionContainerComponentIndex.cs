@@ -7,12 +7,12 @@ namespace Composable.DependencyInjection
 {
     partial class ComposableDependencyInjectionContainer
     {
-        static class ComponentIndex
+        internal static class ComponentIndex
         {
-            static int CurrentIndex;
+            static int _currentIndex;
             static readonly OptimizedThreadShared<Dictionary<Type, int>> Map = new OptimizedThreadShared<Dictionary<Type, int>>(new Dictionary<Type, int>());
 
-            internal static int For(Type type) => Map.WithExclusiveAccess(map => map.GetOrAdd(type, () => CurrentIndex++));
+            internal static int For(Type type) => Map.WithExclusiveAccess(map => map.GetOrAdd(type, () => _currentIndex++));
             internal static int For<TType>() => CacheForType<TType>.Index;
 
             static class CacheForType<TType>

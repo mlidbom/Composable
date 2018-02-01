@@ -166,6 +166,7 @@ namespace Composable.DependencyInjection
         internal IEnumerable<Type> ServiceTypes { get; }
         internal InstantiationSpec InstantiationSpec { get; }
         internal Lifestyle Lifestyle { get; }
+        internal abstract int ComponentIndex {get;}
 
         object[] _cachedSingletons = new object[0];
 
@@ -272,6 +273,7 @@ namespace Composable.DependencyInjection
             return this;
         }
 
+        internal override int ComponentIndex => ComposableDependencyInjectionContainer.ComponentIndex.For<TService>();
         internal override ComponentRegistration CreateCloneRegistration(IServiceLocator currentLocator)
         {
             if(!ShouldDelegateToParentWhenCloning)

@@ -6,11 +6,11 @@ namespace Composable.Testing.Performance
 {
     static class TestEnvironment
     {
-        public static TimeSpan NCrunchSlowdownFactor(this TimeSpan original, double nCrunchSlowdownFactor)
+        public static TimeSpan InstrumentationSlowdown(this TimeSpan original, double slowdownFactor)
         {
             if(IsInstrumented)
             {
-                return ((int)(original.TotalMilliseconds * nCrunchSlowdownFactor)).Milliseconds();
+                return ((int)(original.TotalMilliseconds * slowdownFactor)).Milliseconds();
             } else
             {
                 return original;

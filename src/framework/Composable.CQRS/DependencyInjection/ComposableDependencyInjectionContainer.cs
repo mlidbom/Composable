@@ -10,6 +10,9 @@ using Composable.System.Reflection;
 
 namespace Composable.DependencyInjection
 {
+    //Todo: put all components in a list and assign the index in the list to the component registration.
+    //Then create matching arrays. One to cache all singletons. One no cache each scoped component in the scope overlay.
+    //Use the static cache trick to give each component a unique index that never changes during runtime. It does not matter that this might lead to "holes" in the cache arrays.
     class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
         readonly IDisposable _scopeDisposer;

@@ -7,7 +7,7 @@ namespace Composable.DependencyInjection
 {
     partial class ComposableDependencyInjectionContainer
     {
-        internal static class ComponentIndex
+        internal static class ServiceTypeIndex
         {
             internal static int ComponentCount { get; private set; }
             static readonly OptimizedThreadShared<Dictionary<Type, int>> Map = new OptimizedThreadShared<Dictionary<Type, int>>(new Dictionary<Type, int>());
@@ -17,7 +17,7 @@ namespace Composable.DependencyInjection
 
             static class CacheForType<TType>
             {
-                internal static readonly int Index = ComponentIndex.For(typeof(TType));
+                internal static readonly int Index = ServiceTypeIndex.For(typeof(TType));
             }
 
             public static void InitAll(IReadOnlyList<ComponentRegistration> registrations)

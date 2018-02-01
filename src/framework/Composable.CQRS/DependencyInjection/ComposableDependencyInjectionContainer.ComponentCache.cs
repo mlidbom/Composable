@@ -16,9 +16,9 @@ namespace Composable.DependencyInjection
             internal ComponentCache Clone() => new ComponentCache(_components);
 
             public void Set(object instance, ComponentRegistration registration) => _instances[registration.ComponentIndex] = instance;
-            internal object TryGet<TService>() => _instances[ComponentIndex.For<TService>()];
+            internal object TryGet<TService>() => _instances[ServiceTypeIndex.For<TService>()];
 
-            internal ComponentRegistration GetRegistration<TService>() => _components[ComponentIndex.For<TService>()];
+            internal ComponentRegistration GetRegistration<TService>() => _components[ServiceTypeIndex.For<TService>()];
 
             ComponentCache(ComponentRegistration[] components)
             {
@@ -28,8 +28,8 @@ namespace Composable.DependencyInjection
 
             static ComponentRegistration[] CreateComponentArray(IReadOnlyList<ComponentRegistration> registrations)
             {
-                ComponentIndex.InitAll(registrations);
-                var componentArray = new ComponentRegistration[ComponentIndex.ComponentCount];
+                ServiceTypeIndex.InitAll(registrations);
+                var componentArray = new ComponentRegistration[ServiceTypeIndex.ComponentCount];
                 foreach(var registration in registrations)
                 {
                     componentArray[registration.ComponentIndex] = registration;

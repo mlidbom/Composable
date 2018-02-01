@@ -233,7 +233,7 @@ namespace Composable.DependencyInjection
             return this;
         }
 
-        internal override int ComponentIndex => ComposableDependencyInjectionContainer.ComponentIndex.For<TService>();
+        internal override int ComponentIndex => ComposableDependencyInjectionContainer.ServiceTypeIndex.For<TService>();
         internal override ComponentRegistration CreateCloneRegistration(IServiceLocator currentLocator)
         {
             if(!ShouldDelegateToParentWhenCloning)

@@ -10,7 +10,11 @@ namespace Composable.DependencyInjection
         {
             readonly List<IDisposable> _disposables = new List<IDisposable>();
             readonly Dictionary<Guid, object> _instantiatedComponents = new Dictionary<Guid, object>();
+            internal ComponentCache _cache;
             internal bool IsDisposed { get; private set; }
+
+            public Scope(ComposableDependencyInjectionContainer container) => _cache = container._singletonCache.Clone();
+
             public void Dispose()
             {
                 if(!IsDisposed)
@@ -31,6 +35,7 @@ namespace Composable.DependencyInjection
                 } else
                 {
                     cachedInstance = registration.CreateInstance(parent);
+                    _cache.Set(cachedInstance, registration);
                     _instantiatedComponents.Add(registration.Id, cachedInstance);
                     if(cachedInstance is IDisposable disposable)
                     {

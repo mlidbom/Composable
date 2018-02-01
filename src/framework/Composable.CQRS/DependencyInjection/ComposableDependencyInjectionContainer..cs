@@ -96,7 +96,7 @@ namespace Composable.DependencyInjection
                 throw new Exception("Someone failed to dispose a scope.");
             }
 
-            _scope.Value = new Scope();
+            _scope.Value = new Scope(this);
 
             return _scopeDisposer;
         }
@@ -105,12 +105,17 @@ namespace Composable.DependencyInjection
 
         TService Resolve<TService>()
         {
-            if(_singletonCache.TryGet<TService>() is TService cached)
+            if(_singletonCache.TryGet<TService>() is TService singleton)
             {
-                return cached;
+                return singleton;
             }
 
-            if(_resolvingComponent != null && _resolvingComponent.TryResolveDependency<TService>(out var service))
+            if(_scope.Value._cache.TryGet<TService>() is TService scoped)
+            {
+                return scoped;
+            }
+
+            if (_resolvingComponent != null && _resolvingComponent.TryResolveDependency<TService>(out var service))
             {
                 return service;
             }

@@ -14,12 +14,13 @@ namespace Composable.DependencyInjection
             readonly int[] _typeIndexToComponentIndex;
             readonly object[] _instances;
             readonly LinkedList<IDisposable> _disposables = new LinkedList<IDisposable>();
+            readonly Lifestyle[] _serviceLifestyles;
 
-            internal ComponentCache(IReadOnlyList<ComponentRegistration> registrations) : this(CreateComponentArray(registrations), CreateTypeToComponentIndex(registrations))
+            internal ComponentCache(IReadOnlyList<ComponentRegistration> registrations) : this(CreateArrays(registrations))
             {
             }
 
-            internal ComponentCache Clone() => new ComponentCache(_components, _typeIndexToComponentIndex);
+            internal ComponentCache Clone() => new ComponentCache((_components, _typeIndexToComponentIndex, _serviceLifestyles));
 
             public void Set(object instance, ComponentRegistration registration)
             {
@@ -30,41 +31,43 @@ namespace Composable.DependencyInjection
                 }
             }
 
+            internal Lifestyle GetLifeStyle<TService>() => _serviceLifestyles[ServiceTypeIndex.ForService<TService>.Index];
+
             internal TService TryGet<TService>() => (TService)_instances[_typeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
 
             internal ComponentRegistration[] GetRegistration<TService>() => _components[ServiceTypeIndex.ForService<TService>.Index];
 
-            ComponentCache(ComponentRegistration[][] components, int[] typeIndexToComponentIndex)
+            ComponentCache((ComponentRegistration[][], int[], Lifestyle[]) arrays)
             {
-                _components = components;
-                _typeIndexToComponentIndex = typeIndexToComponentIndex;
+                _components = arrays.Item1;
+                _typeIndexToComponentIndex = arrays.Item2;
+                _serviceLifestyles = arrays.Item3;
                 _instances = new object[_components.Length];
             }
 
-            static ComponentRegistration[][] CreateComponentArray(IReadOnlyList<ComponentRegistration> registrations)
+            static (ComponentRegistration[][], int[], Lifestyle[]) CreateArrays(IReadOnlyList<ComponentRegistration> registrations)
             {
-               var componentArray = new ComponentRegistration[ServiceTypeIndex.ComponentCount][];
+               var componentArray = new ComponentRegistration[ServiceTypeIndex.ServiceCount][];
+                var typeToComponentIndex = new int[ServiceTypeIndex.ServiceCount];
+                var serviceLifeStyles = new Lifestyle[ServiceTypeIndex.ServiceCount];
 
                 registrations.SelectMany(registration => registration.ServiceTypeIndexes.Select(typeIndex => new {registration, typeIndex}))
                              .GroupBy(registrationPerTypeIndex => registrationPerTypeIndex.typeIndex)
                              .ForEach(registrationsOnTypeindex => componentArray[registrationsOnTypeindex.Key] = registrationsOnTypeindex.Select(regs => regs.registration).ToArray());
 
-                return componentArray;
-            }
 
-            static int[] CreateTypeToComponentIndex(IReadOnlyList<ComponentRegistration> registrations)
-            {
-                var typeToComponentIndex = new int[ServiceTypeIndex.ComponentCount];
                 foreach (var registration in registrations)
                 {
                     foreach (var serviceTypeIndex in registration.ServiceTypeIndexes)
                     {
                         typeToComponentIndex[serviceTypeIndex] = registration.ComponentIndex;
+                        serviceLifeStyles[serviceTypeIndex] = registration.Lifestyle;
                     }
                 }
 
-                return typeToComponentIndex;
+                return (componentArray, typeToComponentIndex, serviceLifeStyles);
             }
+
 
             public void Dispose()
             {

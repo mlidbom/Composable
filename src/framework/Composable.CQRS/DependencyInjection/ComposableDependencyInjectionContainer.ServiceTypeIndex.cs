@@ -9,10 +9,10 @@ namespace Composable.DependencyInjection
     {
         internal static class ServiceTypeIndex
         {
-            internal static int ComponentCount { get; private set; }
+            internal static int ServiceCount { get; private set; }
             static readonly OptimizedThreadShared<Dictionary<Type, int>> Map = new OptimizedThreadShared<Dictionary<Type, int>>(new Dictionary<Type, int>());
 
-            internal static int For(Type type) => Map.WithExclusiveAccess(map => map.GetOrAdd(type, () => ComponentCount++));
+            internal static int For(Type type) => Map.WithExclusiveAccess(map => map.GetOrAdd(type, () => ServiceCount++));
 
             internal static class ForService<TType>
             {

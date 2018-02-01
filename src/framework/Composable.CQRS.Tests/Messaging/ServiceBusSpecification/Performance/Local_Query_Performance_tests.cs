@@ -9,20 +9,22 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
     [TestFixture, Performance, Serial] public class Local_Query_performance_tests : PerformanceTestBase
     {
-        [Test] public void Runs_10_000_MultiThreaded_local_queries_in_10_milliSeconds()
+        [Test] public void Runs_100_000_MultiThreaded_local_queries_in_100_milliSeconds()
         {
+            const int iterations = 100_000;
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10_000);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: iterations);
 
-            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10_000, maxTotal: 150.Milliseconds());
+            TimeAsserter.ExecuteThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: iterations, maxTotal: 100.Milliseconds());
         }
 
-        [Test] public void Runs_10_000_SingleThreaded_local_queries_in_27_milliseconds()
+        [Test] public void Runs_100_000_SingleThreaded_local_queries_in_225_milliseconds()
         {
+            const int iterations = 100_000;
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10);
+            StopwatchExtensions.TimeExecutionThreaded(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: iterations);
 
-            TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: 10_000, maxTotal: 130.Milliseconds());
+            TimeAsserter.Execute(action: () => ServerEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => ServerBusSession.Execute(new MyLocalQuery())), iterations: iterations, maxTotal: 225.Milliseconds());
         }
     }
 }

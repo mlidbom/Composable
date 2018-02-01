@@ -94,7 +94,7 @@ namespace Composable.DependencyInjection
 
         void EndScope() => _scopeCache.Value.Dispose();
 
-        [ThreadStatic] static ComponentRegistration _resolvingComponent;
+        [ThreadStatic] static ComponentRegistration _parentComponent;
         TService Resolve<TService>()
         {
             if(_cache.TryGet<TService>() is TService singleton)
@@ -121,29 +121,29 @@ namespace Composable.DependencyInjection
                 throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
             }
 
-            var registration = registrations[0];
+            var currentComponent = registrations[0];
 
-            if(_resolvingComponent?.Lifestyle == Lifestyle.Singleton && registration.Lifestyle != Lifestyle.Singleton)
+            if(_parentComponent?.Lifestyle == Lifestyle.Singleton && currentComponent.Lifestyle != Lifestyle.Singleton)
             {
-                throw new Exception($"{Lifestyle.Singleton} service: {_resolvingComponent.ServiceTypes.First().FullName} depends on {registration.Lifestyle} service: {registration.ServiceTypes.First().FullName} ");
+                throw new Exception($"{Lifestyle.Singleton} service: {_parentComponent.ServiceTypes.First().FullName} depends on {currentComponent.Lifestyle} service: {currentComponent.ServiceTypes.First().FullName} ");
             }
 
-            var previousResolvingComponent = _resolvingComponent;
-            _resolvingComponent = registration;
+            var previousResolvingComponent = _parentComponent;
+            _parentComponent = currentComponent;
             try
             {
-                switch(registration.Lifestyle)
+                switch(currentComponent.Lifestyle)
                 {
                     case Lifestyle.Singleton:
                     {
-                        var createdSingleton = registration.GetSingletonInstance(this);
-                        _cache.Set(createdSingleton, registration);
+                        var createdSingleton = currentComponent.GetSingletonInstance(this);
+                        _cache.Set(createdSingleton, currentComponent);
                         return (TService)createdSingleton;
                     }
                     case Lifestyle.Scoped:
                     {
-                        var newInstance = registration.CreateInstance(this);
-                        scopeCache.Set(newInstance, registration);
+                        var newInstance = currentComponent.CreateInstance(this);
+                        scopeCache.Set(newInstance, currentComponent);
                         return (TService)newInstance;
                     }
                     default:
@@ -152,7 +152,7 @@ namespace Composable.DependencyInjection
             }
             finally
             {
-                _resolvingComponent = previousResolvingComponent;
+                _parentComponent = previousResolvingComponent;
             }
         }
 

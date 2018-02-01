@@ -1,4 +1,5 @@
-﻿using Composable.DependencyInjection;
+﻿using System;
+using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.System.Diagnostics;
 using Composable.Testing.Performance;
@@ -10,24 +11,38 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
     [TestFixture, Performance, Serial] public class RemoteQueryPerformanceTests : PerformanceTestBase
     {
-        [Test] public void MultiThreaded_Runs_100_remote_queries_in_15_milliSeconds()
+        [Test] public void MultiThreaded_Runs_100_local_requests_making_one_remote_query_each_in_12_milliSeconds() =>
+            RunScenario(threaded: true, requests: 100, queriesPerRequest: 1, maxTotal: 12.Milliseconds().InstrumentationSlowdown(2.0));
+
+        [Test] public void SingleThreaded_Runs_100_local_requests_making_one_remote_query_each_in_50_milliSeconds() =>
+            RunScenario(threaded: false, requests: 100, queriesPerRequest: 1, maxTotal: 50.Milliseconds().InstrumentationSlowdown(1.3));
+
+        void RunScenario(bool threaded, int requests, int queriesPerRequest, TimeSpan maxTotal)
         {
             var navigationSpecification = NavigationSpecification.Get(new MyRemoteQuery());
 
-            //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 10);
+            //ncrunch: no coverage start
+            void RunRequest()
+            {
+                ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() =>
+                {
+                    for(int i = 0; i < queriesPerRequest; i++)
+                    {
+                        RemoteNavigator.Navigate(navigationSpecification);
+                    }
+                });
+            }
+            //ncrunch: no coverage end
 
-            TimeAsserter.ExecuteThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 100, maxTotal: 15.Milliseconds().InstrumentationSlowdown(1.7));
-        }
-
-        [Test] public void SingleThreaded_Runs_100_remote_queries_in_60_milliseconds()
-        {
-            var navigationSpecification = NavigationSpecification.Get(new MyRemoteQuery());
-
-            //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 10);
-
-            TimeAsserter.Execute(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 100, maxTotal: 60.Milliseconds().InstrumentationSlowdown(1.3));
+            if(threaded)
+            {
+                StopwatchExtensions.TimeExecutionThreaded(RunRequest, iterations: requests);
+                TimeAsserter.ExecuteThreaded(RunRequest, iterations: requests, maxTotal: maxTotal);
+            } else
+            {
+                StopwatchExtensions.TimeExecution(RunRequest, iterations: requests);
+                TimeAsserter.Execute(RunRequest, iterations: requests, maxTotal: maxTotal);
+            }
         }
     }
 }

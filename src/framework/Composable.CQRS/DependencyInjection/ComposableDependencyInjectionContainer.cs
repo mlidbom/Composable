@@ -13,7 +13,7 @@ namespace Composable.DependencyInjection
     //Todo: put all components in a list and assign the index in the list to the component registration.
     //Then create matching arrays. One to cache all singletons. One no cache each scoped component in the scope overlay.
     //Use the static cache trick to give each component a unique index that never changes during runtime. It does not matter that this might lead to "holes" in the cache arrays.
-    class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
+    partial class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
         readonly IDisposable _scopeDisposer;
         internal ComposableDependencyInjectionContainer(IRunMode runMode)
@@ -164,42 +164,6 @@ namespace Composable.DependencyInjection
                 foreach(var singleton in _singletons)
                 {
                     singleton.Dispose();
-                }
-            }
-        }
-
-        class ScopedComponentOverlay
-        {
-            readonly List<IDisposable> _disposables = new List<IDisposable>();
-            readonly Dictionary<Guid, object> _instantiatedComponents = new Dictionary<Guid, object>();
-            internal bool IsDisposed { get; private set; }
-            public void Dispose()
-            {
-                if(!IsDisposed)
-                {
-                    IsDisposed = true;
-                    foreach(var disposable in _disposables)
-                    {
-                        disposable.Dispose();
-                    }
-                }
-            }
-
-            public object ResolveInstance(ComponentRegistration registration, IServiceLocatorKernel parent)
-            {
-                if(_instantiatedComponents.TryGetValue(registration.Id, out var cachedInstance))
-                {
-                    return cachedInstance;
-                } else
-                {
-                    cachedInstance = registration.CreateInstance(parent);
-                    _instantiatedComponents.Add(registration.Id, cachedInstance);
-                    if(cachedInstance is IDisposable disposable)
-                    {
-                        _disposables.Add(disposable);
-                    }
-
-                    return cachedInstance;
                 }
             }
         }

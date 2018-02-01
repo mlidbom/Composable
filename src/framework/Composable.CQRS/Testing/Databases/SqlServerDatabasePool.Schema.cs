@@ -39,7 +39,7 @@ ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
         void RebootPool(SharedState machineWide) => TransactionScopeCe.SuppressAmbient(() =>
         {
-            RebootedMasterConnections.Add(_masterConnectionString);
+            RebootedMasterConnections.Add(MasterConnectionString);
             _log.Warning("Rebooting database pool");
 
             machineWide.Reset();

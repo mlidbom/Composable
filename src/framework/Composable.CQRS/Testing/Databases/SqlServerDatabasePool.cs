@@ -18,7 +18,7 @@ namespace Composable.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
-        static string _masterConnectionString;
+        static readonly string MasterConnectionString;
         readonly SqlServerConnection _masterConnection;
 
         static MachineWideSharedObject<SharedState> _machineWideState;
@@ -52,17 +52,17 @@ namespace Composable.Testing.Databases
             var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
             if(masterConnectionString != null)
             {
-                _masterConnectionString = masterConnectionString;
+                MasterConnectionString = masterConnectionString;
             } else
             {
-                _masterConnectionString = new AppConfigSqlConnectionProvider().GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
+                MasterConnectionString = new AppConfigSqlConnectionProvider().GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
             }
 
-            _masterConnectionString = _masterConnectionString.Replace("\\", "_");
+            MasterConnectionString = MasterConnectionString.Replace("\\", "_");
 
-            _machineWideState = MachineWideSharedObject<SharedState>.For(_masterConnectionString, usePersistentFile: true);
+            _machineWideState = MachineWideSharedObject<SharedState>.For(MasterConnectionString, usePersistentFile: true);
 
-            Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
+            Contract.Assert.That(MasterConnectionString.Contains(InitialCatalogMaster),
                                  $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
         }
 
@@ -75,7 +75,7 @@ namespace Composable.Testing.Databases
         public SqlServerDatabasePool()
         {
             _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 30.Seconds();
-            _masterConnection = new SqlServerConnection(_masterConnectionString);
+            _masterConnection = new SqlServerConnection(MasterConnectionString);
         }
 
         bool _disposed;
@@ -166,7 +166,7 @@ namespace Composable.Testing.Databases
         }
 
         internal string ConnectionStringForDbNamed(string dbName)
-            => _masterConnectionString.Replace(InitialCatalogMaster, $";Initial Catalog={dbName};");
+            => MasterConnectionString.Replace(InitialCatalogMaster, $";Initial Catalog={dbName};");
 
         Database InsertDatabase(SharedState machineWide)
         {

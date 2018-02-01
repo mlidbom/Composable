@@ -20,9 +20,9 @@ namespace Composable.DependencyInjection
 
             public void Set(object instance, ComponentRegistration registration) => _instances[registration.ComponentIndex] = instance;
 
-            internal object TryGet<TService>() => _instances[_typeIndexToComponentIndex[ServiceTypeIndex.For<TService>()]];
+            internal object TryGet<TService>() => _instances[_typeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
 
-            internal ComponentRegistration[] GetRegistration<TService>() => _components[ServiceTypeIndex.For<TService>()];
+            internal ComponentRegistration[] GetRegistration<TService>() => _components[ServiceTypeIndex.ForService<TService>.Index];
 
             ComponentCache(ComponentRegistration[][] components, int[] typeIndexToComponentIndex)
             {

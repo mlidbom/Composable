@@ -181,14 +181,11 @@ namespace Composable.DependencyInjection
 
         internal object GetSingletonInstance(IServiceLocatorKernel kernel)
         {
-            if(_singletonInstance == null)
+            lock(_lock)
             {
-                lock(_lock)
+                if(_singletonInstance == null)
                 {
-                    if(_singletonInstance == null)
-                    {
-                        _singletonInstance = CreateInstance(kernel);
-                    }
+                    _singletonInstance = CreateInstance(kernel);
                 }
             }
 

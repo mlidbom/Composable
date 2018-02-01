@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -7,6 +8,7 @@ using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
 using Composable.System;
+using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
@@ -16,10 +18,10 @@ namespace Composable.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
-        readonly string _masterConnectionString;
+        static string _masterConnectionString;
         readonly SqlServerConnection _masterConnection;
 
-        readonly MachineWideSharedObject<SharedState> _machineWideState;
+        static MachineWideSharedObject<SharedState> _machineWideState;
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
 
         static readonly string DatabaseRootFolderOverride;
@@ -45,6 +47,23 @@ namespace Composable.Testing.Databases
             {
                 Directory.CreateDirectory(DatabaseRootFolderOverride);
             }
+
+            var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+            var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
+            if(masterConnectionString != null)
+            {
+                _masterConnectionString = masterConnectionString;
+            } else
+            {
+                _masterConnectionString = new AppConfigSqlConnectionProvider().GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
+            }
+
+            _masterConnectionString = _masterConnectionString.Replace("\\", "_");
+
+            _machineWideState = MachineWideSharedObject<SharedState>.For(_masterConnectionString, usePersistentFile: true);
+
+            Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
+                                 $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
         }
 
         ILogger _log = Logger.For<SqlServerDatabasePool>();
@@ -53,17 +72,9 @@ namespace Composable.Testing.Databases
 
         internal static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(SqlServerDatabasePool)}_";
 
-        public SqlServerDatabasePool(string masterConnectionString)
+        public SqlServerDatabasePool()
         {
             _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 30.Seconds();
-
-            var connectionStringWithoutInvalidChars = masterConnectionString.Replace("\\", "_");
-
-            _machineWideState = MachineWideSharedObject<SharedState>.For(connectionStringWithoutInvalidChars, usePersistentFile: true);
-            _masterConnectionString = masterConnectionString;
-
-            Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
-                                    $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
             _masterConnection = new SqlServerConnection(_masterConnectionString);
         }
 

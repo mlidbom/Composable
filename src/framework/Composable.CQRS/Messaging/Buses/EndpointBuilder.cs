@@ -16,8 +16,6 @@ namespace Composable.Messaging.Buses
 {
     class EndpointBuilder : IEndpointBuilder
     {
-        static readonly ISqlConnection MasterDbConnection = new AppConfigSqlConnectionProvider().GetConnectionProvider(parameterName: "MasterDB");
-
         readonly IDependencyInjectionContainer _container;
         readonly string _name;
         readonly TypeMapper _typeMapper;
@@ -113,7 +111,7 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod((IInterprocessTransport interprocessTransport, IMessageHandlerRegistry messageHandlerRegistry) => new EventstoreEventPublisher(interprocessTransport, messageHandlerRegistry))
                          .LifestyleScoped(),
                 Component.For<ISqlConnectionProvider>()
-                         .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
+                         .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider())
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning());
 

@@ -9,22 +9,15 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
 {
     [TestFixture] public class After_creating_two_databases_named_db1_and_db2
     {
-        string _masterConnectionString;
         SqlServerDatabasePool _manager;
         ISqlConnection _dB1ConnectionString;
         ISqlConnection _dB2ConnectionString;
         const string Db1 = "LocalDBManagerTests_After_creating_connection_Db1";
         const string Db2 = "LocalDBManagerTests_After_creating_connection_Db2";
 
-        [OneTimeSetUp] public void OneTimeSetup()
-        {
-            _masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"]
-                                                          .ConnectionString;
-        }
-
         [SetUp] public void SetupTask()
         {
-            _manager = new SqlServerDatabasePool(_masterConnectionString);
+            _manager = new SqlServerDatabasePool();
             _dB1ConnectionString = _manager.ConnectionProviderFor(Db1);
             _dB2ConnectionString = _manager.ConnectionProviderFor(Db2);
         }

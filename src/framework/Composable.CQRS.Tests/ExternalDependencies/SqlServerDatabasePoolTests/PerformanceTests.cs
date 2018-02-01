@@ -12,12 +12,10 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
     [TestFixture, Performance]
     public class PerformanceTests
     {
-        static readonly string MasterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"].ConnectionString;
-
         [SetUp]
         public void WarmUpCache()
         {
-            using(new SqlServerDatabasePool(MasterConnectionString)) { }
+            using(new SqlServerDatabasePool()) { }
         }
 
         [Test]
@@ -29,7 +27,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
                 action:
                 () =>
                 {
-                    using(var manager = new SqlServerDatabasePool(MasterConnectionString))
+                    using(var manager = new SqlServerDatabasePool())
                     {
                         manager.SetLogLevel(LogLevel.Warning);
                         manager.ConnectionProviderFor(dbName).UseConnection(_ => {});
@@ -48,7 +46,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
                 action:
                 () =>
                 {
-                    using(var manager = new SqlServerDatabasePool(MasterConnectionString))
+                    using(var manager = new SqlServerDatabasePool())
                     {
                         manager.SetLogLevel(LogLevel.Warning);
                         manager.ConnectionProviderFor(dbName).UseConnection(_ => { });
@@ -67,7 +65,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
             TimeAsserter.ExecuteThreaded(
                 setup: () =>
                        {
-                           manager = new SqlServerDatabasePool(MasterConnectionString);
+                           manager = new SqlServerDatabasePool();
                            manager.SetLogLevel(LogLevel.Warning);
                            manager.ConnectionProviderFor("fake_to_force_creation_of_manager_database").UseConnection(_ => { });
                        },
@@ -86,7 +84,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
             TimeAsserter.Execute(
                 setup: () =>
                        {
-                           manager = new SqlServerDatabasePool(MasterConnectionString);
+                           manager = new SqlServerDatabasePool();
                            manager.SetLogLevel(LogLevel.Warning);
                            manager.ConnectionProviderFor("fake_to_force_creation_of_manager_database").UseConnection(_ => { });
                        },
@@ -101,7 +99,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
         public void Repeated_fetching_of_same_connection_runs_200_times_in_ten_milliseconds()
         {
             var dbName = "4669B59A-E0AC-4E76-891C-7A2369AE0F2F";
-            using(var manager = new SqlServerDatabasePool(MasterConnectionString))
+            using(var manager = new SqlServerDatabasePool())
             {
                 manager.SetLogLevel(LogLevel.Warning);
                 manager.ConnectionProviderFor(dbName).UseConnection(_ => { });

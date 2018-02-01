@@ -7,13 +7,13 @@ namespace Composable.DependencyInjection
 {
     partial class ComposableDependencyInjectionContainer
     {
-        internal class ComponentCache
+        class RootCache
         {
             readonly ComponentRegistration[][] _components;
             readonly int[] _serviceTypeIndexToComponentIndex;
             readonly object[] _instances;
 
-            internal ComponentCache(IReadOnlyList<ComponentRegistration> registrations) : this(CreateArrays(registrations))
+            internal RootCache(IReadOnlyList<ComponentRegistration> registrations) : this(CreateArrays(registrations))
             {
             }
 
@@ -25,7 +25,7 @@ namespace Composable.DependencyInjection
 
             internal ComponentRegistration[] GetRegistration<TService>() => _components[ServiceTypeIndex.ForService<TService>.Index];
 
-            ComponentCache((ComponentRegistration[][], int[]) arrays)
+            RootCache((ComponentRegistration[][], int[]) arrays)
             {
                 _components = arrays.Item1;
                 _serviceTypeIndexToComponentIndex = arrays.Item2;
@@ -54,7 +54,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        internal class ScopeCache : IDisposable
+        class ScopeCache : IDisposable
         {
             internal bool IsDisposed;
             readonly int[] _serviceTypeIndexToComponentIndex;

@@ -18,7 +18,7 @@ namespace Composable.DependencyInjection
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
         readonly IDisposable _scopeDisposer;
 
-        ComponentCache _cache;
+        RootCache _cache;
 
         int _maxComponentIndex;
 
@@ -57,7 +57,7 @@ namespace Composable.DependencyInjection
         {
             if(!_createdServiceLocator)
             {
-                _cache = new ComponentCache(_registeredComponents.Values.ToList());//Don't create in the constructor because no registrations are done and thus new component indexes will appear, thus breaking the cache.
+                _cache = new RootCache(_registeredComponents.Values.ToList());//Don't create in the constructor because no registrations are done and thus new component indexes will appear, thus breaking the cache.
                 _createdServiceLocator = true;
                 Verify();
             }

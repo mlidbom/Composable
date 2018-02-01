@@ -97,7 +97,6 @@ namespace Composable.DependencyInjection
         [ThreadStatic] static ComponentRegistration _resolvingComponent;
         TService Resolve<TService>()
         {
-
             if(_singletonCache.TryGet<TService>() is TService singleton)
             {
                 return singleton;

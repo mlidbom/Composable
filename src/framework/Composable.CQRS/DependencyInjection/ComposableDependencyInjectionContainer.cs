@@ -15,14 +15,22 @@ namespace Composable.DependencyInjection
     //Use the static cache trick to give each component a unique index that never changes during runtime. It does not matter that this might lead to "holes" in the cache arrays.
     partial class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
+        bool _createdServiceLocator;
+        readonly AsyncLocal<Scope> _scope = new AsyncLocal<Scope>();
+        readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
+        readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
+        readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
         readonly IDisposable _scopeDisposer;
+
+        public IRunMode RunMode { get; }
+
+        public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents.Values.ToList();
+
         internal ComposableDependencyInjectionContainer(IRunMode runMode)
         {
             _scopeDisposer = Disposable.Create(EndScope);
             RunMode = runMode;
         }
-
-        public IRunMode RunMode { get; }
 
         public void Register(params ComponentRegistration[] registrations)
         {
@@ -42,8 +50,6 @@ namespace Composable.DependencyInjection
                 }
             }
         }
-
-        public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents.Values.ToList();
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
         {
@@ -71,8 +77,6 @@ namespace Composable.DependencyInjection
                 }
             }
         }
-
-        bool _createdServiceLocator;
 
         TService IServiceLocator.Resolve<TService>() => Resolve<TService>();
         TService[] IServiceLocator.ResolveAll<TService>() => throw new NotImplementedException();
@@ -149,11 +153,6 @@ namespace Composable.DependencyInjection
                 _resolvingComponent = previousResolvingComponent;
             }
         }
-
-        readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
-        readonly AsyncLocal<Scope> _scope = new AsyncLocal<Scope>();
-        readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
-        readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
         bool _disposed;
         public void Dispose()

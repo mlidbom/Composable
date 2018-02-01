@@ -168,6 +168,8 @@ namespace Composable.DependencyInjection
         internal Lifestyle Lifestyle { get; }
         internal abstract int ComponentIndex {get;}
 
+        internal readonly int[] ServiceTypeIndexes;
+
         readonly object _lock = new object();
         object _singletonInstance;
 
@@ -201,6 +203,8 @@ namespace Composable.DependencyInjection
         internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
         {
             serviceTypes = serviceTypes.ToList();
+
+            ServiceTypeIndexes = serviceTypes.Select(ComposableDependencyInjectionContainer.ServiceTypeIndex.For).ToArray();
 
             Contract.Arguments.That(lifestyle == Lifestyle.Singleton || instantiationSpec.Instance == null, $"{nameof(InstantiationSpec.Instance)} registrations must be {nameof(Lifestyle.Singleton)}s");
 

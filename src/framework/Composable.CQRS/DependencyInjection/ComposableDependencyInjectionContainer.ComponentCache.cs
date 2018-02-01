@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Composable.DependencyInjection
 {
@@ -6,7 +8,7 @@ namespace Composable.DependencyInjection
     {
         internal class ComponentCache
         {
-            readonly ComponentRegistration[] _components;
+            readonly ComponentRegistration[][] _components;
             readonly object[] _instances;
 
             internal ComponentCache(IReadOnlyList<ComponentRegistration> registrations) : this(CreateComponentArray(registrations))
@@ -18,21 +20,35 @@ namespace Composable.DependencyInjection
             public void Set(object instance, ComponentRegistration registration) => _instances[registration.ComponentIndex] = instance;
             internal object TryGet<TService>() => _instances[ServiceTypeIndex.For<TService>()];
 
-            internal ComponentRegistration GetRegistration<TService>() => _components[ServiceTypeIndex.For<TService>()];
+            internal ComponentRegistration[] GetRegistration<TService>() => _components[ServiceTypeIndex.For<TService>()];
 
-            ComponentCache(ComponentRegistration[] components)
+            ComponentCache(ComponentRegistration[][] components)
             {
                 _components = components;
                 _instances = new object[_components.Length];
             }
 
-            static ComponentRegistration[] CreateComponentArray(IReadOnlyList<ComponentRegistration> registrations)
+            static ComponentRegistration[][] CreateComponentArray(IReadOnlyList<ComponentRegistration> registrations)
             {
-                ServiceTypeIndex.InitAll(registrations);
-                var componentArray = new ComponentRegistration[ServiceTypeIndex.ComponentCount];
+                var componentArray = new ComponentRegistration[ServiceTypeIndex.ComponentCount][];
                 foreach(var registration in registrations)
                 {
-                    componentArray[registration.ComponentIndex] = registration;
+                    var serviceTypeIndexes = registration.ServiceTypeIndexes;
+                    foreach(var serviceTypeIndex in serviceTypeIndexes)
+                    {
+                        var current = componentArray[serviceTypeIndex];
+                        if (current == null)
+                        {
+                            componentArray[serviceTypeIndex] = new[] { registration };
+                        }
+                        else
+                        {
+                            var newReg = new ComponentRegistration[current.Length + 1];
+                            Array.Copy(current, newReg, current.Length);
+                            newReg[newReg.Length - 1] = registration;
+                            componentArray[serviceTypeIndex] = newReg;
+                        }
+                    }
                 }
 
                 return componentArray;

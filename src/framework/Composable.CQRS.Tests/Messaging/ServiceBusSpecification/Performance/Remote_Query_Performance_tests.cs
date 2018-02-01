@@ -20,14 +20,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             TimeAsserter.ExecuteThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 100, maxTotal: 15.Milliseconds().InstrumentationSlowdown(1.7));
         }
 
-        [Test] public void SingleThreaded_Runs_100_remote_queries_in_50_milliseconds()
+        [Test] public void SingleThreaded_Runs_100_remote_queries_in_60_milliseconds()
         {
             var navigationSpecification = NavigationSpecification.Get(new MyRemoteQuery());
 
             //Warmup
             StopwatchExtensions.TimeExecutionThreaded(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 10);
 
-            TimeAsserter.Execute(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 100, maxTotal: 50.Milliseconds().InstrumentationSlowdown(1.3));
+            TimeAsserter.Execute(action: () => ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Navigate(navigationSpecification)), iterations: 100, maxTotal: 60.Milliseconds().InstrumentationSlowdown(1.3));
         }
     }
 }

@@ -13,14 +13,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         [Test] public void Runs_10_000__MultiThreaded_local_requests_making_1_local_query_each_in_10_milliseconds() =>
             RunScenario(threaded: true, requests: 10_000, queriesPerRequest: 1, maxTotal: 10.Milliseconds().InstrumentationSlowdown(15));
 
-        [Test] public void Runs_10_000_SingleThreaded_local_requests_making_a_single_local_query_in_26_milliseconds() =>
-            RunScenario(threaded: false, requests: 10_000, queriesPerRequest: 1, maxTotal: 26.Milliseconds().InstrumentationSlowdown(5));
+        [Test] public void Runs_10_000_SingleThreaded_local_requests_making_a_single_local_query_in_30_milliseconds() =>
+            RunScenario(threaded: false, requests: 10_000, queriesPerRequest: 1, maxTotal: 30.Milliseconds().InstrumentationSlowdown(5));
 
         [Test] public void Runs_1_000__MultiThreaded_local_requests_making_10_local_queríes_each_in_7_milliseconds() =>
             RunScenario(threaded: true, requests: 1_000, queriesPerRequest: 10, maxTotal: 7.Milliseconds().InstrumentationSlowdown(11));
 
-        [Test] public void Runs_1_000__SingleThreaded_local_requests_making_10_local_queríes_each_in_10_milliseconds() =>
-            RunScenario(threaded: false, requests: 1_000, queriesPerRequest: 10, maxTotal: 10.Milliseconds().InstrumentationSlowdown(5));
+        [Test] public void Runs_1_000__SingleThreaded_local_requests_making_10_local_queríes_each_in_12_milliseconds() =>
+            RunScenario(threaded: false, requests: 1_000, queriesPerRequest: 10, maxTotal: 12.Milliseconds().InstrumentationSlowdown(5));
 
         void RunScenario(bool threaded, int requests, int queriesPerRequest, TimeSpan maxTotal)
         {

@@ -80,17 +80,17 @@ namespace Composable.DependencyInjection
 
         IDisposable IServiceLocator.BeginScope()
         {
-            if(_scopedOverlay.Value?.IsDisposed == false)
+            if(_scope.Value?.IsDisposed == false)
             {
                 throw new Exception("Someone failed to dispose a scope.");
             }
 
-            _scopedOverlay.Value = new ScopedComponentOverlay();
+            _scope.Value = new Scope();
 
             return _scopeDisposer;
         }
 
-        void EndScope() => _scopedOverlay.Value.Dispose();
+        void EndScope() => _scope.Value.Dispose();
 
         TService Resolve<TService>()
         {
@@ -139,7 +139,7 @@ namespace Composable.DependencyInjection
                         }
                     }
                     case Lifestyle.Scoped:
-                        return _scopedOverlay.Value.ResolveInstance(registration, this);
+                        return _scope.Value.ResolveInstance(registration, this);
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -151,7 +151,7 @@ namespace Composable.DependencyInjection
         }
 
         readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
-        readonly AsyncLocal<ScopedComponentOverlay> _scopedOverlay = new AsyncLocal<ScopedComponentOverlay>();
+        readonly AsyncLocal<Scope> _scope = new AsyncLocal<Scope>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 

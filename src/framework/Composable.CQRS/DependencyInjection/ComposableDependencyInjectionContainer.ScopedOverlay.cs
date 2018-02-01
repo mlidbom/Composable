@@ -6,7 +6,7 @@ namespace Composable.DependencyInjection
 {
     partial class ComposableDependencyInjectionContainer
     {
-        class ScopedComponentOverlay
+        class Scope
         {
             readonly List<IDisposable> _disposables = new List<IDisposable>();
             readonly Dictionary<Guid, object> _instantiatedComponents = new Dictionary<Guid, object>();

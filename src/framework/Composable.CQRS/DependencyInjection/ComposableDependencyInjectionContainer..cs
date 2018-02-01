@@ -97,7 +97,9 @@ namespace Composable.DependencyInjection
         [ThreadStatic] static ComponentRegistration _parentComponent;
         TService Resolve<TService>()
         {
-            if(_cache.TryGet<TService>() is TService singleton)
+            var cacheEntry = _cache.Get<TService>();
+
+            if(cacheEntry.Instance is TService singleton)
             {
                 return singleton;
             }
@@ -109,9 +111,8 @@ namespace Composable.DependencyInjection
                 return scoped;
             }
 
-            var registrations = _cache.GetRegistration<TService>();
-
-            if (registrations == null)
+            var registrations = cacheEntry.Registrations;
+            if(registrations == null)
             {
                 throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
             }

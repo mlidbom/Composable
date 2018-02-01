@@ -94,6 +94,7 @@ namespace Composable.DependencyInjection
 
         void EndScope() => _scope.Value.Dispose();
 
+        [ThreadStatic] static ComponentRegistration _resolvingComponent;
         TService Resolve<TService>()
         {
             if(_singletonCache.TryGet<TService>() is TService singleton)
@@ -106,12 +107,14 @@ namespace Composable.DependencyInjection
                 return scoped;
             }
 
-            if(!_serviceToRegistrationDictionary.TryGetValue(typeof(TService), out var registrations))
+            var registrations = _singletonCache.GetRegistration<TService>();
+
+            if (registrations == null)
             {
                 throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
             }
 
-            if(registrations.Count > 1)
+            if(registrations.Length > 1)
             {
                 throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
             }
@@ -146,8 +149,6 @@ namespace Composable.DependencyInjection
                 _resolvingComponent = previousResolvingComponent;
             }
         }
-
-        [ThreadStatic] static ComponentRegistration _resolvingComponent;
 
         bool _disposed;
         public void Dispose()

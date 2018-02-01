@@ -12,7 +12,6 @@ using Composable.System.Collections.Collections;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Reflection;
-using Newtonsoft.Json;
 
 namespace Composable.Persistence.DocumentDb.SqlServer
 {

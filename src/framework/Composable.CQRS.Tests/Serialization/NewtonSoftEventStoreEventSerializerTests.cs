@@ -4,7 +4,6 @@ using Composable.DependencyInjection;
 using Composable.Logging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
-using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;

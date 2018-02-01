@@ -6,7 +6,6 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.Aggregates;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Refactoring.Naming;

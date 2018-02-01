@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
-using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;

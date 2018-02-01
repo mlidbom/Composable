@@ -3,11 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection.SimpleInjectorImplementation;
 using Composable.DependencyInjection.Windsor;
-using Composable.Messaging.Buses;
-using Composable.Messaging.Buses.Implementation;
-using Composable.Refactoring.Naming;
-using Composable.System.Configuration;
-using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 
 namespace Composable.DependencyInjection.Testing

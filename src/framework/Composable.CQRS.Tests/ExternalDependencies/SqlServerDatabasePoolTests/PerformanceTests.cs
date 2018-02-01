@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Data.SqlClient;

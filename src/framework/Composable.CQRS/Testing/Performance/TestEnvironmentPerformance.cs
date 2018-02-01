@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using Composable.Logging;
 using Composable.System;
+using Composable.System.Diagnostics;
 
 namespace Composable.Testing.Performance
 {
@@ -12,71 +8,41 @@ namespace Composable.Testing.Performance
     {
         public static TimeSpan NCrunchSlowdownFactor(this TimeSpan original, double nCrunchSlowdownFactor)
         {
-            if(TestRunner.Instance.Name == TestRunner.NCrunchRunnerName)
+            if(IsInstrumented)
             {
                 return ((int)(original.TotalMilliseconds * nCrunchSlowdownFactor)).Milliseconds();
+            } else
+            {
+                return original;
             }
-            return original;
         }
 
-        public static TimeSpan AdjustRuntimeToTestEnvironment(this TimeSpan original) => ((int)(original.TotalMilliseconds * TestRunner.Instance.SlowDownFactor)).Milliseconds();
-    }
-
-    class TestRunner
-    {
-        public const string NCrunchRunnerName = "NCRunch";
-        static readonly ILogger Log = Logger.For<TestRunner>();
-        public static readonly TestRunner Instance = GetInstance();
-
-        static TestRunner GetInstance()
+        static readonly bool IsInstrumented = CheckIfInstrumented();
+        static bool CheckIfInstrumented()
         {
-            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
-            var processName = Process.GetCurrentProcess().ProcessName;
-            if (loadedAssemblies.Any(assembly => assembly.FullName.StartsWith("nCrunch.TaskRunner")))
-            {
-                return new TestRunner(NCrunchRunnerName, 5.0);
-            }
+#if NCRUNCH
+    const bool runningUnderNCrunch = true;
+#else
+    const bool runningUnderNCrunch = false;
+#endif
 
-            if (processName.StartsWith("nunit-gui"))
-            {
-                return new TestRunner("Nunit GUI");
-            }
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            if(!runningUnderNCrunch) return false;
 
-            if (processName.StartsWith("vstest"))
-            {
-                return new TestRunner("Visual Studio (vstest)");
-            }
+#pragma warning disable 162
+            // ReSharper disable once HeuristicUnreachableCode
+            var time = StopwatchExtensions.TimeExecution(() =>
+                                                         {
+                                                             for(int i = 0; i < 100; i++)
+                                                             {
+                                                                 // ReSharper disable once UnusedVariable
+                                                                 int something = i;
+                                                             }
+                                                         },
+                                                         iterations: 500);
 
-            if (processName.StartsWith("nunit-console"))
-            {
-                return new TestRunner("Nunit Console");
-            }
-
-            if (AreWeRunningInResharper(loadedAssemblies))
-            {
-                return new TestRunner("Resharper");
-            }
-
-
-            Log.Debug(processName);
-            loadedAssemblies.ForEach(assembly =>  Log.Debug(assembly.FullName));
-
-            return new TestRunner($"Default/Fallback ({processName})");
+           return time.Total.TotalMilliseconds > 1;
+#pragma warning restore 162
         }
-
-        static bool AreWeRunningInResharper(IEnumerable<Assembly> loadedAssemblies)
-        {
-            return loadedAssemblies.Any(assembly => assembly.FullName.StartsWith("JetBrains.ReSharper.UnitTestRunner"));
-        }
-
-        TestRunner(string name, double slowDownFactor = 1.0)
-        {
-            SafeConsole.WriteLine($"Setting up performance adjustments for {name} with {nameof(slowDownFactor)}: {slowDownFactor}");
-            Name = name;
-            SlowDownFactor = slowDownFactor;
-        }
-
-        public string Name { get; }
-        public double SlowDownFactor { get; }
     }
 }

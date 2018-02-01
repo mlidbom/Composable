@@ -15,7 +15,7 @@ namespace Composable.Tests.Contracts {
             TimeAsserter.Execute(
                 action: () => Contract.Argument(() => one).NotDefault(),
                 iterations: 500,
-                maxTotal: 10.Milliseconds().AdjustRuntimeToTestEnvironment());
+                maxTotal: 10.Milliseconds().NCrunchSlowdownFactor(5));
         }
 
         [Test]
@@ -26,7 +26,7 @@ namespace Composable.Tests.Contracts {
             TimeAsserter.Execute(
                 action: () => Contract.Argument(() => one).NotNullOrDefault(),
                 iterations: 500,
-                maxTotal: 10.Milliseconds().AdjustRuntimeToTestEnvironment());
+                maxTotal: 10.Milliseconds().NCrunchSlowdownFactor(5));
         }
     }
 }

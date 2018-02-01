@@ -18,8 +18,7 @@ namespace Composable.Tests.StrictlyManagedResource
         {
             TimeAsserter.Execute(() => new StrictlyManagedResource<StrictResource>(forceStackTraceCollection: true).Dispose(),
                                  iterations: 250,
-                                 maxTotal: 20.Milliseconds()
-                                             .AdjustRuntimeToTestEnvironment(),
+                                 maxTotal: 20.Milliseconds().NCrunchSlowdownFactor(5),
                                  timeFormat: "s\\.ffffff");
         }
 

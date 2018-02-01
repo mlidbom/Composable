@@ -10,16 +10,15 @@ namespace Composable.DependencyInjection
         internal class ComponentCache
         {
             readonly ComponentRegistration[][] _components;
-            readonly int[] _typeIndexToComponentIndex;
+            readonly int[] _serviceTypeIndexToComponentIndex;
             readonly object[] _instances;
             readonly LinkedList<IDisposable> _disposables = new LinkedList<IDisposable>();
-            readonly Lifestyle[] _serviceLifestyles;
 
             internal ComponentCache(IReadOnlyList<ComponentRegistration> registrations) : this(CreateArrays(registrations))
             {
             }
 
-            internal ScopeCache Clone() => new ScopeCache((_typeIndexToComponentIndex, _serviceLifestyles));
+            internal ScopeCache Clone() => new ScopeCache(_serviceTypeIndexToComponentIndex);
 
             public void Set(object instance, ComponentRegistration registration)
             {
@@ -30,25 +29,21 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            internal Lifestyle GetLifeStyle<TService>() => _serviceLifestyles[ServiceTypeIndex.ForService<TService>.Index];
-
-            internal TService TryGet<TService>() => (TService)_instances[_typeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
+            internal TService TryGet<TService>() => (TService)_instances[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
 
             internal ComponentRegistration[] GetRegistration<TService>() => _components[ServiceTypeIndex.ForService<TService>.Index];
 
-            ComponentCache((ComponentRegistration[][], int[], Lifestyle[]) arrays)
+            ComponentCache((ComponentRegistration[][], int[]) arrays)
             {
                 _components = arrays.Item1;
-                _typeIndexToComponentIndex = arrays.Item2;
-                _serviceLifestyles = arrays.Item3;
+                _serviceTypeIndexToComponentIndex = arrays.Item2;
                 _instances = new object[_components.Length];
             }
 
-            static (ComponentRegistration[][], int[], Lifestyle[]) CreateArrays(IReadOnlyList<ComponentRegistration> registrations)
+            static (ComponentRegistration[][], int[]) CreateArrays(IReadOnlyList<ComponentRegistration> registrations)
             {
                var componentArray = new ComponentRegistration[ServiceTypeIndex.ServiceCount][];
                 var typeToComponentIndex = new int[ServiceTypeIndex.ServiceCount];
-                var serviceLifeStyles = new Lifestyle[ServiceTypeIndex.ServiceCount];
 
                 registrations.SelectMany(registration => registration.ServiceTypeIndexes.Select(typeIndex => new {registration, typeIndex}))
                              .GroupBy(registrationPerTypeIndex => registrationPerTypeIndex.typeIndex)
@@ -60,18 +55,17 @@ namespace Composable.DependencyInjection
                     foreach (var serviceTypeIndex in registration.ServiceTypeIndexes)
                     {
                         typeToComponentIndex[serviceTypeIndex] = registration.ComponentIndex;
-                        serviceLifeStyles[serviceTypeIndex] = registration.Lifestyle;
                     }
                 }
 
-                return (componentArray, typeToComponentIndex, serviceLifeStyles);
+                return (componentArray, typeToComponentIndex);
             }
         }
 
         internal class ScopeCache : IDisposable
         {
             internal bool IsDisposed;
-            readonly int[] _typeIndexToComponentIndex;
+            readonly int[] _serviceTypeIndexToComponentIndex;
             readonly object[] _instances;
             readonly LinkedList<IDisposable> _disposables = new LinkedList<IDisposable>();
 
@@ -84,12 +78,12 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            internal TService TryGet<TService>() => (TService)_instances[_typeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
+            internal TService TryGet<TService>() => (TService)_instances[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
 
-            internal ScopeCache((int[], Lifestyle[]) arrays)
+            internal ScopeCache(int[] serviceServiceTypeToComponentIndex)
             {
-                _typeIndexToComponentIndex = arrays.Item1;
-                _instances = new object[_typeIndexToComponentIndex.Length];
+                _serviceTypeIndexToComponentIndex = serviceServiceTypeToComponentIndex;
+                _instances = new object[serviceServiceTypeToComponentIndex.Length];
             }
 
 

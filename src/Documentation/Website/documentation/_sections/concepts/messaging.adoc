@@ -66,8 +66,9 @@ A message that instructs the handler to perform an action.
 ----
 class RegisterAccountCommand
 {
+    AccountId AccountId { get; }
     Password Password { get; }
-    Email Email { set; }
+    Email Email { get; }
 }
 ----
 
@@ -78,6 +79,7 @@ A message that informs handlers about something that has happened.
 ----
 interface IAccountRegisteredEvent
 {
+    AccountId AccountId { get; }
     Password Password { get; }
     Email Email { get; }
 }

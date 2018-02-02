@@ -3,8 +3,10 @@
 .listingblock .pygments .tok-c { color: #008000 } /* Comment */
 .listingblock .pygments .tok-err { border: 1px solid #FF0000 } /* Error */
 .listingblock .pygments .tok-k { color: #0000ff } /* Keyword */
+.listingblock .pygments .tok-ch { color: #008000 } /* Comment.Hashbang */
 .listingblock .pygments .tok-cm { color: #008000 } /* Comment.Multiline */
 .listingblock .pygments .tok-cp { color: #0000ff } /* Comment.Preproc */
+.listingblock .pygments .tok-cpf { color: #008000 } /* Comment.PreprocFile */
 .listingblock .pygments .tok-c1 { color: #008000 } /* Comment.Single */
 .listingblock .pygments .tok-cs { color: #008000 } /* Comment.Special */
 .listingblock .pygments .tok-ge { font-style: italic } /* Generic.Emph */
@@ -21,8 +23,10 @@
 .listingblock .pygments .tok-s { color: #a31515 } /* Literal.String */
 .listingblock .pygments .tok-nc { color: #2b91af } /* Name.Class */
 .listingblock .pygments .tok-ow { color: #0000ff } /* Operator.Word */
+.listingblock .pygments .tok-sa { color: #a31515 } /* Literal.String.Affix */
 .listingblock .pygments .tok-sb { color: #a31515 } /* Literal.String.Backtick */
 .listingblock .pygments .tok-sc { color: #a31515 } /* Literal.String.Char */
+.listingblock .pygments .tok-dl { color: #a31515 } /* Literal.String.Delimiter */
 .listingblock .pygments .tok-sd { color: #a31515 } /* Literal.String.Doc */
 .listingblock .pygments .tok-s2 { color: #a31515 } /* Literal.String.Double */
 .listingblock .pygments .tok-se { color: #a31515 } /* Literal.String.Escape */

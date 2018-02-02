@@ -26,7 +26,7 @@ Pop-Location
 pwd
 .\build.bat
 
-robocopy.exe /MIR "$buildFolder" "$ghPagesCheckoutFolder" /XD ".git" "apidocs" /XF ".gitignore" "CNAME"
+robocopy.exe /MIR "$buildFolder" "$ghPagesCheckoutFolder" /XD ".git" "apidocs" ".asciidoctor" /XF ".gitignore" "CNAME"
 
 Push-Location $ghPagesCheckoutFolder
 

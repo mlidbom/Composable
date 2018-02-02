@@ -22,7 +22,7 @@ In principle just a function that takes a message as a parameter.
 +
 [source,csharp]
 ----
-void Handle(RegisterAccountCommand command)
+void Handle(RegisterAccountCommand command);
 ----
 +
 In practice most message handlers need to have one or more dependencies injected into them.

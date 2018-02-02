@@ -11,7 +11,7 @@
     <EXTENSION ID="JRubyRunConfigurationExtension" NailgunExecEnabled="false" />
     <EXTENSION ID="RubyCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" track_test_folders="true" runner="rcov" />
     <RUBY_RUN_CONFIG NAME="SCRIPT_PATH" VALUE="C:/Ruby22/bin/jekyll" />
-    <RUBY_RUN_CONFIG NAME="SCRIPT_ARGS" VALUE="serve" />
+    <RUBY_RUN_CONFIG NAME="SCRIPT_ARGS" VALUE="serve --livereload" />
     <method />
   </configuration>
 </component>

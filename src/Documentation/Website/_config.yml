@@ -41,4 +41,5 @@ asciidoctor:
     - idseparator=_
     - stylesdir=vendor-css
     - source-highlighter=pygments
+    - source-language=csharp
     - icons=font

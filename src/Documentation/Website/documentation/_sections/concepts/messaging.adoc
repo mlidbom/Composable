@@ -20,7 +20,7 @@ The System.Type returned by `message.GetType()`.
 Message Handler::
 In principle just a function that takes a message as a parameter.
 +
-[source,csharp]
+[source]
 ----
 void Handle(RegisterAccountCommand command);
 ----
@@ -29,7 +29,7 @@ In practice most message handlers need to have one or more dependencies injected
 In order to support this handlers are often required to be wrapped inside interfaces.
  That way instances of implementing classes can be resolved from an IOC container easily.
 +
-[source,csharp]
+[source]
 ----
 interface IMessageHandler<RegisterAccountCommand>
 {
@@ -51,7 +51,7 @@ The bus is responsible for routing the messages to the appropriate handler(s) an
 serviceInstance.RegisterAccount(arguments....
 ----
 +
-[source,csharp]
+[source]
 .Client don't even know where the service is when accessing it across a bus
 ----
 bus.Send(new RegisterAccountCommand(
@@ -62,7 +62,7 @@ TIP: The benefits of this decoupling may not be obvious at first, but they are p
 Command::
 A message that instructs the handler to perform an action.
 +
-[source,csharp]
+[source]
 ----
 class RegisterAccountCommand
 {
@@ -75,7 +75,7 @@ class RegisterAccountCommand
 Event::
 A message that informs handlers about something that has happened.
 +
-[source,csharp]
+[source]
 ----
 interface IAccountRegisteredEvent
 {
@@ -88,7 +88,7 @@ interface IAccountRegisteredEvent
 Query::
 A message that asks the handler to supply some data.
 +
-[source,csharp]
+[source]
 ----
 class RecentlyRegisteredAccountsQuery
 {
@@ -141,7 +141,7 @@ TIP: Semantic Routing is also known as "Polymorphic routing" or "Polymorphic  di
 
 ==== Clarifying examples
 
-[source,csharp]
+[source]
 .Given these event interfaces and implementing classes
 ----
 interface IA
@@ -153,7 +153,7 @@ class B : IB {}
 class C : IC {}
 ----
 
-[source,csharp]
+[source]
 .And these handler methods registered on our service bus
 ----
 void HandleA(IA //Handles IA, IB and IC
@@ -161,7 +161,7 @@ void HandleB(IB //Handles IB and IC
 void HandleC(IC //Handles only IC
 ----
 
-[source,csharp]
+[source]
 .Let's publish some events and examine the results.
 ----
 serviceBus.Publish(new A()); //Delivered to HandleA

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shfbBuild product="Sandcastle Help File Builder and Tools" version="2017.5.15.0" projectFile="C:\Dev\Composable\src\framework\SandcastleDocumentation\SandcastleDocumentation.shfbproj" started="2018-02-02 17:37:24">
+<shfbBuild product="Sandcastle Help File Builder and Tools" version="2017.12.30.2" projectFile="C:\Dev\Composable\src\framework\SandcastleDocumentation\SandcastleDocumentation.shfbproj" started="2018-02-02 18:12:39">
 <buildStep step="Initializing">
 Finding tools...
 The Sandcastle tools are located in &#39;C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\&#39;
@@ -10,7 +10,7 @@ Locating components in the following folder(s):
 Using framework reflection data for &#39;.NET Framework 4.6.1&#39; located in &#39;C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\Data\.NETFramework&#39;
 Using presentation style &#39;VS2013&#39; located in &#39;C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\PresentationStyles\VS2013&#39;
 Loading and initializing plug-ins...
-Lightweight Website Style Version 2017.5.15.0
+Lightweight Website Style Version 2017.12.30.2
 Copyright &#169; 2006-2017, Eric Woodruff, All Rights Reserved
 Portions Copyright &#169; 2014, Sam Harwell, All Rights Reserved
 </buildStep>
@@ -28,6 +28,7 @@ Parsing project files
     Found assembly &#39;C:\Dev\Composable\src\framework\Composable.CQRS\bin\Debug\netstandard2.0\Composable.CQRS.dll&#39;
 
 References to include (excluding framework assemblies):
+    AsyncIO
     C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\Microsoft.Win32.Primitives.dll
     C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\mscorlib.dll
     C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\netstandard.dll
@@ -141,6 +142,51 @@ References to include (excluding framework assemblies):
     C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.XmlSerializer.dll
     C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.XPath.dll
     C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.XPath.XDocument.dll
+    JetBrains.Annotations
+    Microsoft.Extensions.Caching.Abstractions
+    Microsoft.Extensions.Caching.Memory
+    Microsoft.Extensions.DependencyInjection.Abstractions
+    Microsoft.Extensions.Options
+    Microsoft.Extensions.Primitives
+    NetMQ
+    Newtonsoft.Json
+    System.Collections
+    System.Collections.NonGeneric
+    System.ComponentModel
+    System.ComponentModel.Annotations
+    System.ComponentModel.EventBasedAsync
+    System.ComponentModel.Primitives
+    System.ComponentModel.TypeConverter
+    System.Configuration.ConfigurationManager
+    System.Data.SqlClient
+    System.Diagnostics.Debug
+    System.Dynamic.Runtime
+    System.Globalization
+    System.IO
+    System.Linq.Expressions
+    System.Net.NameResolution
+    System.Net.NetworkInformation
+    System.Net.Primitives
+    System.ObjectModel
+    System.Reflection
+    System.Reflection.Primitives
+    System.Runtime.CompilerServices.Unsafe
+    System.Runtime.Loader
+    System.Runtime.Serialization.Formatters
+    System.Runtime.Serialization.Primitives
+    System.Runtime.Serialization.Xml
+    System.Security.Cryptography.Algorithms
+    System.Security.Cryptography.Encoding
+    System.Security.Cryptography.Primitives
+    System.Security.Cryptography.X509Certificates
+    System.Security.Principal
+    System.ServiceModel.Primitives
+    System.Text.Encoding
+    System.Threading
+    System.Threading.Tasks
+    System.Threading.Thread
+    System.Xml.ReaderWriter
+    System.Xml.XmlDocument
 
 Copying XML comments files
     C:\Dev\Composable\src\framework\Composable.CQRS\bin\Debug\netstandard2.0\Composable.CQRS.xml -&gt; C:\Dev\Composable\src\framework\SandcastleDocumentation\Help\Working\Composable.CQRS.xml
@@ -148,16 +194,16 @@ Copying XML comments files
 <buildStep step="GenerateSharedContent">
 Generating shared content files (en-US, English (United States))...
 <plugIn name="Lightweight Website Style" behavior="After" priority="1000">
-</plugIn>    Last step completed in 00:00:00,0161
+</plugIn>    Last step completed in 00:00:00,0201
 </buildStep>
 <buildStep step="GenerateApiFilter">
 Generating API filter for MRefBuilder...
-    Last step completed in 00:00:00,0015
+    Last step completed in 00:00:00,0040
 </buildStep>
 <buildStep step="GenerateReflectionInfo">
 Generating reflection information...
 [C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe - GenerateRefInfo.proj]
-Build started 2018-02-02 17:37:25.
+Build started 2018-02-02 18:12:41.
 Project &quot;C:\Dev\Composable\src\framework\SandcastleDocumentation\Help\Working\GenerateRefInfo.proj&quot; on node 1 (default targets).
 PrepareForBuild:
   Creating directory &quot;obj\Debug\&quot;.
@@ -263,6 +309,7 @@ _HandlePackageFileConflicts:
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Collections.dll&#39; and &#39;Platform:System.Collections.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Collections.dll&#39; because AssemblyVersion &#39;4.0.11.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Collections.Concurrent.dll&#39; and &#39;Platform:System.Collections.Concurrent.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Collections.Concurrent.dll&#39; because AssemblyVersion &#39;4.0.11.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.ComponentModel.dll&#39; and &#39;Platform:System.ComponentModel.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.ComponentModel.dll&#39; because AssemblyVersion &#39;4.0.1.0&#39; is greater than &#39;4.0.0.0&#39;.
+  Encountered conflict between &#39;Reference:System.ComponentModel.Annotations&#39; and &#39;Platform:System.ComponentModel.Annotations.dll&#39;.  Choosing &#39;Reference:System.ComponentModel.Annotations&#39; because AssemblyVersion &#39;4.2.0.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.ComponentModel.EventBasedAsync.dll&#39; and &#39;Platform:System.ComponentModel.EventBasedAsync.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.ComponentModel.EventBasedAsync.dll&#39; because AssemblyVersion &#39;4.0.11.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.Contracts.dll&#39; and &#39;Platform:System.Diagnostics.Contracts.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.Contracts.dll&#39; because AssemblyVersion &#39;4.0.1.0&#39; is greater than &#39;4.0.0.0&#39;.
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.Debug.dll&#39; and &#39;Platform:System.Diagnostics.Debug.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.Debug.dll&#39; because AssemblyVersion &#39;4.0.11.0&#39; is greater than &#39;4.0.10.0&#39;.
@@ -293,6 +340,7 @@ _HandlePackageFileConflicts:
   Encountered conflict between &#39;Reference:System.Runtime.Serialization.Primitives&#39; and &#39;Platform:System.Runtime.Serialization.Primitives.dll&#39;.  Choosing &#39;Reference:System.Runtime.Serialization.Primitives&#39; because AssemblyVersion &#39;4.2.0.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Reference:System.Runtime.Serialization.Xml&#39; and &#39;Platform:System.Runtime.Serialization.Xml.dll&#39;.  Choosing &#39;Reference:System.Runtime.Serialization.Xml&#39; because AssemblyVersion &#39;4.1.3.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Security.Principal.dll&#39; and &#39;Platform:System.Security.Principal.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Security.Principal.dll&#39; because AssemblyVersion &#39;4.0.1.0&#39; is greater than &#39;4.0.0.0&#39;.
+  Encountered conflict between &#39;Reference:System.ServiceModel.Primitives&#39; and &#39;Platform:System.ServiceModel.Primitives.dll&#39;.  Choosing &#39;Reference:System.ServiceModel.Primitives&#39; because AssemblyVersion &#39;4.1.0.0&#39; is greater than &#39;4.0.0.0&#39;.
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Text.Encoding.dll&#39; and &#39;Platform:System.Text.Encoding.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Text.Encoding.dll&#39; because AssemblyVersion &#39;4.0.11.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Text.Encoding.Extensions.dll&#39; and &#39;Platform:System.Text.Encoding.Extensions.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Text.Encoding.Extensions.dll&#39; because AssemblyVersion &#39;4.0.11.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Text.RegularExpressions.dll&#39; and &#39;Platform:System.Text.RegularExpressions.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Text.RegularExpressions.dll&#39; because AssemblyVersion &#39;4.1.1.0&#39; is greater than &#39;4.0.10.0&#39;.
@@ -303,6 +351,8 @@ _HandlePackageFileConflicts:
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.ReaderWriter.dll&#39; and &#39;Platform:System.Xml.ReaderWriter.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.ReaderWriter.dll&#39; because AssemblyVersion &#39;4.1.1.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.XDocument.dll&#39; and &#39;Platform:System.Xml.XDocument.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.XDocument.dll&#39; because AssemblyVersion &#39;4.0.11.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.XmlSerializer.dll&#39; and &#39;Platform:System.Xml.XmlSerializer.dll&#39;.  Choosing &#39;Reference:C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.XmlSerializer.dll&#39; because AssemblyVersion &#39;4.0.11.0&#39; is greater than &#39;4.0.10.0&#39;.
+  Encountered conflict between &#39;Platform:System.ComponentModel.Annotations.dll&#39; and &#39;Reference:System.ComponentModel.Annotations&#39;.  Choosing &#39;Reference:System.ComponentModel.Annotations&#39; because AssemblyVersion &#39;4.2.0.0&#39; is greater than &#39;4.0.10.0&#39;.
+  Encountered conflict between &#39;Platform:System.ServiceModel.Primitives.dll&#39; and &#39;Reference:System.ServiceModel.Primitives&#39;.  Choosing &#39;Reference:System.ServiceModel.Primitives&#39; because AssemblyVersion &#39;4.1.0.0&#39; is greater than &#39;4.0.0.0&#39;.
   Encountered conflict between &#39;Platform:System.Collections.Concurrent.dll&#39; and &#39;CopyLocal:C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Microsoft\Microsoft.NET.Build.Extensions\net461\lib\System.Collections.Concurrent.dll&#39;.  Choosing &#39;CopyLocal:C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Microsoft\Microsoft.NET.Build.Extensions\net461\lib\System.Collections.Concurrent.dll&#39; because AssemblyVersion &#39;4.0.11.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Platform:System.Collections.dll&#39; and &#39;CopyLocal:C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Microsoft\Microsoft.NET.Build.Extensions\net461\lib\System.Collections.dll&#39;.  Choosing &#39;CopyLocal:C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Microsoft\Microsoft.NET.Build.Extensions\net461\lib\System.Collections.dll&#39; because AssemblyVersion &#39;4.0.11.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Platform:System.ComponentModel.dll&#39; and &#39;CopyLocal:C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Microsoft\Microsoft.NET.Build.Extensions\net461\lib\System.ComponentModel.dll&#39;.  Choosing &#39;CopyLocal:C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Microsoft\Microsoft.NET.Build.Extensions\net461\lib\System.ComponentModel.dll&#39; because AssemblyVersion &#39;4.0.1.0&#39; is greater than &#39;4.0.0.0&#39;.
@@ -349,14 +399,15 @@ _HandlePackageFileConflicts:
   Encountered conflict between &#39;Platform:System.Xml.XDocument.dll&#39; and &#39;CopyLocal:C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Microsoft\Microsoft.NET.Build.Extensions\net461\lib\System.Xml.XDocument.dll&#39;.  Choosing &#39;CopyLocal:C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Microsoft\Microsoft.NET.Build.Extensions\net461\lib\System.Xml.XDocument.dll&#39; because AssemblyVersion &#39;4.0.11.0&#39; is greater than &#39;4.0.10.0&#39;.
   Encountered conflict between &#39;Platform:System.Xml.XmlSerializer.dll&#39; and &#39;CopyLocal:C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Microsoft\Microsoft.NET.Build.Extensions\net461\lib\System.Xml.XmlSerializer.dll&#39;.  Choosing &#39;CopyLocal:C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\Microsoft\Microsoft.NET.Build.Extensions\net461\lib\System.Xml.XmlSerializer.dll&#39; because AssemblyVersion &#39;4.0.11.0&#39; is greater than &#39;4.0.10.0&#39;.
 GenerateRefInfo:
-  MRefBuilder (v2017.5.15.0)
+  MRefBuilder (v2017.12.30.2)
   Copyright c 2006-2017, Microsoft Corporation, All Rights Reserved.
   Portions Copyright c 2006-2016, Eric Woodruff, All Rights Reserved.
   No source code context base path specified.  Source context information is unavailable.
-  Loaded 1 assemblies for reflection and 124 dependency assemblies.
-MRefBuilder : warning : Ignoring unresolved assembly reference: System.Transactions (System.Transactions, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089) required by netstandard [C:\Dev\Composable\src\framework\SandcastleDocumentation\Help\Working\GenerateRefInfo.proj]
-MRefBuilder : error : Unresolved assembly reference: Newtonsoft.Json (Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed) required by Composable.CQRS [C:\Dev\Composable\src\framework\SandcastleDocumentation\Help\Working\GenerateRefInfo.proj]
-    Last step completed in 00:00:03,0505
+  Loaded 1 assemblies for reflection and 137 dependency assemblies.
+  Using automatic redirect &#39;System.Transactions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089&#39; in place of &#39;System.Transactions, Version=0.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089&#39;
+
+Process is terminated due to StackOverflowException.
+    Last step completed in 00:00:17,1082
 </buildStep>
 <buildStep step="Failed">
 

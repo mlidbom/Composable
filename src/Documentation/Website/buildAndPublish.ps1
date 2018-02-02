@@ -32,7 +32,7 @@ Push-Location $ghPagesCheckoutFolder
 
 git add .
 git commit --quiet -a -m "Automatic commit created by automated build and publish script."
-git push
+git push --quiet
 
 Pop-Location
 Pop-Location

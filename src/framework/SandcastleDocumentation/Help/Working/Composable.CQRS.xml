@@ -1,0 +1,1346 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Composable.CQRS</name>
+    </assembly>
+    <members>
+        <member name="P:Composable.Contracts.Assert.State">
+            <summary>Assert conditions about current state of "this". Failures would mean that someone made a call that is illegal given state of "this".</summary>
+        </member>
+        <member name="P:Composable.Contracts.Assert.Invariant">
+            <summary>Assert something that must always be true for "this".</summary>
+        </member>
+        <member name="P:Composable.Contracts.Assert.Argument">
+            <summary>Assert conditions on arguments to current method.</summary>
+        </member>
+        <member name="P:Composable.Contracts.Assert.Result">
+            <summary>Assert conditions on the result of makeing a method call.</summary>
+        </member>
+        <member name="T:Composable.Contracts.Contract">
+            <summary>
+            Ensures that a class's contract is followed.
+            <para>Inspects arguments, members and return values and throws different <see cref="T:Composable.Contracts.ContractViolationException"/>s if the inspection fails.</para>
+            <para><see cref="M:Composable.Contracts.Contract.Argument``1(System.Linq.Expressions.Expression{System.Func{``0}}[])"/> inspects method arguments. Call at the very beginning of methods.</para>
+            <para><see cref="M:Composable.Contracts.Contract.ReturnValue``1(``0)"/> and <see cref="M:Composable.Contracts.Contract.Return``1(``0,System.Action{Composable.Contracts.IInspected{``0}})"/> inspects the return value from a method. Call at the very end of a method.</para>
+            <para><see cref="M:Composable.Contracts.Contract.Invariant(System.Linq.Expressions.Expression{System.Func{System.Object}}[])"/> inspects class members(Fields and Properties). Call within a shared method called something like AssertInvariantsAreMet.</para>
+            <para>.</para>
+            <para>The returned type of all these methods: <see cref="T:Composable.Contracts.Inspected`1"/> can be easily extended with extension methods to support generic inspections.</para>
+            <code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }
+            </code>
+            </summary>
+        </member>
+        <member name="M:Composable.Contracts.Contract.Argument``1(System.Linq.Expressions.Expression{System.Func{``0}}[])">
+            <summary>
+            <para>Start inspecting one or more arguments for contract compliance.</para>
+            <para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
+            </summary>
+        </member>
+        <member name="M:Composable.Contracts.Contract.Argument(System.Linq.Expressions.Expression{System.Func{System.Object}}[])">
+            <summary>
+            <para>Start inspecting one or more arguments for contract compliance.</para>
+            <para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
+            <para>The returned type : <see cref="T:Composable.Contracts.Inspected`1"/> can be easily extended with extension methods to support generic inspections.</para>
+            <code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
+            </summary>
+        </member>
+        <member name="M:Composable.Contracts.Contract.Invariant``1(System.Linq.Expressions.Expression{System.Func{``0}}[])">
+            <summary>
+            <para>Start inspecting one or more members for contract compliance.</para>
+             <para>An invariant is something that must always be true for an object. Like email and password never being missing for an account.</para>
+            <para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
+            <para>The returned type : <see cref="T:Composable.Contracts.Inspected`1"/> can be easily extended with extension methods to support generic inspections.</para>
+            <code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
+            </summary>
+        </member>
+        <member name="M:Composable.Contracts.Contract.Invariant(System.Linq.Expressions.Expression{System.Func{System.Object}}[])">
+            <summary>
+            <para>Start inspecting one or more members for contract compliance.</para>
+             <para>An invariant is something that must always be true for an object. Like email and password never being missing for an account.</para>
+            <para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
+            <para>The returned type : <see cref="T:Composable.Contracts.Inspected`1"/> can be easily extended with extension methods to support generic inspections.</para>
+            <code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
+            </summary>
+        </member>
+        <member name="M:Composable.Contracts.Contract.ReturnValue``1(``0)">
+            <summary>Start inspecting a return value
+            <para>The returned type : <see cref="T:Composable.Contracts.Inspected`1"/> can be easily extended with extension methods to support generic inspections.</para>
+            <code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
+            </summary>
+        </member>
+        <member name="M:Composable.Contracts.Contract.Return``1(``0,System.Action{Composable.Contracts.IInspected{``0}})">
+            <summary>Inspect a return value by passing in a Lambda that performs the inspections the same way you would for an argument.</summary>
+        </member>
+        <member name="T:Composable.Contracts.ContractsExpression">
+            <summary>Extracts values and names from the parts of a lambda expression</summary>
+        </member>
+        <member name="M:Composable.Contracts.ContractsExpression.ExtractName``1(System.Linq.Expressions.Expression{System.Func{``0}})">
+            <summary>Extracts the returned field,property,argument name from a lambda</summary>
+        </member>
+        <member name="M:Composable.Contracts.ContractsExpression.ExtractValue``1(System.Linq.Expressions.Expression{System.Func{``0}})">
+            <summary>Extracts the returned field,property,argument value from a lambda</summary>
+        </member>
+        <member name="T:Composable.Contracts.ContractViolationException">
+            <summary>
+            Exceptions raise by the inspectors should inherit this exception type.
+            </summary>
+        </member>
+        <member name="M:Composable.Contracts.ContractViolationException.#ctor(Composable.Contracts.IInspectedValue)">
+            <summary>Standard constructor that will construct a queuedMessageInformation based on the name and value of the failing member. </summary>
+        </member>
+        <member name="P:Composable.Contracts.ContractViolationException.BadValue">
+            <summary>The value that failed inspection.</summary>
+        </member>
+        <member name="P:Composable.Contracts.ContractViolationException.Message">
+            <summary>Tells which field/property/argument failed inspection and what value it had.</summary>
+        </member>
+        <member name="T:Composable.Contracts.EnumerableInspector">
+            <summary>Performs inspections on <see cref="T:System.Collections.Generic.IEnumerable`1"/> instances</summary>
+        </member>
+        <member name="M:Composable.Contracts.EnumerableInspector.NotNullOrEmptyEnumerable``1(Composable.Contracts.IInspected{``0})">
+            <summary>
+             <para>Throws <see cref="T:Composable.Contracts.ObjectIsNullContractViolationException"/> if any inspected value is null.</para>
+             <para>Throws a <see cref="T:Composable.Contracts.EnumerableIsEmptyContractViolationException"/> if any inspected value is an empty sequence.</para>
+             </summary>
+        </member>
+        <member name="T:Composable.Contracts.EnumerableIsEmptyContractViolationException">
+            <summary>Thrown if an enumerable is empty but is not allowed to be.</summary>
+        </member>
+        <member name="M:Composable.Contracts.EnumerableIsEmptyContractViolationException.#ctor(Composable.Contracts.IInspectedValue)">
+            <summary>Standard constructor.</summary>
+        </member>
+        <member name="T:Composable.Contracts.GuidInspector">
+            <summary>Performs inspections on Guid instances</summary>
+        </member>
+        <member name="M:Composable.Contracts.GuidInspector.NotEmpty(Composable.Contracts.IInspected{System.Guid})">
+            <summary>Throws a <see cref="T:Composable.Contracts.GuidIsEmptyContractViolationException"/> if any inspected value is Guid.Empty</summary>
+        </member>
+        <member name="T:Composable.Contracts.GuidIsEmptyContractViolationException">
+            <summary>Exception thrown when guid is empty when that is not allowed.</summary>
+        </member>
+        <member name="M:Composable.Contracts.GuidIsEmptyContractViolationException.#ctor(Composable.Contracts.IInspectedValue)">
+            <summary>Standard constructor</summary>
+        </member>
+        <member name="M:Composable.Contracts.IInspected`1.Inspect(System.Func{`0,System.Boolean},System.Func{Composable.Contracts.IInspectedValue{`0},System.Exception})">
+            <summary>
+            Performs the supplied inspection against each <see cref="T:Composable.Contracts.InspectedValue"/> in the instance.
+            </summary>
+            <param name="isValueValid">Expression that should return true if the <see cref="T:Composable.Contracts.InspectedValue`1"/> is valid. </param>
+            <param name="buildException">Expression that should return an appropriate exception if the inspection fails. If not supplied a default <see cref="T:Composable.Contracts.ContractViolationException"/> will be created.</param>
+            <returns>The same instance (this) in order to enable fluent chaining style code.</returns>
+            <exception cref="T:System.Exception">The exception created by the buildException argument will be thrown if an <see cref="T:Composable.Contracts.InspectedValue`1"/> fails inspection.</exception>
+        </member>
+        <member name="M:Composable.Contracts.Inspected`1.Inspect(System.Func{`0,System.Boolean},System.Func{Composable.Contracts.IInspectedValue{`0},System.Exception})">
+            <summary>
+            Performs the supplied inspection against each <see cref="T:Composable.Contracts.InspectedValue"/> in the instance.
+            </summary>
+            <param name="isValueValid">Expression that should return true if the <see cref="T:Composable.Contracts.InspectedValue`1"/> is valid. </param>
+            <param name="buildException">Expression that should return an appropriate exception if the inspection fails. If not supplied a default <see cref="T:Composable.Contracts.ContractViolationException"/> will be created.</param>
+            <returns>The same instance (this) in order to enable fluent chaining style code.</returns>
+            <exception cref="T:System.Exception">The exception created by the buildException argument will be thrown if an <see cref="T:Composable.Contracts.InspectedValue`1"/> fails inspection.</exception>
+        </member>
+        <member name="M:Composable.Contracts.Inspected`1.#ctor(Composable.Contracts.IInspectedValue{`0}[])">
+            <summary>Standard constructor</summary>
+        </member>
+        <member name="T:Composable.Contracts.InspectedValue`1">
+            <summary>Represents a single value that is being inspected. Keeps track of the values name and the type of inspection </summary>
+        </member>
+        <member name="P:Composable.Contracts.InspectedValue`1.Value">
+            <summary>The actual value being inspected</summary>
+        </member>
+        <member name="M:Composable.Contracts.InspectedValue`1.#ctor(`0,Composable.Contracts.InspectionType,System.String)">
+            <summary>Standard constructor</summary>
+        </member>
+        <member name="P:Composable.Contracts.IInspectedValue.Type">
+            <summary> The <see cref="T:Composable.Contracts.InspectionType"/> of the inspection: <see cref="F:Composable.Contracts.InspectionType.Argument"/>, <see cref="F:Composable.Contracts.InspectionType.Invariant"/> or <see cref="F:Composable.Contracts.InspectionType.ReturnValue"/> </summary>
+        </member>
+        <member name="P:Composable.Contracts.IInspectedValue.Name">
+            <summary>The name of an argument, a field, or a property. "ReturnValue" for return value inspections.</summary>
+        </member>
+        <member name="T:Composable.Contracts.InspectedValue">
+            <summary>Represents a single value that is being inspected. Keeps track of the values name and the type of inspection </summary>
+        </member>
+        <member name="M:Composable.Contracts.InspectedValue.#ctor(Composable.Contracts.InspectionType,System.String)">
+            <summary>Standard constructor</summary>
+        </member>
+        <member name="P:Composable.Contracts.InspectedValue.Type">
+            <summary> The <see cref="T:Composable.Contracts.InspectionType"/> of the inspection: <see cref="F:Composable.Contracts.InspectionType.Argument"/>, <see cref="F:Composable.Contracts.InspectionType.Invariant"/> or <see cref="F:Composable.Contracts.InspectionType.ReturnValue"/> </summary>
+        </member>
+        <member name="P:Composable.Contracts.InspectedValue.Name">
+            <summary>The name of an argument, a field, or a property. "ReturnValue" for return value inspections.</summary>
+        </member>
+        <member name="T:Composable.Contracts.InspectionType">
+            <summary> <see cref="F:Composable.Contracts.InspectionType.Argument"/>, <see cref="F:Composable.Contracts.InspectionType.Invariant"/> or <see cref="F:Composable.Contracts.InspectionType.ReturnValue"/> </summary>
+        </member>
+        <member name="F:Composable.Contracts.InspectionType.Argument">
+            <summary>The inspected value is an argument to a method</summary>
+        </member>
+        <member name="F:Composable.Contracts.InspectionType.Invariant">
+            <summary>The inspected value is an invariant of the class</summary>
+        </member>
+        <member name="F:Composable.Contracts.InspectionType.ReturnValue">
+            <summary>The inspected value is a return value</summary>
+        </member>
+        <member name="F:Composable.Contracts.InspectionType.State">
+            <summary>The inspected value is part of the current state of the calling code.</summary>
+        </member>
+        <member name="F:Composable.Contracts.InspectionType.Result">
+            <summary>The inspected value is the return value of something the calling code called.</summary>
+        </member>
+        <member name="T:Composable.Contracts.InvalidAccessorLambdaException">
+            <summary>Exception thrown when an unsupported lambda expression is used.</summary>
+        </member>
+        <member name="M:Composable.Contracts.InvalidAccessorLambdaException.#ctor">
+            <summary>Standard constructor</summary>
+        </member>
+        <member name="T:Composable.Contracts.ObjectInspector">
+            <summary>Performs inspections on objects</summary>
+        </member>
+        <member name="M:Composable.Contracts.ObjectInspector.NotNull``1(Composable.Contracts.IInspected{``0})">
+            <summary>
+            <para>Throws <see cref="T:Composable.Contracts.ObjectIsNullContractViolationException"/> if any inspected value is null</para>
+            <para>Consider using <see cref="M:Composable.Contracts.ObjectInspector.NotNullOrDefault``1(Composable.Contracts.IInspected{``0})"/> instead as it works for value types as well and is only marginally slower.</para>
+            </summary>
+        </member>
+        <member name="M:Composable.Contracts.ObjectInspector.NotDefault``1(Composable.Contracts.IInspected{``0})">
+            <summary>
+            <para>Throws <see cref="T:Composable.Contracts.ObjectIsDefaultContractViolationException"/> if any inspected value is default(TValue). Such as 0 for integer, Guid.Empty for Guid, new MyStruct() for any struct.</para>
+            <para>Consider using <see cref="M:Composable.Contracts.ObjectInspector.NotNullOrDefault``1(Composable.Contracts.IInspected{``0})"/> instead as it works for reference types as well and is only marginally slower.</para>
+            </summary>
+        </member>
+        <member name="M:Composable.Contracts.ObjectInspector.NotNullOrDefault``1(Composable.Contracts.IInspected{``0})">
+            <summary>
+            <para>Throws <see cref="T:Composable.Contracts.ObjectIsNullContractViolationException"/> if any inspected value is null</para>
+            <para>Throws <see cref="T:Composable.Contracts.ObjectIsDefaultContractViolationException"/> if any inspected value is default(TValue). Such as 0 for integer, Guid.Empty for Guid, new SomeStruct().</para>
+            </summary>
+        </member>
+        <member name="T:Composable.Contracts.ObjectIsDefaultContractViolationException">
+            <summary>Exception thrown when object is null when that is not allowed.</summary>
+        </member>
+        <member name="M:Composable.Contracts.ObjectIsDefaultContractViolationException.#ctor(Composable.Contracts.IInspectedValue)">
+            <summary>Standard constructor</summary>
+        </member>
+        <member name="T:Composable.Contracts.ObjectIsNullContractViolationException">
+            <summary>Exception thrown when object is null and that is not allowed.</summary>
+        </member>
+        <member name="M:Composable.Contracts.ObjectIsNullContractViolationException.#ctor(Composable.Contracts.IInspectedValue)">
+            <summary>Standard constructor</summary>
+        </member>
+        <member name="T:Composable.Contracts.StringInspector">
+            <summary>Performs inspections on string instances</summary>
+        </member>
+        <member name="M:Composable.Contracts.StringInspector.NotNullOrEmpty(Composable.Contracts.IInspected{System.String})">
+            <summary>
+             <para>Throws <see cref="T:Composable.Contracts.ObjectIsNullContractViolationException"/> if any expected value is null.</para>
+             <para>Throws <see cref="T:Composable.Contracts.StringIsEmptyContractViolationException"/> if any inspected value is an empty string.</para>
+             </summary>
+        </member>
+        <member name="M:Composable.Contracts.StringInspector.NotNullEmptyOrWhiteSpace(Composable.Contracts.IInspected{System.String})">
+            <summary>
+             <para>Throws <see cref="T:Composable.Contracts.ObjectIsNullContractViolationException"/> if any expected value is null.</para>
+             <para>Throws <see cref="T:Composable.Contracts.StringIsEmptyContractViolationException"/> if any inspected value is an empty string.</para>
+             <para>Throws <see cref="T:Composable.Contracts.StringIsWhitespaceContractViolationException"/> if any inspected value is a string containing only whitespace.</para>
+             </summary>
+        </member>
+        <member name="T:Composable.Contracts.StringIsEmptyContractViolationException">
+            <summary>Exception thrown when string is empty and that is not allowed.</summary>
+        </member>
+        <member name="M:Composable.Contracts.StringIsEmptyContractViolationException.#ctor(Composable.Contracts.IInspectedValue)">
+            <summary>Standard constructor</summary>
+        </member>
+        <member name="T:Composable.Contracts.StringIsWhitespaceContractViolationException">
+            <summary>Exception thrown when string is only whitespace when that is not allowed.</summary>
+        </member>
+        <member name="M:Composable.Contracts.StringIsWhitespaceContractViolationException.#ctor(Composable.Contracts.IInspectedValue)">
+            <summary>Standard constructor</summary>
+        </member>
+        <member name="T:Composable.DDD.Entity`2">
+            <summary>
+            Base class for any class that considers equality to be that the Ids for two instances are the same.
+            
+            It provides implementations of  <see cref="M:System.Object.Equals(System.Object)"/>, <see cref="M:System.Object.GetHashCode"/>, and <see cref="T:System.IEquatable`1"/>.
+            
+            Equals is implemented as: return <code>!ReferenceEquals(null, other) &amp;&amp; other.Id.Equals(Id)</code>
+            the operators simply uses Equals.
+            
+            </summary>
+        </member>
+        <member name="M:Composable.DDD.Entity`2.#ctor(`1)">
+            <summary>Construct an instance with <param name="id"> as the <see cref="P:Composable.DDD.Entity`2.Id"/></param>.</summary>
+        </member>
+        <member name="P:Composable.DDD.Entity`2.Id">
+            <inheritdoc />
+        </member>
+        <member name="M:Composable.DDD.Entity`2.SetIdBeVerySureYouKnowWhatYouAreDoing(`1)">
+            <summary>Sets the id of the instance. Should probably never be used except by infrastructure code.</summary>
+        </member>
+        <member name="M:Composable.DDD.Entity`2.GetIdBypassContractValidation">
+            <summary>Gets the id of the instance bypassing contract validation. Should probably never be used except by infrastructure code.</summary>
+        </member>
+        <member name="M:Composable.DDD.Entity`2.Equals(`0)">
+            <summary>
+            Implements equals using persistent reference semantics.
+            If two instances have the same Id, Equals will return true.
+            </summary>
+        </member>
+        <member name="M:Composable.DDD.Entity`2.Equals(System.Object)">
+            <summary>
+            Implements equals using persistent reference semantics.
+            If two instances have the same Id, Equals will return true.
+            </summary>
+        </member>
+        <member name="M:Composable.DDD.Entity`2.GetHashCode">
+            <inheritdoc />
+        </member>
+        <member name="M:Composable.DDD.Entity`2.op_Equality(Composable.DDD.Entity{`0,`1},Composable.DDD.Entity{`0,`1})">
+            <summary>True if both instances have the same ID</summary>
+        </member>
+        <member name="M:Composable.DDD.Entity`2.op_Inequality(Composable.DDD.Entity{`0,`1},Composable.DDD.Entity{`0,`1})">
+            <summary>True if both instances do not have the same ID</summary>
+        </member>
+        <member name="M:Composable.DDD.Entity`2.ToString">
+            <summary>Returns a string similar to: MyType:MyId</summary>
+        </member>
+        <member name="T:Composable.DDD.Entity`1">
+            <summary>
+            Simple base class for Entities that ensures a correct identity based <see cref="M:System.Object.Equals(System.Object)"/>, <see cref="M:System.Object.GetHashCode"/>, and <see cref="T:System.IEquatable`1"/>.
+            
+            This class uses <see cref="T:System.Guid"/>s as Ids because it is the only built in .Net type the developers are
+            aware of which can, in practice, guarantee for a system that an PersistentEntity will have a globally unique immutable identity
+            from the moment of instantiation and through any number of persisting-loading cycles. That in turn is an
+            absolute requirement for a correct implementation of <see cref="M:System.Object.Equals(System.Object)"/>,
+            <see cref="M:System.Object.GetHashCode"/>, and <see cref="T:System.IEquatable`1"/>.
+            </summary>
+        </member>
+        <member name="M:Composable.DDD.Entity`1.#ctor(System.Guid)">
+            <summary>
+            Creates an instance using the supplied <paramref name="id"/> as the Id.
+            </summary>
+        </member>
+        <member name="M:Composable.DDD.Entity`1.#ctor">
+            <summary>
+            Creates a new instance with an automatically generated Id
+            </summary>
+        </member>
+        <member name="M:Composable.DDD.Entity`1.op_Equality(Composable.DDD.Entity{`0},Composable.DDD.Entity{`0})">
+            <summary>True if both instances have the same ID</summary>
+        </member>
+        <member name="M:Composable.DDD.Entity`1.op_Inequality(Composable.DDD.Entity{`0},Composable.DDD.Entity{`0})">
+            <summary>True if both instances do not have the same ID</summary>
+        </member>
+        <member name="T:Composable.DDD.IHasPersistentIdentity`1">
+            <summary>
+            Anything that can be uniquely identified using it's id over any number of persist/load cycles.
+            </summary>
+        </member>
+        <member name="P:Composable.DDD.IHasPersistentIdentity`1.Id">
+            <summary>The unique identifier for this instance.</summary>
+        </member>
+        <member name="T:Composable.DDD.IPersistentEntity`1">
+            <summary>
+            Should be implemented by persistent* classes that represents entities in the Domain Driven Design sense of the word.
+            
+            The vital distinction about Persistent Entities is that equality is defined by Identity,
+            and as such they must guarantee that they have a non-default identity at all times.
+            
+            * Classes that have a lifecycle longer than an application run. Often persisted in databases.
+            </summary>
+            <typeparam name="TKeyType"></typeparam>
+        </member>
+        <member name="T:Composable.DDD.ValueObject`1">
+            <summary>
+             Base class for value objects that implements value equality based on instance fields.
+             Properties are ignored when comparing. Only fields are used.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:Composable.DDD.ValueObject`1.Equals(System.Object)">
+            <see cref="M:System.Object.Equals(System.Object)"/>
+        </member>
+        <member name="M:Composable.DDD.ValueObject`1.GetHashCode">
+            <see cref="M:System.Object.GetHashCode"/>
+        </member>
+        <member name="M:Composable.DDD.ValueObject`1.Equals(`0)">
+            <see cref="M:System.Object.Equals(System.Object)"/>
+        </member>
+        <member name="M:Composable.DDD.ValueObject`1.op_Equality(Composable.DDD.ValueObject{`0},Composable.DDD.ValueObject{`0})">
+            <summary>Compares the objects for equality using value semantics</summary>
+        </member>
+        <member name="M:Composable.DDD.ValueObject`1.op_Inequality(Composable.DDD.ValueObject{`0},Composable.DDD.ValueObject{`0})">
+            <summary>Compares the objects for inequality using value semantics</summary>
+        </member>
+        <member name="M:Composable.DDD.ValueObject`1.ToString">
+            <returns>A JSON serialized version of the instance.</returns>
+        </member>
+        <member name="T:Composable.DDD.VersionedEntity`1">
+            <summary>Base class for persistent entities with versioning information</summary>
+        </member>
+        <member name="M:Composable.DDD.VersionedEntity`1.#ctor(System.Guid)">
+            <summary>Creates an instance using the supplied <paramref name="id"/> as the Id.</summary>
+        </member>
+        <member name="M:Composable.DDD.VersionedEntity`1.#ctor">
+            <summary> Creates an instance using a newly generated Id</summary>
+        </member>
+        <member name="P:Composable.DDD.VersionedEntity`1.Version">
+            <summary>Contains the current version of the entity</summary>
+        </member>
+        <member name="T:Composable.DependencyInjection.IComponentLease`1">
+            <summary>A lease to use a component.
+             <para>Should be disposed as soon as the component is no longer in use.</para>
+             <para>An exception is thrown if dispose fails to be called. </para>
+             <para>should inherit from <see cref="T:Composable.System.StrictlyManagedResourceBase`1"/> or have a member field of type: <see cref="T:Composable.System.StrictlyManagedResource`1"/></para>
+             </summary>
+        </member>
+        <member name="T:Composable.DependencyInjection.IServiceLocator">
+            <summary></summary>
+        </member>
+        <member name="T:Composable.GenericAbstractions.Hierarchies.IAutoHierarchy`1">
+            <summary>
+            Represents a hierarchy in which the instances in the hierarchy do not themselves
+            implement <see cref="T:Composable.GenericAbstractions.Hierarchies.IHierarchy`1"/>.
+            
+            <example>
+            For instance you could use <see cref="M:Composable.GenericAbstractions.Hierarchies.HierarchyExtensions.AsHierarchy``1(``0,System.Func{``0,System.Collections.Generic.IEnumerable{``0}})"/> like this:
+            <code>
+                directoryName.AsHierarchy&lt;
+            </code>
+            </example>
+            
+            </summary>
+        </member>
+        <member name="T:Composable.GenericAbstractions.Hierarchies.HierarchyExtensions">
+            <summary>
+            Provides extension methods for working with hierarchical data.
+            </summary>
+        </member>
+        <member name="M:Composable.GenericAbstractions.Hierarchies.HierarchyExtensions.AsHierarchy``1(``0,System.Func{``0,System.Collections.Generic.IEnumerable{``0}})">
+            <summary>
+            Returns an <see cref="T:Composable.GenericAbstractions.Hierarchies.IAutoHierarchy`1"/> where <see cref="P:Composable.GenericAbstractions.Wrappers.IWrapper`1.Wrapped"/> is <paramref name="me"/> and
+            <see cref="P:Composable.GenericAbstractions.Hierarchies.IHierarchy`1.Children"/> is implemented via delegation to <paramref name="childGetter"/>
+            </summary>
+        </member>
+        <member name="M:Composable.GenericAbstractions.Hierarchies.HierarchyExtensions.Flatten``1(``0)">
+            <summary>
+            Returns <paramref name="root"/> and all the objects in the hierarchy
+            below <paramref name="root"/> flattened into a sequence
+            </summary>
+        </member>
+        <member name="M:Composable.GenericAbstractions.Hierarchies.HierarchyExtensions.Unwrap``1(System.Collections.Generic.IEnumerable{Composable.GenericAbstractions.Hierarchies.IAutoHierarchy{``0}})">
+            <summary>
+            Given a sequence of <see cref="T:Composable.GenericAbstractions.Hierarchies.IAutoHierarchy`1"/> returns a sequence containing the wrapped T values.
+            </summary>
+        </member>
+        <member name="T:Composable.GenericAbstractions.Hierarchies.IHierarchy`1">
+             <summary>
+             Provides a minimal interface for representing a data type which
+             is hierarchical in the form that each instance has a collection
+             of other instances.
+             
+             Implementing this interface gives access to all the extension methods
+             implemented upon it which is the main purpose of doing so.
+             
+             <example>
+             A simplistic example might look like this:
+             <code>
+            class Person : IHierarchy&lt;Person&gt;
+            {
+                .....
+                private IList&lt;Person&gt; _children = new List&lt;Person&gt;();
+                public IEnumerable&lt;Person&gt; Children { get { return _children; } }
+            }
+             </code>
+             </example>
+             
+             
+             An alternative to implementing this interface is to use <see cref="M:Composable.GenericAbstractions.Hierarchies.HierarchyExtensions.AsHierarchy``1(``0,System.Func{``0,System.Collections.Generic.IEnumerable{``0}})"/>
+             </summary>
+        </member>
+        <member name="P:Composable.GenericAbstractions.Hierarchies.IHierarchy`1.Children">
+            <summary>
+            Returns the collection direct descendants of this node.
+            </summary>
+        </member>
+        <member name="T:Composable.GenericAbstractions.Time.DateTimeNowTimeSource">
+            <summary>Simply returns DateTime.Now or DateTime.UtcNow</summary>
+        </member>
+        <member name="F:Composable.GenericAbstractions.Time.DateTimeNowTimeSource.Instance">
+            <summary>Returns an instance.</summary>
+        </member>
+        <member name="P:Composable.GenericAbstractions.Time.DateTimeNowTimeSource.UtcNow">
+            <summary>Returns DateTime.UtcNow</summary>
+        </member>
+        <member name="T:Composable.GenericAbstractions.Time.IUtcTimeTimeSource">
+            <summary>
+             Provides the service of telling what the current UTC time is.
+             In order to make things testable calling DateTime.Now or DateTime.UtcNow directly is discouraged.
+             </summary>
+        </member>
+        <member name="P:Composable.GenericAbstractions.Time.IUtcTimeTimeSource.UtcNow">
+            <summary>Returns the current time as UTC time.</summary>
+        </member>
+        <member name="T:Composable.GenericAbstractions.Time.TestingTimeSource">
+            <summary> Just statically returns whatever value was assigned.</summary>
+        </member>
+        <member name="P:Composable.GenericAbstractions.Time.TestingTimeSource.FollowingSystemClock">
+            <summary>Returns a timesource that will continually return the time that it was created at as the current time.</summary>
+        </member>
+        <member name="M:Composable.GenericAbstractions.Time.TestingTimeSource.FrozenUtcNow">
+            <summary>Returns a timesource that will continually return the time that it was created at as the current time.</summary>
+        </member>
+        <member name="M:Composable.GenericAbstractions.Time.TestingTimeSource.FrozenAtUtcTime(System.DateTime)">
+            <summary>Returns a timesource that will forever return <param name="utcTime"> as the current time.</param></summary>
+        </member>
+        <member name="P:Composable.GenericAbstractions.Time.TestingTimeSource.UtcNow">
+            <summary>Gets or sets the current UTC time.</summary>
+        </member>
+        <member name="T:Composable.GenericAbstractions.Wrappers.IWrapper`1">
+            <summary>
+            Represents the generic concept of a type that extends another type by containing a value of the other type.
+            </summary>
+        </member>
+        <member name="P:Composable.GenericAbstractions.Wrappers.IWrapper`1.Wrapped">
+            <summary>The wrapped value.</summary>
+        </member>
+        <member name="T:Composable.Logging.SafeConsole">
+            <summary>This class exists mostly because NSpec breaks System.Console somehow when tests run in parallel. We are forced to synchronize these tests with other tests and this is the current workaround.</summary>
+        </member>
+        <member name="T:Composable.Messaging.Buses.ILocalApiNavigatorSession">
+            <summary>Dispatches messages within a process.</summary>
+        </member>
+        <member name="M:Composable.Messaging.Buses.ILocalApiNavigatorSession.Execute``1(Composable.Messaging.BusApi.StrictlyLocal.IQuery{``0})">
+            <summary>Syncronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
+        </member>
+        <member name="M:Composable.Messaging.Buses.ILocalApiNavigatorSession.Execute``1(Composable.Messaging.BusApi.StrictlyLocal.ICommand{``0})">
+            <summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
+        </member>
+        <member name="M:Composable.Messaging.Buses.ILocalApiNavigatorSession.Execute(Composable.Messaging.BusApi.StrictlyLocal.ICommand)">
+            <summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
+        </member>
+        <member name="M:Composable.Messaging.Buses.IRemoteApiNavigatorSession.GetAsync``1(Composable.Messaging.BusApi.Remotable.NonTransactional.IQuery{``0})">
+            <summary>Gets the result of a handler somewhere on the bus handling the <paramref name="query"/></summary>
+        </member>
+        <member name="M:Composable.Messaging.Buses.IRemoteApiNavigatorSession.Get``1(Composable.Messaging.BusApi.Remotable.NonTransactional.IQuery{``0})">
+            <summary>Syncronous wrapper for: <see cref="M:Composable.Messaging.Buses.IRemoteApiNavigatorSession.GetAsync``1(Composable.Messaging.BusApi.Remotable.NonTransactional.IQuery{``0})"/>.</summary>
+        </member>
+        <member name="M:Composable.Messaging.Buses.IIntegrationBusSession.Send(Composable.Messaging.BusApi.Remotable.ExactlyOnce.ICommand)">
+            <summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
+        </member>
+        <member name="M:Composable.Messaging.Buses.IIntegrationBusSession.ScheduleSend(System.DateTime,Composable.Messaging.BusApi.Remotable.ExactlyOnce.ICommand)">
+            <summary>Schedules a command to be sent later if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
+        </member>
+        <member name="T:Composable.Messaging.Buses.IServiceBusSession">
+            <summary>Dispatches messages between processes.</summary>
+        </member>
+        <member name="T:Composable.Messaging.Events.CallMatchingHandlersInRegistrationOrderEventDispatcher`1">
+            <summary>
+            Calls all matching handlers in the order they were registered when an event is Dispatched.
+            Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
+            </summary>
+        </member>
+        <member name="M:Composable.Messaging.Events.CallMatchingHandlersInRegistrationOrderEventDispatcher`1.RegisterHandlers">
+            <summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
+        </member>
+        <member name="M:Composable.Messaging.Events.CallMatchingHandlersInRegistrationOrderEventDispatcher`1.RegistrationBuilder.For``1(System.Action{``0})">
+            <summary>Registers a for any event that implements THandledEvent. All matching handlers will be called in the order they were registered.</summary>
+        </member>
+        <member name="M:Composable.Messaging.Events.CallMatchingHandlersInRegistrationOrderEventDispatcher`1.RegistrationBuilder.ForGenericEvent``1(System.Action{``0})">
+            <summary>Lets you register handlers for event interfaces that may be defined outside of the event hierarchy you specify with TEvent.
+             Useful for listening to generic events such as IAggregateCreatedEvent or IAggregateDeletedEvent
+             Be aware that the concrete event received MUST still actually inherit TEvent or there will be an InvalidCastException
+             </summary>
+        </member>
+        <member name="T:Composable.Messaging.Events.IGenericEventHandlerRegistrar">
+            <summary>
+             <para>An unrestricted and therefore unsafe version of a <see cref="T:Composable.Messaging.Events.IEventHandlerRegistrar`1"/></para>
+             <para>Gives you the ability to register any type, but therefor does not in any way help you avoid mistakes.</para>
+             <para>Whenever possible use <see cref="T:Composable.Messaging.Events.IEventHandlerRegistrar`1"/> instead.</para>
+             <para>To get an instance of this interface, Call the extension on <see cref="T:Composable.Messaging.Events.IEventHandlerRegistrar`1"/> <see cref="M:Composable.Messaging.Events.EventHandlerRegistrar.MakeGeneric``1(Composable.Messaging.Events.IEventHandlerRegistrar{``0})"/></para>
+             
+             </summary>
+        </member>
+        <member name="T:Composable.Messaging.Events.IUpCastEventHandlerRegistrar`1">
+            <summary>This registrar was created by upcasting an existing registrar. how the implementation of this is hidden gives some help ensuring that it is safe to use this.</summary>
+        </member>
+        <member name="M:Composable.Messaging.Events.IUpCastEventHandlerRegistrar`1.For``1(System.Action{``0})">
+            <summary>Registers a handler for any event that implements THandledEvent. All matching handlers will be called in the order they were registered.</summary>
+        </member>
+        <member name="M:Composable.Messaging.Events.IUpCastEventHandlerRegistrar`1.ForGenericEvent``1(System.Action{``0})">
+            <summary>Lets you register handlers for event interfaces that may be defined outside of the event hierarchy you specify with TEvent.
+             Useful for listening to generic events such as IAggregateCreatedEvent or IAggregateDeletedEvent
+             Be aware that the concrete event received MUST still actually inherit TEvent or there will be an InvalidCastException
+             </summary>
+        </member>
+        <member name="M:Composable.Messaging.Events.IEventHandlerRegistrar`1.For``1(System.Action{``0})">
+            <summary>Registers a handler for any event that implements THandledEvent. All matching handlers will be called in the order they were registered.</summary>
+        </member>
+        <member name="M:Composable.Messaging.Events.IEventHandlerRegistrar`1.ForGenericEvent``1(System.Action{``0})">
+            <summary>Lets you register handlers for event interfaces that may be defined outside of the event hierarchy you specify with TEvent.
+             Useful for listening to generic events such as IAggregateCreatedEvent or IAggregateDeletedEvent
+             Be aware that the concrete event received MUST still actually inherit TEvent or there will be an InvalidCastException
+             </summary>
+        </member>
+        <member name="T:Composable.Messaging.BusApi.IMessage">
+            <summary>Any object that is used to transfer data from a sender to a receiver through a messaging infrastructure.</summary>
+        </member>
+        <member name="T:Composable.Messaging.BusApi.IEvent">
+            <summary>Informs the receiver that something has happened.</summary>
+        </member>
+        <member name="T:Composable.Messaging.BusApi.ICommand">
+            <summary>Instructs the recevier to perform an action.</summary>
+        </member>
+        <member name="T:Composable.Messaging.BusApi.IQuery`1">
+            <summary>An instructs the receiver to return a result based upon the data in the query.</summary>
+        </member>
+        <member name="T:Composable.Messaging.BusApi.ICreateMyOwnResultQuery`1">
+            <summary>Many resources in a hypermedia API do not actually need access to backend data. The data in the query is sufficient to create the result. For such queries implement this interface. That way no network roundtrip etc is required to perform the query. Greatly enhancing performance</summary>
+        </member>
+        <member name="T:Composable.Messaging.BusApi.Remotable.NonTransactional.Queries.FuncResultQuery`1">
+            <summary>Implement <see cref="T:Composable.Messaging.BusApi.ICreateMyOwnResultQuery`1"/> by passing a func to this base class.</summary>
+        </member>
+        <member name="T:Composable.Messaging.BusApi.Remotable.NonTransactional.Queries.NewableResultLink`1">
+            <summary>Implements <see cref="T:Composable.Messaging.BusApi.ICreateMyOwnResultQuery`1"/> by calling the default constructor on <typeparamref name="TResult"/></summary>
+        </member>
+        <member name="M:Composable.Persistence.DocumentDb.IDocumentDbUpdater.GetForUpdate``1(System.Object)">
+            <summary>Like Get but, if supported by implementing class, eagerly locks the instance in the database.</summary>
+        </member>
+        <member name="T:Composable.Persistence.EventStore.Aggregates.Aggregate`3.Component`3.SlavedNestedEntity`5">
+            <summary>
+             An entity that is not created and removed through raising events.
+             Instead it is automatically created and/or removed when another entity in the Aggregate object graph is added or removed.
+             Inheritors must implement the add/remove behavior.
+             Inheritors must ensure that the Id property is initialized correctly before any calls to RaiseEvent.
+             Usually this is implemented within a nested class that inherits from <see cref="T:Composable.Persistence.EventStore.Aggregates.Aggregate`3.Component`3.SlavedNestedEntity`5.EntityCollectionManagerBase"/>
+             </summary>
+        </member>
+        <member name="T:Composable.Persistence.EventStore.IAggregateCreatedEvent">
+            <summary>
+            Marks an event as meaning that the aggregate was created.
+            <para>Can be used by clients to perform logic that should happen whenever an aggregate is created. </para>
+            <para>Is used in several places in the infrastructure and the infrastructure will fail in various ways if this events is not inherited correctly. For example:</para>
+            <para>Aggregate: Id is only set when such an event is raised. It is only ever possibly to raise 1 such event. More than one will cause an exception</para>
+            <para>SingleAggregateQueryModelUpdater: Creates the initial query model when it receives such an event</para>
+            </summary>
+        </member>
+        <member name="M:Composable.Persistence.EventStore.IEventStore.StreamAggregateIdsInCreationOrder(System.Type)">
+            <summary>The passed <paramref name="eventType"/> filters the aggregate Ids so that only ids of aggregates that are created by an event that inherits from <paramref name="eventType"/> are returned.</summary>
+        </member>
+        <member name="M:Composable.Persistence.EventStore.IEventStoreReader.GetReadonlyCopyOfVersion``1(System.Guid,System.Int32)">
+            <summary>
+            Loads a specific version of the aggregate.
+            This instance is NOT tracked for changes.
+            No changes to this entity vill be persisted.
+            </summary>
+        </member>
+        <member name="M:Composable.Persistence.EventStore.IEventStoreUpdater.Get``1(System.Guid)">
+            <summary>
+            Loads an aggregate and tracks it for changes.
+            </summary>
+        </member>
+        <member name="M:Composable.Persistence.EventStore.IEventStoreUpdater.Save``1(``0)">
+            <summary>
+            Causes the store to start tracking the aggregate.
+            </summary>
+        </member>
+        <member name="M:Composable.Persistence.EventStore.IEventStoreUpdater.TryGet``1(System.Guid,``0@)">
+            <summary>
+            Tries to get the specified instance. Returns false and sets the result to null if the aggregate did not exist.
+            </summary>
+        </member>
+        <member name="M:Composable.Persistence.EventStore.IEventStoreUpdater.Delete(System.Guid)">
+            <summary>
+            Deletes all traces of an aggregate from the store.
+            </summary>
+        </member>
+        <member name="M:Composable.Persistence.EventStore.Query.Models.Generators.SingleAggregateQueryModelGenerator`4.RegisterHandlers">
+            <summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
+        </member>
+        <member name="T:Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels.SelfGeneratingQueryModel`2.Component`2.SlavedNestedEntity`4">
+            <summary>
+             An entity that is not created and removed through raising events.
+             Instead it is automatically created and/or removed when another entity in the Aggregate object graph is added or removed.
+             Inheritors must implement the add/remove behavior.
+             Inheritors must ensure that the Id property is initialized.
+             Usually this is implemented within a nested class that inherits from <see cref="T:Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels.SelfGeneratingQueryModel`2.Component`2.SlavedNestedEntity`4.EntityCollectionManagerBase"/>
+             </summary>
+        </member>
+        <member name="T:Composable.Persistence.EventStore.Refactoring.Migrations.IEventMigration">
+            <summary>Defines an identity for migration of events into other events. Creates </summary>
+        </member>
+        <member name="P:Composable.Persistence.EventStore.Refactoring.Migrations.IEventMigration.MigratedAggregateEventHierarchyRootInterface">
+            <summary>The event interface that is the root of the event hierarchy for the aggregate whose events this migration modifies</summary>
+        </member>
+        <member name="T:Composable.Persistence.EventStore.Refactoring.Migrations.ISingleAggregateInstanceHandlingEventMigrator">
+            <summary>
+             <para>Responsible for migrating the events of a single instance of an aggregate.</para>
+             </summary>
+        </member>
+        <member name="M:Composable.Persistence.EventStore.Refactoring.Migrations.ISingleAggregateInstanceHandlingEventMigrator.MigrateEvent(Composable.Persistence.EventStore.IAggregateEvent,Composable.Persistence.EventStore.Refactoring.Migrations.IEventModifier)">
+            <summary>
+             <para>Inspect one event and if required mutate the event stream by calling methods on the modifier</para>
+             <para>Called once for each event in the aggregate's history. </para>
+             <para>Then it is called once with an instance of <see cref="T:Composable.Persistence.EventStore.Refactoring.Migrations.EndOfAggregateHistoryEventPlaceHolder"/>. </para>
+             </summary>
+        </member>
+        <member name="T:Composable.Persistence.EventStore.Refactoring.Migrations.ISingleAggregateInstanceEventStreamMutator">
+            <summary>Implementations are responsible for mutating the events of one aggregate instance. Callers are required to call <see cref="M:Composable.Persistence.EventStore.Refactoring.Migrations.ISingleAggregateInstanceEventStreamMutator.Mutate(Composable.Persistence.EventStore.AggregateEvent)"/> with each event in order and to end by calling <see cref="M:Composable.Persistence.EventStore.Refactoring.Migrations.ISingleAggregateInstanceEventStreamMutator.EndOfAggregate"/></summary>
+        </member>
+        <member name="T:Composable.SystemExtensions.ExceptionExtensions">
+            <summary>Extensions for working with extensions</summary>
+        </member>
+        <member name="M:Composable.SystemExtensions.ExceptionExtensions.GetAllExceptionsInStack(System.Exception)">
+            <summary>Flattens the exception.InnerException hierarchy into a sequence.</summary>
+        </member>
+        <member name="M:Composable.SystemExtensions.ExceptionExtensions.GetRootCauseException(System.Exception)">
+            <summary>Returns the deepest nested inner exception that was the root cause of the current exception.</summary>
+        </member>
+        <member name="T:Composable.SystemExtensions.Threading.ISingleContextUseGuard">
+            <summary>Implementations ensure that a component is only used within the allowed context. Such as a single thread, single http request etc.</summary>
+        </member>
+        <member name="M:Composable.SystemExtensions.Threading.ISingleContextUseGuard.AssertNoContextChangeOccurred(System.Object)">
+            <summary>Implementations throw an exception if the context has changed.</summary>
+        </member>
+        <member name="T:Composable.SystemExtensions.Threading.MultiThreadedUseException">
+            <summary>Thrown if the <see cref="T:Composable.SystemExtensions.Threading.SingleThreadUseGuard"/> detects a thread change.</summary>
+        </member>
+        <member name="M:Composable.SystemExtensions.Threading.MultiThreadedUseException.#ctor(System.Object,System.Threading.Thread,System.Threading.Thread)">
+            <summary>Constructs an instance using the supplied arguments to create an informative queuedMessageInformation.</summary>
+        </member>
+        <member name="T:Composable.SystemExtensions.Threading.SingleThreadUseGuard">
+            <summary>Ensures that guarded components are used within one thread only.</summary>
+        </member>
+        <member name="M:Composable.SystemExtensions.Threading.SingleThreadUseGuard.#ctor">
+            <summary>Default constructor associates the instance with the current thread.</summary>
+        </member>
+        <member name="M:Composable.SystemExtensions.Threading.SingleThreadUseGuard.InternalAssertNoChangeOccurred(System.Object)">
+            <summary>Throws a <see cref="T:Composable.SystemExtensions.Threading.MultiThreadedUseException"/> if the current thread is different from the one that the instance was constructed in.</summary>
+        </member>
+        <member name="T:Composable.SystemExtensions.Threading.UsageGuard">
+            <summary>Base class that takes care of most of the complexity of implementing <see cref="T:Composable.SystemExtensions.Threading.ISingleContextUseGuard"/></summary>
+        </member>
+        <member name="M:Composable.SystemExtensions.Threading.UsageGuard.RunInContextExcludedFromSingleUseRule(System.Action)">
+            <summary>Occasionally you have to be able to run code without validating the context. Passing such code to this method allows for that.</summary>
+        </member>
+        <member name="M:Composable.SystemExtensions.Threading.UsageGuard.AssertNoContextChangeOccurred(System.Object)">
+            <summary>Implementations throw an exception if the context has changed.</summary>
+        </member>
+        <member name="M:Composable.SystemExtensions.Threading.UsageGuard.InternalAssertNoChangeOccurred(System.Object)">
+            <summary>Implemented by inheritors to do the actual check for any context changes. Implementations throw an exception if the context has changed.</summary>
+        </member>
+        <member name="T:Composable.System.Collections.Collections.CollectionExtensions">
+            <summary>Extensions on <see cref="T:System.Collections.Generic.ICollection`1"/></summary>
+        </member>
+        <member name="M:Composable.System.Collections.Collections.CollectionExtensions.RemoveWhere``1(System.Collections.Generic.ICollection{``0},System.Func{``0,System.Boolean})">
+            <summary>Remove entries matching the condition from the collection.</summary>
+        </member>
+        <member name="M:Composable.System.Collections.Collections.CollectionExtensions.AddRange``1(System.Collections.Generic.ICollection{``0},System.Collections.Generic.IEnumerable{``0})">
+            <summary>Add all instances in <param name="toAdd"> to the collection <param name="me"></param>.</param></summary>
+        </member>
+        <member name="T:Composable.System.Collections.Collections.DictionaryExtensions">
+            <summary>Helpers for working with dictionaries</summary>
+        </member>
+        <member name="M:Composable.System.Collections.Collections.DictionaryExtensions.GetOrAdd``2(System.Collections.Generic.IDictionary{``0,``1},``0,System.Func{``1})">
+            <summary>
+            If <paramref name="key"/> exists in me <paramref name="me"/> it is returned.
+            If not <paramref name="constructor"/> is used to create a new value that is inserted into <paramref name="me"/> and returned.
+            </summary>
+        </member>
+        <member name="M:Composable.System.Collections.Collections.DictionaryExtensions.GetOrAddDefault``2(System.Collections.Generic.IDictionary{``0,``1},``0)">
+            <summary>
+            If <paramref name="key"/> exists in me <paramref name="me"/> it is returned if not it is inserted from the default constructor and returned.
+            </summary>
+        </member>
+        <member name="T:Composable.System.Collections.Collections.LinkedListExtensions">
+            <summary>Adds some convenience features to linked list</summary>
+        </member>
+        <member name="M:Composable.System.Collections.Collections.LinkedListExtensions.NodesFrom``1(System.Collections.Generic.LinkedListNode{``0})">
+            <summary>Enumerates this and all following nodes.</summary>
+        </member>
+        <member name="M:Composable.System.Collections.Collections.LinkedListExtensions.ValuesFrom``1(System.Collections.Generic.LinkedListNode{``0})">
+            <summary>Enumerates this and all following node values.</summary>
+        </member>
+        <member name="M:Composable.System.Collections.Collections.LinkedListExtensions.AddBefore``1(System.Collections.Generic.LinkedListNode{``0},System.Collections.Generic.IEnumerable{``0})">
+            <summary>Inserts <paramref name="items"/> after the <paramref name="this"/>  node and returns the nodes that were inserted.</summary>
+        </member>
+        <member name="M:Composable.System.Collections.Collections.LinkedListExtensions.Replace``1(System.Collections.Generic.LinkedListNode{``0},System.Collections.Generic.IEnumerable{``0})">
+            <summary>Replaces <paramref name="this"/> and returns the nodes that were inserted.</summary>
+        </member>
+        <member name="T:Composable.System.ComponentModel.DataAnnotations.ValidateableObjectExtensions">
+            <summary>Extensions for <see cref="T:System.ComponentModel.DataAnnotations.IValidatableObject"/> intended to make type safe implementations easy.</summary>
+        </member>
+        <member name="M:Composable.System.ComponentModel.DataAnnotations.ValidateableObjectExtensions.CreateValidationResult(System.ComponentModel.DataAnnotations.IValidatableObject,System.String,System.Collections.Generic.IEnumerable{System.Linq.Expressions.Expression{System.Func{System.Object}}})">
+            <summary>Creates an <see cref="T:System.ComponentModel.DataAnnotations.ValidationResult"/> by extracting the invalid member(s) name from the supplied expression(s)</summary>///<summary>Enumerates the lines in a streamreader.</summary>
+        </member>
+        <member name="M:Composable.System.ComponentModel.DataAnnotations.ValidateableObjectExtensions.CreateValidationResult(System.ComponentModel.DataAnnotations.IValidatableObject,System.String,System.Linq.Expressions.Expression{System.Func{System.Object}}[])">
+            <summary>Creates an <see cref="T:System.ComponentModel.DataAnnotations.ValidationResult"/> by extracting the invalid member(s) name from the supplied expression(s)</summary>///<summary>Enumerates the lines in a streamreader.</summary>
+        </member>
+        <member name="T:Composable.System.Configuration.AppConfigConfigurationParameterProvider">
+            <summary>Fetches configuration variables from the application configuration file.</summary>
+        </member>
+        <member name="T:Composable.System.Configuration.AppConfigSqlConnectionProvider">
+            <summary>Supplies connection strings from the application configuration file.</summary>
+        </member>
+        <member name="M:Composable.System.Configuration.AppConfigSqlConnectionProvider.GetConnectionProvider(System.String)">
+            <summary>Returns the connection string with the given name.</summary>
+        </member>
+        <member name="T:Composable.System.Configuration.IConfigurationParameterProvider">
+            <summary>Allows for reading configuration parameters from a source such as a configuration file</summary>
+        </member>
+        <member name="M:Composable.System.Configuration.IConfigurationParameterProvider.GetString(System.String,System.String)">
+            <summary>Gets a string configuration value.</summary>
+        </member>
+        <member name="T:Composable.System.Configuration.ISqlConnectionProvider">
+            <summary>Fetches connections strings from a configuration source such as the application configuration file.</summary>
+        </member>
+        <member name="M:Composable.System.Configuration.ISqlConnectionProvider.GetConnectionProvider(System.String)">
+            <summary>Returns the connection string with the given name.</summary>
+        </member>
+        <member name="M:Composable.System.DateTimeExtensions.SafeToUniversalTime(System.DateTime)">
+            <summary>Like <see cref="M:System.DateTime.ToUniversalTime"/> except it will throw an exception if <see cref="!:@this"/>.Kind == <see cref="F:System.DateTimeKind.Unspecified"/> instead of assuming that Kind == <see cref="F:System.DateTimeKind.Local"/> and converting based on that assumption like <see cref="M:System.DateTime.ToUniversalTime"/> does.</summary>
+        </member>
+        <member name="T:Composable.System.Diagnostics.StopwatchExtensions">
+            <summary>Extensions to the Stopwatch class and related functionality.</summary>
+        </member>
+        <member name="M:Composable.System.Diagnostics.StopwatchExtensions.TimeExecution(System.Action)">
+            <summary>Measures how long it takes to execute <paramref name="action"/></summary>
+        </member>
+        <member name="M:Composable.System.Diagnostics.StopwatchExtensions.TimeExecution(System.Diagnostics.Stopwatch,System.Action)">
+            <summary>Measures how long it takes to execute <paramref name="action"/></summary>
+        </member>
+        <member name="T:Composable.System.Disposable">
+            <summary>Simple utility class that calls the supplied action when the instance is disposed. Gets rid of the need to create a ton of small classes to do cleanup.</summary>
+        </member>
+        <member name="M:Composable.System.Disposable.#ctor(System.Action)">
+            <summary>Constructs an instance that will call <param name="action"> when disposed.</param></summary>
+        </member>
+        <member name="M:Composable.System.Disposable.Dispose">
+            <summary>Invokes the action passed to the constructor.</summary>
+        </member>
+        <member name="M:Composable.System.Disposable.Create(System.Action)">
+            <summary>Constructs an object that will call <param name="action"> when disposed.</param></summary>
+        </member>
+        <member name="T:Composable.System.EnumExtensions">
+            <summary/>
+        </member>
+        <member name="M:Composable.System.EnumExtensions.HasFlag(System.Enum,System.Enum)">
+            <summary>
+            True if <paramref name="value"/> contains the bit flag <paramref name="flag"/>
+            </summary>
+            <param name="value"></param>
+            <param name="flag"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Composable.System.IO.DirectoryExtensions">
+            <summary/>
+        </member>
+        <member name="M:Composable.System.IO.DirectoryExtensions.AsDirectory(System.String)">
+            <summary>
+            Called on <paramref name="path"/> return a DirectoryInfo instance
+            pointed at that path.
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Composable.System.IO.DirectoryExtensions.Size(System.IO.DirectoryInfo)">
+            <summary>
+            Returns the size of the directory.
+            </summary>
+        </member>
+        <member name="M:Composable.System.IO.DirectoryExtensions.DeleteRecursive(System.IO.DirectoryInfo)">
+            <summary>
+            Recursively deletes everything in a airectory and the directory itself.
+            
+            A more intuitive alias for <see cref="M:System.IO.DirectoryInfo.Delete(System.Boolean)"/>
+            called with <paramref name="me"/> and true.
+            </summary>
+            <param name="me"></param>
+        </member>
+        <member name="T:Composable.System.Linq.ExpressionUtil">
+            <summary>Extracts member names from expressions</summary>
+        </member>
+        <member name="M:Composable.System.Linq.ExpressionUtil.ExtractMethodName``1(System.Linq.Expressions.Expression{System.Func{``0}})">
+            <summary>Extracts the name of the member that the supplied func expression returns.</summary>
+        </member>
+        <member name="M:Composable.System.Linq.ExpressionUtil.ExtractMemberName``1(System.Linq.Expressions.Expression{System.Func{``0}})">
+            <summary>Extracts the name of the member that the supplied func expression returns.</summary>
+        </member>
+        <member name="M:Composable.System.Linq.ExpressionUtil.ExtractMemberName``2(System.Linq.Expressions.Expression{System.Func{``0,``1}})">
+            <summary>Extracts the name of the member that the supplied func expression returns.</summary>
+        </member>
+        <member name="M:Composable.System.Linq.ExpressionUtil.ExtractMemberName``3(System.Linq.Expressions.Expression{System.Func{``0,``1,``2}})">
+            <summary>Extracts the name of the member that the supplied func expression returns.</summary>
+        </member>
+        <member name="M:Composable.System.Linq.ExpressionUtil.ExtractMemberName(System.Linq.Expressions.LambdaExpression)">
+            <summary>Extracts the name of the member that the supplied lambda expression returns.</summary>
+        </member>
+        <member name="T:Composable.System.Linq.HashSetExtensions">
+            <summary>A collection of extensions to work with <see cref="T:System.Collections.Generic.HashSet`1"/></summary>
+        </member>
+        <member name="M:Composable.System.Linq.HashSetExtensions.ToSet``1(System.Collections.Generic.IEnumerable{``0})">
+            <returns>A set containing all the items in <paramref name="me"/></returns>
+        </member>
+        <member name="M:Composable.System.Linq.HashSetExtensions.RemoveRange``1(System.Collections.Generic.ISet{``0},System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+             Removes all of the items in the supplied enumerable from the set.
+             Simply forwards to ExceptWith but providing a name that is not utterly unreadable </summary>
+        </member>
+        <member name="M:Composable.System.Linq.HashSetExtensions.AddRange``1(System.Collections.Generic.ISet{``0},System.Collections.Generic.IEnumerable{``0})">
+            <summary>Adds all the supplied <paramref name="toAdd"/> instances to the set.</summary>
+        </member>
+        <member name="T:Composable.System.Linq.Hierarchy">
+            <summary/>
+        </member>
+        <member name="M:Composable.System.Linq.Hierarchy.FlattenHierarchy``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Collections.Generic.IEnumerable{``0}})">
+            <summary>
+            Flattens a hierarchical structure of <typeparamref name="TSource"/> objects into an <see cref="T:System.Collections.Generic.IEnumerable`1"/>
+            </summary>
+            <typeparam name="TSource">The type of the objects in the hierarchy.</typeparam>
+            <param name="source">The source collection.</param>
+            <param name="childrenSelector">A function that given a <typeparamref name="TSource"/> returns all the immediate descendent.</param>
+            <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1"/> containing all the <typeparamref name="TSource"/> instances in the <paramref name="source"/>.</returns>
+        </member>
+        <member name="T:Composable.System.Linq.Iteration">
+            <summary/>
+        </member>
+        <member name="M:Composable.System.Linq.Iteration.ForEach``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1})">
+            <summary>
+            Executes <paramref name="action"/> for each element in the sequence <paramref name="source"/>.
+            </summary>
+        </member>
+        <member name="M:Composable.System.Linq.Iteration.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0})">
+            <summary>
+            Executes <paramref name="action"/> for each element in the sequence <paramref name="source"/>.
+            </summary>
+        </member>
+        <member name="M:Composable.System.Linq.Iteration.ForEach``1(System.Collections.Generic.IEnumerable{``0},System.Action{``0,System.Int32})">
+            <summary>
+            Executes <paramref name="action"/> for each element in the sequence <paramref name="source"/>.
+            </summary>
+        </member>
+        <member name="T:Composable.System.Linq.LinqExtensions">
+            <summary/>
+        </member>
+        <member name="M:Composable.System.Linq.LinqExtensions.Append``1(System.Collections.Generic.IEnumerable{``0},``0[])">
+            <summary>
+            Adds <paramref name="instances"/> to the end of <paramref name="source"/>
+            </summary>
+        </member>
+        <member name="M:Composable.System.Linq.LinqExtensions.None``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            <para>The inversion of Enumerable.Any() .</para>
+            <para>Returns true if <paramref name="me"/> contains no elements.</para>
+            </summary>
+            <returns>true if <paramref name="me"/> contains no objects. Otherwise false.</returns>
+        </member>
+        <member name="M:Composable.System.Linq.LinqExtensions.None``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})">
+            <summary>
+            <para>The inversion of Enumerable.Any() .</para>
+            <para>Returns true if <paramref name="me"/> contains no elements.</para>
+            </summary>
+            <returns>true if <paramref name="me"/> contains no objects. Otherwise false.</returns>
+        </member>
+        <member name="M:Composable.System.Linq.LinqExtensions.ChopIntoSizesOf``1(System.Collections.Generic.IEnumerable{``0},System.Int32)">
+            <summary>
+            Chops an IEnumerable up into <paramref name="size"/> sized chunks.
+            </summary>
+        </member>
+        <member name="M:Composable.System.Linq.LinqExtensions.Flatten``2(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Acting on an <see cref="T:System.Collections.Generic.IEnumerable`1"/> <paramref name="me"/> where T is an <see cref="T:System.Collections.Generic.IEnumerable`1"/>
+            returns an <see cref="T:System.Collections.Generic.IEnumerable`1"/> aggregating all the TChild instances
+            
+            Using SelectMany(x=>x) is ugly and unintuitive.
+            This method provides an intuitively named alternative.
+            </summary>
+            <typeparam name="T">A type implementing <see cref="T:System.Collections.Generic.IEnumerable`1"/></typeparam>
+            <typeparam name="TChild">The type contained in the nested enumerables.</typeparam>
+            <param name="me">the collection to act upon</param>
+            <returns>All the objects in all the nested collections </returns>
+        </member>
+        <member name="T:Composable.System.Linq.Number">
+            <summary/>
+        </member>
+        <member name="T:Composable.System.Linq.Number.IterationSpecification">
+            <summary>
+            Represents a sequence first yielding <see cref="F:Composable.System.Linq.Number.IterationSpecification.StartValue"/> and then infinitely yielding the last value plus <see cref="F:Composable.System.Linq.Number.IterationSpecification.StepSize"/>
+            </summary>
+        </member>
+        <member name="F:Composable.System.Linq.Number.IterationSpecification.StartValue">
+            <summary/>
+        </member>
+        <member name="F:Composable.System.Linq.Number.IterationSpecification.StepSize">
+            <summary/>
+        </member>
+        <member name="M:Composable.System.Linq.Number.By(System.Int32,System.Int32)">
+            <summary>
+            generates a sequence of integers beginning with <paramref name="me"/> where each element is
+            <paramref name="stepsize"/> larger than the previous
+            </summary>
+        </member>
+        <member name="M:Composable.System.Linq.Number.Through(System.Int32,System.Int32)">
+            <summary>
+            generates a sequence of integers beginning with <paramref name="me"/> where each element is
+            the previous element plus one that includes the upper bound <paramref name="guard"/> cref="guard"/>
+            </summary>
+        </member>
+        <member name="M:Composable.System.Linq.Number.Until(System.Int32,System.Int32)">
+            <summary>
+            generates a sequence of integers beginning with <paramref name="me"/> where each element is
+            the previous element plus one that excludes the upper bound <paramref name="guard"/>
+            </summary>
+        </member>
+        <member name="M:Composable.System.Linq.Number.Through(Composable.System.Linq.Number.IterationSpecification,System.Int32)">
+            <summary>
+            Returns as sequence that will yield all values to and including <paramref name="guard"/>
+            </summary>
+        </member>
+        <member name="M:Composable.System.Linq.Number.Until(Composable.System.Linq.Number.IterationSpecification,System.Int32)">
+            <summary>
+            Returns as sequence that will yield all values to but excluding <paramref name="guard"/>
+            </summary>
+        </member>
+        <member name="T:Composable.System.Linq.ObjectExtensions">
+            <summary>
+             Methods useful for any type when used in a Linq context
+            </summary>
+        </member>
+        <member name="M:Composable.System.Linq.ObjectExtensions.Repeat``1(``0,System.Int32)">
+            <summary>
+            Returns <paramref name="me"/> repeated <paramref name="times"/> times.
+            </summary>
+        </member>
+        <member name="T:Composable.System.Linq.Seq">
+            <summary/>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.Empty``1">
+            <summary>Returns an empty array of type T. Does not allocate any memory unless this is the first time it is called for T. </summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.Create``1(``0[])">
+            <summary>
+            Creates an enumerable consisting of the passed parameter values is order.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="values"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``1">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``2">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``3">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``4">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``5">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``6">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``7">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``8">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``9">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``10">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``11">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``12">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``13">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``14">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``15">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``16">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``17">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``18">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``19">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Seq.OfTypes``20">
+            <summary>Returns a sequence of types matching the supplied type arguments</summary>
+        </member>
+        <member name="T:Composable.System.Linq.SimpleIndexing">
+            <summary/>
+        </member>
+        <member name="M:Composable.System.Linq.SimpleIndexing.Second``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>Returns the second element in the IEnumerable</summary>
+        </member>
+        <member name="M:Composable.System.Linq.SimpleIndexing.Third``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>Returns the third element in the IEnumerable</summary>
+        </member>
+        <member name="M:Composable.System.Linq.SimpleIndexing.Fourth``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>Returns the fourth element in the IEnumerable</summary>
+        </member>
+        <member name="M:Composable.System.Linq.SimpleIndexing.Fifth``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>Returns the fifth element in the IEnumerable</summary>
+        </member>
+        <member name="M:Composable.System.Linq.SimpleIndexing.Sixth``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>Returns the sixth element in the IEnumerable</summary>
+        </member>
+        <member name="M:Composable.System.Linq.SimpleIndexing.Seventh``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>Returns the seventh element in the IEnumerable</summary>
+        </member>
+        <member name="M:Composable.System.Linq.SimpleIndexing.Eighth``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>Returns the eight element in the IEnumerable</summary>
+        </member>
+        <member name="M:Composable.System.Linq.SimpleIndexing.Ninth``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>Returns the ninth element in the IEnumerable</summary>
+        </member>
+        <member name="T:Composable.System.Linq.Zipping">
+            <summary/>
+        </member>
+        <member name="M:Composable.System.Linq.Zipping.Zip``3(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``1},System.Func{``0,``1,``2})">
+            <summary>
+            Projects two sequences into a single sequence in which each value is the result
+            of calling <paramref name="selector"/> on the two instances in <paramref name="first"/> and
+            <paramref name="second"/> that are at that index.
+            
+            The returned sequence will be the length of the shorter of the two sequences if
+            they are uneven in length.
+            </summary>
+        </member>
+        <member name="M:Composable.System.Linq.Zipping.Zip``2(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``1})">
+            <summary>
+            Projects two sequences into a single sequence in which each value is a <see cref="T:Composable.System.Linq.Zipping.Pair`2"/>
+            containing the two instances in <paramref name="first"/> and <paramref name="second"/> that are at that index.
+            
+            The returned sequence will be the length of the shorter of the two sequences if
+            they are uneven in length.
+            </summary>
+        </member>
+        <member name="T:Composable.System.Linq.Zipping.Pair`2">
+            <summary>
+            A simple class that represents the pairing of two instances of the same type:
+            <see cref="P:Composable.System.Linq.Zipping.Pair`2.First"/> and <see cref="P:Composable.System.Linq.Zipping.Pair`2.Second"/>
+            </summary>
+        </member>
+        <member name="P:Composable.System.Linq.Zipping.Pair`2.First">
+            <summary>The first instance in the pair.</summary>
+        </member>
+        <member name="P:Composable.System.Linq.Zipping.Pair`2.Second">
+            <summary>The second instance in the pair.</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Zipping.Pair`2.#ctor(`0,`1)">
+            <summary>Constructs a pair.</summary>
+        </member>
+        <member name="M:Composable.System.Linq.Zipping.Pair`2.ToString">
+            <summary><see cref="M:System.Object.ToString"/></summary>
+        </member>
+        <member name="T:Composable.System.Reactive.SimpleObservable`1">
+            <summary>Simple implementation of <see cref="T:System.IObservable`1"/> that tracks subscribers and allows for calling OnNext on them all at once.</summary>
+        </member>
+        <member name="M:Composable.System.Reactive.SimpleObservable`1.OnNext(`0)">
+            <summary>Calls <see cref="M:System.IObserver`1.OnNext(`0)"/> for each subscribed observer.</summary>
+        </member>
+        <member name="M:Composable.System.Reactive.SimpleObservable`1.Subscribe(System.IObserver{`0})">
+            <inheritdoc />
+        </member>
+        <member name="T:Composable.System.Reflection.MemberAccessorHelper">
+            <summary>Provides high performance access to object fields and properties.</summary>
+        </member>
+        <member name="M:Composable.System.Reflection.MemberAccessorHelper.GetFieldGetters(System.Type)">
+            <summary>Returns functions that when invoked will return the values of the fields an properties in an instance of the supplied type.</summary>
+        </member>
+        <member name="T:Composable.System.Reflection.MemberAccessorHelper`1">
+            <summary>Provides high performance access to object fields and properties.</summary>
+        </member>
+        <member name="M:Composable.System.Reflection.MemberAccessorHelper`1.GetFieldGetters(System.Type)">
+            <summary>Returns functions that when invoked will return the values of the fields an properties in an instance of the supplied type.</summary>
+        </member>
+        <member name="T:Composable.System.Reflection.ObjectFactory`1">
+            <summary>Constructs instances of classes</summary>
+        </member>
+        <member name="M:Composable.System.Reflection.ObjectFactory`1.CreateInstance``1(``0)">
+            <summary>Creates an instance of TEntity using a constructor matching the specified argument types</summary>
+        </member>
+        <member name="T:Composable.System.Reflection.TypeExtensions">
+            <summary>A collection of extensions to work with <see cref="T:System.Type"/></summary>
+        </member>
+        <member name="M:Composable.System.Reflection.TypeExtensions.Implements``1(System.Type)">
+            ///<returns>true if <paramref name="me"/> implements the interface: <typeparamref name="TImplemented"/>. By definition true if <paramref name="me"/> == <typeparamref name="TImplemented"/>.</returns>
+        </member>
+        <member name="M:Composable.System.Reflection.TypeExtensions.Implements(System.Type,System.Type)">
+            <returns>true if <paramref name="me"/> implements the interface: <paramref name="implemented"/>. By definition true if <paramref name="me"/> == <paramref name="implemented"/>.</returns>
+        </member>
+        <member name="M:Composable.System.Reflection.TypeExtensions.AsType(System.String)">
+            <summary>Finds the class that the string represents within any loaded assembly. Calling with "MyNameSpace.MyObject" would return the same type as typeof(MyNameSpace.MyObject) etc.</summary>
+        </member>
+        <member name="M:Composable.System.Reflection.TypeExtensions.TryGetType(System.String,System.Type@)">
+            <summary>Finds the class that the string represents within any loaded assembly. Calling with "MyNameSpace.MyObject" would return the same type as typeof(MyNameSpace.MyObject) etc.</summary>
+        </member>
+        <member name="T:Composable.System.Reflection.TypeExtensions.MultipleMatchingTypesException">
+            <summary>Thrown if there is more than one type that matches the string passed to <see cref="M:Composable.System.Reflection.TypeExtensions.AsType(System.String)"/></summary>
+        </member>
+        <member name="T:Composable.System.Reflection.TypeExtensions.FailedToFindTypeException">
+            <summary>Thrown if there is no type that matches the string passed to <see cref="M:Composable.System.Reflection.TypeExtensions.AsType(System.String)"/> is found</summary>
+        </member>
+        <member name="T:Composable.System.IStrictlyManagedResource">
+            <summary>
+             A strictly managed resource guarantees that an Exception of type <see cref="T:Composable.System.StrictlyManagedResourceWasFinalizedException"/> is thrown if the finalizer is ever called.
+             <para>In other word: If a user of an instance fails to correctly call <see cref="M:System.IDisposable.Dispose"/> on a <see cref="T:Composable.System.StrictlyManagedResourceWasFinalizedException"/>
+             will be thrown when the instance is eventually finalized by the garbage collector.</para>
+             This helps to guarantee that your application has no resource leaks.
+             <para>Implementing this interface MUST be done by inheriting from <see cref="T:Composable.System.StrictlyManagedResourceBase`1"/> or having a readonly field of type <see cref="T:Composable.System.StrictlyManagedResource`1"/>.
+              This guarantees the expected behavior including the ability to enable and disable the collection of stacktraces for the allocations.</para>
+             </summary>
+        </member>
+        <member name="T:Composable.System.StrictlyManagedResource`1">
+            <summary>
+             Helper class for implementing <see cref="T:Composable.System.IStrictlyManagedResource"/>
+             </summary>
+             <example>
+             Typical usage is to implement <see cref="T:Composable.System.IStrictlyManagedResource"/> by having a <see cref="T:Composable.System.StrictlyManagedResource`1"/> instance field:
+             <code>
+            class AnotherStrictlyManagedResource : SomeBaseClass, IStrictlyManagedResource
+            {
+                readonly StrictlyManagedResource _leakDetector =  new StrictlyManagedResource();
+                public void Dispose()
+                {
+                    GC.SuppressFinalize(this);
+                    _leakDetector.Dispose();
+                }
+            }
+             </code>
+            </example>
+        </member>
+        <member name="T:Composable.System.StrictlyManagedResourceBase`1">
+            <summary>
+             Inheriting from this class is the simplest way to implement <see cref="T:Composable.System.IStrictlyManagedResource"/>
+            </summary>
+            <example>
+            <code>
+            class SomeStrictlyManagedResource : StrictlyManagedResourceBase
+            {
+                ResourceThatMustBeDisposed _resourceThatMustBeDisposed = new ResourceThatMustBeDisposed();
+                bool _disposed;
+                protected override void InternalDispose()
+                {
+                    if (!_disposed)
+                    {
+                       _disposed = true;
+                       _resourceThatMustBeDisposed.Dispose();
+                    }
+                }
+            }
+            </code>
+            </example>
+        </member>
+        <member name="T:Composable.System.StrictlyManagedResourceWasFinalizedException">
+            <summary><see cref="T:Composable.System.IStrictlyManagedResource"/></summary>
+        </member>
+        <member name="T:Composable.System.StringExtensions">
+            <summary>Contains extensions on <see cref="T:System.String"/></summary>
+        </member>
+        <member name="M:Composable.System.StringExtensions.IsNullOrWhiteSpace(System.String)">
+            <summary>returns true if me is null, empty or only whitespace</summary>
+        </member>
+        <member name="M:Composable.System.StringExtensions.Join(System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>Delegates to <see cref="M:System.String.Join(System.String,System.String[])"/> </summary>
+        </member>
+        <member name="T:Composable.System.TimeSpanEnumerableExtensions">
+            <summary>Methods like Sum,Min,Average etc for IEnumerable&lt;TimeSpan&gt;</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanEnumerableExtensions.Min(System.Collections.Generic.IEnumerable{System.TimeSpan})">
+            <summary>Returns the smallest timespans</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanEnumerableExtensions.Max(System.Collections.Generic.IEnumerable{System.TimeSpan})">
+            <summary>Returns the largest timespans</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanEnumerableExtensions.Sum(System.Collections.Generic.IEnumerable{System.TimeSpan})">
+            <summary>Returns the sum of the timespans</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanEnumerableExtensions.Average(System.Collections.Generic.IEnumerable{System.TimeSpan})">
+            <summary>Returns the average of the timespans</summary>
+        </member>
+        <member name="T:Composable.System.TimeSpanExtensions">
+            <summary>A collection of extensions to work with timespans</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Milliseconds(System.Int32)">
+            <summary>Returns a TimeSpan <paramref name="this"/> milliseconds long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Milliseconds(System.Int64)">
+            <summary>Returns a TimeSpan <paramref name="this"/> milliseconds long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Milliseconds(System.Double)">
+            <summary>Returns a TimeSpan <paramref name="this"/> milliseconds long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Seconds(System.Int32)">
+            <summary>Returns a TimeSpan <paramref name="this"/> seconds long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Seconds(System.Int64)">
+            <summary>Returns a TimeSpan <paramref name="this"/> seconds long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Seconds(System.Double)">
+            <summary>Returns a TimeSpan <paramref name="this"/> seconds long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Minutes(System.Int32)">
+            <summary>Returns a TimeSpan <paramref name="this"/> minutes long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Minutes(System.Int64)">
+            <summary>Returns a TimeSpan <paramref name="this"/> minutes long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Minutes(System.Double)">
+            <summary>Returns a TimeSpan <paramref name="this"/> minutes long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Hours(System.Int32)">
+            <summary>Returns a TimeSpan <paramref name="this"/> hours long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Hours(System.Int64)">
+            <summary>Returns a TimeSpan <paramref name="this"/> hours long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Hours(System.Double)">
+            <summary>Returns a TimeSpan <paramref name="this"/> hours long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Days(System.Int32)">
+            <summary>Returns a TimeSpan <paramref name="this"/> days long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Days(System.Int64)">
+            <summary>Returns a TimeSpan <paramref name="this"/> days long.</summary>
+        </member>
+        <member name="M:Composable.System.TimeSpanExtensions.Days(System.Double)">
+            <summary>Returns a TimeSpan <paramref name="this"/> days long.</summary>
+        </member>
+        <member name="T:Composable.Testing.Threading.TestingTaskRunner">
+            <summary>
+             Runs and monitors tasks on background threads.
+             Throws <see cref="T:System.AggregateException"/> on dispose if any throw exceptions or do not complete within timeout. </summary>
+        </member>
+        <member name="M:Composable.Testing.Threading.IThreadGate.Open">
+            <summary>Opens the gate and lets all threads through.</summary>
+        </member>
+        <member name="M:Composable.Testing.Threading.IThreadGate.AwaitLetOneThreadPassthrough">
+            <summary>Lets a single thread pass.</summary>
+        </member>
+        <member name="M:Composable.Testing.Threading.IThreadGate.Close">
+            <summary>Blocks all threads from passing.</summary>
+        </member>
+        <member name="M:Composable.Testing.Threading.IThreadGate.ExecuteWithExclusiveLockWhen(System.TimeSpan,System.Func{System.Boolean},System.Action)">
+            <summary>Blocks until the gate is in a state which satisfies <see cref="!:condition"/> and then while owning the lock executes <see cref="!:action"/></summary>
+        </member>
+        <member name="T:Composable.Testing.Threading.IGatedCodeSection">
+            <summary>A block of code with <see cref="T:Composable.Testing.Threading.ThreadGate"/>s for <see cref="P:Composable.Testing.Threading.IGatedCodeSection.EntranceGate"/> and <see cref="P:Composable.Testing.Threading.IGatedCodeSection.ExitGate"/>. Useful for controlling multithreaded code for testing purposes.</summary>
+        </member>
+    </members>
+</doc>

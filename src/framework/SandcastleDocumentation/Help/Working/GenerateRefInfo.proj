@@ -1,0 +1,842 @@
+﻿<Project ToolsVersion="14.0" DefaultTargets="Generate" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Sandcastle Tools MSBuild Tasks.  https://GitHub.com/EWSoftware/SHFB -->
+  <UsingTask TaskName="Microsoft.Ddue.Tools.MSBuild.MRefBuilder" AssemblyFile="C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\\MRefBuilder.exe" />
+  <UsingTask TaskName="Microsoft.Ddue.Tools.MSBuild.XslTransform" AssemblyFile="C:\Program Files (x86)\EWSoftware\Sandcastle Help File Builder\\XslTransform.exe" />
+  <!-- Task properties -->
+  <PropertyGroup>
+    <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <AddXamlSyntaxData>
+    </AddXamlSyntaxData>
+    <WorkingFolder>C:\Dev\Composable\src\framework\SandcastleDocumentation\Help\Working\</WorkingFolder>
+    <ReferencePath Condition=" '$(ReferencePath)' == '' ">
+    </ReferencePath>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    <UseTargetPlatformAsNuGetTargetMoniker>false</UseTargetPlatformAsNuGetTargetMoniker>
+  </PropertyGroup>
+  <!-- The common targets require OutputPath to be valid -->
+  <PropertyGroup>
+    <OutputPath>.\</OutputPath>
+  </PropertyGroup>
+  <!-- Import the common targets -->
+  <Import Project="$(MSBuildBinPath)\Microsoft.Common.targets" />
+  <!-- This defines the dependencies for the Generate target -->
+  <PropertyGroup>
+    <GenerateDependsOn>
+			ResolveReferences;
+			BeforeGenerateRefInfo;
+			GenerateRefInfo;
+			AfterGenerateRefInfo
+		</GenerateDependsOn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\Microsoft.Win32.Primitives.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\mscorlib.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\netstandard.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.AppContext.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Collections.Concurrent.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Collections.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Collections.NonGeneric.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Collections.Specialized.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.ComponentModel.Composition.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.ComponentModel.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.ComponentModel.EventBasedAsync.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.ComponentModel.Primitives.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.ComponentModel.TypeConverter.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Console.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Core.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Data.Common.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Data.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.Contracts.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.Debug.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.FileVersionInfo.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.Process.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.StackTrace.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.TextWriterTraceListener.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.Tools.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.TraceSource.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Diagnostics.Tracing.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Drawing.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Drawing.Primitives.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Dynamic.Runtime.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Globalization.Calendars.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Globalization.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Globalization.Extensions.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.IO.Compression.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.IO.Compression.FileSystem.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.IO.Compression.ZipFile.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.IO.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.IO.FileSystem.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.IO.FileSystem.DriveInfo.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.IO.FileSystem.Primitives.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.IO.FileSystem.Watcher.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.IO.IsolatedStorage.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.IO.MemoryMappedFiles.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.IO.Pipes.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.IO.UnmanagedMemoryStream.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Linq.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Linq.Expressions.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Linq.Parallel.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Linq.Queryable.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Net.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Net.Http.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Net.NameResolution.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Net.NetworkInformation.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Net.Ping.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Net.Primitives.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Net.Requests.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Net.Security.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Net.Sockets.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Net.WebHeaderCollection.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Net.WebSockets.Client.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Net.WebSockets.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Numerics.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.ObjectModel.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Reflection.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Reflection.Extensions.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Reflection.Primitives.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Resources.Reader.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Resources.ResourceManager.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Resources.Writer.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Runtime.CompilerServices.VisualC.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Runtime.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Runtime.Extensions.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Runtime.Handles.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Runtime.InteropServices.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Runtime.InteropServices.RuntimeInformation.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Runtime.Numerics.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Runtime.Serialization.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Runtime.Serialization.Formatters.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Runtime.Serialization.Json.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Runtime.Serialization.Primitives.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Runtime.Serialization.Xml.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Security.Claims.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Security.Cryptography.Algorithms.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Security.Cryptography.Csp.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Security.Cryptography.Encoding.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Security.Cryptography.Primitives.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Security.Cryptography.X509Certificates.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Security.Principal.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Security.SecureString.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.ServiceModel.Web.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Text.Encoding.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Text.Encoding.Extensions.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Text.RegularExpressions.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Threading.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Threading.Overlapped.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Threading.Tasks.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Threading.Tasks.Parallel.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Threading.Thread.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Threading.ThreadPool.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Threading.Timer.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Transactions.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.ValueTuple.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Web.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Windows.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.Linq.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.ReaderWriter.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.Serialization.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.XDocument.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.XmlDocument.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.XmlSerializer.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.XPath.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+    <Reference Include="C:\Users\Magnus\.nuget\packages\netstandard.library\2.0.1\build\netstandard2.0\ref\System.Xml.XPath.XDocument.dll">
+      <Private>false</Private>
+      <Visible>false</Visible>
+      <Facade>true</Facade>
+      <NuGetPackageId>NETStandard.Library</NuGetPackageId>
+      <NuGetPackageVersion>2.0.1</NuGetPackageVersion>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Assembly Include="C:\Dev\Composable\src\framework\Composable.CQRS\bin\Debug\netstandard2.0\Composable.CQRS.dll" />
+  </ItemGroup>
+  <Target Name="Generate" DependsOnTargets="$(GenerateDependsOn)" />
+  <!-- The Generate Ref Info target -->
+  <Target Name="GenerateRefInfo">
+    <!-- Run MRefBuilder.  Reference build items are added to this template by the build process.  The
+				 ResolveReferences dependency target will resolve them to absolute paths that can be passed to
+				 MRefBuilder using the /dep command line option.  Assembly build items are added by the build
+				 process to define the assemblies to reflect. -->
+    <Microsoft.Ddue.Tools.MSBuild.MRefBuilder WorkingFolder="$(WorkingFolder)" ConfigurationFile="MRefBuilder.config" ReflectionFilename="reflection.org" Assemblies="@(Assembly)" References="@(ReferencePath)" />
+    <!-- Merge duplicate topics (if any) and add XAML syntax data if needed -->
+    <Copy SourceFiles="reflection.org" DestinationFiles="reflection.all" />
+    <Microsoft.Ddue.Tools.MSBuild.XslTransform WorkingFolder="$(WorkingFolder)" Transformations="~\ProductionTransforms\MergeDuplicates.xsl$(AddXamlSyntaxData)" InputFile="reflection.all" OutputFile="reflection.org" />
+  </Target>
+  <!-- The following targets may be overridden or replaced to perform additional processing. -->
+  <Target Name="BeforeGenerateRefInfo" />
+  <Target Name="AfterGenerateRefInfo" />
+</Project>

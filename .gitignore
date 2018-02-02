@@ -36,3 +36,5 @@ SandcastleDocumentation/Help/
 **/.idea/tasks.xm
 nCrunchTemp*
 UpgradeLog*.htm
+/src/framework/docs/
+/src/framework/Documentation/Website/adoc-render-test/

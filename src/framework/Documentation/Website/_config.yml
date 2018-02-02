@@ -25,7 +25,6 @@ github_username:  mlidbom
 # Build settings
 stylesdir: vendor-css
 markdown: kramdown
-#destination: ../../docs
 keep_files: [apidocs,asciidoc-diagrams,CNAME,.git]
 
 exclude:
@@ -41,7 +40,5 @@ asciidoctor:
   attributes:
     - idseparator=_
     - stylesdir=vendor-css
-    - imagesdir=asciidoc-diagrams
-    - imagesoutdir=../../../docs/asciidoc-diagrams
     - source-highlighter=pygments
     - icons=font

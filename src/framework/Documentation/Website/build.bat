@@ -1,1 +1,1 @@
-bundle.bat exec jekyll build --destination ../../docs
+bundle.bat exec jekyll build

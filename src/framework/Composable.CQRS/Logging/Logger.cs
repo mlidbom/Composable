@@ -19,6 +19,9 @@ namespace Composable.Logging
 
     static class Logger
     {
+        // ReSharper disable once UnusedParameter.Global removing the parameter would make it impossible to invoke this as an extension method :)
+        internal static ILogger Log<T>(this T me) => LogCache<T>.Logger;
+
         internal static ILogger For<T>() => LogCache<T>.Logger;
         internal static ILogger For(Type loggingType) => LoggerFactoryMethod(loggingType);
 

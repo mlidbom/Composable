@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Composable.Logging.Log4Net;
+using Composable.Logging;
 using Composable.Refactoring.Naming;
 using Composable.System.Data.SqlClient;
 using Composable.System.Transactions;
@@ -135,7 +135,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                             }
                             catch(CouldNotFindTypeForTypeIdException)
                             {
-                                this.Log().Warn($"The type of event: Id: {eventTypeId}, Name: {eventType} that exists in the database could not be found in the loaded assemblies. No mapping will be created for this class. If an event of this type is read from the store an exception will be thrown");
+                                this.Log().Warning($"The type of event: Id: {eventTypeId}, Name: {eventType} that exists in the database could not be found in the loaded assemblies. No mapping will be created for this class. If an event of this type is read from the store an exception will be thrown");
                             }
 
                             if(foundEventType != null)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.Transactions;
-using Composable.Logging.Log4Net;
+using Composable.Logging;
 using Composable.Refactoring.Naming;
 using Composable.System.Data.SqlClient;
 using Composable.System.Transactions;
@@ -29,7 +29,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         {
             if (Transaction.Current == null)
             {
-                this.Log().Warn($@"No ambient transaction. This is dangerous:
+                this.Log().Warning($@"No ambient transaction. This is dangerous:
 AT: 
 
 {Environment.StackTrace}");

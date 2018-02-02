@@ -21,7 +21,7 @@ For example: If you set it to 2.0 performance tests are allowed to take 2.0 time
 
 **COMPOSABLE_TEMP_DRIVE**:
 Let's you move where temp data is stored out of the default system temp folder. 
-Among other things the database in the database pool are store here.
+Among other things the databases in the database pool are stored here.
 If possible set this to a path on a fast SSD or, even better, a RAM drive.
 
 ## Set up documentation development environment

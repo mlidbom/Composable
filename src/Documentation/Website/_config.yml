@@ -39,6 +39,7 @@ asciidoctor:
   safe: unsafe
   attributes:
     - idseparator=_
+    - imagesdir=diagrams
     - stylesdir=vendor-css
     - source-highlighter=pygments
     - source-language=csharp

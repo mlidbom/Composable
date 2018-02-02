@@ -5,8 +5,6 @@ Dan Allen <thedoc@asciidoctor.org>
               exercises numerous features of AsciiDoc +
               to test Asciidoctor compliance.
 :sectnums:
-:imagesdir: ../asciidoc-diagrams
-:imagesoutdir: ../_site/asciidoc-diagrams
 :library: Asciidoc
 
 [role='lead']

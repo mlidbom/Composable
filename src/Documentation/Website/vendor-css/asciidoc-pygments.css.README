@@ -1,5 +1,0 @@
-asciidoc-pygments.css is generated automatically by jekyll-asciidoc but we do not use it.
-For some reason the generated code does not result in the same css that is used if you run asciidoc standalone and generate a standalone document.
-That code results in better rendered code blocks.
-Therefore that code has been copied into vendor-css/asciidoc-pygments-manual.css
-That is the css that ve actually use on the page.

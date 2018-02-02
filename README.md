@@ -11,7 +11,7 @@
 * Just open Composable.Everything.sln in Visual Studio 2017 and you should be good to go.
 * To run the tests you need administator access to a SQL server installation. If you don't have one the development edition is free to download and use.
 
-### Environment varibles you should now about when running the tests
+### Environment varibles you should know about when running the tests
 
 **COMPOSABLE_DATABASE_POOL_MASTER_CONNECTIONSTRING**: Let's you override the connection string to use for the database pool.
 

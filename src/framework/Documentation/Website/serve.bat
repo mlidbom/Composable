@@ -1,1 +1,1 @@
-bundle.bat exec jekyll serve
+bundle.bat exec jekyll serve --livereload

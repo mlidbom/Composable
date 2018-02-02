@@ -5,8 +5,7 @@ gem 'jekyll'
 gem 'rake-jekyll'
 
 group :jekyll_plugins do
-  gem 'jekyll-asciidoc'
-  gem 'jekyll-livereload'
+  gem 'jekyll-asciidoc'  
   gem 'pygments.rb'
   gem 'asciidoctor-diagram'
 end

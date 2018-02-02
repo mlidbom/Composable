@@ -145,7 +145,7 @@ Messaging is also known as message passing.
 <p>In principle just a function that takes a message as a parameter.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">void</span> <span class="tok-nf">Handle</span><span class="tok-p">(</span><span class="tok-n">RegisterAccountCommand</span> <span class="tok-n">command</span><span class="tok-p">)</span></code></pre>
+<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">void</span> <span class="tok-nf">Handle</span><span class="tok-p">(</span><span class="tok-n">RegisterAccountCommand</span> <span class="tok-n">command</span><span class="tok-p">);</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -174,7 +174,7 @@ The bus is responsible for routing the messages to the appropriate handler(s) an
 <div class="listingblock">
 <div class="title">Manual service invokation requires an instance of the service.</div>
 <div class="content">
-<pre class="pygments highlight"><code>serviceInstance.RegisterAccount(arguments....</code></pre>
+<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-n">serviceInstance</span><span class="tok-p">.</span><span class="tok-n">RegisterAccount</span><span class="tok-p">(</span><span class="tok-n">arguments</span><span class="tok-p">....</span></code></pre>
 </div>
 </div>
 <div class="listingblock">

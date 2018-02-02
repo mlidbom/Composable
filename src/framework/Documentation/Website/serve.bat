@@ -1,1 +1,1 @@
-bundle.bat exec jekyll serve --livereload
+bundle.bat exec jekyll serve --livereload --destination ../../docs

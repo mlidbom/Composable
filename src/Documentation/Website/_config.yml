@@ -42,5 +42,6 @@ asciidoctor:
     - imagesdir=diagrams
     - stylesdir=vendor-css
     - source-highlighter=pygments
+    - pygments-style=default
     - source-language=csharp
     - icons=font

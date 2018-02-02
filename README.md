@@ -42,8 +42,8 @@ If possible set this to a path on a fast SSD or, even better, a RAM drive.
 * Open a prompt in folder: src\framework\Documentation\
   * gem install bundler
   * bundle install
-  * build.bat
   * install-dependencies.bat
+  * build.bat
   * serve.bat
     * Open the url mentioned in the output
     * Edit the files in the project and happily watch the browser auto-update with your changes :)

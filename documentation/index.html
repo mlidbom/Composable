@@ -145,7 +145,7 @@ Messaging is also known as message passing.
 <p>In principle just a function that takes a message as a parameter.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">void</span> <span class="tok-nf">Handle</span><span class="tok-p">(</span><span class="tok-n">RegisterAccountCommand</span> <span class="tok-n">command</span><span class="tok-p">)</span></code></pre>
+<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">void</span> <span class="tok-nf">Handle</span><span class="tok-p">(</span><span class="tok-n">RegisterAccountCommand</span> <span class="tok-n">command</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -155,7 +155,7 @@ In order to support this handlers are often required to be wrapped inside interf
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">interface</span> <span class="tok-n">IMessageHandler</span><span class="tok-p">&lt;</span><span class="tok-n">RegisterAccountCommand</span><span class="tok-p">&gt;</span>
+<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">interface</span> <span class="tok-n">IMessageHandler</span><span class="tok-p">&lt;</span><span class="tok-n">RegisterAccountCommand</span><span class="tok-p">&gt;</span>
 <span class="tok-p">{</span>
     <span class="tok-k">void</span> <span class="tok-nf">Handle</span><span class="tok-p">(</span><span class="tok-n">RegisterAccountCommand</span> <span class="tok-n">aMessage</span><span class="tok-p">);</span>
 <span class="tok-p">}</span></code></pre>
@@ -180,7 +180,7 @@ The bus is responsible for routing the messages to the appropriate handler(s) an
 <div class="listingblock">
 <div class="title">Client don&#8217;t even know where the service is when accessing it across a bus</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-n">bus</span><span class="tok-p">.</span><span class="tok-n">Send</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">RegisterAccountCommand</span><span class="tok-p">(</span></code></pre>
+<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-n">bus</span><span class="tok-p">.</span><span class="tok-n">Send</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">RegisterAccountCommand</span><span class="tok-p">(</span></code></pre>
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -201,7 +201,7 @@ The benefits of this decoupling may not be obvious at first, but they are profou
 <p>A message that instructs the handler to perform an action.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">class</span> <span class="tok-nc">RegisterAccountCommand</span>
+<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">class</span> <span class="tok-nc">RegisterAccountCommand</span>
 <span class="tok-p">{</span>
     <span class="tok-n">Password</span> <span class="tok-n">Password</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
     <span class="tok-n">Email</span> <span class="tok-n">Email</span> <span class="tok-p">{</span> <span class="tok-k">set</span><span class="tok-p">;</span> <span class="tok-p">}</span>
@@ -214,7 +214,7 @@ The benefits of this decoupling may not be obvious at first, but they are profou
 <p>A message that informs handlers about something that has happened.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">interface</span> <span class="tok-n">IAccountRegisteredEvent</span>
+<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">interface</span> <span class="tok-n">IAccountRegisteredEvent</span>
 <span class="tok-p">{</span>
     <span class="tok-n">Password</span> <span class="tok-n">Password</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
     <span class="tok-n">Email</span> <span class="tok-n">Email</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
@@ -227,7 +227,7 @@ The benefits of this decoupling may not be obvious at first, but they are profou
 <p>A message that asks the handler to supply some data.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">class</span> <span class="tok-nc">RecentlyRegisteredAccountsQuery</span>
+<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">class</span> <span class="tok-nc">RecentlyRegisteredAccountsQuery</span>
 <span class="tok-p">{</span>
     <span class="tok-n">TimeSpan</span> <span class="tok-n">MaxAge</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
@@ -342,7 +342,7 @@ Semantic Routing is also known as "Polymorphic routing" or "Polymorphic  dispatc
 <div class="listingblock">
 <div class="title">Given these event interfaces and implementing classes</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">interface</span> <span class="tok-n">IA</span>
+<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">interface</span> <span class="tok-n">IA</span>
 <span class="tok-k">interface</span> <span class="tok-n">IB</span> <span class="tok-p">:</span> <span class="tok-n">IA</span>
 <span class="tok-k">interface</span> <span class="tok-n">IC</span> <span class="tok-p">:</span> <span class="tok-n">IB</span>
 
@@ -354,7 +354,7 @@ Semantic Routing is also known as "Polymorphic routing" or "Polymorphic  dispatc
 <div class="listingblock">
 <div class="title">And these handler methods registered on our service bus</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">void</span> <span class="tok-nf">HandleA</span><span class="tok-p">(</span><span class="tok-n">IA</span> <span class="tok-c1">//Handles IA, IB and IC</span>
+<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">void</span> <span class="tok-nf">HandleA</span><span class="tok-p">(</span><span class="tok-n">IA</span> <span class="tok-c1">//Handles IA, IB and IC</span>
 <span class="tok-k">void</span> <span class="tok-nf">HandleB</span><span class="tok-p">(</span><span class="tok-n">IB</span> <span class="tok-c1">//Handles IB and IC</span>
 <span class="tok-k">void</span> <span class="tok-nf">HandleC</span><span class="tok-p">(</span><span class="tok-n">IC</span> <span class="tok-c1">//Handles only IC</span></code></pre>
 </div>
@@ -362,7 +362,7 @@ Semantic Routing is also known as "Polymorphic routing" or "Polymorphic  dispatc
 <div class="listingblock">
 <div class="title">Let&#8217;s publish some events and examine the results.</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-n">serviceBus</span><span class="tok-p">.</span><span class="tok-n">Publish</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">A</span><span class="tok-p">());</span> <span class="tok-c1">//Delivered to HandleA</span>
+<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-n">serviceBus</span><span class="tok-p">.</span><span class="tok-n">Publish</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">A</span><span class="tok-p">());</span> <span class="tok-c1">//Delivered to HandleA</span>
 <span class="tok-n">serviceBus</span><span class="tok-p">.</span><span class="tok-n">Publish</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">B</span><span class="tok-p">());</span> <span class="tok-c1">//Delivered to HandleA and HandleB</span>
 <span class="tok-n">serviceBus</span><span class="tok-p">.</span><span class="tok-n">Publish</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">C</span><span class="tok-p">());</span> <span class="tok-c1">//Delivered to HandleA, HandleB and HandleC</span></code></pre>
 </div>

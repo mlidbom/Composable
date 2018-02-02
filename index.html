@@ -111,11 +111,14 @@ Over half a decade of production use practical solutions have been found for eac
 <p>Get real confidence in your tests by running the full production code including IOC wiring when testing.</p>
 </li>
 <li>
-<p>All Composable components have functionally equivalent <sup class="footnote" id="_footnote_testing-components-differences">[<a id="_footnoteref_1" class="footnote" href="#_footnote_1" title="View footnote.">1</a>]</sup> testing implementations.</p>
+<p>All Composable components have functionally equivalent
+<sup class="footnote" id="_footnote_testing-components-differences">[<a id="_footnoteref_1" class="footnote" href="#_footnote_1" title="View footnote.">1</a>]</sup>
+testing implementations.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Testing implementations pass the same tests as production implementations. <sup class="footnoteref">[<a class="footnote" href="#_footnote_1" title="View footnote.">1</a>]</sup></p>
+<p>Testing implementations pass the same tests as production implementations.
+<sup class="footnoteref">[<a class="footnote" href="#_footnote_1" title="View footnote.">1</a>]</sup></p>
 </li>
 </ul>
 </div>
@@ -164,7 +167,7 @@ Over half a decade of production use practical solutions have been found for eac
 <p>Reduce the number of event appliers through semantic event routing. (Often by an order of magnitude or more).</p>
 </li>
 <li>
-<p>Generate query models from the event stream with excellent performance.<sup class="footnote">[<a id="_footnoteref_2" class="footnote" href="#_footnote_2" title="View footnote.">2</a>]</sup></p>
+<p>Generate query models from the event stream with excellent performance.</p>
 <div class="ulist">
 <ul>
 <li>
@@ -279,7 +282,7 @@ Over half a decade of production use practical solutions have been found for eac
 </li>
 <li>
 <p>Performant in-memory event routing components let you leverage semantic routing in your own components.
-<sup class="footnote">[<a id="_footnoteref_3" class="footnote" href="#_footnote_3" title="View footnote.">3</a>]</sup></p>
+<sup class="footnote">[<a id="_footnoteref_2" class="footnote" href="#_footnote_2" title="View footnote.">2</a>]</sup></p>
 </li>
 </ul>
 </div>
@@ -300,7 +303,7 @@ Over half a decade of production use practical solutions have been found for eac
 <p>Exactly once delivery.</p>
 </li>
 <li>
-<p>In order delivery. <sup class="footnote">[<a id="_footnoteref_4" class="footnote" href="#_footnote_4" title="View footnote.">4</a>]</sup></p>
+<p>In order delivery. <sup class="footnote">[<a id="_footnoteref_3" class="footnote" href="#_footnote_3" title="View footnote.">3</a>]</sup></p>
 </li>
 <li>
 <p>Full VEST testing support including testing of sagas.</p>
@@ -332,13 +335,10 @@ Over half a decade of production use practical solutions have been found for eac
 <a href="#_footnoteref_1">1</a>. Some testing implementations may bypass serialization or have different semantics when transactions fail.
 </div>
 <div class="footnote" id="_footnote_2">
-<a href="#_footnoteref_2">2</a>. The immutability of events allows for safe ubiquitous caching of events.
+<a href="#_footnoteref_2">2</a>. This is how many composable components are implemented internally. Such as the aggregate root, the query model updaters, the servicebuses etc.
 </div>
 <div class="footnote" id="_footnote_3">
-<a href="#_footnoteref_3">3</a>. This is how many composable components are implemented internally. Such as the aggregate root, the query model updaters, the servicebuses etc.
-</div>
-<div class="footnote" id="_footnote_4">
-<a href="#_footnoteref_4">4</a>. On a per sender/receiver basis. Not guaranteed if a message handler fails after all level one retries.
+<a href="#_footnoteref_3">3</a>. On a per sender/receiver basis. Not guaranteed if a message handler fails after all level one retries.
 </div>
 </div>
 </div>

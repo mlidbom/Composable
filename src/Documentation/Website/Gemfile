@@ -1,0 +1,11 @@
+source 'https://rubygems.org'
+
+gem 'wdm' if Gem.win_platform?
+gem 'jekyll'
+gem 'rake-jekyll'
+
+group :jekyll_plugins do
+  gem 'jekyll-asciidoc'  
+  gem 'pygments.rb'
+  gem 'asciidoctor-diagram'
+end

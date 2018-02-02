@@ -37,7 +37,7 @@
                         <a href="/documentation/">Written</a>
                     </li>
                     <li>
-                        <a href="/apidoc/">API</a>
+                        <a href="/apidoc/">(Legacy API)</a>
                         <ul class="menu">
                             <li><a href="/apidocs/3.4.6">Version 3.4.6</a></li>
                         </ul>
@@ -203,8 +203,9 @@ The benefits of this decoupling may not be obvious at first, but they are profou
 <div class="content">
 <pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">class</span> <span class="tok-nc">RegisterAccountCommand</span>
 <span class="tok-p">{</span>
+    <span class="tok-n">AccountId</span> <span class="tok-n">AccountId</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
     <span class="tok-n">Password</span> <span class="tok-n">Password</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
-    <span class="tok-n">Email</span> <span class="tok-n">Email</span> <span class="tok-p">{</span> <span class="tok-k">set</span><span class="tok-p">;</span> <span class="tok-p">}</span>
+    <span class="tok-n">Email</span> <span class="tok-n">Email</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>
 </div>
 </div>
@@ -216,6 +217,7 @@ The benefits of this decoupling may not be obvious at first, but they are profou
 <div class="content">
 <pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">interface</span> <span class="tok-n">IAccountRegisteredEvent</span>
 <span class="tok-p">{</span>
+    <span class="tok-n">AccountId</span> <span class="tok-n">AccountId</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
     <span class="tok-n">Password</span> <span class="tok-n">Password</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
     <span class="tok-n">Email</span> <span class="tok-n">Email</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
 <span class="tok-p">}</span></code></pre>

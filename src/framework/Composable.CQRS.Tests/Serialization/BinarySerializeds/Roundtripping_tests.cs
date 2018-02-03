@@ -10,7 +10,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Serialization.BinarySerializeds
 {
-    [TestFixture] public class BinarySerializedTests
+    [TestFixture] public class Roundtripping_tests
     {
         class SingleStringProperty : BinarySerialized<SingleStringProperty>
         {

@@ -74,7 +74,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
                 RunScenario(() => BinaryDeSerialize(1), iterations: 10_000.InstrumentationSlowdown(5.5), maxTotal:130.Milliseconds());
 
         [Test] public void _030_Roundtrips_10_000_times_in_220_milliseconds() =>
-            RunScenario(() => BinaryRoundTrip(_instance, 1), iterations: 10_000.InstrumentationSlowdown(6), maxTotal:220.Milliseconds());
+            RunScenario(() => BinaryRoundTrip(_instance, 1), iterations: 10_000.InstrumentationSlowdown(6.5), maxTotal:220.Milliseconds());
 
         //ncrunch: no coverage start
 

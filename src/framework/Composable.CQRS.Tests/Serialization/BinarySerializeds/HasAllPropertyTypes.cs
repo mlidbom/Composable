@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.Serialization;
-//ncrunch: no coverage start
 
 namespace Composable.Tests.Serialization.BinarySerializeds
 {

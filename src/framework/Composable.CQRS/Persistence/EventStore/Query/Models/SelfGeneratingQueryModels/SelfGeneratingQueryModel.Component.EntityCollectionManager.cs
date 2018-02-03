@@ -33,7 +33,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                         .For<TEntityCreatedEvent>(
                             e =>
                             {
-                                var entity = ObjectFactory<TEntity>.CreateInstance(parent);
+                                var entity = ConstructorFor<TEntity>.WithArgument<TParent>.CreateIntance(parent);
                                 ManagedEntities.Add(entity, IdGetter.GetId(e));
                             })
                         .For<TEntityEvent>(e => ManagedEntities[IdGetter.GetId(e)].ApplyEvent(e));

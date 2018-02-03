@@ -19,12 +19,12 @@ namespace Composable.Tests.System.Reflection
 
         [Test] public void Can_create_instance()
         {
-            var instance = ConstructorFor<Simple>.WithArgumentTypes<string>.Instance(_argument);
+            var instance = ConstructorFor<Simple>.WithArgument<string>.CreateIntance(_argument);
         }
 
         [Test] public void _005_Constructs_1_000_000_instances_within_15_percent_of_normal_constructor_call()
         {
-            var constructions = 1_000_000.InstrumentationSlowdown(4.7);
+            var constructions = 1_000_000.InstrumentationDecrease(4.7);
 
             //warmup
             StopwatchExtensions.TimeExecution(DefaultConstructor, constructions);
@@ -38,7 +38,7 @@ namespace Composable.Tests.System.Reflection
 
         [Test] public void _005_Constructs_1_000_000_80_times_faster_than_via_activator_createinstance()
         {
-            var constructions = 1_000_000.InstrumentationSlowdown(4.7);
+            var constructions = 1_000_000.InstrumentationDecrease(4.7);
 
             //warmup
             StopwatchExtensions.TimeExecution(ActivatorCreateInstance, constructions);
@@ -47,10 +47,10 @@ namespace Composable.Tests.System.Reflection
 
             var defaultConstructor = StopwatchExtensions.TimeExecution(ActivatorCreateInstance, constructions).Total;
             var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * (1.0/80));
-            TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime);
+            TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.InstrumentationSlowdown(25));
         }
 
-        static void DynamicModuleConstruct() => ConstructorFor<Simple>.WithArgumentTypes<string>.Instance(_argument);
+        static void DynamicModuleConstruct() => ConstructorFor<Simple>.WithArgument<string>.CreateIntance(_argument);
 
         // ReSharper disable once ObjectCreationAsStatement
         static void DefaultConstructor() => FakeActivator.CreateWithDefaultConstructor();

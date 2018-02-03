@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+// ReSharper disable ForCanBeConvertedToForeach we do optimizations here...
 
 namespace Composable.Serialization
 {
@@ -150,6 +152,87 @@ namespace Composable.Serialization
 
                 internal override void Serialize(TInheritor inheritor, BinaryWriter writer) => writer.Write(Getter(inheritor).ToByteArray());
                 internal override void Deserialize(TInheritor inheritor, BinaryReader reader) => Setter(inheritor, new Guid(reader.ReadBytes(16)));
+            }
+
+            internal static MemberGetterSetter ForBinarySerializable<TBinarySerializable>(Func<TInheritor, TBinarySerializable> getter, Action<TInheritor, TBinarySerializable> setter) 
+                where TBinarySerializable : IBinarySerializeMySelf<TBinarySerializable>, new() => new BinarySerializable<TBinarySerializable>(getter, setter);
+
+            class BinarySerializable<TBinarySerializable> : MemberGetterSetter<TBinarySerializable>
+            where TBinarySerializable : IBinarySerializeMySelf<TBinarySerializable>, new()
+            {
+                public BinarySerializable(Func<TInheritor, TBinarySerializable> getter, Action<TInheritor, TBinarySerializable> setter) : base(getter, setter) {}
+
+                internal override void Serialize(TInheritor inheritor, BinaryWriter writer) => Getter(inheritor).Serialize(writer);
+                internal override void Deserialize(TInheritor inheritor, BinaryReader reader)
+                {
+                    var instance = new TBinarySerializable();
+                    instance.Deserialize(reader);
+                    Setter(inheritor, instance);
+                }
+            }
+
+            internal static MemberGetterSetter ForBinarySerializableList<TBinarySerializable>(Func<TInheritor, List<TBinarySerializable>> getter, Action<TInheritor, List<TBinarySerializable>> setter)
+                where TBinarySerializable : IBinarySerializeMySelf<TBinarySerializable>, new() => new BinarySerializableList<TBinarySerializable>(getter, setter);
+
+            class BinarySerializableList<TBinarySerializable> : MemberGetterSetter<List<TBinarySerializable>>
+                where TBinarySerializable : IBinarySerializeMySelf<TBinarySerializable>, new()
+            {
+                public BinarySerializableList(Func<TInheritor, List<TBinarySerializable>> getter, Action<TInheritor, List<TBinarySerializable>> setter) : base(getter, setter) {}
+
+                internal override void Serialize(TInheritor inheritor, BinaryWriter writer)
+                {
+                    var list = Getter(inheritor);
+                    writer.Write(list.Count);
+                    for(int index = 0; index < list.Count; index++)
+                    {
+                        list[index].Serialize(writer);
+                    }
+                }
+
+                internal override void Deserialize(TInheritor inheritor, BinaryReader reader)
+                {
+                    var count = reader.ReadInt32();
+                    var list = new List<TBinarySerializable>(count);
+                    for(int i = 0; i < count; i++)
+                    {
+                        var instance = list[i] = new TBinarySerializable();
+                        instance.Deserialize(reader);
+                    }
+
+                    Setter(inheritor, list);
+                }
+            }
+
+            internal static MemberGetterSetter ForBinarySerializableArray<TBinarySerializable>(Func<TInheritor, TBinarySerializable[]> getter, Action<TInheritor, TBinarySerializable[]> setter)
+                where TBinarySerializable : IBinarySerializeMySelf<TBinarySerializable>, new() => new BinarySerializableArray<TBinarySerializable>(getter, setter);
+
+            class BinarySerializableArray<TBinarySerializable> : MemberGetterSetter<TBinarySerializable[]>
+                where TBinarySerializable : IBinarySerializeMySelf<TBinarySerializable>, new()
+            {
+                public BinarySerializableArray(Func<TInheritor, TBinarySerializable[]> getter, Action<TInheritor, TBinarySerializable[]> setter) : base(getter, setter) {}
+
+                internal override void Serialize(TInheritor inheritor, BinaryWriter writer)
+                {
+                    var list = Getter(inheritor);
+                    writer.Write(list.Length);
+                    for(int index = 0; index < list.Length; index++)
+                    {
+                        list[index].Serialize(writer);
+                    }
+                }
+
+                internal override void Deserialize(TInheritor inheritor, BinaryReader reader)
+                {
+                    var count = reader.ReadInt32();
+                    var array = new TBinarySerializable[count];
+                    for(int index = 0; index < count; index++)
+                    {
+                        var instance = array[index] = new TBinarySerializable();
+                        instance.Deserialize(reader);
+                    }
+
+                    Setter(inheritor, array);
+                }
             }
         }
     }

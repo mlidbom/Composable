@@ -9,14 +9,6 @@ namespace Composable.Tests.Serialization
 {
     [TestFixture] public class BinarySerializedObjectTests
     {
-        class SinglePropertyManualImplementation : IBinarySerializeMySelf
-        {
-            public string Name { get; set; } = "Default";
-            public void Deserialize(BinaryReader reader) { Name = reader.ReadString(); }
-            public void Serialize(BinaryWriter writer) { writer.Write(Name); }
-        }
-
-
         internal class HasAllPropertyTypes : BinarySerializedObject<HasAllPropertyTypes>
         {
             static HasAllPropertyTypes()

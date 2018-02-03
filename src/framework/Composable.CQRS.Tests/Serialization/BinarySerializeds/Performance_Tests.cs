@@ -38,6 +38,8 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             _serialized = _instance.Serialize();
 
             //Warmup
+            DefaultConstructor(1000);
+            BinaryCreateInstance(1000);
             JsonRoundTrip(_instance, 1000);
             BinaryRoundTrip(_instance, 1000);
 
@@ -56,14 +58,22 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
             Console.WriteLine($"Binary: {binarySerializationTime.Total.TotalMilliseconds}, JSon: {jsonSerializationTime.TotalMilliseconds}");
         }
-        [Test] public void _01_Serializes_10_000_times_in_100_milliseconds() =>
-            TimeAsserter.Execute(() => BinarySerialize(_instance, 10_000.InstrumentationSlowdown(4.7)), maxTotal:100.Milliseconds());
 
-        [Test] public void _02_DeSerializes_10_000_times_in_130_milliseconds() =>
-            TimeAsserter.Execute(() => BinaryDeSerialize(10_000.InstrumentationSlowdown(4.3)), maxTotal:130.Milliseconds());
+        [Test] public void _005_Constructs_100_000_instances_within_50_percent_of_default_constructor_time()
+        {
+            var defaultConstructor = StopwatchExtensions.TimeExecution(() => DefaultConstructor(100_000.InstrumentationSlowdown(4.7)));
+            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * 1.5);
+            TimeAsserter.Execute(() => BinaryCreateInstance(100_000.InstrumentationSlowdown(4.7)), maxTotal: maxTime );
+        }
 
-        [Test] public void _03_Roundtrips_10_000_times_in_220_milliseconds() =>
-            TimeAsserter.Execute(() => BinaryRoundTrip(_instance, 10_000.InstrumentationSlowdown(4.7)), maxTotal:220.Milliseconds());
+        [Test] public void _010_Serializes_10_000_times_in_100_milliseconds() =>
+            TimeAsserter.Execute(() => BinarySerialize(_instance, 10_000.InstrumentationSlowdown(5.5)), maxTotal:100.Milliseconds());
+
+        [Test] public void _020_DeSerializes_10_000_times_in_130_milliseconds() =>
+            TimeAsserter.Execute(() => BinaryDeSerialize(10_000.InstrumentationSlowdown(5)), maxTotal:130.Milliseconds());
+
+        [Test] public void _030_Roundtrips_10_000_times_in_220_milliseconds() =>
+            TimeAsserter.Execute(() => BinaryRoundTrip(_instance, 10_000.InstrumentationSlowdown(5.5)), maxTotal:220.Milliseconds());
 
         //ncrunch: no coverage start
         static void JsonRoundTrip(HasAllPropertyTypes instance, int iterations)
@@ -92,13 +102,30 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             }
         }
 
-         void BinaryDeSerialize(int iterations)
+        void BinaryDeSerialize(int iterations)
         {
             for(int i = 0; i < iterations; i++)
             {
                 BinarySerialized<HasAllPropertyTypes>.Deserialize(_serialized);
             }
         }
+
+        void BinaryCreateInstance(int iterations)
+        {
+            for(int i = 0; i < iterations; i++)
+            {
+                BinarySerialized<HasAllPropertyTypes>.Construct();
+            }
+        }
+
+        void DefaultConstructor(int iterations)
+        {
+            for(int i = 0; i < iterations; i++)
+            {
+                new HasAllPropertyTypes();
+            }
+        }
+
         //ncrunch: no coverage end
     }
 }

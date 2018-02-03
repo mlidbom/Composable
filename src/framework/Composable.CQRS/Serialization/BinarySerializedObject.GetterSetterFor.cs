@@ -162,12 +162,30 @@ namespace Composable.Serialization
             {
                 public BinarySerializable(Func<TInheritor, TBinarySerializable> getter, Action<TInheritor, TBinarySerializable> setter) : base(getter, setter) {}
 
-                internal override void Serialize(TInheritor inheritor, BinaryWriter writer) => Getter(inheritor).Serialize(writer);
+                internal override void Serialize(TInheritor inheritor, BinaryWriter writer)
+                {
+                    var value = Getter(inheritor);
+
+                    if(!ReferenceEquals(value, null))
+                    {
+                        writer.Write(true);
+                        value.Serialize(writer);
+                    } else
+                    {
+                        writer.Write(false);
+                    }
+                }
                 internal override void Deserialize(TInheritor inheritor, BinaryReader reader)
                 {
-                    var instance = new TBinarySerializable();
-                    instance.Deserialize(reader);
-                    Setter(inheritor, instance);
+                    if(reader.ReadBoolean())
+                    {
+                        var instance = new TBinarySerializable();
+                        instance.Deserialize(reader);
+                        Setter(inheritor, instance);
+                    } else
+                    {
+                        Setter(inheritor, default);
+                    }
                 }
             }
 
@@ -182,24 +200,51 @@ namespace Composable.Serialization
                 internal override void Serialize(TInheritor inheritor, BinaryWriter writer)
                 {
                     var list = Getter(inheritor);
-                    writer.Write(list.Count);
-                    for(int index = 0; index < list.Count; index++)
+                    if(list != null)
                     {
-                        list[index].Serialize(writer);
+                        writer.Write(true);
+                        writer.Write(list.Count);
+                        foreach(var serializable in list)
+                        {
+                            if(!ReferenceEquals(serializable, null))
+                            {
+                                writer.Write(true);
+                                serializable.Serialize(writer);
+                            } else
+                            {
+                                writer.Write(false);
+                            }
+                        }
+                    } else
+                    {
+                        writer.Write(false);
                     }
                 }
 
                 internal override void Deserialize(TInheritor inheritor, BinaryReader reader)
                 {
-                    var count = reader.ReadInt32();
-                    var list = new List<TBinarySerializable>(count);
-                    for(int i = 0; i < count; i++)
+                    if(reader.ReadBoolean())
                     {
-                        var instance = list[i] = new TBinarySerializable();
-                        instance.Deserialize(reader);
+                        var count = reader.ReadInt32();
+                        var list = new List<TBinarySerializable>(count);
+                        for(int index = 0; index < count; index++)
+                        {
+                            if(reader.ReadBoolean())
+                            {
+                                var instance = new TBinarySerializable();
+                                list.Add(instance);
+                                instance.Deserialize(reader);
+                            } else
+                            {
+                                list.Add(default);
+                            }
+                        }
+                        Setter(inheritor, list);
                     }
-
-                    Setter(inheritor, list);
+                    else
+                    {
+                        Setter(inheritor, null);
+                    }
                 }
             }
 
@@ -214,24 +259,50 @@ namespace Composable.Serialization
                 internal override void Serialize(TInheritor inheritor, BinaryWriter writer)
                 {
                     var list = Getter(inheritor);
-                    writer.Write(list.Length);
-                    for(int index = 0; index < list.Length; index++)
+                    if(list != null)
                     {
-                        list[index].Serialize(writer);
+                        writer.Write(true);
+                        writer.Write(list.Length);
+                        foreach(var serializable in list)
+                        {
+                            if(!ReferenceEquals(serializable, null))
+                            {
+                                writer.Write(true);
+                                serializable.Serialize(writer);
+                            } else
+                            {
+                                writer.Write(false);
+                            }
+                        }
+                    } else
+                    {
+                        writer.Write(false);
                     }
                 }
 
                 internal override void Deserialize(TInheritor inheritor, BinaryReader reader)
                 {
-                    var count = reader.ReadInt32();
-                    var array = new TBinarySerializable[count];
-                    for(int index = 0; index < count; index++)
+                    if(reader.ReadBoolean())
                     {
-                        var instance = array[index] = new TBinarySerializable();
-                        instance.Deserialize(reader);
+                        var count = reader.ReadInt32();
+                        var array = new TBinarySerializable[count];
+                        for(int index = 0; index < count; index++)
+                        {
+                            if(reader.ReadBoolean())
+                            {
+                                var instance = array[index] = new TBinarySerializable();
+                                instance.Deserialize(reader);
+                            } else
+                            {
+                                array[index] = default;
+                            }
+                        }
+                        Setter(inheritor, array);
                     }
-
-                    Setter(inheritor, array);
+                    else
+                    {
+                        Setter(inheritor, null);
+                    }
                 }
             }
         }

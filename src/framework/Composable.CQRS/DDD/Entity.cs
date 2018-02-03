@@ -75,7 +75,6 @@ namespace Composable.DDD
     /// <see cref="object.GetHashCode"/>, and <see cref="IEquatable{TEntity}"/>.
     /// </summary>
     [DebuggerDisplay("{GetType().Name} Id={Id}")]
-    [Serializable]
 #pragma warning disable 660,661
     public class Entity<TEntity> : Entity<TEntity, Guid>, IPersistentEntity<Guid> where TEntity : Entity<TEntity>
 #pragma warning restore 660,661

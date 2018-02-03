@@ -7,7 +7,6 @@ using NUnit.Framework;
 
 namespace Composable.Tests.System.Threading
 {
-    [Serializable]
     class SharedObject : IBinarySerializeMySelf
     {
         public string Name { get; set; } = "Default";

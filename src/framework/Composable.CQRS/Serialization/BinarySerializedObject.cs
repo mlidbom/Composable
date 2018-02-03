@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Composable.Contracts;
 
 // ReSharper disable ForCanBeConvertedToForeach optimization is important in this file. It is really the whole purpose of it :)
 

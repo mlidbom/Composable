@@ -8,7 +8,6 @@ namespace Composable.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool
     {
-        [Serializable]
         internal class Database : IBinarySerializeMySelf
         {
             internal int Id { get; private set; }

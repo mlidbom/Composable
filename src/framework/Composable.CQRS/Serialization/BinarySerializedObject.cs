@@ -19,7 +19,10 @@ namespace Composable.Serialization
 
         protected static void InitGetterSetters(params MemberGetterSetter[] getterSetters)
         {
-            Contract.Invariant(() => _memberGetterSetters).Inspect(currentArray => currentArray == null, currentArray => new InvalidOperationException($"You can only call {nameof(InitGetterSetters)} once"));
+            if(_memberGetterSetters != null)
+            {
+                throw new InvalidOperationException($"You can only call {nameof(InitGetterSetters)} once");
+            }
 
             _memberGetterSetters = getterSetters.ToArray();
             _memberGetterSettersReversed = getterSetters.Reverse().ToArray();

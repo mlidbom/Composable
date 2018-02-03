@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Composable.Serialization;
 using Composable.System.Diagnostics;
 using Composable.Testing.Performance;
+using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -14,38 +15,46 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 {
     [TestFixture] public class Performance_tests
     {
-        [Test] public void Instance_with_recursive_list_and_array_property_with_one_null_value_roundtrip_4_times_faster_than_NewtonSoft()
+        HasAllPropertyTypes _instance;
+        [SetUp] public void SetupTask()
         {
-            var instance = HasAllPropertyTypes.CreateInstance();
+            _instance = HasAllPropertyTypes.CreateInstance();
 
-            instance.RecursiveArrayProperty = new[]
-                                                                  {
-                                                                      HasAllPropertyTypes.CreateInstance(),
-                                                                      null,
-                                                                      HasAllPropertyTypes.CreateInstance()
-                                                                  };
+            _instance.RecursiveArrayProperty = new[]
+                                              {
+                                                  HasAllPropertyTypes.CreateInstance(),
+                                                  null,
+                                                  HasAllPropertyTypes.CreateInstance()
+                                              };
 
-            instance.RecursiveListProperty = new List<HasAllPropertyTypes>()
-                                                                  {
-                                                                      HasAllPropertyTypes.CreateInstance(),
-                                                                      null,
-                                                                      HasAllPropertyTypes.CreateInstance()
-                                                                  };
+            _instance.RecursiveListProperty = new List<HasAllPropertyTypes>()
+                                             {
+                                                 HasAllPropertyTypes.CreateInstance(),
+                                                 null,
+                                                 HasAllPropertyTypes.CreateInstance()
+                                             };
+        }
 
-
-            const int iterations = 10000;
+        [Test] public void Instance_with_recursive_list_and_array_property_with_one_null_value_roundtrip_5_times_faster_than_NewtonSoft()
+        {
+            const int iterations = 1_000;
            //Warmup
-            JsonRoundTrip(instance, 100);
-            BinaryRoundTrip(instance, 100);
+            JsonRoundTrip(_instance, 100);
+            BinaryRoundTrip(_instance, 100);
 
 
-            var jsonSerializationTime = StopwatchExtensions.TimeExecution(() => JsonRoundTrip(instance, iterations));
+            var jsonSerializationTime = StopwatchExtensions.TimeExecution(() => JsonRoundTrip(_instance, iterations));
 
             var maxTotal = TimeSpan.FromMilliseconds(jsonSerializationTime.TotalMilliseconds / 5);
 
-            var binarySerializationTime = TimeAsserter.Execute(() => BinaryRoundTrip(instance, iterations), maxTotal:maxTotal);
+            var binarySerializationTime = TimeAsserter.Execute(() => BinaryRoundTrip(_instance, iterations), maxTotal:maxTotal.InstrumentationSlowdown(5));
 
             Console.WriteLine($"Binary: {binarySerializationTime.Total.TotalMilliseconds}, JSon: {jsonSerializationTime.TotalMilliseconds}");
+        }
+
+        [Test] public void Roundtrips_1_000_times_in_35_milliseconds()
+        {
+            TimeAsserter.Execute(() => BinaryRoundTrip(_instance, 1_000), maxTotal:35.Milliseconds().InstrumentationSlowdown(3.3));
         }
 
         //ncrunch: no coverage start

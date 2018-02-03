@@ -1,17 +1,15 @@
-﻿using System;
-using System.IO;
+﻿using System.Collections.Generic;
+using Composable.Serialization;
 using Composable.System.Threading;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.Tests.System.Threading
 {
-    [Serializable]
-    class SharedObject : IBinarySerializeMySelf
+    class SharedObject : BinarySerialized<SharedObject>
     {
         public string Name { get; set; } = "Default";
-        public void Deserialize(BinaryReader reader) { Name = reader.ReadString(); }
-        public void Serialize(BinaryWriter writer) { writer.Write(Name);}
+        protected override IEnumerable<MemberGetterSetter> CreateGetterSetters() => new[] {GetterSetter.ForString(@this => @this.Name, (@this, value) => @this.Name = value)};
     }
 
     [TestFixture]

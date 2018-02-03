@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using Composable.Serialization;
 
 namespace Composable.System.Threading
 {
@@ -28,7 +29,7 @@ namespace Composable.System.Threading
         }
     }
 
-    class MachineWideSharedObject<TObject> : MachineWideSharedObject, IDisposable where TObject : IBinarySerializeMySelf, new()
+    class MachineWideSharedObject<TObject> : MachineWideSharedObject, IDisposable where TObject : BinarySerialized<TObject>
     {
         const int LengthIndicatorIntegerLengthInBytes = 4;
         readonly long _capacity;
@@ -76,27 +77,22 @@ namespace Composable.System.Threading
 
         void Set(TObject value, MemoryMappedViewAccessor accessor)
         {
-            using (var memoryStream = new MemoryStream())
-            using(var writer = new BinaryWriter(memoryStream))
+            var buffer = value.Serialize();
+
+            var requiredCapacity = buffer.Length + LengthIndicatorIntegerLengthInBytes;
+            if(requiredCapacity >= _capacity)
             {
-                value.Serialize(writer);
-                var buffer = memoryStream.ToArray();
-
-                var requiredCapacity = buffer.Length + LengthIndicatorIntegerLengthInBytes;
-                if(requiredCapacity >= _capacity)
-                {
-                    throw new Exception($"Deserialized object exceeds storage capacity of:{_capacity} bytes with size: {requiredCapacity} bytes.");
-                }
-
-                accessor.Write(0, buffer.Length); //First bytes are an int that tells how far to read when deserializing.
-                accessor.WriteArray(LengthIndicatorIntegerLengthInBytes, buffer, 0, buffer.Length);
+                throw new Exception($"Deserialized object exceeds storage capacity of:{_capacity} bytes with size: {requiredCapacity} bytes.");
             }
+
+            accessor.Write(0, buffer.Length); //First bytes are an int that tells how far to read when deserializing.
+            accessor.WriteArray(LengthIndicatorIntegerLengthInBytes, buffer, 0, buffer.Length);
         }
 
         internal TObject GetCopy()
         {
             var instance = default(TObject);
-            UseViewAccessor(accessor => { instance = GetCopy(accessor); });
+            UseViewAccessor(accessor => instance = GetCopy(accessor));
             return instance;
         }
 
@@ -110,17 +106,12 @@ namespace Composable.System.Threading
                 var buffer = new byte[objectLength];
                 accessor.ReadArray(LengthIndicatorIntegerLengthInBytes, buffer, 0, buffer.Length);
 
-                using (var objectStream = new MemoryStream(buffer))
-                using (var reader = new BinaryReader(objectStream))
-                {
-                    value = new TObject();
-                    value.Deserialize(reader);
-                }
+                value = BinarySerialized<TObject>.Deserialize(buffer);
             }
 
             if (Equals(value, default(TObject)))
             {
-                Set(value = new TObject(), accessor);
+                Set(value = BinarySerialized<TObject>.Construct(), accessor);
             }
 
             return value;

@@ -17,6 +17,17 @@ namespace Composable.Testing.Performance
             }
         }
 
+        public static int InstrumentationSlowdown(this int original, double slowdownFactor)
+        {
+            if(IsInstrumented)
+            {
+                return (int)(original / slowdownFactor);
+            } else
+            {
+                return original;
+            }
+        }
+
         static readonly bool IsInstrumented = CheckIfInstrumented();
         static bool CheckIfInstrumented()
         {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Composable.Serialization;
+﻿using Composable.Serialization;
 using Composable.System.Threading;
 using FluentAssertions;
 using NUnit.Framework;

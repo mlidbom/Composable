@@ -97,7 +97,7 @@ namespace Composable.System.Threading
         internal TObject GetCopy()
         {
             var instance = default(TObject);
-            UseViewAccessor(accessor => { instance = GetCopy(accessor); });
+            UseViewAccessor(accessor => instance = GetCopy(accessor));
             return instance;
         }
 

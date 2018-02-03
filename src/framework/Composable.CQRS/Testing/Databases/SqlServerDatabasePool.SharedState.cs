@@ -11,9 +11,15 @@ namespace Composable.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool
     {
-        [UsedImplicitly] class SharedState : IBinarySerializeMySelf
+        [UsedImplicitly] class SharedState : BinarySerializedObject<SharedState>
         {
-            readonly List<Database> _databases = new List<Database>();
+            static SharedState()
+            {
+                Init(() => new SharedState(),
+                     GetterSetter.ForBinarySerializableList(@this => @this._databases, (@this, value) => @this._databases = value));
+            }
+
+            List<Database> _databases = new List<Database>();
             IReadOnlyList<Database> Databases => _databases;
 
             internal bool IsEmpty => _databases.Count == 0;
@@ -80,26 +86,6 @@ namespace Composable.Testing.Databases
             }
 
             internal void Reset() { _databases.Clear(); }
-
-            public void Deserialize(BinaryReader reader)
-            {
-                while(reader.ReadBoolean()) //I use negative boolean to mark end of object
-                {
-                    var database = new Database();
-                    database.Deserialize(reader);
-                    _databases.Add(database);
-                }
-            }
-
-            public void Serialize(BinaryWriter writer)
-            {
-                _databases.ForEach(db =>
-                {
-                    writer.Write(true);
-                    db.Serialize(writer);
-                });
-                writer.Write(false); //use false to mark end of graph
-            }
         }
     }
 }

@@ -13,6 +13,7 @@ using Composable.Serialization;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
+using Composable.System.Reflection;
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
 
@@ -197,17 +198,14 @@ namespace Composable.DependencyInjection.Persistence
                                                             new EventStoreUpdater<TSessionInterface, TReaderInterface>(eventPublisher, eventStore, usageGuard, timeSource, aggregateTypeValidator))
                                     .LifestyleScoped());
 
-            @this.Register(Component.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())
-                                    .UsingFactoryMethod(EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType, locator => CreateProxyFor<TSessionInterface, TReaderInterface>(locator.Resolve<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()))
-                                    .LifestyleScoped());
-        }
-
-        static TSessionInterface CreateProxyFor<TSessionInterface, TReaderInterface>(IEventStoreUpdater updater)
-            where TSessionInterface : IEventStoreUpdater
-            where TReaderInterface : IEventStoreReader
-        {
             var sessionType = EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType;
-            return (TSessionInterface)Activator.CreateInstance(sessionType, new IInterceptor[] {}, updater);
+            var constructorSignature = typeof(Func<,,>).MakeGenericType(typeof(IInterceptor[]), typeof(IEventStoreUpdater), sessionType);
+            var constructor = (Func<IInterceptor[], IEventStoreUpdater, TSessionInterface>)Constructor.CompileForSignature(constructorSignature);
+            var emptyInterceptorArray = new IInterceptor[0];
+
+            @this.Register(Component.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())
+                                    .UsingFactoryMethod(EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType, locator => constructor(emptyInterceptorArray, locator.Resolve<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()))
+                                    .LifestyleScoped());
         }
 
         //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.

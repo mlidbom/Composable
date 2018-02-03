@@ -99,20 +99,20 @@ namespace Composable.DependencyInjection.Persistence
                                      .UsingFactoryMethod((IDocumentDb<TUpdater, TReader, TBulkReader> documentDb, ISingleContextUseGuard usageGuard) => new DocumentDbSession<TUpdater, TReader, TBulkReader>(documentDb, usageGuard))
                                      .LifestyleScoped());
 
-            var sessionType = EventStoreSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType;
+            var sessionType = DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType;
             var constructorSignature = typeof(Func<,,>).MakeGenericType(typeof(IInterceptor[]), typeof(IDocumentDbSession), sessionType);
             var constructor = (Func<IInterceptor[], IDocumentDbSession, TUpdater>)Constructor.CompileForSignature(constructorSignature);
             var emptyInterceptorArray = new IInterceptor[0];
 
             @this.Register(Component.For<TUpdater, TReader, TBulkReader>()
-                                    .UsingFactoryMethod(EventStoreSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType,
+                                    .UsingFactoryMethod(DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType,
                                                         kernel => constructor(emptyInterceptorArray, kernel.Resolve<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()))
                                     .LifestyleScoped()
                           );
         }
 
         //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.
-        static class EventStoreSessionProxyFactory<TUpdater, TReader, TBulkReader>
+        static class DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>
             where TUpdater : IDocumentDbUpdater
             where TReader : IDocumentDbReader
             where TBulkReader : IDocumentDbBulkReader

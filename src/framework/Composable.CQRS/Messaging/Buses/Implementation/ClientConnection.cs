@@ -49,7 +49,7 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task;
         });
 
-        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remotable.NonTransactional.IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(state =>
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remotable.NonTransactional.IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(async state =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -59,7 +59,7 @@ namespace Composable.Messaging.Buses.Implementation
             state.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
             state.DispatchQueue.Enqueue(outGoingMessage);
 
-            return taskCompletionSource.Task;
+            return await taskCompletionSource.Task;
         });
 
         static void DispatchMessage(State @this, TransportMessage.OutGoing outGoingMessage)

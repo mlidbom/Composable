@@ -5,6 +5,7 @@ namespace Composable.Refactoring.Naming
 {
     interface ITypeMapper
     {
+        //todo: Use static type and indexing trick to improve performance
         TypeId GetId(Type type);
         Type GetType(TypeId eventTypeId);
         bool TryGetType(TypeId typeId, out Type type);

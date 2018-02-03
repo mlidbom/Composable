@@ -153,7 +153,8 @@ namespace Composable.Messaging.Buses.Implementation
         void HandleIncomingMessage(object sender, NetMQSocketEventArgs e)
         {
             Assert.Argument.Assert(e.IsReadyToReceive);
-            _receivedMessageBatches.Add(TransportMessage.InComing.ReceiveBatch(_serverSocket, _typeMapper, _serializer));
+            var batch = TransportMessage.InComing.ReceiveBatch(_serverSocket, _typeMapper, _serializer);
+            _receivedMessageBatches.Add(batch);
         }
 
         public void Dispose()

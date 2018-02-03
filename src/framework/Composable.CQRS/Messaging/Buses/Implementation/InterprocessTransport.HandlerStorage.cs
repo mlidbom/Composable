@@ -44,6 +44,7 @@ namespace Composable.Messaging.Buses.Implementation
                 }
             }
 
+            //todo: Use static type and indexing trick to improve performance
             internal EndpointId GetCommandHandlerEndpoint(BusApi.Remotable.ICommand command)
             {
                 _handlerHasBeenResolved = true;
@@ -57,6 +58,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return endpointId;
             }
 
+            //todo: Use static type and indexing trick to improve performance
             internal EndpointId GetQueryHandlerEndpoint(BusApi.IQuery query)
             {
                 _handlerHasBeenResolved = true;
@@ -70,6 +72,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return endpointId;
             }
 
+            //todo: Use static type and indexing trick to improve performance
             internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(BusApi.Remotable.ExactlyOnce.IEvent @event)
             {
                 _handlerHasBeenResolved = true;

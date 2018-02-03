@@ -10,11 +10,6 @@ namespace Composable.DDD
         {
         }
 
-        /// <summary> Creates an instance using a newly generated Id</summary>
-        VersionedEntity()
-        {
-        }
-
         ///<summary>Contains the current version of the entity</summary>
         public virtual int Version { get; protected set; }
     }

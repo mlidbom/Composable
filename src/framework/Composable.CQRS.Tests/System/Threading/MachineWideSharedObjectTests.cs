@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.System.Threading
 {
-    class SharedObject : BinarySerializedObject<SharedObject>
+    class SharedObject : BinarySerialized<SharedObject>
     {
         public string Name { get; set; } = "Default";
         protected override IEnumerable<MemberGetterSetter> CreateGetterSetters() => new[] {GetterSetter.ForString(@this => @this.Name, (@this, value) => @this.Name = value)};

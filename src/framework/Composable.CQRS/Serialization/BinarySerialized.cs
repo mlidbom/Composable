@@ -2,16 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 // ReSharper disable ForCanBeConvertedToForeach optimization is important in this file. It is really the whole purpose of it :)
 
 namespace Composable.Serialization
 {
-    abstract partial class BinarySerializedObject<TInheritor>
-        where TInheritor : BinarySerializedObject<TInheritor>,
-        //todo: find a way of not requiring that you make it possible to create an invalid instance...
-        new()
+    abstract partial class BinarySerialized<TInheritor>
+        where TInheritor : BinarySerialized<TInheritor>
     {
         static MemberGetterSetter[] _memberGetterSetters;
         static MemberGetterSetter[] _memberGetterSettersReversed;
@@ -19,9 +16,9 @@ namespace Composable.Serialization
 
         readonly TInheritor _this;
 
-        protected BinarySerializedObject() => _this = (TInheritor)this;
+        protected BinarySerialized() => _this = (TInheritor)this;
 
-        static BinarySerializedObject()
+        static BinarySerialized()
         {
             _constructor = () => (TInheritor)Activator.CreateInstance(typeof(TInheritor), nonPublic: true);
             var inheritor = _constructor();
@@ -43,7 +40,7 @@ namespace Composable.Serialization
             _memberGetterSettersReversed = getterSetters.Reverse().ToArray();
         }
 
-        public void Deserialize(BinaryReader reader)
+        void Deserialize(BinaryReader reader)
         {
             for(var index = 0; index < _memberGetterSetters.Length; index++)
             {
@@ -51,9 +48,9 @@ namespace Composable.Serialization
             }
         }
 
-        public void Serialize(BinaryWriter writer)
+        void Serialize(BinaryWriter writer)
         {
-            for(int index = 0; index < _memberGetterSettersReversed.Length; index++)
+            for(var index = 0; index < _memberGetterSettersReversed.Length; index++)
             {
                 _memberGetterSettersReversed[index].Serialize(_this, writer);
             }

@@ -12,7 +12,7 @@ namespace Composable.Tests.Serialization
 {
     [TestFixture] public class BinarySerializedObjectTests
     {
-        internal class HasAllPropertyTypes : BinarySerializedObject<HasAllPropertyTypes>
+        internal class HasAllPropertyTypes : BinarySerialized<HasAllPropertyTypes>
         {
             public static HasAllPropertyTypes CreateInstance() => new HasAllPropertyTypes(true, 2, 'a', new decimal(3.2), 4.1, 5, 6, 7, 8, 9, 10, 11.1f, 12, "13", Guid.Parse("00000000-0000-0000-0000-000000000014"), DateTime.FromBinary(15));
 
@@ -85,7 +85,7 @@ namespace Composable.Tests.Serialization
             public DateTime DateTime { get; set; }
         }
 
-        class SingleStringProperty : BinarySerializedObject<SingleStringProperty>
+        class SingleStringProperty : BinarySerialized<SingleStringProperty>
         {
             public string Name { get; set; } = "Default";
             protected override IEnumerable<MemberGetterSetter> CreateGetterSetters() => new[] {GetterSetter.ForString(instance => instance.Name, (instance, value) => instance.Name = value)};

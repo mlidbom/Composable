@@ -7,7 +7,7 @@ namespace Composable.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool
     {
-        internal class Database : BinarySerializedObject<Database>
+        internal class Database : BinarySerialized<Database>
         {
             protected override IEnumerable<MemberGetterSetter> CreateGetterSetters() => new[]
                                                                                         {

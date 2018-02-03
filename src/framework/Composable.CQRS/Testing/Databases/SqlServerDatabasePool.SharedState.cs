@@ -11,7 +11,7 @@ namespace Composable.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool
     {
-        [UsedImplicitly] class SharedState : BinarySerializedObject<SharedState>
+        [UsedImplicitly] class SharedState : BinarySerialized<SharedState>
         {
             protected override IEnumerable<MemberGetterSetter> CreateGetterSetters() => new[] {GetterSetter.ForBinarySerializableList(@this => @this._databases, (@this, value) => @this._databases = value)};
 

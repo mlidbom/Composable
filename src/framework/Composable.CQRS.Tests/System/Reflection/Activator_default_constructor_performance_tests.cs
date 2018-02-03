@@ -33,7 +33,7 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime);
         }
 
-        [Test] public void _005_Constructs_10_000_000_80_percent_faster_than_via_new_constraint_constructor_time()
+        [Test] public void _005_Constructs_10_000_000_5_times_faster_than_via_new_constraint_constructor_time()
         {
             var constructions = 1_000_000.InstrumentationSlowdown(4.7);
 
@@ -43,11 +43,11 @@ namespace Composable.Tests.System.Reflection
 
 
             var defaultConstructor = StopwatchExtensions.TimeExecution(NewConstraint, constructions).Total;
-            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * (0.2));
+            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * (1.0/5));
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime);
         }
 
-        [Test] public void _005_Constructs_10_000_000_80_percent_faster_than_via_activator_createinstance()
+        [Test] public void _005_Constructs_10_000_000_5_times_fasterthan_via_activator_createinstance()
         {
             var constructions = 1_000_000.InstrumentationSlowdown(4.7);
 
@@ -57,7 +57,7 @@ namespace Composable.Tests.System.Reflection
 
 
             var defaultConstructor = StopwatchExtensions.TimeExecution(ActivatorCreateInstance, constructions).Total;
-            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * (0.2));
+            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * (1.0/5));
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime);
         }
 

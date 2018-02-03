@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -56,40 +57,45 @@ namespace Composable.System.Reflection
         }
     }
 
-    static class DynamicModuleLambdaCompiler
-    {
-        internal static Func<T> GenerateFactory<T>()
-        {
-            NewExpression newExpr = Expression.New(typeof(T));
-
-            Console.WriteLine(newExpr);
-
-            var method = new DynamicMethod(name: "lambda", returnType: newExpr.Type, parameterTypes: new Type[0], m: typeof(DynamicModuleLambdaCompiler).Module, skipVisibility: true);
-            ILGenerator ilGen = method.GetILGenerator();
-            // Constructor for value types could be null
-            if (newExpr.Constructor != null)
-            {
-                ilGen.Emit(OpCodes.Newobj, newExpr.Constructor);
-            }
-            else
-            {
-                LocalBuilder temp = ilGen.DeclareLocal(newExpr.Type);
-                ilGen.Emit(OpCodes.Ldloca, temp);
-                ilGen.Emit(OpCodes.Initobj, newExpr.Type);
-                ilGen.Emit(OpCodes.Ldloc, temp);
-            }
-
-            ilGen.Emit(OpCodes.Ret);
- 
-            return (Func<T>)method.CreateDelegate(typeof(Func<T>));
-        }
-    }
-
     static class Activator<TInstance>
     {
         internal static class DefaultConstructor
         {
-            internal static readonly Func<TInstance> Instance = DynamicModuleLambdaCompiler.GenerateFactory<TInstance>();
+            internal static readonly Func<TInstance> Instance = (Func<TInstance>)typeof(TInstance).ConstructorCompiler(typeof(Func< TInstance>));
+        }
+
+        internal static class OneArgumentConstructor<TArgument1>
+        {
+            internal static readonly Func<TArgument1, TInstance> Instance = (Func<TArgument1, TInstance>)typeof(TInstance).ConstructorCompiler(typeof(Func<TArgument1, TInstance>));
+        }
+    }
+
+    static class Something
+    {
+        public static Delegate ConstructorCompiler(this Type type, Type delegateType)
+        {
+            var delegateTypeGenericArgumentTypes = delegateType.GetGenericArguments();
+            var constructorArgumentTypes = delegateTypeGenericArgumentTypes.Length > 1 ? delegateTypeGenericArgumentTypes.Take(delegateTypeGenericArgumentTypes.Length - 1).ToArray() : Type.EmptyTypes;
+
+            ConstructorInfo constructor = type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, types: constructorArgumentTypes, modifiers: null);
+            if (constructor == null)
+            {
+                if (constructorArgumentTypes.Length == 0)
+                {
+                    throw new InvalidProgramException(string.Format("Type '{0}' doesn't have a parameterless constructor.", type.Name));
+                }
+                throw new InvalidProgramException(string.Format("Type '{0}' doesn't have the requested constructor.", type.Name));
+            }
+
+            var dynamicMethod = new DynamicMethod("DM$_" + type.Name, type, constructorArgumentTypes, type);
+            var ilGen = dynamicMethod.GetILGenerator();
+            for (var i = 0; i < constructorArgumentTypes.Length; i++)
+            {
+                ilGen.Emit(OpCodes.Ldarg, i);
+            }
+            ilGen.Emit(OpCodes.Newobj, constructor);
+            ilGen.Emit(OpCodes.Ret);
+            return dynamicMethod.CreateDelegate(delegateType);
         }
     }
 

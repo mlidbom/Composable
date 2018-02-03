@@ -5,13 +5,18 @@
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/go.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/agate.min.css" >
+
     <link rel="stylesheet" href="/vendor/foundation-6.2.4-complete.zip/css/foundation.css">
+    <script>hljs.initHighlightingOnLoad();</script>
+
     <!--End foundation template lines-->
 
 
     <link rel="stylesheet" href="/vendor-css/font-awesome-4.7.0.min.css">
     <link rel="stylesheet" href="/vendor-css/asciidoctor.css">
-    <link rel="stylesheet" href="/vendor-css/pygments-styles/monokai.css">
 
 
     <meta name="description" content="A .Net toolkit making CQRS, Event Sourcing, Event Driven Architecture, VEST testing and DDD simpler and more productive.
@@ -145,7 +150,7 @@ Messaging is also known as message passing.
 <p>In principle just a function that takes a message as a parameter.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">void</span> <span class="tok-nf">Handle</span><span class="tok-p">(</span><span class="tok-n">RegisterAccountCommand</span> <span class="tok-n">command</span><span class="tok-p">);</span></code></pre>
+<pre class="highlightjs highlight"><code class="language-csharp hljs" data-lang="csharp">void Handle(RegisterAccountCommand command);</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -155,10 +160,10 @@ In order to support this handlers are often required to be wrapped inside interf
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">interface</span> <span class="tok-n">IMessageHandler</span><span class="tok-p">&lt;</span><span class="tok-n">RegisterAccountCommand</span><span class="tok-p">&gt;</span>
-<span class="tok-p">{</span>
-    <span class="tok-k">void</span> <span class="tok-nf">Handle</span><span class="tok-p">(</span><span class="tok-n">RegisterAccountCommand</span> <span class="tok-n">aMessage</span><span class="tok-p">);</span>
-<span class="tok-p">}</span></code></pre>
+<pre class="highlightjs highlight"><code class="language-csharp hljs" data-lang="csharp">interface IMessageHandler&lt;RegisterAccountCommand&gt;
+{
+    void Handle(RegisterAccountCommand aMessage);
+}</code></pre>
 </div>
 </div>
 </dd>
@@ -174,13 +179,13 @@ The bus is responsible for routing the messages to the appropriate handler(s) an
 <div class="listingblock">
 <div class="title">Manual service invokation requires an instance of the service.</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-n">serviceInstance</span><span class="tok-p">.</span><span class="tok-n">RegisterAccount</span><span class="tok-p">(</span><span class="tok-n">arguments</span><span class="tok-p">....</span></code></pre>
+<pre class="highlightjs highlight"><code class="language-csharp hljs" data-lang="csharp">serviceInstance.RegisterAccount(arguments....</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Client don&#8217;t even know where the service is when accessing it across a bus</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-n">bus</span><span class="tok-p">.</span><span class="tok-n">Send</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">RegisterAccountCommand</span><span class="tok-p">(</span></code></pre>
+<pre class="highlightjs highlight"><code class="language-csharp hljs" data-lang="csharp">bus.Send(new RegisterAccountCommand(</code></pre>
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -201,12 +206,12 @@ The benefits of this decoupling may not be obvious at first, but they are profou
 <p>A message that instructs the handler to perform an action.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">class</span> <span class="tok-nc">RegisterAccountCommand</span>
-<span class="tok-p">{</span>
-    <span class="tok-n">AccountId</span> <span class="tok-n">AccountId</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
-    <span class="tok-n">Password</span> <span class="tok-n">Password</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
-    <span class="tok-n">Email</span> <span class="tok-n">Email</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
-<span class="tok-p">}</span></code></pre>
+<pre class="highlightjs highlight"><code class="language-csharp hljs" data-lang="csharp">class RegisterAccountCommand
+{
+    AccountId AccountId { get; }
+    Password Password { get; }
+    Email Email { get; }
+}</code></pre>
 </div>
 </div>
 </dd>
@@ -215,12 +220,12 @@ The benefits of this decoupling may not be obvious at first, but they are profou
 <p>A message that informs handlers about something that has happened.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">interface</span> <span class="tok-n">IAccountRegisteredEvent</span>
-<span class="tok-p">{</span>
-    <span class="tok-n">AccountId</span> <span class="tok-n">AccountId</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
-    <span class="tok-n">Password</span> <span class="tok-n">Password</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
-    <span class="tok-n">Email</span> <span class="tok-n">Email</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
-<span class="tok-p">}</span></code></pre>
+<pre class="highlightjs highlight"><code class="language-csharp hljs" data-lang="csharp">interface IAccountRegisteredEvent
+{
+    AccountId AccountId { get; }
+    Password Password { get; }
+    Email Email { get; }
+}</code></pre>
 </div>
 </div>
 </dd>
@@ -229,10 +234,10 @@ The benefits of this decoupling may not be obvious at first, but they are profou
 <p>A message that asks the handler to supply some data.</p>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">class</span> <span class="tok-nc">RecentlyRegisteredAccountsQuery</span>
-<span class="tok-p">{</span>
-    <span class="tok-n">TimeSpan</span> <span class="tok-n">MaxAge</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
-<span class="tok-p">}</span></code></pre>
+<pre class="highlightjs highlight"><code class="language-csharp hljs" data-lang="csharp">class RecentlyRegisteredAccountsQuery
+{
+    TimeSpan MaxAge { get; }
+}</code></pre>
 </div>
 </div>
 </dd>
@@ -344,29 +349,29 @@ Semantic Routing is also known as "Polymorphic routing" or "Polymorphic  dispatc
 <div class="listingblock">
 <div class="title">Given these event interfaces and implementing classes</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">interface</span> <span class="tok-n">IA</span>
-<span class="tok-k">interface</span> <span class="tok-n">IB</span> <span class="tok-p">:</span> <span class="tok-n">IA</span>
-<span class="tok-k">interface</span> <span class="tok-n">IC</span> <span class="tok-p">:</span> <span class="tok-n">IB</span>
+<pre class="highlightjs highlight"><code class="language-csharp hljs" data-lang="csharp">interface IA
+interface IB : IA
+interface IC : IB
 
-<span class="tok-k">class</span> <span class="tok-nc">A</span> <span class="tok-p">:</span> <span class="tok-n">IA</span> <span class="tok-p">{}</span>
-<span class="tok-k">class</span> <span class="tok-nc">B</span> <span class="tok-p">:</span> <span class="tok-n">IB</span> <span class="tok-p">{}</span>
-<span class="tok-k">class</span> <span class="tok-nc">C</span> <span class="tok-p">:</span> <span class="tok-n">IC</span> <span class="tok-p">{}</span></code></pre>
+class A : IA {}
+class B : IB {}
+class C : IC {}</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">And these handler methods registered on our service bus</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-k">void</span> <span class="tok-nf">HandleA</span><span class="tok-p">(</span><span class="tok-n">IA</span> <span class="tok-c1">//Handles IA, IB and IC</span>
-<span class="tok-k">void</span> <span class="tok-nf">HandleB</span><span class="tok-p">(</span><span class="tok-n">IB</span> <span class="tok-c1">//Handles IB and IC</span>
-<span class="tok-k">void</span> <span class="tok-nf">HandleC</span><span class="tok-p">(</span><span class="tok-n">IC</span> <span class="tok-c1">//Handles only IC</span></code></pre>
+<pre class="highlightjs highlight"><code class="language-csharp hljs" data-lang="csharp">void HandleA(IA //Handles IA, IB and IC
+void HandleB(IB //Handles IB and IC
+void HandleC(IC //Handles only IC</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Let&#8217;s publish some events and examine the results.</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span></span><span class="tok-n">serviceBus</span><span class="tok-p">.</span><span class="tok-n">Publish</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">A</span><span class="tok-p">());</span> <span class="tok-c1">//Delivered to HandleA</span>
-<span class="tok-n">serviceBus</span><span class="tok-p">.</span><span class="tok-n">Publish</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">B</span><span class="tok-p">());</span> <span class="tok-c1">//Delivered to HandleA and HandleB</span>
-<span class="tok-n">serviceBus</span><span class="tok-p">.</span><span class="tok-n">Publish</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">C</span><span class="tok-p">());</span> <span class="tok-c1">//Delivered to HandleA, HandleB and HandleC</span></code></pre>
+<pre class="highlightjs highlight"><code class="language-csharp hljs" data-lang="csharp">serviceBus.Publish(new A()); //Delivered to HandleA
+serviceBus.Publish(new B()); //Delivered to HandleA and HandleB
+serviceBus.Publish(new C()); //Delivered to HandleA, HandleB and HandleC</code></pre>
 </div>
 </div>
 </div>

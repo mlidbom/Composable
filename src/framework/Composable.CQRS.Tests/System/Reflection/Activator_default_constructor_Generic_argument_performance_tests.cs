@@ -4,11 +4,12 @@ using Composable.System.Reflection;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;
+using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.System.Reflection
 {
-    [TestFixture]public class Activator_default_constructor_Generic_argument_performance_tests
+    [TestFixture, Performance, Serial]public class Activator_default_constructor_Generic_argument_performance_tests
     {
         [UsedImplicitly] class Simple
         {}

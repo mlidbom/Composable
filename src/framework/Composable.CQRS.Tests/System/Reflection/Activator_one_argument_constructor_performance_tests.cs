@@ -5,11 +5,12 @@ using Composable.System.Reflection;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;
+using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.System.Reflection
 {
-    [TestFixture]public class Activator_one_argument_constructor_performance_tests
+    [TestFixture, Performance, Serial]public class Activator_one_argument_constructor_performance_tests
     {
         static string _argument = "AnArgument";
 

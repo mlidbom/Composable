@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using Composable.Serialization;
 using FluentAssertions;
 using NUnit.Framework;
+
 // ReSharper disable BuiltInTypeReferenceStyle
 // ReSharper disable MemberCanBePrivate.Local we want the inspection of the objects to include all properties...
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace Composable.Tests.Serialization
+namespace Composable.Tests.Serialization.BinarySerializeds
 {
     [TestFixture] public class BinarySerializedTests
     {

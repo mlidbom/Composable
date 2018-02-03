@@ -33,6 +33,7 @@ namespace Composable.Messaging.Buses.Implementation
             BusApi.IMessage _message;
             readonly ITypeMapper _typeMapper;
 
+            //todo: detect BinarySerializable and use instead.
             public BusApi.IMessage DeserializeMessageAndCacheForNextCall()
             {
                 if(_message == null)

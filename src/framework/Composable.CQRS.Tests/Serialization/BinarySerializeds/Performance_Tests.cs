@@ -123,7 +123,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             }
         }
 
-        void BinaryCreateInstance(int iterations)
+        static void BinaryCreateInstance(int iterations)
         {
             for(int i = 0; i < iterations; i++)
             {
@@ -131,10 +131,11 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             }
         }
 
-        void DefaultConstructor(int iterations)
+        static void DefaultConstructor(int iterations)
         {
             for(int i = 0; i < iterations; i++)
             {
+                // ReSharper disable once ObjectCreationAsStatement
                 new HasAllPropertyTypes();
             }
         }

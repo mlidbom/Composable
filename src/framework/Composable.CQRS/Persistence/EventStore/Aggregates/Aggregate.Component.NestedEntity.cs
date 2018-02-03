@@ -1,6 +1,7 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
+using Composable.System.Reflection;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
@@ -33,11 +34,11 @@ namespace Composable.Persistence.EventStore.Aggregates
                                     TEntityEventIdGetterSetter>
                 where TEntityEventIdGetterSetter : IGetSetAggregateEntityEventEntityId<TEntityId,
                                                        TEntityEventImplementation,
-                                                       TEntityEvent>, new()
+                                                       TEntityEvent>
             {
                 static NestedEntity() => AggregateTypeValidator<TEntity, TEntityEventImplementation, TEntityEvent>.AssertStaticStructureIsValid();
 
-                static readonly TEntityEventIdGetterSetter IdGetterSetter = new TEntityEventIdGetterSetter();
+                static readonly TEntityEventIdGetterSetter IdGetterSetter = Constructor.For<TEntityEventIdGetterSetter>.DefaultConstructor.Instance();
 
                 // ReSharper disable once UnusedMember.Global todo: coverage
                 protected NestedEntity(TComponent parent)

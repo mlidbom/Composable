@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using Composable.Contracts;
+using Composable.System.Reflection;
 
 namespace Composable.System.Collections.Collections
 {
@@ -38,7 +39,7 @@ namespace Composable.System.Collections.Collections
                 return value;
             }
 
-            value = new TValue();
+            value = Constructor.For<TValue>.DefaultConstructor.Instance();
             me.Add(key, value);
             return value;
         }

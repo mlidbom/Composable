@@ -2,6 +2,7 @@
 using Composable.System.Diagnostics;
 using Composable.System.Reflection;
 using Composable.Testing.Performance;
+using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 
@@ -10,15 +11,10 @@ namespace Composable.Tests.System.Reflection
     [TestFixture]public class Activator_default_constructor_Method_argument_uncached_performance_tests
     {
         [UsedImplicitly] class Simple
-        {
-            public Simple(){}
-        }
+        {}
 
 
-        [Test] public void CanCreateInstance()
-        {
-            var instance = Constructor.DefaultFor(typeof(Simple))();
-        }
+        [Test] public void CanCreateInstance() => Constructor.DefaultFor(typeof(Simple))().Should().NotBe(null);
 
         [Test] public void _005_Constructs_10_000_000_2_times_fasterthan_via_activator_createinstance()
         {
@@ -37,21 +33,13 @@ namespace Composable.Tests.System.Reflection
         static void DynamicModuleConstruct() => Constructor.DefaultFor(typeof(Simple))();
 
         // ReSharper disable once ObjectCreationAsStatement
-        static void DefaultConstructor() => FakeActivator.CreateWithDefaultConstructor();
 
         static void ActivatorCreateInstance() => FakeActivator.CreateUsingActivatorCreateInstance();
 
-        static void NewConstraint() => ActivateViaNewConstraint<Simple>.Create();
 
         static class FakeActivator
         {
-            internal static Simple CreateWithDefaultConstructor() => new Simple();
-            internal static Simple CreateUsingActivatorCreateInstance() => (Simple)Activator.CreateInstance(typeof(Simple), nonPublic: true);
-        }
-
-        static class ActivateViaNewConstraint<TInstance> where TInstance : new()
-        {
-            internal static TInstance Create() => new TInstance();
+            internal static void CreateUsingActivatorCreateInstance() => Activator.CreateInstance(typeof(Simple), nonPublic: true);
         }
     }
 }

@@ -2,6 +2,7 @@
 using Composable.System.Diagnostics;
 using Composable.System.Reflection;
 using Composable.Testing.Performance;
+using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 
@@ -10,14 +11,9 @@ namespace Composable.Tests.System.Reflection
     [TestFixture]public class Activator_default_constructor_Generic_argument_performance_tests
     {
         [UsedImplicitly] class Simple
-        {
-            public Simple(){}
-        }
+        {}
 
-        [Test] public void TestName()
-        {
-            var instance = Constructor.For<Simple>.DefaultConstructor.Instance();
-        }
+        [Test] public void TestName() => Constructor.For<Simple>.DefaultConstructor.Instance().Should().NotBe(null);
 
         [Test] public void _005_Constructs_10_000_000_instances_within_15_percent_of_default_constructor_time()
         {
@@ -72,13 +68,15 @@ namespace Composable.Tests.System.Reflection
 
         static class FakeActivator
         {
-            internal static Simple CreateWithDefaultConstructor() => new Simple();
-            internal static Simple CreateUsingActivatorCreateInstance() => (Simple)Activator.CreateInstance(typeof(Simple), nonPublic: true);
+            // ReSharper disable once ObjectCreationAsStatement
+            internal static void CreateWithDefaultConstructor() => new Simple();
+            internal static void CreateUsingActivatorCreateInstance() => Activator.CreateInstance(typeof(Simple), nonPublic: true);
         }
 
         static class ActivateViaNewConstraint<TInstance> where TInstance : new()
         {
-            internal static TInstance Create() => new TInstance();
+            // ReSharper disable once ObjectCreationAsStatement
+            internal static void Create() => new TInstance();
         }
     }
 }

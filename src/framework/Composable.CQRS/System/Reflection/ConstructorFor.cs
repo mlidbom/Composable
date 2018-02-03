@@ -17,7 +17,7 @@ namespace Composable.System.Reflection
 
             internal static class WithArgument<TArgument1>
             {
-                internal static readonly Func<TArgument1, TInstance> CreateIntance = (Func<TArgument1, TInstance>)CompileForSignature(typeof(Func<TArgument1, TInstance>));
+                internal static readonly Func<TArgument1, TInstance> Instance = (Func<TArgument1, TInstance>)CompileForSignature(typeof(Func<TArgument1, TInstance>));
             }
 
             internal static class WithArguments<TArgument1, TArgument2>

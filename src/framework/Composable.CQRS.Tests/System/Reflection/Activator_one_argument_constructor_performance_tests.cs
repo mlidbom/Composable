@@ -3,6 +3,7 @@ using System.Reflection;
 using Composable.System.Diagnostics;
 using Composable.System.Reflection;
 using Composable.Testing.Performance;
+using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 
@@ -17,10 +18,7 @@ namespace Composable.Tests.System.Reflection
             public Simple(string arg1){}
         }
 
-        [Test] public void Can_create_instance()
-        {
-            var instance = Constructor.For<Simple>.WithArgument<string>.CreateIntance(_argument);
-        }
+        [Test] public void Can_create_instance() => Constructor.For<Simple>.WithArgument<string>.Instance(_argument).Should().NotBe(null);
 
         [Test] public void _005_Constructs_1_000_000_instances_within_15_percent_of_normal_constructor_call()
         {
@@ -50,7 +48,7 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.InstrumentationSlowdown(25));
         }
 
-        static void DynamicModuleConstruct() => Constructor.For<Simple>.WithArgument<string>.CreateIntance(_argument);
+        static void DynamicModuleConstruct() => Constructor.For<Simple>.WithArgument<string>.Instance(_argument);
 
         // ReSharper disable once ObjectCreationAsStatement
         static void DefaultConstructor() => FakeActivator.CreateWithDefaultConstructor();
@@ -60,13 +58,14 @@ namespace Composable.Tests.System.Reflection
 
         static class FakeActivator
         {
-            internal static Simple CreateWithDefaultConstructor() => new Simple(_argument);
+            // ReSharper disable once ObjectCreationAsStatement
+            internal static void CreateWithDefaultConstructor() => new Simple(_argument);
 
-            internal static Simple CreateUsingActivatorCreateInstance() => (Simple)Activator.CreateInstance(
+            internal static void CreateUsingActivatorCreateInstance() => Activator.CreateInstance(
                 type: typeof(Simple),
                 bindingAttr: BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public,
                 binder: null,
-                args: new []{_argument},
+                args: new object[]{_argument},
                 culture: null);
         }
     }

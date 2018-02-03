@@ -1,6 +1,7 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
+using Composable.System.Reflection;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
@@ -37,11 +38,11 @@ namespace Composable.Persistence.EventStore.Aggregates
                                     TEntityEventIdGetterSetter>
                 where TEntityEventIdGetterSetter : IGetSetAggregateEntityEventEntityId<TEntityId,
                                                        TEntityEventImplementation,
-                                                       TEntityEvent>, new()
+                                                       TEntityEvent>
             {
                 static SlavedNestedEntity() => AggregateTypeValidator<TEntity, TEntityEventImplementation, TEntityEvent>.AssertStaticStructureIsValid();
 
-                static readonly TEntityEventIdGetterSetter IdGetterSetter = new TEntityEventIdGetterSetter();
+                static readonly TEntityEventIdGetterSetter IdGetterSetter = Constructor.For<TEntityEventIdGetterSetter>.DefaultConstructor.Instance();
 
                 protected SlavedNestedEntity(TComponent parent)
                     : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers()) { }
@@ -81,7 +82,7 @@ namespace Composable.Persistence.EventStore.Aggregates
 
                 public abstract class EntityCollectionManagerBase
                 {
-                    static readonly TEntityEventIdGetterSetter IdGetter = new TEntityEventIdGetterSetter();
+                    static readonly TEntityEventIdGetterSetter IdGetter = Constructor.For<TEntityEventIdGetterSetter>.DefaultConstructor.Instance();
 
                     readonly EntityCollection<TEntity, TEntityId> _managedEntities;
                     protected EntityCollectionManagerBase

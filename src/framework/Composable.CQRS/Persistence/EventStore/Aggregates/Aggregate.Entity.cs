@@ -1,6 +1,7 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
+using Composable.System.Reflection;
 using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Aggregates
@@ -26,12 +27,11 @@ namespace Composable.Persistence.EventStore.Aggregates
                                 TEntityEvent,
                                 TEntityCreatedEvent,
                                 TEntityEventIdGetterSetter>
-            where TEntityEventIdGetterSetter : IGetSetAggregateEntityEventEntityId<TEntityId, TEntityEventImplementation, TEntityEvent>,
-                new()
+            where TEntityEventIdGetterSetter : IGetSetAggregateEntityEventEntityId<TEntityId, TEntityEventImplementation, TEntityEvent>
         {
             static Entity() => AggregateTypeValidator<TEntity, TEntityEventImplementation, TEntityEvent>.AssertStaticStructureIsValid();
 
-            static readonly TEntityEventIdGetterSetter IdGetterSetter = new TEntityEventIdGetterSetter();
+            static readonly TEntityEventIdGetterSetter IdGetterSetter = Constructor.For<TEntityEventIdGetterSetter>.DefaultConstructor.Instance();
 
             public TEntityId Id { get; private set; }
 

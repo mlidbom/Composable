@@ -1,5 +1,6 @@
 ﻿using Composable.Messaging.Events;
 using Composable.Persistence.EventStore.Aggregates;
+using Composable.System.Reflection;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {
@@ -24,7 +25,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                     TEntityId,
                                     TEntityEvent,
                                     TEventEntityIdGetter>
-                where TEventEntityIdGetter : IGetAggregateEntityEventEntityId<TEntityEvent, TEntityId>, new()
+                where TEventEntityIdGetter : IGetAggregateEntityEventEntityId<TEntityEvent, TEntityId>
             {
                 protected SlavedNestedEntity(TComponent parent) : this(parent.RegisterEventAppliers()) { }
 
@@ -39,7 +40,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
                 public abstract class EntityCollectionManagerBase
                 {
-                    static readonly TEventEntityIdGetter IdGetter = new TEventEntityIdGetter();
+                    static readonly TEventEntityIdGetter IdGetter = Constructor.For<TEventEntityIdGetter>.DefaultConstructor.Instance();
 
                     readonly QueryModelEntityCollection<TEntity, TEntityId> _managedEntities;
                     protected EntityCollectionManagerBase(IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)

@@ -31,8 +31,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                                 TEntityCreatedEvent,
                                 TEntityRemovedEvent,
                                 TEntityEventIdGetterSetter>
-            where TEntityEventIdGetterSetter : IGetSetAggregateEntityEventEntityId<TEntityId, TEntityEventImplementation, TEntityEvent>,
-                new()
+            where TEntityEventIdGetterSetter : IGetSetAggregateEntityEventEntityId<TEntityId, TEntityEventImplementation, TEntityEvent>
         {
             static RemovableEntity() => AggregateTypeValidator<TEntity, TEntityEventImplementation, TEntityEvent>.AssertStaticStructureIsValid();
 

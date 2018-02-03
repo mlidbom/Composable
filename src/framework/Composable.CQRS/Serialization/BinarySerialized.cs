@@ -10,9 +10,9 @@ namespace Composable.Serialization
     abstract partial class BinarySerialized<TInheritor>
         where TInheritor : BinarySerialized<TInheritor>
     {
-        static MemberGetterSetter[] _memberGetterSetters;
-        static MemberGetterSetter[] _memberGetterSettersReversed;
-        static Func<TInheritor> _constructor;
+        static readonly MemberGetterSetter[] MemberGetterSetters;
+        static readonly MemberGetterSetter[] MemberGetterSettersReversed;
+        static TInheritor Construct() => (TInheritor)Activator.CreateInstance(typeof(TInheritor), nonPublic: true);
 
         readonly TInheritor _this;
 
@@ -20,39 +20,26 @@ namespace Composable.Serialization
 
         static BinarySerialized()
         {
-            _constructor = () => (TInheritor)Activator.CreateInstance(typeof(TInheritor), nonPublic: true);
-            var inheritor = _constructor();
-            Init(_constructor, inheritor.CreateGetterSetters().ToArray());
+            var inheritor = Construct();
+            MemberGetterSetters = inheritor.CreateGetterSetters().ToArray();
+            MemberGetterSettersReversed = MemberGetterSetters.Reverse().ToArray();
         }
 
         protected abstract IEnumerable<MemberGetterSetter> CreateGetterSetters();
 
-        protected static void Init(Func<TInheritor> constructor, params MemberGetterSetter[] getterSetters)
-        {
-            if(_memberGetterSetters != null)
-            {
-                throw new InvalidOperationException($"You can only call {nameof(Init)} once");
-            }
-
-            _constructor = constructor;
-
-            _memberGetterSetters = getterSetters.ToArray();
-            _memberGetterSettersReversed = getterSetters.Reverse().ToArray();
-        }
-
         void Deserialize(BinaryReader reader)
         {
-            for(var index = 0; index < _memberGetterSetters.Length; index++)
+            for(var index = 0; index < MemberGetterSetters.Length; index++)
             {
-                _memberGetterSettersReversed[index].Deserialize(_this, reader);
+                MemberGetterSettersReversed[index].Deserialize(_this, reader);
             }
         }
 
         void Serialize(BinaryWriter writer)
         {
-            for(var index = 0; index < _memberGetterSettersReversed.Length; index++)
+            for(var index = 0; index < MemberGetterSettersReversed.Length; index++)
             {
-                _memberGetterSettersReversed[index].Serialize(_this, writer);
+                MemberGetterSettersReversed[index].Serialize(_this, writer);
             }
         }
 
@@ -74,7 +61,7 @@ namespace Composable.Serialization
         {
             using(var reader = new BinaryReader(new MemoryStream(data)))
             {
-                var instance = _constructor();
+                var instance = Construct();
                 instance.Deserialize(reader);
                 return instance;
             }

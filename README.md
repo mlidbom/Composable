@@ -26,8 +26,6 @@ If possible set this to a path on a fast SSD or, even better, a RAM drive.
 
 ## Set up documentation development environment
 
-* Download and install python 2 from https://www.python.org/
-  * Select option to add python to your path
 * Install Ruby 2.2.5 from https://rubyinstaller.org/downloads/archives/
   * Check options
     * Add ruby executables to your path

@@ -5,6 +5,7 @@ using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
+using Composable.System.Reflection;
 using JetBrains.Annotations;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
@@ -92,6 +93,6 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
     static class EventSequenceGenerator
     {
-        public static RootEvent[] ToEvents(this IEnumerable<Type> types) => types.Select(Activator.CreateInstance).Cast<RootEvent>().ToArray();
+        public static RootEvent[] ToEvents(this IEnumerable<Type> types) => types.Select(Constructor.CreateInstance).Cast<RootEvent>().ToArray();
     }
 }

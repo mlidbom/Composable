@@ -1,4 +1,6 @@
 ﻿using System;
+using Composable.System.Reflection;
+
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable UnusedMember.Global
 
@@ -50,7 +52,7 @@ namespace Composable.Contracts
                     {
                         return true;
                     }
-                    var valueTypeDefault = Activator.CreateInstance(inspected.GetType());
+                    var valueTypeDefault = Constructor.CreateInstance(inspected.GetType());
                     return !Equals(inspected, valueTypeDefault);
                 },
                 badValue => new ObjectIsDefaultContractViolationException(badValue));

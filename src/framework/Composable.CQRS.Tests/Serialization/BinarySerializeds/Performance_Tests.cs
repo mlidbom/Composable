@@ -19,27 +19,27 @@ namespace Composable.Tests.Serialization.BinarySerializeds
         byte[] _serialized;
         [SetUp] public void SetupTask()
         {
-            _instance = HasAllPropertyTypes.CreateInstance();
+            _instance = HasAllPropertyTypes.CreateInstanceWithSaneValues();
 
             _instance.RecursiveArrayProperty = new[]
                                               {
-                                                  HasAllPropertyTypes.CreateInstance(),
+                                                  HasAllPropertyTypes.CreateInstanceWithSaneValues(),
                                                   null,
-                                                  HasAllPropertyTypes.CreateInstance()
+                                                  HasAllPropertyTypes.CreateInstanceWithSaneValues()
                                               };
 
             _instance.RecursiveListProperty = new List<HasAllPropertyTypes>()
                                              {
-                                                 HasAllPropertyTypes.CreateInstance(),
+                                                 HasAllPropertyTypes.CreateInstanceWithSaneValues(),
                                                  null,
-                                                 HasAllPropertyTypes.CreateInstance()
+                                                 HasAllPropertyTypes.CreateInstanceWithSaneValues()
                                              };
 
             _serialized = _instance.Serialize();
 
             //Warmup
             RunScenario(DefaultConstructor, 1000);
-            RunScenario(BinaryCreateInstance, 1000);
+            RunScenario(DynamicModuleConstruct, 1000);
             RunScenario(() => JsonRoundTrip(_instance), 1000);
             RunScenario(BinaryRoundTrip, iterations: 1000);
 
@@ -54,29 +54,27 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
             var maxTotal = TimeSpan.FromMilliseconds(jsonSerializationTime.TotalMilliseconds / 5);
 
-            var binarySerializationTime = RunScenario(BinaryRoundTrip, iterations.InstrumentationSlowdown(5), maxTotal:maxTotal);
+            var binarySerializationTime = RunScenario(BinaryRoundTrip, iterations.InstrumentationDecrease(5), maxTotal:maxTotal);
 
             Console.WriteLine($"Binary: {binarySerializationTime.TotalMilliseconds}, JSon: {jsonSerializationTime.TotalMilliseconds}");
         }
 
-
-
-        [Test] public void _005_Constructs_1_00_000_instances_within_40_percent_of_default_constructor_time()
+        [Test] public void _005_Constructs_1_00_000_instances_within_5_percent_of_default_constructor_time()
         {
-            var constructions = 1_00_000;
-            var defaultConstructor = RunScenario(DefaultConstructor, constructions.InstrumentationSlowdown(4.7));
-            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * 1.4);
-            RunScenario(BinaryCreateInstance, constructions.InstrumentationSlowdown(4.7), maxTotal: maxTime );
+            var constructions = 1_00_000.InstrumentationDecrease(4.7);
+            var defaultConstructor = RunScenario(DefaultConstructor, constructions);
+            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * 1.05);
+            RunScenario(DynamicModuleConstruct, constructions, maxTotal: maxTime );
         }
 
         [Test] public void _010_Serializes_10_000_times_in_100_milliseconds() =>
-            RunScenario(BinarySerialize, 10_000.InstrumentationSlowdown(6.5), maxTotal:100.Milliseconds());
+            RunScenario(BinarySerialize, 10_000.InstrumentationDecrease(6.5), maxTotal:100.Milliseconds());
 
         [Test] public void _020_DeSerializes_10_000_times_in_130_milliseconds() =>
-                RunScenario(BinaryDeSerialize, iterations: 10_000.InstrumentationSlowdown(5.5), maxTotal:130.Milliseconds());
+                RunScenario(BinaryDeSerialize, iterations: 10_000.InstrumentationDecrease(5.5), maxTotal:130.Milliseconds());
 
         [Test] public void _030_Roundtrips_10_000_times_in_220_milliseconds() =>
-            RunScenario(BinaryRoundTrip, iterations: 10_000.InstrumentationSlowdown(6.5), maxTotal:220.Milliseconds());
+            RunScenario(BinaryRoundTrip, iterations: 10_000.InstrumentationDecrease(6.5), maxTotal:220.Milliseconds());
 
         //ncrunch: no coverage start
 
@@ -106,11 +104,17 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
         void BinaryDeSerialize() => BinarySerialized<HasAllPropertyTypes>.Deserialize(_serialized);
 
-        static void BinaryCreateInstance() => BinarySerialized<HasAllPropertyTypes>.Construct();
+        static void DynamicModuleConstruct() => BinarySerialized<HasAllPropertyTypes>.DefaultConstructor();
 
+        // ReSharper disable once ObjectCreationAsStatement
         static void DefaultConstructor() => new HasAllPropertyTypes();
 
         //ncrunch: no coverage end
 
+    }
+
+    static class Percenter
+    {
+        internal static string PercentOf(this TimeSpan @this, TimeSpan other) => ((int)(100 * (@this.TotalMilliseconds / other.TotalMilliseconds -1))).ToString("00");
     }
 }

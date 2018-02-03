@@ -111,7 +111,7 @@ namespace Composable.System.Threading
 
             if (Equals(value, default(TObject)))
             {
-                Set(value = BinarySerialized<TObject>.Construct(), accessor);
+                Set(value = BinarySerialized<TObject>.DefaultConstructor(), accessor);
             }
 
             return value;

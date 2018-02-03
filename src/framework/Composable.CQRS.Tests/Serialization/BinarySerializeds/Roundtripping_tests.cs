@@ -55,13 +55,13 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
         [Test] public void Instance_with_recursive_list_property_with_one_null_value_roundtrip_correctly()
         {
-            var allPropertyTypesCountingFrom1 = HasAllPropertyTypes.CreateInstance();
+            var allPropertyTypesCountingFrom1 = HasAllPropertyTypes.CreateInstanceWithSaneValues();
 
             allPropertyTypesCountingFrom1.RecursiveListProperty = new List<HasAllPropertyTypes>()
                                                                   {
-                                                                      HasAllPropertyTypes.CreateInstance(),
+                                                                      HasAllPropertyTypes.CreateInstanceWithSaneValues(),
                                                                       null,
-                                                                      HasAllPropertyTypes.CreateInstance()
+                                                                      HasAllPropertyTypes.CreateInstanceWithSaneValues()
                                                                   };
 
 
@@ -74,13 +74,13 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
         [Test] public void Instance_with_recursive_array_property_with_one_null_value_roundtrip_correctly()
         {
-            var allPropertyTypesCountingFrom1 = HasAllPropertyTypes.CreateInstance();
+            var allPropertyTypesCountingFrom1 = HasAllPropertyTypes.CreateInstanceWithSaneValues();
 
             allPropertyTypesCountingFrom1.RecursiveArrayProperty = new[]
                                                                   {
-                                                                      HasAllPropertyTypes.CreateInstance(),
+                                                                      HasAllPropertyTypes.CreateInstanceWithSaneValues(),
                                                                       null,
-                                                                      HasAllPropertyTypes.CreateInstance()
+                                                                      HasAllPropertyTypes.CreateInstanceWithSaneValues()
                                                                   };
 
 

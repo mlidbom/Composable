@@ -6,6 +6,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
 using Composable.System.Linq;
 using Composable.System.Reactive;
+using Composable.System.Reflection;
 using Composable.SystemExtensions.Threading;
 
 namespace Composable.Persistence.EventStore
@@ -165,7 +166,7 @@ namespace Composable.Persistence.EventStore
 
         TAggregate CreateInstance<TAggregate>() where TAggregate : IEventStored
         {
-            var aggregate = (TAggregate)Activator.CreateInstance(typeof(TAggregate), nonPublic: true);
+            var aggregate = Constructor.For<TAggregate>.DefaultConstructor.Instance();
             aggregate.SetTimeSource(TimeSource);
             return aggregate;
         }

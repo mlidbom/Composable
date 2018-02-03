@@ -2,6 +2,7 @@
 using System.Linq;
 using Composable.Messaging.Events;
 using Composable.System.Linq;
+using Composable.System.Reflection;
 using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Query.Models.Generators
@@ -13,7 +14,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         where TImplementer : SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession>
         where TSession : IEventStoreReader
         where TEvent : class, IAggregateEvent
-        where TViewModel : class, ISingleAggregateQueryModel, new()
+        where TViewModel : class, ISingleAggregateQueryModel
     {
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>();
         readonly TSession _session;
@@ -39,7 +40,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
             {
                 return null;
             }
-            var queryModel = new TViewModel();
+            var queryModel = Constructor.For<TViewModel>.DefaultConstructor.Instance();
             Model = queryModel;
             history.ForEach(_eventDispatcher.Dispatch);
             var result = Model;//Yes it does make sense. Look at the registered handler for IAggregateDeletedEvent

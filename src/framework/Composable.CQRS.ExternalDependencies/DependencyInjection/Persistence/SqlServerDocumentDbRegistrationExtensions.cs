@@ -9,6 +9,7 @@ using Composable.Serialization;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
+using Composable.System.Reflection;
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
 // ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
@@ -97,24 +98,21 @@ namespace Composable.DependencyInjection.Persistence
             @this.Register(Component.For<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()
                                      .UsingFactoryMethod((IDocumentDb<TUpdater, TReader, TBulkReader> documentDb, ISingleContextUseGuard usageGuard) => new DocumentDbSession<TUpdater, TReader, TBulkReader>(documentDb, usageGuard))
                                      .LifestyleScoped());
+
+            var sessionType = DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType;
+            var constructorSignature = typeof(Func<,,>).MakeGenericType(typeof(IInterceptor[]), typeof(IDocumentDbSession), sessionType);
+            var constructor = (Func<IInterceptor[], IDocumentDbSession, TUpdater>)Constructor.CompileForSignature(constructorSignature);
+            var emptyInterceptorArray = new IInterceptor[0];
+
             @this.Register(Component.For<TUpdater, TReader, TBulkReader>()
-                                    .UsingFactoryMethod(EventStoreSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType,
-                                                        kernel => CreateProxyFor<TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()))
+                                    .UsingFactoryMethod(DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType,
+                                                        kernel => constructor(emptyInterceptorArray, kernel.Resolve<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()))
                                     .LifestyleScoped()
                           );
         }
 
-        static TUpdater CreateProxyFor<TUpdater, TReader, TBulkReader>(IDocumentDbSession session)
-            where TUpdater : IDocumentDbUpdater
-            where TReader : IDocumentDbReader
-            where TBulkReader : IDocumentDbBulkReader
-        {
-            var sessionType = EventStoreSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType;
-            return (TUpdater)Activator.CreateInstance(sessionType, new IInterceptor[] {}, session);
-        }
-
         //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.
-        static class EventStoreSessionProxyFactory<TUpdater, TReader, TBulkReader>
+        static class DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>
             where TUpdater : IDocumentDbUpdater
             where TReader : IDocumentDbReader
             where TBulkReader : IDocumentDbBulkReader

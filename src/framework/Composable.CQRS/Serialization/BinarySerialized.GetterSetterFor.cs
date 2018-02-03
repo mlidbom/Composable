@@ -179,7 +179,7 @@ namespace Composable.Serialization
                 {
                     if(reader.ReadBoolean())
                     {
-                        var instance = BinarySerialized<TBinarySerializable>.Construct();
+                        var instance = BinarySerialized<TBinarySerializable>.DefaultConstructor();
                         instance.Deserialize(reader);
                         Setter(inheritor, instance);
                     } else
@@ -231,7 +231,7 @@ namespace Composable.Serialization
                         {
                             if(reader.ReadBoolean())
                             {
-                                var instance = BinarySerialized<TBinarySerializable>.Construct();
+                                var instance = BinarySerialized<TBinarySerializable>.DefaultConstructor();
                                 list.Add(instance);
                                 instance.Deserialize(reader);
                             } else
@@ -290,7 +290,7 @@ namespace Composable.Serialization
                         {
                             if(reader.ReadBoolean())
                             {
-                                var instance = array[index] = BinarySerialized<TBinarySerializable>.Construct();
+                                var instance = array[index] = BinarySerialized<TBinarySerializable>.DefaultConstructor();
                                 instance.Deserialize(reader);
                             } else
                             {

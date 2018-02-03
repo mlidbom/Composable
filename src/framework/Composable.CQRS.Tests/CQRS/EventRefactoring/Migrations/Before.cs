@@ -4,6 +4,7 @@ using System.Linq;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
+using Composable.System.Reflection;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
@@ -29,7 +30,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             {
                 if (@event.GetType() == typeof(TEvent) && _lastSeenEventType != _insert.Last())
                 {
-                    modifier.InsertBefore(_insert.Select(Activator.CreateInstance).Cast<AggregateEvent>().ToArray());
+                    modifier.InsertBefore(_insert.Select(Constructor.CreateInstance).Cast<AggregateEvent>().ToArray());
                 }
 
                 _lastSeenEventType = @event.GetType();

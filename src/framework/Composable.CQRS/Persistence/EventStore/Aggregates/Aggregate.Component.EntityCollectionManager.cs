@@ -29,9 +29,9 @@ namespace Composable.Persistence.EventStore.Aggregates
                 where TEntityCreatedEvent : TEntityEvent
                 where TEntityEventImplementation : TEntityEvent, TAggregateEventImplementation
                 where TEntity : Component<TEntity, TEntityEventImplementation, TEntityEvent>
-                where TEntityEventIdGetterSetter : IGetAggregateEntityEventEntityId<TEntityEvent, TEntityId>, new()
+                where TEntityEventIdGetterSetter : IGetAggregateEntityEventEntityId<TEntityEvent, TEntityId>
             {
-                protected static readonly TEntityEventIdGetterSetter IdGetter = new TEntityEventIdGetterSetter();
+                protected static readonly TEntityEventIdGetterSetter IdGetter = Constructor.For<TEntityEventIdGetterSetter>.DefaultConstructor.Instance();
 
                 protected readonly EntityCollection<TEntity, TEntityId> ManagedEntities;
                 readonly Action<TEntityEventImplementation> _raiseEventThroughParent;
@@ -46,7 +46,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                         .For<TEntityCreatedEvent>(
                             e =>
                             {
-                                var entity = ObjectFactory<TEntity>.CreateInstance(parent);
+                                var entity = Constructor.For<TEntity>.WithArgument<TParent>.Instance(parent);
                                 ManagedEntities.Add(entity, IdGetter.GetId(e));
                             })
                         .For<TEntityEvent>(e => ManagedEntities[IdGetter.GetId(e)].ApplyEvent(e));

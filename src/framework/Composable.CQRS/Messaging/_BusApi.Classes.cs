@@ -2,6 +2,7 @@
 using Composable.DDD;
 using Composable.Messaging.Buses;
 using Composable.Refactoring.Naming;
+using Composable.System.Reflection;
 using Newtonsoft.Json;
 
 // ReSharper disable RedundantNameQualifier
@@ -68,9 +69,10 @@ namespace Composable.Messaging
                     }
 
                     /// <summary>Implements <see cref="ICreateMyOwnResultQuery{TResult}"/> by calling the default constructor on <typeparamref name="TResult"/></summary>
-                    public class NewableResultLink<TResult> : Query<TResult>, ICreateMyOwnResultQuery<TResult> where TResult : new()
+                    public class NewableResultLink<TResult> : Query<TResult>, ICreateMyOwnResultQuery<TResult>
                     {
-                        public TResult CreateResult() => new TResult();
+                        static readonly Func<TResult> Constructor = System.Reflection.Constructor.For<TResult>.DefaultConstructor.Instance;
+                        public TResult CreateResult() => Constructor();
                     }
                 }
             }

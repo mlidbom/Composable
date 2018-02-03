@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Composable.System.Reflection;
 
 // ReSharper disable ForCanBeConvertedToForeach optimization is important in this file. It is really the whole purpose of it :)
 
@@ -11,7 +12,8 @@ namespace Composable.Serialization
     {
         static readonly MemberGetterSetter[] MemberGetterSetters;
         static readonly MemberGetterSetter[] MemberGetterSettersReversed;
-        internal static TInheritor Construct() => (TInheritor)Activator.CreateInstance(typeof(TInheritor), nonPublic: true);
+
+        internal static readonly Func<TInheritor> DefaultConstructor = Constructor.For<TInheritor>.DefaultConstructor.Instance;
 
         readonly TInheritor _this;
 
@@ -19,7 +21,7 @@ namespace Composable.Serialization
 
         static BinarySerialized()
         {
-            var inheritor = Construct();
+            var inheritor = DefaultConstructor();
             MemberGetterSetters = inheritor.CreateGetterSetters().ToArray();
             MemberGetterSettersReversed = MemberGetterSetters.Reverse().ToArray();
         }
@@ -60,7 +62,7 @@ namespace Composable.Serialization
         {
             using(var reader = new BinaryReader(new MemoryStream(data)))
             {
-                var instance = Construct();
+                var instance = DefaultConstructor();
                 instance.Deserialize(reader);
                 return instance;
             }

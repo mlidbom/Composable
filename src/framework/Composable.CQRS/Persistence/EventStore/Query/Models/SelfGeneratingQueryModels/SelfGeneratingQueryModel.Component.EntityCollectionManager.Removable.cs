@@ -27,7 +27,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                 where TEntityCreatedEvent : TEntityEvent
                 where TEntityRemovedEvent : TEntityEvent
                 where TEntity : Component<TEntity, TEntityEvent>
-                where TEventEntityIdGetter : IGetAggregateEntityEventEntityId<TEntityEvent, TEntityId>, new()
+                where TEventEntityIdGetter : IGetAggregateEntityEventEntityId<TEntityEvent, TEntityId>
             {
                 protected QueryModelEntityCollectionManager (TParent parent, IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(parent, appliersRegistrar)
                 {

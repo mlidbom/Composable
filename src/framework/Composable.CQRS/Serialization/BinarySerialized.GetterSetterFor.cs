@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Composable.Serialization
 {
-    abstract partial class BinarySerialized<TInheritor> where TInheritor : BinarySerialized<TInheritor>, new()
+    abstract partial class BinarySerialized<TInheritor> where TInheritor : BinarySerialized<TInheritor>
     {
         protected static class GetterSetter
         {
@@ -155,10 +155,10 @@ namespace Composable.Serialization
             }
 
             internal static MemberGetterSetter ForBinarySerializable<TBinarySerializable>(Func<TInheritor, TBinarySerializable> getter, Action<TInheritor, TBinarySerializable> setter)
-                where TBinarySerializable : BinarySerialized<TBinarySerializable>, new() => new BinarySerializable<TBinarySerializable>(getter, setter);
+                where TBinarySerializable : BinarySerialized<TBinarySerializable> => new BinarySerializable<TBinarySerializable>(getter, setter);
 
             class BinarySerializable<TBinarySerializable> : MemberGetterSetter<TBinarySerializable>
-            where TBinarySerializable : BinarySerialized<TBinarySerializable>, new()
+            where TBinarySerializable : BinarySerialized<TBinarySerializable>
             {
                 public BinarySerializable(Func<TInheritor, TBinarySerializable> getter, Action<TInheritor, TBinarySerializable> setter) : base(getter, setter) {}
 
@@ -179,7 +179,7 @@ namespace Composable.Serialization
                 {
                     if(reader.ReadBoolean())
                     {
-                        var instance = BinarySerialized<TBinarySerializable>.DynamicModuleConstruct();
+                        var instance = BinarySerialized<TBinarySerializable>.DefaultConstructor();
                         instance.Deserialize(reader);
                         Setter(inheritor, instance);
                     } else
@@ -190,10 +190,10 @@ namespace Composable.Serialization
             }
 
             internal static MemberGetterSetter ForBinarySerializableList<TBinarySerializable>(Func<TInheritor, List<TBinarySerializable>> getter, Action<TInheritor, List<TBinarySerializable>> setter)
-                where TBinarySerializable : BinarySerialized<TBinarySerializable>, new() => new BinarySerializableList<TBinarySerializable>(getter, setter);
+                where TBinarySerializable : BinarySerialized<TBinarySerializable> => new BinarySerializableList<TBinarySerializable>(getter, setter);
 
             class BinarySerializableList<TBinarySerializable> : MemberGetterSetter<List<TBinarySerializable>>
-                where TBinarySerializable : BinarySerialized<TBinarySerializable>, new()
+                where TBinarySerializable : BinarySerialized<TBinarySerializable>
             {
                 public BinarySerializableList(Func<TInheritor, List<TBinarySerializable>> getter, Action<TInheritor, List<TBinarySerializable>> setter) : base(getter, setter) {}
 
@@ -231,7 +231,7 @@ namespace Composable.Serialization
                         {
                             if(reader.ReadBoolean())
                             {
-                                var instance = BinarySerialized<TBinarySerializable>.DynamicModuleConstruct();
+                                var instance = BinarySerialized<TBinarySerializable>.DefaultConstructor();
                                 list.Add(instance);
                                 instance.Deserialize(reader);
                             } else
@@ -249,10 +249,10 @@ namespace Composable.Serialization
             }
 
             internal static MemberGetterSetter ForBinarySerializableArray<TBinarySerializable>(Func<TInheritor, TBinarySerializable[]> getter, Action<TInheritor, TBinarySerializable[]> setter)
-                where TBinarySerializable : BinarySerialized<TBinarySerializable>, new() => new BinarySerializableArray<TBinarySerializable>(getter, setter);
+                where TBinarySerializable : BinarySerialized<TBinarySerializable> => new BinarySerializableArray<TBinarySerializable>(getter, setter);
 
             class BinarySerializableArray<TBinarySerializable> : MemberGetterSetter<TBinarySerializable[]>
-                where TBinarySerializable : BinarySerialized<TBinarySerializable>, new()
+                where TBinarySerializable : BinarySerialized<TBinarySerializable>
             {
                 public BinarySerializableArray(Func<TInheritor, TBinarySerializable[]> getter, Action<TInheritor, TBinarySerializable[]> setter) : base(getter, setter) {}
 
@@ -290,7 +290,7 @@ namespace Composable.Serialization
                         {
                             if(reader.ReadBoolean())
                             {
-                                var instance = array[index] = BinarySerialized<TBinarySerializable>.DynamicModuleConstruct();
+                                var instance = array[index] = BinarySerialized<TBinarySerializable>.DefaultConstructor();
                                 instance.Deserialize(reader);
                             } else
                             {

@@ -6,7 +6,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 {
     class HasAllPropertyTypes : BinarySerialized<HasAllPropertyTypes>
     {
-        public static HasAllPropertyTypes CreateInstance() => new HasAllPropertyTypes(true, 2, 'a', new decimal(3.2), 4.1, 5, 6, 7, 8, 9, 10, 11.1f, 12, "13", Guid.Parse("00000000-0000-0000-0000-000000000014"), DateTime.FromBinary(15));
+        public static HasAllPropertyTypes CreateInstanceWithSaneValues() => new HasAllPropertyTypes(true, 2, 'a', new decimal(3.2), 4.1, 5, 6, 7, 8, 9, 10, 11.1f, 12, "13", Guid.Parse("00000000-0000-0000-0000-000000000014"), DateTime.FromBinary(15));
 
         protected override IEnumerable<MemberGetterSetter> CreateGetterSetters() => new[]
                                                                                     {

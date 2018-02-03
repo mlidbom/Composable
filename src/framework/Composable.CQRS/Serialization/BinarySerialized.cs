@@ -8,15 +8,12 @@ using Composable.System.Reflection;
 
 namespace Composable.Serialization
 {
-    abstract partial class BinarySerialized<TInheritor> where TInheritor : BinarySerialized<TInheritor>, new()
+    abstract partial class BinarySerialized<TInheritor> where TInheritor : BinarySerialized<TInheritor>
     {
         static readonly MemberGetterSetter[] MemberGetterSetters;
         static readonly MemberGetterSetter[] MemberGetterSettersReversed;
-        internal static readonly Func<TInheritor> DynamicModuleConstructor = DynamicModuleLambdaCompiler.GenerateFactory<TInheritor>();
 
-        internal static TInheritor DynamicModuleConstruct() => DynamicModuleConstructor();
-        internal static TInheritor ActivatorConstruct() => (TInheritor)Activator.CreateInstance(typeof(TInheritor), nonPublic: true);
-        internal static TInheritor ConstructorConstruct() => new TInheritor();
+        internal static readonly Func<TInheritor> DefaultConstructor = Activator<TInheritor>.DefaultConstructor.Instance;
 
         readonly TInheritor _this;
 
@@ -24,7 +21,7 @@ namespace Composable.Serialization
 
         static BinarySerialized()
         {
-            var inheritor = DynamicModuleConstruct();
+            var inheritor = DefaultConstructor();
             MemberGetterSetters = inheritor.CreateGetterSetters().ToArray();
             MemberGetterSettersReversed = MemberGetterSetters.Reverse().ToArray();
         }
@@ -65,7 +62,7 @@ namespace Composable.Serialization
         {
             using(var reader = new BinaryReader(new MemoryStream(data)))
             {
-                var instance = DynamicModuleConstruct();
+                var instance = DefaultConstructor();
                 instance.Deserialize(reader);
                 return instance;
             }

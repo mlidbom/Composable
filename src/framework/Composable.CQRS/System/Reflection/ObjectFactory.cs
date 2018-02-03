@@ -56,15 +56,15 @@ namespace Composable.System.Reflection
         }
     }
 
-    public static class DynamicModuleLambdaCompiler
+    static class DynamicModuleLambdaCompiler
     {
-        public static Func<T> GenerateFactory<T>() where T:new()
+        internal static Func<T> GenerateFactory<T>()
         {
-            Expression<Func<T>> expr = () => new T();
-            NewExpression newExpr = (NewExpression)expr.Body;
- 
+            NewExpression newExpr = Expression.New(typeof(T));
+
+            Console.WriteLine(newExpr);
+
             var method = new DynamicMethod(name: "lambda", returnType: newExpr.Type, parameterTypes: new Type[0], m: typeof(DynamicModuleLambdaCompiler).Module, skipVisibility: true);
- 
             ILGenerator ilGen = method.GetILGenerator();
             // Constructor for value types could be null
             if (newExpr.Constructor != null)
@@ -84,4 +84,13 @@ namespace Composable.System.Reflection
             return (Func<T>)method.CreateDelegate(typeof(Func<T>));
         }
     }
+
+    static class Activator<TInstance>
+    {
+        internal static class DefaultConstructor
+        {
+            internal static readonly Func<TInstance> Instance = DynamicModuleLambdaCompiler.GenerateFactory<TInstance>();
+        }
+    }
+
 }

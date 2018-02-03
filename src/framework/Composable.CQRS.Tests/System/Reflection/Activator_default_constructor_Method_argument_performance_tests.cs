@@ -17,7 +17,7 @@ namespace Composable.Tests.System.Reflection
 
         [Test, Serial] public void CanCreateInstance() => Constructor.DefaultFor(typeof(Simple))().Should().NotBe(null);
 
-        [Test, Serial] public void _005_Constructs_10_000_000_instances_1_point_6_times_faster_than_via_activator_createinstance()
+        [Test, Serial] public void _005_Constructs_10_000_000_instances_1_point_5_times_faster_than_via_activator_createinstance()
         {
             var constructions = 1_000_000.InstrumentationSlowdown(10);
 
@@ -27,7 +27,7 @@ namespace Composable.Tests.System.Reflection
 
 
             var defaultConstructor = StopwatchExtensions.TimeExecution(ActivatorCreateInstance, constructions).Total;
-            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * (1.0/1.6));
+            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * (1.0/1.5));
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.InstrumentationSlowdown(2));
         }
 

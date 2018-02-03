@@ -7,11 +7,15 @@ using NUnit.Framework;
 
 namespace Composable.Tests.System.Threading
 {
-    class SharedObject : IBinarySerializeMySelf
+    class SharedObject : BinarySerializedObject<SharedObject>
     {
+        static SharedObject()
+        {
+            Init(() => new SharedObject(),
+                 GetterSetter.ForString(@this => @this.Name, (@this, value) => @this.Name = value));
+        }
+
         public string Name { get; set; } = "Default";
-        public void Deserialize(BinaryReader reader) { Name = reader.ReadString(); }
-        public void Serialize(BinaryWriter writer) { writer.Write(Name);}
     }
 
     [TestFixture]

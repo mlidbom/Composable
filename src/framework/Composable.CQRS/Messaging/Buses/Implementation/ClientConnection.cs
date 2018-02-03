@@ -64,7 +64,6 @@ namespace Composable.Messaging.Buses.Implementation
 
         static void DispatchMessage(State @this, TransportMessage.OutGoing outGoingMessage)
         {
-            //todo: after transaction succeeds...
             @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, @this.TimeSource.UtcNow);
 
             @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);

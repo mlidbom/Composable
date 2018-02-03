@@ -33,7 +33,7 @@ namespace Composable.Messaging.Buses.Implementation
             BusApi.IMessage _message;
             readonly ITypeMapper _typeMapper;
 
-            //todo: detect BinarySerializable and use instead.
+            //performance: detect BinarySerializable and use instead.
             public BusApi.IMessage DeserializeMessageAndCacheForNextCall()
             {
                 if(_message == null)
@@ -116,7 +116,7 @@ namespace Composable.Messaging.Buses.Implementation
             public static OutGoing Create(BusApi.Remotable.IMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 var messageId = (message as BusApi.Remotable.ExactlyOnce.IProvidesOwnMessageId)?.MessageId ?? Guid.NewGuid();
-                //todo: detect implementation of BinarySerialized and use that when available
+                //performance: detect implementation of BinarySerialized and use that when available
                 var body = serializer.SerializeMessage(message);
                 return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is BusApi.Remotable.ExactlyOnce.IMessage);
             }
@@ -206,7 +206,6 @@ namespace Composable.Messaging.Buses.Implementation
             internal class Incoming
             {
                 internal readonly string Body;
-                //todo:bug: Not string!
                 readonly TypeId _responseTypeId;
                 readonly ITypeMapper _typeMapper;
                 object _result;

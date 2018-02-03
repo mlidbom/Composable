@@ -12,7 +12,7 @@ namespace Composable.Persistence.EventStore
         protected AggregateEvent()
         {
             EventId = Guid.NewGuid();
-            UtcTimeStamp = DateTime.UtcNow;//Todo: Should use timesource.
+            UtcTimeStamp = DateTime.UtcNow;//Todo:bug: Should use timesource.
         }
 
         protected AggregateEvent(Guid aggregateId) : this() => AggregateId = aggregateId;

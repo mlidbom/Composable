@@ -9,7 +9,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             partial class Coordinator
             {
-                // ReSharper disable once MemberCanBePrivate.Local Resharper bug....
+                // ReSharper disable once MemberCanBePrivate.Local Resharper is just confused....
                 internal class QueuedMessage
                 {
                     internal readonly TransportMessage.InComing TransportMessage;

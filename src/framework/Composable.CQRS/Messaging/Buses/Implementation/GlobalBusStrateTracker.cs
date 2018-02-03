@@ -12,6 +12,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public IReadOnlyList<Exception> GetExceptions() => _implementation.Update(implementation => implementation.GetExceptions());
 
+        //todo: performance. Do we care about queries here? Could we exclude them and lessen the contention a lot?
         public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage) => _implementation.Update(implementation => implementation.SendingMessageOnTransport(transportMessage));
 
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride)

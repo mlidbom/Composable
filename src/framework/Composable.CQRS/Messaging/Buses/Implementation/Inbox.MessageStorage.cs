@@ -24,7 +24,7 @@ INSERT {InboxMessages.TableName}
 ")
                             .AddParameter(InboxMessages.MessageId, message.MessageId)
                             .AddParameter(InboxMessages.TypeId, message.MessageTypeId.GuidValue)
-                            //todo: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
+                            //performance: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
                             .AddNVarcharMaxParameter(InboxMessages.Body, message.Body)
                             .ExecuteNonQuery();
                     });

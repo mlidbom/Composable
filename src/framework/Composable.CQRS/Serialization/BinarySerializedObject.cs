@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 // ReSharper disable ForCanBeConvertedToForeach optimization is important in this file. It is really the whole purpose of it :)
 
 namespace Composable.Serialization
 {
-    abstract partial class BinarySerializedObject<TInheritor> : IBinarySerializeMySelf<TInheritor>
-        where TInheritor : BinarySerializedObject<TInheritor>, 
+    abstract partial class BinarySerializedObject<TInheritor>
+        where TInheritor : BinarySerializedObject<TInheritor>,
         //todo: find a way of not requiring that you make it possible to create an invalid instance...
         new()
     {
@@ -18,6 +20,15 @@ namespace Composable.Serialization
         readonly TInheritor _this;
 
         protected BinarySerializedObject() => _this = (TInheritor)this;
+
+        static BinarySerializedObject()
+        {
+            _constructor = () => (TInheritor)Activator.CreateInstance(typeof(TInheritor), nonPublic: true);
+            var inheritor = _constructor();
+            Init(_constructor, inheritor.CreateGetterSetters().ToArray());
+        }
+
+        protected abstract IEnumerable<MemberGetterSetter> CreateGetterSetters();
 
         protected static void Init(Func<TInheritor> constructor, params MemberGetterSetter[] getterSetters)
         {

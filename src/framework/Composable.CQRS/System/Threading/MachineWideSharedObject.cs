@@ -29,7 +29,7 @@ namespace Composable.System.Threading
         }
     }
 
-    class MachineWideSharedObject<TObject> : MachineWideSharedObject, IDisposable where TObject : IBinarySerializeMySelf, new()
+    class MachineWideSharedObject<TObject> : MachineWideSharedObject, IDisposable where TObject : BinarySerializedObject<TObject>, new()
     {
         const int LengthIndicatorIntegerLengthInBytes = 4;
         readonly long _capacity;
@@ -111,12 +111,7 @@ namespace Composable.System.Threading
                 var buffer = new byte[objectLength];
                 accessor.ReadArray(LengthIndicatorIntegerLengthInBytes, buffer, 0, buffer.Length);
 
-                using (var objectStream = new MemoryStream(buffer))
-                using (var reader = new BinaryReader(objectStream))
-                {
-                    value = new TObject();
-                    value.Deserialize(reader);
-                }
+                value = BinarySerializedObject<TObject>.Deserialize(buffer);
             }
 
             if (Equals(value, default(TObject)))

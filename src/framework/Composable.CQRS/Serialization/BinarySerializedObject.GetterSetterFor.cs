@@ -154,11 +154,11 @@ namespace Composable.Serialization
                 internal override void Deserialize(TInheritor inheritor, BinaryReader reader) => Setter(inheritor, new Guid(reader.ReadBytes(16)));
             }
 
-            internal static MemberGetterSetter ForBinarySerializable<TBinarySerializable>(Func<TInheritor, TBinarySerializable> getter, Action<TInheritor, TBinarySerializable> setter) 
-                where TBinarySerializable : IBinarySerializeMySelf<TBinarySerializable>, new() => new BinarySerializable<TBinarySerializable>(getter, setter);
+            internal static MemberGetterSetter ForBinarySerializable<TBinarySerializable>(Func<TInheritor, TBinarySerializable> getter, Action<TInheritor, TBinarySerializable> setter)
+                where TBinarySerializable : BinarySerializedObject<TBinarySerializable>, new() => new BinarySerializable<TBinarySerializable>(getter, setter);
 
             class BinarySerializable<TBinarySerializable> : MemberGetterSetter<TBinarySerializable>
-            where TBinarySerializable : IBinarySerializeMySelf<TBinarySerializable>, new()
+            where TBinarySerializable : BinarySerializedObject<TBinarySerializable>, new()
             {
                 public BinarySerializable(Func<TInheritor, TBinarySerializable> getter, Action<TInheritor, TBinarySerializable> setter) : base(getter, setter) {}
 
@@ -190,10 +190,10 @@ namespace Composable.Serialization
             }
 
             internal static MemberGetterSetter ForBinarySerializableList<TBinarySerializable>(Func<TInheritor, List<TBinarySerializable>> getter, Action<TInheritor, List<TBinarySerializable>> setter)
-                where TBinarySerializable : IBinarySerializeMySelf<TBinarySerializable>, new() => new BinarySerializableList<TBinarySerializable>(getter, setter);
+                where TBinarySerializable : BinarySerializedObject<TBinarySerializable>, new() => new BinarySerializableList<TBinarySerializable>(getter, setter);
 
             class BinarySerializableList<TBinarySerializable> : MemberGetterSetter<List<TBinarySerializable>>
-                where TBinarySerializable : IBinarySerializeMySelf<TBinarySerializable>, new()
+                where TBinarySerializable : BinarySerializedObject<TBinarySerializable>, new()
             {
                 public BinarySerializableList(Func<TInheritor, List<TBinarySerializable>> getter, Action<TInheritor, List<TBinarySerializable>> setter) : base(getter, setter) {}
 
@@ -249,10 +249,10 @@ namespace Composable.Serialization
             }
 
             internal static MemberGetterSetter ForBinarySerializableArray<TBinarySerializable>(Func<TInheritor, TBinarySerializable[]> getter, Action<TInheritor, TBinarySerializable[]> setter)
-                where TBinarySerializable : IBinarySerializeMySelf<TBinarySerializable>, new() => new BinarySerializableArray<TBinarySerializable>(getter, setter);
+                where TBinarySerializable : BinarySerializedObject<TBinarySerializable>, new() => new BinarySerializableArray<TBinarySerializable>(getter, setter);
 
             class BinarySerializableArray<TBinarySerializable> : MemberGetterSetter<TBinarySerializable[]>
-                where TBinarySerializable : IBinarySerializeMySelf<TBinarySerializable>, new()
+                where TBinarySerializable : BinarySerializedObject<TBinarySerializable>, new()
             {
                 public BinarySerializableArray(Func<TInheritor, TBinarySerializable[]> getter, Action<TInheritor, TBinarySerializable[]> setter) : base(getter, setter) {}
 

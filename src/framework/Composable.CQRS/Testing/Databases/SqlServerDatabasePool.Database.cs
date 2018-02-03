@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.Serialization;
 
@@ -8,16 +9,15 @@ namespace Composable.Testing.Databases
     {
         internal class Database : BinarySerializedObject<Database>
         {
-            static Database()
-            {
-                Init(() => new Database(),
-                     GetterSetter.ForInt32(@this => @this.Id, (@this, value) => @this.Id = value),
-                     GetterSetter.ForBoolean(@this => @this.IsReserved, (@this, value) => @this.IsReserved = value),
-                     GetterSetter.ForDateTime(@this => @this.ExpirationDateTime, (@this, value) => @this.ExpirationDateTime = value),
-                     GetterSetter.ForString(@this => @this.ReservationName, (@this, value) => @this.ReservationName = value),
-                     GetterSetter.ForGuid(@this => @this.ReservedByPoolId, (@this, value) => @this.ReservedByPoolId = value),
-                     GetterSetter.ForBoolean(@this => @this.IsClean, (@this, value) => @this.IsClean = value));
-            }
+            protected override IEnumerable<MemberGetterSetter> CreateGetterSetters() => new[]
+                                                                                        {
+                                                                                            GetterSetter.ForInt32(@this => @this.Id, (@this, value) => @this.Id = value),
+                                                                                            GetterSetter.ForBoolean(@this => @this.IsReserved, (@this, value) => @this.IsReserved = value),
+                                                                                            GetterSetter.ForDateTime(@this => @this.ExpirationDateTime, (@this, value) => @this.ExpirationDateTime = value),
+                                                                                            GetterSetter.ForString(@this => @this.ReservationName, (@this, value) => @this.ReservationName = value),
+                                                                                            GetterSetter.ForGuid(@this => @this.ReservedByPoolId, (@this, value) => @this.ReservedByPoolId = value),
+                                                                                            GetterSetter.ForBoolean(@this => @this.IsClean, (@this, value) => @this.IsClean = value)
+                                                                                        };
 
             internal int Id { get; private set; }
             internal bool IsReserved { get; private set; }

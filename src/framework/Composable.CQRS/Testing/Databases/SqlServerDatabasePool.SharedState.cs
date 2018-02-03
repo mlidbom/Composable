@@ -13,11 +13,7 @@ namespace Composable.Testing.Databases
     {
         [UsedImplicitly] class SharedState : BinarySerializedObject<SharedState>
         {
-            static SharedState()
-            {
-                Init(() => new SharedState(),
-                     GetterSetter.ForBinarySerializableList(@this => @this._databases, (@this, value) => @this._databases = value));
-            }
+            protected override IEnumerable<MemberGetterSetter> CreateGetterSetters() => new[] {GetterSetter.ForBinarySerializableList(@this => @this._databases, (@this, value) => @this._databases = value)};
 
             List<Database> _databases = new List<Database>();
             IReadOnlyList<Database> Databases => _databases;

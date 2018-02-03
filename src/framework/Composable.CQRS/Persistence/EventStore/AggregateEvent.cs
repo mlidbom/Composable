@@ -4,8 +4,7 @@ using Newtonsoft.Json;
 
 namespace Composable.Persistence.EventStore
 {
-    //Review:mlidbo: Make instances immutable: Inspect inheriting types and throw exception if mutable.
-    //Review:mlidbo: Extract refactoring information into a separate abstraction.
+    //Review:mlidbo: Extract refactoring information into a separate abstraction so this one can be immutable.
     //todo: make abstract
     public class AggregateEvent : ValueObject<AggregateEvent>, IAggregateEvent
     {

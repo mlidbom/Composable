@@ -12,7 +12,7 @@ namespace Composable.SystemExtensions.Threading
             _transaction = _transaction ?? Transaction.Current;
             if(Transaction.Current != null && Transaction.Current != _transaction)
             {
-                throw new ComponentUsedByMultipleTransactionsException(guarded.GetType()); //Todo: Switch to throwing an exception here.
+                throw new ComponentUsedByMultipleTransactionsException(guarded.GetType());
             }
         }
     }

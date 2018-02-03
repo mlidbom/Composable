@@ -22,7 +22,7 @@ using ITestingEventStore = Composable.DependencyInjection.Persistence.IEventStor
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     [TestFixture]
-    //Todo: Refactor this test. It is too monolithic and hard to read and extend.
+    //refactor: this test. It is too monolithic and hard to read and extend.
     public abstract class EventMigrationTestBase
     {
         protected readonly Type EventStoreType;

@@ -70,7 +70,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                 internal TEntityId Id { get; private set; }
 
                 // ReSharper disable once UnusedMember.Global todo: coverage
-                public  static CollectionManager CreateSelfManagingCollection(TComponent parent)//todo:tests
+                public  static CollectionManager CreateSelfManagingCollection(TComponent parent)
                   =>
                       new CollectionManager(
                           parent: parent,

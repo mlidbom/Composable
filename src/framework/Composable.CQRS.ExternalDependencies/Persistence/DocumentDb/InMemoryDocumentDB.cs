@@ -7,7 +7,7 @@ using Composable.Serialization;
 
 namespace Composable.Persistence.DocumentDb
 {
-    //todo: Refactor to use the same serialization code as the sql document db so that tests actually tests roundtrip serialization
+    //refactor: to use the same serialization code as the sql document db so that tests actually tests roundtrip serialization
     class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb
     {
         readonly IDocumentDbSerializer _serializer;

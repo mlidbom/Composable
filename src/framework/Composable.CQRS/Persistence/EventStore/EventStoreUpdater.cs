@@ -10,10 +10,7 @@ using Composable.SystemExtensions.Threading;
 
 namespace Composable.Persistence.EventStore
 {
-    //Review:mlidbo: Detect and warn about using the updater within multiple transactions. That it is likely to result in optimistic concurrency exceptions.
-    class EventStoreUpdater :
-        IEventStoreReader,
-        IEventStoreUpdater
+    class EventStoreUpdater : IEventStoreReader, IEventStoreUpdater
     {
         readonly IEventstoreEventPublisher _eventPublisher;
         readonly IEventStore _store;

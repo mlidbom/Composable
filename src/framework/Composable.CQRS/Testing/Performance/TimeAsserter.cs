@@ -31,9 +31,9 @@ namespace Composable.Testing.Performance
             return 1.0;
         }
 
-        static TimeSpan AdjustTime(TimeSpan? timespan) => timespan != null
+        static TimeSpan? AdjustTime(TimeSpan? timespan) => timespan != null
                                                               ? TimeSpan.FromMilliseconds(timespan.Value.TotalMilliseconds * MachineSlowdownFactor)
-                                                              : TimeSpan.MaxValue;
+                                                              : (TimeSpan?)null;
 
         static readonly MachineWideSingleThreaded MachineWideSingleThreaded = MachineWideSingleThreaded.For(typeof(TimeAsserter));
 
@@ -48,8 +48,8 @@ namespace Composable.Testing.Performance
              [InstantHandle]Action setup = null,
              [InstantHandle]Action tearDown = null)
         {
-            maxAverage = AdjustTime(maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue);
-            maxTotal = AdjustTime(maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue);
+            maxAverage = AdjustTime(maxAverage);
+            maxTotal = AdjustTime(maxTotal);
 
             string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
 
@@ -100,8 +100,8 @@ namespace Composable.Testing.Performance
         {
             StopwatchExtensions.TimedThreadedExecutionSummary executionSummary = null;
 
-            maxAverage = AdjustTime(maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue);
-            maxTotal = AdjustTime(maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue);
+            maxAverage = AdjustTime(maxAverage);
+            maxTotal = AdjustTime(maxTotal);
 
 
             // ReSharper disable AccessToModifiedClosure
@@ -178,7 +178,7 @@ namespace Composable.Testing.Performance
             if(iterations > 1)
             {
                 SafeConsole.WriteLine(
-                    $@"Executed {iterations} iterations of ""{description}""
+                    $@"Executed {iterations:### ### ###} iterations of ""{description}""
     Total:   {format(executionSummary.Total)} Limit: {format(maxTotal)} 
     Average: {format
                         (executionSummary.Average)} Limit: {format(maxAverage)}");

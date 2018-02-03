@@ -38,10 +38,10 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             _serialized = _instance.Serialize();
 
             //Warmup
-            DefaultConstructor(1000);
-            BinaryCreateInstance(1000);
-            JsonRoundTrip(_instance, 1000);
-            BinaryRoundTrip(_instance, 1000);
+            RunScenario(() => DefaultConstructor(1), 1000);
+            RunScenario(() => BinaryCreateInstance(1), 1000);
+            RunScenario(() => JsonRoundTrip(_instance, 1), 1000);
+            RunScenario(() => BinaryRoundTrip(_instance, 1), iterations: 1000);
 
         }
 
@@ -50,33 +50,45 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             const int iterations = 1_000;
 
 
-            var jsonSerializationTime = StopwatchExtensions.TimeExecution(() => JsonRoundTrip(_instance, iterations));
+            var jsonSerializationTime = RunScenario(() => JsonRoundTrip(_instance, 1), iterations);
 
             var maxTotal = TimeSpan.FromMilliseconds(jsonSerializationTime.TotalMilliseconds / 5);
 
-            var binarySerializationTime = TimeAsserter.Execute(() => BinaryRoundTrip(_instance, iterations.InstrumentationSlowdown(5)), maxTotal:maxTotal);
+            var binarySerializationTime = RunScenario(() => BinaryRoundTrip(_instance, 1), iterations.InstrumentationSlowdown(5), maxTotal:maxTotal);
 
-            Console.WriteLine($"Binary: {binarySerializationTime.Total.TotalMilliseconds}, JSon: {jsonSerializationTime.TotalMilliseconds}");
+            Console.WriteLine($"Binary: {binarySerializationTime.TotalMilliseconds}, JSon: {jsonSerializationTime.TotalMilliseconds}");
         }
 
         [Test] public void _005_Constructs_1_00_000_instances_within_40_percent_of_default_constructor_time()
         {
             var constructions = 1_00_000;
-            var defaultConstructor = StopwatchExtensions.TimeExecution(() => DefaultConstructor(constructions.InstrumentationSlowdown(4.7)));
+            var defaultConstructor = RunScenario(() => DefaultConstructor(1), constructions.InstrumentationSlowdown(4.7));
             var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * 1.4);
-            TimeAsserter.Execute(() => BinaryCreateInstance(constructions.InstrumentationSlowdown(4.7)), maxTotal: maxTime );
+            RunScenario(() => BinaryCreateInstance(1), constructions.InstrumentationSlowdown(4.7), maxTotal: maxTime );
         }
 
         [Test] public void _010_Serializes_10_000_times_in_100_milliseconds() =>
-            TimeAsserter.Execute(() => BinarySerialize(_instance, 10_000.InstrumentationSlowdown(6.5)), maxTotal:100.Milliseconds());
+            RunScenario(() => BinarySerialize(_instance, 1), 10_000.InstrumentationSlowdown(6.5), maxTotal:100.Milliseconds());
 
         [Test] public void _020_DeSerializes_10_000_times_in_130_milliseconds() =>
-            TimeAsserter.Execute(() => BinaryDeSerialize(10_000.InstrumentationSlowdown(5.5)), maxTotal:130.Milliseconds());
+                RunScenario(() => BinaryDeSerialize(1), iterations: 10_000.InstrumentationSlowdown(5.5), maxTotal:130.Milliseconds());
 
         [Test] public void _030_Roundtrips_10_000_times_in_220_milliseconds() =>
-            TimeAsserter.Execute(() => BinaryRoundTrip(_instance, 10_000.InstrumentationSlowdown(6)), maxTotal:220.Milliseconds());
+            RunScenario(() => BinaryRoundTrip(_instance, 1), iterations: 10_000.InstrumentationSlowdown(6), maxTotal:220.Milliseconds());
 
         //ncrunch: no coverage start
+
+        static TimeSpan RunScenario(Action action, int iterations, TimeSpan? maxTotal = null)
+        {
+            if(maxTotal != null)
+            {
+                return TimeAsserter.Execute(action, iterations: iterations, maxTotal: maxTotal).Total;
+            } else
+            {
+                return StopwatchExtensions.TimeExecution(action, iterations: iterations).Total;
+            }
+        }
+
         static void JsonRoundTrip(HasAllPropertyTypes instance, int iterations)
         {
             for(int i = 0; i < iterations; i++)
@@ -128,5 +140,6 @@ namespace Composable.Tests.Serialization.BinarySerializeds
         }
 
         //ncrunch: no coverage end
+
     }
 }

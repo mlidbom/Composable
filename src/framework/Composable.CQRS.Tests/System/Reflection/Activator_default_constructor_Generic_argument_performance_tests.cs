@@ -14,11 +14,11 @@ namespace Composable.Tests.System.Reflection
         [UsedImplicitly] class Simple
         {}
 
-        [Test] public void TestName() => Constructor.For<Simple>.DefaultConstructor.Instance().Should().NotBe(null);
+        [Test, Serial] public void TestName() => Constructor.For<Simple>.DefaultConstructor.Instance().Should().NotBe(null);
 
-        [Test] public void _005_Constructs_10_000_000_instances_within_15_percent_of_default_constructor_time()
+        [Test, Serial] public void _005_Constructs_10_000_000_instances_within_30_percent_of_default_constructor_time()
         {
-            var constructions = 1_000_000.InstrumentationDecrease(4.7);
+            var constructions = 1_000_000.InstrumentationSlowdown(4.7);
 
             //warmup
             StopwatchExtensions.TimeExecution(DefaultConstructor, constructions);
@@ -26,13 +26,13 @@ namespace Composable.Tests.System.Reflection
 
 
             var defaultConstructor = StopwatchExtensions.TimeExecution(DefaultConstructor, constructions).Total;
-            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * 1.15);
+            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * 1.30);
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime);
         }
 
-        [Test] public void _005_Constructs_10_000_000_5_times_faster_than_via_new_constraint_constructor_time()
+        [Test, Serial] public void _005_Constructs_10_000_000_5_times_faster_than_via_new_constraint_constructor_time()
         {
-            var constructions = 1_000_000.InstrumentationDecrease(10);
+            var constructions = 1_000_000.InstrumentationSlowdown(10);
 
             //warmup
             StopwatchExtensions.TimeExecution(NewConstraint, constructions);
@@ -44,9 +44,9 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.InstrumentationSlowdown(5));
         }
 
-        [Test] public void _005_Constructs_10_000_000_5_times_fasterthan_via_activator_createinstance()
+        [Test, Serial] public void _005_Constructs_10_000_000_5_times_fasterthan_via_activator_createinstance()
         {
-            var constructions = 1_000_000.InstrumentationDecrease(10);
+            var constructions = 1_000_000.InstrumentationSlowdown(10);
 
             //warmup
             StopwatchExtensions.TimeExecution(ActivatorCreateInstance, constructions);

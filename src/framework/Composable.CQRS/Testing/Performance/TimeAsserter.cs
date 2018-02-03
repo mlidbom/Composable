@@ -35,8 +35,6 @@ namespace Composable.Testing.Performance
                                                               ? TimeSpan.FromMilliseconds(timespan.Value.TotalMilliseconds * MachineSlowdownFactor)
                                                               : (TimeSpan?)null;
 
-        static readonly MachineWideSingleThreaded MachineWideSingleThreaded = MachineWideSingleThreaded.For(typeof(TimeAsserter));
-
         internal static StopwatchExtensions.TimedExecutionSummary Execute
             ([InstantHandle]Action action,
              int iterations = 1,
@@ -55,32 +53,28 @@ namespace Composable.Testing.Performance
 
             StopwatchExtensions.TimedExecutionSummary executionSummary = null;
 
-            MachineWideSingleThreaded.Execute(
-                () =>
+            for(var tries = 1; tries <= maxTries; tries++)
+            {
+                setup?.Invoke();
+                executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
+                tearDown?.Invoke();
+                try
                 {
-                    for(var tries = 1; tries <= maxTries; tries++)
+                    RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format: Format);
+                }
+                catch(TimeOutException e)
+                {
+                    SafeConsole.WriteLine($"Try: {tries} {e.Message}");
+                    if(tries >= maxTries)
                     {
-                        setup?.Invoke();
-                        executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
-                        tearDown?.Invoke();
-                        try
-                        {
-                            RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format: Format);
-                        }
-                        catch(TimeOutException e)
-                        {
-                            SafeConsole.WriteLine($"Try: {tries} {e.Message}");
-                            if(tries >= maxTries)
-                            {
-                                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
-                                throw;
-                            }
-                            continue;
-                        }
                         PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
-                        break;
+                        throw;
                     }
-                });
+                    continue;
+                }
+                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
+                break;
+            }
 
             return executionSummary;
         }
@@ -124,32 +118,29 @@ namespace Composable.Testing.Performance
             }
             // ReSharper restore AccessToModifiedClosure
 
-            MachineWideSingleThreaded.Execute(
-                () =>
+
+            for(var tries = 1; tries <= maxTries; tries++)
+            {
+                setup?.Invoke();
+                executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions, maxDegreeOfParallelism: maxDegreeOfParallelism);
+                tearDown?.Invoke();
+                try
                 {
-                    for(var tries = 1; tries <= maxTries; tries++)
+                    RunAsserts(maxAverage, maxTotal, executionSummary, Format);
+                }
+                catch(TimeOutException e)
+                {
+                    SafeConsole.WriteLine($"Try: {tries} {e.GetType() .FullName}: {e.Message}");
+                    if(tries >= maxTries)
                     {
-                        setup?.Invoke();
-                        executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions, maxDegreeOfParallelism: maxDegreeOfParallelism);
-                        tearDown?.Invoke();
-                        try
-                        {
-                            RunAsserts(maxAverage, maxTotal, executionSummary, Format);
-                        }
-                        catch(TimeOutException e)
-                        {
-                            SafeConsole.WriteLine($"Try: {tries} {e.GetType() .FullName}: {e.Message}");
-                            if(tries >= maxTries)
-                            {
-                                PrintResults();
-                                throw;
-                            }
-                            continue;
-                        }
                         PrintResults();
-                        break;
+                        throw;
                     }
-                });
+                    continue;
+                }
+                PrintResults();
+                break;
+            }
 
             return executionSummary;
         }

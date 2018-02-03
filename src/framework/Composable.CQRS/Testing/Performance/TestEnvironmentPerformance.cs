@@ -17,7 +17,7 @@ namespace Composable.Testing.Performance
             }
         }
 
-        public static int InstrumentationDecrease(this int original, double slowdownFactor)
+        public static int InstrumentationSlowdown(this int original, double slowdownFactor)
         {
             if(IsInstrumented)
             {

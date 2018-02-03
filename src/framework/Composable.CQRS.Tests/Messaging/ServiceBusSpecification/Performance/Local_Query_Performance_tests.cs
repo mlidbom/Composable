@@ -10,17 +10,17 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
     [TestFixture, Performance, Serial] public class Local_Query_performance_tests : PerformanceTestBase
     {
-        [Test] public void Runs_10_000__MultiThreaded_local_requests_making_1_local_query_each_in_10_milliseconds() =>
-            RunScenario(threaded: true, requests: 10_000, queriesPerRequest: 1, maxTotal: 10.Milliseconds().InstrumentationSlowdown(15));
+        [Test, Serial] public void Runs_100_000__MultiThreaded_local_requests_making_a_single_local_query_each_in_120_milliseconds() =>
+            RunScenario(threaded: true, requests: 100_000.InstrumentationSlowdown(15), queriesPerRequest: 1, maxTotal: 120.Milliseconds());
 
-        [Test] public void Runs_10_000_SingleThreaded_local_requests_making_a_single_local_query_in_30_milliseconds() =>
-            RunScenario(threaded: false, requests: 10_000, queriesPerRequest: 1, maxTotal: 30.Milliseconds().InstrumentationSlowdown(5));
+        [Test, Serial] public void Runs_100_000_SingleThreaded_local_requests_making_a_single_local_query_in_250_milliseconds() =>
+            RunScenario(threaded: false, requests: 100_000.InstrumentationSlowdown(5), queriesPerRequest: 1, maxTotal: 250.Milliseconds());
 
-        [Test] public void Runs_1_000__MultiThreaded_local_requests_making_10_local_queríes_each_in_7_milliseconds() =>
-            RunScenario(threaded: true, requests: 1_000, queriesPerRequest: 10, maxTotal: 7.Milliseconds().InstrumentationSlowdown(11));
+        [Test, Serial] public void Runs_100_000__MultiThreaded_local_requests_making_10_local_queries_each_in_70_milliseconds() =>
+            RunScenario(threaded: true, requests: 10_000.InstrumentationSlowdown(11), queriesPerRequest: 10, maxTotal: 70.Milliseconds());
 
-        [Test] public void Runs_1_000__SingleThreaded_local_requests_making_10_local_queríes_each_in_12_milliseconds() =>
-            RunScenario(threaded: false, requests: 1_000, queriesPerRequest: 10, maxTotal: 12.Milliseconds().InstrumentationSlowdown(5));
+        [Test, Serial] public void Runs_10_000__SingleThreaded_local_requests_making_10_local_queries_each_in_90_milliseconds() =>
+            RunScenario(threaded: false, requests: 10_000.InstrumentationSlowdown(5), queriesPerRequest: 10, maxTotal: 90.Milliseconds());
 
         void RunScenario(bool threaded, int requests, int queriesPerRequest, TimeSpan maxTotal)
         {

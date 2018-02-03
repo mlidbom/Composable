@@ -54,27 +54,27 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
             var maxTotal = TimeSpan.FromMilliseconds(jsonSerializationTime.TotalMilliseconds / 5);
 
-            var binarySerializationTime = RunScenario(BinaryRoundTrip, iterations.InstrumentationDecrease(5), maxTotal:maxTotal);
+            var binarySerializationTime = RunScenario(BinaryRoundTrip, iterations.InstrumentationSlowdown(5), maxTotal:maxTotal);
 
             Console.WriteLine($"Binary: {binarySerializationTime.TotalMilliseconds}, JSon: {jsonSerializationTime.TotalMilliseconds}");
         }
 
         [Test] public void _005_Constructs_1_00_000_instances_within_5_percent_of_default_constructor_time()
         {
-            var constructions = 1_00_000.InstrumentationDecrease(4.7);
+            var constructions = 1_00_000.InstrumentationSlowdown(4.7);
             var defaultConstructor = RunScenario(DefaultConstructor, constructions);
             var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * 1.05);
             RunScenario(DynamicModuleConstruct, constructions, maxTotal: maxTime );
         }
 
         [Test] public void _010_Serializes_10_000_times_in_100_milliseconds() =>
-            RunScenario(BinarySerialize, 10_000.InstrumentationDecrease(6.5), maxTotal:100.Milliseconds());
+            RunScenario(BinarySerialize, 10_000.InstrumentationSlowdown(6.5), maxTotal:100.Milliseconds());
 
         [Test] public void _020_DeSerializes_10_000_times_in_130_milliseconds() =>
-                RunScenario(BinaryDeSerialize, iterations: 10_000.InstrumentationDecrease(5.5), maxTotal:130.Milliseconds());
+                RunScenario(BinaryDeSerialize, iterations: 10_000.InstrumentationSlowdown(5.5), maxTotal:130.Milliseconds());
 
         [Test] public void _030_Roundtrips_10_000_times_in_220_milliseconds() =>
-            RunScenario(BinaryRoundTrip, iterations: 10_000.InstrumentationDecrease(6.5), maxTotal:220.Milliseconds());
+            RunScenario(BinaryRoundTrip, iterations: 10_000.InstrumentationSlowdown(6.5), maxTotal:220.Milliseconds());
 
         //ncrunch: no coverage start
 

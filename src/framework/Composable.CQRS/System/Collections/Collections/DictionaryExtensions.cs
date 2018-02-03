@@ -39,7 +39,7 @@ namespace Composable.System.Collections.Collections
                 return value;
             }
 
-            value = Constructor.For<TValue>.DefaultConstructor.Instance();
+            value = new TValue();
             me.Add(key, value);
             return value;
         }

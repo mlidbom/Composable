@@ -52,7 +52,7 @@ namespace Composable.Contracts
                     {
                         return true;
                     }
-                    var valueTypeDefault = Constructor.CreateInstance(inspected.GetType());
+                    var valueTypeDefault = Activator.CreateInstance(inspected.GetType());
                     return !Equals(inspected, valueTypeDefault);
                 },
                 badValue => new ObjectIsDefaultContractViolationException(badValue));

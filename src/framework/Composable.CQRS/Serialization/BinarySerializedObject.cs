@@ -2,11 +2,10 @@
 using System.IO;
 using System.Linq;
 using Composable.Contracts;
-using Composable.System.Threading;
 
 // ReSharper disable ForCanBeConvertedToForeach optimization is important in this file. It is really the whole purpose of it :)
 
-namespace Composable.Tests.System.Threading
+namespace Composable.Serialization
 {
     abstract partial class BinarySerializedObject<TInheritor> : IBinarySerializeMySelf<TInheritor>
         where TInheritor : BinarySerializedObject<TInheritor>, new()
@@ -18,7 +17,7 @@ namespace Composable.Tests.System.Threading
 
         protected BinarySerializedObject() => _this = (TInheritor)this;
 
-        protected static void InitGetterSetters(MemberGetterSetter[] getterSetters)
+        protected static void InitGetterSetters(params MemberGetterSetter[] getterSetters)
         {
             Contract.Invariant(() => _memberGetterSetters).Inspect(currentArray => currentArray == null, currentArray => new InvalidOperationException($"You can only call {nameof(InitGetterSetters)} once"));
 

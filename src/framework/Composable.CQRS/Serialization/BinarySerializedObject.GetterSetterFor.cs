@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Composable.Tests.System.Threading
+namespace Composable.Serialization
 {
     abstract partial class BinarySerializedObject<TInheritor> where TInheritor : BinarySerializedObject<TInheritor>, new()
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Composable.Contracts;
+using Composable.Serialization;
 using Composable.System.Threading;
 
 namespace Composable.Testing.Databases

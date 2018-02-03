@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using Composable.Serialization;
 
 namespace Composable.System.Threading
 {

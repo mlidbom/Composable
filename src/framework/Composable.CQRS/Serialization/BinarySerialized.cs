@@ -13,7 +13,7 @@ namespace Composable.Serialization
         static readonly MemberGetterSetter[] MemberGetterSetters;
         static readonly MemberGetterSetter[] MemberGetterSettersReversed;
 
-        internal static readonly Func<TInheritor> DefaultConstructor = ConstructorFor<TInheritor>.DefaultConstructor.Instance;
+        internal static readonly Func<TInheritor> DefaultConstructor = Constructor.For<TInheritor>.DefaultConstructor.Instance;
 
         readonly TInheritor _this;
 

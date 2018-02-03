@@ -46,7 +46,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                         .For<TEntityCreatedEvent>(
                             e =>
                             {
-                                var entity = ConstructorFor<TEntity>.WithArgument<TParent>.CreateIntance(parent);
+                                var entity = Constructor.For<TEntity>.WithArgument<TParent>.CreateIntance(parent);
                                 ManagedEntities.Add(entity, IdGetter.GetId(e));
                             })
                         .For<TEntityEvent>(e => ManagedEntities[IdGetter.GetId(e)].ApplyEvent(e));

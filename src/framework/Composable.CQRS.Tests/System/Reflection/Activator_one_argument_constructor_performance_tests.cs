@@ -19,7 +19,7 @@ namespace Composable.Tests.System.Reflection
 
         [Test] public void Can_create_instance()
         {
-            var instance = ConstructorFor<Simple>.WithArgument<string>.CreateIntance(_argument);
+            var instance = Constructor.For<Simple>.WithArgument<string>.CreateIntance(_argument);
         }
 
         [Test] public void _005_Constructs_1_000_000_instances_within_15_percent_of_normal_constructor_call()
@@ -50,7 +50,7 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.InstrumentationSlowdown(25));
         }
 
-        static void DynamicModuleConstruct() => ConstructorFor<Simple>.WithArgument<string>.CreateIntance(_argument);
+        static void DynamicModuleConstruct() => Constructor.For<Simple>.WithArgument<string>.CreateIntance(_argument);
 
         // ReSharper disable once ObjectCreationAsStatement
         static void DefaultConstructor() => FakeActivator.CreateWithDefaultConstructor();

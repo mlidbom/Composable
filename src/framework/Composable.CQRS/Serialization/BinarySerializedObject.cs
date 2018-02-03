@@ -7,21 +7,26 @@ using System.Linq;
 namespace Composable.Serialization
 {
     abstract partial class BinarySerializedObject<TInheritor> : IBinarySerializeMySelf<TInheritor>
-        where TInheritor : BinarySerializedObject<TInheritor>, new()
+        where TInheritor : BinarySerializedObject<TInheritor>, 
+        //todo: find a way of not requiring that you make it possible to create an invalid instance...
+        new()
     {
         static MemberGetterSetter[] _memberGetterSetters;
         static MemberGetterSetter[] _memberGetterSettersReversed;
+        static Func<TInheritor> _constructor;
 
         readonly TInheritor _this;
 
         protected BinarySerializedObject() => _this = (TInheritor)this;
 
-        protected static void InitGetterSetters(params MemberGetterSetter[] getterSetters)
+        protected static void Init(Func<TInheritor> constructor, params MemberGetterSetter[] getterSetters)
         {
             if(_memberGetterSetters != null)
             {
-                throw new InvalidOperationException($"You can only call {nameof(InitGetterSetters)} once");
+                throw new InvalidOperationException($"You can only call {nameof(Init)} once");
             }
+
+            _constructor = constructor;
 
             _memberGetterSetters = getterSetters.ToArray();
             _memberGetterSettersReversed = getterSetters.Reverse().ToArray();
@@ -61,7 +66,7 @@ namespace Composable.Serialization
         {
             using(var reader = new BinaryReader(new MemoryStream(data)))
             {
-                var instance = new TInheritor();
+                var instance = _constructor();
                 instance.Deserialize(reader);
                 return instance;
             }

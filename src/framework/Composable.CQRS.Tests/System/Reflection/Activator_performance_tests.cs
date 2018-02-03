@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.System.Reflection
 {
-    [TestFixture]public class Activator_performance_tests
+    [TestFixture]public class Activator_default_constructor_performance_tests
     {
         [UsedImplicitly] class Simple
         {

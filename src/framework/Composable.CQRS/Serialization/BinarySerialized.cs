@@ -7,12 +7,11 @@ using System.Linq;
 
 namespace Composable.Serialization
 {
-    abstract partial class BinarySerialized<TInheritor>
-        where TInheritor : BinarySerialized<TInheritor>
+    abstract partial class BinarySerialized<TInheritor> where TInheritor : BinarySerialized<TInheritor>
     {
         static readonly MemberGetterSetter[] MemberGetterSetters;
         static readonly MemberGetterSetter[] MemberGetterSettersReversed;
-        static TInheritor Construct() => (TInheritor)Activator.CreateInstance(typeof(TInheritor), nonPublic: true);
+        internal static TInheritor Construct() => (TInheritor)Activator.CreateInstance(typeof(TInheritor), nonPublic: true);
 
         readonly TInheritor _this;
 

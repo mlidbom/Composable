@@ -43,6 +43,9 @@ namespace Composable.Messaging.Buses.Implementation
                     const int MaxConcurrentlyExecutingHandlers = 20;
                     readonly IGlobalBusStateTracker _globalStateTracker;
 
+
+                    //performance: Split waiting messages into prioritized categories: Exactly once event/command, At most once event/command,  NonTransactional query
+                    //don't postpone checking if mutations are allowed to run because we have a ton of queries queued up. Also the queries are likely not allowed to run due to the commands and events!
                     public IReadOnlyList<TransportMessage.InComing> AtMostOnceCommands => _executingAtMostOnceCommands;
                     public IReadOnlyList<TransportMessage.InComing> ExactlyOnceCommands => _executingExactlyOnceCommands;
                     public IReadOnlyList<TransportMessage.InComing> ExactlyOnceEvents => _executingExactlyOnceEvents;

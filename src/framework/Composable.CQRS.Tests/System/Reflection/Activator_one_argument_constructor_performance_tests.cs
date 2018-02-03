@@ -46,7 +46,7 @@ namespace Composable.Tests.System.Reflection
 
             var defaultConstructor = StopwatchExtensions.TimeExecution(ActivatorCreateInstance, constructions).Total;
             var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * (1.0/60));
-            TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.InstrumentationSlowdown(25));
+            TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.InstrumentationSlowdown(18));
         }
 
         static void DynamicModuleConstruct() => Constructor.For<Simple>.WithArgument<string>.Instance(_argument);

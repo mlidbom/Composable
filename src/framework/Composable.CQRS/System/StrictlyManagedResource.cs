@@ -112,11 +112,10 @@ namespace Composable.System
             GC.SuppressFinalize(this);
             if(!_disposed)
             {
+                _disposed = true;
                 _strictlyManagedResource.Dispose();
                 InternalDispose();
             }
-
-            _disposed = true;
         }
 
         protected abstract void InternalDispose();

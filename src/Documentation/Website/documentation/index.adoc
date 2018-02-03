@@ -4,6 +4,8 @@
 :sectnums:
 :doctype: book
 :imagesdir: images
+:source-highlighter: highlightjs
+:highlightjs-theme: agate
 
 
 

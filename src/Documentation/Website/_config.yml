@@ -41,7 +41,5 @@ asciidoctor:
     - idseparator=_
     - imagesdir=diagrams
     - stylesdir=vendor-css
-    - source-highlighter=pygments
-    - pygments-style=default #monokai, manni, rrt, perldoc, borland, colorful, default, murphy, vs, trac, tango, fruity, autumn, bw, emacs, vim, pastie, friendly, native #list here: https://help.farbox.com/pygments.html
     - source-language=csharp
     - icons=font

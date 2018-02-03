@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses.Implementation
         void Start();
         void Connect(IEndpoint endpoint);
 
-        void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent exectlyOnceEvent);
+        void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
         void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);
 
         Task DispatchAsync(BusApi.Remotable.AtMostOnce.ICommand atMostOnceCommand);

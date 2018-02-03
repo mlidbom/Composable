@@ -75,9 +75,9 @@ namespace Composable.Messaging.Buses.Implementation
             state.Poller = null;
         });
 
-        public void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent exectlyOnceEvent) => _state.WithExclusiveAccess(state =>
+        public void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent exactlyOnceEvent) => _state.WithExclusiveAccess(state =>
         {
-            var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(exectlyOnceEvent)
+            var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(exactlyOnceEvent)
                                                .Where(id => id != state.EndpointId)
                                                .ToArray();//We dispatch events to ourself synchronously so don't go doing it again here.;
 
@@ -85,8 +85,8 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId])
                                                          .ToArray();
-                state.MessageStorage.SaveMessage(exectlyOnceEvent, eventHandlerEndpointIds);
-                connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(exectlyOnceEvent));
+                state.MessageStorage.SaveMessage(exactlyOnceEvent, eventHandlerEndpointIds);
+                connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(exactlyOnceEvent));
             }
         });
 

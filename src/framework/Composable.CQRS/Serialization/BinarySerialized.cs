@@ -2,16 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Composable.System.Reflection;
 
 // ReSharper disable ForCanBeConvertedToForeach optimization is important in this file. It is really the whole purpose of it :)
 
 namespace Composable.Serialization
 {
-    abstract partial class BinarySerialized<TInheritor> where TInheritor : BinarySerialized<TInheritor>
+    abstract partial class BinarySerialized<TInheritor> where TInheritor : BinarySerialized<TInheritor>, new()
     {
         static readonly MemberGetterSetter[] MemberGetterSetters;
         static readonly MemberGetterSetter[] MemberGetterSettersReversed;
-        internal static TInheritor Construct() => (TInheritor)Activator.CreateInstance(typeof(TInheritor), nonPublic: true);
+        internal static readonly Func<TInheritor> DynamicModuleConstructor = DynamicModuleLambdaCompiler.GenerateFactory<TInheritor>();
+
+        internal static TInheritor DynamicModuleConstruct() => DynamicModuleConstructor();
+        internal static TInheritor ActivatorConstruct() => (TInheritor)Activator.CreateInstance(typeof(TInheritor), nonPublic: true);
+        internal static TInheritor ConstructorConstruct() => new TInheritor();
 
         readonly TInheritor _this;
 
@@ -19,7 +24,7 @@ namespace Composable.Serialization
 
         static BinarySerialized()
         {
-            var inheritor = Construct();
+            var inheritor = DynamicModuleConstruct();
             MemberGetterSetters = inheritor.CreateGetterSetters().ToArray();
             MemberGetterSettersReversed = MemberGetterSetters.Reverse().ToArray();
         }
@@ -60,7 +65,7 @@ namespace Composable.Serialization
         {
             using(var reader = new BinaryReader(new MemoryStream(data)))
             {
-                var instance = Construct();
+                var instance = DynamicModuleConstruct();
                 instance.Deserialize(reader);
                 return instance;
             }

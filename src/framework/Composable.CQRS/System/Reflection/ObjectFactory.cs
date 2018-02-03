@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Composable.System.Reflection
 {
@@ -48,28 +50,38 @@ namespace Composable.System.Reflection
         }
 
 
-        //private static TEntity CreateInstanceInternalV2(params ITypedArgument[] typedArguments)
-        //{
-        //    var argumentsArray = typedArguments.Select(typedArgument => typedArgument.Argument).ToArray();
-        //    var parameterTypes = typedArguments.Select(typedArgument => typedArgument.Type).ToArray();
-        //    ParameterModifier[] parameterModifiers = new ParameterModifier[0];
-
-        //    var bindingFlags = BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public;
-        //    var entityType = typeof(TEntity);
-
-        //    var constructor = entityType.GetConstructor(
-        //        bindingAttr: bindingFlags,
-        //        binder: null,
-        //        callConvention: CallingConventions.Standard,
-        //        types: parameterTypes,
-        //        modifiers: parameterModifiers);
-
-        //    return (TEntity)constructor.Invoke(invokeAttr: bindingFlags, binder: null, obj: null, parameters: argumentsArray, culture: null);
-        //}
-
         static string DescribeParameterList(IEnumerable<Type> parameterTypes)
         {
             return parameterTypes.Select(parameterType => parameterType.FullName).Join(", ");
+        }
+    }
+
+    public static class DynamicModuleLambdaCompiler
+    {
+        public static Func<T> GenerateFactory<T>() where T:new()
+        {
+            Expression<Func<T>> expr = () => new T();
+            NewExpression newExpr = (NewExpression)expr.Body;
+ 
+            var method = new DynamicMethod(name: "lambda", returnType: newExpr.Type, parameterTypes: new Type[0], m: typeof(DynamicModuleLambdaCompiler).Module, skipVisibility: true);
+ 
+            ILGenerator ilGen = method.GetILGenerator();
+            // Constructor for value types could be null
+            if (newExpr.Constructor != null)
+            {
+                ilGen.Emit(OpCodes.Newobj, newExpr.Constructor);
+            }
+            else
+            {
+                LocalBuilder temp = ilGen.DeclareLocal(newExpr.Type);
+                ilGen.Emit(OpCodes.Ldloca, temp);
+                ilGen.Emit(OpCodes.Initobj, newExpr.Type);
+                ilGen.Emit(OpCodes.Ldloc, temp);
+            }
+
+            ilGen.Emit(OpCodes.Ret);
+ 
+            return (Func<T>)method.CreateDelegate(typeof(Func<T>));
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Composable.System.Threading
         }
     }
 
-    class MachineWideSharedObject<TObject> : MachineWideSharedObject, IDisposable where TObject : BinarySerialized<TObject>
+    class MachineWideSharedObject<TObject> : MachineWideSharedObject, IDisposable where TObject : BinarySerialized<TObject>, new()
     {
         const int LengthIndicatorIntegerLengthInBytes = 4;
         readonly long _capacity;
@@ -111,7 +111,7 @@ namespace Composable.System.Threading
 
             if (Equals(value, default(TObject)))
             {
-                Set(value = BinarySerialized<TObject>.Construct(), accessor);
+                Set(value = BinarySerialized<TObject>.DynamicModuleConstruct(), accessor);
             }
 
             return value;

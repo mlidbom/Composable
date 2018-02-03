@@ -39,7 +39,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
             //Warmup
             RunScenario(DefaultConstructor, 1000);
-            RunScenario(BinaryCreateInstance, 1000);
+            RunScenario(DynamicModuleConstruct, 1000);
             RunScenario(() => JsonRoundTrip(_instance), 1000);
             RunScenario(BinaryRoundTrip, iterations: 1000);
 
@@ -59,6 +59,19 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             Console.WriteLine($"Binary: {binarySerializationTime.TotalMilliseconds}, JSon: {jsonSerializationTime.TotalMilliseconds}");
         }
 
+        [Test] public void _001_Compare_construction_strategies_1_00_000_instances_within_40_percent_of_default_constructor_time()
+        {
+            int constructions = 100_000;
+            for(int i = 0; i < 10; i++)
+            {
+                var dynamicModule = RunScenario(DynamicModuleConstruct, iterations: constructions);
+                var activator = RunScenario(ActivatorConstruct, iterations: constructions);
+                var newConstraintConstructor = RunScenario(ConstructorConstruct, iterations: constructions);
+                var constructor = RunScenario(DefaultConstructor, iterations: constructions);
+
+                Console.WriteLine($"{nameof(constructor)}: {constructor.PercentOf(constructor)}, {nameof(dynamicModule)}: {dynamicModule.PercentOf(constructor)}, {nameof(newConstraintConstructor)}: {newConstraintConstructor.PercentOf(constructor)}, {nameof(activator)}: {activator.PercentOf(constructor)}");
+            }
+        }
 
 
         [Test] public void _005_Constructs_1_00_000_instances_within_40_percent_of_default_constructor_time()
@@ -66,7 +79,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             var constructions = 1_00_000;
             var defaultConstructor = RunScenario(DefaultConstructor, constructions.InstrumentationSlowdown(4.7));
             var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * 1.4);
-            RunScenario(BinaryCreateInstance, constructions.InstrumentationSlowdown(4.7), maxTotal: maxTime );
+            RunScenario(DynamicModuleConstruct, constructions.InstrumentationSlowdown(4.7), maxTotal: maxTime );
         }
 
         [Test] public void _010_Serializes_10_000_times_in_100_milliseconds() =>
@@ -106,11 +119,20 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
         void BinaryDeSerialize() => BinarySerialized<HasAllPropertyTypes>.Deserialize(_serialized);
 
-        static void BinaryCreateInstance() => BinarySerialized<HasAllPropertyTypes>.Construct();
+        static void DynamicModuleConstruct() => BinarySerialized<HasAllPropertyTypes>.DynamicModuleConstructor();
+
+        static void ActivatorConstruct() => BinarySerialized<HasAllPropertyTypes>.ActivatorConstruct();
+
+        static void ConstructorConstruct() => BinarySerialized<HasAllPropertyTypes>.ConstructorConstruct();
 
         static void DefaultConstructor() => new HasAllPropertyTypes();
 
         //ncrunch: no coverage end
 
+    }
+
+    static class Percenter
+    {
+        internal static string PercentOf(this TimeSpan @this, TimeSpan other) => ((int)(100 * (@this.TotalMilliseconds / other.TotalMilliseconds -1))).ToString("00");
     }
 }

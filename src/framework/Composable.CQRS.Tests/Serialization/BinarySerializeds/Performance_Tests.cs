@@ -38,10 +38,10 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             _serialized = _instance.Serialize();
 
             //Warmup
-            RunScenario(() => DefaultConstructor(1), 1000);
-            RunScenario(() => BinaryCreateInstance(1), 1000);
-            RunScenario(() => JsonRoundTrip(_instance, 1), 1000);
-            RunScenario(() => BinaryRoundTrip(_instance, 1), iterations: 1000);
+            RunScenario(DefaultConstructor, 1000);
+            RunScenario(BinaryCreateInstance, 1000);
+            RunScenario(() => JsonRoundTrip(_instance), 1000);
+            RunScenario(BinaryRoundTrip, iterations: 1000);
 
         }
 
@@ -54,27 +54,29 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
             var maxTotal = TimeSpan.FromMilliseconds(jsonSerializationTime.TotalMilliseconds / 5);
 
-            var binarySerializationTime = RunScenario(() => BinaryRoundTrip(_instance, 1), iterations.InstrumentationSlowdown(5), maxTotal:maxTotal);
+            var binarySerializationTime = RunScenario(BinaryRoundTrip, iterations.InstrumentationSlowdown(5), maxTotal:maxTotal);
 
             Console.WriteLine($"Binary: {binarySerializationTime.TotalMilliseconds}, JSon: {jsonSerializationTime.TotalMilliseconds}");
         }
 
+
+
         [Test] public void _005_Constructs_1_00_000_instances_within_40_percent_of_default_constructor_time()
         {
             var constructions = 1_00_000;
-            var defaultConstructor = RunScenario(() => DefaultConstructor(1), constructions.InstrumentationSlowdown(4.7));
+            var defaultConstructor = RunScenario(DefaultConstructor, constructions.InstrumentationSlowdown(4.7));
             var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * 1.4);
-            RunScenario(() => BinaryCreateInstance(1), constructions.InstrumentationSlowdown(4.7), maxTotal: maxTime );
+            RunScenario(BinaryCreateInstance, constructions.InstrumentationSlowdown(4.7), maxTotal: maxTime );
         }
 
         [Test] public void _010_Serializes_10_000_times_in_100_milliseconds() =>
-            RunScenario(() => BinarySerialize(_instance, 1), 10_000.InstrumentationSlowdown(6.5), maxTotal:100.Milliseconds());
+            RunScenario(BinarySerialize, 10_000.InstrumentationSlowdown(6.5), maxTotal:100.Milliseconds());
 
         [Test] public void _020_DeSerializes_10_000_times_in_130_milliseconds() =>
-                RunScenario(() => BinaryDeSerialize(1), iterations: 10_000.InstrumentationSlowdown(5.5), maxTotal:130.Milliseconds());
+                RunScenario(BinaryDeSerialize, iterations: 10_000.InstrumentationSlowdown(5.5), maxTotal:130.Milliseconds());
 
         [Test] public void _030_Roundtrips_10_000_times_in_220_milliseconds() =>
-            RunScenario(() => BinaryRoundTrip(_instance, 1), iterations: 10_000.InstrumentationSlowdown(6.5), maxTotal:220.Milliseconds());
+            RunScenario(BinaryRoundTrip, iterations: 10_000.InstrumentationSlowdown(6.5), maxTotal:220.Milliseconds());
 
         //ncrunch: no coverage start
 
@@ -89,7 +91,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             }
         }
 
-        static void JsonRoundTrip(HasAllPropertyTypes instance, int iterations)
+        static void JsonRoundTrip(HasAllPropertyTypes instance, int iterations = 1)
         {
             for(int i = 0; i < iterations; i++)
             {
@@ -98,47 +100,15 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             }
         }
 
-        static void BinaryRoundTrip(HasAllPropertyTypes instance, int iterations)
-        {
-            for(int i = 0; i < iterations; i++)
-            {
-                var data = instance.Serialize();
-                instance = BinarySerialized<HasAllPropertyTypes>.Deserialize(data);
-            }
-        }
+        void BinaryRoundTrip() => BinarySerialized<HasAllPropertyTypes>.Deserialize(_instance.Serialize());
 
-        static void BinarySerialize(HasAllPropertyTypes instance, int iterations)
-        {
-            for(int i = 0; i < iterations; i++)
-            {
-                instance.Serialize();
-            }
-        }
+        void BinarySerialize() => _instance.Serialize();
 
-        void BinaryDeSerialize(int iterations)
-        {
-            for(int i = 0; i < iterations; i++)
-            {
-                BinarySerialized<HasAllPropertyTypes>.Deserialize(_serialized);
-            }
-        }
+        void BinaryDeSerialize() => BinarySerialized<HasAllPropertyTypes>.Deserialize(_serialized);
 
-        static void BinaryCreateInstance(int iterations)
-        {
-            for(int i = 0; i < iterations; i++)
-            {
-                BinarySerialized<HasAllPropertyTypes>.Construct();
-            }
-        }
+        static void BinaryCreateInstance() => BinarySerialized<HasAllPropertyTypes>.Construct();
 
-        static void DefaultConstructor(int iterations)
-        {
-            for(int i = 0; i < iterations; i++)
-            {
-                // ReSharper disable once ObjectCreationAsStatement
-                new HasAllPropertyTypes();
-            }
-        }
+        static void DefaultConstructor() => new HasAllPropertyTypes();
 
         //ncrunch: no coverage end
 

@@ -100,8 +100,8 @@ namespace Composable.DependencyInjection.Persistence
                                      .LifestyleScoped());
 
             var sessionType = DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType;
-            var constructorSignature = typeof(Func<,,>).MakeGenericType(typeof(IInterceptor[]), typeof(IDocumentDbSession), sessionType);
-            var constructor = (Func<IInterceptor[], IDocumentDbSession, TUpdater>)Constructor.CompileForSignature(constructorSignature);
+            var constructor = Constructor.Compile.ForReturnType<TUpdater>().WithImplementingType(sessionType).WithArguments<IInterceptor[], IDocumentDbSession>();
+
             var emptyInterceptorArray = new IInterceptor[0];
 
             @this.Register(Component.For<TUpdater, TReader, TBulkReader>()

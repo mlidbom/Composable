@@ -199,8 +199,7 @@ namespace Composable.DependencyInjection.Persistence
                                     .LifestyleScoped());
 
             var sessionType = EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType;
-            var constructorSignature = typeof(Func<,,>).MakeGenericType(typeof(IInterceptor[]), typeof(IEventStoreUpdater), sessionType);
-            var constructor = (Func<IInterceptor[], IEventStoreUpdater, TSessionInterface>)Constructor.CompileForSignature(constructorSignature);
+            var constructor = (Func<IInterceptor[], IEventStoreUpdater, TSessionInterface>)Constructor.Compile.ForReturnType(sessionType).WithArguments<IInterceptor[], IEventStoreUpdater>();
             var emptyInterceptorArray = new IInterceptor[0];
 
             @this.Register(Component.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())

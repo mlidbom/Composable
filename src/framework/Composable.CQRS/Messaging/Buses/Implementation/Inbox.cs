@@ -105,10 +105,16 @@ namespace Composable.Messaging.Buses.Implementation
                     var transportMessageBatch = _receivedMessageBatches.Take(_cancellationTokenSource.Token);
                     foreach(var transportMessage in transportMessageBatch)
                     {
-                        if(typeof(BusApi.Remotable.ExactlyOnce.IMessage).IsAssignableFrom(transportMessage.MessageType))
+                        if(typeof(BusApi.Remotable.IAtMostOnceMessage).IsAssignableFrom(transportMessage.MessageType))
                         {
+                            //todo: handle the exception that will be thrown if this is a duplicate message
                             _storage.SaveMessage(transportMessage);
-                            _responseQueue.Enqueue(transportMessage.CreatePersistedResponse());
+
+                            if(typeof(BusApi.Remotable.ExactlyOnce.IMessage).IsAssignableFrom(transportMessage.MessageType))
+                            {
+                                var persistedResponse = transportMessage.CreatePersistedResponse();
+                                _responseQueue.Enqueue(persistedResponse);
+                            }
                         }
 
                         var dispatchTask = _handlerExecutionEngine.Enqueue(transportMessage);
@@ -120,16 +126,19 @@ namespace Composable.Messaging.Buses.Implementation
                             {
                                 if(dispatchResult.IsFaulted)
                                 {
-                                    _responseQueue.Enqueue(transportMessage.CreateFailureResponse(dispatchResult.Exception));
+                                    var failureResponse = transportMessage.CreateFailureResponse(dispatchResult.Exception);
+                                    _responseQueue.Enqueue(failureResponse);
                                 } else if(dispatchResult.IsCompleted)
                                 {
                                     try
                                     {
-                                        _responseQueue.Enqueue(transportMessage.CreateSuccessResponse(dispatchResult.Result));
+                                        var successResponse = transportMessage.CreateSuccessResponse(dispatchResult.Result);
+                                        _responseQueue.Enqueue(successResponse);
                                     }
                                     catch(Exception exception)
                                     {
-                                        _responseQueue.Enqueue(transportMessage.CreateFailureResponse(new AggregateException(exception)));
+                                        var failureResponse = transportMessage.CreateFailureResponse(new AggregateException(exception));
+                                        _responseQueue.Enqueue(failureResponse);
                                     }
                                 }
                             }

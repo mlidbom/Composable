@@ -27,8 +27,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly TypeId MessageTypeId;
             internal readonly Type MessageType;
             internal readonly TransportMessageType MessageTypeEnum;
-            internal bool IsOfType<TType>() => typeof(TType).IsAssignableFrom(MessageType);
-            internal bool IsOfType(Type type) => type.IsAssignableFrom(MessageType);
+            internal bool Is<TType>() => typeof(TType).IsAssignableFrom(MessageType);
 
             BusApi.IMessage _message;
             readonly ITypeMapper _typeMapper;
@@ -76,7 +75,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             static TransportMessageType GetMessageType(Type messageType)
             {
-                if(typeof(BusApi.IQuery).IsAssignableFrom(messageType))
+                if(typeof(BusApi.Remotable.NonTransactional.IQuery).IsAssignableFrom(messageType))
                     return TransportMessageType.NonTransactionalQuery;
                 if(typeof(BusApi.Remotable.AtMostOnce.ICommand).IsAssignableFrom(messageType))
                     return TransportMessageType.AtMostOnceCommand;

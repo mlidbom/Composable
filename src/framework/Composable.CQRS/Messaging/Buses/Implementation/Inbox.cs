@@ -105,12 +105,12 @@ namespace Composable.Messaging.Buses.Implementation
                     var transportMessageBatch = _receivedMessageBatches.Take(_cancellationTokenSource.Token);
                     foreach(var transportMessage in transportMessageBatch)
                     {
-                        if(typeof(BusApi.Remotable.IAtMostOnceMessage).IsAssignableFrom(transportMessage.MessageType))
+                        if(transportMessage.Is<BusApi.Remotable.IAtMostOnceMessage>())
                         {
                             //todo: handle the exception that will be thrown if this is a duplicate message
                             _storage.SaveMessage(transportMessage);
 
-                            if(typeof(BusApi.Remotable.ExactlyOnce.IMessage).IsAssignableFrom(transportMessage.MessageType))
+                            if(transportMessage.Is<BusApi.Remotable.ExactlyOnce.IMessage>())
                             {
                                 var persistedResponse = transportMessage.CreatePersistedResponse();
                                 _responseQueue.Enqueue(persistedResponse);

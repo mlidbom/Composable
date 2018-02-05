@@ -40,13 +40,13 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal Task<object> Enqueue(TransportMessage.InComing message)
             {
-                if(typeof(BusApi.IQuery).IsAssignableFrom(message.MessageType))
+                if(message.Is<BusApi.IQuery>())
                     return DispatchQueryAsync(message);
-                if(typeof(BusApi.Remotable.AtMostOnce.ICommand).IsAssignableFrom(message.MessageType))
+                if(message.Is<BusApi.Remotable.AtMostOnce.ICommand>())
                     return DispatchAtMostOnceCommandAsync(message);
-                else if(typeof(BusApi.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(message.MessageType))
+                else if(message.Is<BusApi.Remotable.ExactlyOnce.IEvent>())
                     return DispatchExactlyOnceEventAsync(message);
-                if(typeof(BusApi.Remotable.ExactlyOnce.ICommand).IsAssignableFrom(message.MessageType))
+                if(message.Is<BusApi.Remotable.ExactlyOnce.ICommand>())
                         return DispatchExactlyOnceCommandAsync(message);
                 else
                     throw new ArgumentOutOfRangeException();

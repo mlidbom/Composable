@@ -10,6 +10,7 @@ using Composable.System.Reflection;
 
 namespace Composable.Messaging.Buses
 {
+    //performance: Use static caching + indexing trick for storing and retrieving values throughout this class.
     class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry
     {
         readonly ITypeMapper _typeMapper;
@@ -28,7 +29,6 @@ namespace Composable.Messaging.Buses
             MessageInspector.AssertValid<TEvent>();
             lock(_lock)
             {
-                Assert.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(BusApi.ICommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(BusApi.IQuery)));
                 _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<BusApi.IEvent>>()).Add(@event => handler((TEvent)@event));
                 _eventHandlerRegistrations.Add(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
                 return this;
@@ -46,7 +46,6 @@ namespace Composable.Messaging.Buses
 
             lock(_lock)
             {
-                Assert.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(BusApi.IEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(BusApi.IQuery)));
                 _commandHandlers.Add(typeof(TCommand), command => handler((TCommand)command));
                 return this;
             }
@@ -57,7 +56,6 @@ namespace Composable.Messaging.Buses
             MessageInspector.AssertValid<TCommand>();
             lock (_lock)
             {
-                Assert.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(BusApi.IEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(BusApi.IQuery)));
                 _commandHandlersReturningResults.Add(typeof(TCommand), new CommandHandlerWithResultRegistration<TCommand, TResult>(handler));
                 return this;
             }
@@ -68,7 +66,6 @@ namespace Composable.Messaging.Buses
             MessageInspector.AssertValid<TQuery>();
             lock(_lock)
             {
-                Assert.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(BusApi.IEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(BusApi.ICommand)));
                 _queryHandlers.Add(typeof(TQuery), new QueryHandlerRegistration<TQuery, TResult>(handler));
                 return this;
             }
@@ -127,6 +124,7 @@ namespace Composable.Messaging.Buses
 
         public IReadOnlyList<Action<BusApi.IEvent>> GetEventHandlers(Type eventType)
         {
+            //performance: Use static caching trick.
             return _eventHandlers.Where(@this => @this.Key.IsAssignableFrom(eventType)).SelectMany(@this => @this.Value).ToList();
         }
 

@@ -10,6 +10,7 @@ using Composable.Persistence.EventStore.Aggregates;
 using Composable.System.Linq;
 using Composable.Testing.Threading;
 using FluentAssertions;
+using JetBrains.Annotations;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
@@ -156,7 +157,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         protected class MyUpdateAggregateCommand : BusApi.Remotable.AtMostOnce.Command
         {
-            MyUpdateAggregateCommand() : base(MessageIdHandling.Reuse) {}
+            [UsedImplicitly] MyUpdateAggregateCommand() : base(MessageIdHandling.Reuse) {}
             public MyUpdateAggregateCommand(Guid aggregateId):base(MessageIdHandling.Create) => AggregateId = aggregateId;
             public Guid AggregateId { get; private set; }
         }
@@ -166,13 +167,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         protected class MyExactlyOnceEvent : AggregateEvent {}
         protected class MyQuery : BusApi.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
         protected class MyQueryResult {}
-        protected class MyAtMostOnceCommand : BusApi.Remotable.AtMostOnce.Command<MyCommandResult> 
+        protected class MyAtMostOnceCommand : BusApi.Remotable.AtMostOnce.Command<MyCommandResult>
         {
             protected MyAtMostOnceCommand() : base(MessageIdHandling.Reuse) {}
             internal static MyAtMostOnceCommand Create() => new MyAtMostOnceCommand(){ MessageId = Guid.NewGuid() };
         }
 
-        protected class MyAtMostOnceCommandWithResult : BusApi.Remotable.AtMostOnce.Command<MyCommandResult> 
+        protected class MyAtMostOnceCommandWithResult : BusApi.Remotable.AtMostOnce.Command<MyCommandResult>
         {
             MyAtMostOnceCommandWithResult() : base(MessageIdHandling.Reuse) {}
             internal static MyAtMostOnceCommandWithResult Create() => new MyAtMostOnceCommandWithResult() {MessageId = Guid.NewGuid()};

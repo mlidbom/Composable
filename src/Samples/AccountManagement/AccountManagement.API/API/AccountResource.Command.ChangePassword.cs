@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
 using Composable.Messaging;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace AccountManagement.API
@@ -13,7 +14,7 @@ namespace AccountManagement.API
         {
             public class ChangePassword : BusApi.Remotable.AtMostOnce.Command, IValidatableObject
             {
-                [JsonConstructor]ChangePassword() : base(MessageIdHandling.Reuse) {}
+                [UsedImplicitly] ChangePassword() : base(MessageIdHandling.Reuse) {}
                 public ChangePassword(Guid accountId):base(MessageIdHandling.Create) => AccountId = accountId;
 
                 [Required] [EntityId] public Guid AccountId { get; set; }

@@ -41,7 +41,7 @@ namespace AccountManagement.API
                                                                                                    MessageId = Guid.NewGuid(),
                                                                                                    AccountId = accountId,
                                                                                                    Email = email,
-                                                                                                   Password = password,
+                                                                                                   Password = password
                                                                                                };
             }
         }

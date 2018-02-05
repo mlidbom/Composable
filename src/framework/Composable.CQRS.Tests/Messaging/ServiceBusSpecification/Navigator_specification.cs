@@ -6,6 +6,7 @@ using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using FluentAssertions;
+using Newtonsoft.Json;
 using Xunit;
 
 // ReSharper disable MemberCanBeMadeStatic.Local
@@ -53,7 +54,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_get_command_result()
             {
-                var commandResult1 = Host.RemoteNavigator.Post(new RegisterUserCommand("new-user-name"));
+                var commandResult1 = Host.RemoteNavigator.Post(RegisterUserCommand.Create("new-user-name"));
                 commandResult1.Name.Should().Be("new-user-name");
             }
 
@@ -85,25 +86,32 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             class UserApiStartPage
             {
                 public static UserApiStartPageQuery Self => new UserApiStartPageQuery();
-                public RegisterUserCommand RegisterUser(string userName) => new RegisterUserCommand(userName);
+                public RegisterUserCommand RegisterUser(string userName) => RegisterUserCommand.Create(userName);
             }
 
             protected class GetUserQuery : BusApi.Remotable.NonTransactional.Queries.Query<UserResource>
             {
                 public GetUserQuery(string name) => Name = name;
-                public string Name { get; }
+                public string Name { get; private set; }
             }
 
             protected class UserResource
             {
                 public UserResource(string name) => Name = name;
-                public string Name { get; }
+                public string Name { get; private set; }
             }
 
             protected class RegisterUserCommand : BusApi.Remotable.AtMostOnce.Command<UserRegisteredConfirmationResource>
             {
-                public RegisterUserCommand(string name) => Name = name;
-                public string Name { get; }
+                RegisterUserCommand():base(MessageIdHandling.Reuse){ }
+
+                public static RegisterUserCommand Create(string name) => new RegisterUserCommand()
+                                                                         {
+                                                                             Name = name,
+                                                                             MessageId = Guid.NewGuid()
+                                                                         };
+
+                public string Name { get; private set;}
             }
 
             protected class UserRegisteredConfirmationResource

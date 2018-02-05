@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Testing;
@@ -24,7 +25,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public async Task If_command_handler_with_result_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception_and_SendAsync_throws_MessageDispatchingFailedException()
         {
             CommandHandlerWithResultThreadGate.ThrowPostPassThrough(_thrownException);
-            await AssertThrows.Async<MessageDispatchingFailedException>(async () => await ClientEndpoint.ExecuteRequest(session => session.PostAsync(new MyAtMostOnceCommandWithResult())));
+            await AssertThrows.Async<MessageDispatchingFailedException>(async () => await ClientEndpoint.ExecuteRequest(session => session.PostAsync(MyAtMostOnceCommandWithResult.Create())));
 
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
@@ -32,7 +33,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void If_event_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             MyRemoteAggregateEventHandlerThreadGate.ThrowPostPassThrough(_thrownException);
-            ClientEndpoint.ExecuteRequest(session => session.Post(new MyCreateAggregateCommand()));
+            ClientEndpoint.ExecuteRequest(session => session.Post(MyCreateAggregateCommand.Create()));
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 

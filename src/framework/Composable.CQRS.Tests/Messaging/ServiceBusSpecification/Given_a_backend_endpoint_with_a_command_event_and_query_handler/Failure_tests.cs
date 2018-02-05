@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Testing;
 using Composable.Testing.Threading;
@@ -12,7 +13,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public async Task If_command_handler_with_result_throws_awaiting_SendAsync_throws()
         {
             CommandHandlerWithResultThreadGate.ThrowPostPassThrough(_thrownException);
-            await AssertThrows.Async<Exception>(async () => await ClientEndpoint.ExecuteRequestAsync(session => session.PostAsync(new MyAtMostOnceCommandWithResult())));
+            await AssertThrows.Async<Exception>(async () => await ClientEndpoint.ExecuteRequestAsync(session => session.PostAsync(MyAtMostOnceCommandWithResult.Create())));
         }
 
         [Fact] public async Task If_query_handler_throws_awaiting_QueryAsync_throws()

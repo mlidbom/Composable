@@ -28,30 +28,20 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
                 builder =>
                 {
                     builder.RegisterHandlers
-                           .ForCommand((MyCommand command) => {})
-                           .ForEvent((MyEvent myEvent) => {})
                            .ForQuery((MyRemoteQuery query) => new MyQueryResult())
-                           .ForQuery((MyLocalQuery query) => new MyQueryResult())
-                           .ForCommandWithResult((MyCommandWithResult command) => new MyCommandResult());
+                           .ForQuery((MyLocalQuery query) => new MyQueryResult());
 
-                    builder.TypeMapper.Map<MyCommand>("0ddefcaa-4d4d-48b2-9e1a-762c0b835275")
-                           .Map<MyCommandWithResult>("24248d03-630b-4909-a6ea-e7fdaf82baa2")
-                           .Map<MyEvent>("2fdde21f-c6d4-46a2-95e5-3429b820dfc3")
+                    builder.TypeMapper
                            .Map<MyRemoteQuery>("b9d62f22-514b-4e3c-9ac1-66940a7a8144")
                            .Map<MyLocalQuery>("5640cfb1-0dbc-4e2b-9915-b5b91a289e86")
-                           .Map<MyCommandResult>("f53db8b6-4344-4719-9fa9-b43714706434")
                            .Map<MyQueryResult>("07e144ab-af3c-4c2c-9d83-492deffd24aa");
                 });
         }
 
         [TearDown] public void TearDown() { Host.Dispose(); }
 
-        protected class MyCommand : BusApi.Remotable.ExactlyOnce.Command {}
-        protected class MyEvent : AggregateEvent {}
         protected class MyRemoteQuery : BusApi.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
         protected class MyLocalQuery : BusApi.StrictlyLocal.Queries.Query<MyQueryResult> {}
         protected class MyQueryResult {}
-        protected class MyCommandWithResult : BusApi.Remotable.AtMostOnce.Command<MyCommandResult> {}
-        protected class MyCommandResult {}
     }
 }

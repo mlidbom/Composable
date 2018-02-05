@@ -43,6 +43,8 @@ namespace Composable.Messaging
 
         public static partial class Remotable
         {
+            public interface IAtMostOnceMessage { Guid MessageId { get; } }
+
             public interface IMessage : BusApi.IMessage {}
             public interface IEvent : Remotable.IMessage, BusApi.IEvent {}
             public interface IRequireRemoteResponse : Remotable.IMessage {}
@@ -58,16 +60,14 @@ namespace Composable.Messaging
 
             public static partial class AtMostOnce
             {
-                public interface ICommand : Remotable.ICommand, IRequireRemoteResponse, IForbidTransactionalRemoteSender { }
+                public interface ICommand : IAtMostOnceMessage, Remotable.ICommand, IRequireRemoteResponse, IForbidTransactionalRemoteSender { }
                 public interface ICommand<TResult> : AtMostOnce.ICommand, Remotable.ICommand<TResult> { }
             }
 
             public static partial class ExactlyOnce
             {
-                public interface IMessage : IRequireAllOperationsToBeTransactional, IProvidesOwnMessageId, Remotable.IMessage {}
+                public interface IMessage : IRequireAllOperationsToBeTransactional, IAtMostOnceMessage, Remotable.IMessage {}
                 public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSender, IRequireTransactionalReceiver {}
-
-                public interface IProvidesOwnMessageId { Guid MessageId { get; } }
 
                 public interface IEvent : Remotable.IEvent, ExactlyOnce.IMessage { }
                 public interface ICommand : Remotable.ICommand, ExactlyOnce.IMessage { }

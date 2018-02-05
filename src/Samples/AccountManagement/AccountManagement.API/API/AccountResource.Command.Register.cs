@@ -14,13 +14,13 @@ namespace AccountManagement.API
         {
             public partial class Register : BusApi.Remotable.AtMostOnce.Command<Register.RegistrationAttemptResult>, IValidatableObject
             {
-                public Register() {}
-                public Register(Guid accountId, string email, string password)
-                {
-                    AccountId = accountId;
-                    Email = email;
-                    Password = password;
-                }
+                Register():base(MessageIdHandling.Reuse) {}
+
+                public static Register Create() => new Register
+                                                   {
+                                                       AccountId = Guid.NewGuid(),
+                                                       MessageId = Guid.NewGuid()
+                                                   };
 
                 //Note the use of a custom validation attributes.
                 [EntityId(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdInvalid")]
@@ -36,7 +36,13 @@ namespace AccountManagement.API
 
                 public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Passwords.Password.Validate(Password, this, () => Password);
 
-                internal Register WithValues(Guid accountId, string email, string password) => new Register(accountId, email, password);
+                internal Register WithValues(Guid accountId, string email, string password) => new Register
+                                                                                               {
+                                                                                                   MessageId = Guid.NewGuid(),
+                                                                                                   AccountId = accountId,
+                                                                                                   Email = email,
+                                                                                                   Password = password,
+                                                                                               };
             }
         }
     }

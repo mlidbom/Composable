@@ -114,6 +114,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public class RegisterUserCommand : BusApi.Remotable.AtMostOnce.Command<RegisterUserResult>
             {
                 public Guid UserId { get; private set; } = Guid.NewGuid();
+
+                RegisterUserCommand() : base(MessageIdHandling.Reuse) {}
+
+                internal static RegisterUserCommand Create() => new RegisterUserCommand(){ MessageId =  Guid.NewGuid()};
             }
         }
 
@@ -149,7 +153,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 => RegisterEventAppliers()
                     .IgnoreUnhandled<UserRegistrarEvent.IRoot>();
 
-            internal static RegisterUserResult RegisterUser(IServiceBusSession bus) => new UserRegistrarCommand.RegisterUserCommand().PostOn(bus);
+            internal static RegisterUserResult RegisterUser(IServiceBusSession bus) => UserRegistrarCommand.RegisterUserCommand.Create().PostOn(bus);
         }
 
         public class UserAggregate : Aggregate<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>

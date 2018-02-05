@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AccountManagement.API;
+using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -14,11 +15,12 @@ namespace AccountManagement.UnitTests.UI.Commands.UserCommands
         [SetUp]
         public void CreateValidCommand()
         {
-            _registerAccountUiCommand = new AccountResource.Command.Register()
-                                      {
-                                          Email = "valid.email@google.com",
-                                          Password = "AComplex!1Password"
-                                      };
+            _registerAccountUiCommand = AccountResource.Command.Register.Create().Mutate(@this =>
+            {
+                @this.Email = "valid.email@google.com";
+                @this.Password = "AComplex!1Password";
+            });
+
             CommandValidator.ValidationFailures(_registerAccountUiCommand).Should().BeEmpty();
         }
 

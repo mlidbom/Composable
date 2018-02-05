@@ -141,14 +141,23 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        protected class MyCreateAggregateCommand : BusApi.Remotable.AtMostOnce.ICommand
+        protected class MyCreateAggregateCommand : BusApi.Remotable.AtMostOnce.Command
         {
-            public Guid AggregateId { get; private set; } = Guid.NewGuid();
+            MyCreateAggregateCommand() : base(MessageIdHandling.Reuse) {}
+
+            internal static MyCreateAggregateCommand Create() => new MyCreateAggregateCommand()
+                                                        {
+                                                            MessageId = Guid.NewGuid(),
+                                                            AggregateId = Guid.NewGuid()
+                                                        };
+
+            public Guid AggregateId { get; set; }
         }
 
-        protected class MyUpdateAggregateCommand : BusApi.Remotable.AtMostOnce.ICommand
+        protected class MyUpdateAggregateCommand : BusApi.Remotable.AtMostOnce.Command
         {
-            public MyUpdateAggregateCommand(Guid aggregateId) => AggregateId = aggregateId;
+            MyUpdateAggregateCommand() : base(MessageIdHandling.Reuse) {}
+            public MyUpdateAggregateCommand(Guid aggregateId):base(MessageIdHandling.Create) => AggregateId = aggregateId;
             public Guid AggregateId { get; private set; }
         }
 
@@ -157,8 +166,17 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         protected class MyExactlyOnceEvent : AggregateEvent {}
         protected class MyQuery : BusApi.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
         protected class MyQueryResult {}
-        protected class MyAtMostOnceCommand : BusApi.Remotable.AtMostOnce.Command<MyCommandResult> {}
-        protected class MyAtMostOnceCommandWithResult : BusApi.Remotable.AtMostOnce.Command<MyCommandResult> {}
+        protected class MyAtMostOnceCommand : BusApi.Remotable.AtMostOnce.Command<MyCommandResult> 
+        {
+            protected MyAtMostOnceCommand() : base(MessageIdHandling.Reuse) {}
+            internal static MyAtMostOnceCommand Create() => new MyAtMostOnceCommand(){ MessageId = Guid.NewGuid() };
+        }
+
+        protected class MyAtMostOnceCommandWithResult : BusApi.Remotable.AtMostOnce.Command<MyCommandResult> 
+        {
+            MyAtMostOnceCommandWithResult() : base(MessageIdHandling.Reuse) {}
+            internal static MyAtMostOnceCommandWithResult Create() => new MyAtMostOnceCommandWithResult() {MessageId = Guid.NewGuid()};
+        }
         protected class MyCommandResult {}
     }
 }

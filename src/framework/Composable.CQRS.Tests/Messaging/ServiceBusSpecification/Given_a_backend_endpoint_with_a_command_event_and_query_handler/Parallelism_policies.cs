@@ -1,4 +1,5 @@
-﻿using Composable.Messaging.Buses;
+﻿using Composable.Messaging;
+using Composable.Messaging.Buses;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -26,8 +27,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void Two_event_handlers_cannot_execute_in_parallel()
         {
             MyRemoteAggregateEventHandlerThreadGate.Close();
-            ClientEndpoint.ExecuteRequest(session => session.Post(new MyCreateAggregateCommand()));
-            ClientEndpoint.ExecuteRequest(session => session.Post(new MyCreateAggregateCommand()));
+            ClientEndpoint.ExecuteRequest(session => session.Post(MyCreateAggregateCommand.Create()));
+            ClientEndpoint.ExecuteRequest(session => session.Post(MyCreateAggregateCommand.Create()));
 
             MyRemoteAggregateEventHandlerThreadGate.AwaitQueueLengthEqualTo(1)
                                   .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
@@ -50,8 +51,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             ClientEndpoint.ExecuteRequest(session =>
             {
-               session.PostAsync(new MyCreateAggregateCommand());
-                session.PostAsync(new MyCreateAggregateCommand());
+               session.PostAsync(MyCreateAggregateCommand.Create());
+                session.PostAsync(MyCreateAggregateCommand.Create());
             });
 
             MyCreateAggregateCommandHandlerThreadGate.AwaitQueueLengthEqualTo(1)

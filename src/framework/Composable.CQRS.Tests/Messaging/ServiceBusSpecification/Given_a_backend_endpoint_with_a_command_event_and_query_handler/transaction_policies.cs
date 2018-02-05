@@ -24,7 +24,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Command_handler_with_result_runs_in_transaction_with_isolation_level_Serializable()
         {
-            var commandResult = ClientEndpoint.ExecuteRequest(session => session.Post(new MyAtMostOnceCommandWithResult()));
+            var commandResult = ClientEndpoint.ExecuteRequest(session => session.Post(MyAtMostOnceCommandWithResult.Create()));
 
             commandResult.Should().NotBe(null);
 
@@ -36,7 +36,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] void Event_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            ClientEndpoint.ExecuteRequest(session => session.Post(new MyCreateAggregateCommand()));
+            ClientEndpoint.ExecuteRequest(session => session.Post(MyCreateAggregateCommand.Create()));
 
             var transaction = MyRemoteAggregateEventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                      .PassedThrough.Single().Transaction;
@@ -54,10 +54,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
 
         [Fact] void Calling_PostRemoteAsync_within_a_transaction_with_AtLeastOnceCommand_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Async<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.PostAsync(new MyAtMostOnceCommandWithResult())))).Wait();
+            AssertThrows.Async<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.PostAsync(MyAtMostOnceCommandWithResult.Create())))).Wait();
 
         [Fact] void Calling_PostRemoteAsync_within_a_transaction_AtLeastOnceCommand_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.Post(new MyAtMostOnceCommandWithResult()))));
+            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.Post(MyAtMostOnceCommandWithResult.Create()))));
 
 
         [Fact] void Calling_PostRemoteAsync_without_a_transaction_with_ExactlyOnceCommand_throws_TransactionPolicyViolationException() =>

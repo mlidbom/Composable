@@ -1,6 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
 using Composable.Messaging;
+using Newtonsoft.Json;
 
 // ReSharper disable MemberCanBeMadeStatic.Global
 
@@ -12,14 +14,19 @@ namespace AccountManagement.API
         {
             public partial class LogIn : BusApi.Remotable.AtMostOnce.Command<LogIn.LoginAttemptResult>
             {
-                    [Required] [Email] public string Email { get; set; }
-                    [Required] public string Password { get; set; }
+                [JsonConstructor] LogIn() : base(MessageIdHandling.Reuse) {}
 
-                    internal LogIn WithValues(string email, string password) => new LogIn
-                                                                           {
-                                                                               Email = email,
-                                                                               Password = password
-                                                                           };
+                public static LogIn Create() => new LogIn {MessageId = Guid.NewGuid()};
+
+                [Required] [Email] public string Email { get; set; }
+                [Required] public string Password { get; set; }
+
+                internal LogIn WithValues(string email, string password) => new LogIn
+                                                                            {
+                                                                                MessageId = Guid.NewGuid(),
+                                                                                Email = email,
+                                                                                Password = password
+                                                                            };
             }
         }
     }

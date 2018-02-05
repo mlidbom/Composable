@@ -42,8 +42,42 @@ namespace Composable.Messaging
         {
             public static partial class AtMostOnce
             {
-                public class Command : Remotable.AtMostOnce.ICommand {}
-                public class Command<TResult> : Remotable.AtMostOnce.ICommand<TResult> {}
+                //Todo: How can we prevent UI's from just defaulting to using a constructor that creates a new guid?
+                public class Command : Remotable.AtMostOnce.ICommand
+                {
+                    public enum MessageIdHandling
+                    {
+                        ///<summary>When creating the command within the owning handler endpoint. </summary>
+                        Create,
+                        ///<summary>Such as deserializing when transmitting, or setting command values when binding the result of an http post etc.</summary>
+                        Reuse
+                    }
+
+                    ///<summary>It is important not to set a default value if we are binding values in a UI. That would make it very easy to accidentally break the At most once guarantee. That is why you must pass the enum value here so that we can know what is happening.</summary>
+                    protected Command(MessageIdHandling scenario) => _messageId = scenario == MessageIdHandling.Create ? Guid.NewGuid() : Guid.Empty;
+
+                    Guid _messageId;
+                    public Guid MessageId
+                    {
+                        get => _messageId;
+
+                        set
+                        {
+                            if(_messageId != Guid.Empty)
+                            {
+                                throw new Exception($"You cannot change the {nameof(MessageId)} once it has been set to a value other than Guid.Empty");
+                            }
+
+                            _messageId = value;
+                        }
+                    }
+                }
+
+                public class Command<TResult> : Command, Remotable.AtMostOnce.ICommand<TResult>
+                {
+                    ///<summary>It is important not to set a default value if we are binding values in a UI. That would make it very easy to accidentally break the At most once guarantee. That is why you must pass the enum value here so that we can know what is happening.</summary>
+                    protected Command(MessageIdHandling scenario) : base(scenario) {}
+                }
             }
 
             public static partial class NonTransactional

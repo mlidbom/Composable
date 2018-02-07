@@ -71,7 +71,7 @@ namespace Composable.Messaging.Buses.Implementation
         }
 
         public ClientConnection(IGlobalBusStateTracker globalBusStateTracker,
-                                IEndpoint endpoint,
+                                IEndpoint serverEndpoint,
                                 NetMQPoller poller,
                                 IUtcTimeTimeSource timeSource,
                                 InterprocessTransport.MessageStorage messageStorage,
@@ -92,9 +92,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 state.GlobalBusStateTracker = globalBusStateTracker;
 
-                state.Poller = poller;
-
-                state.Poller.Add(state.DispatchQueue);
+                poller.Add(state.DispatchQueue);
 
                 state.DispatchQueue.ReceiveReady += DispatchQueuedMessages;
 
@@ -109,9 +107,9 @@ namespace Composable.Messaging.Buses.Implementation
 
                 state.Socket.ReceiveReady += ReceiveResponse;
 
-                state.RemoteEndpointId = endpoint.Id;
+                state.RemoteEndpointId = serverEndpoint.Id;
 
-                state.Socket.Connect(endpoint.Address);
+                state.Socket.Connect(serverEndpoint.Address);
                 poller.Add(state.Socket);
             });
         }
@@ -133,7 +131,6 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
             internal readonly Dictionary<Guid, DateTime> PendingDeliveryNotifications = new Dictionary<Guid, DateTime>();
             internal DealerSocket Socket;
-            internal NetMQPoller Poller;
             internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
             internal IUtcTimeTimeSource TimeSource { get; set; }
             internal InterprocessTransport.MessageStorage MessageStorage { get; set; }

@@ -12,6 +12,9 @@
   <ItemGroup>
     <ProjectReference Include="..\framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
     <ProjectReference Include="..\framework\Composable.CQRS\Composable.CQRS.csproj" />
+    <ProjectReference Include="..\Samples\AccountManagement\AccountManagement.API\AccountManagement.API.csproj" />
+    <ProjectReference Include="..\Samples\AccountManagement\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj" />
+    <ProjectReference Include="..\Samples\AccountManagement\AccountManagement.Server\AccountManagement.Server.csproj" />
   </ItemGroup>
 
 </Project>

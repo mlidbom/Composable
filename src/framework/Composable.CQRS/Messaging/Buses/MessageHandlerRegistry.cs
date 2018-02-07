@@ -10,7 +10,7 @@ using Composable.System.Reflection;
 
 namespace Composable.Messaging.Buses
 {
-    //performance: Use static caching + indexing trick for storing and retrieving values throughout this class.
+    //performance: Use static caching + indexing trick for storing and retrieving values throughout this class. QueryTypeIndexFor<TQuery>.Index. Etc
     class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry
     {
         readonly ITypeMapper _typeMapper;

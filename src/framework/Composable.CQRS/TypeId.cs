@@ -1,10 +1,10 @@
 ﻿using System;
 using Composable.Contracts;
-using Composable.DDD;
+// ReSharper disable ImpureMethodCallOnReadonlyValueField
 
 namespace Composable
 {
-    class TypeId : ValueObject<TypeId>
+    class TypeId
     {
         internal readonly Guid GuidValue;
 
@@ -16,5 +16,11 @@ namespace Composable
             Assert.Argument.Assert(guidValue != Guid.Empty);
             GuidValue = guidValue;
         }
+
+        public override bool Equals(object other) => other is TypeId otherTypeId && otherTypeId.GuidValue.Equals(GuidValue);
+        public override int GetHashCode() => GuidValue.GetHashCode();
+
+        public static bool operator ==(TypeId left, TypeId right) => Equals(left, right);
+        public static bool operator !=(TypeId left, TypeId right) => !Equals(left, right);
     }
 }

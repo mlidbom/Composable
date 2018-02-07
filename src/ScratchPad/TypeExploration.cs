@@ -47,12 +47,12 @@ namespace ScratchPad
             TimeAsserter.Execute(() => DoStaticTypeLookups<Email>(iterations), maxTotal: maxTotal, maxTries: 1);
         }
 
-        [Test] public void Looking_up_type_by_index_is_90_times_faster_than_through_type_id()
+        [Test] public void Looking_up_type_by_index_is_25_times_faster_than_through_type_id()
         {
             var iterations = 1_000_000.InstrumentationSlowdown(10);
 
             var totalViaParsing = TimeAsserter.Execute(() => LookupTypeByParsingTypeId<Email>(iterations), maxTries: 1).Total;
-            TimeSpan maxTotal = TimeSpan.FromMilliseconds(totalViaParsing.TotalMilliseconds / 90);
+            TimeSpan maxTotal = TimeSpan.FromMilliseconds(totalViaParsing.TotalMilliseconds / 25);
             TimeAsserter.Execute(() => LookupTypeByIndex<Email>(iterations), maxTotal: maxTotal.InstrumentationSlowdown(3.2));
 
         }

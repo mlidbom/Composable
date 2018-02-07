@@ -24,7 +24,7 @@ namespace Composable.Messaging.Buses.Implementation
         bool _running;
         string _address;
 
-        NetMQQueue<TransportMessage.Response.Outgoing> _responseQueue;
+        NetMQQueue<NetMQMessage> _responseQueue;
 
         RouterSocket _serverSocket;
 
@@ -65,7 +65,7 @@ namespace Composable.Messaging.Buses.Implementation
             _address = _serverSocket.BindAndReturnActualAddress(_address);
             _serverSocket.ReceiveReady += HandleIncomingMessage;
 
-            _responseQueue = new NetMQQueue<TransportMessage.Response.Outgoing>();
+            _responseQueue = new NetMQQueue<NetMQMessage>();
 
             _responseQueue.ReceiveReady += SendResponseMessage;
 
@@ -151,11 +151,11 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        void SendResponseMessage(object sender, NetMQQueueEventArgs<TransportMessage.Response.Outgoing> e)
+        void SendResponseMessage(object sender, NetMQQueueEventArgs<NetMQMessage> e)
         {
             while(e.Queue.TryDequeue(out var response, TimeSpan.Zero))
             {
-                _serverSocket.Send(response);
+                _serverSocket.SendMultipartMessage(response);
             }
         }
 

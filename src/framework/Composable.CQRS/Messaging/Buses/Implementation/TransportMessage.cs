@@ -87,11 +87,11 @@ namespace Composable.Messaging.Buses.Implementation
                     throw new ArgumentOutOfRangeException();
             }
 
-            public Response.Outgoing CreateFailureResponse(AggregateException exception) => Response.Outgoing.Failure(this, exception);
+            public NetMQMessage CreateFailureResponse(AggregateException exception) => Response.Create.Failure(this, exception);
 
-            public Response.Outgoing CreateSuccessResponse(object response) => Response.Outgoing.Success(this, response, _serializer, _typeMapper);
+            public NetMQMessage CreateSuccessResponse(object response) => Response.Create.Success(this, response, _serializer, _typeMapper);
 
-            public Response.Outgoing CreatePersistedResponse() => Response.Outgoing.Persisted(this);
+            public NetMQMessage CreatePersistedResponse() => Response.Create.Persisted(this);
         }
 
         internal class OutGoing
@@ -143,15 +143,9 @@ namespace Composable.Messaging.Buses.Implementation
                 public const string NullString = "NULL";
             }
 
-            internal class Outgoing
+            internal static class Create
             {
-                readonly NetMQMessage _response;
-
-                Outgoing(NetMQMessage response) => _response = response;
-
-                public void Send(IOutgoingSocket socket) => socket.SendMultipartMessage(_response);
-
-                public static Outgoing Success(TransportMessage.InComing incoming, object response, IRemotableMessageSerializer serializer, ITypeMapper typeMapper)
+                public static NetMQMessage Success(TransportMessage.InComing incoming, object response, IRemotableMessageSerializer serializer, ITypeMapper typeMapper)
                 {
                     var responseMessage = new NetMQMessage();
 
@@ -169,10 +163,10 @@ namespace Composable.Messaging.Buses.Implementation
                         responseMessage.Append(Constants.NullString);
                         responseMessage.Append(Constants.NullString);
                     }
-                    return new Outgoing(responseMessage);
+                    return responseMessage;
                 }
 
-                public static Outgoing Failure(TransportMessage.InComing incoming, AggregateException failure)
+                public static NetMQMessage Failure(TransportMessage.InComing incoming, AggregateException failure)
                 {
                     var response = new NetMQMessage();
 
@@ -188,17 +182,17 @@ namespace Composable.Messaging.Buses.Implementation
                         response.Append(failure.ToString());
                     }
 
-                    return new Outgoing(response);
+                    return response;
                 }
 
-                public static Outgoing Persisted(InComing incoming)
+                public static NetMQMessage Persisted(InComing incoming)
                 {
                     var responseMessage = new NetMQMessage();
 
                     responseMessage.Append(incoming.Client);
                     responseMessage.Append(incoming.MessageId);
                     responseMessage.Append((int)ResponseType.Received);
-                    return new Outgoing(responseMessage);
+                    return responseMessage;
                 }
             }
 

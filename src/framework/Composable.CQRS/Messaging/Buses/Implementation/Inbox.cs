@@ -71,10 +71,10 @@ namespace Composable.Messaging.Buses.Implementation
 
             _cancellationTokenSource = new CancellationTokenSource();
             _poller = new NetMQPoller() {_serverSocket, _responseQueue};
-            _pollerThread = new Thread(() => _poller.Run()){Name = $"{_configuration.Name}_{nameof(Inbox)}_{nameof(_pollerThread)}"};
+            _pollerThread = new Thread(() => _poller.Run()){Name = $"{nameof(Inbox)}_{nameof(_pollerThread)}_{_configuration.Name}"};
             _pollerThread.Start();
 
-            _messageReceiverThread = new Thread(MessageReceiverThread){Name = $"{_configuration.Name}_{nameof(Inbox)}_{nameof(MessageReceiverThread)}"};
+            _messageReceiverThread = new Thread(MessageReceiverThread){Name = $"{nameof(Inbox)}_{nameof(MessageReceiverThread)}_{_configuration.Name}"};
             _messageReceiverThread.Start();
 
             _handlerExecutionEngine.Start();

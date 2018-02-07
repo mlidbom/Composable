@@ -10,9 +10,9 @@ using Composable.System.Linq;
 using Composable.Testing.Performance;
 using NUnit.Framework;
 
-namespace ServiceBusApi
+namespace ScratchPad
 {
-    [TestFixture] public class TypeExploration
+    [TestFixture, Category("Performance")] public class TypeExploration
     {
         List<Type> _assemblyTypes;
         List<Type> _mappableTypes;
@@ -28,13 +28,9 @@ namespace ServiceBusApi
 
             _assemblyTypes.ForEach(type => TypeIndex.For(type));
 
-            var dictionary = new Dictionary<Type, int>();
-
-            _assemblyTypes.ForEach((type, index) => dictionary.Add(type, TypeIndex.For(type)));
-
             _typeMapper = new TypeMapper(new LazySqlServerConnection(new Lazy<string>(() => "unused")));
 
-            var mapMethod = typeof(TypeMapper).GetMethod(nameof(TypeMapper.Map), new Type[]{typeof(Guid)});
+            var mapMethod = typeof(TypeMapper).GetMethod(nameof(TypeMapper.Map), new[]{typeof(Guid)});
             foreach(var assemblyType in _mappableTypes)
             {
                 mapMethod.MakeGenericMethod(assemblyType).Invoke(_typeMapper, new object[]{Guid.NewGuid()});
@@ -68,31 +64,35 @@ namespace ServiceBusApi
             for(int i = 0; i < iterations; i++)
             {
                 var parsedTypeId = new TypeId(new Guid(typeIdGuidByteArray));
+                // ReSharper disable once UnusedVariable
                 var type = _typeMapper.GetType(parsedTypeId);
             }
         }
 
-        void LookupTypeByIndex<TType>(int iterations)
+        static void LookupTypeByIndex<TType>(int iterations)
         {
             for(int i = 0; i < iterations; i++)
             {
                 var index = TypeIndex.ForService<TType>.Index;
+                // ReSharper disable once UnusedVariable
                 var type = TypeIndex.BackMap[index];
             }
         }
 
-        void DoStaticTypeLookups<TType>(int iterations)
+        static void DoStaticTypeLookups<TType>(int iterations)
         {
             for(int i = 0; i < iterations; i++)
             {
+                // ReSharper disable once UnusedVariable
                 var index = TypeIndex.ForService<TType>.Index;
             }
         }
 
-        void DoDictionaryTypeLookups<TType>(int iterations)
+        static void DoDictionaryTypeLookups<TType>(int iterations)
         {
             for(int i = 0; i < iterations; i++)
             {
+                // ReSharper disable once UnusedVariable
                 var index = TypeIndex.For(typeof(TType));
             }
         }
@@ -119,7 +119,7 @@ namespace ServiceBusApi
                     var newBackMap = new Type[BackMap.Length + 1];
                     Array.Copy(BackMap, newBackMap, BackMap.Length);
                     newBackMap[newBackMap.Length - 1] = type;
-                    BackMap = newBackMap; 
+                    BackMap = newBackMap;
                     return ServiceCount - 1;
                 }
             }

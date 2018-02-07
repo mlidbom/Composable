@@ -1,3 +1,12 @@
 ﻿<ProjectConfiguration>
-  <Settings />
+  <Settings>
+    <IgnoredTests>
+      <NamedTestSelector>
+        <TestName>ServiceBusApi.TypeExploration.Looking_up_type_by_index_is_90_times_faster_than_through_type_id</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>ServiceBusApi.TypeExploration.Looking_up_type_associated_data_via_static_caching_trick_is_5_times_faster_than_via_dictionary</TestName>
+      </NamedTestSelector>
+    </IgnoredTests>
+  </Settings>
 </ProjectConfiguration>

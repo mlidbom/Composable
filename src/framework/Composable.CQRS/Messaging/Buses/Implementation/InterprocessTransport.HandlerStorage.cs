@@ -8,7 +8,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class InterprocessTransport
     {
-        class HandlerStorage
+        internal class HandlerStorage
         {
             bool _handlerHasBeenResolved;
             readonly ITypeMapper _typeMapper;

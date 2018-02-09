@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Refactoring.Naming;
@@ -29,44 +30,8 @@ namespace Composable.Messaging.Buses
 
         public static class Testing
         {
-            public static ITestingEndpointHost BuildHost(Func<IRunMode, IDependencyInjectionContainer> containerFactory,
-                                                         Action<ITestingEndpointHost> build,
-                                                         TestingMode mode = TestingMode.DatabasePool)
-            {
-                var testingEndpointHost = new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: true);
-                build(testingEndpointHost);
-                return testingEndpointHost;
-            }
-
-            public static ITestingEndpointHost CreateHostWithClientEndpoint(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: true);
-
-            public static ITestingEndpointHost CreateHost(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: false);
+            public static ITestingEndpointHost Create(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory);
         }
-
-        public IEndpoint RegisterAndStartEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
-        {
-            Start();
-            var existingEndpoints = Endpoints.ToList();
-
-            var endpoint = RegisterEndpoint(name, id, setup);
-
-            endpoint.Start();
-            var endpointTransport = endpoint.ServiceLocator.Resolve<IInterprocessTransport>();
-
-            //Any existing endpoint contains all the types since it is merged with any and all other existing endpoints.
-            existingEndpoints.FirstOrDefault()?.ServiceLocator.Resolve<TypeMapper>().MergeMappingsWith(endpoint.ServiceLocator.Resolve<TypeMapper>());
-
-            existingEndpoints.ForEach(existingEndpoint =>
-            {
-                existingEndpoint.ServiceLocator.Resolve<IInterprocessTransport>().Connect(endpoint);
-                endpointTransport.Connect(existingEndpoint);
-            });
-
-            endpointTransport.Connect(endpoint); //Yes connect it to itself so that it can send messages to itself :)
-
-            return endpoint;
-        }
-        public void Start() => Endpoints.Where(endpoint => !endpoint.IsRunning).ForEach(endpoint => endpoint.Start());
 
         public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
         {
@@ -80,11 +45,51 @@ namespace Composable.Messaging.Buses
             return endpoint;
         }
 
-        public void Stop() { Endpoints.Where(endpoint => endpoint.IsRunning).ForEach(endpoint => endpoint.Stop()); }
+        public IEndpoint RegisterClientEndpointForRegisteredEndpoints()
+        {
+            var clientEndpoint = RegisterEndpoint($"{nameof(TestingEndpointHost)}_Default_Client_Endpoint", new EndpointId(Guid.Parse("D4C869D2-68EF-469C-A5D6-37FCF2EC152A")), _ => {});
+
+            var typeMapper = clientEndpoint.ServiceLocator.Resolve<TypeMapper>();
+
+            Endpoints.Where(endpoint => endpoint != clientEndpoint)
+                     .Select(otherEndpoint => otherEndpoint.ServiceLocator.Resolve<TypeMapper>())
+                     .ForEach(otherTypeMapper => typeMapper.IncludeMappingsFrom(otherTypeMapper));
+
+            return clientEndpoint;
+        }
+
+        bool _isStarted;
+        public void Start()
+        {
+            Assert.State.Assert(!_isStarted, Endpoints.None(endpoint => endpoint.IsRunning));
+            _isStarted = true;
+
+            //performance: Client endpoints do not need message storage and other endpoints need not connect to client endpoints.
+            //performance: Make all this setup async and thus parallel.
+            Endpoints.ForEach(endpointToStart => endpointToStart.Init());
+
+            var endpointsWithRemoteMessageHandlers = Endpoints
+                                                    .Where(endpoint => endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds().Any())
+                                                    .Select(@this => @this.Address)
+                                                    .ToList();
+
+            Endpoints.ForEach(endpointToStart => endpointToStart.Connect(endpointsWithRemoteMessageHandlers));
+        }
+
+        public void Stop()
+        {
+            Assert.State.Assert(_isStarted);
+            _isStarted = false;
+            Endpoints.Where(endpoint => endpoint.IsRunning).ForEach(endpoint => endpoint.Stop());
+        }
 
         protected virtual void InternalDispose()
         {
-            Stop();
+            if(_isStarted)
+            {
+                Stop();
+            }
+
             Endpoints.ForEach(endpoint => endpoint.Dispose());
         }
 

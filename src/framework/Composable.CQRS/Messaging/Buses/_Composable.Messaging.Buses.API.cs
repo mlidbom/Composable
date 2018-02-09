@@ -7,6 +7,7 @@ using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Messaging.Events;
 using Composable.Refactoring.Naming;
+using Newtonsoft.Json;
 
 namespace Composable.Messaging.Buses
 {
@@ -86,7 +87,8 @@ namespace Composable.Messaging.Buses
         IServiceLocator ServiceLocator { get; }
         EndPointAddress Address { get; }
         bool IsRunning { get; }
-        void Start();
+        void Init();
+        void Connect(IEnumerable<EndPointAddress> knownEndpointAddresses);
         void Stop();
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
     }
@@ -94,7 +96,7 @@ namespace Composable.Messaging.Buses
     public class EndpointId : ValueObject<EndpointId>
     {
         public Guid GuidValue { get; }
-        public EndpointId(Guid guidValue)
+        [JsonConstructor]public EndpointId(Guid guidValue)
         {
             Assert.Argument.Assert(guidValue != Guid.Empty);
             GuidValue = guidValue;
@@ -112,9 +114,9 @@ namespace Composable.Messaging.Buses
     public interface IEndpointHost : IDisposable
     {
         IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup);
-        IEndpoint RegisterAndStartEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup);
         void Start();
         void Stop();
+        IEndpoint RegisterClientEndpointForRegisteredEndpoints();
     }
 
     public interface ITestingEndpointHost : IEndpointHost
@@ -122,12 +124,6 @@ namespace Composable.Messaging.Buses
         IEndpoint RegisterTestingEndpoint(string name = null, EndpointId id = null, Action<IEndpointBuilder> setup = null);
 
         TException AssertThrown<TException>() where TException : Exception;
-
-        IEndpoint ClientEndpoint { get; }
-
-        IServiceBusSession ClientBusSession { get; }
-
-        IRemoteApiNavigatorSession RemoteNavigator { get; }
     }
 
     interface IExecutingMessagesSnapshot

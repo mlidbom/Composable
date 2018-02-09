@@ -1,22 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Refactoring.Naming;
+using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
     class Endpoint : IEndpoint
     {
+        readonly EndpointConfiguration _configuration;
         public bool IsRunning { get; private set; }
-        public Endpoint(IServiceLocator serviceLocator, EndpointId id, string name)
+        public Endpoint(IServiceLocator serviceLocator, EndpointConfiguration configuration)
         {
-            Assert.Argument.Assert(serviceLocator != null, id != null);
+            Assert.Argument.Assert(serviceLocator != null, configuration != null);
             ServiceLocator = serviceLocator;
-            Id = id;
-            Name = name;
+            _configuration = configuration;
         }
-        public EndpointId Id { get; }
-        public string Name { get; }
+        public EndpointId Id => _configuration.Id;
         public IServiceLocator ServiceLocator { get; }
 
         public EndPointAddress Address => _inbox.Address;
@@ -25,7 +28,7 @@ namespace Composable.Messaging.Buses
 
         IServiceBusControl BusControl => ServiceLocator.Resolve<IServiceBusControl>();
 
-        public void Start()
+        public void Init()
         {
             Assert.State.Assert(!IsRunning);
 
@@ -37,6 +40,12 @@ namespace Composable.Messaging.Buses
             RunSanityChecks();
 
             BusControl.Start();
+        }
+
+        public void Connect(IEnumerable<EndPointAddress> knownEndpointAddresses)
+        {
+            var endpointTransport = ServiceLocator.Resolve<IInterprocessTransport>();
+            knownEndpointAddresses.ForEach(address => endpointTransport.Connect(address));
         }
 
         static void RunSanityChecks()

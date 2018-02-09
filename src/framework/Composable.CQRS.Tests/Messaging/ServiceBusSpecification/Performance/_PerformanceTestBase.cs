@@ -15,14 +15,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         protected ITestingEndpointHost Host;
         protected IEndpoint ServerEndpoint;
         public IEndpoint ClientEndpoint;
-        protected IRemoteApiNavigatorSession RemoteNavigator => Host.RemoteNavigator;
+        protected IRemoteApiNavigatorSession RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
         protected IServiceBusSession ServerBusSession => ServerEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
 
         [SetUp] public void Setup()
         {
-            Host = EndpointHost.Testing.CreateHostWithClientEndpoint(DependencyInjectionContainer.Create);
-            ClientEndpoint = Host.ClientEndpoint;
-            ServerEndpoint = Host.RegisterAndStartEndpoint(
+            Host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
+            ServerEndpoint = Host.RegisterEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
                 builder =>
@@ -36,6 +35,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
                            .Map<MyLocalQuery>("5640cfb1-0dbc-4e2b-9915-b5b91a289e86")
                            .Map<MyQueryResult>("07e144ab-af3c-4c2c-9d83-492deffd24aa");
                 });
+
+            ClientEndpoint = Host.RegisterClientEndpointForRegisteredEndpoints();
+            Host.Start();
         }
 
         [TearDown] public void TearDown() { Host.Dispose(); }

@@ -17,44 +17,50 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
     {
         public class Fixture : IDisposable
         {
-            readonly ITestingEndpointHost Host;
-            IDisposable _scope;
+            readonly ITestingEndpointHost _host;
+            readonly IDisposable _scope;
+            readonly IEndpoint _clientEndpoint;
+
+            protected IRemoteApiNavigatorSession RemoteNavigator => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
 
             public Fixture()
             {
                 var queryResults = new List<UserResource>();
 
-                Host = EndpointHost.Testing.BuildHost(
-                    DependencyInjectionContainer.Create,
-                    buildHost => buildHost.RegisterAndStartEndpoint(
-                        "Backend",
-                        new EndpointId(Guid.Parse("3A1B6A8C-D232-476C-A15A-9C8295413210")),
-                        builder =>
-                        {
-                            builder.RegisterHandlers
-                                   .ForQuery((GetUserQuery query) => queryResults.Single(result => result.Name == query.Name))
-                                   .ForQuery((UserApiStartPageQuery query) => new UserApiStartPage())
-                                   .ForCommandWithResult((RegisterUserCommand command, IServiceBusSession bus) =>
-                                    {
-                                        queryResults.Add(new UserResource(command.Name));
-                                        return new UserRegisteredConfirmationResource(command.Name);
-                                    });
+                _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
 
-                            builder.TypeMapper
-                                   .Map<GetUserQuery>("44b8b0b6-fe09-4e3b-a22c-8d09bd51dbb0")
-                                   .Map<RegisterUserCommand>("ed799a31-0de9-41ae-ae7a-421438f2d857")
-                                   .Map<UserApiStartPageQuery>("4367ec6e-ddbc-42ea-91ad-9af1e6e4e29a")
-                                   .Map<UserRegisteredConfirmationResource>("c60604b2-2917-450b-bcbf-7d023065c005")
-                                   .Map<UserApiStartPage>("10b699df-35ac-430b-acb5-131df3cec5e1")
-                                   .Map<UserResource>("7e2c57ef-e079-4615-a402-1a76c70b5b0b");
-                        }));
+                _host.RegisterEndpoint(
+                    "Backend",
+                    new EndpointId(Guid.Parse("3A1B6A8C-D232-476C-A15A-9C8295413210")),
+                    builder =>
+                    {
+                        builder.RegisterHandlers
+                               .ForQuery((GetUserQuery query) => queryResults.Single(result => result.Name == query.Name))
+                               .ForQuery((UserApiStartPageQuery query) => new UserApiStartPage())
+                               .ForCommandWithResult((RegisterUserCommand command, IServiceBusSession bus) =>
+                                {
+                                    queryResults.Add(new UserResource(command.Name));
+                                    return new UserRegisteredConfirmationResource(command.Name);
+                                });
 
-                _scope = Host.ClientEndpoint.ServiceLocator.BeginScope();
+                        builder.TypeMapper
+                               .Map<GetUserQuery>("44b8b0b6-fe09-4e3b-a22c-8d09bd51dbb0")
+                               .Map<RegisterUserCommand>("ed799a31-0de9-41ae-ae7a-421438f2d857")
+                               .Map<UserApiStartPageQuery>("4367ec6e-ddbc-42ea-91ad-9af1e6e4e29a")
+                               .Map<UserRegisteredConfirmationResource>("c60604b2-2917-450b-bcbf-7d023065c005")
+                               .Map<UserApiStartPage>("10b699df-35ac-430b-acb5-131df3cec5e1")
+                               .Map<UserResource>("7e2c57ef-e079-4615-a402-1a76c70b5b0b");
+                    });
+
+                _clientEndpoint = _host.RegisterClientEndpointForRegisteredEndpoints();
+
+                _host.Start();
+                _scope = _clientEndpoint.ServiceLocator.BeginScope();
             }
 
             [Fact] void Can_get_command_result()
             {
-                var commandResult1 = Host.RemoteNavigator.Post(RegisterUserCommand.Create("new-user-name"));
+                var commandResult1 = RemoteNavigator.Post(RegisterUserCommand.Create("new-user-name"));
                 commandResult1.Name.Should().Be("new-user-name");
             }
 
@@ -62,7 +68,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             {
                 var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
                                                                 .Post(startpage => startpage.RegisterUser("new-user-name"))
-                                                                .Get(registerUserResult => registerUserResult.User).NavigateOn(Host.RemoteNavigator);
+                                                                .Get(registerUserResult => registerUserResult.User).NavigateOn(RemoteNavigator);
 
                 userResource.Name.Should().Be("new-user-name");
             }
@@ -72,7 +78,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
                                                                 .Post(startpage => startpage.RegisterUser("new-user-name"))
                                                                 .Get(registerUserResult => registerUserResult.User)
-                                                                .NavigateOnAsync(Host.RemoteNavigator);
+                                                                .NavigateOnAsync(RemoteNavigator);
 
                 (await userResource).Name.Should().Be("new-user-name");
             }
@@ -80,7 +86,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             public void Dispose()
             {
                 _scope.Dispose();
-                Host.Dispose();
+                _host.Dispose();
             }
 
             class UserApiStartPage

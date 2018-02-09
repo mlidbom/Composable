@@ -19,6 +19,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
+        internal BusApi.Internal.EndpointInformation EndPointinformation { get; private set; }
         readonly ITypeMapper _typeMapper;
         readonly ITaskRunner _taskRunner;
         public void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper, state.Serializer))));
@@ -71,7 +72,7 @@ namespace Composable.Messaging.Buses.Implementation
         }
 
         public ClientConnection(IGlobalBusStateTracker globalBusStateTracker,
-                                IEndpoint serverEndpoint,
+                                EndPointAddress serverEndpoint,
                                 NetMQPoller poller,
                                 IUtcTimeTimeSource timeSource,
                                 InterprocessTransport.MessageStorage messageStorage,
@@ -107,9 +108,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 state.Socket.ReceiveReady += ReceiveResponse;
 
-                state.RemoteEndpointId = serverEndpoint.Id;
-
-                state.Socket.Connect(serverEndpoint.Address);
+                state.Socket.Connect(serverEndpoint);
                 poller.Add(state.Socket);
             });
         }
@@ -134,7 +133,6 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
             internal IUtcTimeTimeSource TimeSource { get; set; }
             internal InterprocessTransport.MessageStorage MessageStorage { get; set; }
-            public EndpointId RemoteEndpointId { get; set; }
             public ITypeMapper TypeMapper { get; set; }
             public IRemotableMessageSerializer Serializer { get; set; }
         }
@@ -171,12 +169,18 @@ namespace Composable.Messaging.Buses.Implementation
                             break;
                         case TransportMessage.Response.ResponseType.Received:
                             Assert.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
-                            _taskRunner.RunAndCrashProcessIfTaskThrows(() => state.MessageStorage.MarkAsReceived(response, state.RemoteEndpointId));
+                            _taskRunner.RunAndCrashProcessIfTaskThrows(() => state.MessageStorage.MarkAsReceived(response, EndPointinformation.Id));
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
             });
+        }
+
+        //performance:testt: make async
+        public void Init()
+        {
+            EndPointinformation = DispatchAsync(new BusApi.Internal.EndpointInformationQuery()).ResultUnwrappingException();
         }
     }
 }

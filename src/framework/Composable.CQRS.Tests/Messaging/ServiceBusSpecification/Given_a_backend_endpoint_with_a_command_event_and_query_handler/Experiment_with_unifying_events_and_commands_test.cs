@@ -21,46 +21,52 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         readonly ITestingEndpointHost _host;
 
         readonly TestingTaskRunner _taskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
-        IEndpoint _userManagementDomainEndpoint;
         readonly IServiceLocator _userDomainServiceLocator;
+        IEndpoint _clientEndpoint;
+
+        protected IRemoteApiNavigatorSession RemoteNavigator => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
 
         public Experiment_with_unifying_events_and_commands_test()
         {
-            _host = EndpointHost.Testing.BuildHost(
-                DependencyInjectionContainer.Create,
-                buildHost => _userManagementDomainEndpoint = buildHost.RegisterAndStartEndpoint(
-                                 "UserManagement.Domain",
-                                 new EndpointId(Guid.Parse("A4A2BA96-8D82-47AC-8A1B-38476C7B5D5D")),
-                                 builder =>
-                                 {
-                                     builder.Container.RegisterSqlServerEventStore<IUserEventStoreUpdater, IUserEventStoreReader>(builder.Configuration.ConnectionStringName);
+            _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
 
-                                     builder.RegisterHandlers
-                                            .ForEvent((UserEvent.Implementation.UserRegisteredEvent myEvent) => {})
-                                            .ForQuery((GetUserQuery query, IUserEventStoreReader eventReader) => new UserResource(eventReader.GetHistory(query.UserId)))
-                                            .ForCommandWithResult((UserRegistrarCommand.RegisterUserCommand command, IUserEventStoreUpdater store) =>
-                                            {
-                                                store.Save(UserAggregate.Register(command));
-                                                return new RegisterUserResult(command.UserId);
-                                            });
+            var userManagementDomainEndpoint = _host.RegisterEndpoint(
+                "UserManagement.Domain",
+                new EndpointId(Guid.Parse("A4A2BA96-8D82-47AC-8A1B-38476C7B5D5D")),
+                builder =>
+                {
+                    builder.Container.RegisterSqlServerEventStore<IUserEventStoreUpdater, IUserEventStoreReader>(builder.Configuration.ConnectionStringName);
 
-                                     builder.TypeMapper
-                                            .Map<GetUserQuery>("f9163a11-c6b6-4d2f-88e4-fd476b95dc07")
-                                            .Map<UserRegistrarCommand.RegisterUserCommand>("99ab8e1f-ce88-4070-becc-7967d65de172")
-                                            .Map<UserAggregate>("4281ba68-a3ce-4a9a-82fc-be71d6155fbc")
-                                            .Map<UserRegistrarAggregate>("732f0613-ee94-4d03-a479-9e5b69dc0e69")
-                                            .Map<UserRegistrarEvent.Implementation.Created>("0e97953f-57f5-4252-8dec-a31c9a387dac")
-                                            .Map<UserRegistrarEvent.Implementation.Root>("1849d406-9af4-481f-a475-395e9112ac4a")
-                                            .Map<UserRegistrarEvent.IRoot>("20033612-88c5-422b-9632-d4d3cbcaff45")
-                                            .Map<UserEvent.Implementation.Root>("05f0f69f-c29a-49c0-8cea-62286f5a1816")
-                                            .Map<UserEvent.Implementation.UserRegisteredEvent>("5eac2b7a-014a-4783-9b19-4f0f975028f4")
-                                            .Map<UserEvent.IRoot>("ff9f3cae-7377-4865-a623-f11436dad926")
-                                            .Map<UserEvent.UserRegistered>("1b5e0128-ab76-4026-a6d7-4f2ffa4d82cd")
-                                            .Map<RegisterUserResult>("940adbc5-ef68-436a-90c2-ac4f000ec377")
-                                            .Map<UserResource>("9f621299-22d9-4888-81f1-0e9ebc09625c");
-                                 }));
+                    builder.RegisterHandlers
+                           .ForEvent((UserEvent.Implementation.UserRegisteredEvent myEvent) => {})
+                           .ForQuery((GetUserQuery query, IUserEventStoreReader eventReader) => new UserResource(eventReader.GetHistory(query.UserId)))
+                           .ForCommandWithResult((UserRegistrarCommand.RegisterUserCommand command, IUserEventStoreUpdater store) =>
+                            {
+                                store.Save(UserAggregate.Register(command));
+                                return new RegisterUserResult(command.UserId);
+                            });
 
-            _userDomainServiceLocator = _userManagementDomainEndpoint.ServiceLocator;
+                    builder.TypeMapper
+                           .Map<GetUserQuery>("f9163a11-c6b6-4d2f-88e4-fd476b95dc07")
+                           .Map<UserRegistrarCommand.RegisterUserCommand>("99ab8e1f-ce88-4070-becc-7967d65de172")
+                           .Map<UserAggregate>("4281ba68-a3ce-4a9a-82fc-be71d6155fbc")
+                           .Map<UserRegistrarAggregate>("732f0613-ee94-4d03-a479-9e5b69dc0e69")
+                           .Map<UserRegistrarEvent.Implementation.Created>("0e97953f-57f5-4252-8dec-a31c9a387dac")
+                           .Map<UserRegistrarEvent.Implementation.Root>("1849d406-9af4-481f-a475-395e9112ac4a")
+                           .Map<UserRegistrarEvent.IRoot>("20033612-88c5-422b-9632-d4d3cbcaff45")
+                           .Map<UserEvent.Implementation.Root>("05f0f69f-c29a-49c0-8cea-62286f5a1816")
+                           .Map<UserEvent.Implementation.UserRegisteredEvent>("5eac2b7a-014a-4783-9b19-4f0f975028f4")
+                           .Map<UserEvent.IRoot>("ff9f3cae-7377-4865-a623-f11436dad926")
+                           .Map<UserEvent.UserRegistered>("1b5e0128-ab76-4026-a6d7-4f2ffa4d82cd")
+                           .Map<RegisterUserResult>("940adbc5-ef68-436a-90c2-ac4f000ec377")
+                           .Map<UserResource>("9f621299-22d9-4888-81f1-0e9ebc09625c");
+                });
+
+            _clientEndpoint = _host.RegisterClientEndpointForRegisteredEndpoints();
+
+            _host.Start();
+
+            _userDomainServiceLocator = userManagementDomainEndpoint.ServiceLocator;
 
             _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() => _userDomainServiceLocator.Resolve<IUserEventStoreUpdater>().Save(UserRegistrarAggregate.Create()));
 
@@ -71,7 +77,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             var registrationResult = _userDomainServiceLocator.ExecuteInIsolatedScope(() =>  UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBusSession>()));
 
-            var user = _host.ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() =>_host.RemoteNavigator.Get(registrationResult.UserLink));
+            var user = _clientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Get(registrationResult.UserLink));
 
             user.Should().NotBe(null);
             user.History.Count().Should().Be(1);

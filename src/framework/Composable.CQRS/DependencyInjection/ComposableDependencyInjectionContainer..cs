@@ -106,7 +106,7 @@ namespace Composable.DependencyInjection
 
             var scopeCache = _scopeCache.Value;
 
-            if (scopeCache.TryGet<TService>() is TService scoped)
+            if (scopeCache != null && scopeCache.TryGet<TService>() is TService scoped)
             {
                 return scoped;
             }

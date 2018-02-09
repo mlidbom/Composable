@@ -7,6 +7,7 @@ using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Messaging.Events;
 using Composable.Refactoring.Naming;
+using Newtonsoft.Json;
 
 namespace Composable.Messaging.Buses
 {
@@ -95,7 +96,7 @@ namespace Composable.Messaging.Buses
     public class EndpointId : ValueObject<EndpointId>
     {
         public Guid GuidValue { get; }
-        public EndpointId(Guid guidValue)
+        [JsonConstructor]public EndpointId(Guid guidValue)
         {
             Assert.Argument.Assert(guidValue != Guid.Empty);
             GuidValue = guidValue;

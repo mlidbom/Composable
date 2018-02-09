@@ -47,14 +47,13 @@ namespace Composable.Messaging.Buses.Implementation
             @this.GlobalBusStateTracker = globalBusStateTracker;
         });
 
-        public void Connect(IEndpoint remoteEndpoint) => _state.WithExclusiveAccess(@this =>
+        //performance:tests: make async
+        public void Connect(EndPointAddress remoteEndpoint) => _state.WithExclusiveAccess(@this =>
         {
             var clientConnection = new ClientConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer);
-            @this.EndpointConnections.Add(remoteEndpoint.Id, clientConnection);
-
-            var endpointInformation = clientConnection.DispatchAsync(new BusApi.Internal.EndpointInformationQuery()).ResultUnwrappingException();
-
-            @this.HandlerStorage.AddRegistrations(remoteEndpoint.Id, endpointInformation.HandledMessageTypes);
+            clientConnection.Init();
+            @this.EndpointConnections.Add(clientConnection.EndPointinformation.Id, clientConnection);
+            @this.HandlerStorage.AddRegistrations(clientConnection.EndPointinformation.Id, clientConnection.EndPointinformation.HandledMessageTypes);
         });
 
         public void Start() => _state.WithExclusiveAccess(state =>

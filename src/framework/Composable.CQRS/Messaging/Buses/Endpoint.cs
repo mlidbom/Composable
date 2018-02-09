@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses
             knownEndpoints.ForEach(endpoint =>
             {
                 endpoint.ServiceLocator.Resolve<TypeMapper>().MergeMappingsWith(ServiceLocator.Resolve<TypeMapper>());
-                endpointTransport.Connect(endpoint);
+                endpointTransport.Connect(endpoint.Address);
             });
         }
 

@@ -24,32 +24,31 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     using(var connection = connectionFactory.OpenConnection())
                     {
-                        //performance: Single statement. Do the check in sql.
-                        var schemaExists = (int)await connection.ExecuteScalarAsync($"select count(*) from sys.tables where name = '{InboxMessages.TableName}'");
-                        if(schemaExists == 0)
-                        {
                             await connection.ExecuteNonQueryAsync($@"
-CREATE TABLE [dbo].[{InboxMessages.TableName}]
-(
-	[{InboxMessages.Identity}] [int] IDENTITY(1,1) NOT NULL,
-    [{InboxMessages.TypeId}] [uniqueidentifier] NOT NULL,
-    [{InboxMessages.MessageId}] [uniqueidentifier] NOT NULL,
-	[{InboxMessages.IsHandled}] [bit]NOT NULL,
-	[{InboxMessages.Body}] [nvarchar](MAX) NOT NULL,
-
-
-    CONSTRAINT [PK_{InboxMessages.TableName}] PRIMARY KEY CLUSTERED 
+IF NOT EXISTS(select name from sys.tables where name = '{InboxMessages.TableName}')
+BEGIN
+    CREATE TABLE [dbo].[{InboxMessages.TableName}]
     (
-	    [{InboxMessages.Identity}] ASC
-    ),
+	    [{InboxMessages.Identity}] [int] IDENTITY(1,1) NOT NULL,
+        [{InboxMessages.TypeId}] [uniqueidentifier] NOT NULL,
+        [{InboxMessages.MessageId}] [uniqueidentifier] NOT NULL,
+	    [{InboxMessages.IsHandled}] [bit]NOT NULL,
+	    [{InboxMessages.Body}] [nvarchar](MAX) NOT NULL,
 
-    CONSTRAINT IX_{InboxMessages.TableName}_Unique_{InboxMessages.MessageId} UNIQUE
-    (
-        {InboxMessages.MessageId}
-    )
 
-) ON [PRIMARY]");
-                        }
+        CONSTRAINT [PK_{InboxMessages.TableName}] PRIMARY KEY CLUSTERED 
+        (
+	        [{InboxMessages.Identity}] ASC
+        ),
+
+        CONSTRAINT IX_{InboxMessages.TableName}_Unique_{InboxMessages.MessageId} UNIQUE
+        (
+            {InboxMessages.MessageId}
+        )
+
+    ) ON [PRIMARY]
+END
+");
                     }
                 }
             }

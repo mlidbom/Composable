@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Transactions;
 using Composable.Contracts;
+using Composable.GenericAbstractions;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Configuration;
@@ -18,7 +19,7 @@ namespace Composable.Testing.Databases
     sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
         static string _masterConnectionString;
-        SqlServerConnection _masterConnection;
+        static SqlServerConnection _masterConnection;
 
         static MachineWideSharedObject<SharedState> _machineWideState;
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
@@ -30,61 +31,45 @@ namespace Composable.Testing.Databases
 
         readonly Guid _poolId = Guid.NewGuid();
 
-        static readonly object Lock = new object();
-        static bool _initialized;
-        void EnsureInitialized()
+        static readonly OptimizedInitializer Initializer = new OptimizedInitializer(() =>
         {
-            if(!_initialized)
+            _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 30.Seconds();
+
+            _masterConnection = new SqlServerConnection(_masterConnectionString);
+
+            var tempDirectory = Environment.GetEnvironmentVariable("COMPOSABLE_TEMP_DRIVE");
+
+            if(!tempDirectory.IsNullOrWhiteSpace())
             {
-                lock(Lock)
+                if(!Directory.Exists(tempDirectory))
                 {
-                    if(!_initialized)
-                    {
-                        _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 30.Seconds();
+                    Directory.CreateDirectory(tempDirectory);
+                }
 
-                        var tempDirectory = Environment.GetEnvironmentVariable("COMPOSABLE_TEMP_DRIVE");
-
-                        if(!tempDirectory.IsNullOrWhiteSpace())
-                        {
-                            if(!Directory.Exists(tempDirectory))
-                            {
-                                Directory.CreateDirectory(tempDirectory);
-                            }
-
-                            _databaseRootFolderOverride = Path.Combine(tempDirectory, "DatabasePoolData");
-                            if(!Directory.Exists(_databaseRootFolderOverride))
-                            {
-                                Directory.CreateDirectory(_databaseRootFolderOverride);
-                            }
-                        }
-
-                        var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_DATABASE_POOL_MASTER_CONNECTIONSTRING";
-                        var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
-                        if(masterConnectionString != null)
-                        {
-                            _masterConnectionString = masterConnectionString;
-                        } else
-                        {
-                            _masterConnectionString = new AppConfigSqlConnectionProvider().GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
-                        }
-
-                        _masterConnectionString = _masterConnectionString.Replace("\\", "_");
-
-                        _machineWideState = MachineWideSharedObject<SharedState>.For(_masterConnectionString, usePersistentFile: true);
-
-                        Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
-                                             $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
-                    }
-
-                    _initialized = true;
+                _databaseRootFolderOverride = Path.Combine(tempDirectory, "DatabasePoolData");
+                if(!Directory.Exists(_databaseRootFolderOverride))
+                {
+                    Directory.CreateDirectory(_databaseRootFolderOverride);
                 }
             }
 
-            if(_masterConnection == null)
+            var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+            var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
+            if(masterConnectionString != null)
             {
-                _masterConnection = new SqlServerConnection(_masterConnectionString);
+                _masterConnectionString = masterConnectionString;
+            } else
+            {
+                _masterConnectionString = new AppConfigSqlConnectionProvider().GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
             }
-        }
+
+            _masterConnectionString = _masterConnectionString.Replace("\\", "_");
+
+            _machineWideState = MachineWideSharedObject<SharedState>.For(_masterConnectionString, usePersistentFile: true);
+
+            Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
+                                 $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
+        });
 
         ILogger _log = Logger.For<SqlServerDatabasePool>();
 
@@ -99,7 +84,7 @@ namespace Composable.Testing.Databases
         public ISqlConnection ConnectionProviderFor(string reservationName) => _guard.Update(() =>
         {
             Contract.Assert.That(!_disposed, "!_disposed");
-            EnsureInitialized();
+            Initializer.EnsureInitialized();
 
             var reservedDatabase = _transientCache.SingleOrDefault(db => db.IsReserved && db.ReservedByPoolId == _poolId && db.ReservationName == reservationName);
             if(reservedDatabase != null)
@@ -197,7 +182,7 @@ namespace Composable.Testing.Databases
 
         protected override void InternalDispose()
         {
-            if(_disposed || !_initialized) return;
+            if(_disposed || !Initializer.IsInitialized) return;
             _disposed = true;
             _machineWideState.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
             _machineWideState.Dispose();

@@ -54,26 +54,8 @@ namespace Composable.Messaging.Buses
             Assert.State.Assert(!_isStarted, Endpoints.None(endpoint => endpoint.IsRunning));
             _isStarted = true;
 
-            var startedEndpoints = new List<IEndpoint>();
-            Endpoints.Where(endpoint => !endpoint.IsRunning).ForEach(endpointToStart =>
-            {
-                endpointToStart.Start();
-
-                var endpointTransport = endpointToStart.ServiceLocator.Resolve<IInterprocessTransport>();
-
-                //Any existing endpoint contains all the types since it is merged with any and all other existing endpoints.
-                startedEndpoints.FirstOrDefault()?.ServiceLocator.Resolve<TypeMapper>().MergeMappingsWith(endpointToStart.ServiceLocator.Resolve<TypeMapper>());
-
-                startedEndpoints.ForEach(existingEndpoint =>
-                {
-                    existingEndpoint.ServiceLocator.Resolve<IInterprocessTransport>().Connect(endpointToStart);
-                    endpointTransport.Connect(existingEndpoint);
-                });
-
-                endpointTransport.Connect(endpointToStart); //Yes connect it to itself so that it can send messages to itself :)
-
-                startedEndpoints.Add(endpointToStart);
-            });
+            Endpoints.ForEach(endpointToStart => endpointToStart.Init());
+            Endpoints.ForEach(endpointToStart => endpointToStart.Connect(Endpoints));
         }
 
         public void Stop()

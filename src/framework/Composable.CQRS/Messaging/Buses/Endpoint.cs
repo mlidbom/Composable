@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Refactoring.Naming;
+using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
@@ -16,7 +20,6 @@ namespace Composable.Messaging.Buses
             _configuration = configuration;
         }
         public EndpointId Id => _configuration.Id;
-        public string Name => _configuration.Name;
         public IServiceLocator ServiceLocator { get; }
 
         public EndPointAddress Address => _inbox.Address;
@@ -25,7 +28,7 @@ namespace Composable.Messaging.Buses
 
         IServiceBusControl BusControl => ServiceLocator.Resolve<IServiceBusControl>();
 
-        public void Start()
+        public void Init()
         {
             Assert.State.Assert(!IsRunning);
 
@@ -37,6 +40,16 @@ namespace Composable.Messaging.Buses
             RunSanityChecks();
 
             BusControl.Start();
+        }
+
+        public void Connect(IEnumerable<IEndpoint> knownEndpoints)
+        {
+            var endpointTransport = ServiceLocator.Resolve<IInterprocessTransport>();
+            knownEndpoints.ForEach(endpoint =>
+            {
+                endpoint.ServiceLocator.Resolve<TypeMapper>().MergeMappingsWith(ServiceLocator.Resolve<TypeMapper>());
+                endpointTransport.Connect(endpoint);
+            });
         }
 
         static void RunSanityChecks()

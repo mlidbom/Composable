@@ -7,16 +7,16 @@ namespace Composable.Messaging.Buses
 {
     class Endpoint : IEndpoint
     {
+        readonly EndpointConfiguration _configuration;
         public bool IsRunning { get; private set; }
-        public Endpoint(IServiceLocator serviceLocator, EndpointId id, string name)
+        public Endpoint(IServiceLocator serviceLocator, EndpointConfiguration configuration)
         {
-            Assert.Argument.Assert(serviceLocator != null, id != null);
+            Assert.Argument.Assert(serviceLocator != null, configuration != null);
             ServiceLocator = serviceLocator;
-            Id = id;
-            Name = name;
+            _configuration = configuration;
         }
-        public EndpointId Id { get; }
-        public string Name { get; }
+        public EndpointId Id => _configuration.Id;
+        public string Name => _configuration.Name;
         public IServiceLocator ServiceLocator { get; }
 
         public EndPointAddress Address => _inbox.Address;

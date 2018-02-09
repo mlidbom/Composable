@@ -47,10 +47,10 @@ namespace Composable.Messaging.Buses.Implementation
             @this.GlobalBusStateTracker = globalBusStateTracker;
         });
 
-        public void Connect(IEndpoint endpoint) => _state.WithExclusiveAccess(@this =>
+        public void Connect(IEndpoint remoteEndpoint) => _state.WithExclusiveAccess(@this =>
         {
-            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer));
-            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds());
+            @this.EndpointConnections.Add(remoteEndpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer));
+            @this.HandlerStorage.AddRegistrations(remoteEndpoint.Id, remoteEndpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds());
         });
 
         public void Start() => _state.WithExclusiveAccess(state =>

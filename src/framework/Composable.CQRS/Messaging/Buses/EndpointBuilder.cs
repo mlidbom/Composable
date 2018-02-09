@@ -17,9 +17,7 @@ namespace Composable.Messaging.Buses
     class EndpointBuilder : IEndpointBuilder
     {
         readonly IDependencyInjectionContainer _container;
-        readonly string _name;
         readonly TypeMapper _typeMapper;
-        readonly EndpointId _endpointId;
 
         public IDependencyInjectionContainer Container => _container;
         public ITypeMappingRegistar TypeMapper => _typeMapper;
@@ -30,7 +28,7 @@ namespace Composable.Messaging.Buses
         public IEndpoint Build()
         {
             SetupInternalTypeMap();
-            return new Endpoint(_container.CreateServiceLocator(), _endpointId, _name);
+            return new Endpoint(_container.CreateServiceLocator(), Configuration);
         }
 
         void SetupInternalTypeMap()
@@ -42,10 +40,8 @@ namespace Composable.Messaging.Buses
         public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, string name, EndpointId endpointId)
         {
             _container = container;
-            _name = name;
-            _endpointId = endpointId;
 
-            Configuration = new EndpointConfiguration(name);
+            Configuration = new EndpointConfiguration(name, endpointId);
 
             var endpointSqlConnection = container.RunMode.IsTesting
                                             ? new LazySqlServerConnection(new Lazy<string>(() => container.CreateServiceLocator().Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString))

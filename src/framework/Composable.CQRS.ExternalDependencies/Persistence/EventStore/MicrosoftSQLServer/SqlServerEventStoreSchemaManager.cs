@@ -45,11 +45,14 @@ AT:
                 {
                     IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionManager, _typeMapper);
 
-                    if(!_eventTable.Exists(connection))
-                    {
-                        _eventTypeTable.Create(connection);
-                        _eventTable.Create(connection);
-                    }
+                    connection.ExecuteNonQuery($@"
+IF NOT EXISTS(SELECT NAME FROM sys.tables WHERE name = '{_eventTable.Name}')
+BEGIN
+    {_eventTypeTable.CreateTableSql}
+
+    {_eventTable.CreateTableSql}
+END 
+");
 
                     _verifiedConnectionString = true;
                 }

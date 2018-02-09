@@ -4,8 +4,8 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     abstract class TableSchemaManager
     {
-        protected abstract string Name { get; }
-        protected abstract string CreateTableSql { get; }
+        internal abstract string Name { get; }
+        internal abstract string CreateTableSql { get; }
 
         public bool Exists(SqlConnection connection)
         {

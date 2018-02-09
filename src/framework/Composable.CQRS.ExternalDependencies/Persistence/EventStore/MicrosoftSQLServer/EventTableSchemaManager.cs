@@ -2,9 +2,9 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     class EventTableSchemaManager : TableSchemaManager
     {
-        protected override string Name { get; } = EventTable.Name;
+        internal override string Name { get; } = EventTable.Name;
 
-        protected override string CreateTableSql => $@"
+        internal override string CreateTableSql => $@"
 CREATE TABLE dbo.{Name}(
     {EventTable.Columns.InsertionOrder} bigint IDENTITY(1,1) NOT NULL,
     {EventTable.Columns.AggregateId} uniqueidentifier NOT NULL,

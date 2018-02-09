@@ -2,9 +2,9 @@
 {
     class EventTypeTableSchemaManager : TableSchemaManager
     {
-        protected override string Name { get; } = EventTypeTable.Name;
+        internal override string Name { get; } = EventTypeTable.Name;
 
-        protected override string CreateTableSql => $@"
+        internal override string CreateTableSql => $@"
 CREATE TABLE [dbo].[{EventTypeTable.Name}](
 	[{EventTypeTable.Columns.Id}] [int] IDENTITY(1,1) NOT NULL,
 	[{EventTypeTable.Columns.EventType}] [UNIQUEIDENTIFIER] NOT NULL,

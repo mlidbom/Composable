@@ -49,8 +49,12 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Connect(IEndpoint remoteEndpoint) => _state.WithExclusiveAccess(@this =>
         {
-            @this.EndpointConnections.Add(remoteEndpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer));
-            @this.HandlerStorage.AddRegistrations(remoteEndpoint.Id, remoteEndpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds());
+            var clientConnection = new ClientConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer);
+            @this.EndpointConnections.Add(remoteEndpoint.Id, clientConnection);
+
+            var endpointInformation = clientConnection.DispatchAsync(new BusApi.Internal.EndpointInformationQuery()).ResultUnwrappingException();
+
+            @this.HandlerStorage.AddRegistrations(remoteEndpoint.Id, endpointInformation.HandledMessageTypes);
         });
 
         public void Start() => _state.WithExclusiveAccess(state =>

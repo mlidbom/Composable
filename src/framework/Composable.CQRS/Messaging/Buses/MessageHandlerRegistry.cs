@@ -177,9 +177,11 @@ namespace Composable.Messaging.Buses
         public ISet<TypeId> HandledRemoteMessageTypeIds()
         {
             var handledTypes = _commandHandlers.Keys
-                                               .Concat(_commandHandlersReturningResults.Keys).Concat(_queryHandlers.Keys)
+                                               .Concat(_commandHandlersReturningResults.Keys)
+                                               .Concat(_queryHandlers.Keys)
                                                .Concat(_eventHandlerRegistrations.Select(reg => reg.Type))
                                                .Where(messageType => messageType.Implements<BusApi.Remotable.IMessage>())
+                                               .Where(messageType => !messageType.Implements<BusApi.Internal.IMessage>())
                                                .ToSet();
 
 

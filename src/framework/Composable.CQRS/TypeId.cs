@@ -1,17 +1,19 @@
 ﻿using System;
 using Composable.Contracts;
+using Newtonsoft.Json;
+
 // ReSharper disable ImpureMethodCallOnReadonlyValueField
 
 namespace Composable
 {
     class TypeId
     {
-        internal readonly Guid GuidValue;
+        [JsonProperty]internal readonly Guid GuidValue;
 
         // ReSharper disable once ImpureMethodCallOnReadonlyValueField
         public override string ToString() => GuidValue.ToString();
 
-        internal TypeId(Guid guidValue)
+        [JsonConstructor]internal TypeId(Guid guidValue)
         {
             Assert.Argument.Assert(guidValue != Guid.Empty);
             GuidValue = guidValue;

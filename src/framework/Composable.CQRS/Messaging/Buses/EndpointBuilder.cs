@@ -28,6 +28,7 @@ namespace Composable.Messaging.Buses
         public IEndpoint Build()
         {
             SetupInternalTypeMap();
+            BusApi.Internal.RegisterHandlers(RegisterHandlers);
             return new Endpoint(_container.CreateServiceLocator(), Configuration);
         }
 

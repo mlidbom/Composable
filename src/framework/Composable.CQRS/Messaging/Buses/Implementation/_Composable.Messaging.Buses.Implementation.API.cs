@@ -19,7 +19,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         void Stop();
         Task StartAsync();
-        void Connect(EndPointAddress remoteEndpoint);
+        Task ConnectAsync(EndPointAddress remoteEndpoint);
 
         void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
         void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);

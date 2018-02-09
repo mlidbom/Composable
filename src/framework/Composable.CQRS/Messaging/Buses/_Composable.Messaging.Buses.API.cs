@@ -88,7 +88,7 @@ namespace Composable.Messaging.Buses
         EndPointAddress Address { get; }
         bool IsRunning { get; }
         Task InitAsync();
-        void Connect(IEnumerable<EndPointAddress> knownEndpointAddresses);
+        Task ConnectAsync(IEnumerable<EndPointAddress> knownEndpointAddresses);
         void Stop();
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
     }
@@ -114,6 +114,7 @@ namespace Composable.Messaging.Buses
     public interface IEndpointHost : IDisposable
     {
         IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup);
+        Task StartAsync();
         void Start();
         void Stop();
         IEndpoint RegisterClientEndpointForRegisteredEndpoints();

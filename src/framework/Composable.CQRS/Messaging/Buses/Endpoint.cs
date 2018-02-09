@@ -43,10 +43,10 @@ namespace Composable.Messaging.Buses
             await BusControl.StartAsync();
         }
 
-        public void Connect(IEnumerable<EndPointAddress> knownEndpointAddresses)
+        public async Task ConnectAsync(IEnumerable<EndPointAddress> knownEndpointAddresses)
         {
             var endpointTransport = ServiceLocator.Resolve<IInterprocessTransport>();
-            knownEndpointAddresses.ForEach(address => endpointTransport.Connect(address));
+            await Task.WhenAll(knownEndpointAddresses.Select(address => endpointTransport.ConnectAsync(address)));
         }
 
         static void RunSanityChecks()

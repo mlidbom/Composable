@@ -177,10 +177,6 @@ namespace Composable.Messaging.Buses.Implementation
             });
         }
 
-        //performance:testt: make async
-        public void Init()
-        {
-            EndPointinformation = DispatchAsync(new BusApi.Internal.EndpointInformationQuery()).ResultUnwrappingException();
-        }
+        public async Task InitAsync() => EndPointinformation = await DispatchAsync(new BusApi.Internal.EndpointInformationQuery());
     }
 }

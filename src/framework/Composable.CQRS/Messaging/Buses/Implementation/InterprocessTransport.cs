@@ -48,10 +48,10 @@ namespace Composable.Messaging.Buses.Implementation
         });
 
         //performance:tests: make async
-        public void Connect(EndPointAddress remoteEndpoint) => _state.WithExclusiveAccess(@this =>
+        public async Task ConnectAsync(EndPointAddress remoteEndpoint) => await _state.WithExclusiveAccess(async @this =>
         {
             var clientConnection = new ClientConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer);
-            clientConnection.Init();
+            await clientConnection.InitAsync();
             @this.EndpointConnections.Add(clientConnection.EndPointinformation.Id, clientConnection);
             @this.HandlerStorage.AddRegistrations(clientConnection.EndPointinformation.Id, clientConnection.EndPointinformation.HandledMessageTypes);
         });

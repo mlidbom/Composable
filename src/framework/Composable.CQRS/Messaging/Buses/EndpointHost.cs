@@ -53,7 +53,7 @@ namespace Composable.Messaging.Buses
 
             Endpoints.Where(endpoint => endpoint != clientEndpoint)
                      .Select(otherEndpoint => otherEndpoint.ServiceLocator.Resolve<TypeMapper>())
-                     .ForEach(otherTypeMapper => typeMapper.MergeMappingsWith(otherTypeMapper));
+                     .ForEach(otherTypeMapper => typeMapper.IncludeMappingsFrom(otherTypeMapper));
 
             return clientEndpoint;
         }

@@ -52,7 +52,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public async Task StartAsync() => await _resourceGuard.Update(async () =>
         {
-            Assert.Invariant.Assert(!_running);
+            Assert.State.Assert(!_running);
             _running = true;
 
             var storageStartTask = _storage.StartAsync();
@@ -86,7 +86,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Stop()
         {
-            Assert.Invariant.Assert(_running);
+            Assert.State.Assert(_running);
             _running = false;
             _cancellationTokenSource.Cancel();
             _messageReceiverThread.InterruptAndJoin();

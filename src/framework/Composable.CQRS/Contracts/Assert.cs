@@ -6,16 +6,16 @@ namespace Composable.Contracts
     public class Assert
     {
         ///<summary>Assert conditions about current state of "this". Failures would mean that someone made a call that is illegal given state of "this".</summary>
-        public static BaseAssertion State { get; } = BaseAssertion.StateInstance;
+        public static readonly BaseAssertion State = BaseAssertion.StateInstance;
 
         ///<summary>Assert something that must always be true for "this".</summary>
-        public static BaseAssertion Invariant { get; } = BaseAssertion.InvariantInstance;
+        public static readonly BaseAssertion Invariant = BaseAssertion.InvariantInstance;
 
         ///<summary>Assert conditions on arguments to current method.</summary>
-        public static BaseAssertion Argument { get; } = BaseAssertion.ArgumentsInstance;
+        public static readonly BaseAssertion Argument = BaseAssertion.ArgumentsInstance;
 
         ///<summary>Assert conditions on the result of makeing a method call.</summary>
-        public static BaseAssertion Result { get; } = BaseAssertion.ResultInstance;
+        public static readonly BaseAssertion Result = BaseAssertion.ResultInstance;
 
 
 

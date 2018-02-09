@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Refactoring.Naming;
@@ -49,7 +50,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public EndPointAddress Address => new EndPointAddress(_address);
 
-        public void Start() => _resourceGuard.Update(action: () =>
+        public async Task StartAsync() => await _resourceGuard.Update(async () =>
         {
             Assert.Invariant.Assert(!_running);
             _running = true;
@@ -78,7 +79,7 @@ namespace Composable.Messaging.Buses.Implementation
             _messageReceiverThread.Start();
 
             _handlerExecutionEngine.Start();
-            _storage.Start();
+            await _storage.StartAsync();
         });
 
         public void Stop()

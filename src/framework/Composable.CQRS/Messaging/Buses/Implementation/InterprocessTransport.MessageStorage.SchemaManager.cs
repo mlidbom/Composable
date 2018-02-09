@@ -1,4 +1,5 @@
-﻿using Composable.System.Data.SqlClient;
+﻿using System.Threading.Tasks;
+using Composable.System.Data.SqlClient;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -27,14 +28,15 @@ namespace Composable.Messaging.Buses.Implementation
         {
             static class SchemaManager
             {
-                public static void EnsureTablesExist(ISqlConnection connectionFactory)
+                public static async Task EnsureTablesExistAsync(ISqlConnection connectionFactory)
                 {
                     using(var connection = connectionFactory.OpenConnection())
                     {
-                        var schemaExists = (int)connection.ExecuteScalar($"select count(*) from sys.tables where name = '{OutboxMessages.TableName}'");
+                        //performance: Single statement. Do the check in sql.
+                        var schemaExists = (int)await connection.ExecuteScalarAsync($"select count(*) from sys.tables where name = '{OutboxMessages.TableName}'");
                         if(schemaExists == 0)
                         {
-                            connection.ExecuteNonQuery($@"
+                            await connection.ExecuteNonQueryAsync($@"
 CREATE TABLE [dbo].[{OutboxMessages.TableName}]
 (
 	[{OutboxMessages.Identity}] [int] IDENTITY(1,1) NOT NULL,

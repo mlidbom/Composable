@@ -87,7 +87,7 @@ namespace Composable.Messaging.Buses
         IServiceLocator ServiceLocator { get; }
         EndPointAddress Address { get; }
         bool IsRunning { get; }
-        void Init();
+        Task InitAsync();
         void Connect(IEnumerable<EndPointAddress> knownEndpointAddresses);
         void Stop();
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);

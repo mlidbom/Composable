@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
 using Composable.System.Collections.Collections;
@@ -24,7 +25,11 @@ namespace Composable.Messaging.Buses.Implementation
             _timeSource = timeSource;
         }
 
-        public void Start() => _guard.Update(() => _scheduledMessagesTimer = new Timer(callback: _ => SendDueCommands(), state: null, dueTime: 0.Seconds(), period: 100.Milliseconds()));
+        public async Task StartAsync() => await _guard.Update(async () =>
+        {
+            _scheduledMessagesTimer = new Timer(callback: _ => SendDueCommands(), state: null, dueTime: 0.Seconds(), period: 100.Milliseconds());
+            await Task.CompletedTask;
+        });
 
         public void Schedule(DateTime sendAt, BusApi.Remotable.ExactlyOnce.ICommand message) => _guard.Update(() =>
         {

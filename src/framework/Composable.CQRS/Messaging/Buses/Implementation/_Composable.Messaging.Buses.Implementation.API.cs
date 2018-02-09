@@ -6,7 +6,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     interface IServiceBusControl
     {
-        void Start();
+        Task StartAsync();
         void Stop();
     }
 
@@ -18,7 +18,7 @@ namespace Composable.Messaging.Buses.Implementation
     interface IInterprocessTransport
     {
         void Stop();
-        void Start();
+        Task StartAsync();
         void Connect(EndPointAddress remoteEndpoint);
 
         void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
@@ -43,7 +43,7 @@ namespace Composable.Messaging.Buses.Implementation
     interface IInbox
     {
         EndPointAddress Address { get; }
-        void Start();
+        Task StartAsync();
         void Stop();
     }
 }

@@ -1,4 +1,5 @@
-﻿using Composable.Contracts;
+﻿using System.Threading.Tasks;
+using Composable.Contracts;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System.Data.SqlClient;
@@ -72,7 +73,7 @@ WHERE {MessageDispatching.MessageId} = @{MessageDispatching.MessageId}
                         return affectedRows;
                     });
 
-            public void Start() => SchemaManager.EnsureTablesExist(_connectionFactory);
+            public async Task StartAsync() => await SchemaManager.EnsureTablesExistAsync(_connectionFactory);
         }
     }
 }

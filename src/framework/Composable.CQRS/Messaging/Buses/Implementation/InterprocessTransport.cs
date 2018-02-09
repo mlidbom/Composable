@@ -56,11 +56,11 @@ namespace Composable.Messaging.Buses.Implementation
             @this.HandlerStorage.AddRegistrations(clientConnection.EndPointinformation.Id, clientConnection.EndPointinformation.HandledMessageTypes);
         });
 
-        public void Start() => _state.WithExclusiveAccess(state =>
+        public async Task StartAsync() => await _state.WithExclusiveAccess(async state =>
         {
             Assert.State.Assert(!state.Running);
             state.Running = true;
-            state.MessageStorage.Start();
+            await state.MessageStorage.StartAsync();
 
             state.Poller = new NetMQPoller();
             state.PollerThread =  new Thread(() => state.Poller.Run()){Name = $"{nameof(InterprocessTransport)}_{nameof(state.PollerThread)}"};

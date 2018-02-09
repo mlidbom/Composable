@@ -1,4 +1,5 @@
-﻿using Composable.Contracts;
+﻿using System.Threading.Tasks;
+using Composable.Contracts;
 using Composable.Messaging.Buses.Implementation;
 using JetBrains.Annotations;
 
@@ -18,15 +19,15 @@ namespace Composable.Messaging.Buses
             _commandScheduler = commandScheduler;
         }
 
-        void IServiceBusControl.Start()
+        async Task IServiceBusControl.StartAsync()
         {
             Assert.State.Assert(!_started);
 
             _started = true;
 
-            _inbox.Start();
-            _transport.Start();
-            _commandScheduler.Start();
+            await Task.WhenAll(_inbox.StartAsync(),
+                               _transport.StartAsync(),
+                               _commandScheduler.StartAsync());
         }
 
         void IServiceBusControl.Stop()

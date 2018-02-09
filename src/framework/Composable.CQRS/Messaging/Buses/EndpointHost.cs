@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
@@ -66,7 +67,7 @@ namespace Composable.Messaging.Buses
 
             //performance: Client endpoints do not need message storage and other endpoints need not connect to client endpoints.
             //performance: Make all this setup async and thus parallel.
-            Endpoints.ForEach(endpointToStart => endpointToStart.Init());
+            Task.WaitAll(Endpoints.Select(endpointToStart => endpointToStart.InitAsync()).ToArray());
 
             var endpointsWithRemoteMessageHandlers = Endpoints
                                                     .Where(endpoint => endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds().Any())

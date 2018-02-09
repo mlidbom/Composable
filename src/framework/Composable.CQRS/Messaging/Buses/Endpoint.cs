@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
@@ -28,7 +29,7 @@ namespace Composable.Messaging.Buses
 
         IServiceBusControl BusControl => ServiceLocator.Resolve<IServiceBusControl>();
 
-        public void Init()
+        public async Task InitAsync()
         {
             Assert.State.Assert(!IsRunning);
 
@@ -39,7 +40,7 @@ namespace Composable.Messaging.Buses
 
             RunSanityChecks();
 
-            BusControl.Start();
+            await BusControl.StartAsync();
         }
 
         public void Connect(IEnumerable<EndPointAddress> knownEndpointAddresses)

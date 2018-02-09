@@ -71,6 +71,20 @@ namespace Composable.Messaging.Buses.Implementation
             @this.DispatchQueue.Enqueue(outGoingMessage);
         }
 
+        public static async Task<ClientConnection> CreateAsync(IGlobalBusStateTracker globalBusStateTracker,
+                                                         EndPointAddress serverEndpoint,
+                                                         NetMQPoller poller,
+                                                         IUtcTimeTimeSource timeSource,
+                                                         InterprocessTransport.MessageStorage messageStorage,
+                                                         ITypeMapper typeMapper,
+                                                         ITaskRunner taskRunner,
+                                                         IRemotableMessageSerializer serializer)
+        {
+            var clientConnection = new ClientConnection(globalBusStateTracker, serverEndpoint, poller, timeSource, messageStorage, typeMapper, taskRunner, serializer);
+            clientConnection.EndPointinformation = await clientConnection.DispatchAsync(new BusApi.Internal.EndpointInformationQuery());
+            return clientConnection;
+        }
+
         public ClientConnection(IGlobalBusStateTracker globalBusStateTracker,
                                 EndPointAddress serverEndpoint,
                                 NetMQPoller poller,
@@ -176,7 +190,5 @@ namespace Composable.Messaging.Buses.Implementation
                     }
             });
         }
-
-        public async Task InitAsync() => EndPointinformation = await DispatchAsync(new BusApi.Internal.EndpointInformationQuery());
     }
 }

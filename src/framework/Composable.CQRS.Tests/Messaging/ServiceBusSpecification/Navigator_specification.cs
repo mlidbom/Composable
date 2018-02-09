@@ -19,8 +19,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         ITestingEndpointHost _host;
         IEndpoint _clientEndpoint;
 
-        IRemoteApiNavigatorSession RemoteNavigator => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
-
         [SetUp] public async Task Setup()
         {
             var queryResults = new List<UserResource>();

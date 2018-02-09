@@ -153,7 +153,7 @@ namespace Composable.DependencyInjection
                     {
                         if(scopeCache == null)
                         {
-                            throw new Exception($"Attempted to resolve scoped component without a scope");
+                            throw new Exception("Attempted to resolve scoped component without a scope");
                         }
                         var newInstance = currentComponent.CreateInstance(this);
                         scopeCache.Set(newInstance, currentComponent);

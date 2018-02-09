@@ -15,7 +15,7 @@ namespace Composable.Tests.Contracts
             TimeAsserter.Execute(
                 action: () => Contract.Argument(() => one).NotDefault(),
                 iterations: 500,
-                maxTotal: 10.Milliseconds().InstrumentationSlowdown(5));
+                maxTotal: 10.Milliseconds().InstrumentationSlowdown(2));
         }
 
         [Test] public void ShouldRun50TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
@@ -25,7 +25,7 @@ namespace Composable.Tests.Contracts
             TimeAsserter.Execute(
                 action: () => Contract.Argument(() => one).NotNullOrDefault(),
                 iterations: 500,
-                maxTotal: 10.Milliseconds().InstrumentationSlowdown(5));
+                maxTotal: 10.Milliseconds().InstrumentationSlowdown(2));
         }
     }
 }

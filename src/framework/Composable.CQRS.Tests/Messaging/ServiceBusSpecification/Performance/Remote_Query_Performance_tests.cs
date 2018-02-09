@@ -14,20 +14,20 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
     [TestFixture, Performance, Serial] public class RemoteQueryPerformanceTests : PerformanceTestBase
     {
-        [Test, Serial] public void MultiThreaded_Runs_1000_local_requests_making_one_remote_query_each_in_130_milliSeconds() =>
-            RunScenario(threaded: true, requests: 1000.InstrumentationSlowdown(2.0), queriesPerRequest: 1, maxTotal: 130.Milliseconds());
+        [Test, Serial] public void MultiThreaded_Runs_100_local_requests_making_one_remote_query_each_in_13_milliSeconds() =>
+            RunScenario(threaded: true, requests: 100.InstrumentationSlowdown(2.0), queriesPerRequest: 1, maxTotal: 13.Milliseconds());
 
-        [Test, Serial] public void SingleThreaded_Runs_1000_local_requests_making_one_remote_query_each_in_500_milliSeconds() =>
-            RunScenario(threaded: false, requests: 1000.InstrumentationSlowdown(1.3), queriesPerRequest: 1, maxTotal: 500.Milliseconds());
+        [Test, Serial] public void SingleThreaded_Runs_100_local_requests_making_one_remote_query_each_in_50_milliSeconds() =>
+            RunScenario(threaded: false, requests: 100.InstrumentationSlowdown(1.3), queriesPerRequest: 1, maxTotal: 50.Milliseconds());
 
-        [Test, Serial] public void MultiThreaded_Runs_100_local_requests_making_10_remote_queries_each_in_140_milliSeconds() =>
-            RunScenario(threaded: true, requests: 100.InstrumentationSlowdown(2.3), queriesPerRequest: 10, maxTotal: 140.Milliseconds());
+        [Test, Serial] public void MultiThreaded_Runs_10_local_requests_making_10_remote_queries_each_in_14_milliSeconds() =>
+            RunScenario(threaded: true, requests: 10.InstrumentationSlowdown(2.3), queriesPerRequest: 10, maxTotal: 14.Milliseconds());
 
-        [Test, Serial] public void SingleThreaded_Runs_100_local_requests_making_10_remote_queries_each_in_500_milliSeconds() =>
-            RunScenario(threaded: false, requests: 100.InstrumentationSlowdown(1.3), queriesPerRequest: 10, maxTotal: 500.Milliseconds());
+        [Test, Serial] public void SingleThreaded_Runs_10_local_requests_making_10_remote_queries_each_in_50_milliSeconds() =>
+            RunScenario(threaded: false, requests: 10.InstrumentationSlowdown(1.3), queriesPerRequest: 10, maxTotal: 50.Milliseconds());
 
-        [Test, Serial] public void Async_Runs_1_000_local_requests_making_one_async_remote_query_each_in_100_milliSeconds() =>
-            RunAsyncScenario(requests: 1_000.InstrumentationSlowdown(2.0), queriesPerRequest: 1, maxTotal: 100.Milliseconds());
+        [Test, Serial] public void Async_Runs_1_00_local_requests_making_one_async_remote_query_each_in_10_milliSeconds() =>
+            RunAsyncScenario(requests: 1_00.InstrumentationSlowdown(2.0), queriesPerRequest: 1, maxTotal: 10.Milliseconds());
 
         [Test, Serial] public void Async_Runs_100_local_requests_making_10_async_remote_queries_each_in_85_milliSeconds() =>
             RunAsyncScenario(requests: 100.InstrumentationSlowdown(3.0), queriesPerRequest: 10, maxTotal: 85.Milliseconds());
@@ -53,11 +53,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 
             if(threaded)
             {
-                StopwatchExtensions.TimeExecutionThreaded(RunRequest, iterations: requests);
+                StopwatchExtensions.TimeExecutionThreaded(RunRequest, iterations: requests); //Warmup
                 TimeAsserter.ExecuteThreaded(RunRequest, iterations: requests, maxTotal: maxTotal);
             } else
             {
-                StopwatchExtensions.TimeExecution(RunRequest, iterations: requests);
+                StopwatchExtensions.TimeExecution(RunRequest, iterations: requests); //Warmup
                 TimeAsserter.Execute(RunRequest, iterations: requests, maxTotal: maxTotal);
             }
         }
@@ -78,6 +78,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             async Task RunScenario() => await Task.WhenAll(1.Through(requests).Select(_ => RunRequestAsync()).ToArray());
             //ncrunch: no coverage end
 
+            //Warmup
             RunScenario().Wait();
 
             TimeAsserter.Execute(() => RunScenario().Wait(), maxTotal: maxTotal);

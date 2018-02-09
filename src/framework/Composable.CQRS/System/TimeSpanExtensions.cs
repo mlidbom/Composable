@@ -51,5 +51,9 @@ namespace Composable.System
 
         /// <summary>Returns a TimeSpan <paramref name="this"/> days long.</summary>
         public static TimeSpan Days(this double @this) => TimeSpan.FromDays(@this);
+
+        public static TimeSpan MultiplyBy(this TimeSpan @this, double times) => TimeSpan.FromTicks((long)(@this.Ticks * times));
+
+        public static TimeSpan DivideBy(this TimeSpan @this, double divideBy) => TimeSpan.FromTicks((long)(@this.Ticks / divideBy));
     }
 }

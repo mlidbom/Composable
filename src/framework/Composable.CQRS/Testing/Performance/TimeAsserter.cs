@@ -148,7 +148,7 @@ namespace Composable.Testing.Performance
         {
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)
             {
-                throw new TimeOutException($"{nameof(maxTotal)}: {format(maxTotal)} exceeded. Was: {format(executionSummary.Total)}");
+                throw new TimeOutException($"{nameof(maxTotal)}: {format(maxTotal.Value)} exceeded. Was: {format(executionSummary.Total)}");
             }
 
             if(maxAverage.HasValue && executionSummary.Average > maxAverage.Value)

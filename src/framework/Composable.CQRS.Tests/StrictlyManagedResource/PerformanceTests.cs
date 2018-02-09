@@ -19,16 +19,14 @@ namespace Composable.Tests.StrictlyManagedResource
         {
             TimeAsserter.Execute(() => new StrictlyManagedResource<StrictResource>(forceStackTraceCollection: true).Dispose(),
                                  iterations: 250,
-                                 maxTotal: 20.Milliseconds().InstrumentationSlowdown(5),
-                                 timeFormat: "s\\.ffffff");
+                                 maxTotal: 20.Milliseconds());
         }
 
         [Test] public void Allocates_and_disposes_5000_instances_in_10_millisecond_when_not_collecting_stack_traces()
         {
             TimeAsserter.Execute(() => new StrictlyManagedResource<StrictResource>().Dispose(),
                                  iterations: 5000,
-                                 maxTotal: 10.Milliseconds(),
-                                 timeFormat: "s\\.ffffff");
+                                 maxTotal: 10.Milliseconds());
         }
     }
 }

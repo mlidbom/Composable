@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Reflection;
 using Composable.Testing.Performance;
@@ -14,7 +15,7 @@ namespace Composable.Tests.System.Reflection
         [UsedImplicitly] class Simple
         {}
 
-        [Test, Serial] public void TestName() => Constructor.For<Simple>.DefaultConstructor.Instance().Should().NotBe(null);
+        [Test, Serial] public void Can_construct_instance() => Constructor.For<Simple>.DefaultConstructor.Instance().Should().NotBe(null);
 
         [Test, Serial] public void _005_Constructs_10_000_000_instances_within_30_percent_of_default_constructor_time()
         {
@@ -26,7 +27,7 @@ namespace Composable.Tests.System.Reflection
 
 
             var defaultConstructor = StopwatchExtensions.TimeExecution(DefaultConstructor, constructions).Total;
-            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * 1.30);
+            var maxTime = defaultConstructor.MultiplyBy(1.30);
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime);
         }
 
@@ -40,7 +41,7 @@ namespace Composable.Tests.System.Reflection
 
 
             var defaultConstructor = StopwatchExtensions.TimeExecution(NewConstraint, constructions).Total;
-            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * (1.0/5));
+            var maxTime = defaultConstructor.DivideBy(5);
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.InstrumentationSlowdown(4));
         }
 
@@ -54,7 +55,7 @@ namespace Composable.Tests.System.Reflection
 
 
             var defaultConstructor = StopwatchExtensions.TimeExecution(ActivatorCreateInstance, constructions).Total;
-            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * (1.0/5));
+            var maxTime = defaultConstructor.DivideBy(5);
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.InstrumentationSlowdown(4.2));
         }
 

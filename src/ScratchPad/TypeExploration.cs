@@ -41,11 +41,11 @@ namespace ScratchPad
 
         [Test] public void Looking_up_type_associated_data_via_static_caching_trick_is_5_times_faster_than_via_dictionary()
         {
-            var iterations = 10_000_000.InstrumentationSlowdown(10);
+            var iterations = 1_000_000.InstrumentationSlowdown(10);
 
             var dictionaryTotal = TimeAsserter.Execute(() => DoDictionaryTypeLookups<Email>(iterations)).Total;
 
-            var maxTotal = TimeSpan.FromMilliseconds(dictionaryTotal.TotalMilliseconds / 5).InstrumentationSlowdown(3);
+            var maxTotal = dictionaryTotal.DivideBy(5).InstrumentationSlowdown(3);
             TimeAsserter.Execute(() => DoStaticTypeLookups<Email>(iterations), maxTotal: maxTotal, maxTries: 1);
         }
 
@@ -54,7 +54,7 @@ namespace ScratchPad
             var iterations = 1_000_000.InstrumentationSlowdown(10);
 
             var totalViaParsing = TimeAsserter.Execute(() => LookupTypeByParsingTypeId<Email>(iterations), maxTries: 1).Total;
-            TimeSpan maxTotal = TimeSpan.FromMilliseconds(totalViaParsing.TotalMilliseconds / 25);
+            TimeSpan maxTotal = totalViaParsing.DivideBy(25);
             TimeAsserter.Execute(() => LookupTypeByIndex<Email>(iterations), maxTotal: maxTotal.InstrumentationSlowdown(3.2));
 
         }

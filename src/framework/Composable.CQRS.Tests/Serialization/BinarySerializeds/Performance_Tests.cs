@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.Serialization;
+using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.Testing.Performance;
 using FluentAssertions;
@@ -53,7 +54,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
             var jsonSerializationTime = RunScenario(() => JsonRoundTrip(_instance, 1), iterations);
 
-            var maxTotal = TimeSpan.FromMilliseconds(jsonSerializationTime.TotalMilliseconds / 5);
+            var maxTotal = jsonSerializationTime.DivideBy(5);
 
             var binarySerializationTime = RunScenario(BinaryRoundTrip, iterations.InstrumentationSlowdown(5), maxTotal:maxTotal);
 
@@ -64,18 +65,18 @@ namespace Composable.Tests.Serialization.BinarySerializeds
         {
             var constructions = 1_00_000.InstrumentationSlowdown(4.7);
             var defaultConstructor = RunScenario(DefaultConstructor, constructions);
-            var maxTime = TimeSpan.FromMilliseconds(defaultConstructor.TotalMilliseconds * 1.05);
+            var maxTime = defaultConstructor.MultiplyBy(1.05);
             RunScenario(DynamicModuleConstruct, constructions, maxTotal: maxTime );
         }
 
         [Test] public void _010_Serializes_10_000_times_in_100_milliseconds() =>
-            RunScenario(BinarySerialize, 10_000.InstrumentationSlowdown(6.5), maxTotal:100.Milliseconds());
+            RunScenario(BinarySerialize, 10_000.InstrumentationSlowdown(6.5), maxTotal:TimeSpanConversionExtensions.Milliseconds(100));
 
         [Test] public void _020_DeSerializes_10_000_times_in_130_milliseconds() =>
-                RunScenario(BinaryDeSerialize, iterations: 10_000.InstrumentationSlowdown(5.5), maxTotal:130.Milliseconds());
+                RunScenario(BinaryDeSerialize, iterations: 10_000.InstrumentationSlowdown(5.5), maxTotal:TimeSpanConversionExtensions.Milliseconds(130));
 
-        [Test] public void _030_Roundtrips_10_000_times_in_220_milliseconds() =>
-            RunScenario(BinaryRoundTrip, iterations: 10_000.InstrumentationSlowdown(6.5), maxTotal:220.Milliseconds());
+        [Test] public void _030_Roundtrips_1_000_times_in_22_milliseconds() =>
+            RunScenario(BinaryRoundTrip, iterations: 1_000.InstrumentationSlowdown(6.5), maxTotal:TimeSpanConversionExtensions.Milliseconds(22));
 
         //ncrunch: no coverage start
 

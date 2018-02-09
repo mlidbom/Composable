@@ -50,7 +50,7 @@ namespace Composable.System.Threading.ResourceAccess
 
         public TResult Read<TResult>(Func<TShared, TResult> read)
         {
-            lock(_shared)
+            lock(_lock)
             {
                 return read(_shared);
             }

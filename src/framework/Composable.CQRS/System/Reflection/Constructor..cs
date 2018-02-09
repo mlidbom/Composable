@@ -41,6 +41,7 @@ namespace Composable.System.Reflection
 
         internal static object CreateInstance(Type type) => DefaultFor(type)();
 
+        static readonly object Lock = new object();
         static Dictionary<Type, Func<object>> _defaultConstructors = new Dictionary<Type, Func<object>>();
         internal static Func<object> DefaultFor(Type type)
         {
@@ -49,7 +50,7 @@ namespace Composable.System.Reflection
                 return constructor;
             }
 
-            lock(_defaultConstructors)
+            lock(Lock)
             {
                 if(_defaultConstructors.TryGetValue(type, out var doubleCheckedConstructor))
                 {

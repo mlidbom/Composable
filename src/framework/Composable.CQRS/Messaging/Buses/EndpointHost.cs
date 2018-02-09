@@ -54,6 +54,7 @@ namespace Composable.Messaging.Buses
             Assert.State.Assert(!_isStarted, Endpoints.None(endpoint => endpoint.IsRunning));
             _isStarted = true;
 
+            //performance: Make all this setup async and thus parallel.
             Endpoints.ForEach(endpointToStart => endpointToStart.Init());
             Endpoints.ForEach(endpointToStart => endpointToStart.Connect(Endpoints));
         }

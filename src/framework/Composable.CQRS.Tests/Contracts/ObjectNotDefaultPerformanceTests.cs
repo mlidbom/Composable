@@ -1,14 +1,14 @@
 using Composable.Contracts;
 using Composable.Testing.Performance;
 using FluentAssertions;
+using NCrunch.Framework;
 using NUnit.Framework;
 
-namespace Composable.Tests.Contracts {
-    [TestFixture, Performance]
-    public class ObjectNotDefaultPerformanceTests
+namespace Composable.Tests.Contracts
+{
+    [TestFixture, Performance, Serial] public class ObjectNotDefaultPerformanceTests
     {
-        [Test]
-        public void ShouldRun500TestsIn10Milliseconds() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
+        [Test] public void ShouldRun500TestsIn10Milliseconds() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
         {
             var one = 1;
 
@@ -18,8 +18,7 @@ namespace Composable.Tests.Contracts {
                 maxTotal: 10.Milliseconds().InstrumentationSlowdown(5));
         }
 
-        [Test]
-        public void ShouldRun50TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
+        [Test] public void ShouldRun50TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
         {
             var one = 1;
 

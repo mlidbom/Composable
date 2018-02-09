@@ -8,11 +8,12 @@ using Composable.Refactoring.Naming;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.Testing.Performance;
+using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace ScratchPad
 {
-    [TestFixture, Category("Performance")] public class TypeExploration
+    [TestFixture, NUnit.Framework.Category("Performance"), Serial] public class TypeExploration
     {
         List<Type> _assemblyTypes;
         List<Type> _mappableTypes;

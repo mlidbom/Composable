@@ -4,11 +4,12 @@ using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.Testing.Databases;
 using Composable.Testing.Performance;
+using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
 {
-    [TestFixture, Performance]
+    [TestFixture, Performance, Serial]
     public class PerformanceTests
     {
         [SetUp]

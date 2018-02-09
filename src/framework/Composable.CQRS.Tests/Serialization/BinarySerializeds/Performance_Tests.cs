@@ -4,6 +4,7 @@ using Composable.Serialization;
 using Composable.System.Diagnostics;
 using Composable.Testing.Performance;
 using FluentAssertions;
+using NCrunch.Framework;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -13,7 +14,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Serialization.BinarySerializeds
 {
-    [TestFixture, NCrunch.Framework.Serial] public class Performance_tests
+    [TestFixture, Performance, Serial] public class Performance_tests
     {
         HasAllPropertyTypes _instance;
         byte[] _serialized;

@@ -11,11 +11,12 @@ using Composable.System.Linq;
 using Composable.Testing.Performance;
 using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
 using FluentAssertions;
+using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
-    [TestFixture, Performance, LongRunning]
+    [TestFixture, Performance, LongRunning, Serial]
     public abstract class EventMigrationPerformanceTest : EventMigrationTestBase
     {
         public EventMigrationPerformanceTest(Type eventStoreType) : base(eventStoreType) { }

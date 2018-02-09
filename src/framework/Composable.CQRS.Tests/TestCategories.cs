@@ -2,7 +2,7 @@
 
 namespace Composable.Tests
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     class PerformanceAttribute : Attribute,
                                  NUnit.Framework.Interfaces.IApplyToTest
     {

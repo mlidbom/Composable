@@ -10,12 +10,13 @@ using Composable.System.Linq;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;
+using NCrunch.Framework;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace Composable.Tests.Serialization
 {
-    [TestFixture, Performance]
+    [TestFixture]
     public class NewtonSoftEventStoreEventSerializerTests
     {
         IEventStoreSerializer _eventSerializer;
@@ -116,7 +117,7 @@ namespace Composable.Tests.Serialization
                 );
         }
 
-        [Test] public void Should_roundtrip_simple_event_1000_times_in_15_milliseconds()
+        [Test, Performance, Serial] public void Should_roundtrip_simple_event_1000_times_in_15_milliseconds()
         {
             var @event = new TestEvent(
                                             test1: "Test1",
@@ -144,7 +145,7 @@ namespace Composable.Tests.Serialization
                                 );
         }
 
-        [Test] public void Should_roundtrip_simple_event_within_50_percent_of_default_serializer_performance()
+        [Test, Performance, Serial] public void Should_roundtrip_simple_event_within_50_percent_of_default_serializer_performance()
         {
             const int iterations = 1000;
             const double allowedSlowdown = 1.5;

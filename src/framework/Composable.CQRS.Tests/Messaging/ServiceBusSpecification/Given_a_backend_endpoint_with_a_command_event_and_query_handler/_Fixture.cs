@@ -32,6 +32,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
         protected IEndpoint ClientEndpoint;
+        protected IEndpoint RemoteEndpoint;
         protected IRemoteApiNavigatorSession RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
 
         [SetUp]public async Task Setup()
@@ -75,7 +76,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                     MapBackendEndpointTypes(builder);
                 });
 
-            Host.RegisterEndpoint("Remote",
+            RemoteEndpoint = Host.RegisterEndpoint("Remote",
                                   new EndpointId(Guid.Parse("E72924D3-5279-44B5-B20D-D682E537672B")),
                                   builder =>
                                   {

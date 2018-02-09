@@ -35,9 +35,11 @@ namespace Composable.Messaging.Buses
             public static ITestingEndpointHost Create(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory);
         }
 
-        public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
+        public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup) => InternalRegisterEndpoint(new EndpointConfiguration(name, id), setup);
+
+        IEndpoint InternalRegisterEndpoint(EndpointConfiguration configuration, Action<IEndpointBuilder> setup)
         {
-            var builder = new EndpointBuilder(GlobalBusStateTracker, _containerFactory(_mode), name, id);
+            var builder = new EndpointBuilder(GlobalBusStateTracker, _containerFactory(_mode), configuration);
 
             setup(builder);
 
@@ -47,9 +49,15 @@ namespace Composable.Messaging.Buses
             return endpoint;
         }
 
+        static readonly EndpointConfiguration ClientEndpointConfiguration = new EndpointConfiguration($"{nameof(TestingEndpointHost)}_Default_Client_Endpoint",
+                                                                                                      new EndpointId(Guid.Parse("D4C869D2-68EF-469C-A5D6-37FCF2EC152A")))
+                                                                            {
+                                                                                IsPureClientEndpoint = true
+                                                                            };
+
         public IEndpoint RegisterClientEndpointForRegisteredEndpoints()
         {
-            var clientEndpoint = RegisterEndpoint($"{nameof(TestingEndpointHost)}_Default_Client_Endpoint", new EndpointId(Guid.Parse("D4C869D2-68EF-469C-A5D6-37FCF2EC152A")), _ => {});
+            var clientEndpoint = InternalRegisterEndpoint(ClientEndpointConfiguration, _ => {});
 
             var typeMapper = clientEndpoint.ServiceLocator.Resolve<TypeMapper>();
 

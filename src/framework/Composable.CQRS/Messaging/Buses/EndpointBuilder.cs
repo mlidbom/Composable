@@ -38,11 +38,11 @@ namespace Composable.Messaging.Buses
             BusApi.MapTypes(TypeMapper);
         }
 
-        public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, string name, EndpointId endpointId)
+        public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
             _container = container;
 
-            Configuration = new EndpointConfiguration(name, endpointId);
+            Configuration = configuration;
 
             var endpointSqlConnection = container.RunMode.IsTesting
                                             ? new LazySqlServerConnection(new Lazy<string>(() => container.CreateServiceLocator().Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString))
@@ -57,7 +57,7 @@ namespace Composable.Messaging.Buses
                 Component.For<ITaskRunner>()
                          .UsingFactoryMethod(() => new TaskRunner())
                          .LifestyleSingleton(),
-                Component.For<EndpointId>().UsingFactoryMethod(() => endpointId).LifestyleSingleton(),
+                Component.For<EndpointId>().UsingFactoryMethod(() => configuration.Id).LifestyleSingleton(),
                 Component.For<EndpointConfiguration>()
                          .UsingFactoryMethod(() => Configuration)
                          .LifestyleSingleton(),
@@ -69,8 +69,8 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod(() => new AggregateTypeValidator(_typeMapper))
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
-                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, EndpointId id, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
-                                                 new InterprocessTransport(globalStateTracker, timeSource, endpointSqlConnection, _typeMapper, id, taskRunner, serializer))
+                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
+                                                 new InterprocessTransport(globalStateTracker, timeSource, endpointSqlConnection, _typeMapper, configuration, taskRunner, serializer))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .UsingFactoryMethod(() => new SingleThreadUseGuard())
@@ -98,7 +98,7 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))
                          .LifestyleSingleton(),
                 Component.For<IServiceBusControl>()
-                         .UsingFactoryMethod((IInterprocessTransport interprocessTransport, IInbox inbox, CommandScheduler commandScheduler) => new ServiceBusControl(interprocessTransport, inbox, commandScheduler))
+                         .UsingFactoryMethod((IInterprocessTransport interprocessTransport, IInbox inbox, CommandScheduler commandScheduler) => new ServiceBusControl(interprocessTransport, inbox, commandScheduler, configuration))
                          .LifestyleSingleton(),
                 Component.For<IServiceBusSession, IRemoteApiNavigatorSession, ILocalApiNavigatorSession>()
                          .UsingFactoryMethod((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry) =>

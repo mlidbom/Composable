@@ -6,6 +6,7 @@
         public string Name { get; }
         public EndpointId Id { get; }
         public string ConnectionStringName => Name;
+        internal bool IsPureClientEndpoint { get; set; }
 
         internal EndpointConfiguration(string name, EndpointId id)
         {

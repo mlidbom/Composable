@@ -28,17 +28,17 @@ namespace Composable.Messaging.Buses.Implementation
             public MessageStorage MessageStorage { get; set; }
             public ITypeMapper TypeMapper { get; set; }
             public IRemotableMessageSerializer Serializer { get; set; }
-            public EndpointId EndpointId;
+            public EndpointConfiguration Configuration;
             public Thread PollerThread;
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
         ITaskRunner _taskRunner;
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeMapper typeMapper, EndpointId endpointId, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => _state.WithExclusiveAccess(@this =>
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeMapper typeMapper, EndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => _state.WithExclusiveAccess(@this =>
         {
             _taskRunner = taskRunner;
-            @this.EndpointId = endpointId;
+            @this.Configuration = configuration;
             @this.Serializer = serializer;
             @this.HandlerStorage = new HandlerStorage(typeMapper);
             @this.TypeMapper = typeMapper;
@@ -59,7 +59,10 @@ namespace Composable.Messaging.Buses.Implementation
         {
             Assert.State.Assert(!state.Running);
             state.Running = true;
-            var storageStartTask = state.MessageStorage.StartAsync();
+
+            var storageStartTask = state.Configuration.IsPureClientEndpoint
+                                       ? Task.CompletedTask
+                                       : state.MessageStorage.StartAsync();
 
             state.Poller = new NetMQPoller();
             state.PollerThread =  new Thread(() => state.Poller.Run()){Name = $"{nameof(InterprocessTransport)}_{nameof(state.PollerThread)}"};
@@ -82,7 +85,7 @@ namespace Composable.Messaging.Buses.Implementation
         public void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent exactlyOnceEvent) => _state.WithExclusiveAccess(state =>
         {
             var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(exactlyOnceEvent)
-                                               .Where(id => id != state.EndpointId)
+                                               .Where(id => id != state.Configuration.Id)
                                                .ToArray();//We dispatch events to ourself synchronously so don't go doing it again here.;
 
             if(eventHandlerEndpointIds.Length != 0)//Don't waste time if there are no receivers

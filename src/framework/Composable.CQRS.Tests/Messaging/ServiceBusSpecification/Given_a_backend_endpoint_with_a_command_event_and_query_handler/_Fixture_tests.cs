@@ -17,7 +17,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Test] public void If_command_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             CommandHandlerThreadGate.ThrowPostPassThrough(_thrownException);
-            ClientEndpoint.ExecuteRequestInTransaction(session => session.Send(new MyExactlyOnceCommand()));
+            RemoteEndpoint.ExecuteRequestInTransaction(session => session.Send(new MyExactlyOnceCommand()));
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 

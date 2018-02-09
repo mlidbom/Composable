@@ -14,7 +14,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
     {
         [Test] public void Command_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            ClientEndpoint.ExecuteRequestInTransaction(session => session.Send(new MyExactlyOnceCommand()));
+            RemoteEndpoint.ExecuteRequestInTransaction(session => session.Send(new MyExactlyOnceCommand()));
 
             var transaction = CommandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                        .PassedThrough.Single().Transaction;

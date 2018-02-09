@@ -75,15 +75,14 @@ namespace Composable.Messaging.Buses
             Assert.State.Assert(!_isStarted, Endpoints.None(endpoint => endpoint.IsRunning));
             _isStarted = true;
 
-            //performance: Client endpoints do not need message storage and other endpoints need not connect to client endpoints.
-            await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.InitAsync()));
+            await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.InitAsync())).NoMarshalling();
 
             var endpointsWithRemoteMessageHandlers = Endpoints
                                                     .Where(endpoint => endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds().Any())
                                                     .Select(@this => @this.Address)
                                                     .ToList();
 
-            await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.ConnectAsync(endpointsWithRemoteMessageHandlers)));
+            await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.ConnectAsync(endpointsWithRemoteMessageHandlers))).NoMarshalling();
         }
 
         public void Start() => StartAsync().WaitUnwrappingException();

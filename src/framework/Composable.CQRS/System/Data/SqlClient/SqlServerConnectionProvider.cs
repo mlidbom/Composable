@@ -9,15 +9,15 @@ namespace Composable.System.Data.SqlClient
 {
     class SqlServerConnection : LazySqlServerConnection
     {
-        public SqlServerConnection(string connectionString) : base(new Lazy<string>(() => connectionString)) {}
+        public SqlServerConnection(string connectionString) : base(new OptimizedLazy<string>(() => connectionString)) {}
     }
 
     class LazySqlServerConnection : ISqlConnection
     {
-        readonly Lazy<string> _connectionString;
+        readonly OptimizedLazy<string> _connectionString;
         public string ConnectionString => _connectionString.Value;
 
-        public LazySqlServerConnection(Lazy<string> connectionString) => _connectionString = connectionString;
+        public LazySqlServerConnection(OptimizedLazy<string> connectionString) => _connectionString = connectionString;
 
         public SqlConnection OpenConnection()
         {

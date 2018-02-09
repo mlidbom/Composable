@@ -10,6 +10,7 @@ using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
+using Composable.System;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
@@ -99,7 +100,7 @@ namespace Composable.DependencyInjection.Persistence
                     Component.For<IEventStorePersistenceLayer>()
                                 .UsingFactoryMethod((ISqlConnectionProvider connectionProvider1, ITypeMapper typeIdMapper) =>
                                                     {
-                                                        var connectionProvider = new LazySqlServerConnection(new Lazy<string>(() => connectionProvider1.GetConnectionProvider(connectionName).ConnectionString));
+                                                        var connectionProvider = new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider1.GetConnectionProvider(connectionName).ConnectionString));
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
                                                         var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, typeIdMapper);
                                                         var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);

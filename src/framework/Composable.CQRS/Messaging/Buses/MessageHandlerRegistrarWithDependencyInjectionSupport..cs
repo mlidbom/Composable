@@ -1,11 +1,12 @@
 using System;
 using Composable.DependencyInjection;
+using Composable.System;
 
 namespace Composable.Messaging.Buses
 {
     public class MessageHandlerRegistrarWithDependencyInjectionSupport
     {
-        public MessageHandlerRegistrarWithDependencyInjectionSupport(IMessageHandlerRegistrar register, Lazy<IServiceLocator> serviceLocator)
+        internal MessageHandlerRegistrarWithDependencyInjectionSupport(IMessageHandlerRegistrar register, OptimizedLazy<IServiceLocator> serviceLocator)
         {
             Register = register;
             ServiceLocator = serviceLocator;
@@ -13,7 +14,7 @@ namespace Composable.Messaging.Buses
 
         internal IMessageHandlerRegistrar Register { get; }
 
-        internal Lazy<IServiceLocator> ServiceLocator { get; }
+        internal OptimizedLazy<IServiceLocator> ServiceLocator { get; }
 
         internal TService Resolve<TService>() where TService : class => ServiceLocator.Value.Resolve<TService>();
     }

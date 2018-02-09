@@ -7,6 +7,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
+using Composable.System;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Threading;
@@ -45,13 +46,13 @@ namespace Composable.Messaging.Buses
             Configuration = configuration;
 
             var endpointSqlConnection = container.RunMode.IsTesting
-                                            ? new LazySqlServerConnection(new Lazy<string>(() => container.CreateServiceLocator().Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString))
+                                            ? new LazySqlServerConnection(new OptimizedLazy<string>(() => container.CreateServiceLocator().Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString))
                                             : new SqlServerConnection(ConfigurationManager.ConnectionStrings[Configuration.ConnectionStringName].ConnectionString);
 
             _typeMapper = new TypeMapper(endpointSqlConnection);
 
             var registry = new MessageHandlerRegistry(_typeMapper);
-            RegisterHandlers = new MessageHandlerRegistrarWithDependencyInjectionSupport(registry, new Lazy<IServiceLocator>(() => _container.CreateServiceLocator()));
+            RegisterHandlers = new MessageHandlerRegistrarWithDependencyInjectionSupport(registry, new OptimizedLazy<IServiceLocator>(() => _container.CreateServiceLocator()));
 
             _container.Register(
                 Component.For<ITaskRunner>()

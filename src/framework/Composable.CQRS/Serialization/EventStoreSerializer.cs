@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
+using Composable.System;
 using Newtonsoft.Json;
 
 namespace Composable.Serialization
@@ -36,10 +37,11 @@ namespace Composable.Serialization
     {
         readonly ITypeMapper _typeMapper;
 
-        static readonly Regex  FindTypeNames = new Regex(@"""\$type""\: ""([^""]*)""", RegexOptions.Compiled);
+        static readonly OptimizedLazy<Regex> FindTypeNames = new OptimizedLazy<Regex>(() => new Regex(@"""\$type""\: ""([^""]*)""", RegexOptions.Compiled));
+
         public RenamingDecorator(ITypeMapper typeMapper) => _typeMapper = typeMapper;
 
-        public string ReplaceTypeNames(string json) => FindTypeNames.Replace(json, ReplaceTypeNamesWithTypeIds);
+        public string ReplaceTypeNames(string json) => FindTypeNames.Value.Replace(json, ReplaceTypeNamesWithTypeIds);
 
         string ReplaceTypeNamesWithTypeIds(Match match)
         {
@@ -48,7 +50,7 @@ namespace Composable.Serialization
             return $@"""$type"": ""{typeId.GuidValue}""";
         }
 
-        public string RestoreTypeNames(string json) => FindTypeNames.Replace(json, ReplaceTypeIdsWithTypeNames);
+        public string RestoreTypeNames(string json) => FindTypeNames.Value.Replace(json, ReplaceTypeIdsWithTypeNames);
 
         string ReplaceTypeIdsWithTypeNames(Match match)
         {

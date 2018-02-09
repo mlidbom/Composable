@@ -6,6 +6,7 @@ using Composable.Messaging.Buses;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
 using Composable.Serialization;
+using Composable.System;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
@@ -57,7 +58,7 @@ namespace Composable.DependencyInjection.Persistence
             } else
             {
                 @this.Register(Component.For<IDocumentDb>()
-                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb(new LazySqlServerConnection(new Lazy<string>(() => connectionProvider.GetConnectionProvider(connectionName).ConnectionString)), timeSource, serializer))
+                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb(new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider.GetConnectionProvider(connectionName).ConnectionString)), timeSource, serializer))
                                          .LifestyleSingleton());
             }
 

@@ -5,6 +5,7 @@ using AccountManagement.Domain;
 using Composable;
 using Composable.Messaging;
 using Composable.Refactoring.Naming;
+using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.Testing.Performance;
@@ -29,7 +30,7 @@ namespace ScratchPad
 
             _assemblyTypes.ForEach(type => TypeIndex.For(type));
 
-            _typeMapper = new TypeMapper(new LazySqlServerConnection(new Lazy<string>(() => "unused")));
+            _typeMapper = new TypeMapper(new LazySqlServerConnection(new OptimizedLazy<string>(() => "unused")));
 
             var mapMethod = typeof(TypeMapper).GetMethod(nameof(TypeMapper.Map), new[]{typeof(Guid)});
             foreach(var assemblyType in _mappableTypes)

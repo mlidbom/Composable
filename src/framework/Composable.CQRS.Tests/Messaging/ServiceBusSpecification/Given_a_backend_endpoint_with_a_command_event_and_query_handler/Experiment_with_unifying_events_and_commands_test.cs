@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
@@ -10,23 +11,23 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.Testing.Threading;
 using FluentAssertions;
-using Xunit;
+using NUnit.Framework;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
     using Composable.System;
 
-    public class Experiment_with_unifying_events_and_commands_test : IDisposable
+    [TestFixture]public class Experiment_with_unifying_events_and_commands_test
     {
-        readonly ITestingEndpointHost _host;
+        ITestingEndpointHost _host;
 
         readonly TestingTaskRunner _taskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
-        readonly IServiceLocator _userDomainServiceLocator;
+        IServiceLocator _userDomainServiceLocator;
         IEndpoint _clientEndpoint;
 
-        protected IRemoteApiNavigatorSession RemoteNavigator => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
+        IRemoteApiNavigatorSession RemoteNavigator => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
 
-        public Experiment_with_unifying_events_and_commands_test()
+        [SetUp] public async Task Setup()
         {
             _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
 
@@ -64,7 +65,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             _clientEndpoint = _host.RegisterClientEndpointForRegisteredEndpoints();
 
-            _host.Start();
+            await _host.StartAsync();
 
             _userDomainServiceLocator = userManagementDomainEndpoint.ServiceLocator;
 
@@ -73,7 +74,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         }
 
-        [Fact] void Can_register_user_and_fetch_user_resource()
+        [Test] public void Can_register_user_and_fetch_user_resource()
         {
             var registrationResult = _userDomainServiceLocator.ExecuteInIsolatedScope(() =>  UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBusSession>()));
 
@@ -84,7 +85,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         }
 
 
-        public void Dispose()
+        [TearDown]public void Teardown()
         {
             _taskRunner.Dispose();
             _host.Dispose();

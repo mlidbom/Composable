@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
@@ -18,7 +19,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         protected IRemoteApiNavigatorSession RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
         protected IServiceBusSession ServerBusSession => ServerEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
 
-        [SetUp] public void Setup()
+        [SetUp] public async Task Setup()
         {
             Host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
             ServerEndpoint = Host.RegisterEndpoint(
@@ -37,7 +38,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
                 });
 
             ClientEndpoint = Host.RegisterClientEndpointForRegisteredEndpoints();
-            Host.Start();
+            await Host.StartAsync();
         }
 
         [TearDown] public void TearDown() { Host.Dispose(); }

@@ -20,7 +20,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 
         [SetUp] public void Setup()
         {
-            Host = EndpointHost.Testing.CreateHostWithClientEndpoint(DependencyInjectionContainer.Create);
+            Host = EndpointHost.Testing.CreateWithClientEndpoint(DependencyInjectionContainer.Create);
             ClientEndpoint = Host.ClientEndpoint;
             ServerEndpoint = Host.RegisterEndpoint(
                 "Backend",

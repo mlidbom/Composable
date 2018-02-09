@@ -14,7 +14,7 @@ namespace Composable.DependencyInjection
 
         public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup, TestingMode mode)
         {
-            var host = EndpointHost.Testing.CreateHost(Create, mode);
+            var host = EndpointHost.Testing.Create(Create, mode);
             var endpoint = host.RegisterTestingEndpoint(setup: builder =>
             {
                 setup(builder.Container);

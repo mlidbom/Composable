@@ -30,18 +30,9 @@ namespace Composable.Messaging.Buses
 
         public static class Testing
         {
-            public static ITestingEndpointHost BuildHost(Func<IRunMode, IDependencyInjectionContainer> containerFactory,
-                                                         Action<ITestingEndpointHost> build,
-                                                         TestingMode mode = TestingMode.DatabasePool)
-            {
-                var testingEndpointHost = new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: true);
-                build(testingEndpointHost);
-                return testingEndpointHost;
-            }
+            public static ITestingEndpointHost CreateWithClientEndpoint(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: true);
 
-            public static ITestingEndpointHost CreateHostWithClientEndpoint(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: true);
-
-            public static ITestingEndpointHost CreateHost(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: false);
+            public static ITestingEndpointHost Create(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: false);
         }
 
         bool _isStarted;

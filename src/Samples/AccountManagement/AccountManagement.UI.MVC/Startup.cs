@@ -23,7 +23,7 @@ namespace AccountManagement.UI.MVC
         {
             services.AddMvc();
 
-            _host = EndpointHost.Testing.CreateHostWithClientEndpoint(DependencyInjectionContainer.Create);
+            _host = EndpointHost.Testing.CreateWithClientEndpoint(DependencyInjectionContainer.Create);
             new AccountManagementServerDomainBootstrapper().RegisterWith(_host);
             _host.Start();
             services.AddScoped(_ => _host.ClientEndpoint.ServiceLocator.Resolve<IServiceBusSession>());

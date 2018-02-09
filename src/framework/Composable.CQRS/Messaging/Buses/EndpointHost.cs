@@ -66,7 +66,6 @@ namespace Composable.Messaging.Buses
             _isStarted = true;
 
             //performance: Client endpoints do not need message storage and other endpoints need not connect to client endpoints.
-            //performance: Make all this setup async and thus parallel.
             Task.WaitAll(Endpoints.Select(endpointToStart => endpointToStart.InitAsync()).ToArray());
 
             var endpointsWithRemoteMessageHandlers = Endpoints

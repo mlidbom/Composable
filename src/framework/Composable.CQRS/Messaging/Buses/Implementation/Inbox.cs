@@ -55,6 +55,8 @@ namespace Composable.Messaging.Buses.Implementation
             Assert.Invariant.Assert(!_running);
             _running = true;
 
+            var storageStartTask = _storage.StartAsync();
+
             _serverSocket = new RouterSocket();
             //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
             _serverSocket.Options.SendHighWatermark = int.MaxValue;
@@ -79,7 +81,7 @@ namespace Composable.Messaging.Buses.Implementation
             _messageReceiverThread.Start();
 
             _handlerExecutionEngine.Start();
-            await _storage.StartAsync();
+            await storageStartTask;
         });
 
         public void Stop()

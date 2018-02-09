@@ -84,10 +84,11 @@ namespace Composable.DependencyInjection
         {
             if(_scopeCache.Value != null)
             {
-                throw new Exception("Someone failed to dispose a scope.");
+                throw new Exception("Scope already exists. Nested scopes are not supported.");
             }
 
-            _scopeCache.Value = _cache.CreateScopeCache();
+            var scopeCache = _cache.CreateScopeCache();
+            _scopeCache.Value = scopeCache;
 
             return _scopeDisposer;
         }
@@ -104,7 +105,7 @@ namespace Composable.DependencyInjection
         }
 
         [ThreadStatic] static ComponentRegistration _parentComponent;
-        TService Resolve<TService>()
+        internal TService Resolve<TService>()
         {
             var (registrations, instance) = _cache.Get<TService>();
 

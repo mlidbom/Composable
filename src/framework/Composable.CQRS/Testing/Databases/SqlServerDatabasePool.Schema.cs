@@ -16,7 +16,7 @@ namespace Composable.Testing.Databases
 
     sealed partial class SqlServerDatabasePool
     {
-        void CreateDatabase(string databaseName)
+        static void CreateDatabase(string databaseName)
         {
             var createDatabaseCommand = $@"CREATE DATABASE [{databaseName}]";
             if(!_databaseRootFolderOverride.IsNullOrWhiteSpace())
@@ -73,7 +73,7 @@ drop database [{db.Name()}]";
             1.Through(30).ForEach(_ => InsertDatabase(machineWide));
         }
 
-        IReadOnlyList<Database> ListPoolDatabases()
+        static IReadOnlyList<Database> ListPoolDatabases()
         {
             var databases = new List<string>();
             _masterConnection.UseCommand(

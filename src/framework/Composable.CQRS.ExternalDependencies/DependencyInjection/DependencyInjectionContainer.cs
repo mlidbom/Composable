@@ -18,6 +18,7 @@ namespace Composable.DependencyInjection
             var endpoint = host.RegisterTestingEndpoint(setup: builder =>
             {
                 setup(builder.Container);
+                //Hack to get the host to be disposed by the container when the container is disposed.
                 builder.Container.Register(Component.For<ITestingEndpointHost>().UsingFactoryMethod(() => host).LifestyleSingleton().DelegateToParentServiceLocatorWhenCloning());
             });
 

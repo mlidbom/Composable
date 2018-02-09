@@ -19,11 +19,11 @@ namespace Composable.Testing.Databases
         void CreateDatabase(string databaseName)
         {
             var createDatabaseCommand = $@"CREATE DATABASE [{databaseName}]";
-            if(!DatabaseRootFolderOverride.IsNullOrWhiteSpace())
+            if(!_databaseRootFolderOverride.IsNullOrWhiteSpace())
             {
                 createDatabaseCommand += $@"
-ON      ( NAME = {databaseName}_data, FILENAME = '{DatabaseRootFolderOverride}\{databaseName}.mdf') 
-LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{databaseName}.ldf');";
+ON      ( NAME = {databaseName}_data, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.mdf') 
+LOG ON  ( NAME = {databaseName}_log, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.ldf');";
             }
 
             createDatabaseCommand += $@"
@@ -39,7 +39,7 @@ ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
         void RebootPool(SharedState machineWide) => TransactionScopeCe.SuppressAmbient(() =>
         {
-            RebootedMasterConnections.Add(MasterConnectionString);
+            RebootedMasterConnections.Add(_masterConnectionString);
             _log.Warning("Rebooting database pool");
 
             machineWide.Reset();

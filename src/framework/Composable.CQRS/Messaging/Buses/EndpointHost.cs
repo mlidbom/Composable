@@ -47,7 +47,7 @@ namespace Composable.Messaging.Buses
 
         public IEndpoint RegisterClientEndpointForRegisteredEndpoints()
         {
-            var clientEndpoint  = RegisterEndpoint($"{nameof(TestingEndpointHost)}_Default_Client_Endpoint", new EndpointId(Guid.Parse("D4C869D2-68EF-469C-A5D6-37FCF2EC152A")), _ => {});
+            var clientEndpoint = RegisterEndpoint($"{nameof(TestingEndpointHost)}_Default_Client_Endpoint", new EndpointId(Guid.Parse("D4C869D2-68EF-469C-A5D6-37FCF2EC152A")), _ => {});
 
             var typeMapper = clientEndpoint.ServiceLocator.Resolve<TypeMapper>();
 
@@ -64,10 +64,16 @@ namespace Composable.Messaging.Buses
             Assert.State.Assert(!_isStarted, Endpoints.None(endpoint => endpoint.IsRunning));
             _isStarted = true;
 
-            //performance: Client endpoints do not need message storage.
+            //performance: Client endpoints do not need message storage and other endpoints need not connect to client endpoints.
             //performance: Make all this setup async and thus parallel.
             Endpoints.ForEach(endpointToStart => endpointToStart.Init());
-            Endpoints.ForEach(endpointToStart => endpointToStart.Connect(Endpoints.Select(@this => @this.Address)));
+
+            var endpointsWithRemoteMessageHandlers = Endpoints
+                                                    .Where(endpoint => endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds().Any())
+                                                    .Select(@this => @this.Address)
+                                                    .ToList();
+
+            Endpoints.ForEach(endpointToStart => endpointToStart.Connect(endpointsWithRemoteMessageHandlers));
         }
 
         public void Stop()

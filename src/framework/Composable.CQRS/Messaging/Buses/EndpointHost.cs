@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Refactoring.Naming;
@@ -43,30 +44,33 @@ namespace Composable.Messaging.Buses
             public static ITestingEndpointHost CreateHost(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: false);
         }
 
-        public IEndpoint RegisterAndStartEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
+        bool _isStarted;
+        public void Start()
         {
-            Start();
-            var existingEndpoints = Endpoints.ToList();
+            Assert.State.Assert(!_isStarted, Endpoints.None(endpoint => endpoint.IsRunning));
+            _isStarted = true;
 
-            var endpoint = RegisterEndpoint(name, id, setup);
-
-            endpoint.Start();
-            var endpointTransport = endpoint.ServiceLocator.Resolve<IInterprocessTransport>();
-
-            //Any existing endpoint contains all the types since it is merged with any and all other existing endpoints.
-            existingEndpoints.FirstOrDefault()?.ServiceLocator.Resolve<TypeMapper>().MergeMappingsWith(endpoint.ServiceLocator.Resolve<TypeMapper>());
-
-            existingEndpoints.ForEach(existingEndpoint =>
+            var startedEndpoints = new List<IEndpoint>();
+            Endpoints.Where(endpoint => !endpoint.IsRunning).ForEach(endpointToStart =>
             {
-                existingEndpoint.ServiceLocator.Resolve<IInterprocessTransport>().Connect(endpoint);
-                endpointTransport.Connect(existingEndpoint);
+                endpointToStart.Start();
+
+                var endpointTransport = endpointToStart.ServiceLocator.Resolve<IInterprocessTransport>();
+
+                //Any existing endpoint contains all the types since it is merged with any and all other existing endpoints.
+                startedEndpoints.FirstOrDefault()?.ServiceLocator.Resolve<TypeMapper>().MergeMappingsWith(endpointToStart.ServiceLocator.Resolve<TypeMapper>());
+
+                startedEndpoints.ForEach(existingEndpoint =>
+                {
+                    existingEndpoint.ServiceLocator.Resolve<IInterprocessTransport>().Connect(endpointToStart);
+                    endpointTransport.Connect(existingEndpoint);
+                });
+
+                endpointTransport.Connect(endpointToStart); //Yes connect it to itself so that it can send messages to itself :)
+
+                startedEndpoints.Add(endpointToStart);
             });
-
-            endpointTransport.Connect(endpoint); //Yes connect it to itself so that it can send messages to itself :)
-
-            return endpoint;
         }
-        public void Start() => Endpoints.Where(endpoint => !endpoint.IsRunning).ForEach(endpoint => endpoint.Start());
 
         public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
         {
@@ -80,11 +84,20 @@ namespace Composable.Messaging.Buses
             return endpoint;
         }
 
-        public void Stop() { Endpoints.Where(endpoint => endpoint.IsRunning).ForEach(endpoint => endpoint.Stop()); }
+        public void Stop()
+        {
+            Assert.State.Assert(_isStarted);
+            _isStarted = false;
+            Endpoints.Where(endpoint => endpoint.IsRunning).ForEach(endpoint => endpoint.Stop());
+        }
 
         protected virtual void InternalDispose()
         {
-            Stop();
+            if(_isStarted)
+            {
+                Stop();
+            }
+
             Endpoints.ForEach(endpoint => endpoint.Dispose());
         }
 

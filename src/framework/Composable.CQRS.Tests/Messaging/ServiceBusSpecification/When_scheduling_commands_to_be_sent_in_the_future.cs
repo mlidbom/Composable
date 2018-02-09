@@ -23,7 +23,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             _host = EndpointHost.Testing.CreateHostWithClientEndpoint(DependencyInjectionContainer.Create);
 
-            var endpoint = _host.RegisterAndStartEndpoint(
+            var endpoint = _host.RegisterEndpoint(
                 "endpoint",
                 new EndpointId(Guid.Parse("17ED9DF9-33A8-4DF8-B6EC-6ED97AB2030B")),
                 builder =>
@@ -33,6 +33,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
                     builder.TypeMapper.Map<ScheduledCommand>("6bc9abe2-8861-4108-98dd-8aa1b50c0c42");
                 });
+
+            _host.Start();
 
             var serviceLocator = endpoint.ServiceLocator;
             _receivedCommandGate = ThreadGate.CreateOpenWithTimeout(TimeSpanExtensions.Seconds(1));

@@ -112,7 +112,6 @@ namespace Composable.Messaging.Buses
     public interface IEndpointHost : IDisposable
     {
         IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup);
-        IEndpoint RegisterAndStartEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup);
         void Start();
         void Stop();
     }

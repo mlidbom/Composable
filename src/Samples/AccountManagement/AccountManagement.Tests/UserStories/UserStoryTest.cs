@@ -14,6 +14,7 @@ namespace AccountManagement.UserStories
         {
             Host = EndpointHost.Testing.CreateHostWithClientEndpoint(DependencyInjectionContainer.Create);
             new AccountManagementServerDomainBootstrapper().RegisterWith(Host);
+            Host.Start();
         }
 
         [TearDown] public void Teardown() => Host.Dispose();

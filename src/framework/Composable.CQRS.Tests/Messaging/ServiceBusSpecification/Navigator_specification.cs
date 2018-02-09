@@ -26,7 +26,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
                 Host = EndpointHost.Testing.BuildHost(
                     DependencyInjectionContainer.Create,
-                    buildHost => buildHost.RegisterAndStartEndpoint(
+                    buildHost => buildHost.RegisterEndpoint(
                         "Backend",
                         new EndpointId(Guid.Parse("3A1B6A8C-D232-476C-A15A-9C8295413210")),
                         builder =>
@@ -49,6 +49,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                                    .Map<UserResource>("7e2c57ef-e079-4615-a402-1a76c70b5b0b");
                         }));
 
+                Host.Start();
                 _scope = Host.ClientEndpoint.ServiceLocator.BeginScope();
             }
 

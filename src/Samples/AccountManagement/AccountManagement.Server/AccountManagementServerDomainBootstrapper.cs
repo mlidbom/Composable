@@ -13,7 +13,7 @@ namespace AccountManagement
     {
         public IEndpoint RegisterWith(IEndpointHost host)
         {
-            return host.RegisterAndStartEndpoint(name: "AccountManagement",
+            return host.RegisterEndpoint(name: "AccountManagement",
                                                  id: new EndpointId(Guid.Parse(input: "1A1BE9C8-C8F6-4E38-ABFB-F101E5EDB00D")),
                                                  setup: builder =>
                                                  {

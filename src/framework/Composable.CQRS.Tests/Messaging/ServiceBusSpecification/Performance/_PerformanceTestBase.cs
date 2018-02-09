@@ -22,7 +22,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         {
             Host = EndpointHost.Testing.CreateHostWithClientEndpoint(DependencyInjectionContainer.Create);
             ClientEndpoint = Host.ClientEndpoint;
-            ServerEndpoint = Host.RegisterAndStartEndpoint(
+            ServerEndpoint = Host.RegisterEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
                 builder =>
@@ -36,6 +36,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
                            .Map<MyLocalQuery>("5640cfb1-0dbc-4e2b-9915-b5b91a289e86")
                            .Map<MyQueryResult>("07e144ab-af3c-4c2c-9d83-492deffd24aa");
                 });
+
+            Host.Start();
         }
 
         [TearDown] public void TearDown() { Host.Dispose(); }

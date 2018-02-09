@@ -82,7 +82,7 @@ namespace Composable.DependencyInjection
 
         IDisposable IServiceLocator.BeginScope()
         {
-            if(_scopeCache.Value?.IsDisposed == false)
+            if(_scopeCache.Value != null)
             {
                 throw new Exception("Someone failed to dispose a scope.");
             }
@@ -100,6 +100,7 @@ namespace Composable.DependencyInjection
                 throw new Exception("Attempt to dispose scope from a context that is not within the scope.");
             }
             scopeCacheValue.Dispose();
+            _scopeCache.Value = null;
         }
 
         [ThreadStatic] static ComponentRegistration _parentComponent;

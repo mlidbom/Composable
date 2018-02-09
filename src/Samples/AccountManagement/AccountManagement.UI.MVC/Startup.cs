@@ -25,7 +25,7 @@ namespace AccountManagement.UI.MVC
 
             _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
             new AccountManagementServerDomainBootstrapper().RegisterWith(_host);
-            _clientEndpoint = _host.RegisterClientEndpoint();
+            _clientEndpoint = _host.RegisterClientEndpointForRegisteredEndpoints();
             _host.Start();
             services.AddScoped(_ => _clientEndpoint.ServiceLocator.Resolve<IServiceBusSession>());
         }

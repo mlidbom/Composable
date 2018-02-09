@@ -14,8 +14,8 @@ namespace AccountManagement.UserStories
         [SetUp] public void SetupContainerAndBeginScope()
         {
             Host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
-            _clientEndpoint = Host.RegisterClientEndpoint();
             new AccountManagementServerDomainBootstrapper().RegisterWith(Host);
+            _clientEndpoint = Host.RegisterClientEndpointForRegisteredEndpoints();
             Host.Start();
         }
 

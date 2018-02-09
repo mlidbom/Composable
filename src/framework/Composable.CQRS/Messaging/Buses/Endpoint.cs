@@ -42,14 +42,10 @@ namespace Composable.Messaging.Buses
             BusControl.Start();
         }
 
-        public void Connect(IEnumerable<IEndpoint> knownEndpoints)
+        public void Connect(IEnumerable<EndPointAddress> knownEndpointAddresses)
         {
             var endpointTransport = ServiceLocator.Resolve<IInterprocessTransport>();
-            knownEndpoints.ForEach(endpoint =>
-            {
-                endpoint.ServiceLocator.Resolve<TypeMapper>().MergeMappingsWith(ServiceLocator.Resolve<TypeMapper>());
-                endpointTransport.Connect(endpoint.Address);
-            });
+            knownEndpointAddresses.ForEach(address => endpointTransport.Connect(address));
         }
 
         static void RunSanityChecks()

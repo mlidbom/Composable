@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses
 
         public static class Testing
         {
-            public static ITestingEndpointHost Create(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: false);
+            public static ITestingEndpointHost Create(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory);
         }
 
         public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
@@ -45,8 +45,18 @@ namespace Composable.Messaging.Buses
             return endpoint;
         }
 
-        public IEndpoint RegisterClientEndpoint() =>
-            RegisterEndpoint($"{nameof(TestingEndpointHost)}_Default_Client_Endpoint", new EndpointId(Guid.Parse("D4C869D2-68EF-469C-A5D6-37FCF2EC152A")), _ => {});
+        public IEndpoint RegisterClientEndpointForRegisteredEndpoints()
+        {
+            var clientEndpoint  = RegisterEndpoint($"{nameof(TestingEndpointHost)}_Default_Client_Endpoint", new EndpointId(Guid.Parse("D4C869D2-68EF-469C-A5D6-37FCF2EC152A")), _ => {});
+
+            var typeMapper = clientEndpoint.ServiceLocator.Resolve<TypeMapper>();
+
+            Endpoints.Where(endpoint => endpoint != clientEndpoint)
+                     .Select(otherEndpoint => otherEndpoint.ServiceLocator.Resolve<TypeMapper>())
+                     .ForEach(otherTypeMapper => typeMapper.MergeMappingsWith(otherTypeMapper));
+
+            return clientEndpoint;
+        }
 
         bool _isStarted;
         public void Start()
@@ -54,9 +64,10 @@ namespace Composable.Messaging.Buses
             Assert.State.Assert(!_isStarted, Endpoints.None(endpoint => endpoint.IsRunning));
             _isStarted = true;
 
+            //performance: Client endpoints do not need message storage.
             //performance: Make all this setup async and thus parallel.
             Endpoints.ForEach(endpointToStart => endpointToStart.Init());
-            Endpoints.ForEach(endpointToStart => endpointToStart.Connect(Endpoints));
+            Endpoints.ForEach(endpointToStart => endpointToStart.Connect(Endpoints.Select(@this => @this.Address)));
         }
 
         public void Stop()

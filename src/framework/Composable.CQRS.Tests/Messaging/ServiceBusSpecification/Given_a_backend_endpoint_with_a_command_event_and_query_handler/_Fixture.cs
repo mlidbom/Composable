@@ -36,8 +36,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             Host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
 
-            ClientEndpoint = Host.RegisterClientEndpoint();
-
             Host.RegisterEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
@@ -75,6 +73,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             Host.RegisterEndpoint("Remote",
                 new EndpointId(Guid.Parse("E72924D3-5279-44B5-B20D-D682E537672B")),
                                           builder => builder.RegisterHandlers.ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyRemoteAggregateEventHandlerThreadGate.AwaitPassthrough()));
+
+            ClientEndpoint = Host.RegisterClientEndpointForRegisteredEndpoints();
 
             Host.Start();
 

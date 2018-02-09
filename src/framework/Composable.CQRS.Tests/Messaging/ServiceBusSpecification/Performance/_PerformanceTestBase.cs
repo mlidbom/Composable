@@ -21,7 +21,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         [SetUp] public void Setup()
         {
             Host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
-            ClientEndpoint = Host.RegisterClientEndpoint();
             ServerEndpoint = Host.RegisterEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
@@ -37,6 +36,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
                            .Map<MyQueryResult>("07e144ab-af3c-4c2c-9d83-492deffd24aa");
                 });
 
+            ClientEndpoint = Host.RegisterClientEndpointForRegisteredEndpoints();
             Host.Start();
         }
 

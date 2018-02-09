@@ -30,8 +30,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
 
-            _clientEndpoint = _host.RegisterClientEndpoint();
-
             var userManagementDomainEndpoint = _host.RegisterEndpoint(
                 "UserManagement.Domain",
                 new EndpointId(Guid.Parse("A4A2BA96-8D82-47AC-8A1B-38476C7B5D5D")),
@@ -63,6 +61,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                            .Map<RegisterUserResult>("940adbc5-ef68-436a-90c2-ac4f000ec377")
                            .Map<UserResource>("9f621299-22d9-4888-81f1-0e9ebc09625c");
                 });
+
+            _clientEndpoint = _host.RegisterClientEndpointForRegisteredEndpoints();
 
             _host.Start();
 

@@ -52,7 +52,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                                .Map<UserResource>("7e2c57ef-e079-4615-a402-1a76c70b5b0b");
                     });
 
-                _clientEndpoint = _host.RegisterClientEndpoint();
+                _clientEndpoint = _host.RegisterClientEndpointForRegisteredEndpoints();
 
                 _host.Start();
                 _scope = _clientEndpoint.ServiceLocator.BeginScope();

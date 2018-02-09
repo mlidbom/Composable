@@ -12,10 +12,12 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
     [TestFixture, Performance, Serial]
     public class PerformanceTests
     {
-        [SetUp]
-        public void WarmUpCache()
+        [OneTimeSetUp]public void WarmUpCache()
         {
-            using(new SqlServerDatabasePool()) { }
+            using(var pool = new SqlServerDatabasePool())
+            {
+                pool.ConnectionProviderFor("3A0051EF-392B-46E2-AAB3-564C27138C94");
+            }
         }
 
         [Test]

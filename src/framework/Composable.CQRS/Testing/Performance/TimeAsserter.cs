@@ -10,6 +10,7 @@ namespace Composable.Testing.Performance
     public static class TimeAsserter
     {
         const string DefaultTimeFormat = "ss\\.fff";
+        const string ShortTimeFormat = "ss\\.ffffff";
 
         static readonly double MachineSlowdownFactor = DetectEnvironmentPerformanceAdjustment();
 
@@ -31,7 +32,7 @@ namespace Composable.Testing.Performance
         }
 
         static TimeSpan? AdjustTime(TimeSpan? timespan) => timespan != null
-                                                              ? TimeSpan.FromMilliseconds(timespan.Value.TotalMilliseconds * MachineSlowdownFactor)
+                                                              ? timespan.Value.MultiplyBy(MachineSlowdownFactor)
                                                               : (TimeSpan?)null;
 
         internal static StopwatchExtensions.TimedExecutionSummary Execute
@@ -40,13 +41,24 @@ namespace Composable.Testing.Performance
              TimeSpan? maxAverage = null,
              TimeSpan? maxTotal = null,
              string description = "",
-             string timeFormat = DefaultTimeFormat,
+             string timeFormat = null,
              int maxTries = 10,
              [InstantHandle]Action setup = null,
              [InstantHandle]Action tearDown = null)
         {
             maxAverage = AdjustTime(maxAverage);
             maxTotal = AdjustTime(maxTotal);
+
+            if(timeFormat == null)
+            {
+                if(maxTotal.HasValue && maxTotal.Value.TotalMilliseconds < 10 || maxAverage.HasValue && maxAverage.Value.TotalMilliseconds < 10)
+                {
+                    timeFormat = ShortTimeFormat;
+                } else
+                {
+                    timeFormat = DefaultTimeFormat;
+                }
+            }
 
             string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
 
@@ -85,7 +97,7 @@ namespace Composable.Testing.Performance
              TimeSpan? maxTotal = null,
              bool timeIndividualExecutions = false,
              string description = "",
-             string timeFormat = DefaultTimeFormat,
+             string timeFormat = null,
              [InstantHandle]Action setup = null,
              [InstantHandle]Action tearDown = null,
              int maxTries = 10,
@@ -95,6 +107,17 @@ namespace Composable.Testing.Performance
 
             maxAverage = AdjustTime(maxAverage);
             maxTotal = AdjustTime(maxTotal);
+
+            if(timeFormat == null)
+            {
+                if(maxTotal.HasValue && maxTotal.Value.TotalMilliseconds < 10 || maxAverage.HasValue && maxAverage.Value.TotalMilliseconds < 10)
+                {
+                    timeFormat = ShortTimeFormat;
+                } else
+                {
+                    timeFormat = DefaultTimeFormat;
+                }
+            }
 
 
             // ReSharper disable AccessToModifiedClosure

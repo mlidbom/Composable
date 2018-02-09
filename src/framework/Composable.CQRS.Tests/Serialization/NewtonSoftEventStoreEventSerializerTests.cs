@@ -5,6 +5,7 @@ using Composable.Logging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Serialization;
+using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.Testing.Performance;
@@ -16,6 +17,8 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Serialization
 {
+    using Composable.System;
+
     [TestFixture]
     public class NewtonSoftEventStoreEventSerializerTests
     {
@@ -175,7 +178,7 @@ namespace Composable.Tests.Serialization
                                                                                             eventJson.ForEach(@this => JsonConvert.DeserializeObject<TestEvent>(@this, settings));
                                                                                         });
 
-            var allowedTime = TimeSpan.FromMilliseconds(defaultSerializerPerformanceNumbers.TotalMilliseconds * allowedSlowdown);
+            var allowedTime = defaultSerializerPerformanceNumbers.MultiplyBy(allowedSlowdown);
 
 
             TimeAsserter.Execute(() =>

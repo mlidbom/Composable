@@ -19,7 +19,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
     {
         HasAllPropertyTypes _instance;
         byte[] _serialized;
-        [SetUp] public void SetupTask()
+        [OneTimeSetUp] public void SetupTask()
         {
             _instance = HasAllPropertyTypes.CreateInstanceWithSaneValues();
 
@@ -61,11 +61,11 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             Console.WriteLine($"Binary: {binarySerializationTime.TotalMilliseconds}, JSon: {jsonSerializationTime.TotalMilliseconds}");
         }
 
-        [Test] public void _005_Constructs_1_00_000_instances_within_5_percent_of_default_constructor_time()
+        [Test] public void _005_Constructs_1_00_000_instances_within_10_percent_of_default_constructor_time()
         {
             var constructions = 1_00_000.InstrumentationSlowdown(4.7);
             var defaultConstructor = RunScenario(DefaultConstructor, constructions);
-            var maxTime = defaultConstructor.MultiplyBy(1.05);
+            var maxTime = defaultConstructor.MultiplyBy(1.10);
             RunScenario(DynamicModuleConstruct, constructions, maxTotal: maxTime );
         }
 
@@ -113,10 +113,5 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
         //ncrunch: no coverage end
 
-    }
-
-    static class Percenter
-    {
-        internal static string PercentOf(this TimeSpan @this, TimeSpan other) => ((int)(100 * (@this.TotalMilliseconds / other.TotalMilliseconds -1))).ToString("00");
     }
 }

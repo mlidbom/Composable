@@ -51,6 +51,11 @@ namespace Composable.System.Reflection
 
             lock(_defaultConstructors)
             {
+                if(_defaultConstructors.TryGetValue(type, out var doubleCheckedConstructor))
+                {
+                    return doubleCheckedConstructor;
+                }
+
                 var newConstructors = new Dictionary<Type, Func<object>>(_defaultConstructors);
                 var newConstructor = Compile.ForReturnType<object>().WithImplementingType(type).DefaultConstructor();
                 newConstructors.Add(type, newConstructor);

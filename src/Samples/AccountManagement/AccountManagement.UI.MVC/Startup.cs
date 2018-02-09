@@ -1,5 +1,6 @@
 ﻿using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -12,19 +13,17 @@ namespace AccountManagement.UI.MVC
         ITestingEndpointHost _host;
         IEndpoint _clientEndpoint;
 
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public Startup(IConfiguration configuration) => Configuration = configuration;
 
-        public IConfiguration Configuration { get; }
+        // ReSharper disable once MemberCanBePrivate.Global
+        public IConfiguration Configuration { [UsedImplicitly] get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        [UsedImplicitly] public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
 
-            _host = EndpointHost.Testing.CreateWithClientEndpoint(DependencyInjectionContainer.Create);
+            _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
             new AccountManagementServerDomainBootstrapper().RegisterWith(_host);
             _clientEndpoint = _host.RegisterClientEndpoint();
             _host.Start();
@@ -32,7 +31,7 @@ namespace AccountManagement.UI.MVC
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        [UsedImplicitly] public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {

@@ -87,8 +87,7 @@ namespace Composable.DependencyInjection
                 throw new Exception("Scope already exists. Nested scopes are not supported.");
             }
 
-            var scopeCache = _cache.CreateScopeCache();
-            _scopeCache.Value = scopeCache;
+            _scopeCache.Value = _cache.CreateScopeCache();
 
             return _scopeDisposer;
         }

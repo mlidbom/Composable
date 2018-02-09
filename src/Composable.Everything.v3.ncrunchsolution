@@ -1,5 +1,6 @@
 ﻿<SolutionConfiguration>
   <Settings>
+    <AllowParallelTestExecution>True</AllowParallelTestExecution>
     <SlidingBuildDelayInMilliseconds>1000</SlidingBuildDelayInMilliseconds>
     <SolutionConfigured>True</SolutionConfigured>
   </Settings>

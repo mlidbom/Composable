@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
@@ -7,17 +8,17 @@ using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
-using Composable.Refactoring.Naming;
 using Composable.System.Linq;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using JetBrains.Annotations;
+using NUnit.Framework;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
-    public class Fixture : IDisposable
+    public class Fixture
     {
-        internal readonly ITestingEndpointHost Host;
+        internal ITestingEndpointHost Host;
         internal readonly IThreadGate CommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate CommandHandlerWithResultThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate MyCreateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
@@ -27,13 +28,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         internal readonly IThreadGate EventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate QueryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(5.Seconds());
 
-        internal readonly IReadOnlyList<IThreadGate> AllGates;
+        internal IReadOnlyList<IThreadGate> AllGates;
 
         protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
-        protected readonly IEndpoint ClientEndpoint;
+        protected IEndpoint ClientEndpoint;
         protected IRemoteApiNavigatorSession RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
 
-        protected Fixture()
+        [SetUp]public async Task Setup()
         {
             void MapBackendEndpointTypes(IEndpointBuilder builder) =>
                 builder.TypeMapper.Map<MyExactlyOnceCommand>("0ddefcaa-4d4d-48b2-9e1a-762c0b835275")
@@ -84,7 +85,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             ClientEndpoint = Host.RegisterClientEndpointForRegisteredEndpoints();
 
-            Host.Start();
+            await Host.StartAsync();
 
             AllGates = new List<IThreadGate>()
                        {
@@ -99,7 +100,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                        };
         }
 
-        public virtual void Dispose()
+        [TearDown]public virtual void TearDown()
         {
             OpenGates();
             TaskRunner.Dispose();

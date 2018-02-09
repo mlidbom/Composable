@@ -2,13 +2,14 @@
 using Composable.Messaging.Buses;
 using Composable.Testing.Threading;
 using FluentAssertions;
+using NUnit.Framework;
 using Xunit;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
     public class Parallelism_policies : Fixture
     {
-        [Fact] public void Five_query_handlers_can_execute_in_parallel_when_using_QueryAsync()
+        [Test] public void Five_query_handlers_can_execute_in_parallel_when_using_QueryAsync()
         {
             CloseGates();
             TaskRunner.StartTimes(5, () => ClientEndpoint.ExecuteRequestAsync(session => session.GetAsync(new MyQuery())));
@@ -16,7 +17,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(5);
         }
 
-        [Fact] public void Five_query_handlers_can_execute_in_parallel_when_using_Query()
+        [Test] public void Five_query_handlers_can_execute_in_parallel_when_using_Query()
         {
             CloseGates();
             TaskRunner.StartTimes(5, () => ClientEndpoint.ExecuteRequest(session => session.Get(new MyQuery())));
@@ -24,7 +25,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(5);
         }
 
-        [Fact] public void Two_event_handlers_cannot_execute_in_parallel()
+        [Test] public void Two_event_handlers_cannot_execute_in_parallel()
         {
             MyRemoteAggregateEventHandlerThreadGate.Close();
             ClientEndpoint.ExecuteRequest(session => session.Post(MyCreateAggregateCommand.Create()));
@@ -34,7 +35,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                   .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
         }
 
-        [Fact] public void Two_exactly_once_command_handlers_cannot_execute_in_parallel()
+        [Test] public void Two_exactly_once_command_handlers_cannot_execute_in_parallel()
         {
             CloseGates();
 
@@ -45,7 +46,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                     .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
         }
 
-        [Fact] public void Two_AtMostOnce_command_handlers_from_the_same_session_cannot_execute_in_parallel()
+        [Test] public void Two_AtMostOnce_command_handlers_from_the_same_session_cannot_execute_in_parallel()
         {
             CloseGates();
 

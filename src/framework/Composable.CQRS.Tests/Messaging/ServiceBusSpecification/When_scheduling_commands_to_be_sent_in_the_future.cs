@@ -11,6 +11,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification
 {
+    using Composable.System;
     public class When_scheduling_commands_to_be_sent_in_the_future
     {
         IUtcTimeTimeSource _timeSource;
@@ -36,7 +37,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             await _host.StartAsync();
 
             var serviceLocator = _endpoint.ServiceLocator;
-            _receivedCommandGate = ThreadGate.CreateOpenWithTimeout(TimeSpanExtensions.Seconds(1));
+            _receivedCommandGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
             _timeSource = serviceLocator.Resolve<IUtcTimeTimeSource>();
         }
 
@@ -45,7 +46,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
 
-            _endpoint.ExecuteRequestInTransaction(session => session.ScheduleSend(now + .1.Seconds(), inOneHour));
+            _endpoint.ExecuteRequestInTransaction(session => session.ScheduleSend(now + .2.Seconds(), inOneHour));
 
             _receivedCommandGate.AwaitPassedThroughCountEqualTo(1, timeout: .5.Seconds());
         }
@@ -54,7 +55,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _endpoint.ExecuteRequestInTransaction(session => session.ScheduleSend(now + TimeSpanExtensions.Seconds(2), inOneHour));
+            _endpoint.ExecuteRequestInTransaction(session => session.ScheduleSend(now + 2.Seconds(), inOneHour));
 
             _receivedCommandGate.TryAwaitPassededThroughCountEqualTo(1, timeout: .5.Seconds())
                                 .Should().Be(false);

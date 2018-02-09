@@ -45,7 +45,7 @@ namespace Composable.DependencyInjection
 
         class ScopeCache : IDisposable
         {
-            internal bool IsDisposed;
+            bool _isDisposed;
             readonly int[] _serviceTypeIndexToComponentIndex;
             readonly object[] _instances;
             readonly LinkedList<IDisposable> _disposables = new LinkedList<IDisposable>();
@@ -70,9 +70,9 @@ namespace Composable.DependencyInjection
 
             public void Dispose()
             {
-                if(!IsDisposed)
+                if(!_isDisposed)
                 {
-                    IsDisposed = true;
+                    _isDisposed = true;
                     foreach (var disposable in _disposables)
                     {
                         disposable.Dispose();

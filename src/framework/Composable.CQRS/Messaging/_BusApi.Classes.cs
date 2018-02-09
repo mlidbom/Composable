@@ -2,7 +2,6 @@
 using Composable.DDD;
 using Composable.Messaging.Buses;
 using Composable.Refactoring.Naming;
-using Composable.System.Reflection;
 using Newtonsoft.Json;
 
 // ReSharper disable RedundantNameQualifier

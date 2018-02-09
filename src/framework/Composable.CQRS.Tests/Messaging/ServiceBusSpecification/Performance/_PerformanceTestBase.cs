@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Persistence.EventStore;
 using NCrunch.Framework;
 using NUnit.Framework;
 

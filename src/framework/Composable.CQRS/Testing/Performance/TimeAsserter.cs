@@ -3,7 +3,6 @@ using System.Globalization;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Diagnostics;
-using Composable.System.Threading;
 using JetBrains.Annotations;
 
 namespace Composable.Testing.Performance

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 
 using Composable.Contracts;
-using Composable.System.Reflection;
 
 namespace Composable.System.Collections.Collections
 {

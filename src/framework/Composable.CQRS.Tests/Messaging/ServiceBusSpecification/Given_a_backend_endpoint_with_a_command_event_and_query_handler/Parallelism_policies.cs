@@ -1,9 +1,7 @@
-﻿using Composable.Messaging;
-using Composable.Messaging.Buses;
+﻿using Composable.Messaging.Buses;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;
-using Xunit;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {

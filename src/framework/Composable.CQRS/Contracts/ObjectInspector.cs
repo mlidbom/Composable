@@ -1,5 +1,4 @@
 ﻿using System;
-using Composable.System.Reflection;
 
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable UnusedMember.Global

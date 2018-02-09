@@ -6,7 +6,6 @@ using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using FluentAssertions;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 // ReSharper disable MemberCanBeMadeStatic.Local

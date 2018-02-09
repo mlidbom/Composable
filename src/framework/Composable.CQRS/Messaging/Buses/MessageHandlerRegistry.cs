@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.Contracts;
 using Composable.Messaging.Events;
 using Composable.Refactoring.Naming;
 using Composable.System.Collections.Collections;

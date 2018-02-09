@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Testing;
 using Composable.Testing.Threading;

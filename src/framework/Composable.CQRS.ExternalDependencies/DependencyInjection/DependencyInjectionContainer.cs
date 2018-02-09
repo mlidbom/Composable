@@ -1,5 +1,4 @@
 ﻿using System;
-using Composable.DependencyInjection.SimpleInjectorImplementation;
 using Composable.Messaging.Buses;
 using JetBrains.Annotations;
 

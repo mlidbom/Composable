@@ -5,7 +5,6 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.System;
-using Composable.System.Transactions;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;

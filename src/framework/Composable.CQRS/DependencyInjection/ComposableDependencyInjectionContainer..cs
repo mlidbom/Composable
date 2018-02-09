@@ -92,7 +92,15 @@ namespace Composable.DependencyInjection
             return _scopeDisposer;
         }
 
-        void EndScope() => _scopeCache.Value.Dispose();
+        void EndScope()
+        {
+            var scopeCacheValue = _scopeCache.Value;
+            if(scopeCacheValue == null)
+            {
+                throw new Exception("Attempt to dispose scope from a context that is not within the scope.");
+            }
+            scopeCacheValue.Dispose();
+        }
 
         [ThreadStatic] static ComponentRegistration _parentComponent;
         TService Resolve<TService>()
@@ -142,6 +150,10 @@ namespace Composable.DependencyInjection
                     }
                     case Lifestyle.Scoped:
                     {
+                        if(scopeCache == null)
+                        {
+                            throw new Exception($"Attempted to resolve scoped component without a scope");
+                        }
                         var newInstance = currentComponent.CreateInstance(this);
                         scopeCache.Set(newInstance, currentComponent);
                         return (TService)newInstance;

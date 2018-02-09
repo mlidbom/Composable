@@ -14,6 +14,9 @@ namespace Composable.Messaging.Buses
         public static void ExecuteRequestInTransaction(this IEndpoint @this, Action<IServiceBusSession> request) => @this.ServiceLocator.ExecuteTransactionInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IServiceBusSession>()));
         public static void ExecuteRequest(this IEndpoint @this, Action<IServiceBusSession> request) => @this.ServiceLocator.ExecuteInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IServiceBusSession>()));
 
+        public static void ExecuteRequest(this IEndpoint @this, Action<IRemoteApiNavigatorSession> request) => @this.ServiceLocator.ExecuteInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IRemoteApiNavigatorSession>()));
+        public static TResult ExecuteRequest<TResult>(this IEndpoint @this, Func<IRemoteApiNavigatorSession, TResult> request) => @this.ServiceLocator.ExecuteInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IRemoteApiNavigatorSession>()));
+
         public static async Task<TResult> ExecuteRequestAsync<TResult>(this IEndpoint endpoint, Func<IServiceBusSession, Task<TResult>> request) =>
             await endpoint.ServiceLocator.ExecuteInIsolatedScope(async () => await request(endpoint.ServiceLocator.Resolve<IServiceBusSession>()));
 

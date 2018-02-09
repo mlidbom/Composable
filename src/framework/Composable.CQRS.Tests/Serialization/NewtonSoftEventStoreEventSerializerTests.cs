@@ -23,8 +23,9 @@ namespace Composable.Tests.Serialization
 
         [OneTimeSetUp] public void SetupTask()
         {
-            _host = EndpointHost.Testing.CreateWithClientEndpoint(DependencyInjectionContainer.Create);
-            _eventSerializer = _host.ClientEndpoint.ServiceLocator.Resolve<IEventStoreSerializer>();
+            _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
+            var clientEndpoint = _host.RegisterClientEndpoint();
+            _eventSerializer = clientEndpoint.ServiceLocator.Resolve<IEventStoreSerializer>();
         }
 
         [OneTimeSetUp] public void TearDownTask() => _host.Dispose();

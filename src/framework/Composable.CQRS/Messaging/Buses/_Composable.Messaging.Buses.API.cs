@@ -114,6 +114,7 @@ namespace Composable.Messaging.Buses
         IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup);
         void Start();
         void Stop();
+        IEndpoint RegisterClientEndpoint();
     }
 
     public interface ITestingEndpointHost : IEndpointHost
@@ -121,12 +122,6 @@ namespace Composable.Messaging.Buses
         IEndpoint RegisterTestingEndpoint(string name = null, EndpointId id = null, Action<IEndpointBuilder> setup = null);
 
         TException AssertThrown<TException>() where TException : Exception;
-
-        IEndpoint ClientEndpoint { get; }
-
-        IServiceBusSession ClientBusSession { get; }
-
-        IRemoteApiNavigatorSession RemoteNavigator { get; }
     }
 
     interface IExecutingMessagesSnapshot

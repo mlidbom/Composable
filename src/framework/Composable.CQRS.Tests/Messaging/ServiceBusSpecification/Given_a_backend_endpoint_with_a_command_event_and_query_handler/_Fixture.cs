@@ -30,10 +30,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
         protected readonly IEndpoint ClientEndpoint;
+        protected IRemoteApiNavigatorSession RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
 
         protected Fixture()
         {
-            Host = EndpointHost.Testing.CreateWithClientEndpoint(DependencyInjectionContainer.Create);
+            Host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
+
+            ClientEndpoint = Host.RegisterClientEndpoint();
+
             Host.RegisterEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
@@ -73,8 +77,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                           builder => builder.RegisterHandlers.ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyRemoteAggregateEventHandlerThreadGate.AwaitPassthrough()));
 
             Host.Start();
-
-            ClientEndpoint = Host.ClientEndpoint;
 
             AllGates = new List<IThreadGate>()
                        {

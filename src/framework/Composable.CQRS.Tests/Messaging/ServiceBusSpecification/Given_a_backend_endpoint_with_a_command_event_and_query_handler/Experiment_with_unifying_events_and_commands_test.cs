@@ -22,10 +22,15 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         readonly TestingTaskRunner _taskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
         readonly IServiceLocator _userDomainServiceLocator;
+        IEndpoint _clientEndpoint;
+
+        protected IRemoteApiNavigatorSession RemoteNavigator => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
 
         public Experiment_with_unifying_events_and_commands_test()
         {
-            _host = EndpointHost.Testing.CreateWithClientEndpoint(DependencyInjectionContainer.Create);
+            _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
+
+            _clientEndpoint = _host.RegisterClientEndpoint();
 
             var userManagementDomainEndpoint = _host.RegisterEndpoint(
                 "UserManagement.Domain",
@@ -72,7 +77,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             var registrationResult = _userDomainServiceLocator.ExecuteInIsolatedScope(() =>  UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBusSession>()));
 
-            var user = _host.ClientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() =>_host.RemoteNavigator.Get(registrationResult.UserLink));
+            var user = _clientEndpoint.ServiceLocator.ExecuteInIsolatedScope(() => RemoteNavigator.Get(registrationResult.UserLink));
 
             user.Should().NotBe(null);
             user.History.Count().Should().Be(1);

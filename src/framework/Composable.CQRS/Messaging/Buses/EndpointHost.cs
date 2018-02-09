@@ -35,6 +35,21 @@ namespace Composable.Messaging.Buses
             public static ITestingEndpointHost Create(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory, createClientEndpoint: false);
         }
 
+        public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
+        {
+            var builder = new EndpointBuilder(GlobalBusStateTracker, _containerFactory(_mode), name, id);
+
+            setup(builder);
+
+            var endpoint = builder.Build();
+
+            Endpoints.Add(endpoint);
+            return endpoint;
+        }
+
+        public IEndpoint RegisterClientEndpoint() =>
+            RegisterEndpoint($"{nameof(TestingEndpointHost)}_Default_Client_Endpoint", new EndpointId(Guid.Parse("D4C869D2-68EF-469C-A5D6-37FCF2EC152A")), _ => {});
+
         bool _isStarted;
         public void Start()
         {
@@ -61,18 +76,6 @@ namespace Composable.Messaging.Buses
 
                 startedEndpoints.Add(endpointToStart);
             });
-        }
-
-        public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup)
-        {
-            var builder = new EndpointBuilder(GlobalBusStateTracker, _containerFactory(_mode), name, id);
-
-            setup(builder);
-
-            var endpoint = builder.Build();
-
-            Endpoints.Add(endpoint);
-            return endpoint;
         }
 
         public void Stop()

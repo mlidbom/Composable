@@ -15,13 +15,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         protected ITestingEndpointHost Host;
         protected IEndpoint ServerEndpoint;
         public IEndpoint ClientEndpoint;
-        protected IRemoteApiNavigatorSession RemoteNavigator => Host.RemoteNavigator;
+        protected IRemoteApiNavigatorSession RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
         protected IServiceBusSession ServerBusSession => ServerEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
 
         [SetUp] public void Setup()
         {
-            Host = EndpointHost.Testing.CreateWithClientEndpoint(DependencyInjectionContainer.Create);
-            ClientEndpoint = Host.ClientEndpoint;
+            Host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
+            ClientEndpoint = Host.RegisterClientEndpoint();
             ServerEndpoint = Host.RegisterEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),

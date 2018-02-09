@@ -17,6 +17,8 @@ namespace Composable.Messaging.Buses
         public static async Task<TResult> ExecuteRequestAsync<TResult>(this IEndpoint endpoint, Func<IServiceBusSession, Task<TResult>> request) =>
             await endpoint.ServiceLocator.ExecuteInIsolatedScope(async () => await request(endpoint.ServiceLocator.Resolve<IServiceBusSession>()));
 
+        public static async Task ExecuteRequestAsync(this IEndpoint endpoint, Func<Task> request) =>await endpoint.ServiceLocator.ExecuteInIsolatedScope(async () => await request());
+
         public static async Task ExecuteRequestAsync(this IEndpoint endpoint, Func<IServiceBusSession, Task> request) =>
             await endpoint.ServiceLocator.ExecuteInIsolatedScope(async () => await request(endpoint.ServiceLocator.Resolve<IServiceBusSession>()));
 

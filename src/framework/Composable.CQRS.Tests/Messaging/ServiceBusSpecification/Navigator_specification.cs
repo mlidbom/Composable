@@ -17,16 +17,19 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
     {
         public class Fixture : IDisposable
         {
-            readonly ITestingEndpointHost Host;
-            IDisposable _scope;
+            readonly ITestingEndpointHost _host;
+            readonly IDisposable _scope;
+            readonly IEndpoint _clientEndpoint;
+
+            protected IRemoteApiNavigatorSession RemoteNavigator => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
 
             public Fixture()
             {
                 var queryResults = new List<UserResource>();
 
-                Host = EndpointHost.Testing.CreateWithClientEndpoint(DependencyInjectionContainer.Create);
+                _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
 
-                Host.RegisterEndpoint(
+                _host.RegisterEndpoint(
                     "Backend",
                     new EndpointId(Guid.Parse("3A1B6A8C-D232-476C-A15A-9C8295413210")),
                     builder =>
@@ -49,13 +52,15 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                                .Map<UserResource>("7e2c57ef-e079-4615-a402-1a76c70b5b0b");
                     });
 
-                Host.Start();
-                _scope = Host.ClientEndpoint.ServiceLocator.BeginScope();
+                _clientEndpoint = _host.RegisterClientEndpoint();
+
+                _host.Start();
+                _scope = _clientEndpoint.ServiceLocator.BeginScope();
             }
 
             [Fact] void Can_get_command_result()
             {
-                var commandResult1 = Host.RemoteNavigator.Post(RegisterUserCommand.Create("new-user-name"));
+                var commandResult1 = RemoteNavigator.Post(RegisterUserCommand.Create("new-user-name"));
                 commandResult1.Name.Should().Be("new-user-name");
             }
 
@@ -63,7 +68,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             {
                 var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
                                                                 .Post(startpage => startpage.RegisterUser("new-user-name"))
-                                                                .Get(registerUserResult => registerUserResult.User).NavigateOn(Host.RemoteNavigator);
+                                                                .Get(registerUserResult => registerUserResult.User).NavigateOn(RemoteNavigator);
 
                 userResource.Name.Should().Be("new-user-name");
             }
@@ -73,7 +78,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 var userResource = NavigationSpecification.Get(UserApiStartPage.Self)
                                                                 .Post(startpage => startpage.RegisterUser("new-user-name"))
                                                                 .Get(registerUserResult => registerUserResult.User)
-                                                                .NavigateOnAsync(Host.RemoteNavigator);
+                                                                .NavigateOnAsync(RemoteNavigator);
 
                 (await userResource).Name.Should().Be("new-user-name");
             }
@@ -81,7 +86,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             public void Dispose()
             {
                 _scope.Dispose();
-                Host.Dispose();
+                _host.Dispose();
             }
 
             class UserApiStartPage

@@ -4,8 +4,11 @@ namespace Composable.Testing.Databases
 {
     static class DatabaseHelpers
     {
-        static string DropAllObjectsStatement = @"select id=IDENTITY (int, 1,1), stmt 
-into #statements
+        static string DropAllObjectsStatement = @"
+
+DECLARE @statements nvarchar(max)
+select @statements = COALESCE(@statements + '
+', '') + stmt
 FROM (SELECT CASE WHEN type = 'AF'                           THEN 'DROP AGGREGATE ' + QUOTENAME(schema_name(schema_id)) + '.' + QUOTENAME(name)
                                                               WHEN type IN('C', 'F', 'UQ')               THEN 'ALTER TABLE ' + QUOTENAME(object_schema_name(parent_object_id)) + '.' + QUOTENAME(object_name(parent_object_id)) + ' DROP CONSTRAINT ' + QUOTENAME(name)
                                                               WHEN type IN('FN', 'FS', 'FT', 'IF', 'TF') THEN 'DROP FUNCTION ' + QUOTENAME(schema_name(schema_id)) + '.' + QUOTENAME(name)
@@ -25,20 +28,7 @@ FROM (SELECT CASE WHEN type = 'AF'                           THEN 'DROP AGGREGAT
 											ELSE 4
 										END
 
-
-DECLARE @statement nvarchar(500)
-DECLARE cur CURSOR LOCAL FAST_FORWARD FOR SELECT stmt from #statements order by id
-OPEN cur
-
-FETCH NEXT FROM cur INTO @statement
-
-WHILE @@FETCH_STATUS = 0 BEGIN
-    execute sp_executesql @statement
-    FETCH NEXT FROM cur INTO @statement
-END
-
-CLOSE cur    
-DEALLOCATE cur
+execute sp_executesql @statements
 ";
 
         internal static readonly string SetReadCommittedSnapshotOnStatement = @"

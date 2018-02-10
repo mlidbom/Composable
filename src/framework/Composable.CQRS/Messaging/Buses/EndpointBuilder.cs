@@ -107,22 +107,25 @@ namespace Composable.Messaging.Buses
                          .LifestyleScoped(),
                 Component.For<IEventstoreEventPublisher>()
                          .UsingFactoryMethod((IInterprocessTransport interprocessTransport, IMessageHandlerRegistry messageHandlerRegistry) => new EventstoreEventPublisher(interprocessTransport, messageHandlerRegistry))
-                         .LifestyleScoped(),
-                Component.For<ISqlConnectionProvider>()
-                         .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider())
-                         .LifestyleSingleton()
-                         .DelegateToParentServiceLocatorWhenCloning());
+                         .LifestyleScoped());
 
             if(_container.RunMode == RunMode.Production)
             {
                 _container.Register(Component.For<IUtcTimeTimeSource>()
                                              .UsingFactoryMethod(() => new DateTimeNowTimeSource())
                                              .LifestyleSingleton()
-                                             .DelegateToParentServiceLocatorWhenCloning());
+                                             .DelegateToParentServiceLocatorWhenCloning(),
+                                    Component.For<ISqlConnectionProvider>()
+                                             .UsingFactoryMethod(() => new AppConfigSqlConnectionProvider())
+                                             .LifestyleSingleton());
             } else
             {
                 _container.Register(Component.For<IUtcTimeTimeSource, TestingTimeSource>()
                                              .UsingFactoryMethod(() => TestingTimeSource.FollowingSystemClock)
+                                             .LifestyleSingleton()
+                                             .DelegateToParentServiceLocatorWhenCloning(),
+                                    Component.For<ISqlConnectionProvider>()
+                                             .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider())
                                              .LifestyleSingleton()
                                              .DelegateToParentServiceLocatorWhenCloning());
             }

@@ -9,63 +9,6 @@ using Composable.System.Linq;
 
 namespace Composable.DependencyInjection
 {
-    ///<summary>A lease to use a component.
-    /// <para>Should be disposed as soon as the component is no longer in use.</para>
-    /// <para>An exception is thrown if dispose fails to be called. </para>
-    /// <para>should inherit from <see cref="StrictlyManagedResourceBase{TInheritor}"/> or have a member field of type: <see cref="StrictlyManagedResource{TManagedResource}"/></para>
-    /// </summary>
-    public interface IComponentLease<out TComponent> : IDisposable
-    {
-        TComponent Instance { get; }
-    }
-
-    public interface IMultiComponentLease<out TComponent> : IDisposable
-    {
-        TComponent[] Instances { get; }
-    }
-
-    public interface IDependencyInjectionContainer : IDisposable
-    {
-        IRunMode RunMode { get; }
-        void Register(params ComponentRegistration[] registrations);
-        IEnumerable<ComponentRegistration> RegisteredComponents();
-        IServiceLocator CreateServiceLocator();
-    }
-
-    public interface IRunMode
-    {
-        bool IsTesting { get; }
-        TestingMode TestingMode { get; }
-    }
-
-    class RunMode : IRunMode
-    {
-        readonly bool _isTesting;
-        bool IRunMode.IsTesting => _isTesting;
-        public TestingMode TestingMode { get; }
-
-        public static readonly IRunMode Production = new RunMode(isTesting:false, testingMode: TestingMode.DatabasePool);
-
-        public RunMode(bool isTesting, TestingMode testingMode)
-        {
-            TestingMode = testingMode;
-            _isTesting = isTesting;
-        }
-    }
-
-    ///<summary></summary>
-    public interface IServiceLocator : IDisposable
-    {
-        TComponent Resolve<TComponent>() where TComponent : class;
-        TComponent[] ResolveAll<TComponent>() where TComponent : class;
-        IDisposable BeginScope();
-    }
-
-    interface IServiceLocatorKernel
-    {
-        TComponent Resolve<TComponent>() where TComponent : class;
-    }
-
     public static class Singleton
     {
         public static Component.ComponentRegistrationWithoutInstantiationSpec<TService1> For<TService1, TService2, TService3, TService4, TService5, TService6, TService7, TService8, TService9>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3, TService4, TService5, TService6, TService7, TService8, TService9>());
@@ -96,52 +39,10 @@ namespace Composable.DependencyInjection
 
     public static class Component
     {
-        public static ComponentRegistrationWithoutLifestyleAndInstantiationSpec<TService1> For<TService1, TService2, TService3, TService4, TService5, TService6, TService7, TService8, TService9>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3, TService4, TService5, TService6, TService7, TService8, TService9>());
-        public static ComponentRegistrationWithoutLifestyleAndInstantiationSpec<TService1> For<TService1, TService2, TService3, TService4, TService5, TService6, TService7, TService8>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3, TService4, TService5, TService6, TService7, TService8>());
-        public static ComponentRegistrationWithoutLifestyleAndInstantiationSpec<TService1> For<TService1, TService2, TService3, TService4, TService5, TService6, TService7>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3, TService4, TService5, TService6, TService7>());
-        public static ComponentRegistrationWithoutLifestyleAndInstantiationSpec<TService1> For<TService1, TService2, TService3, TService4, TService5, TService6>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3, TService4, TService5, TService6>());
-        public static ComponentRegistrationWithoutLifestyleAndInstantiationSpec<TService1> For<TService1, TService2, TService3, TService4, TService5>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3, TService4, TService5>());
-        public static ComponentRegistrationWithoutLifestyleAndInstantiationSpec<TService1> For<TService1, TService2, TService3, TService4>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3, TService4>());
-        public static ComponentRegistrationWithoutLifestyleAndInstantiationSpec<TService1> For<TService1, TService2, TService3>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3>());
-        public static ComponentRegistrationWithoutLifestyleAndInstantiationSpec<TService1> For<TService1, TService2>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2>());
-        public static ComponentRegistrationWithoutLifestyleAndInstantiationSpec<TService> For<TService>() where TService : class => For<TService>(new List<Type>());
-        internal static ComponentRegistrationWithoutLifestyleAndInstantiationSpec<TService> For<TService>(IEnumerable<Type> additionalServices) where TService : class => new ComponentRegistrationWithoutLifestyleAndInstantiationSpec<TService>(additionalServices);
-
         public class ComponentRegistrationBuilderInitialBase
         {
             protected IEnumerable<Type> ServiceTypes { get; }
             protected ComponentRegistrationBuilderInitialBase(IEnumerable<Type> serviceTypes) => ServiceTypes = serviceTypes;
-        }
-
-        public class ComponentRegistrationWithoutLifestyleAndInstantiationSpec<TService> : ComponentRegistrationBuilderInitialBase where TService : class
-        {
-            internal ComponentRegistrationWithoutLifestyleAndInstantiationSpec(IEnumerable<Type> serviceTypes) : base(serviceTypes.Concat(new List<Type>() {typeof(TService)})) {}
-
-            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod<TImplementation>(Func<IServiceLocatorKernel, TImplementation> factoryMethod)
-                where TImplementation : TService
-            {
-                var implementationType = typeof(TImplementation);
-                AssertImplementsAllServices(implementationType);
-                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes,
-                                                                                       InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator), implementationType));
-            }
-
-            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod(Type implementationType, Func<IServiceLocatorKernel, object> factoryMethod)
-            {
-                AssertImplementsAllServices(implementationType);
-                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes,
-                                                                                       InstantiationSpec.FromFactoryMethod(factoryMethod, implementationType));
-            }
-
-            void AssertImplementsAllServices(Type implementationType)
-            {
-                var unImplementedService = ServiceTypes.FirstOrDefault(serviceType => !serviceType.IsAssignableFrom(implementationType));
-                if(unImplementedService != null)
-                {
-                    throw new ArgumentException($"{implementationType.FullName} does not implement: {unImplementedService.FullName}");
-                }
-            }
-
         }
 
         public class ComponentRegistrationWithoutInstantiationSpec<TService> : ComponentRegistrationBuilderInitialBase where TService : class
@@ -171,22 +72,6 @@ namespace Composable.DependencyInjection
                     throw new ArgumentException($"{implementationType.FullName} does not implement: {unImplementedService.FullName}");
                 }
             }
-        }
-
-        public class ComponentRegistrationBuilderWithInstantiationSpec<TService> where TService : class
-        {
-            readonly IEnumerable<Type> _serviceTypes;
-            readonly InstantiationSpec _instantiationSpec;
-
-            internal ComponentRegistrationBuilderWithInstantiationSpec(IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
-            {
-                _serviceTypes = serviceTypes;
-                _instantiationSpec = instantiationSpec;
-            }
-
-            public ComponentRegistration<TService> LifestyleSingleton() => new ComponentRegistration<TService>(Lifestyle.Singleton, _serviceTypes, _instantiationSpec);
-            public ComponentRegistration<TService> LifestyleScoped() => new ComponentRegistration<TService>(Lifestyle.Scoped, _serviceTypes, _instantiationSpec);
-
         }
     }
 

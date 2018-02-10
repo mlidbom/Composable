@@ -49,7 +49,7 @@ namespace Composable.Messaging.Buses
                                          : new OptimizedLazy<ISqlConnectionProvider>(() => new AppConfigSqlConnectionProvider());
 
             var endpointSqlConnection = new LazySqlServerConnection(
-                () => connectionProvider.Value.GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString);
+                () => _container.CreateServiceLocator().Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString);
 
             _typeMapper = new TypeMapper(endpointSqlConnection);
 

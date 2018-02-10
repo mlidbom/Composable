@@ -121,13 +121,17 @@ namespace Composable.DependencyInjection
 
         internal object CreateInstance(IServiceLocatorKernel kernel) => InstantiationSpec.FactoryMethod(kernel);
 
-        internal object GetSingletonInstance(IServiceLocatorKernel kernel)
+        internal object GetSingletonInstance(ComposableDependencyInjectionContainer kernel, ComposableDependencyInjectionContainer.RootCache cache)
         {
-            lock(_lock)
+            if(_singletonInstance == null)
             {
-                if(_singletonInstance == null)
+                lock(_lock)
                 {
-                    _singletonInstance = CreateInstance(kernel);
+                    if(_singletonInstance == null)
+                    {
+                        _singletonInstance = CreateInstance(kernel);
+                        cache.Set(_singletonInstance, this);
+                    }
                 }
             }
 

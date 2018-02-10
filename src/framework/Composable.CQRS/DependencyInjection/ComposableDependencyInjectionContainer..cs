@@ -53,6 +53,8 @@ namespace Composable.DependencyInjection
             }
         }
 
+        internal ComponentRegistration GetRegistrationFor<TService>() => _cache.Get<TService>().Registrations.Single();
+
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
         {
             if(!_createdServiceLocator)
@@ -143,9 +145,7 @@ namespace Composable.DependencyInjection
                 {
                     case Lifestyle.Singleton:
                     {
-                        var createdSingleton = currentComponent.GetSingletonInstance(this);
-                        _cache.Set(createdSingleton, currentComponent);
-                        return (TService)createdSingleton;
+                        return (TService)currentComponent.GetSingletonInstance(this, _cache);
                     }
                     case Lifestyle.Scoped:
                     {
@@ -160,6 +160,65 @@ namespace Composable.DependencyInjection
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
+            }
+            finally
+            {
+                _parentComponent = previousResolvingComponent;
+            }
+        }
+
+        internal TService ResolveSingleton<TService>(ComponentRegistration currentComponent) where TService : class
+        {
+            var (registrations, instance) = _cache.Get<TService>();
+
+            if(instance is TService singleton)
+            {
+                return singleton;
+            }
+
+            if(registrations.Length > 1)
+            {
+                throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
+            }
+
+            var previousResolvingComponent = _parentComponent;
+            _parentComponent = currentComponent;
+            try
+            {
+                return (TService)currentComponent.GetSingletonInstance(this, _cache);
+            }
+            finally
+            {
+                _parentComponent = previousResolvingComponent;
+            }
+        }
+
+        internal TService ResolveScoped<TService>(ComponentRegistration currentComponent) where TService : class
+        {
+             var scopeCache = _scopeCache.Value;
+
+            if(scopeCache == null)
+            {
+                throw new Exception("Attempted to resolve scoped component without a scope");
+            }
+
+            if (scopeCache.TryGet<TService>() is TService scoped)
+            {
+                return scoped;
+            }
+
+            if(_parentComponent?.Lifestyle == Lifestyle.Singleton)
+            {
+                throw new Exception($"{Lifestyle.Singleton} service: {_parentComponent.ServiceTypes.First().FullName} depends on {currentComponent.Lifestyle} service: {currentComponent.ServiceTypes.First().FullName} ");
+            }
+
+            var previousResolvingComponent = _parentComponent;
+            _parentComponent = currentComponent;
+            try
+            {
+                var newInstance = currentComponent.CreateInstance(this);
+                scopeCache.Set(newInstance, currentComponent);
+                return (TService)newInstance;
             }
             finally
             {

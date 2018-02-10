@@ -53,6 +53,8 @@ namespace Composable.DependencyInjection
             }
         }
 
+        internal ComponentRegistration GetRegistrationFor<TService>() => _cache.Get<TService>().Registrations.Single();
+
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
         {
             if(!_createdServiceLocator)

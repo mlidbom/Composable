@@ -4,6 +4,61 @@ namespace Composable.DependencyInjection
 {
     public static class ComponentRegistrationExtensions
     {
+        class ComponentPromise<TService> where TService : class
+        {
+            readonly object _lock = new object();
+            bool _unInitialized = true;
+            bool _isComposableContainer;
+            TService _singletonInstance;
+            Lifestyle _lifestyle;
+            public TService Resolve(IServiceLocatorKernel kern)
+            {
+                if(_unInitialized)
+                {
+                    lock(_lock)
+                    {
+                        if(_unInitialized)
+                        {
+                            if(kern is ComposableDependencyInjectionContainer container)
+                            {
+                                _isComposableContainer = true;
+                                var registration = container.GetRegistrationFor<TService>();
+                                _lifestyle = registration.Lifestyle;
+                                switch(registration.Lifestyle)
+                                {
+                                    case Lifestyle.Singleton:
+                                        _singletonInstance = kern.Resolve<TService>();
+                                        break;
+                                    case Lifestyle.Scoped:
+                                        //performance: Custom method for resolving scoped components.
+                                        break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException();
+                                }
+                            }
+
+                            _unInitialized = false;
+                        }
+                    }
+                }
+
+                if(_isComposableContainer)
+                {
+                    switch(_lifestyle)
+                    {
+                        case Lifestyle.Singleton:
+                            return _singletonInstance;
+                        case Lifestyle.Scoped:
+                            return kern.Resolve<TService>();
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+
+                return kern.Resolve<TService>();
+            }
+        }
+
         public static ComponentRegistration<TService> CreatedBy<TService, TImplementation>(
             this ComponentRegistrationWithoutInstantiationSpec<TService> @this,
             Func<TImplementation> factoryMethod) where TService : class
@@ -18,7 +73,8 @@ namespace Composable.DependencyInjection
                                                                where TDependency1 : class
                                                                where TImplementation : TService
         {
-            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>()));
+            var dependency1 = new ComponentPromise<TDependency1>();
+            return @this.CreatedBy(kern => factoryMethod(dependency1.Resolve(kern)));
         }
 
         public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2>(
@@ -28,7 +84,9 @@ namespace Composable.DependencyInjection
                                                                              where TDependency2 : class
                                                                              where TImplementation : TService
         {
-            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>()));
+            var dependency1 = new ComponentPromise<TDependency1>();
+            var dependency2 = new ComponentPromise<TDependency2>();
+            return @this.CreatedBy(kern => factoryMethod(dependency1.Resolve(kern), dependency2.Resolve(kern)));
         }
 
         public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2, TDependency3>(
@@ -39,7 +97,10 @@ namespace Composable.DependencyInjection
                                                                                            where TDependency2 : class
                                                                                            where TDependency3 : class
         {
-            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>()));
+            var dependency1 = new ComponentPromise<TDependency1>();
+            var dependency2 = new ComponentPromise<TDependency2>();
+            var dependency3 = new ComponentPromise<TDependency3>();
+            return @this.CreatedBy(kern => factoryMethod(dependency1.Resolve(kern), dependency2.Resolve(kern), dependency3.Resolve(kern)));
         }
 
         public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4>(
@@ -51,7 +112,11 @@ namespace Composable.DependencyInjection
                                                                                                          where TDependency3 : class
                                                                                                          where TDependency4 : class
         {
-            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>()));
+            var dependency1 = new ComponentPromise<TDependency1>();
+            var dependency2 = new ComponentPromise<TDependency2>();
+            var dependency3 = new ComponentPromise<TDependency3>();
+            var dependency4 = new ComponentPromise<TDependency4>();
+            return @this.CreatedBy(kern => factoryMethod(dependency1.Resolve(kern), dependency2.Resolve(kern), dependency3.Resolve(kern), dependency4.Resolve(kern)));
         }
 
         public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5>(

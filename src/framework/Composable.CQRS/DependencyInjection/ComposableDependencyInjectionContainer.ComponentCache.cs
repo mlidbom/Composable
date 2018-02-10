@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Messaging.Buses;
 using Composable.System.Linq;
 
 namespace Composable.DependencyInjection
@@ -23,7 +24,7 @@ namespace Composable.DependencyInjection
                 }
                 _cache = new (ComponentRegistration[] Registrations, object Instance)[serviceCount + 1];
 
-                registrations.SelectMany(registration => registration.ServiceTypeIndexes.Select(typeIndex => new {registration, typeIndex}))
+                registrations.SelectMany(registration => registration.ServiceTypes.Select(serviceType => new {registration, serviceType, typeIndex = ServiceTypeIndex.For(serviceType)}))
                              .GroupBy(registrationPerTypeIndex => registrationPerTypeIndex.typeIndex)
                              .ForEach(registrationsOnTypeindex =>
                               {
@@ -35,6 +36,10 @@ namespace Composable.DependencyInjection
                 {
                     foreach (var serviceTypeIndex in registration.ServiceTypeIndexes)
                     {
+                        if(_serviceTypeIndexToComponentIndex[serviceTypeIndex] != serviceCount)
+                        {
+                            throw new Exception($"Already has a component registered for service: {ServiceTypeIndex.GetServiceForIndex(serviceTypeIndex)}");
+                        }
                         _serviceTypeIndexToComponentIndex[serviceTypeIndex] = registration.ComponentIndex;
                     }
                 }

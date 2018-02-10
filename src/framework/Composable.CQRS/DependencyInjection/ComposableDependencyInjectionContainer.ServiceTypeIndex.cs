@@ -11,6 +11,8 @@ namespace Composable.DependencyInjection
             internal static int ServiceCount { get; private set; }
             static Dictionary<Type, int> _map = new Dictionary<Type, int>();
 
+            static Type[] _backMap = new Type[0];
+
             internal static int For(Type type)
             {
                 if(_map.TryGetValue(type, out var value))
@@ -22,6 +24,10 @@ namespace Composable.DependencyInjection
                         return value2;
 
                     var newMap = new Dictionary<Type, int>(_map) {{type, ServiceCount++}};
+                    var newBackMap = new Type[_backMap.Length + 1];
+                    Array.Copy(_backMap, newBackMap, _backMap.Length);
+                    newBackMap[newBackMap.Length - 1] = type;
+                    _backMap = newBackMap;
                     _map = newMap;
                     return ServiceCount - 1;
                 }
@@ -31,6 +37,8 @@ namespace Composable.DependencyInjection
             {
                 internal static readonly int Index = ServiceTypeIndex.For(typeof(TType));
             }
+
+            public static Type GetServiceForIndex(int serviceTypeIndex) => _backMap[serviceTypeIndex];
         }
     }
 }

@@ -30,7 +30,7 @@ namespace ScratchPad
 
             _assemblyTypes.ForEach(type => TypeIndex.For(type));
 
-            _typeMapper = new TypeMapper(new LazySqlServerConnection(new OptimizedLazy<string>(() => "unused")));
+            _typeMapper = new TypeMapper(new LazySqlServerConnection(() => "unused"));
 
             var mapMethod = typeof(TypeMapper).GetMethod(nameof(TypeMapper.Map), new[]{typeof(Guid)});
             foreach(var assemblyType in _mappableTypes)

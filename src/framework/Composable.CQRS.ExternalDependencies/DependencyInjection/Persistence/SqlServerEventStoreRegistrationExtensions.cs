@@ -91,7 +91,7 @@ namespace Composable.DependencyInjection.Persistence
                     Singleton.For<IEventStorePersistenceLayer>()
                                 .CreatedBy((ISqlConnectionProvider connectionProvider1, ITypeMapper typeIdMapper) =>
                                                     {
-                                                        var connectionProvider = new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider1.GetConnectionProvider(connectionName).ConnectionString));
+                                                        var connectionProvider = new LazySqlServerConnection(() => connectionProvider1.GetConnectionProvider(connectionName).ConnectionString);
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
                                                         var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, typeIdMapper);
                                                         var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);

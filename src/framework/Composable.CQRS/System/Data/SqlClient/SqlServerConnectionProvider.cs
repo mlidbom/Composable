@@ -9,7 +9,7 @@ namespace Composable.System.Data.SqlClient
 {
     class SqlServerConnection : LazySqlServerConnection
     {
-        public SqlServerConnection(string connectionString) : base(new OptimizedLazy<string>(() => connectionString)) {}
+        public SqlServerConnection(string connectionString) : base(() => connectionString) {}
     }
 
     class LazySqlServerConnection : ISqlConnection
@@ -17,7 +17,7 @@ namespace Composable.System.Data.SqlClient
         readonly OptimizedLazy<string> _connectionString;
         public string ConnectionString => _connectionString.Value;
 
-        public LazySqlServerConnection(OptimizedLazy<string> connectionString) => _connectionString = connectionString;
+        public LazySqlServerConnection(Func<string> connectionStringFactory) => _connectionString = new OptimizedLazy<string>(connectionStringFactory);
 
         public SqlConnection OpenConnection()
         {

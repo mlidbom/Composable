@@ -57,7 +57,7 @@ namespace Composable.DependencyInjection.Persistence
             } else
             {
                 @this.Register(Singleton.For<IDocumentDb>()
-                                         .CreatedBy((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb(new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider.GetConnectionProvider(connectionName).ConnectionString)), timeSource, serializer)));
+                                         .CreatedBy((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb(new LazySqlServerConnection(() => connectionProvider.GetConnectionProvider(connectionName).ConnectionString), timeSource, serializer)));
             }
 
 

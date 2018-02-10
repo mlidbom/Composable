@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses
                                          ? new OptimizedLazy<ISqlConnectionProvider>(() => new SqlServerDatabasePoolSqlConnectionProvider())
                                          : new OptimizedLazy<ISqlConnectionProvider>(() => new AppConfigSqlConnectionProvider());
 
-            var endpointSqlConnection = new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider.Value.GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString));
+            var endpointSqlConnection = new LazySqlServerConnection(() => connectionProvider.Value.GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString);
 
             _typeMapper = new TypeMapper(endpointSqlConnection);
 

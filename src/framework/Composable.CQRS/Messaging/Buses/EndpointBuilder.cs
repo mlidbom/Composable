@@ -45,10 +45,10 @@ namespace Composable.Messaging.Buses
             Configuration = configuration;
 
             var connectionProvider = container.RunMode.IsTesting
-                                         ? (ISqlConnectionProvider)new SqlServerDatabasePoolSqlConnectionProvider()
-                                         : new AppConfigSqlConnectionProvider();
+                                         ? new OptimizedLazy<ISqlConnectionProvider>(() => new SqlServerDatabasePoolSqlConnectionProvider())
+                                         : new OptimizedLazy<ISqlConnectionProvider>(() => new AppConfigSqlConnectionProvider());
 
-            var endpointSqlConnection = new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider.GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString));
+            var endpointSqlConnection = new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider.Value.GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString));
 
             _typeMapper = new TypeMapper(endpointSqlConnection);
 
@@ -56,7 +56,7 @@ namespace Composable.Messaging.Buses
             RegisterHandlers = new MessageHandlerRegistrarWithDependencyInjectionSupport(registry, new OptimizedLazy<IServiceLocator>(() => _container.CreateServiceLocator()));
 
             _container.Register(
-                Singleton.For<ISqlConnectionProvider>().CreatedBy(() => connectionProvider).DelegateToParentServiceLocatorWhenCloning(),
+                Singleton.For<ISqlConnectionProvider>().CreatedBy(() => connectionProvider.Value).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITypeMappingRegistar, ITypeMapper, TypeMapper>().CreatedBy(() => _typeMapper).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITaskRunner>().CreatedBy(() => new TaskRunner()),
                 Singleton.For<EndpointId>().CreatedBy(() => configuration.Id),

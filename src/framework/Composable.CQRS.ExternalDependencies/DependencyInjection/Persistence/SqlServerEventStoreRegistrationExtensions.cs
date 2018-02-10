@@ -78,8 +78,6 @@ namespace Composable.DependencyInjection.Persistence
 
             migrations = migrations ?? new List<IEventMigration>();
 
-            @this.Register(Singleton.For<IEnumerable<IEventMigration>>().UsingFactoryMethod(() => migrations));
-
             @this.Register(Singleton.For<EventCache>().UsingFactoryMethod(() => new EventCache()));
 
             if (@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)

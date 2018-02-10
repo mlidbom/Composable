@@ -11,10 +11,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
     [TestFixture, Performance, Serial] public class Local_Query_performance_tests : PerformanceTestBase
     {
         [Test, Serial] public void Runs_100_000__MultiThreaded_local_requests_making_a_single_local_query_each_in_FIXME_milliseconds() =>
-            RunScenario(threaded: true, requests: 100_000.InstrumentationSlowdown(10), queriesPerRequest: 1, maxTotal: 110.Milliseconds());
+            RunScenario(threaded: true, requests: 100_000.InstrumentationSlowdown(16), queriesPerRequest: 1, maxTotal: 110.Milliseconds());
 
         [Test, Serial] public void Runs_100_000_SingleThreaded_local_requests_making_a_single_local_query_in_FIXME_milliseconds() =>
-            RunScenario(threaded: false, requests: 100_000.InstrumentationSlowdown(4), queriesPerRequest: 1, maxTotal: 280.Milliseconds());
+            RunScenario(threaded: false, requests: 100_000.InstrumentationSlowdown(5), queriesPerRequest: 1, maxTotal: 280.Milliseconds());
 
         [Test, Serial] public void Runs_100_000__MultiThreaded_local_requests_making_10_local_queries_each_in_FIXME_milliseconds() =>
             RunScenario(threaded: true, requests: 100_000.InstrumentationSlowdown(11), queriesPerRequest: 10, maxTotal: 700.Milliseconds());

@@ -13,9 +13,9 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         readonly ISingleContextUseGuard _usageGuard;
         readonly IEnumerable<IQueryModelGenerator> _documentGenerators;
         readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
-        public QueryModelGeneratingDocumentDbReader(ISingleContextUseGuard usageGuard, IEnumerable<IQueryModelGenerator> documentGenerators )
+        public QueryModelGeneratingDocumentDbReader(IEnumerable<IQueryModelGenerator> documentGenerators )
         {
-            _usageGuard = usageGuard;
+            _usageGuard = new SingleThreadUseGuard();
             _documentGenerators = documentGenerators;
         }
 

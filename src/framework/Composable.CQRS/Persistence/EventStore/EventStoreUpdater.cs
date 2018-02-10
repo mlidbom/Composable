@@ -21,12 +21,12 @@ namespace Composable.Persistence.EventStore
         readonly List<IDisposable> _disposableResources = new List<IDisposable>();
         IUtcTimeTimeSource TimeSource { get; set; }
 
-        public EventStoreUpdater(IEventstoreEventPublisher eventPublisher, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator)
+        public EventStoreUpdater(IEventstoreEventPublisher eventPublisher, IEventStore store, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator)
         {
-            Contract.Argument(() => eventPublisher, () => store, () => usageGuard, () => timeSource)
+            Contract.Argument(() => eventPublisher, () => store, () => timeSource)
                         .NotNull();
 
-            _usageGuard = new CombinationUsageGuard(usageGuard, new SingleTransactionUsageGuard());
+            _usageGuard = new CombinationUsageGuard(new SingleThreadUseGuard(), new SingleTransactionUsageGuard());
             _eventPublisher = eventPublisher;
             _store = store;
             _aggregateTypeValidator = aggregateTypeValidator;

@@ -25,14 +25,14 @@ namespace Composable.Persistence.EventStore
         readonly IEventStoreSchemaManager _schemaManager;
         readonly IReadOnlyList<IEventMigration> _migrationFactories;
 
-        public EventStore(IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, ISingleContextUseGuard usageGuard, EventCache cache, IEnumerable<IEventMigration> migrations)
+        public EventStore(IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache cache, IEnumerable<IEventMigration> migrations)
         {
             _serializer = serializer;
             Log.Debug("Constructor called");
 
             _migrationFactories = migrations.ToList();
 
-            _usageGuard = usageGuard;
+            _usageGuard = new SingleThreadUseGuard();
             _cache = cache;
             _schemaManager = persistenceLayer.SchemaManager;
             _eventReader = persistenceLayer.EventReader;

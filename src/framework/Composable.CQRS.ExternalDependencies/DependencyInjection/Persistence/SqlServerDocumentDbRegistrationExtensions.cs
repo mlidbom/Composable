@@ -39,7 +39,7 @@ namespace Composable.DependencyInjection.Persistence
 
         [UsedImplicitly] class DocumentDbSession<TUpdater, TReader, TBulkReader> : DocumentDbSession, IDocumentDbSession<TUpdater, TReader, TBulkReader>
         {
-            public DocumentDbSession(IDocumentDb<TUpdater, TReader, TBulkReader> backingStore, ISingleContextUseGuard usageGuard) : base(backingStore, usageGuard)
+            public DocumentDbSession(IDocumentDb<TUpdater, TReader, TBulkReader> backingStore) : base(backingStore)
             {
             }
         }
@@ -64,7 +64,7 @@ namespace Composable.DependencyInjection.Persistence
 
 
             @this.Register(Component.For<IDocumentDbSession, IDocumentDbUpdater, IDocumentDbReader, IDocumentDbBulkReader>()
-                                    .UsingFactoryMethod((IDocumentDb documentDb, ISingleContextUseGuard usageGuard) => new DocumentDbSession(documentDb, usageGuard))
+                                    .UsingFactoryMethod((IDocumentDb documentDb) => new DocumentDbSession(documentDb))
                                     .LifestyleScoped());
 
             return new DocumentDbRegistrationBuilder();
@@ -97,7 +97,7 @@ namespace Composable.DependencyInjection.Persistence
 
 
             @this.Register(Component.For<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()
-                                     .UsingFactoryMethod((IDocumentDb<TUpdater, TReader, TBulkReader> documentDb, ISingleContextUseGuard usageGuard) => new DocumentDbSession<TUpdater, TReader, TBulkReader>(documentDb, usageGuard))
+                                     .UsingFactoryMethod((IDocumentDb<TUpdater, TReader, TBulkReader> documentDb) => new DocumentDbSession<TUpdater, TReader, TBulkReader>(documentDb))
                                      .LifestyleScoped());
 
             var sessionType = DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType;

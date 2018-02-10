@@ -24,9 +24,9 @@ namespace Composable.Persistence.DocumentDb
 
         static readonly ILogger Log = Logger.For<DocumentDbSession>();
 
-        public DocumentDbSession(IDocumentDb backingStore, ISingleContextUseGuard usageGuard)
+        public DocumentDbSession(IDocumentDb backingStore)
         {
-            _usageGuard = new CombinationUsageGuard(usageGuard, new SingleTransactionUsageGuard());
+            _usageGuard = new CombinationUsageGuard(new SingleThreadUseGuard(), new SingleTransactionUsageGuard());
             _backingStore = backingStore;
         }
 

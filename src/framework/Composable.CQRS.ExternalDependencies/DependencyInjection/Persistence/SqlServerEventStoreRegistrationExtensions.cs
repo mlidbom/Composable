@@ -32,9 +32,8 @@ namespace Composable.DependencyInjection.Persistence
         {
             public EventStore(IEventStoreSerializer serializer,
                               IEventStorePersistenceLayer persistenceLayer,
-                              ISingleContextUseGuard usageGuard,
                               EventCache<TSessionInterface> cache,
-                              IEnumerable<IEventMigration> migrations) : base(persistenceLayer, serializer, usageGuard, cache, migrations:migrations) {}
+                              IEnumerable<IEventMigration> migrations) : base(persistenceLayer, serializer, cache, migrations:migrations) {}
         }
 
         class InMemoryEventStore<TSessionInterface, TReaderInterface> : InMemoryEventStore, IEventStore<TSessionInterface, TReaderInterface>
@@ -46,9 +45,8 @@ namespace Composable.DependencyInjection.Persistence
         {
             public EventStoreUpdater(IEventstoreEventPublisher eventPublisher,
                                      IEventStore<TSessionInterface, TReaderInterface> store,
-                                     ISingleContextUseGuard usageGuard,
                                      IUtcTimeTimeSource timeSource,
-                                     IAggregateTypeValidator aggregateTypeValidator) : base(eventPublisher, store, usageGuard, timeSource, aggregateTypeValidator) {}
+                                     IAggregateTypeValidator aggregateTypeValidator) : base(eventPublisher, store, timeSource, aggregateTypeValidator) {}
         }
 
         interface IEventStorePersistenceLayer<TUpdater> : IEventStorePersistenceLayer
@@ -111,13 +109,13 @@ namespace Composable.DependencyInjection.Persistence
 
 
                 @this.Register(Component.For<IEventStore>()
-                                        .UsingFactoryMethod((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, ISingleContextUseGuard singleContextUseGuard, EventCache eventCache) => new EventStore(persistenceLayer, serializer, singleContextUseGuard, eventCache, migrations))
+                                        .UsingFactoryMethod((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache eventCache) => new EventStore(persistenceLayer, serializer, eventCache, migrations))
                                         .LifestyleScoped());
             }
 
             @this.Register(Component.For<IEventStoreUpdater, IEventStoreReader>()
-                                    .UsingFactoryMethod((IEventstoreEventPublisher eventPublisher, IEventStore eventStore, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
-                                                            new EventStoreUpdater(eventPublisher, eventStore, usageGuard, timeSource, aggregateTypeValidator))
+                                    .UsingFactoryMethod((IEventstoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
+                                                            new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator))
                                     .LifestyleScoped());
 
             return new SqlServerEventStoreRegistrationBuilder();
@@ -189,14 +187,13 @@ namespace Composable.DependencyInjection.Persistence
                                                     persistenceLayer: persistenceLayer,
                                                     serializer: serializer,
                                                     migrations: migrations(),
-                                                    cache: cache,
-                                                    usageGuard: new SingleThreadUseGuard()))
+                                                    cache: cache))
                                         .LifestyleScoped());
             }
 
             @this.Register(Component.For<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()
-                                    .UsingFactoryMethod((IEventstoreEventPublisher eventPublisher, IEventStore<TSessionInterface, TReaderInterface> eventStore, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
-                                                            new EventStoreUpdater<TSessionInterface, TReaderInterface>(eventPublisher, eventStore, usageGuard, timeSource, aggregateTypeValidator))
+                                    .UsingFactoryMethod((IEventstoreEventPublisher eventPublisher, IEventStore<TSessionInterface, TReaderInterface> eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
+                                                            new EventStoreUpdater<TSessionInterface, TReaderInterface>(eventPublisher, eventStore, timeSource, aggregateTypeValidator))
                                     .LifestyleScoped());
 
             var sessionType = EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType;

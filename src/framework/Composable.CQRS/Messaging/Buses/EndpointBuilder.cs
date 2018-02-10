@@ -70,9 +70,6 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
                                                  new InterprocessTransport(globalStateTracker, timeSource, endpointSqlConnection, _typeMapper, configuration, taskRunner, serializer))
                          .LifestyleSingleton(),
-                Component.For<ISingleContextUseGuard>()
-                         .UsingFactoryMethod(() => new SingleThreadUseGuard())
-                         .LifestyleScoped(),
                 Component.For<IGlobalBusStateTracker>()
                          .UsingFactoryMethod(() => globalStateTracker)
                          .LifestyleSingleton(),

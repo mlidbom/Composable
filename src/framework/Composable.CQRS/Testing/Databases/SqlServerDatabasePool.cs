@@ -18,18 +18,17 @@ namespace Composable.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
+        const string InitialCatalogMaster = ";Initial Catalog=master;";
+
         static string _masterConnectionString;
         static SqlServerConnection _masterConnection;
 
         static MachineWideSharedObject<SharedState> _machineWideState;
-        readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
 
         static string _databaseRootFolderOverride;
         static readonly HashSet<string> RebootedMasterConnections = new HashSet<string>();
 
         static TimeSpan _reservationLength;
-
-        readonly Guid _poolId = Guid.NewGuid();
 
         static readonly OptimizedInitializer Initializer = new OptimizedInitializer(() =>
         {
@@ -71,14 +70,15 @@ namespace Composable.Testing.Databases
                                  $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
         });
 
-        ILogger _log = Logger.For<SqlServerDatabasePool>();
-
-        public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
-
         internal static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(SqlServerDatabasePool)}_";
 
+        readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
+        readonly Guid _poolId = Guid.NewGuid();
+
+        ILogger _log = Logger.For<SqlServerDatabasePool>();
         bool _disposed;
-        const string InitialCatalogMaster = ";Initial Catalog=master;";
+
+        public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 
         IReadOnlyList<Database> _transientCache = new List<Database>();
         public ISqlConnection ConnectionProviderFor(string reservationName) => _guard.Update(() =>

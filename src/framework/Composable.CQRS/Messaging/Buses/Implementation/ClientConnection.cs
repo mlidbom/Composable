@@ -85,7 +85,7 @@ namespace Composable.Messaging.Buses.Implementation
             return clientConnection;
         }
 
-        public ClientConnection(IGlobalBusStateTracker globalBusStateTracker,
+        ClientConnection(IGlobalBusStateTracker globalBusStateTracker,
                                 EndPointAddress serverEndpoint,
                                 NetMQPoller poller,
                                 IUtcTimeTimeSource timeSource,

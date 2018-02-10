@@ -104,13 +104,19 @@ namespace Composable.Messaging.Buses
                 Component.For<IRemoteApiNavigatorSession>()
                          .UsingFactoryMethod((IInterprocessTransport interprocessTransport) => new RemoteApiBrowserSession(interprocessTransport))
                          .LifestyleScoped(),
-                Component.For<IServiceBusSession, ILocalApiNavigatorSession>()
-                         .UsingFactoryMethod((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteApiNavigatorSession remoteNavigator) =>
-                                                 new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry, remoteNavigator))
-                         .LifestyleScoped(),
                 Component.For<IEventstoreEventPublisher>()
                          .UsingFactoryMethod((IInterprocessTransport interprocessTransport, IMessageHandlerRegistry messageHandlerRegistry) => new EventstoreEventPublisher(interprocessTransport, messageHandlerRegistry))
                          .LifestyleScoped());
+
+            if(!configuration.IsPureClientEndpoint)
+            {
+                _container.Register(
+                    Component.For<IServiceBusSession, ILocalApiNavigatorSession>()
+                             .UsingFactoryMethod((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteApiNavigatorSession remoteNavigator) =>
+                                                     new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry, remoteNavigator))
+                             .LifestyleScoped()
+                    );
+            }
 
             if(_container.RunMode == RunMode.Production)
             {

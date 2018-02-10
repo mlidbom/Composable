@@ -61,7 +61,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
 
         [Test] public void Calling_PostRemoteAsync_without_a_transaction_with_ExactlyOnceCommand_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => ClientEndpoint.ExecuteRequest(session => session.Send(new MyExactlyOnceCommand())));
+            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => RemoteEndpoint.ExecuteRequest(session => session.Send(new MyExactlyOnceCommand())));
 
         [Test] public void Calling_GetRemoteAsync_within_a_transaction_with_Query_throws_TransactionPolicyViolationException() =>
             AssertThrows.Async<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.GetAsync(new MyQuery())))).Wait();

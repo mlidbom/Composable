@@ -4,34 +4,34 @@ namespace Composable.DependencyInjection
 {
     public static class ComponentRegistrationExtensions
     {
-        public static ComponentRegistration<TService> UsingFactoryMethod<TService, TImplementation>(
+        public static ComponentRegistration<TService> CreatedBy<TService, TImplementation>(
             this ComponentRegistrationWithoutInstantiationSpec<TService> @this,
             Func<TImplementation> factoryMethod) where TService : class
                                                  where TImplementation : TService
         {
-            return @this.UsingFactoryMethod(_ => factoryMethod());
+            return @this.CreatedBy(_ => factoryMethod());
         }
 
-        public static ComponentRegistration<TService> UsingFactoryMethod<TService, TImplementation, TDependency1>(
+        public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1>(
             this ComponentRegistrationWithoutInstantiationSpec<TService> @this,
             Func<TDependency1, TImplementation> factoryMethod) where TService : class
                                                                where TDependency1 : class
                                                                where TImplementation : TService
         {
-            return @this.UsingFactoryMethod(kern => factoryMethod(kern.Resolve<TDependency1>()));
+            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>()));
         }
 
-        public static ComponentRegistration<TService> UsingFactoryMethod<TService, TImplementation, TDependency1, TDependency2>(
+        public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2>(
             this ComponentRegistrationWithoutInstantiationSpec<TService> @this,
             Func<TDependency1, TDependency2, TImplementation> factoryMethod) where TService : class
                                                                              where TDependency1 : class
                                                                              where TDependency2 : class
                                                                              where TImplementation : TService
         {
-            return @this.UsingFactoryMethod(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>()));
+            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>()));
         }
 
-        public static ComponentRegistration<TService> UsingFactoryMethod<TService, TImplementation, TDependency1, TDependency2, TDependency3>(
+        public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2, TDependency3>(
             this ComponentRegistrationWithoutInstantiationSpec<TService> @this,
             Func<TDependency1, TDependency2, TDependency3, TImplementation> factoryMethod) where TImplementation : TService
                                                                                            where TService : class
@@ -39,10 +39,10 @@ namespace Composable.DependencyInjection
                                                                                            where TDependency2 : class
                                                                                            where TDependency3 : class
         {
-            return @this.UsingFactoryMethod(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>()));
+            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>()));
         }
 
-        public static ComponentRegistration<TService> UsingFactoryMethod<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4>(
+        public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4>(
             this ComponentRegistrationWithoutInstantiationSpec<TService> @this,
             Func<TDependency1, TDependency2, TDependency3, TDependency4, TImplementation> factoryMethod) where TImplementation : TService
                                                                                                          where TService : class
@@ -51,10 +51,10 @@ namespace Composable.DependencyInjection
                                                                                                          where TDependency3 : class
                                                                                                          where TDependency4 : class
         {
-            return @this.UsingFactoryMethod(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>()));
+            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>()));
         }
 
-        public static ComponentRegistration<TService> UsingFactoryMethod<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5>(
+        public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5>(
             this ComponentRegistrationWithoutInstantiationSpec<TService> @this,
             Func<TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TImplementation> factoryMethod) where TImplementation : TService
                                                                                                                        where TService : class
@@ -64,10 +64,10 @@ namespace Composable.DependencyInjection
                                                                                                                        where TDependency4 : class
                                                                                                                        where TDependency5 : class
         {
-            return @this.UsingFactoryMethod(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>(), kern.Resolve<TDependency5>()));
+            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>(), kern.Resolve<TDependency5>()));
         }
 
-        public static ComponentRegistration<TService> UsingFactoryMethod<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6>(
+        public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6>(
             this ComponentRegistrationWithoutInstantiationSpec<TService> @this,
             Func<TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TImplementation> factoryMethod) where TImplementation : TService
                                                                                                                                      where TService : class
@@ -78,10 +78,10 @@ namespace Composable.DependencyInjection
                                                                                                                                      where TDependency5 : class
                                                                                                                                      where TDependency6 : class
         {
-            return @this.UsingFactoryMethod(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>(), kern.Resolve<TDependency5>(), kern.Resolve<TDependency6>()));
+            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>(), kern.Resolve<TDependency5>(), kern.Resolve<TDependency6>()));
         }
 
-        public static ComponentRegistration<TService> UsingFactoryMethod<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7>(
+        public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7>(
             this ComponentRegistrationWithoutInstantiationSpec<TService> @this,
             Func<TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TImplementation> factoryMethod) where TImplementation : TService
                                                                                                                                                    where TService : class
@@ -93,10 +93,10 @@ namespace Composable.DependencyInjection
                                                                                                                                                    where TDependency6 : class
                                                                                                                                                    where TDependency7 : class
         {
-            return @this.UsingFactoryMethod(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>(), kern.Resolve<TDependency5>(), kern.Resolve<TDependency6>(), kern.Resolve<TDependency7>()));
+            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>(), kern.Resolve<TDependency5>(), kern.Resolve<TDependency6>(), kern.Resolve<TDependency7>()));
         }
 
-        public static ComponentRegistration<TService> UsingFactoryMethod<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8>(
+        public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8>(
             this ComponentRegistrationWithoutInstantiationSpec<TService> @this,
             Func<TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8, TImplementation> factoryMethod) where TImplementation : TService
                                                                                                                                                                  where TService : class
@@ -109,10 +109,10 @@ namespace Composable.DependencyInjection
                                                                                                                                                                  where TDependency7 : class
                                                                                                                                                                  where TDependency8 : class
         {
-            return @this.UsingFactoryMethod(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>(), kern.Resolve<TDependency5>(), kern.Resolve<TDependency6>(), kern.Resolve<TDependency7>(), kern.Resolve<TDependency8>()));
+            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>(), kern.Resolve<TDependency5>(), kern.Resolve<TDependency6>(), kern.Resolve<TDependency7>(), kern.Resolve<TDependency8>()));
         }
 
-        public static ComponentRegistration<TService> UsingFactoryMethod<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8, TDependency9>(
+        public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8, TDependency9>(
             this ComponentRegistrationWithoutInstantiationSpec<TService> @this,
             Func<TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8, TDependency9, TImplementation> factoryMethod) where TImplementation : TService
                                                                                                                                                                                where TService : class
@@ -126,7 +126,7 @@ namespace Composable.DependencyInjection
                                                                                                                                                                                where TDependency8 : class
                                                                                                                                                                                where TDependency9 : class
         {
-            return @this.UsingFactoryMethod(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>(), kern.Resolve<TDependency5>(), kern.Resolve<TDependency6>(), kern.Resolve<TDependency7>(), kern.Resolve<TDependency8>(), kern.Resolve<TDependency9>()));
+            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>(), kern.Resolve<TDependency5>(), kern.Resolve<TDependency6>(), kern.Resolve<TDependency7>(), kern.Resolve<TDependency8>(), kern.Resolve<TDependency9>()));
         }
     }
 }

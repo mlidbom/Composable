@@ -51,18 +51,18 @@ namespace Composable.DependencyInjection.Persistence
             if(@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
                 @this.Register(Singleton.For<IDocumentDb>()
-                                         .UsingFactoryMethod((IDocumentDbSerializer serializer) => new InMemoryDocumentDb(serializer))
+                                         .CreatedBy((IDocumentDbSerializer serializer) => new InMemoryDocumentDb(serializer))
                                          .DelegateToParentServiceLocatorWhenCloning());
 
             } else
             {
                 @this.Register(Singleton.For<IDocumentDb>()
-                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb(new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider.GetConnectionProvider(connectionName).ConnectionString)), timeSource, serializer)));
+                                         .CreatedBy((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb(new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider.GetConnectionProvider(connectionName).ConnectionString)), timeSource, serializer)));
             }
 
 
             @this.Register(Scoped.For<IDocumentDbSession, IDocumentDbUpdater, IDocumentDbReader, IDocumentDbBulkReader>()
-                                    .UsingFactoryMethod((IDocumentDb documentDb) => new DocumentDbSession(documentDb)));
+                                    .CreatedBy((IDocumentDb documentDb) => new DocumentDbSession(documentDb)));
 
             return new DocumentDbRegistrationBuilder();
         }
@@ -81,18 +81,18 @@ namespace Composable.DependencyInjection.Persistence
             if(@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
                 @this.Register(Singleton.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .UsingFactoryMethod((IDocumentDbSerializer serializer) => new InMemoryDocumentDb<TUpdater, TReader, TBulkReader>(serializer))
+                                         .CreatedBy((IDocumentDbSerializer serializer) => new InMemoryDocumentDb<TUpdater, TReader, TBulkReader>(serializer))
                                          .DelegateToParentServiceLocatorWhenCloning());
 
             } else
             {
                 @this.Register(Singleton.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionProvider.GetConnectionProvider(connectionName), timeSource, serializer)));
+                                         .CreatedBy((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionProvider.GetConnectionProvider(connectionName), timeSource, serializer)));
             }
 
 
             @this.Register(Scoped.For<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()
-                                     .UsingFactoryMethod((IDocumentDb<TUpdater, TReader, TBulkReader> documentDb) => new DocumentDbSession<TUpdater, TReader, TBulkReader>(documentDb)));
+                                     .CreatedBy((IDocumentDb<TUpdater, TReader, TBulkReader> documentDb) => new DocumentDbSession<TUpdater, TReader, TBulkReader>(documentDb)));
 
             var sessionType = DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType;
             var constructor = Constructor.Compile.ForReturnType<TUpdater>().WithImplementingType(sessionType).WithArguments<IInterceptor[], IDocumentDbSession>();
@@ -100,7 +100,7 @@ namespace Composable.DependencyInjection.Persistence
             var emptyInterceptorArray = new IInterceptor[0];
 
             @this.Register(Scoped.For<TUpdater, TReader, TBulkReader>()
-                                    .UsingFactoryMethod(DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType,
+                                    .CreatedBy(DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType,
                                                         kernel => constructor(emptyInterceptorArray, kernel.Resolve<IDocumentDbSession<TUpdater, TReader, TBulkReader>>())));
         }
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
-using Composable.System;
 using Composable.System.Linq;
 
 // ReSharper disable UnusedMember.Global
@@ -47,7 +46,7 @@ namespace Composable.DependencyInjection
             ServiceTypes = serviceTypes.Concat(new List<Type>() {typeof(TService)}).ToList();
         }
 
-        internal ComponentRegistration<TService> UsingFactoryMethod<TImplementation>(Func<IServiceLocatorKernel, TImplementation> factoryMethod)
+        internal ComponentRegistration<TService> CreatedBy<TImplementation>(Func<IServiceLocatorKernel, TImplementation> factoryMethod)
             where TImplementation : TService
         {
             var implementationType = typeof(TImplementation);
@@ -55,7 +54,7 @@ namespace Composable.DependencyInjection
             return new ComponentRegistration<TService>(_lifestyle, ServiceTypes, InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator), implementationType));
         }
 
-        internal ComponentRegistration<TService> UsingFactoryMethod(Type implementationType, Func<IServiceLocatorKernel, object> factoryMethod)
+        internal ComponentRegistration<TService> CreatedBy(Type implementationType, Func<IServiceLocatorKernel, object> factoryMethod)
         {
             AssertImplementsAllServices(implementationType);
             return new ComponentRegistration<TService>(_lifestyle, ServiceTypes, InstantiationSpec.FromFactoryMethod(factoryMethod, implementationType));

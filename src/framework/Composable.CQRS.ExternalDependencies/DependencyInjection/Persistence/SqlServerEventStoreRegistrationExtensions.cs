@@ -78,18 +78,18 @@ namespace Composable.DependencyInjection.Persistence
 
             migrations = migrations ?? new List<IEventMigration>();
 
-            @this.Register(Singleton.For<EventCache>().UsingFactoryMethod(() => new EventCache()));
+            @this.Register(Singleton.For<EventCache>().CreatedBy(() => new EventCache()));
 
             if (@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
                 @this.Register(Singleton.For<IEventStore>()
-                                        .UsingFactoryMethod(() => new InMemoryEventStore(migrations: migrations))
+                                        .CreatedBy(() => new InMemoryEventStore(migrations: migrations))
                                         .DelegateToParentServiceLocatorWhenCloning());
             } else
             {
                 @this.Register(
                     Singleton.For<IEventStorePersistenceLayer>()
-                                .UsingFactoryMethod((ISqlConnectionProvider connectionProvider1, ITypeMapper typeIdMapper) =>
+                                .CreatedBy((ISqlConnectionProvider connectionProvider1, ITypeMapper typeIdMapper) =>
                                                     {
                                                         var connectionProvider = new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider1.GetConnectionProvider(connectionName).ConnectionString));
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
@@ -101,11 +101,11 @@ namespace Composable.DependencyInjection.Persistence
 
 
                 @this.Register(Scoped.For<IEventStore>()
-                                        .UsingFactoryMethod((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache eventCache) => new EventStore(persistenceLayer, serializer, eventCache, migrations)));
+                                        .CreatedBy((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache eventCache) => new EventStore(persistenceLayer, serializer, eventCache, migrations)));
             }
 
             @this.Register(Scoped.For<IEventStoreUpdater, IEventStoreReader>()
-                                    .UsingFactoryMethod((IEventstoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
+                                    .CreatedBy((IEventstoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
                                                             new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
 
             return new SqlServerEventStoreRegistrationBuilder();
@@ -137,16 +137,16 @@ namespace Composable.DependencyInjection.Persistence
 
 
             @this.Register(Singleton.For<EventCache<TSessionInterface>>()
-                                    .UsingFactoryMethod(() => new EventCache<TSessionInterface>()));
+                                    .CreatedBy(() => new EventCache<TSessionInterface>()));
 
             if (@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
                 @this.Register(Singleton.For<InMemoryEventStore<TSessionInterface, TReaderInterface>>()
-                                        .UsingFactoryMethod(() => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations()))
+                                        .CreatedBy(() => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations()))
                                         .DelegateToParentServiceLocatorWhenCloning());
 
                 @this.Register(Scoped.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                        .UsingFactoryMethod((InMemoryEventStore<TSessionInterface, TReaderInterface> store) =>
+                                        .CreatedBy((InMemoryEventStore<TSessionInterface, TReaderInterface> store) =>
                                                             {
                                                                 store.TestingOnlyReplaceMigrations(migrations());
                                                                 return store;
@@ -155,7 +155,7 @@ namespace Composable.DependencyInjection.Persistence
             {
                 @this.Register(
                     Singleton.For<IEventStorePersistenceLayer<TSessionInterface>>()
-                                .UsingFactoryMethod((ISqlConnectionProvider connectionProvider1, ITypeMapper typeIdMapper) =>
+                                .CreatedBy((ISqlConnectionProvider connectionProvider1, ITypeMapper typeIdMapper) =>
                                                     {
                                                         var connectionProvider = connectionProvider1.GetConnectionProvider(connectionName);
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
@@ -167,7 +167,7 @@ namespace Composable.DependencyInjection.Persistence
 
 
                 @this.Register(Scoped.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                        .UsingFactoryMethod(
+                                        .CreatedBy(
                                             (IEventStorePersistenceLayer<TSessionInterface> persistenceLayer, IEventStoreSerializer serializer, EventCache<TSessionInterface> cache) =>
                                                 new EventStore<TSessionInterface, TReaderInterface>(
                                                     persistenceLayer: persistenceLayer,
@@ -177,7 +177,7 @@ namespace Composable.DependencyInjection.Persistence
             }
 
             @this.Register(Scoped.For<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()
-                                    .UsingFactoryMethod((IEventstoreEventPublisher eventPublisher, IEventStore<TSessionInterface, TReaderInterface> eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
+                                    .CreatedBy((IEventstoreEventPublisher eventPublisher, IEventStore<TSessionInterface, TReaderInterface> eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
                                                             new EventStoreUpdater<TSessionInterface, TReaderInterface>(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
 
             var sessionType = EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType;
@@ -185,7 +185,7 @@ namespace Composable.DependencyInjection.Persistence
             var emptyInterceptorArray = new IInterceptor[0];
 
             @this.Register(Scoped.For<TSessionInterface, TReaderInterface>()
-                                    .UsingFactoryMethod(EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType, locator => constructor(emptyInterceptorArray, locator.Resolve<IEventStoreUpdater<TSessionInterface, TReaderInterface>>())));
+                                    .CreatedBy(EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType, locator => constructor(emptyInterceptorArray, locator.Resolve<IEventStoreUpdater<TSessionInterface, TReaderInterface>>())));
         }
 
         //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.

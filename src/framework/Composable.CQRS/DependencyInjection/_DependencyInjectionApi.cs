@@ -34,4 +34,10 @@ namespace Composable.DependencyInjection
         InMemory,
         DatabasePool
     }
+
+    enum Lifestyle
+    {
+        Singleton,
+        Scoped
+    }
 }

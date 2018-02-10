@@ -55,6 +55,13 @@ namespace Composable.DependencyInjection
             return new ComponentRegistration<TService>(_lifestyle, ServiceTypes, InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator), implementationType));
         }
 
+        internal ComponentRegistration<TService> Instance(TService instance)
+        {
+            Contract.AssertThat(_lifestyle == Lifestyle.Singleton);
+            AssertImplementsAllServices(instance.GetType());
+            return new ComponentRegistration<TService>(_lifestyle, ServiceTypes, InstantiationSpec.FromInstance(instance));
+        }
+
         internal ComponentRegistration<TService> UsingFactoryMethod(Type implementationType, Func<IServiceLocatorKernel, object> factoryMethod)
         {
             AssertImplementsAllServices(implementationType);
@@ -90,6 +97,7 @@ namespace Composable.DependencyInjection
 
         InstantiationSpec(object instance)
         {
+            ContractOptimized.Argument(instance, nameof(instance)).NotNull();
             Instance = instance;
             FactoryMethod = kern => instance;
         }

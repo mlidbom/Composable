@@ -45,24 +45,21 @@ namespace Composable.DependencyInjection
                     }
                 }
 
-                if(_isComposableContainer)
-                {
-                    switch(_lifestyle)
-                    {
-                        case Lifestyle.Singleton:
-                            if(_initialKernel == kernel)
-                            {
-                                return _singletonInstance;
-                            }
-                            return ((ComposableDependencyInjectionContainer)kernel).ResolveSingleton<TService>(_registration);
-                        case Lifestyle.Scoped:
-                            return ((ComposableDependencyInjectionContainer)kernel).ResolveScoped<TService>(_registration);
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                }
+                if(!_isComposableContainer) return kernel.Resolve<TService>();
 
-                return kernel.Resolve<TService>();
+                switch(_lifestyle)
+                {
+                    case Lifestyle.Singleton:
+                        if(_initialKernel == kernel)
+                        {
+                            return _singletonInstance;
+                        }
+                        return ((ComposableDependencyInjectionContainer)kernel).ResolveSingleton<TService>(_registration);
+                    case Lifestyle.Scoped:
+                        return ((ComposableDependencyInjectionContainer)kernel).ResolveScoped<TService>(_registration);
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
@@ -136,7 +133,12 @@ namespace Composable.DependencyInjection
                                                                                                                        where TDependency4 : class
                                                                                                                        where TDependency5 : class
         {
-            return @this.CreatedBy(kern => factoryMethod(kern.Resolve<TDependency1>(), kern.Resolve<TDependency2>(), kern.Resolve<TDependency3>(), kern.Resolve<TDependency4>(), kern.Resolve<TDependency5>()));
+            var dependency1 = new ComponentPromise<TDependency1>();
+            var dependency2 = new ComponentPromise<TDependency2>();
+            var dependency3 = new ComponentPromise<TDependency3>();
+            var dependency4 = new ComponentPromise<TDependency4>();
+            var dependency5 = new ComponentPromise<TDependency5>();
+            return @this.CreatedBy(kern => factoryMethod(dependency1.Resolve(kern), dependency2.Resolve(kern), dependency3.Resolve(kern), dependency4.Resolve(kern), dependency5.Resolve(kern)));
         }
 
         public static ComponentRegistration<TService> CreatedBy<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6>(

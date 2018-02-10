@@ -16,8 +16,12 @@ namespace Composable.DependencyInjection
             {
                 var serviceCount = ServiceTypeIndex.ServiceCount;
 
-                _serviceTypeIndexToComponentIndex = new int[serviceCount];
-                _cache = new (ComponentRegistration[] Registrations, object Instance)[serviceCount];
+                _serviceTypeIndexToComponentIndex = new int[serviceCount + 1];
+                for(var index = 0; index < _serviceTypeIndexToComponentIndex.Length; index++)
+                {
+                    _serviceTypeIndexToComponentIndex[index] = serviceCount;
+                }
+                _cache = new (ComponentRegistration[] Registrations, object Instance)[serviceCount + 1];
 
                 registrations.SelectMany(registration => registration.ServiceTypeIndexes.Select(typeIndex => new {registration, typeIndex}))
                              .GroupBy(registrationPerTypeIndex => registrationPerTypeIndex.typeIndex)

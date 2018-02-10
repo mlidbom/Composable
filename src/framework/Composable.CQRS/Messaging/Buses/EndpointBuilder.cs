@@ -101,9 +101,12 @@ namespace Composable.Messaging.Buses
                 Component.For<IServiceBusControl>()
                          .UsingFactoryMethod((IInterprocessTransport interprocessTransport, IInbox inbox, CommandScheduler commandScheduler) => new ServiceBusControl(interprocessTransport, inbox, commandScheduler, configuration))
                          .LifestyleSingleton(),
-                Component.For<IServiceBusSession, IRemoteApiNavigatorSession, ILocalApiNavigatorSession>()
-                         .UsingFactoryMethod((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry) =>
-                                                 new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry))
+                Component.For<IRemoteApiNavigatorSession>()
+                         .UsingFactoryMethod((IInterprocessTransport interprocessTransport) => new RemoteApiBrowserSession(interprocessTransport))
+                         .LifestyleScoped(),
+                Component.For<IServiceBusSession, ILocalApiNavigatorSession>()
+                         .UsingFactoryMethod((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteApiNavigatorSession remoteNavigator) =>
+                                                 new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry, remoteNavigator))
                          .LifestyleScoped(),
                 Component.For<IEventstoreEventPublisher>()
                          .UsingFactoryMethod((IInterprocessTransport interprocessTransport, IMessageHandlerRegistry messageHandlerRegistry) => new EventstoreEventPublisher(interprocessTransport, messageHandlerRegistry))

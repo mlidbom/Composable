@@ -1,6 +1,4 @@
-﻿using System;
-using System.Configuration;
-using Composable.DependencyInjection;
+﻿using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
@@ -11,7 +9,8 @@ using Composable.System;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Threading;
-using Composable.SystemExtensions.Threading;
+
+// ReSharper disable ImplicitlyCapturedClosure it is very much intentional :)
 
 namespace Composable.Messaging.Buses
 {
@@ -57,79 +56,38 @@ namespace Composable.Messaging.Buses
             RegisterHandlers = new MessageHandlerRegistrarWithDependencyInjectionSupport(registry, new OptimizedLazy<IServiceLocator>(() => _container.CreateServiceLocator()));
 
             _container.Register(
-                Component.For<ISqlConnectionProvider>()
-                         .UsingFactoryMethod(()=> connectionProvider)
-                         .LifestyleSingleton()
-                         .DelegateToParentServiceLocatorWhenCloning(),
-                Component.For<ITaskRunner>()
-                         .UsingFactoryMethod(() => new TaskRunner())
-                         .LifestyleSingleton(),
-                Component.For<EndpointId>().UsingFactoryMethod(() => configuration.Id).LifestyleSingleton(),
-                Component.For<EndpointConfiguration>()
-                         .UsingFactoryMethod(() => Configuration)
-                         .LifestyleSingleton(),
-                Component.For<ITypeMappingRegistar, ITypeMapper, TypeMapper>()
-                         .UsingFactoryMethod(() => _typeMapper)
-                         .LifestyleSingleton()
-                         .DelegateToParentServiceLocatorWhenCloning(),
-                Component.For<IInterprocessTransport>()
-                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
-                                                 new InterprocessTransport(globalStateTracker, timeSource, endpointSqlConnection, _typeMapper, configuration, taskRunner, serializer))
-                         .LifestyleSingleton(),
-                Component.For<IGlobalBusStateTracker>()
-                         .UsingFactoryMethod(() => globalStateTracker)
-                         .LifestyleSingleton(),
-                Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>()
-                         .UsingFactoryMethod(() => registry)
-                         .LifestyleSingleton(),
-                Component.For<IEventStoreSerializer>()
-                         .UsingFactoryMethod(() => new EventStoreSerializer(_typeMapper))
-                         .LifestyleSingleton(),
-                Component.For<IDocumentDbSerializer>()
-                         .UsingFactoryMethod(() => new DocumentDbSerializer(_typeMapper))
-                         .LifestyleSingleton(),
-                Component.For<IRemotableMessageSerializer>()
-                         .UsingFactoryMethod(() => new RemotableMessageSerializer(_typeMapper))
-                         .LifestyleSingleton(),
-                Component.For<IRemoteApiNavigatorSession>()
-                         .UsingFactoryMethod((IInterprocessTransport interprocessTransport) => new RemoteApiBrowserSession(interprocessTransport))
-                         .LifestyleScoped(),
-                Component.For<IEventstoreEventPublisher>()
-                         .UsingFactoryMethod((IInterprocessTransport interprocessTransport, IMessageHandlerRegistry messageHandlerRegistry) => new EventstoreEventPublisher(interprocessTransport, messageHandlerRegistry))
-                         .LifestyleScoped());
+                Singleton.For<ISqlConnectionProvider>().UsingFactoryMethod(() => connectionProvider).DelegateToParentServiceLocatorWhenCloning(),
+                Singleton.For<ITypeMappingRegistar, ITypeMapper, TypeMapper>().UsingFactoryMethod(() => _typeMapper).DelegateToParentServiceLocatorWhenCloning(),
+                Singleton.For<ITaskRunner>().UsingFactoryMethod(() => new TaskRunner()),
+                Singleton.For<EndpointId>().UsingFactoryMethod(() => configuration.Id),
+                Singleton.For<EndpointConfiguration>().UsingFactoryMethod(() => Configuration),
+                Singleton.For<IInterprocessTransport>().UsingFactoryMethod((IUtcTimeTimeSource timeSource, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => new InterprocessTransport(globalStateTracker, timeSource, endpointSqlConnection, _typeMapper, configuration, taskRunner, serializer)),
+                Singleton.For<IGlobalBusStateTracker>().UsingFactoryMethod(() => globalStateTracker),
+                Singleton.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>().UsingFactoryMethod(() => registry),
+                Singleton.For<IEventStoreSerializer>().UsingFactoryMethod(() => new EventStoreSerializer(_typeMapper)),
+                Singleton.For<IDocumentDbSerializer>().UsingFactoryMethod(() => new DocumentDbSerializer(_typeMapper)),
+                Singleton.For<IRemotableMessageSerializer>().UsingFactoryMethod(() => new RemotableMessageSerializer(_typeMapper)),
+                Singleton.For<IEventstoreEventPublisher>().UsingFactoryMethod((IInterprocessTransport interprocessTransport, IMessageHandlerRegistry messageHandlerRegistry) => new EventstoreEventPublisher(interprocessTransport, messageHandlerRegistry)),
+
+                Scoped.For<IRemoteApiNavigatorSession>().UsingFactoryMethod((IInterprocessTransport interprocessTransport) => new RemoteApiBrowserSession(interprocessTransport)));
 
             if(configuration.HasMessageHandlers)
             {
                 _container.Register(
-                    Component.For<IServiceBusSession, ILocalApiNavigatorSession>()
-                             .UsingFactoryMethod((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteApiNavigatorSession remoteNavigator) =>
-                                                     new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry, remoteNavigator))
-                             .LifestyleScoped(),
-                Component.For<IInbox>()
-                         .UsingFactoryMethod((IServiceLocator serviceLocator, EndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
-                                                 new Inbox(serviceLocator, globalStateTracker, registry, endpointConfiguration, endpointSqlConnection, _typeMapper, taskRunner, serializer))
-                         .LifestyleSingleton(),
-                Component.For<CommandScheduler>()
-                         .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))
-                         .LifestyleSingleton(),
-                Component.For<IAggregateTypeValidator>()
-                         .UsingFactoryMethod(() => new AggregateTypeValidator(_typeMapper))
-                         .LifestyleSingleton()
-                    );
+                    Singleton.For<IInbox>().UsingFactoryMethod((IServiceLocator serviceLocator, EndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => new Inbox(serviceLocator, globalStateTracker, registry, endpointConfiguration, endpointSqlConnection, _typeMapper, taskRunner, serializer)),
+                    Singleton.For<CommandScheduler>().UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource)),
+                    Singleton.For<IAggregateTypeValidator>().UsingFactoryMethod(() => new AggregateTypeValidator(_typeMapper)),
+
+                    Scoped.For<IServiceBusSession, ILocalApiNavigatorSession>().UsingFactoryMethod((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteApiNavigatorSession remoteNavigator) => new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry, remoteNavigator))
+                );
             }
 
             if(_container.RunMode == RunMode.Production)
             {
-                _container.Register(Component.For<IUtcTimeTimeSource>()
-                                             .UsingFactoryMethod(() => new DateTimeNowTimeSource())
-                                             .LifestyleSingleton()
-                                             .DelegateToParentServiceLocatorWhenCloning());
+                _container.Register(Singleton.For<IUtcTimeTimeSource>().UsingFactoryMethod(() => new DateTimeNowTimeSource()).DelegateToParentServiceLocatorWhenCloning());
             } else
             {
-                _container.Register(Component.For<IUtcTimeTimeSource, TestingTimeSource>()
-                                             .UsingFactoryMethod(() => TestingTimeSource.FollowingSystemClock)
-                                             .LifestyleSingleton()
-                                             .DelegateToParentServiceLocatorWhenCloning());
+                _container.Register(Singleton.For<IUtcTimeTimeSource, TestingTimeSource>().UsingFactoryMethod(() => TestingTimeSource.FollowingSystemClock).DelegateToParentServiceLocatorWhenCloning());
             }
         }
     }

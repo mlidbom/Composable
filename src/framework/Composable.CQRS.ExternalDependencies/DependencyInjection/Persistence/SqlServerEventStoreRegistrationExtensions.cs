@@ -78,24 +78,19 @@ namespace Composable.DependencyInjection.Persistence
 
             migrations = migrations ?? new List<IEventMigration>();
 
-            @this.Register(Component.For<IEnumerable<IEventMigration>>()
-                                    .UsingFactoryMethod(() => migrations)
-                                    .LifestyleSingleton());
+            @this.Register(Singleton.For<IEnumerable<IEventMigration>>().UsingFactoryMethod(() => migrations));
 
-            @this.Register(Component.For<EventCache>()
-                                    .UsingFactoryMethod(() => new EventCache())
-                                    .LifestyleSingleton());
+            @this.Register(Singleton.For<EventCache>().UsingFactoryMethod(() => new EventCache()));
 
             if (@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
-                @this.Register(Component.For<IEventStore>()
+                @this.Register(Singleton.For<IEventStore>()
                                         .UsingFactoryMethod(() => new InMemoryEventStore(migrations: migrations))
-                                        .LifestyleSingleton()
                                         .DelegateToParentServiceLocatorWhenCloning());
             } else
             {
                 @this.Register(
-                    Component.For<IEventStorePersistenceLayer>()
+                    Singleton.For<IEventStorePersistenceLayer>()
                                 .UsingFactoryMethod((ISqlConnectionProvider connectionProvider1, ITypeMapper typeIdMapper) =>
                                                     {
                                                         var connectionProvider = new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider1.GetConnectionProvider(connectionName).ConnectionString));
@@ -104,19 +99,16 @@ namespace Composable.DependencyInjection.Persistence
                                                         var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
                                                         var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager);
                                                         return new EventStorePersistenceLayer<IEventStoreUpdater>(schemaManager, eventReader, eventWriter);
-                                                    })
-                                .LifestyleSingleton());
+                                                    }));
 
 
-                @this.Register(Component.For<IEventStore>()
-                                        .UsingFactoryMethod((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache eventCache) => new EventStore(persistenceLayer, serializer, eventCache, migrations))
-                                        .LifestyleScoped());
+                @this.Register(Scoped.For<IEventStore>()
+                                        .UsingFactoryMethod((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache eventCache) => new EventStore(persistenceLayer, serializer, eventCache, migrations)));
             }
 
-            @this.Register(Component.For<IEventStoreUpdater, IEventStoreReader>()
+            @this.Register(Scoped.For<IEventStoreUpdater, IEventStoreReader>()
                                     .UsingFactoryMethod((IEventstoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
-                                                            new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator))
-                                    .LifestyleScoped());
+                                                            new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
 
             return new SqlServerEventStoreRegistrationBuilder();
         }
@@ -146,28 +138,25 @@ namespace Composable.DependencyInjection.Persistence
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSessionInterface, TReaderInterface>());
 
 
-            @this.Register(Component.For<EventCache<TSessionInterface>>()
-                                    .UsingFactoryMethod(() => new EventCache<TSessionInterface>())
-                                    .LifestyleSingleton());
+            @this.Register(Singleton.For<EventCache<TSessionInterface>>()
+                                    .UsingFactoryMethod(() => new EventCache<TSessionInterface>()));
 
             if (@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
-                @this.Register(Component.For<InMemoryEventStore<TSessionInterface, TReaderInterface>>()
+                @this.Register(Singleton.For<InMemoryEventStore<TSessionInterface, TReaderInterface>>()
                                         .UsingFactoryMethod(() => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations()))
-                                        .LifestyleSingleton()
                                         .DelegateToParentServiceLocatorWhenCloning());
 
-                @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
+                @this.Register(Scoped.For<IEventStore<TSessionInterface, TReaderInterface>>()
                                         .UsingFactoryMethod((InMemoryEventStore<TSessionInterface, TReaderInterface> store) =>
                                                             {
                                                                 store.TestingOnlyReplaceMigrations(migrations());
                                                                 return store;
-                                                            })
-                                        .LifestyleScoped());
+                                                            }));
             } else
             {
                 @this.Register(
-                    Component.For<IEventStorePersistenceLayer<TSessionInterface>>()
+                    Singleton.For<IEventStorePersistenceLayer<TSessionInterface>>()
                                 .UsingFactoryMethod((ISqlConnectionProvider connectionProvider1, ITypeMapper typeIdMapper) =>
                                                     {
                                                         var connectionProvider = connectionProvider1.GetConnectionProvider(connectionName);
@@ -176,33 +165,29 @@ namespace Composable.DependencyInjection.Persistence
                                                         var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
                                                         var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager);
                                                         return new EventStorePersistenceLayer<TSessionInterface>(schemaManager, eventReader, eventWriter);
-                                                    })
-                                .LifestyleSingleton());
+                                                    }));
 
 
-                @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
+                @this.Register(Scoped.For<IEventStore<TSessionInterface, TReaderInterface>>()
                                         .UsingFactoryMethod(
                                             (IEventStorePersistenceLayer<TSessionInterface> persistenceLayer, IEventStoreSerializer serializer, EventCache<TSessionInterface> cache) =>
                                                 new EventStore<TSessionInterface, TReaderInterface>(
                                                     persistenceLayer: persistenceLayer,
                                                     serializer: serializer,
                                                     migrations: migrations(),
-                                                    cache: cache))
-                                        .LifestyleScoped());
+                                                    cache: cache)));
             }
 
-            @this.Register(Component.For<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()
+            @this.Register(Scoped.For<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()
                                     .UsingFactoryMethod((IEventstoreEventPublisher eventPublisher, IEventStore<TSessionInterface, TReaderInterface> eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
-                                                            new EventStoreUpdater<TSessionInterface, TReaderInterface>(eventPublisher, eventStore, timeSource, aggregateTypeValidator))
-                                    .LifestyleScoped());
+                                                            new EventStoreUpdater<TSessionInterface, TReaderInterface>(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
 
             var sessionType = EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType;
             var constructor = (Func<IInterceptor[], IEventStoreUpdater, TSessionInterface>)Constructor.Compile.ForReturnType(sessionType).WithArguments<IInterceptor[], IEventStoreUpdater>();
             var emptyInterceptorArray = new IInterceptor[0];
 
-            @this.Register(Component.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())
-                                    .UsingFactoryMethod(EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType, locator => constructor(emptyInterceptorArray, locator.Resolve<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()))
-                                    .LifestyleScoped());
+            @this.Register(Scoped.For<TSessionInterface, TReaderInterface>()
+                                    .UsingFactoryMethod(EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType, locator => constructor(emptyInterceptorArray, locator.Resolve<IEventStoreUpdater<TSessionInterface, TReaderInterface>>())));
         }
 
         //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.

@@ -50,22 +50,19 @@ namespace Composable.DependencyInjection.Persistence
 
             if(@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
-                @this.Register(Component.For<IDocumentDb>()
+                @this.Register(Singleton.For<IDocumentDb>()
                                          .UsingFactoryMethod((IDocumentDbSerializer serializer) => new InMemoryDocumentDb(serializer))
-                                         .LifestyleSingleton()
                                          .DelegateToParentServiceLocatorWhenCloning());
 
             } else
             {
-                @this.Register(Component.For<IDocumentDb>()
-                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb(new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider.GetConnectionProvider(connectionName).ConnectionString)), timeSource, serializer))
-                                         .LifestyleSingleton());
+                @this.Register(Singleton.For<IDocumentDb>()
+                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb(new LazySqlServerConnection(new OptimizedLazy<string>(() => connectionProvider.GetConnectionProvider(connectionName).ConnectionString)), timeSource, serializer)));
             }
 
 
-            @this.Register(Component.For<IDocumentDbSession, IDocumentDbUpdater, IDocumentDbReader, IDocumentDbBulkReader>()
-                                    .UsingFactoryMethod((IDocumentDb documentDb) => new DocumentDbSession(documentDb))
-                                    .LifestyleScoped());
+            @this.Register(Scoped.For<IDocumentDbSession, IDocumentDbUpdater, IDocumentDbReader, IDocumentDbBulkReader>()
+                                    .UsingFactoryMethod((IDocumentDb documentDb) => new DocumentDbSession(documentDb)));
 
             return new DocumentDbRegistrationBuilder();
         }
@@ -83,33 +80,28 @@ namespace Composable.DependencyInjection.Persistence
 
             if(@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
-                @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
+                @this.Register(Singleton.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .UsingFactoryMethod((IDocumentDbSerializer serializer) => new InMemoryDocumentDb<TUpdater, TReader, TBulkReader>(serializer))
-                                         .LifestyleSingleton()
                                          .DelegateToParentServiceLocatorWhenCloning());
 
             } else
             {
-                @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionProvider.GetConnectionProvider(connectionName), timeSource, serializer))
-                                         .LifestyleSingleton());
+                @this.Register(Singleton.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
+                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionProvider.GetConnectionProvider(connectionName), timeSource, serializer)));
             }
 
 
-            @this.Register(Component.For<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()
-                                     .UsingFactoryMethod((IDocumentDb<TUpdater, TReader, TBulkReader> documentDb) => new DocumentDbSession<TUpdater, TReader, TBulkReader>(documentDb))
-                                     .LifestyleScoped());
+            @this.Register(Scoped.For<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()
+                                     .UsingFactoryMethod((IDocumentDb<TUpdater, TReader, TBulkReader> documentDb) => new DocumentDbSession<TUpdater, TReader, TBulkReader>(documentDb)));
 
             var sessionType = DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType;
             var constructor = Constructor.Compile.ForReturnType<TUpdater>().WithImplementingType(sessionType).WithArguments<IInterceptor[], IDocumentDbSession>();
 
             var emptyInterceptorArray = new IInterceptor[0];
 
-            @this.Register(Component.For<TUpdater, TReader, TBulkReader>()
+            @this.Register(Scoped.For<TUpdater, TReader, TBulkReader>()
                                     .UsingFactoryMethod(DocumentDbSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType,
-                                                        kernel => constructor(emptyInterceptorArray, kernel.Resolve<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()))
-                                    .LifestyleScoped()
-                          );
+                                                        kernel => constructor(emptyInterceptorArray, kernel.Resolve<IDocumentDbSession<TUpdater, TReader, TBulkReader>>())));
         }
 
         //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.

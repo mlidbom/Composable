@@ -19,7 +19,7 @@ namespace Composable.DependencyInjection
             {
                 setup(builder.Container);
                 //Hack to get the host to be disposed by the container when the container is disposed.
-                builder.Container.Register(Component.For<ITestingEndpointHost>().UsingFactoryMethod(() => host).LifestyleSingleton().DelegateToParentServiceLocatorWhenCloning());
+                builder.Container.Register(Singleton.For<ITestingEndpointHost>().UsingFactoryMethod(() => host).DelegateToParentServiceLocatorWhenCloning());
             });
 
             return endpoint.ServiceLocator;
@@ -30,9 +30,7 @@ namespace Composable.DependencyInjection
             //IDependencyInjectionContainer container = new SimpleInjectorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);
             //IDependencyInjectionContainer container = new WindsorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);
             IDependencyInjectionContainer container = new ComposableDependencyInjectionContainer(runMode);
-            container.Register(Component.For<IServiceLocator>()
-                                        .UsingFactoryMethod(() => container.CreateServiceLocator())
-                                        .LifestyleSingleton());
+            container.Register(Singleton.For<IServiceLocator>().UsingFactoryMethod(() => container.CreateServiceLocator()));
             return container;
         }
     }

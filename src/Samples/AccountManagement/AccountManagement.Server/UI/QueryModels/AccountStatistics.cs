@@ -49,7 +49,7 @@ namespace AccountManagement.UI.QueryModels
 
         internal static void Register(IEndpointBuilder builder)
         {
-            builder.Container.Register(Component.For<StatisticsSingletonInitializer>().UsingFactoryMethod(() => new StatisticsSingletonInitializer()).LifestyleSingleton());
+            builder.Container.Register(Singleton.For<StatisticsSingletonInitializer>().UsingFactoryMethod(() => new StatisticsSingletonInitializer()));
             MaintainStatisticsWhenRelevantEventsAreReceived(builder.RegisterHandlers);
         }
 

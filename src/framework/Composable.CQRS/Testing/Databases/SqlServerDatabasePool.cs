@@ -74,13 +74,13 @@ namespace Composable.Testing.Databases
 
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
         readonly Guid _poolId = Guid.NewGuid();
+        IReadOnlyList<Database> _transientCache = new List<Database>();
 
         ILogger _log = Logger.For<SqlServerDatabasePool>();
         bool _disposed;
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 
-        IReadOnlyList<Database> _transientCache = new List<Database>();
         public ISqlConnection ConnectionProviderFor(string reservationName) => _guard.Update(() =>
         {
             Contract.Assert.That(!_disposed, "!_disposed");

@@ -100,7 +100,7 @@ FROM {EventTable.Name} {lockHint} ";
         public IEnumerable<EventReadDataRow> StreamEvents(int batchSize)
         {
             SqlDecimal lastReadEventReadOrder = 0;
-            using (var connection = _connectionManager.OpenConnection())
+            using (var connection = _connectionManager.OpenConnection(suppressTransactionWarning: true))
             {
                 var done = false;
                 while (!done)

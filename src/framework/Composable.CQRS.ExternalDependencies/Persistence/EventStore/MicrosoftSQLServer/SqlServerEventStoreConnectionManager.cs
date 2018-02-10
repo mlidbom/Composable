@@ -34,10 +34,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         {
             if (!suppressTransactionWarning && Transaction.Current == null)
             {
-                this.Log().Warning($@"No ambient transaction. This is dangerous:
-AT: 
-
-{Environment.StackTrace}");
+                throw new Exception("You must use a transaction to make modifications to the event store.");
             }
             return _connectionManager.OpenConnection();
         }

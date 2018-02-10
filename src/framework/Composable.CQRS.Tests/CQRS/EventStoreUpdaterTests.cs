@@ -75,7 +75,7 @@ namespace Composable.Tests.CQRS
         [Test]
         public void WhenFetchingAggregateThatDoesNotExistNoSuchAggregateExceptionIsThrown()
         {
-            UseInScope(session => Assert.Throws<AggregateNotFoundException>(() => session.Get<User>(Guid.NewGuid())));
+            UseInTransactionalScope(session => Assert.Throws<AggregateNotFoundException>(() => session.Get<User>(Guid.NewGuid())));
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace Composable.Tests.CQRS
 
             UseInTransactionalScope(session => session.Save(user));
 
-            UseInScope(session =>
+            UseInTransactionalScope(session =>
                        {
                            var loadedUser = session.Get<User>(user.Id);
 
@@ -162,7 +162,7 @@ namespace Composable.Tests.CQRS
 
             UseInTransactionalScope(session => session.Save(user));
 
-            UseInScope(session =>
+            UseInTransactionalScope(session =>
                        {
                            var loaded1 = session.Get<User>(user.Id);
                            var loaded2 = session.Get<User>(user.Id);
@@ -201,7 +201,7 @@ namespace Composable.Tests.CQRS
                                         loadedUser.ChangePassword("NewPassword");
                                     });
 
-            UseInScope(session =>
+            UseInTransactionalScope(session =>
                        {
                            var loadedUser = session.Get<User>(user.Id);
                            Assert.That(loadedUser.Password, Is.EqualTo("NewPassword"));
@@ -222,7 +222,7 @@ namespace Composable.Tests.CQRS
                                         loadedUser.ChangeEmail("NewEmail");
                                     });
 
-            UseInScope(session =>
+            UseInTransactionalScope(session =>
                        {
                            var loadedUser = session.Get<User>(user.Id);
                            Assert.That(loadedUser.Email, Is.EqualTo("OriginalEmail"));
@@ -512,7 +512,7 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session => user = User.Register(session, "email@email.se", "password", Guid.NewGuid()));
 
             ChangeAnotherUsersEmailInOtherInstance();
-            UseInScope(session => session.Get<User>(otherUser.Id).Email.Should().Be("otheruser@email.new"));
+            UseInTransactionalScope(session => session.Get<User>(otherUser.Id).Email.Should().Be("otheruser@email.new"));
 
             UseInTransactionalScope(session => user.ChangeEmail("some@email.new"));
         }

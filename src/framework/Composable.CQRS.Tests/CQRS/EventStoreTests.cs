@@ -61,8 +61,10 @@ namespace Composable.Tests.CQRS
             const int batchSize = 100;
             const int moreEventsThanTheBatchSizeForStreamingEvents = batchSize + 10;
             var aggregateId = Guid.NewGuid();
-            _eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents)
-                                   .Select(i => new SomeEvent(aggregateId, i)));
+
+            TransactionScopeCe.Execute(() => _eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents)
+                                   .Select(i => new SomeEvent(aggregateId, i))));
+
             var stream = _eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize(batchSize: batchSize)
                                    .ToList();
 
@@ -93,7 +95,7 @@ namespace Composable.Tests.CQRS
                 .AggregateId;
             aggregatesWithEvents.Remove(2);
 
-            _eventStore.DeleteAggregate(toRemove);
+            TransactionScopeCe.Execute(()=> _eventStore.DeleteAggregate(toRemove));
 
             foreach(var kvp in aggregatesWithEvents)
             {

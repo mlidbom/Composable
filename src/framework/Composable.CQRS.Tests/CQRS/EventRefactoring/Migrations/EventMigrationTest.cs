@@ -451,7 +451,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).Publish(new E2()));
 
-                var aggregate = serviceLocator.ExecuteInIsolatedScope(() => Session().Get<TestAggregate>(id));
+                var aggregate = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id));
 
                 var expected = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E2>()).History;
                 AssertStreamsAreIdentical(expected: expected, migratedHistory: aggregate.History, descriptionOfHistory: "migrated history");

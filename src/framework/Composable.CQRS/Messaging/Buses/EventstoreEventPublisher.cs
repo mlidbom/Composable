@@ -13,7 +13,7 @@ namespace Composable.Messaging.Buses
 
         public EventstoreEventPublisher(IInterprocessTransport transport, IMessageHandlerRegistry handlerRegistry)
         {
-            _contextGuard = new CombinationUsageGuard(new SingleTransactionUsageGuard());
+            _contextGuard = new SingleTransactionUsageGuard();
             _transport = transport;
             _handlerRegistry = handlerRegistry;
         }

@@ -4,12 +4,6 @@ using Composable.Persistence.EventStore;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    interface IServiceBusControl
-    {
-        Task StartAsync();
-        void Stop();
-    }
-
     interface IEventstoreEventPublisher
     {
         void Publish(IAggregateEvent anEvent);

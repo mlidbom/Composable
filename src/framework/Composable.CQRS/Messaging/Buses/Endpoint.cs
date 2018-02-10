@@ -24,8 +24,8 @@ namespace Composable.Messaging.Buses
         public EndPointAddress Address => _inbox.Address;
         IGlobalBusStateTracker _globalStateTracker;
         IInbox _inbox;
-
-        IServiceBusControl BusControl => ServiceLocator.Resolve<IServiceBusControl>();
+        IInterprocessTransport _transport;
+        CommandScheduler _commandScheduler;
 
         public async Task InitAsync()
         {
@@ -34,11 +34,25 @@ namespace Composable.Messaging.Buses
             IsRunning = true;
 
             _globalStateTracker = ServiceLocator.Resolve<IGlobalBusStateTracker>();
-            _inbox = ServiceLocator.Resolve<IInbox>();
+            _transport = ServiceLocator.Resolve<IInterprocessTransport>();
 
             RunSanityChecks();
 
-            await BusControl.StartAsync();
+            var initTasks = new List<Task>()
+                            {
+                                _transport.StartAsync()
+                            };
+
+            if(!_configuration.IsPureClientEndpoint)
+            {
+                _commandScheduler = ServiceLocator.Resolve<CommandScheduler>();
+                _inbox = ServiceLocator.Resolve<IInbox>();
+
+                initTasks.Add(_inbox.StartAsync());
+                initTasks.Add(_commandScheduler.StartAsync());
+            }
+
+            await Task.WhenAll(initTasks);
         }
 
         public async Task ConnectAsync(IEnumerable<EndPointAddress> knownEndpointAddresses)
@@ -61,7 +75,12 @@ namespace Composable.Messaging.Buses
         {
             Assert.State.Assert(IsRunning);
             IsRunning = false;
-            BusControl.Stop();
+            _transport.Stop();
+            if(!_configuration.IsPureClientEndpoint)
+            {
+                _commandScheduler.Stop();
+                _inbox.Stop();
+            }
         }
 
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) => _globalStateTracker?.AwaitNoMessagesInFlight(timeoutOverride);

@@ -66,9 +66,6 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod(() => _typeMapper)
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning(),
-                Component.For<IAggregateTypeValidator>()
-                         .UsingFactoryMethod(() => new AggregateTypeValidator(_typeMapper))
-                         .LifestyleSingleton(),
                 Component.For<IInterprocessTransport>()
                          .UsingFactoryMethod((IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionProvider, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
                                                  new InterprocessTransport(globalStateTracker, timeSource, endpointSqlConnection, _typeMapper, configuration, taskRunner, serializer))
@@ -91,16 +88,6 @@ namespace Composable.Messaging.Buses
                 Component.For<IRemotableMessageSerializer>()
                          .UsingFactoryMethod(() => new RemotableMessageSerializer(_typeMapper))
                          .LifestyleSingleton(),
-                Component.For<IInbox>()
-                         .UsingFactoryMethod((IServiceLocator serviceLocator, IGlobalBusStateTracker stateTracker, EndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
-                                                 new Inbox(serviceLocator, stateTracker, registry, endpointConfiguration, endpointSqlConnection, _typeMapper, taskRunner, serializer))
-                         .LifestyleSingleton(),
-                Component.For<CommandScheduler>()
-                         .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))
-                         .LifestyleSingleton(),
-                Component.For<IServiceBusControl>()
-                         .UsingFactoryMethod((IInterprocessTransport interprocessTransport, IInbox inbox, CommandScheduler commandScheduler) => new ServiceBusControl(interprocessTransport, inbox, commandScheduler, configuration))
-                         .LifestyleSingleton(),
                 Component.For<IRemoteApiNavigatorSession>()
                          .UsingFactoryMethod((IInterprocessTransport interprocessTransport) => new RemoteApiBrowserSession(interprocessTransport))
                          .LifestyleScoped(),
@@ -114,7 +101,17 @@ namespace Composable.Messaging.Buses
                     Component.For<IServiceBusSession, ILocalApiNavigatorSession>()
                              .UsingFactoryMethod((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteApiNavigatorSession remoteNavigator) =>
                                                      new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry, remoteNavigator))
-                             .LifestyleScoped()
+                             .LifestyleScoped(),
+                Component.For<IInbox>()
+                         .UsingFactoryMethod((IServiceLocator serviceLocator, IGlobalBusStateTracker stateTracker, EndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) =>
+                                                 new Inbox(serviceLocator, stateTracker, registry, endpointConfiguration, endpointSqlConnection, _typeMapper, taskRunner, serializer))
+                         .LifestyleSingleton(),
+                Component.For<CommandScheduler>()
+                         .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))
+                         .LifestyleSingleton(),
+                Component.For<IAggregateTypeValidator>()
+                         .UsingFactoryMethod(() => new AggregateTypeValidator(_typeMapper))
+                         .LifestyleSingleton()
                     );
             }
 

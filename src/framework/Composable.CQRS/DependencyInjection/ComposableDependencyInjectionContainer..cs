@@ -76,9 +76,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        TService IServiceLocator.Resolve<TService>() => Resolve<TService>();
         TService[] IServiceLocator.ResolveAll<TService>() => throw new NotImplementedException();
-        TService IServiceLocatorKernel.Resolve<TService>() => Resolve<TService>();
 
         IDisposable IServiceLocator.BeginScope()
         {
@@ -104,7 +102,7 @@ namespace Composable.DependencyInjection
         }
 
         [ThreadStatic] static ComponentRegistration _parentComponent;
-        internal TService Resolve<TService>()
+        public TService Resolve<TService>() where TService : class
         {
             var (registrations, instance) = _cache.Get<TService>();
 

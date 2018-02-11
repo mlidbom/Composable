@@ -27,7 +27,7 @@ namespace AccountManagement.UI.MVC
             new AccountManagementServerDomainBootstrapper().RegisterWith(_host);
             _clientEndpoint = _host.RegisterClientEndpointForRegisteredEndpoints();
             _host.Start();
-            services.AddScoped(_ => _clientEndpoint.ServiceLocator.Resolve<IServiceBusSession>());
+            services.AddScoped(_ => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

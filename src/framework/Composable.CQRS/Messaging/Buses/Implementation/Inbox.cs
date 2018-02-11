@@ -38,7 +38,7 @@ namespace Composable.Messaging.Buses.Implementation
         CancellationTokenSource _cancellationTokenSource;
         IRemotableMessageSerializer _serializer;
 
-        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnection connectionFactory, ITypeMapper typeMapper, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
+        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
         {
             _configuration = configuration;
             _typeMapper = typeMapper;

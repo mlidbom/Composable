@@ -12,10 +12,10 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         readonly ITypeMapper _typeMapper;
 
         readonly SqlServerEventStoreConnectionManager _connectionManager;
-        public SqlServerEventStoreEventTypeToIdMapper(ISqlConnection connection, ITypeMapper typeMapper)
+        public SqlServerEventStoreEventTypeToIdMapper(ISqlConnectionProvider connectionProvider, ITypeMapper typeMapper)
         {
             _typeMapper = typeMapper;
-            _connectionManager = new SqlServerEventStoreConnectionManager(connection);
+            _connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
         }
 
         public Type GetType(int id)

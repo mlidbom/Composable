@@ -28,7 +28,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             static class SchemaManager
             {
-                public static async Task EnsureTablesExistAsync(ISqlConnection connectionFactory)
+                public static async Task EnsureTablesExistAsync(ISqlConnectionProvider connectionFactory)
                 {
                     using(var connection = connectionFactory.OpenConnection())
                     {

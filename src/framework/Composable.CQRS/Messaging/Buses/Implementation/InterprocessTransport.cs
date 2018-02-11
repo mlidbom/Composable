@@ -35,7 +35,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
         ITaskRunner _taskRunner;
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnection connectionFactory, ITypeMapper typeMapper, EndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => _state.WithExclusiveAccess(@this =>
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, EndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => _state.WithExclusiveAccess(@this =>
         {
             _taskRunner = taskRunner;
             @this.Configuration = configuration;

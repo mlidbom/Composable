@@ -45,11 +45,11 @@ namespace Composable.Messaging.Buses
             Configuration = configuration;
 
             var connectionProvider = container.RunMode.IsTesting
-                                         ? new OptimizedLazy<ISqlConnectionProvider>(() => new SqlServerDatabasePoolSqlConnectionProvider())
-                                         : new OptimizedLazy<ISqlConnectionProvider>(() => new AppConfigSqlConnectionProvider());
+                                         ? (ISqlConnectionProviderSource)new SqlServerDatabasePoolSqlConnectionProviderSource()
+                                         : new AppConfigSqlConnectionProviderSource();
 
-            var endpointSqlConnection = new LazySqlServerConnection(
-                () => _container.CreateServiceLocator().Resolve<ISqlConnectionProvider>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString);
+            var endpointSqlConnection = new LazySqlServerConnectionProvider(
+                () => _container.CreateServiceLocator().Resolve<ISqlConnectionProviderSource>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString);
 
             _typeMapper = new TypeMapper(endpointSqlConnection);
 
@@ -57,7 +57,7 @@ namespace Composable.Messaging.Buses
             RegisterHandlers = new MessageHandlerRegistrarWithDependencyInjectionSupport(registry, new OptimizedLazy<IServiceLocator>(() => _container.CreateServiceLocator()));
 
             _container.Register(
-                Singleton.For<ISqlConnectionProvider>().CreatedBy(() => connectionProvider.Value).DelegateToParentServiceLocatorWhenCloning(),
+                Singleton.For<ISqlConnectionProviderSource>().CreatedBy(() => connectionProvider).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITypeMappingRegistar, ITypeMapper, TypeMapper>().CreatedBy(() => _typeMapper).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITaskRunner>().CreatedBy(() => new TaskRunner()),
                 Singleton.For<EndpointId>().CreatedBy(() => configuration.Id),

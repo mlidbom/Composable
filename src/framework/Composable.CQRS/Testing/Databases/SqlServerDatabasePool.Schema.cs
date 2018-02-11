@@ -30,7 +30,7 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{_databaseRootFolderOverride}\{
 ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;
 ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
-            _masterConnection.ExecuteNonQuery(createDatabaseCommand);
+            _masterConnectionProvider.ExecuteNonQuery(createDatabaseCommand);
 
             //SafeConsole.WriteLine($"Created: {databaseName}");
         }
@@ -60,7 +60,7 @@ ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 alter database [{db.Name()}] set single_user with rollback immediate
 drop database [{db.Name()}]";
                 _log.Info(dropCommand);
-                _masterConnection.ExecuteNonQuery(dropCommand);
+                _masterConnectionProvider.ExecuteNonQuery(dropCommand);
             }
 
             _log.Warning("Creating new databases");
@@ -76,7 +76,7 @@ drop database [{db.Name()}]";
         static IReadOnlyList<Database> ListPoolDatabases()
         {
             var databases = new List<string>();
-            _masterConnection.UseCommand(
+            _masterConnectionProvider.UseCommand(
                 action: command =>
                         {
                             command.CommandText = "select name from sysdatabases";

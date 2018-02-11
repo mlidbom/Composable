@@ -13,6 +13,7 @@ using Composable.System.Data.SqlClient;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
+using ISqlConnectionProvider = Composable.System.Data.SqlClient.ISqlConnectionProvider;
 
 namespace Composable.Testing.Databases
 {
@@ -21,7 +22,7 @@ namespace Composable.Testing.Databases
         const string InitialCatalogMaster = ";Initial Catalog=master;";
 
         static string _masterConnectionString;
-        static SqlServerConnection _masterConnection;
+        static SqlServerConnectionProvider _masterConnectionProvider;
 
         static MachineWideSharedObject<SharedState> _machineWideState;
 
@@ -57,14 +58,14 @@ namespace Composable.Testing.Databases
                 _masterConnectionString = masterConnectionString;
             } else
             {
-                _masterConnectionString = new AppConfigSqlConnectionProvider().GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
+                _masterConnectionString = new AppConfigSqlConnectionProviderSource().GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
             }
 
             _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
             _machineWideState = MachineWideSharedObject<SharedState>.For(_masterConnectionString, usePersistentFile: true);
 
-            _masterConnection = new SqlServerConnection(_masterConnectionString);
+            _masterConnectionProvider = new SqlServerConnectionProvider(_masterConnectionString);
 
             Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
                                  $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
@@ -81,7 +82,7 @@ namespace Composable.Testing.Databases
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 
-        public ISqlConnection ConnectionProviderFor(string reservationName) => new LazySqlServerConnection(() => ConnectionStringFor(reservationName));
+        public ISqlConnectionProvider ConnectionProviderFor(string reservationName) => new LazySqlServerConnectionProvider(() => ConnectionStringFor(reservationName));
 
         string ConnectionStringFor(string reservationName) => _guard.Update(() =>
         {
@@ -163,7 +164,7 @@ namespace Composable.Testing.Databases
         void ResetDatabase(Database db)
         {
             TransactionScopeCe.SuppressAmbient(
-                () => new SqlServerConnection(db.ConnectionString(this))
+                () => new SqlServerConnectionProvider(db.ConnectionString(this))
                     .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel()));
         }
 

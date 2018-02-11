@@ -13,9 +13,9 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         bool _verifiedConnectionString;
         readonly EventTableSchemaManager _eventTable = new EventTableSchemaManager();
         readonly EventTypeTableSchemaManager _eventTypeTable = new EventTypeTableSchemaManager();
-        public SqlServerEventStoreSchemaManager(ISqlConnection connectionString, ITypeMapper typeMapper)
+        public SqlServerEventStoreSchemaManager(ISqlConnectionProvider connectionString, ITypeMapper typeMapper)
         {
-            _connectionManager = connectionString;
+            _connectionProvider = connectionString;
             _typeMapper = typeMapper;
         }
 
@@ -23,7 +23,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
-        readonly ISqlConnection _connectionManager;
+        readonly ISqlConnectionProvider _connectionProvider;
 
         SqlConnection OpenConnection()
         {
@@ -34,7 +34,7 @@ AT:
 
 {Environment.StackTrace}");
             }
-            return _connectionManager.OpenConnection();
+            return _connectionProvider.OpenConnection();
         }
 
         public void SetupSchemaIfDatabaseUnInitialized() => TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
@@ -43,7 +43,7 @@ AT:
             {
                 using(var connection = OpenConnection())
                 {
-                    IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionManager, _typeMapper);
+                    IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionProvider, _typeMapper);
 
                     connection.ExecuteNonQuery($@"
 IF NOT EXISTS(SELECT NAME FROM sys.tables WHERE name = '{_eventTable.Name}')

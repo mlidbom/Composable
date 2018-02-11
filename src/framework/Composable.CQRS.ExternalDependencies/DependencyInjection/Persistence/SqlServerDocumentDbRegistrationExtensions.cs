@@ -13,6 +13,8 @@ using Composable.System.Linq;
 using Composable.System.Reflection;
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
+using ISqlConnectionProvider = Composable.System.Data.SqlClient.ISqlConnectionProvider;
+
 // ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
 
 namespace Composable.DependencyInjection.Persistence
@@ -25,7 +27,7 @@ namespace Composable.DependencyInjection.Persistence
 
         [UsedImplicitly] class SqlServerDocumentDb<TUpdater, TReader, TBulkReader> : SqlServerDocumentDb, IDocumentDb<TUpdater, TReader, TBulkReader>
         {
-            public SqlServerDocumentDb(ISqlConnection connection, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) : base(connection, timeSource, serializer)
+            public SqlServerDocumentDb(ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) : base(connectionProvider, timeSource, serializer)
             {
             }
         }
@@ -57,7 +59,7 @@ namespace Composable.DependencyInjection.Persistence
             } else
             {
                 @this.Register(Singleton.For<IDocumentDb>()
-                                         .CreatedBy((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb(new LazySqlServerConnection(() => connectionProvider.GetConnectionProvider(connectionName).ConnectionString), timeSource, serializer)));
+                                         .CreatedBy((System.Configuration.ISqlConnectionProviderSource connectionProviderSource, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb(connectionProviderSource.GetConnectionProvider(connectionName), timeSource, serializer)));
             }
 
 
@@ -87,7 +89,7 @@ namespace Composable.DependencyInjection.Persistence
             } else
             {
                 @this.Register(Singleton.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .CreatedBy((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionProvider.GetConnectionProvider(connectionName), timeSource, serializer)));
+                                         .CreatedBy((System.Configuration.ISqlConnectionProviderSource connectionProviderSource, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionProviderSource.GetConnectionProvider(connectionName), timeSource, serializer)));
             }
 
 

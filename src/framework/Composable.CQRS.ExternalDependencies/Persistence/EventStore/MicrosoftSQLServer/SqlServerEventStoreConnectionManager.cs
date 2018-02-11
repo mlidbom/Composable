@@ -8,8 +8,8 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     class SqlServerEventStoreConnectionManager
     {
-        readonly ISqlConnection _connectionManager;
-        public SqlServerEventStoreConnectionManager(ISqlConnection connectionString) => _connectionManager = connectionString;
+        readonly ISqlConnectionProvider _connectionProvider;
+        public SqlServerEventStoreConnectionManager(ISqlConnectionProvider connectionString) => _connectionProvider = connectionString;
 
         void UseConnection(Action<SqlConnection> action, bool suppressTransactionWarning = false)
         {
@@ -36,7 +36,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             {
                 throw new Exception("You must use a transaction to make modifications to the event store.");
             }
-            return _connectionManager.OpenConnection();
+            return _connectionProvider.OpenConnection();
         }
     }
 }

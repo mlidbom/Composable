@@ -7,17 +7,17 @@ using Composable.System.Linq;
 
 namespace Composable.System.Data.SqlClient
 {
-    class SqlServerConnection : LazySqlServerConnection
+    class SqlServerConnectionProvider : LazySqlServerConnectionProvider
     {
-        public SqlServerConnection(string connectionString) : base(() => connectionString) {}
+        public SqlServerConnectionProvider(string connectionString) : base(() => connectionString) {}
     }
 
-    class LazySqlServerConnection : ISqlConnection
+    class LazySqlServerConnectionProvider : ISqlConnectionProvider
     {
         readonly OptimizedLazy<string> _connectionString;
         public string ConnectionString => _connectionString.Value;
 
-        public LazySqlServerConnection(Func<string> connectionStringFactory) => _connectionString = new OptimizedLazy<string>(connectionStringFactory);
+        public LazySqlServerConnectionProvider(Func<string> connectionStringFactory) => _connectionString = new OptimizedLazy<string>(connectionStringFactory);
 
         public SqlConnection OpenConnection()
         {
@@ -71,13 +71,13 @@ namespace Composable.System.Data.SqlClient
 
     static class SqlConnectionProviderExtensions
     {
-        public static int ExecuteNonQuery(this ISqlConnection @this, string commandText) => @this.UseCommand(command => command.SetCommandText(commandText).ExecuteNonQuery());
+        public static int ExecuteNonQuery(this ISqlConnectionProvider @this, string commandText) => @this.UseCommand(command => command.SetCommandText(commandText).ExecuteNonQuery());
 
-        public static object ExecuteScalar(this ISqlConnection @this, string commandText) => @this.UseCommand(command => command.SetCommandText(commandText).ExecuteScalar());
+        public static object ExecuteScalar(this ISqlConnectionProvider @this, string commandText) => @this.UseCommand(command => command.SetCommandText(commandText).ExecuteScalar());
 
-        public static void ExecuteReader(this ISqlConnection @this, string commandText, Action<SqlDataReader> forEach) => @this.UseCommand(command => command.ExecuteReader(commandText, forEach));
+        public static void ExecuteReader(this ISqlConnectionProvider @this, string commandText, Action<SqlDataReader> forEach) => @this.UseCommand(command => command.ExecuteReader(commandText, forEach));
 
-        public static void UseConnection(this ISqlConnection @this, Action<SqlConnection> action)
+        public static void UseConnection(this ISqlConnectionProvider @this, Action<SqlConnection> action)
         {
             using(var connection = @this.OpenConnection())
             {
@@ -85,7 +85,7 @@ namespace Composable.System.Data.SqlClient
             }
         }
 
-        static TResult UseConnection<TResult>(this ISqlConnection @this, Func<SqlConnection, TResult> action)
+        static TResult UseConnection<TResult>(this ISqlConnectionProvider @this, Func<SqlConnection, TResult> action)
         {
             using(var connection = @this.OpenConnection())
             {
@@ -93,9 +93,9 @@ namespace Composable.System.Data.SqlClient
             }
         }
 
-        public static void UseCommand(this ISqlConnection @this, Action<SqlCommand> action) => @this.UseConnection(connection => connection.UseCommand(action));
+        public static void UseCommand(this ISqlConnectionProvider @this, Action<SqlCommand> action) => @this.UseConnection(connection => connection.UseCommand(action));
 
-        public static TResult UseCommand<TResult>(this ISqlConnection @this, Func<SqlCommand, TResult> action) => @this.UseConnection(connection => connection.UseCommand(action));
+        public static TResult UseCommand<TResult>(this ISqlConnectionProvider @this, Func<SqlCommand, TResult> action) => @this.UseConnection(connection => connection.UseCommand(action));
     }
 
     static class SqlCommandExtensions
@@ -128,7 +128,7 @@ namespace Composable.System.Data.SqlClient
         static SqlCommand AddParameter(SqlCommand @this, string name, SqlDbType type, object value) => @this.AddParameter(new SqlParameter(name, type) {Value = value});
     }
 
-    interface ISqlConnection
+    interface ISqlConnectionProvider
     {
         SqlConnection OpenConnection();
         string ConnectionString { get; }

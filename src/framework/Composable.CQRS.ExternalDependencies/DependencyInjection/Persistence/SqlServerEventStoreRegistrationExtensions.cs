@@ -89,9 +89,9 @@ namespace Composable.DependencyInjection.Persistence
             {
                 @this.Register(
                     Singleton.For<IEventStorePersistenceLayer>()
-                                .CreatedBy((ISqlConnectionProvider connectionProvider1, ITypeMapper typeIdMapper) =>
+                                .CreatedBy((ISqlConnectionProviderSource connectionProviderSource, ITypeMapper typeIdMapper) =>
                                                     {
-                                                        var connectionProvider = new LazySqlServerConnection(() => connectionProvider1.GetConnectionProvider(connectionName).ConnectionString);
+                                                        var connectionProvider = connectionProviderSource.GetConnectionProvider(connectionName);
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
                                                         var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, typeIdMapper);
                                                         var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
@@ -155,9 +155,9 @@ namespace Composable.DependencyInjection.Persistence
             {
                 @this.Register(
                     Singleton.For<IEventStorePersistenceLayer<TSessionInterface>>()
-                                .CreatedBy((ISqlConnectionProvider connectionProvider1, ITypeMapper typeIdMapper) =>
+                                .CreatedBy((ISqlConnectionProviderSource connectionProviderSource, ITypeMapper typeIdMapper) =>
                                                     {
-                                                        var connectionProvider = connectionProvider1.GetConnectionProvider(connectionName);
+                                                        var connectionProvider = connectionProviderSource.GetConnectionProvider(connectionName);
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
                                                         var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, typeIdMapper);
                                                         var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);

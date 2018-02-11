@@ -8,8 +8,8 @@ namespace Composable.Persistence.DocumentDb.SqlServer
         {
             readonly object _lockObject = new object();
             bool _initialized = false;
-            readonly ISqlConnection _connectionManager;
-            public SchemaManager(ISqlConnection connectionManager) => _connectionManager = connectionManager;
+            readonly ISqlConnectionProvider _connectionProvider;
+            public SchemaManager(ISqlConnectionProvider connectionProvider) => _connectionProvider = connectionProvider;
 
             internal void EnsureInitialized()
             {
@@ -17,7 +17,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
                 {
                     if(!_initialized)
                     {
-                        using(var connection = _connectionManager.OpenConnection())
+                        using(var connection = _connectionProvider.OpenConnection())
                         {
                                 connection.ExecuteNonQuery(@"
 IF NOT EXISTS(select name from sys.tables where name = 'ValueType')

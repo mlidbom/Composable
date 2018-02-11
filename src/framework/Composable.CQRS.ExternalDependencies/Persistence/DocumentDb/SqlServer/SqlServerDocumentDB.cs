@@ -17,7 +17,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 {
     partial class SqlServerDocumentDb : IDocumentDb
     {
-        readonly ISqlConnection _connectionManager;
+        readonly ISqlConnectionProvider _connectionProvider;
         readonly IUtcTimeTimeSource _timeSource;
         readonly IDocumentDbSerializer _serializer;
 
@@ -28,10 +28,10 @@ namespace Composable.Persistence.DocumentDb.SqlServer
         ConcurrentDictionary<Type, int> _knownTypes = null;
         SchemaManager _schemaManager;
 
-        internal SqlServerDocumentDb(ISqlConnection connection, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
+        internal SqlServerDocumentDb(ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
         {
-            _schemaManager = new SqlServerDocumentDb.SchemaManager(connection);
-            _connectionManager = connection;
+            _schemaManager = new SqlServerDocumentDb.SchemaManager(connectionProvider);
+            _connectionProvider = connectionProvider;
             _timeSource = timeSource;
             _serializer = serializer;
         }
@@ -51,7 +51,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
             value = default(TValue);
 
             object found;
-            using(var connection = _connectionManager.OpenConnection())
+            using(var connection = _connectionProvider.OpenConnection())
             {
                 using(var command = connection.CreateCommand())
                 {
@@ -92,7 +92,7 @@ WHERE Id=@Id AND ValueTypeId
 
             var idString = GetIdString(id);
             EnsureTypeRegistered(value.GetType());
-            using(var connection = _connectionManager.OpenConnection())
+            using(var connection = _connectionProvider.OpenConnection())
             {
                 using(var command = connection.CreateCommand())
                 {
@@ -137,7 +137,7 @@ WHERE Id=@Id AND ValueTypeId
         public int RemoveAll<T>()
         {
             EnsureInitialized();
-            using(var connection = _connectionManager.OpenConnection())
+            using(var connection = _connectionProvider.OpenConnection())
             {
                 using(var command = connection.CreateCommand())
                 {
@@ -154,7 +154,7 @@ WHERE Id=@Id AND ValueTypeId
         public void Remove(object id, Type documentType)
         {
             EnsureInitialized();
-            using(var connection = _connectionManager.OpenConnection())
+            using(var connection = _connectionProvider.OpenConnection())
             {
                 using(var command = connection.CreateCommand())
                 {
@@ -182,7 +182,7 @@ WHERE Id=@Id AND ValueTypeId
         {
             EnsureInitialized();
             values = values.ToList();
-            using(var connection = _connectionManager.OpenConnection())
+            using(var connection = _connectionProvider.OpenConnection())
             {
                 foreach(var entry in values)
                 {
@@ -222,7 +222,7 @@ WHERE Id=@Id AND ValueTypeId
                 yield break;
             }
 
-            using(var connection = _connectionManager.OpenConnection())
+            using(var connection = _connectionProvider.OpenConnection())
             {
                 using(var loadCommand = connection.CreateCommand())
                 {
@@ -249,7 +249,7 @@ WHERE Id=@Id AND ValueTypeId
                 yield break;
             }
 
-            using(var connection = _connectionManager.OpenConnection())
+            using(var connection = _connectionProvider.OpenConnection())
             {
                 using(var loadCommand = connection.CreateCommand())
                 {
@@ -278,7 +278,7 @@ WHERE Id=@Id AND ValueTypeId
                 yield break;
             }
 
-            using(var connection = _connectionManager.OpenConnection())
+            using(var connection = _connectionProvider.OpenConnection())
             {
                 using(var loadCommand = connection.CreateCommand())
                 {
@@ -303,7 +303,7 @@ WHERE Id=@Id AND ValueTypeId
             {
                 if(!IsKnownType(type))
                 {
-                    using(var connection = _connectionManager.OpenConnection())
+                    using(var connection = _connectionProvider.OpenConnection())
                     {
                         using(var command = connection.CreateCommand())
                         {
@@ -373,7 +373,7 @@ ELSE
         {
             lock(_lockObject)
             {
-                _connectionManager.ExecuteReader("SELECT DISTINCT ValueType, Id FROM ValueType",
+                _connectionProvider.ExecuteReader("SELECT DISTINCT ValueType, Id FROM ValueType",
                                          reader => _knownTypes.TryAdd(reader.GetString(0).AsType(), reader.GetInt32(1)));
             }
         }

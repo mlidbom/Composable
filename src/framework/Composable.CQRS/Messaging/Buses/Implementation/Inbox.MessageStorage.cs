@@ -8,9 +8,9 @@ namespace Composable.Messaging.Buses.Implementation
     {
         public partial class MessageStorage
         {
-            readonly ISqlConnection _connectionFactory;
+            readonly ISqlConnectionProvider _connectionFactory;
 
-            public MessageStorage(ISqlConnection connectionFactory) => _connectionFactory = connectionFactory;
+            public MessageStorage(ISqlConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
 
             public void SaveMessage(TransportMessage.InComing message) =>
                 _connectionFactory.UseCommand(

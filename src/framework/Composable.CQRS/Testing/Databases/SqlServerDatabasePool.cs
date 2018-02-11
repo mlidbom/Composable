@@ -34,8 +34,6 @@ namespace Composable.Testing.Databases
         {
             _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 30.Seconds();
 
-            _masterConnection = new SqlServerConnection(_masterConnectionString);
-
             var tempDirectory = Environment.GetEnvironmentVariable("COMPOSABLE_TEMP_DRIVE");
 
             if(!tempDirectory.IsNullOrWhiteSpace())
@@ -65,6 +63,8 @@ namespace Composable.Testing.Databases
             _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
             _machineWideState = MachineWideSharedObject<SharedState>.For(_masterConnectionString, usePersistentFile: true);
+
+            _masterConnection = new SqlServerConnection(_masterConnectionString);
 
             Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
                                  $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");

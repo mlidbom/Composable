@@ -8,7 +8,7 @@ namespace Composable.System.Configuration
     {
         readonly SqlServerDatabasePool _pool;
         public SqlServerDatabasePoolSqlConnectionProvider() => _pool = new SqlServerDatabasePool();
-        public ISqlConnection GetConnectionProvider(string parameterName) => new LazySqlServerConnection(() => _pool.ConnectionProviderFor(parameterName).ConnectionString);
+        public ISqlConnection GetConnectionProvider(string parameterName) => _pool.ConnectionProviderFor(parameterName);
         public void Dispose() => _pool.Dispose();
     }
 }

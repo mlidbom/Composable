@@ -62,7 +62,8 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
         {
             _manager.Dispose();
 
-            _manager.Invoking(man => man.ConnectionProviderFor(Db1))
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            _manager.Invoking(man => man.ConnectionProviderFor(Db1).ConnectionString.ToString())
                     .ShouldThrow<Exception>()
                     .Where(exception => exception.Message.ToLower()
                                                  .Contains("disposed"));

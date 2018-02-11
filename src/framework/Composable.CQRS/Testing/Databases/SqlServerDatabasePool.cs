@@ -81,7 +81,9 @@ namespace Composable.Testing.Databases
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 
-        public ISqlConnection ConnectionProviderFor(string reservationName) => _guard.Update(() =>
+        public ISqlConnection ConnectionProviderFor(string reservationName) => new LazySqlServerConnection(() => ConnectionProviderForInternal(reservationName).ConnectionString);
+
+        ISqlConnection ConnectionProviderForInternal(string reservationName) => _guard.Update(() =>
         {
             Contract.Assert.That(!_disposed, "!_disposed");
             Initializer.EnsureInitialized();

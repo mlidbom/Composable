@@ -27,6 +27,6 @@ namespace Composable.System
             }
         }
 
-        public OptimizedLazy(Func<TValue> factory) { _factory = factory; }
+        public OptimizedLazy(Func<TValue> factory) => _factory = factory;
     }
 }

@@ -81,9 +81,9 @@ namespace Composable.Testing.Databases
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 
-        public ISqlConnection ConnectionProviderFor(string reservationName) => new LazySqlServerConnection(() => ConnectionProviderForInternal(reservationName).ConnectionString);
+        public ISqlConnection ConnectionProviderFor(string reservationName) => new LazySqlServerConnection(() => ConnectionStringFor(reservationName));
 
-        ISqlConnection ConnectionProviderForInternal(string reservationName) => _guard.Update(() =>
+        string ConnectionStringFor(string reservationName) => _guard.Update(() =>
         {
             Contract.Assert.That(!_disposed, "!_disposed");
             Initializer.EnsureInitialized();
@@ -92,7 +92,7 @@ namespace Composable.Testing.Databases
             if(reservedDatabase != null)
             {
                 _log.Debug($"Retrieved reserved pool database: {reservedDatabase.Id}");
-                return new Connection(reservedDatabase, reservationName, this);
+                return reservedDatabase.ConnectionString(this);
             }
 
             var startTime = DateTime.Now;
@@ -157,7 +157,7 @@ namespace Composable.Testing.Databases
                 throw new Exception("Something went wrong with the database pool and it was rebooted. You may see other test failures due to this", exception);
             }
 
-            return new Connection(reservedDatabase, reservationName, this);
+            return reservedDatabase.ConnectionString(this);
         });
 
         void ResetDatabase(Database db)

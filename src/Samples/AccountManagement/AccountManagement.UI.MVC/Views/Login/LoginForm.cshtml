@@ -6,6 +6,7 @@
 
 <form method="post" asp-action="Login">
 
+	@Html.HiddenFor(@this => @this.MessageId)
 	@Html.LabelFor(@this => @this.Email)
 	@Html.TextBoxFor(@this => @this.Email)
 

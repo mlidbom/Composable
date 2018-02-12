@@ -12,7 +12,7 @@ namespace AccountManagement.API
         {
             public class ChangeEmail : BusApi.Remotable.AtMostOnce.Command
             {
-                [UsedImplicitly] ChangeEmail():base(MessageIdHandling.Reuse) {}
+                [UsedImplicitly] public ChangeEmail():base(MessageIdHandling.Reuse) {}
                 internal ChangeEmail(Guid accountId):base(MessageIdHandling.Create) => AccountId = accountId;
 
                 [Required] [EntityId] public Guid AccountId { get; set; }

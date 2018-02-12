@@ -39,7 +39,7 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     _message = _serializer.DeserializeMessage(MessageType, Body);
 
-                    Assert.State.Assert(!(_message is BusApi.Remotable.ExactlyOnce.IMessage) || MessageId == (_message as BusApi.Remotable.ExactlyOnce.IMessage).MessageId);
+                    Assert.State.Assert(!(_message is BusApi.Remotable.ExactlyOnce.IMessage) || MessageId == (_message as BusApi.Remotable.ExactlyOnce.IMessage).DeduplicationId);
                 }
                 return _message;
             }
@@ -114,7 +114,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public static OutGoing Create(BusApi.Remotable.IMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
-                var messageId = (message as BusApi.Remotable.IAtMostOnceMessage)?.MessageId ?? Guid.NewGuid();
+                var messageId = (message as BusApi.Remotable.IAtMostOnceMessage)?.DeduplicationId ?? Guid.NewGuid();
                 //performance: detect implementation of BinarySerialized and use that when available
                 var body = serializer.SerializeMessage(message);
                 return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is BusApi.Remotable.ExactlyOnce.IMessage);

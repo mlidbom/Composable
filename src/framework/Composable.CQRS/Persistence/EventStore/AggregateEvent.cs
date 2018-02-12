@@ -59,6 +59,6 @@ namespace Composable.Persistence.EventStore
         internal long? InsertAfter { get; set; }
 
         [JsonIgnore]
-        public Guid MessageId => EventId;
+        public Guid DeduplicationId => EventId;
     }
 }

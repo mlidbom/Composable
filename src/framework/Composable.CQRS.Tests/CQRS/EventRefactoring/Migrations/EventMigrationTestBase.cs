@@ -251,7 +251,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                    expected,
                                    config => config.RespectingRuntimeTypes()
                                                    .WithStrictOrdering()
-                                                   .Excluding(@event => @event.MessageId)
+                                                   .Excluding(@event => @event.DeduplicationId)
                                                    .Excluding(@event => @event.EventId)
                                                    .Excluding(@event => @event.InsertionOrder)
                                                    .Excluding(@event => @event.InsertAfter)

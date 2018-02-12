@@ -16,14 +16,14 @@ namespace AccountManagement.API
             {
                 public LogIn() : base(MessageIdHandling.Reuse) {}
 
-                public static LogIn Create() => new LogIn {MessageId = Guid.NewGuid()};
+                public static LogIn Create() => new LogIn {DeduplicationId = Guid.NewGuid()};
 
                 [Required] [Email] public string Email { get; set; }
                 [Required] public string Password { get; set; }
 
                 internal LogIn WithValues(string email, string password) => new LogIn
                                                                             {
-                                                                                MessageId = MessageId,
+                                                                                DeduplicationId = DeduplicationId,
                                                                                 Email = email,
                                                                                 Password = password
                                                                             };

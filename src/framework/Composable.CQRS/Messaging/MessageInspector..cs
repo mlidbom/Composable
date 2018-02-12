@@ -19,7 +19,7 @@ namespace Composable.Messaging
             if(message is BusApi.StrictlyLocal.IMessage strictlyLocalMessage) throw new AttemptToSendStrictlyLocalMessageRemotely(strictlyLocalMessage);
             if(message is BusApi.IRequireTransactionalSender && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(BusApi.IRequireTransactionalSender).FullName} but there is no transaction.");
             if(message is BusApi.IForbidTransactionalRemoteSender && Transaction.Current != null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(BusApi.IForbidTransactionalRemoteSender).FullName} but there is a transaction.");
-            if(message is BusApi.Remotable.IAtMostOnceMessage atMostOnce && atMostOnce.MessageId == Guid.Empty) throw new Exception($"Message id was Guid.Empty for message of type: {message.GetType().FullName}");
+            if(message is BusApi.Remotable.IAtMostOnceMessage atMostOnce && atMostOnce.DeduplicationId == Guid.Empty) throw new Exception($"Message id was Guid.Empty for message of type: {message.GetType().FullName}");
 
             AssertValid(message.GetType());
         }

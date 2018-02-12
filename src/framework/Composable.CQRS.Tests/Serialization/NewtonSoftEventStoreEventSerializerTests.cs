@@ -116,7 +116,7 @@ namespace Composable.Tests.Serialization
             roundTripped.ShouldBeEquivalentTo(eventWithOnlySubclassValues,
                 config => config.Excluding(@event => @event.UtcTimeStamp)//Timestamp is defaulted in the constructor used by serialization.
                         .Excluding(@event => @event.EventId)
-                        .Excluding(@event => @event.MessageId)
+                        .Excluding(@event => @event.DeduplicationId)
                 );
         }
 

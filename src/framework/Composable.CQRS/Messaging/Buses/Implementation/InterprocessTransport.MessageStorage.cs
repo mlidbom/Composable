@@ -33,7 +33,7 @@ INSERT {OutboxMessages.TableName}
             ({OutboxMessages.MessageId},  {OutboxMessages.TypeIdGuidValue}, {OutboxMessages.Body}) 
     VALUES (@{OutboxMessages.MessageId}, @{OutboxMessages.TypeIdGuidValue}, @{OutboxMessages.Body})
 ")
-                            .AddParameter(OutboxMessages.MessageId, message.MessageId)
+                            .AddParameter(OutboxMessages.MessageId, message.DeduplicationId)
                             .AddParameter(OutboxMessages.TypeIdGuidValue, _typeMapper.GetId(message.GetType()).GuidValue)
                             //performance: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
                             .AddNVarcharMaxParameter(OutboxMessages.Body, _serializer.SerializeMessage(message))

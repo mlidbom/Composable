@@ -101,7 +101,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
         protected class RegisterUserCommand : BusApi.Remotable.AtMostOnce.Command<UserRegisteredConfirmationResource>
         {
-            RegisterUserCommand() : base(MessageIdHandling.Reuse) {}
+            RegisterUserCommand() : base(DeduplicationIdHandling.Reuse) {}
 
             public static RegisterUserCommand Create(string name) => new RegisterUserCommand()
                                                                      {

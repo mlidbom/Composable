@@ -14,7 +14,7 @@ namespace AccountManagement.API
         {
             public partial class Register : BusApi.Remotable.AtMostOnce.Command<Register.RegistrationAttemptResult>, IValidatableObject
             {
-                public Register():base(MessageIdHandling.Reuse) {}
+                public Register():base(DeduplicationIdHandling.Reuse) {}
 
                 public static Register Create() => new Register
                                                    {

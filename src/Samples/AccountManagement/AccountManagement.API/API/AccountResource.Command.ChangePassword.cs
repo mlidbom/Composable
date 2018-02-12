@@ -13,8 +13,8 @@ namespace AccountManagement.API
         {
             public class ChangePassword : BusApi.Remotable.AtMostOnce.Command, IValidatableObject
             {
-                [UsedImplicitly] public ChangePassword() : base(MessageIdHandling.Reuse) {}
-                public ChangePassword(Guid accountId):base(MessageIdHandling.Create) => AccountId = accountId;
+                [UsedImplicitly] public ChangePassword() : base(DeduplicationIdHandling.Reuse) {}
+                public ChangePassword(Guid accountId):base(DeduplicationIdHandling.Create) => AccountId = accountId;
 
                 [Required] [EntityId] public Guid AccountId { get; set; }
                 [Required] public string OldPassword { get; set; }

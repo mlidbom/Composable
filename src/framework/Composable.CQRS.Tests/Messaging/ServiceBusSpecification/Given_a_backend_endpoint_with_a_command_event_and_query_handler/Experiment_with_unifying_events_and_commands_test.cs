@@ -120,7 +120,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             {
                 public Guid UserId { get; private set; } = Guid.NewGuid();
 
-                RegisterUserCommand() : base(MessageIdHandling.Reuse) {}
+                RegisterUserCommand() : base(DeduplicationIdHandling.Reuse) {}
 
                 internal static RegisterUserCommand Create() => new RegisterUserCommand(){ DeduplicationId =  Guid.NewGuid()};
             }

@@ -12,8 +12,8 @@ namespace AccountManagement.API
         {
             public class ChangeEmail : BusApi.Remotable.AtMostOnce.Command
             {
-                [UsedImplicitly] public ChangeEmail():base(MessageIdHandling.Reuse) {}
-                internal ChangeEmail(Guid accountId):base(MessageIdHandling.Create) => AccountId = accountId;
+                [UsedImplicitly] public ChangeEmail():base(DeduplicationIdHandling.Reuse) {}
+                internal ChangeEmail(Guid accountId):base(DeduplicationIdHandling.Create) => AccountId = accountId;
 
                 [Required] [EntityId] public Guid AccountId { get; set; }
                 [Required] [Email] public string Email { get; set; }

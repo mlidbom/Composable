@@ -14,7 +14,7 @@ namespace AccountManagement.API
         {
             public partial class LogIn : BusApi.Remotable.AtMostOnce.Command<LogIn.LoginAttemptResult>
             {
-                public LogIn() : base(MessageIdHandling.Reuse) {}
+                public LogIn() : base(DeduplicationIdHandling.Reuse) {}
 
                 public static LogIn Create() => new LogIn {DeduplicationId = Guid.NewGuid()};
 

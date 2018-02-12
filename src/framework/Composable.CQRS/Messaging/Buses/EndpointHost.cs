@@ -39,14 +39,16 @@ namespace Composable.Messaging.Buses
 
         IEndpoint InternalRegisterEndpoint(EndpointConfiguration configuration, Action<IEndpointBuilder> setup)
         {
-            var builder = new EndpointBuilder(GlobalBusStateTracker, _containerFactory(_mode), configuration);
+            using(var builder = new EndpointBuilder(GlobalBusStateTracker, _containerFactory(_mode), configuration))
+            {
 
-            setup(builder);
+                setup(builder);
 
-            var endpoint = builder.Build();
+                var endpoint = builder.Build();
 
-            Endpoints.Add(endpoint);
-            return endpoint;
+                Endpoints.Add(endpoint);
+                return endpoint;
+            }
         }
 
         static readonly EndpointConfiguration ClientEndpointConfiguration = new EndpointConfiguration($"{nameof(TestingEndpointHost)}_Default_Client_Endpoint",

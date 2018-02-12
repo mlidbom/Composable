@@ -103,7 +103,7 @@ namespace Composable.Messaging.Buses
         }
     }
 
-    public interface IEndpointBuilder
+    public interface IEndpointBuilder : IDisposable
     {
         IDependencyInjectionContainer Container { get; }
         ITypeMappingRegistar TypeMapper { get; }

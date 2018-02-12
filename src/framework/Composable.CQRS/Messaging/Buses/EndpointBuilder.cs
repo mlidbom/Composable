@@ -1,4 +1,5 @@
-﻿using Composable.DependencyInjection;
+﻿using System;
+using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
@@ -18,6 +19,8 @@ namespace Composable.Messaging.Buses
     {
         readonly IDependencyInjectionContainer _container;
         readonly TypeMapper _typeMapper;
+        bool _builtSuccessfully;
+        readonly ISqlConnectionProviderSource _connectionProvider;
 
         public IDependencyInjectionContainer Container => _container;
         public ITypeMappingRegistar TypeMapper => _typeMapper;
@@ -29,7 +32,9 @@ namespace Composable.Messaging.Buses
         {
             SetupInternalTypeMap();
             BusApi.Internal.RegisterHandlers(RegisterHandlers);
-            return new Endpoint(_container.CreateServiceLocator(), Configuration);
+            var endpoint = new Endpoint(_container.CreateServiceLocator(), Configuration);
+            _builtSuccessfully = true;
+            return endpoint;
         }
 
         void SetupInternalTypeMap()
@@ -44,7 +49,7 @@ namespace Composable.Messaging.Buses
 
             Configuration = configuration;
 
-            var connectionProvider = container.RunMode.IsTesting
+            _connectionProvider = container.RunMode.IsTesting
                                          ? (ISqlConnectionProviderSource)new SqlServerDatabasePoolSqlConnectionProviderSource()
                                          : new AppConfigSqlConnectionProviderSource();
 
@@ -57,7 +62,7 @@ namespace Composable.Messaging.Buses
             RegisterHandlers = new MessageHandlerRegistrarWithDependencyInjectionSupport(registry, new OptimizedLazy<IServiceLocator>(() => _container.CreateServiceLocator()));
 
             _container.Register(
-                Singleton.For<ISqlConnectionProviderSource>().CreatedBy(() => connectionProvider).DelegateToParentServiceLocatorWhenCloning(),
+                Singleton.For<ISqlConnectionProviderSource>().CreatedBy(() => _connectionProvider).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITypeMappingRegistar, ITypeMapper, TypeMapper>().CreatedBy(() => _typeMapper).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITaskRunner>().CreatedBy(() => new TaskRunner()),
                 Singleton.For<EndpointId>().CreatedBy(() => configuration.Id),
@@ -87,6 +92,20 @@ namespace Composable.Messaging.Buses
             } else
             {
                 _container.Register(Singleton.For<IUtcTimeTimeSource, TestingTimeSource>().CreatedBy(() => TestingTimeSource.FollowingSystemClock).DelegateToParentServiceLocatorWhenCloning());
+            }
+        }
+
+        bool _disposed;
+        public void Dispose()
+        {
+            if(!_disposed)
+            {
+                _disposed = true;
+                if(!_builtSuccessfully)
+                {
+                    (_connectionProvider as IDisposable)?.Dispose();
+                    _container?.Dispose();
+                }
             }
         }
     }

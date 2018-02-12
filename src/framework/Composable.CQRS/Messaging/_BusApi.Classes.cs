@@ -64,7 +64,7 @@ namespace Composable.Messaging
                         {
                             if(_messageId != Guid.Empty)
                             {
-                                throw new Exception($"You cannot change the {nameof(MessageId)} once it has been set to a value other than Guid.Empty");
+                                throw new Exception($"Once {nameof(MessageId)} has been set it cannot be changed. It is only settable at all because many UI technologies require it to be.");
                             }
 
                             _messageId = value;

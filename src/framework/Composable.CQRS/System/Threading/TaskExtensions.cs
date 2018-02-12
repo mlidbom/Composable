@@ -19,8 +19,15 @@ namespace Composable.System.Threading
             }
             catch(AggregateException exception)
             {
-                ExceptionDispatchInfo.Capture(exception.InnerException).Throw();
+                if(exception.InnerExceptions.Count == 1)
+                {
+                    ExceptionDispatchInfo.Capture(exception.InnerException).Throw();
+                } else
+                {
+                    throw;
+                }
             }
+
             throw new Exception("Impossible!");
         }
 
@@ -33,8 +40,15 @@ namespace Composable.System.Threading
             }
             catch(AggregateException exception)
             {
-                ExceptionDispatchInfo.Capture(exception.InnerException).Throw();
+                if(exception.InnerExceptions.Count == 1)
+                {
+                    ExceptionDispatchInfo.Capture(exception.InnerException).Throw();
+                } else
+                {
+                    throw;
+                }
             }
+
             throw new Exception("Impossible!");
         }
     }

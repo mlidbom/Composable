@@ -23,7 +23,7 @@ namespace AccountManagement.API
 
                 internal LogIn WithValues(string email, string password) => new LogIn
                                                                             {
-                                                                                MessageId = Guid.NewGuid(),
+                                                                                MessageId = MessageId,
                                                                                 Email = email,
                                                                                 Password = password
                                                                             };

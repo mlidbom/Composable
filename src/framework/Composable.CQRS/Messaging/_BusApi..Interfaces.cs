@@ -66,6 +66,7 @@ namespace Composable.Messaging
 
             public static partial class AtMostOnce
             {
+                //todo: dangerous: Validate the design of implementing classes. A default constructor should result in DeduplicationId being Guid.Empty
                 public interface ICommand : IAtMostOnceMessage, Remotable.ICommand, IRequireRemoteResponse, IForbidTransactionalRemoteSender { }
                 public interface ICommand<TResult> : AtMostOnce.ICommand, Remotable.ICommand<TResult> { }
             }

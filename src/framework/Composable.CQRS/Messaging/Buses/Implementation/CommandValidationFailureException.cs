@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Composable.Messaging.Buses
+namespace Composable.Messaging.Buses.Implementation
 {
     public class CommandValidationFailureException : Exception
     {

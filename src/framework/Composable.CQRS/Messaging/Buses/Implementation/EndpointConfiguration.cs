@@ -1,4 +1,7 @@
-﻿namespace Composable.Messaging.Buses.Implementation
+﻿using Composable.DependencyInjection;
+using Composable.System.Configuration;
+
+namespace Composable.Messaging.Buses.Implementation
 {
     public class EndpointConfiguration
     {
@@ -10,11 +13,18 @@
 
         internal bool HasMessageHandlers => !IsPureClientEndpoint;
 
-        internal EndpointConfiguration(string name, EndpointId id)
+        internal EndpointConfiguration(string name, EndpointId id, IRunMode mode)
         {
             Name = name;
             Id = id;
-            Address = "tcp://localhost:0";
+            if(mode.IsTesting)
+            {
+                Address = "tcp://localhost:0";
+            } else
+            {
+                var port = new AppConfigConfigurationParameterProvider().GetString($"HostedEndpoint.{Name}.Port").Trim();
+                Address = $"tcp://localhost:{port}";
+            }
         }
     }
 }

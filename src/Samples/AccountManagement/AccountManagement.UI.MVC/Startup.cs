@@ -10,7 +10,7 @@ namespace AccountManagement.UI.MVC
 {
     public class Startup
     {
-        ITestingEndpointHost _host;
+        IEndpointHost _host;
         IEndpoint _clientEndpoint;
 
         public Startup(IConfiguration configuration) => Configuration = configuration;
@@ -23,8 +23,7 @@ namespace AccountManagement.UI.MVC
         {
             services.AddMvc();
 
-            _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
-            new AccountManagementServerDomainBootstrapper().RegisterWith(_host);
+            _host = EndpointHost.Production.Create(DependencyInjectionContainer.Create);
             _clientEndpoint = _host.RegisterClientEndpointForRegisteredEndpoints();
             _host.Start();
             services.AddScoped(_ => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>());

@@ -65,7 +65,10 @@ namespace Composable.Messaging.Buses.Implementation
 
         static void DispatchMessage(State @this, TransportMessage.OutGoing outGoingMessage)
         {
-            @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, @this.TimeSource.UtcNow);
+            if(outGoingMessage.IsExactlyOnceDeliveryMessage)
+            {
+                @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, @this.TimeSource.UtcNow);
+            }
 
             @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
             @this.DispatchQueue.Enqueue(outGoingMessage);

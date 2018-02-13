@@ -10,7 +10,7 @@ namespace Composable.Messaging.Buses
     {
         public TestingEndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory)
         {
-
+            GlobalBusStateTracker = new GlobalBusStateTracker();
         }
 
         public void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }

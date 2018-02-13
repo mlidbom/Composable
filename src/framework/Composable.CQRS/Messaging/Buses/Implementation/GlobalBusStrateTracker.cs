@@ -57,4 +57,12 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
     }
+
+    class NullOpGlobalBusStateTracker : IGlobalBusStateTracker
+    {
+        public IReadOnlyList<Exception> GetExceptions() => new List<Exception>();
+        public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage) { }
+        public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) { }
+        public void DoneWith(Guid message, Exception exception) { }
+    }
 }

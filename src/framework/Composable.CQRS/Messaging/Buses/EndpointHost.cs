@@ -17,12 +17,13 @@ namespace Composable.Messaging.Buses
         readonly Func<IRunMode, IDependencyInjectionContainer> _containerFactory;
         bool _disposed;
         protected readonly List<IEndpoint> Endpoints = new List<IEndpoint>();
-        internal readonly IGlobalBusStateTracker GlobalBusStateTracker = new GlobalBusStateTracker();
+        internal IGlobalBusStateTracker GlobalBusStateTracker;
 
         protected EndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory)
         {
             _mode = mode;
             _containerFactory = containerFactory;
+            GlobalBusStateTracker = new NullOpGlobalBusStateTracker();
         }
 
         public static class Production

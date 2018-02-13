@@ -1,9 +1,7 @@
-﻿using Composable.Messaging.Buses.Implementation;
-using Composable.Persistence.EventStore;
-using Composable.SystemExtensions.Threading;
+﻿using Composable.Persistence.EventStore;
 using JetBrains.Annotations;
 
-namespace Composable.Messaging.Buses
+namespace Composable.Messaging.Buses.Implementation
 {
     [UsedImplicitly] class EventstoreEventPublisher : IEventstoreEventPublisher
     {

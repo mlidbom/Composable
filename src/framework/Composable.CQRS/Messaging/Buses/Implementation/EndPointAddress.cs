@@ -1,7 +1,7 @@
 ﻿using Composable.Contracts;
 using Composable.DDD;
 
-namespace Composable.Messaging.Buses
+namespace Composable.Messaging.Buses.Implementation
 {
     public class EndPointAddress : ValueObject<EndPointAddress>
     {

@@ -7,7 +7,7 @@ using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Reflection;
 
-namespace Composable.Messaging.Buses
+namespace Composable.Messaging.Buses.Implementation
 {
     //performance: Use static caching + indexing trick for storing and retrieving values throughout this class. QueryTypeIndexFor<TQuery>.Index. Etc
     class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry

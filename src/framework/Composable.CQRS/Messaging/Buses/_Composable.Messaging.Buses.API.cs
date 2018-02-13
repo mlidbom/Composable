@@ -5,7 +5,6 @@ using Composable.Contracts;
 using Composable.DDD;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Messaging.Events;
 using Composable.Refactoring.Naming;
 using Newtonsoft.Json;
 
@@ -52,25 +51,6 @@ namespace Composable.Messaging.Buses
     ///<summary>Dispatches messages between processes.</summary>
     public interface IServiceBusSession : ILocalApiNavigatorSession, IRemoteApiNavigatorSession, IIntegrationBusSession
     {
-    }
-
-    interface IMessageHandlerRegistry
-    {
-        IReadOnlyList<Type> GetTypesNeedingMappings();
-
-        Action<object> GetCommandHandler(BusApi.ICommand message);
-
-        Func<BusApi.ICommand, object> GetCommandHandler(Type commandType);
-        Func<BusApi.IQuery, object> GetQueryHandler(Type commandType);
-        IReadOnlyList<Action<BusApi.IEvent>> GetEventHandlers(Type eventType);
-
-        Func<BusApi.IQuery<TResult>, TResult> GetQueryHandler<TResult>(BusApi.IQuery<TResult> query);
-
-        Func<BusApi.ICommand<TResult>, TResult> GetCommandHandler<TResult>(BusApi.ICommand<TResult> command);
-
-        IEventDispatcher<BusApi.IEvent> CreateEventDispatcher();
-
-        ISet<TypeId> HandledRemoteMessageTypeIds();
     }
 
     public interface IMessageHandlerRegistrar

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Buses.Implementation;
 using Composable.Refactoring.Naming;
 using Newtonsoft.Json;
 

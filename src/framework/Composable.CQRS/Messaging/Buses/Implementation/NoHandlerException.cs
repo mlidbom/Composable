@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.Messaging.Buses
+namespace Composable.Messaging.Buses.Implementation
 {
     class NoHandlerException : Exception
     {

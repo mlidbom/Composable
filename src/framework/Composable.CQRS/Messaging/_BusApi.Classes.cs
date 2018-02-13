@@ -69,6 +69,7 @@ namespace Composable.Messaging
                         }
                     }
 
+                    ///<summary>Allows for replacing the <see cref="DeduplicationId"/> in the rare cases when that is actually helpful. One example is when a command failed to execute due to backend business logic rules and you wish to reuse the entered values in the UI that the command is bound to. If you do not change the <see cref="DeduplicationId"/> when doing that the bus will keep returning the response from the first time you sent the command.</summary>
                     public void ReplaceDeduplicationId() => _deduplicationId = Guid.NewGuid();
                 }
 

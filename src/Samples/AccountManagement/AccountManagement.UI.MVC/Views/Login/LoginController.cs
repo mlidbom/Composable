@@ -2,6 +2,7 @@
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace AccountManagement.UI.MVC.Views.Login
 {
@@ -21,9 +22,11 @@ namespace AccountManagement.UI.MVC.Views.Login
             }
 
             ModelState.AddModelError("Something", "Login Failed");
-            return RedirectToAction("LoginForm", new { email = loginCommand.Email });
+            ModelState.Remove((AccountResource.Command.LogIn model) => model.DeduplicationId);
+            loginCommand.ReplaceDeduplicationId();
+            return View("LoginForm", loginCommand);
         }
 
-        public IActionResult LoginForm(string email = "") => View("LoginForm", _bus.Navigate(Api.Accounts.Command.Login()).WithValues(email, ""));
+        public IActionResult LoginForm() => View("LoginForm", _bus.Navigate(Api.Accounts.Command.Login()));
     }
 }

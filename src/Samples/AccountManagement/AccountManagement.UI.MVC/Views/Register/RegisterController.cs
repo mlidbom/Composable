@@ -4,6 +4,7 @@ using AccountManagement.Domain.Registration;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace AccountManagement.UI.MVC.Views.Register
 {
@@ -22,8 +23,10 @@ namespace AccountManagement.UI.MVC.Views.Register
                 case RegistrationAttemptStatus.Successful:
                     return View("ValidateYourEmail", result.RegisteredAccount);
                 case RegistrationAttemptStatus.EmailAlreadyRegistered:
-                    ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
-                    return View("RegistrationForm");
+                    ModelState.AddModelError((AccountResource.Command.Register model) => model.Email, "Email is already registered");
+                    ModelState.Remove((AccountResource.Command.Register model) => model.DeduplicationId);
+                    registrationCommand.ReplaceDeduplicationId();
+                    return View("RegistrationForm", registrationCommand);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

@@ -14,7 +14,10 @@ namespace Composable.Messaging.Buses.Implementation
             get
             {
                 var configurationValue = _settingsProvider.GetString("ServerEndpoints");
-                var addresses = configurationValue.Split(';').Select(stringValue => stringValue.Trim()).Select(stringValue => new EndPointAddress(stringValue)).ToList();
+                var addresses = configurationValue.Split(';')
+                                                  .Select(stringValue => stringValue.Trim())
+                                                  .Where(stringValue => !string.IsNullOrEmpty(stringValue))
+                                                  .Select(stringValue => new EndPointAddress(stringValue)).ToList();
                 return addresses;
             }
         }

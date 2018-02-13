@@ -11,6 +11,9 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <RootNamespace>AccountManagement</RootNamespace>
+    <ApplicationIcon />
+    <OutputType>Exe</OutputType>
+    <StartupObject />
   </PropertyGroup>
     
   <ItemGroup>

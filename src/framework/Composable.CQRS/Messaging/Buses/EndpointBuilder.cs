@@ -72,6 +72,7 @@ namespace Composable.Messaging.Buses
             RegisterHandlers = new MessageHandlerRegistrarWithDependencyInjectionSupport(registry, new OptimizedLazy<IServiceLocator>(() => _container.CreateServiceLocator()));
 
             _container.Register(
+                Singleton.For<IConfigurationParameterProvider>().CreatedBy(() => new AppConfigConfigurationParameterProvider()),
                 Singleton.For<ISqlConnectionProviderSource>().CreatedBy(() => _connectionProvider).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITypeMappingRegistar, ITypeMapper, TypeMapper>().CreatedBy(() => _typeMapper).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITaskRunner>().CreatedBy(() => new TaskRunner()),

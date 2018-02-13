@@ -26,6 +26,11 @@ namespace Composable.Messaging.Buses.Implementation
         Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remotable.NonTransactional.IQuery<TQueryResult> query);
     }
 
+    interface IEndpointRegistry
+    {
+        IEnumerable<EndPointAddress> ServerEndpoints { get; }
+    }
+
     interface IClientConnection : IDisposable
     {
         void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent @event);

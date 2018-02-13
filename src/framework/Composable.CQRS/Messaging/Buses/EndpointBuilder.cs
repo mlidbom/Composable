@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
@@ -43,9 +44,18 @@ namespace Composable.Messaging.Buses
             BusApi.MapTypes(TypeMapper);
         }
 
-        public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointConfiguration configuration)
+        public EndpointBuilder(IEndpointHost host, IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
             _container = container;
+
+            //todo: Find cleaner way of doing this.
+            if(host is IEndpointRegistry endpointRegistry)
+            {
+                _container.Register(Singleton.For<IEndpointRegistry>().Instance(endpointRegistry));
+            } else
+            {
+                _container.Register(Singleton.For<IEndpointRegistry>().CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => new AppConfigEndpointRegistry(configurationParameterProvider)));
+            }
 
             Configuration = configuration;
 

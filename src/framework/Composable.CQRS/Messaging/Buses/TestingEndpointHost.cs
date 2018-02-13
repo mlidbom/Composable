@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
+using Composable.Messaging.Buses.Implementation;
 
 namespace Composable.Messaging.Buses
 {
-    class TestingEndpointHost : EndpointHost, ITestingEndpointHost
+    class TestingEndpointHost : EndpointHost, ITestingEndpointHost, IEndpointRegistry
     {
-        public TestingEndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory) {}
+        public TestingEndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory)
+        {
+
+        }
 
         public void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }
 
@@ -49,5 +53,9 @@ namespace Composable.Messaging.Buses
         readonly List<Exception> _handledExceptions = new List<Exception>();
 
         List<Exception> GetThrownExceptions() => GlobalBusStateTracker.GetExceptions().ToList();
+
+        public IEnumerable<EndPointAddress> ServerEndpoints => Endpoints.Where(endpoint => endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds().Any())
+                                                                        .Select(@this => @this.Address)
+                                                                        .ToList();
     }
 }

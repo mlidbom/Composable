@@ -26,6 +26,8 @@ namespace Composable.Messaging.Buses
         IInbox _inbox;
         IInterprocessTransport _transport;
         CommandScheduler _commandScheduler;
+        IEndpointRegistry _endpointRegistry;
+        IInterprocessTransport _interProcessTransport;
 
         public async Task InitAsync()
         {
@@ -35,6 +37,8 @@ namespace Composable.Messaging.Buses
 
             _globalStateTracker = ServiceLocator.Resolve<IGlobalBusStateTracker>();
             _transport = ServiceLocator.Resolve<IInterprocessTransport>();
+            _endpointRegistry = ServiceLocator.Resolve<IEndpointRegistry>();
+            _interProcessTransport = ServiceLocator.Resolve<IInterprocessTransport>();
 
             RunSanityChecks();
 
@@ -43,6 +47,7 @@ namespace Composable.Messaging.Buses
                                 _transport.StartAsync()
                             };
 
+            //todo: find cleaner way of handling what an endpoint supports
             if(!_configuration.IsPureClientEndpoint)
             {
                 _commandScheduler = ServiceLocator.Resolve<CommandScheduler>();
@@ -55,10 +60,9 @@ namespace Composable.Messaging.Buses
             await Task.WhenAll(initTasks);
         }
 
-        public async Task ConnectAsync(IEnumerable<EndPointAddress> knownEndpointAddresses)
+        public async Task ConnectAsync()
         {
-            var endpointTransport = ServiceLocator.Resolve<IInterprocessTransport>();
-            await Task.WhenAll(knownEndpointAddresses.Select(address => endpointTransport.ConnectAsync(address)));
+            await Task.WhenAll(_endpointRegistry.ServerEndpoints.Select(address => _interProcessTransport.ConnectAsync(address)));
         }
 
         static void RunSanityChecks()

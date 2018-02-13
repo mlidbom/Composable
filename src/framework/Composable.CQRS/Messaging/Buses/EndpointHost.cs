@@ -39,7 +39,7 @@ namespace Composable.Messaging.Buses
 
         IEndpoint InternalRegisterEndpoint(EndpointConfiguration configuration, Action<IEndpointBuilder> setup)
         {
-            using(var builder = new EndpointBuilder(GlobalBusStateTracker, _containerFactory(_mode), configuration))
+            using(var builder = new EndpointBuilder(this, GlobalBusStateTracker, _containerFactory(_mode), configuration))
             {
 
                 setup(builder);
@@ -78,13 +78,7 @@ namespace Composable.Messaging.Buses
             _isStarted = true;
 
             await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.InitAsync())).NoMarshalling();
-
-            var endpointsWithRemoteMessageHandlers = Endpoints
-                                                    .Where(endpoint => endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds().Any())
-                                                    .Select(@this => @this.Address)
-                                                    .ToList();
-
-            await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.ConnectAsync(endpointsWithRemoteMessageHandlers))).NoMarshalling();
+            await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.ConnectAsync())).NoMarshalling();
         }
 
         public void Start() => StartAsync().WaitUnwrappingException();

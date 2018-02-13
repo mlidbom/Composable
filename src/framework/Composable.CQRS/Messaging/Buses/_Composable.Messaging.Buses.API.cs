@@ -68,7 +68,7 @@ namespace Composable.Messaging.Buses
         EndPointAddress Address { get; }
         bool IsRunning { get; }
         Task InitAsync();
-        Task ConnectAsync(IEnumerable<EndPointAddress> knownEndpointAddresses);
+        Task ConnectAsync();
         void Stop();
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
     }

@@ -14,6 +14,7 @@
 ### Running the sample project
 * The connectionstring AccountManagement in AccountManagement.Server/App.config must be valid.
  * The configured user must have full permissions to create tables etc in the database in the connection string.
+ * Given that just "Start debugging" or "Start without debugging" in visual studio.
 
 ### Environment varibles you should know about when running the tests
 

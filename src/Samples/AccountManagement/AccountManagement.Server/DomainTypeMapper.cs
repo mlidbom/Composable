@@ -3,7 +3,7 @@ using Composable.Refactoring.Naming;
 
 namespace AccountManagement
 {
-    static class TypeMapper
+    static class DomainTypeMapper
     {
         //In order to allow you to rename types when you need to composable does not use type names in the persisted data in the event store, document database or the service bus.
         //In order to enable you to freely rename and move types you must map each concrete type to a unique Guid.
@@ -13,13 +13,6 @@ namespace AccountManagement
         {
             typeMapper
                .Map<Domain.Account>("c2ca53e0-ee6d-4725-8bf8-c13b680d0ac5")
-               .Map<API.AccountResource.Command.ChangeEmail>("f38f0473-e0cc-4ef7-9ff6-4e99da03a39e")
-               .Map<API.AccountResource.Command.Register>("1C8342B3-1302-40D1-BD54-1333A47F756F")
-               .Map<API.AccountResource.Command.ChangePassword>("077F075B-64A3-4E02-B435-F04B19F6C98D")
-               .Map<API.AccountResource.Command.LogIn>("90689406-de88-43da-be17-0fb93692f6ad")
-               .Map<API.AccountResource>("ad443c81-a759-49af-a839-2befba89d3d4")
-               .Map<API.AccountResource.Command.LogIn.LoginAttemptResult>("0ff5734d-6ee5-40f9-a022-b38cd523d6e5")
-               .Map<API.AccountResource.Command.Register.RegistrationAttemptResult>("5072db5b-14f1-42d9-add9-b1dd336eee8f")
                .Map<Domain.Events.AccountEvent.Created>("3eb16cfa-ee90-4bec-a4fd-d6c52ebe0bbf")
                .Map<Domain.Events.AccountEvent.Implementation.LoggedIn>("e4cb1903-4e51-44f2-b866-43891d86cf94")
                .Map<Domain.Events.AccountEvent.Implementation.LoginFailed>("a659a369-584c-41e1-99ae-782b8a053b38")

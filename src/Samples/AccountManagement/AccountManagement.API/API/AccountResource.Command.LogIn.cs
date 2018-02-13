@@ -21,7 +21,7 @@ namespace AccountManagement.API
                 [Required] [Email] public string Email { get; set; }
                 [Required] public string Password { get; set; }
 
-                internal LogIn WithValues(string email, string password) => new LogIn
+                public LogIn WithValues(string email, string password) => new LogIn
                                                                             {
                                                                                 DeduplicationId = DeduplicationId,
                                                                                 Email = email,

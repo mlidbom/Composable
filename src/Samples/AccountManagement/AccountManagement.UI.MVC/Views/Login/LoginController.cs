@@ -21,9 +21,9 @@ namespace AccountManagement.UI.MVC.Views.Login
             }
 
             ModelState.AddModelError("Something", "Login Failed");
-            return View("LoginForm");
+            return RedirectToAction("LoginForm", new { email = loginCommand.Email });
         }
 
-        public IActionResult LoginForm() => View("LoginForm", Api.Accounts.Command.Login().NavigateOn(_bus));
+        public IActionResult LoginForm(string email = "") => View("LoginForm", _bus.Navigate(Api.Accounts.Command.Login()).WithValues(email, ""));
     }
 }

@@ -17,28 +17,30 @@ namespace Composable.Messaging.Buses.Implementation
                 readonly ITaskRunner _taskRunner;
                 readonly MessageStorage _messageStorage;
                 readonly IServiceLocator _serviceLocator;
+                readonly IMessageHandlerRegistry _messageHandlerRegistry;
                 readonly AwaitableOptimizedThreadShared<NonThreadsafeImplementation> _implementation;
 
-                public Coordinator(IGlobalBusStateTracker globalStateTracker, ITaskRunner taskRunner, MessageStorage messageStorage, IServiceLocator serviceLocator)
+                public Coordinator(IGlobalBusStateTracker globalStateTracker, ITaskRunner taskRunner, MessageStorage messageStorage, IServiceLocator serviceLocator, IMessageHandlerRegistry messageHandlerRegistry)
                 {
                     _taskRunner = taskRunner;
                     _messageStorage = messageStorage;
                     _serviceLocator = serviceLocator;
+                    _messageHandlerRegistry = messageHandlerRegistry;
                     _implementation = new AwaitableOptimizedThreadShared<NonThreadsafeImplementation>(new NonThreadsafeImplementation(globalStateTracker));
                 }
 
-                internal QueuedHandlerExecutionTask AwaitDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
+                internal QueuedHandlerExecutionTask AwaitExecutableHandlerExecutionTask(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
                 {
                     QueuedHandlerExecutionTask message = null;
                     _implementation.Await(implementation => implementation.TryGetDispatchableMessage(dispatchingRules, out message));
                     return message;
                 }
 
-                public Task<object> EnqueueMessageTask(TransportMessage.InComing message, Func<object, object> messageTask) => _implementation.Update(implementation =>
+                public Task<object> EnqueueMessageTask(TransportMessage.InComing message) => _implementation.Update(implementation =>
                 {
-                    var inflightMessage = new QueuedHandlerExecutionTask(message, this, messageTask, _taskRunner, _messageStorage, _serviceLocator);
+                    var inflightMessage = new QueuedHandlerExecutionTask(message, this, _taskRunner, _messageStorage, _serviceLocator, _messageHandlerRegistry);
                     implementation.EnqueueMessageTask(inflightMessage);
-                    return inflightMessage._taskCompletionSource.Task;
+                    return inflightMessage.Task;
                 });
 
                 void Succeeded(QueuedHandlerExecutionTask queuedMessageInformation) => _implementation.Update(implementation => implementation.Succeeded(queuedMessageInformation));

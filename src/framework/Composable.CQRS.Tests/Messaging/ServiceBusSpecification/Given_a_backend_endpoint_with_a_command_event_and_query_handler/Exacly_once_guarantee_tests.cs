@@ -3,7 +3,9 @@ using System.Transactions;
 using Composable.Messaging.Buses;
 using Composable.System;
 using Composable.System.Transactions;
+using Composable.Testing;
 using Composable.Testing.Threading;
+using Composable.Testing.Transactions;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -13,15 +15,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
     {
         [Test] public void If_transaction_fails_after_successfully_calling_Send_command_never_reaches_command_handler()
         {
-            try
+            AssertThrows.Exception<TransactionAbortedException>(() => TransactionScopeCe.Execute(() =>
             {
-                TransactionScopeCe.Execute(() =>
-                {
-                    RemoteEndpoint.ExecuteRequest(session => session.Send(new MyExactlyOnceCommand()));
-                    throw new Exception("MyException");
-                });
-            }
-            catch(Exception exception) when(exception.Message == "MyException") {}
+                Transaction.Current.FailOnPrepare(new Exception("MyException"));
+                RemoteEndpoint.ExecuteRequest(session => session.Send(new MyExactlyOnceCommand()));
+            })).InnerException.Message.Should().Be("MyException");
 
             CommandHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
                                     .Should()
@@ -41,8 +39,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             MyLocalAggregateEventHandlerThreadGate.Passed.Should().Be(1);
 
             MyRemoteAggregateEventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
-                                  .Should()
-                                  .Be(false, "event should not reach handler");
+                                                   .Should()
+                                                   .Be(false, "event should not reach handler");
         }
     }
 }

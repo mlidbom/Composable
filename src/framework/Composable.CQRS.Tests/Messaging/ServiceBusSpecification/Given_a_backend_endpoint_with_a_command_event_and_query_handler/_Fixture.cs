@@ -19,14 +19,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
     public class Fixture
     {
         internal ITestingEndpointHost Host;
-        internal readonly IThreadGate CommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
-        internal readonly IThreadGate CommandHandlerWithResultThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
-        internal readonly IThreadGate MyCreateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
-        internal readonly IThreadGate MyUpdateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
-        internal readonly IThreadGate MyRemoteAggregateEventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
-        internal readonly IThreadGate MyLocalAggregateEventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
-        internal readonly IThreadGate EventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
-        internal readonly IThreadGate QueryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(5.Seconds());
+        internal IThreadGate CommandHandlerThreadGate;
+        internal IThreadGate CommandHandlerWithResultThreadGate;
+        internal IThreadGate MyCreateAggregateCommandHandlerThreadGate;
+        internal IThreadGate MyUpdateAggregateCommandHandlerThreadGate;
+        internal IThreadGate MyRemoteAggregateEventHandlerThreadGate;
+        internal IThreadGate MyLocalAggregateEventHandlerThreadGate;
+        internal IThreadGate EventHandlerThreadGate;
+        internal IThreadGate QueryHandlerThreadGate;
 
         internal IReadOnlyList<IThreadGate> AllGates;
 
@@ -90,14 +90,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             AllGates = new List<IThreadGate>()
                        {
-                           CommandHandlerThreadGate,
-                           CommandHandlerWithResultThreadGate,
-                           MyCreateAggregateCommandHandlerThreadGate,
-                           MyUpdateAggregateCommandHandlerThreadGate,
-                           MyRemoteAggregateEventHandlerThreadGate,
-                           MyLocalAggregateEventHandlerThreadGate,
-                           EventHandlerThreadGate,
-                           QueryHandlerThreadGate
+                           (CommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
+                           (CommandHandlerWithResultThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
+                           (MyCreateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
+                           (MyUpdateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
+                           (MyRemoteAggregateEventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
+                           (MyLocalAggregateEventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
+                           (EventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
+                           (QueryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(5.Seconds()))
                        };
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
+using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Threading;
 
@@ -32,33 +33,43 @@ namespace Composable.Messaging.Buses.Implementation
                         var message = TransportMessage.DeserializeMessageAndCacheForNextCall();
                         _taskRunner.RunAndCrashProcessIfTaskThrows(() =>
                         {
-                            try
-                            {
-                                var result = message is BusApi.IRequireTransactionalReceiver
-                                                 ? _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
-                                                 {
-                                                     var innerResult = _messageTask(message);
-                                                     if(message is BusApi.Remotable.IAtMostOnceMessage)
-                                                     {
-                                                         _messageStorage.MarkAsHandled(TransportMessage);
-                                                     }
+                            var retryPolicy = new DefaultRetryPolicy(message);
 
-                                                     return innerResult;
-                                                 })
-                                                 : _serviceLocator.ExecuteInIsolatedScope(() => _messageTask(message));
-
-                                _taskCompletionSource.SetResult(result);
-                                _coordinator.Succeeded(this);
-                            }
-                            catch(Exception exception)
+                            while(true)
                             {
-                                if(message is BusApi.Remotable.IAtMostOnceMessage)
+                                try
                                 {
-                                    _messageStorage.MarkAsHandled(TransportMessage);
-                                }
+                                    var result = message is BusApi.IRequireTransactionalReceiver
+                                                     ? _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
+                                                     {
+                                                         var innerResult = _messageTask(message);
+                                                         if(message is BusApi.Remotable.IAtMostOnceMessage)
+                                                         {
+                                                             _messageStorage.MarkAsHandled(TransportMessage);
+                                                         }
 
-                                _taskCompletionSource.SetException(exception);
-                                _coordinator.Failed(this, exception);
+                                                         return innerResult;
+                                                     })
+                                                     : _serviceLocator.ExecuteInIsolatedScope(() => _messageTask(message));
+
+                                    _taskCompletionSource.SetResult(result);
+                                    _coordinator.Succeeded(this);
+                                    return;
+                                }
+                                catch(Exception exception)
+                                {
+                                    if(!retryPolicy.Retry(exception))
+                                    {
+                                        if(message is BusApi.Remotable.IAtMostOnceMessage)
+                                        {
+                                            _messageStorage.MarkAsHandled(TransportMessage);
+                                        }
+
+                                        _taskCompletionSource.SetException(exception);
+                                        _coordinator.Failed(this, exception);
+                                        return;
+                                    }
+                                }
                             }
                         });
                     }

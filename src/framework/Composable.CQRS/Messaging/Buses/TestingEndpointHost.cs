@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Refactoring.Naming;
+using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
@@ -22,6 +24,10 @@ namespace Composable.Messaging.Buses
             setup = setup ?? (builder => {});
             return RegisterEndpoint(name, endpointId, setup);
         }
+
+        public IEndpoint RegisterClientEndpointForRegisteredEndpoints() =>
+            RegisterClientEndpoint(builder => Endpoints.Select(otherEndpoint => otherEndpoint.ServiceLocator.Resolve<TypeMapper>())
+                                                       .ForEach(otherTypeMapper => ((TypeMapper)builder.TypeMapper).IncludeMappingsFrom(otherTypeMapper)));
 
         public TException AssertThrown<TException>() where TException : Exception
         {

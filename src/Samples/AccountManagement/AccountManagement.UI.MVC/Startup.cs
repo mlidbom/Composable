@@ -27,7 +27,7 @@ namespace AccountManagement.UI.MVC
             services.AddMvc();
 
             _host = EndpointHost.Production.Create(DependencyInjectionContainer.Create);
-            _clientEndpoint = _host.RegisterEndpoint("ClientEndpoint", new EndpointId(new Guid("7AE4E3B9-2EF0-4C5F-A1B9-634FDFEB8670")), setup: AccountApi.RegisterWithClientEndpoint);
+            _clientEndpoint = _host.RegisterClientEndpoint(AccountApi.RegisterWithClientEndpoint);
 
             _host.Start();
             services.AddScoped(_ => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>());

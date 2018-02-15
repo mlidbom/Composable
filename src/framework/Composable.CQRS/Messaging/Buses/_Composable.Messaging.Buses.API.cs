@@ -94,16 +94,17 @@ namespace Composable.Messaging.Buses
     public interface IEndpointHost : IDisposable
     {
         IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup);
+        ///<summary>Registers a default client endpoint with a host. Can be called only once per host instance.</summary>
+        IEndpoint RegisterClientEndpoint(Action<IEndpointBuilder> setup);
         Task StartAsync();
         void Start();
         void Stop();
-        IEndpoint RegisterClientEndpointForRegisteredEndpoints();
     }
 
     public interface ITestingEndpointHost : IEndpointHost
     {
         IEndpoint RegisterTestingEndpoint(string name = null, EndpointId id = null, Action<IEndpointBuilder> setup = null);
-
+        IEndpoint RegisterClientEndpointForRegisteredEndpoints();
         TException AssertThrown<TException>() where TException : Exception;
     }
 

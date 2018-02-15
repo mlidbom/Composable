@@ -58,11 +58,6 @@ namespace Composable.Messaging.Buses
 
         public IEndpoint RegisterClientEndpoint(Action<IEndpointBuilder> setup) => InternalRegisterEndpoint(ClientEndpointConfiguration, setup);
 
-        public IEndpoint RegisterClientEndpointForRegisteredEndpoints() =>
-            InternalRegisterEndpoint(ClientEndpointConfiguration,
-                                     builder => Endpoints.Select(otherEndpoint => otherEndpoint.ServiceLocator.Resolve<TypeMapper>())
-                                                         .ForEach(otherTypeMapper => ((TypeMapper)builder.TypeMapper).IncludeMappingsFrom(otherTypeMapper)));
-
         bool _isStarted;
 
         public async Task StartAsync()

@@ -1,4 +1,5 @@
-﻿using Composable.Refactoring.Naming;
+﻿using Composable.Messaging;
+using Composable.Refactoring.Naming;
 
 namespace AccountManagement
 {
@@ -13,7 +14,8 @@ namespace AccountManagement
                .Map<API.AccountResource.Command.LogIn>("90689406-de88-43da-be17-0fb93692f6ad")
                .Map<API.AccountResource>("ad443c81-a759-49af-a839-2befba89d3d4")
                .Map<API.AccountResource.Command.LogIn.LoginAttemptResult>("0ff5734d-6ee5-40f9-a022-b38cd523d6e5")
-               .Map<API.AccountResource.Command.Register.RegistrationAttemptResult>("5072db5b-14f1-42d9-add9-b1dd336eee8f");
+               .Map<API.AccountResource.Command.Register.RegistrationAttemptResult>("5072db5b-14f1-42d9-add9-b1dd336eee8f")
+               .Map<BusApi.Remotable.NonTransactional.Queries.EntityLink<API.AccountResource>>("93292073-d1d2-40b3-9d89-66781a19de7b");
         }
     }
 }

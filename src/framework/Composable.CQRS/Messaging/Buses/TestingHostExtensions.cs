@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses
             return @this.AssertThrown<TException>();
         }
 
-        public static (TException BackendException, MessageDispatchingFailedException FrontEndException) AssertThatRunningScenarioThrowsBackendAndClientTransaction<TException>(this ITestingEndpointHost @this, Action action) where TException : Exception
+        public static (TException BackendException, MessageDispatchingFailedException FrontEndException) AssertThatRunningScenarioThrowsBackendAndClientException<TException>(this ITestingEndpointHost @this, Action action) where TException : Exception
         {
             var frontEndException = AssertThrows.Exception<MessageDispatchingFailedException>(action);
 

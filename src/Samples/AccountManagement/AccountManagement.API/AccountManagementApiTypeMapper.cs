@@ -3,7 +3,7 @@ using Composable.Refactoring.Naming;
 
 namespace AccountManagement
 {
-    public class AccountManagementApiTypeMapper
+    static class AccountManagementApiTypeMapper
     {
         public static void MapTypes(ITypeMappingRegistar typeMapper)
         {

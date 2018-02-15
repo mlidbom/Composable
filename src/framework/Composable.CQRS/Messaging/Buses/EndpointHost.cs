@@ -36,13 +36,12 @@ namespace Composable.Messaging.Buses
             public static ITestingEndpointHost Create(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory);
         }
 
-        public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup) => InternalRegisterEndpoint(new EndpointConfiguration(name, id, _mode), setup);
+        public IEndpoint RegisterEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup) => InternalRegisterEndpoint(new EndpointConfiguration(name, id, _mode, isPureClientEndpoint: false), setup);
 
         IEndpoint InternalRegisterEndpoint(EndpointConfiguration configuration, Action<IEndpointBuilder> setup)
         {
             using(var builder = new EndpointBuilder(this, GlobalBusStateTracker, _containerFactory(_mode), configuration))
             {
-
                 setup(builder);
 
                 var endpoint = builder.Build();
@@ -52,27 +51,17 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        static readonly EndpointConfiguration ClientEndpointConfiguration = new EndpointConfiguration(
-                                                                                $"{nameof(TestingEndpointHost)}_Default_Client_Endpoint",
-                                                                                new EndpointId(Guid.Parse("D4C869D2-68EF-469C-A5D6-37FCF2EC152A")),
-                                                                                new RunMode(isTesting: true, testingMode: TestingMode.DatabasePool)
-                                                                                )
-                                                                            {
-                                                                                IsPureClientEndpoint = true
-                                                                            };
+        static readonly EndpointConfiguration ClientEndpointConfiguration = new EndpointConfiguration(name: $"{nameof(TestingEndpointHost)}_Default_Client_Endpoint",
+                                                                                                      id: new EndpointId(Guid.Parse("D4C869D2-68EF-469C-A5D6-37FCF2EC152A")),
+                                                                                                      mode: RunMode.Production,
+                                                                                                      isPureClientEndpoint: true);
 
-        public IEndpoint RegisterClientEndpointForRegisteredEndpoints()
-        {
-            var clientEndpoint = InternalRegisterEndpoint(ClientEndpointConfiguration, _ => {});
+        public IEndpoint RegisterClientEndpoint(Action<IEndpointBuilder> setup) => InternalRegisterEndpoint(ClientEndpointConfiguration, setup);
 
-            var typeMapper = clientEndpoint.ServiceLocator.Resolve<TypeMapper>();
-
-            Endpoints.Where(endpoint => endpoint != clientEndpoint)
-                     .Select(otherEndpoint => otherEndpoint.ServiceLocator.Resolve<TypeMapper>())
-                     .ForEach(otherTypeMapper => typeMapper.IncludeMappingsFrom(otherTypeMapper));
-
-            return clientEndpoint;
-        }
+        public IEndpoint RegisterClientEndpointForRegisteredEndpoints() =>
+            InternalRegisterEndpoint(ClientEndpointConfiguration,
+                                     builder => Endpoints.Select(otherEndpoint => otherEndpoint.ServiceLocator.Resolve<TypeMapper>())
+                                                         .ForEach(otherTypeMapper => ((TypeMapper)builder.TypeMapper).IncludeMappingsFrom(otherTypeMapper)));
 
         bool _isStarted;
 

@@ -1,4 +1,6 @@
-﻿using Composable.DependencyInjection;
+﻿using System;
+using AccountManagement.API;
+using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Refactoring.Naming;
 using JetBrains.Annotations;
@@ -25,9 +27,7 @@ namespace AccountManagement.UI.MVC
             services.AddMvc();
 
             _host = EndpointHost.Production.Create(DependencyInjectionContainer.Create);
-            _clientEndpoint = _host.RegisterClientEndpointForRegisteredEndpoints();
-
-            AccountManagementApiTypeMapper.MapTypes(_clientEndpoint.ServiceLocator.Resolve<ITypeMappingRegistar>());
+            _clientEndpoint = _host.RegisterEndpoint("ClientEndpoint", new EndpointId(new Guid("7AE4E3B9-2EF0-4C5F-A1B9-634FDFEB8670")), setup: AccountApi.RegisterWithClientEndpoint);
 
             _host.Start();
             services.AddScoped(_ => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>());

@@ -2,6 +2,7 @@
 // ReSharper disable MemberCanBeMadeStatic.Local
 using System;
 using Composable.Messaging;
+using Composable.Messaging.Buses;
 
 namespace AccountManagement.API
 {
@@ -45,6 +46,12 @@ namespace AccountManagement.API
 
             public NavigationSpecification<AccountResource.Command.LogIn> Login() => Commands.Select(commands => commands.Login);
             public NavigationSpecification<AccountResource.Command.LogIn.LoginAttemptResult> Login(string email, string password) => Commands.Post(commands => commands.Login.WithValues(email, password));
+        }
+
+        ///<summary>This method ensures that the client endpoints has everything it needs to use the services in this API. Type mappings etc. Eventually we will probably be setting up pipeline components such as custom caches etc here.</summary>
+        public static void RegisterWithClientEndpoint(IEndpointBuilder builder)
+        {
+            AccountManagementApiTypeMapper.MapTypes(builder.TypeMapper);
         }
     }
 }

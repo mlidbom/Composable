@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AccountManagement.API;
 using AccountManagement.UserStories.Scenarios;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
@@ -17,7 +18,7 @@ namespace AccountManagement.UserStories
         {
             Host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
             new AccountManagementServerDomainBootstrapper().RegisterWith(Host);
-            _clientEndpoint = Host.RegisterTestingEndpoint("Client", setup: builder => AccountManagementApiTypeMapper.MapTypes(builder.TypeMapper));
+            _clientEndpoint = Host.RegisterTestingEndpoint(setup:AccountApi.RegisterWithClientEndpoint);
             await Host.StartAsync();
         }
 

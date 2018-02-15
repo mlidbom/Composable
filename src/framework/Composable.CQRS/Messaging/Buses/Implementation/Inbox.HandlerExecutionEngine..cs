@@ -159,6 +159,7 @@ namespace Composable.Messaging.Buses.Implementation
                         {
                             var atMostOnceCommand = (BusApi.Remotable.AtMostOnce.ICommand)message.DeserializeMessageAndCacheForNextCall();
                             var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler(atMostOnceCommand));
+                            _storage.MarkAsHandled(message);
                             taskCompletionSource.SetResult(result);
                         }
                         catch(Exception exception)

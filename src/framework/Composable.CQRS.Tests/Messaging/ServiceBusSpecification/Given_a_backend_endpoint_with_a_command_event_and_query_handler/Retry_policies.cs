@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Transactions;
 using Composable.Messaging.Buses;
-using Composable.Messaging.Buses.Implementation;
 using Composable.System;
 using Composable.Testing.Threading;
 using FluentAssertions;
@@ -19,12 +18,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             Host.AssertThatRunningScenarioThrowsBackendAndClientException<TransactionAbortedException>(() => ClientEndpoint.ExecuteRequest(session => RemoteNavigator.Post(MyCreateAggregateCommand.Create())));
         }
 
-        [Test] public void command_handler_is_tried_DefaultRetryPolicy_Tries_times()
-        {
-
-            MyCreateAggregateCommandHandlerThreadGate.Passed.Should().Be(DefaultRetryPolicy.Tries);
-        }
-
         [Test] public void ExactlyOnce_Event_raised_in_handler_does_not_reach_remote_handler()
         {
             MyRemoteAggregateEventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
@@ -32,6 +25,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                                    .Be(false, "event should not reach handler");
         }
 
-        [Test] public void ExactlyOnce_Event_raised_in_handler_reaches_local_handler_DefaultRetryPolicy_Tries_times() { MyLocalAggregateEventHandlerThreadGate.Passed.Should().Be(DefaultRetryPolicy.Tries); }
+        [Test] public void command_handler_is_tried_5_times() => MyCreateAggregateCommandHandlerThreadGate.Passed.Should().Be(5);
+
+        [Test] public void ExactlyOnce_Event_raised_in_handler_reaches_local_handler_5_times() => MyLocalAggregateEventHandlerThreadGate.Passed.Should().Be(5);
     }
 }

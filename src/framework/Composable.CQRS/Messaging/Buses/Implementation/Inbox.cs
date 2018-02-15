@@ -111,7 +111,7 @@ namespace Composable.Messaging.Buses.Implementation
                         if(transportMessage.Is<BusApi.Remotable.IAtMostOnceMessage>())
                         {
                             //todo: handle the exception that will be thrown if this is a duplicate message
-                            _storage.SaveMessage(transportMessage);
+                            _storage.SaveIncomingMessage(transportMessage);
 
                             if(transportMessage.Is<BusApi.Remotable.ExactlyOnce.IMessage>())
                             {

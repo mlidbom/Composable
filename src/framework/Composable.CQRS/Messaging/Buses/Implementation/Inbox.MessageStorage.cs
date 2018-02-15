@@ -12,7 +12,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public MessageStorage(ISqlConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
 
-            public void SaveMessage(TransportMessage.InComing message) =>
+            public void SaveIncomingMessage(TransportMessage.InComing message) =>
                 _connectionFactory.UseCommand(
                     command =>
                     {

@@ -13,8 +13,6 @@ namespace Composable.Messaging.Buses.Implementation
         partial class HandlerExecutionEngine
         {
             readonly IMessageHandlerRegistry _handlerRegistry;
-            readonly IServiceLocator _serviceLocator;
-            readonly MessageStorage _storage;
             Thread _awaitDispatchableMessageThread;
             CancellationTokenSource _cancellationTokenSource;
 
@@ -32,11 +30,8 @@ namespace Composable.Messaging.Buses.Implementation
                                           ITaskRunner taskRunner)
             {
                 _handlerRegistry = handlerRegistry;
-                _serviceLocator = serviceLocator;
-                _storage = storage;
-                _coordinator =  new Coordinator(globalStateTracker, taskRunner);
+                _coordinator = new Coordinator(globalStateTracker, taskRunner, storage, serviceLocator);
             }
-
 
             internal Task<object> Enqueue(TransportMessage.InComing message)
             {
@@ -47,10 +42,9 @@ namespace Composable.Messaging.Buses.Implementation
                 else if(message.Is<BusApi.Remotable.ExactlyOnce.IEvent>())
                     return DispatchExactlyOnceEventAsync(message);
                 if(message.Is<BusApi.Remotable.ExactlyOnce.ICommand>())
-                        return DispatchExactlyOnceCommandAsync(message);
+                    return DispatchExactlyOnceCommandAsync(message);
                 else
                     throw new ArgumentOutOfRangeException();
-
             }
 
             void AwaitDispatchableMessageThread()
@@ -69,117 +63,45 @@ namespace Composable.Messaging.Buses.Implementation
             async Task<object> DispatchQueryAsync(TransportMessage.InComing message)
             {
                 var handler = _handlerRegistry.GetQueryHandler(message.MessageType);
-
-                var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-                _coordinator.EnqueueMessageTask(
-                    message,
-                    () => _serviceLocator.ExecuteInIsolatedScope(() =>
-                    {
-                        try
-                        {
-                            var query = (BusApi.IQuery)message.DeserializeMessageAndCacheForNextCall();
-                            var result = handler(query);
-                            taskCompletionSource.SetResult(result);
-                        }
-                        catch(Exception exception)
-                        {
-                            taskCompletionSource.SetException(exception);
-                            throw;
-                        }
-                    }));
-
-                return await taskCompletionSource.Task.NoMarshalling();
+                return await _coordinator.EnqueueMessageTask(message, actualMessage => handler((BusApi.IQuery)actualMessage));
             }
 
-            async Task<object> DispatchExactlyOnceEventAsync(TransportMessage.InComing message)
-            {
-                var eventHandlers = _handlerRegistry.GetEventHandlers(message.MessageType);
-                var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-                _coordinator.EnqueueMessageTask(
-                    message,
-                    () =>
+            async Task<object> DispatchExactlyOnceEventAsync(TransportMessage.InComing transportMessage) =>
+                await _coordinator.EnqueueMessageTask(
+                    transportMessage,
+                    message =>
                     {
-                        try
-                        {
-                            var @event = (BusApi.Remotable.ExactlyOnce.IEvent)message.DeserializeMessageAndCacheForNextCall();
-                            _serviceLocator.ExecuteTransactionInIsolatedScope(() => eventHandlers.ForEach(handler => handler(@event)));
-                            _storage.MarkAsHandled(message);
-                            taskCompletionSource.SetResult(null);
-                        }
-                        catch(Exception exception)
-                        {
-                            taskCompletionSource.SetException(exception);
-                            throw;
-                        }
+                        var @event = (BusApi.Remotable.ExactlyOnce.IEvent)message;
+                        _handlerRegistry.GetEventHandlers(transportMessage.MessageType).ForEach(handler => handler(@event));
+                        return null;
                     });
 
-                return await taskCompletionSource.Task.NoMarshalling();
-            }
-
-            async Task<object> DispatchExactlyOnceCommandAsync(TransportMessage.InComing message)
-            {
-                var handler = _handlerRegistry.GetCommandHandler(message.MessageType);
-
-                var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-                _coordinator.EnqueueMessageTask(
-                    message,
-                    () =>
+            async Task<object> DispatchExactlyOnceCommandAsync(TransportMessage.InComing transportMessage) =>
+                await _coordinator.EnqueueMessageTask(
+                    transportMessage,
+                    message =>
                     {
-                        try
-                        {
-                            var exactlyOnceCommand = (BusApi.Remotable.ExactlyOnce.ICommand)message.DeserializeMessageAndCacheForNextCall();
-                            var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler(exactlyOnceCommand));
-                            _storage.MarkAsHandled(message);
-                            taskCompletionSource.SetResult(result);
-                        }
-                        catch(Exception exception)
-                        {
-                            taskCompletionSource.SetException(exception);
-                            throw;
-                        }
+                        var exactlyOnceCommand = (BusApi.Remotable.ExactlyOnce.ICommand)message;
+                        return _handlerRegistry.GetCommandHandler(transportMessage.MessageType)(exactlyOnceCommand);
                     });
 
-                return await taskCompletionSource.Task.NoMarshalling();
-            }
-
-            async Task<object> DispatchAtMostOnceCommandAsync(TransportMessage.InComing message)
-            {
-                var handler = _handlerRegistry.GetCommandHandler(message.MessageType);
-
-                var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-                _coordinator.EnqueueMessageTask(
+            async Task<object> DispatchAtMostOnceCommandAsync(TransportMessage.InComing message) =>
+                await _coordinator.EnqueueMessageTask(
                     message,
-                    () =>
+                    actualMessage =>
                     {
-                        try
-                        {
-                            var atMostOnceCommand = (BusApi.Remotable.AtMostOnce.ICommand)message.DeserializeMessageAndCacheForNextCall();
-                            var result = _serviceLocator.ExecuteTransactionInIsolatedScope(() => handler(atMostOnceCommand));
-                            _storage.MarkAsHandled(message);
-                            taskCompletionSource.SetResult(result);
-                        }
-                        catch(Exception exception)
-                        {
-                            taskCompletionSource.SetException(exception);
-                            throw;
-                        }
+                        var atMostOnceCommand = (BusApi.Remotable.AtMostOnce.ICommand)actualMessage;
+                        return _handlerRegistry.GetCommandHandler(message.MessageType)(atMostOnceCommand);
                     });
-
-                return await taskCompletionSource.Task.NoMarshalling();
-            }
 
             public void Start()
             {
                 _cancellationTokenSource = new CancellationTokenSource();
                 _awaitDispatchableMessageThread = new Thread(AwaitDispatchableMessageThread)
-                                     {
-                                         Name = nameof(AwaitDispatchableMessageThread),
-                                         Priority = ThreadPriority.AboveNormal
-                                     };
+                                                  {
+                                                      Name = nameof(AwaitDispatchableMessageThread),
+                                                      Priority = ThreadPriority.AboveNormal
+                                                  };
                 _awaitDispatchableMessageThread.Start();
             }
 

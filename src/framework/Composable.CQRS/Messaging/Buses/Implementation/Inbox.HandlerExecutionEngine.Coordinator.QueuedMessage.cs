@@ -93,15 +93,28 @@ namespace Composable.Messaging.Buses.Implementation
                             case Implementation.TransportMessage.TransportMessageType.ExactlyOnceEvent:
                                 return message =>
                                 {
-                                    _handlerRegistry.GetEventHandlers(message.GetType()).ForEach(handler => handler((BusApi.Remotable.ExactlyOnce.IEvent)message));
+                                    var eventHandlers = _handlerRegistry.GetEventHandlers(message.GetType());
+                                    eventHandlers.ForEach(handler => handler((BusApi.Remotable.ExactlyOnce.IEvent)message));
                                     return null;
                                 };
                             case Implementation.TransportMessage.TransportMessageType.AtMostOnceCommand:
-                                return message => _handlerRegistry.GetCommandHandler(message.GetType())((BusApi.Remotable.AtMostOnce.ICommand)message);
+                                return message =>
+                                {
+                                    var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
+                                    return commandHandler((BusApi.Remotable.AtMostOnce.ICommand)message);
+                                };
                             case Implementation.TransportMessage.TransportMessageType.ExactlyOnceCommand:
-                                return message => _handlerRegistry.GetCommandHandler(message.GetType())((BusApi.Remotable.ExactlyOnce.ICommand)message);
+                                return message =>
+                                {
+                                    var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
+                                    return commandHandler((BusApi.Remotable.ExactlyOnce.ICommand)message);
+                                };
                             case Implementation.TransportMessage.TransportMessageType.NonTransactionalQuery:
-                                return actualMessage => _handlerRegistry.GetQueryHandler(actualMessage.GetType())((BusApi.IQuery)actualMessage);
+                                return actualMessage =>
+                                {
+                                    var queryHandler = _handlerRegistry.GetQueryHandler(actualMessage.GetType());
+                                    return queryHandler((BusApi.IQuery)actualMessage);
+                                };
                             default:
                                 throw new ArgumentOutOfRangeException();
                         }

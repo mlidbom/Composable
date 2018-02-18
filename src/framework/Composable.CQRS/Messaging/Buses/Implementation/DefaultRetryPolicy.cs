@@ -2,7 +2,7 @@
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    internal class DefaultRetryPolicy
+    class DefaultRetryPolicy
     {
         internal static int Tries = 5;
         int _remainingTries;

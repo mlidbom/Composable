@@ -58,7 +58,7 @@ namespace Composable.Messaging.Buses.Implementation
                                 }
                                 catch(Exception exception)
                                 {
-                                    if(!retryPolicy.Retry(exception))
+                                    if(!retryPolicy.ShouldRetryIfExceptionIsThrown(exception))
                                     {
                                         if(message is BusApi.Remotable.IAtMostOnceMessage)
                                         {

@@ -109,6 +109,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             if(_commandHandlers.TryGetValue(commandType, out var handler))
             {
+                //Refactor: This seems a questionable place to handle the fact that only some commands return results.
                 return command =>
                 {
                     handler(command);

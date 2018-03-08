@@ -84,7 +84,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 ,Before<E8>.Insert<E9>()
             ).ToArray();
 
-            AssertUncachedAggregateLoadTime(20.Milliseconds().InstrumentationSlowdown(2), 5.Milliseconds().InstrumentationSlowdown(2), eventMigrations);
+            AssertUncachedAggregateLoadTime(20.Milliseconds().InstrumentationSlowdown(2), 5.Milliseconds().InstrumentationSlowdown(2.5), eventMigrations);
         }
 
         [Test]

@@ -72,7 +72,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
         }
 
         [Test] public void _010_Serializes_10_000_times_in_100_milliseconds() =>
-            RunScenario(BinarySerialize, 10_000.InstrumentationSlowdown(6.5), maxTotal:100.Milliseconds());
+            RunScenario(BinarySerialize, 10_000.InstrumentationSlowdown(7), maxTotal:100.Milliseconds());
 
         [Test] public void _020_DeSerializes_10_000_times_in_130_milliseconds() =>
                 RunScenario(BinaryDeSerialize, iterations: 10_000.InstrumentationSlowdown(5.5), maxTotal:130.Milliseconds());

@@ -13,7 +13,14 @@ namespace Composable.Messaging.Buses.Implementation
             internal const string TypeId = nameof(TypeId);
             internal const string MessageId = nameof(MessageId);
             internal const string Body = nameof(Body);
-            public const string IsHandled = nameof(IsHandled);
+            public const string Status = nameof(Status);
+        }
+
+        public enum MessageStatus
+        {
+            UnHandled = 0,
+            Succeeded = 1,
+            Failed = 2
         }
 
         partial class MessageStorage
@@ -32,7 +39,7 @@ BEGIN
 	    [{InboxMessages.Identity}] [int] IDENTITY(1,1) NOT NULL,
         [{InboxMessages.TypeId}] [uniqueidentifier] NOT NULL,
         [{InboxMessages.MessageId}] [uniqueidentifier] NOT NULL,
-	    [{InboxMessages.IsHandled}] [bit]NOT NULL,
+	    [{InboxMessages.Status}] [bit]NOT NULL,
 	    [{InboxMessages.Body}] [nvarchar](MAX) NOT NULL,
 
 

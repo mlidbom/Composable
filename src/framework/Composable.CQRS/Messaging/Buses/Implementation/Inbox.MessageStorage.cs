@@ -20,8 +20,8 @@ namespace Composable.Messaging.Buses.Implementation
                             .SetCommandText(
                                 $@"
 INSERT {InboxMessages.TableName} 
-            ({InboxMessages.MessageId},  {InboxMessages.TypeId},  {InboxMessages.Body}, {InboxMessages.IsHandled}) 
-    VALUES (@{InboxMessages.MessageId}, @{InboxMessages.TypeId}, @{InboxMessages.Body}, 0)
+            ({InboxMessages.MessageId},  {InboxMessages.TypeId},  {InboxMessages.Body}, {InboxMessages.Status}) 
+    VALUES (@{InboxMessages.MessageId}, @{InboxMessages.TypeId}, @{InboxMessages.Body}, {(int)MessageStatus.UnHandled})
 ")
                             .AddParameter(InboxMessages.MessageId, message.MessageId)
                             .AddParameter(InboxMessages.TypeId, message.MessageTypeId.GuidValue)
@@ -38,12 +38,31 @@ INSERT {InboxMessages.TableName}
                                                  .SetCommandText(
                                                      $@"
 UPDATE {InboxMessages.TableName} 
-    SET {InboxMessages.IsHandled} = 1
+    SET {InboxMessages.Status} = {(int)MessageStatus.Succeeded}
 WHERE {InboxMessages.MessageId} = @{InboxMessages.MessageId}
-    AND {InboxMessages.IsHandled} = 0
+    AND {InboxMessages.Status} = {(int)MessageStatus.UnHandled}
 ")
                                                  .AddParameter(InboxMessages.MessageId, message.MessageId)
                                                  .ExecuteNonQuery();
+
+                        Assert.Result.Assert(affectedRows == 1);
+                        return affectedRows;
+                    });
+
+            internal void MarkAsFailed(TransportMessage.InComing message) =>
+                _connectionFactory.UseCommand(
+                    command =>
+                    {
+                        var affectedRows = command
+                                          .SetCommandText(
+                                               $@"
+UPDATE {InboxMessages.TableName} 
+    SET {InboxMessages.Status} = {(int)MessageStatus.Failed}
+WHERE {InboxMessages.MessageId} = @{InboxMessages.MessageId}
+    AND {InboxMessages.Status} = {(int)MessageStatus.UnHandled}
+")
+                                          .AddParameter(InboxMessages.MessageId, message.MessageId)
+                                          .ExecuteNonQuery();
 
                         Assert.Result.Assert(affectedRows == 1);
                         return affectedRows;

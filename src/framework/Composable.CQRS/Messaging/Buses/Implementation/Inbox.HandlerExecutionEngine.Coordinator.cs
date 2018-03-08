@@ -29,23 +29,23 @@ namespace Composable.Messaging.Buses.Implementation
                     _implementation = new AwaitableOptimizedThreadShared<NonThreadsafeImplementation>(new NonThreadsafeImplementation(globalStateTracker));
                 }
 
-                internal QueuedHandlerExecutionTask AwaitExecutableHandlerExecutionTask(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
+                internal HandlerExecutionTask AwaitExecutableHandlerExecutionTask(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
                 {
-                    QueuedHandlerExecutionTask message = null;
+                    HandlerExecutionTask message = null;
                     _implementation.Await(implementation => implementation.TryGetDispatchableMessage(dispatchingRules, out message));
                     return message;
                 }
 
                 public Task<object> EnqueueMessageTask(TransportMessage.InComing message) => _implementation.Update(implementation =>
                 {
-                    var inflightMessage = new QueuedHandlerExecutionTask(message, this, _taskRunner, _messageStorage, _serviceLocator, _messageHandlerRegistry);
+                    var inflightMessage = new HandlerExecutionTask(message, this, _taskRunner, _messageStorage, _serviceLocator, _messageHandlerRegistry);
                     implementation.EnqueueMessageTask(inflightMessage);
                     return inflightMessage.Task;
                 });
 
-                void Succeeded(QueuedHandlerExecutionTask queuedMessageInformation) => _implementation.Update(implementation => implementation.Succeeded(queuedMessageInformation));
+                void Succeeded(HandlerExecutionTask queuedMessageInformation) => _implementation.Update(implementation => implementation.Succeeded(queuedMessageInformation));
 
-                void Failed(QueuedHandlerExecutionTask queuedMessageInformation, Exception exception) => _implementation.Update(implementation => implementation.Failed(queuedMessageInformation, exception));
+                void Failed(HandlerExecutionTask queuedMessageInformation, Exception exception) => _implementation.Update(implementation => implementation.Failed(queuedMessageInformation, exception));
 
                 class NonThreadsafeImplementation : IExecutingMessagesSnapshot
                 {
@@ -61,10 +61,10 @@ namespace Composable.Messaging.Buses.Implementation
                     public IReadOnlyList<TransportMessage.InComing> ExactlyOnceEvents => _executingExactlyOnceEvents;
                     public IReadOnlyList<TransportMessage.InComing> ExecutingNonTransactionalQueries => _executingNonTransactionalQueries;
 
-                    readonly List<QueuedHandlerExecutionTask> _messagesWaitingToExecute = new List<QueuedHandlerExecutionTask>();
+                    readonly List<HandlerExecutionTask> _messagesWaitingToExecute = new List<HandlerExecutionTask>();
                     public NonThreadsafeImplementation(IGlobalBusStateTracker globalStateTracker) => _globalStateTracker = globalStateTracker;
 
-                    internal bool TryGetDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules, out QueuedHandlerExecutionTask dispatchable)
+                    internal bool TryGetDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules, out HandlerExecutionTask dispatchable)
                     {
                         dispatchable = null;
                         if(_executingMessages >= MaxConcurrentlyExecutingHandlers)
@@ -84,14 +84,14 @@ namespace Composable.Messaging.Buses.Implementation
                         return true;
                     }
 
-                    public void EnqueueMessageTask(QueuedHandlerExecutionTask message) => _messagesWaitingToExecute.Add(message);
+                    public void EnqueueMessageTask(HandlerExecutionTask message) => _messagesWaitingToExecute.Add(message);
 
-                    internal void Succeeded(QueuedHandlerExecutionTask queuedMessageInformation) => DoneDispatching(queuedMessageInformation);
+                    internal void Succeeded(HandlerExecutionTask queuedMessageInformation) => DoneDispatching(queuedMessageInformation);
 
-                    internal void Failed(QueuedHandlerExecutionTask queuedMessageInformation, Exception exception) => DoneDispatching(queuedMessageInformation, exception);
+                    internal void Failed(HandlerExecutionTask queuedMessageInformation, Exception exception) => DoneDispatching(queuedMessageInformation, exception);
 
 
-                    void Dispatching(QueuedHandlerExecutionTask dispatchable)
+                    void Dispatching(HandlerExecutionTask dispatchable)
                     {
                         _executingMessages++;
 
@@ -116,7 +116,7 @@ namespace Composable.Messaging.Buses.Implementation
                         _messagesWaitingToExecute.Remove(dispatchable);
                     }
 
-                    void DoneDispatching(QueuedHandlerExecutionTask doneExecuting, Exception exception = null)
+                    void DoneDispatching(HandlerExecutionTask doneExecuting, Exception exception = null)
                     {
                         _executingMessages--;
 

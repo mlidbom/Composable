@@ -14,7 +14,7 @@ namespace Composable.Messaging.Buses.Implementation
             partial class Coordinator
             {
                 // ReSharper disable once MemberCanBePrivate.Local Resharper is just confused....
-                internal class QueuedHandlerExecutionTask
+                internal class HandlerExecutionTask
                 {
                     readonly TaskCompletionSource<object> _taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
                     internal readonly TransportMessage.InComing TransportMessage;
@@ -58,11 +58,11 @@ namespace Composable.Messaging.Buses.Implementation
                                 }
                                 catch(Exception exception)
                                 {
-                                    if(!retryPolicy.ShouldRetryIfExceptionIsThrown(exception))
+                                    if(!retryPolicy.TryAwaitNextRetryTimeForException(exception))
                                     {
                                         if(message is BusApi.Remotable.IAtMostOnceMessage)
                                         {
-                                            _messageStorage.MarkAsHandled(TransportMessage);
+                                            _messageStorage.MarkAsFailed(TransportMessage);
                                         }
 
                                         _taskCompletionSource.SetException(exception);
@@ -74,7 +74,7 @@ namespace Composable.Messaging.Buses.Implementation
                         });
                     }
 
-                    public QueuedHandlerExecutionTask(TransportMessage.InComing transportMessage, Coordinator coordinator, ITaskRunner taskRunner, MessageStorage messageStorage, IServiceLocator serviceLocator, IMessageHandlerRegistry handlerRegistry)
+                    public HandlerExecutionTask(TransportMessage.InComing transportMessage, Coordinator coordinator, ITaskRunner taskRunner, MessageStorage messageStorage, IServiceLocator serviceLocator, IMessageHandlerRegistry handlerRegistry)
                     {
                         MessageId = transportMessage.MessageId;
                         TransportMessage = transportMessage;

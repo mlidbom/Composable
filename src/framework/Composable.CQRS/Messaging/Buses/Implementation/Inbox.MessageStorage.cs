@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.System.Data.SqlClient;
+using Composable.System.Reflection;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -30,7 +32,7 @@ INSERT {InboxMessages.TableName}
                             .ExecuteNonQuery();
                     });
 
-            internal void MarkAsHandled(TransportMessage.InComing message) =>
+            internal void MarkAsSucceeded(TransportMessage.InComing message) =>
                  _connectionFactory.UseCommand(
                     command =>
                     {
@@ -44,6 +46,31 @@ WHERE {InboxMessages.MessageId} = @{InboxMessages.MessageId}
 ")
                                                  .AddParameter(InboxMessages.MessageId, message.MessageId)
                                                  .ExecuteNonQuery();
+
+                        Assert.Result.Assert(affectedRows == 1);
+                        return affectedRows;
+                    });
+
+            internal void RecordException(TransportMessage.InComing message, Exception exception ) =>
+                _connectionFactory.UseCommand(
+                    command =>
+                    {
+                        var affectedRows = command
+                                          .SetCommandText(
+                                               $@"
+UPDATE {InboxMessages.TableName} 
+    SET {InboxMessages.ExceptionCount} = {InboxMessages.ExceptionCount} + 1,
+        {InboxMessages.ExceptionType} = @{InboxMessages.ExceptionType},
+        {InboxMessages.ExceptionStackTrace} = @{InboxMessages.ExceptionStackTrace},
+        {InboxMessages.ExceptionMessage} = @{InboxMessages.ExceptionMessage}
+        
+WHERE {InboxMessages.MessageId} = @{InboxMessages.MessageId}
+")
+                                          .AddParameter(InboxMessages.MessageId, message.MessageId)
+                                          .AddNVarcharMaxParameter(InboxMessages.ExceptionStackTrace, exception.StackTrace)
+                                          .AddNVarcharMaxParameter(InboxMessages.ExceptionMessage, exception.Message)
+                                          .AddNVarcharParameter(InboxMessages.ExceptionType, 500, exception.GetType().GetFullNameCompilable())
+                                          .ExecuteNonQuery();
 
                         Assert.Result.Assert(affectedRows == 1);
                         return affectedRows;

@@ -14,6 +14,10 @@ namespace Composable.Messaging.Buses.Implementation
             internal const string MessageId = nameof(MessageId);
             internal const string Body = nameof(Body);
             public const string Status = nameof(Status);
+            public const string ExceptionCount = nameof(ExceptionCount);
+            public const string ExceptionMessage = nameof(ExceptionMessage);
+            public const string ExceptionType = nameof(ExceptionType);
+            public const string ExceptionStackTrace = nameof(ExceptionStackTrace);
         }
 
         public enum MessageStatus
@@ -39,8 +43,12 @@ BEGIN
 	    [{InboxMessages.Identity}] [int] IDENTITY(1,1) NOT NULL,
         [{InboxMessages.TypeId}] [uniqueidentifier] NOT NULL,
         [{InboxMessages.MessageId}] [uniqueidentifier] NOT NULL,
-	    [{InboxMessages.Status}] [bit]NOT NULL,
+	    [{InboxMessages.Status}] [smallint]NOT NULL,
 	    [{InboxMessages.Body}] [nvarchar](MAX) NOT NULL,
+        [{InboxMessages.ExceptionCount}] [int] NOT NULL DEFAULT 0,
+        [{InboxMessages.ExceptionType}] [nvarchar](500) NULL,
+        [{InboxMessages.ExceptionStackTrace}] [nvarchar](MAX) NULL,
+        [{InboxMessages.ExceptionMessage}] [nvarchar](MAX) NULL,
 
 
         CONSTRAINT [PK_{InboxMessages.TableName}] PRIMARY KEY CLUSTERED 

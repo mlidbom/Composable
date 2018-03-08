@@ -45,7 +45,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                          var innerResult = _messageTask(message);
                                                          if(message is BusApi.Remotable.IAtMostOnceMessage)
                                                          {
-                                                             _messageStorage.MarkAsHandled(TransportMessage);
+                                                             _messageStorage.MarkAsSucceeded(TransportMessage);
                                                          }
 
                                                          return innerResult;
@@ -58,6 +58,11 @@ namespace Composable.Messaging.Buses.Implementation
                                 }
                                 catch(Exception exception)
                                 {
+                                    if(message is BusApi.Remotable.IAtMostOnceMessage)
+                                    {
+                                        _messageStorage.RecordException(TransportMessage, exception);
+                                    }
+
                                     if(!retryPolicy.TryAwaitNextRetryTimeForException(exception))
                                     {
                                         if(message is BusApi.Remotable.IAtMostOnceMessage)

@@ -39,13 +39,13 @@ namespace ScratchPad
             }
         }
 
-        [Test] public void Looking_up_type_associated_data_via_static_caching_trick_is_5_times_faster_than_via_dictionary()
+        [Test] public void Looking_up_type_associated_data_via_static_caching_trick_is_4_times_faster_than_via_dictionary()
         {
             var iterations = 1_000_000.InstrumentationSlowdown(10);
 
             var dictionaryTotal = TimeAsserter.Execute(() => DoDictionaryTypeLookups<Email>(iterations)).Total;
 
-            var maxTotal = dictionaryTotal.DivideBy(5).InstrumentationSlowdown(3);
+            var maxTotal = dictionaryTotal.DivideBy(4).InstrumentationSlowdown(3);
             TimeAsserter.Execute(() => DoStaticTypeLookups<Email>(iterations), maxTotal: maxTotal, maxTries: 1);
         }
 

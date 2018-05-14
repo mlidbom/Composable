@@ -7,7 +7,7 @@ using Composable.Functional;
 using Composable.Messaging;
 using Composable.Persistence.EventStore;
 
-// ReSharper disable MemberCanBeMadeStatic.Global we want composable fluent API which does not happen with static members.
+// ReSharper disable MemberCanBeMadeStatic.Global we want _composable_ fluent APIs which does not happen with static members since we need instances to compose the API.
 
 namespace AccountManagement
 {

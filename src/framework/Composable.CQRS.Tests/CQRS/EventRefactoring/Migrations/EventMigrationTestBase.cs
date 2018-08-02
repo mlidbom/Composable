@@ -241,7 +241,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                         if(@event.GetType() != migratedHistory.ElementAt(index)
                                                               .GetType())
                         {
-                            Assert.Fail(
+                            throw new AssertionException(
                                 $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory.ElementAt(index) .GetType()}");
                         }
                     });

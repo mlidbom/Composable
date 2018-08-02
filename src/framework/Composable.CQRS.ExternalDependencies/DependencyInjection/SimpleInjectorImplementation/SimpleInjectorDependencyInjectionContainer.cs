@@ -51,7 +51,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
                     Contract.Assert.That(lifestyle == SimpleInjector.Lifestyle.Singleton, "Instance can only be used with singletons.");
                     foreach(var serviceType in componentRegistration.ServiceTypes)
                     {
-                        _container.RegisterSingleton(serviceType, componentRegistration.InstantiationSpec.Instance);
+                        _container.RegisterInstance(serviceType, componentRegistration.InstantiationSpec.Instance);
                     }
                 } else if(componentRegistration.InstantiationSpec.FactoryMethod != null)
                 {

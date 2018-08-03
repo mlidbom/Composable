@@ -5,6 +5,7 @@ using Composable.System.Threading.ResourceAccess;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;
+using Composable.System;
 
 namespace Composable.Tests.Testing.Threading
 {

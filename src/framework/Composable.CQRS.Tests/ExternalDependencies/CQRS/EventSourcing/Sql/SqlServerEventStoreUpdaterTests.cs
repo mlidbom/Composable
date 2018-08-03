@@ -12,6 +12,7 @@ using Composable.Testing.Threading;
 using Composable.Tests.CQRS;
 using FluentAssertions;
 using NUnit.Framework;
+using Composable.System;
 
 namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
 {

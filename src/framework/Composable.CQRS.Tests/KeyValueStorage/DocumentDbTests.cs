@@ -11,6 +11,7 @@ using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
+using Composable.System;
 
 namespace Composable.Tests.KeyValueStorage
 {
@@ -664,7 +665,7 @@ namespace Composable.Tests.KeyValueStorage
             var user1 = new User { Id = Guid.Empty };
 
             UseInTransactionalScope((reader, updater) => updater.Invoking(@this => @this.Save(user1))
-                                                                .ShouldThrow<Exception>());
+                                                                .Should().Throw<Exception>());
         }
 
         [Test]

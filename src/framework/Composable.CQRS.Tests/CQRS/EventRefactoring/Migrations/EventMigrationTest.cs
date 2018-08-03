@@ -32,7 +32,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                     new MigrationScenario(
                         Seq.OfTypes<Ec1, E1, Ef, Ef>(),
                         Seq.OfTypes<Ec1, Ef, E2, Ef>())))
-                .ShouldThrow<Exception>();
+                .Should().Throw<Exception>();
         }
 
         [Test]
@@ -253,7 +253,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                         Seq.OfTypes<Ec1, E2, E3, E1>(),
                         Before<E1>.Insert<E2>(),
                         After<E2>.Insert<E3>())))
-                .ShouldThrow<NonIdempotentMigrationDetectedException>();
+                .Should().Throw<NonIdempotentMigrationDetectedException>();
         }
 
         [Test]

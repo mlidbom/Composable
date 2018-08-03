@@ -1,6 +1,7 @@
 ﻿using Composable.Testing.Performance;
 using FluentAssertions;
 using NUnit.Framework;
+using Composable.System;
 
 namespace Composable.Tests.Testing.Performance
 {

@@ -2,6 +2,7 @@
 using Composable.GenericAbstractions.Time;
 using FluentAssertions;
 using NUnit.Framework;
+using Composable.System;
 
 namespace Composable.Tests.GenericAbstractions.Time
 {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Composable.System.Linq;
 using Composable.Testing.Threading;
 using FluentAssertions;
+using Composable.System;
 
 namespace Composable.Tests.Testing.Threading
 {

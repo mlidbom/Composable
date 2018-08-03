@@ -13,6 +13,7 @@ using Composable.Testing.Threading;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
+using Composable.System;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {

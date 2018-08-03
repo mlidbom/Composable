@@ -44,14 +44,14 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.IntegerId
             entity2.Remove();
             root.Entities.Exists(entity2.Id).Should().Be(false);
             root.Entities.InCreationOrder.Count.Should().Be(1);
-            root.Invoking(_ => root.Entities.Get(entity2.Id)).ShouldThrow<Exception>();
-            root.Invoking(_ => { var __ = root.Entities[entity2.Id]; }).ShouldThrow<Exception>();
+            root.Invoking(_ => root.Entities.Get(entity2.Id)).Should().Throw<Exception>();
+            root.Invoking(_ => { var __ = root.Entities[entity2.Id]; }).Should().Throw<Exception>();
 
             entity1.Remove();
             root.Entities.Exists(entity1.Id).Should().Be(false);
             root.Entities.InCreationOrder.Count.Should().Be(0);
-            root.Invoking(_ => root.Entities.Get(entity1.Id)).ShouldThrow<Exception>();
-            root.Invoking(_ => { var __ = root.Entities[entity1.Id]; }).ShouldThrow<Exception>();
+            root.Invoking(_ => root.Entities.Get(entity1.Id)).Should().Throw<Exception>();
+            root.Invoking(_ => { var __ = root.Entities[entity1.Id]; }).Should().Throw<Exception>();
         }
 
         [Test]
@@ -96,14 +96,14 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.IntegerId
             entity2.Remove();
             root.Entities.Exists(entity2.Id).Should().Be(false);
             root.Entities.InCreationOrder.Count.Should().Be(1);
-            root.Invoking(_ => root.Entities.Get(entity2.Id)).ShouldThrow<Exception>();
-            root.Invoking(_ => { var __ = root.Entities[entity2.Id]; }).ShouldThrow<Exception>();
+            root.Invoking(_ => root.Entities.Get(entity2.Id)).Should().Throw<Exception>();
+            root.Invoking(_ => { var __ = root.Entities[entity2.Id]; }).Should().Throw<Exception>();
 
             entity1.Remove();
             root.Entities.Exists(entity1.Id).Should().Be(false);
             root.Entities.InCreationOrder.Count.Should().Be(0);
-            root.Invoking(_ => root.Entities.Get(entity1.Id)).ShouldThrow<Exception>();
-            root.Invoking(_ => { var __ = root.Entities[entity1.Id]; }).ShouldThrow<Exception>();
+            root.Invoking(_ => root.Entities.Get(entity1.Id)).Should().Throw<Exception>();
+            root.Invoking(_ => { var __ = root.Entities[entity1.Id]; }).Should().Throw<Exception>();
         }
 
 
@@ -138,14 +138,14 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.IntegerId
             entity2.Remove();
             root.Entities.Exists(entity2.Id).Should().Be(false);
             root.Entities.InCreationOrder.Count.Should().Be(1);
-            root.Invoking(_ => root.Entities.Get(entity2.Id)).ShouldThrow<Exception>();
-            root.Invoking(_ => { var __ = root.Entities[entity2.Id]; }).ShouldThrow<Exception>();
+            root.Invoking(_ => root.Entities.Get(entity2.Id)).Should().Throw<Exception>();
+            root.Invoking(_ => { var __ = root.Entities[entity2.Id]; }).Should().Throw<Exception>();
 
             entity1.Remove();
             root.Entities.Exists(entity1.Id).Should().Be(false);
             root.Entities.InCreationOrder.Count.Should().Be(0);
-            root.Invoking(_ => root.Entities.Get(entity1.Id)).ShouldThrow<Exception>();
-            root.Invoking(_ => { var __ = root.Entities[entity1.Id]; }).ShouldThrow<Exception>();
+            root.Invoking(_ => root.Entities.Get(entity1.Id)).Should().Throw<Exception>();
+            root.Invoking(_ => { var __ = root.Entities[entity1.Id]; }).Should().Throw<Exception>();
         }
 
     }

@@ -3,6 +3,7 @@ using Composable.Testing.Performance;
 using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
+using Composable.System;
 
 namespace Composable.Tests.Contracts
 {

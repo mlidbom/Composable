@@ -25,7 +25,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             var data = singleString.Serialize();
             var roundTripped = SingleStringProperty.Deserialize(data);
 
-            roundTripped.ShouldBeEquivalentTo(singleString);
+            roundTripped.Should().BeEquivalentTo(singleString);
         }
 
         [Test] public void Instance_with_all_property_types_and_null_recursive_property_list_and_array_roundtrip_correctly()
@@ -36,7 +36,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             var data = allPropertyTypesCountingFrom1.Serialize();
             var roundTripped = HasAllPropertyTypes.Deserialize(data);
 
-            roundTripped.ShouldBeEquivalentTo(allPropertyTypesCountingFrom1);
+            roundTripped.Should().BeEquivalentTo(allPropertyTypesCountingFrom1);
         }
 
         [Test] public void Instance_with_recursive_property_with_all_value_type_roundtrip_correctly()
@@ -50,7 +50,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             var data = allPropertyTypesCountingFrom1.Serialize();
             var roundTripped = HasAllPropertyTypes.Deserialize(data);
 
-            roundTripped.ShouldBeEquivalentTo(allPropertyTypesCountingFrom1);
+            roundTripped.Should().BeEquivalentTo(allPropertyTypesCountingFrom1);
         }
 
         [Test] public void Instance_with_recursive_list_property_with_one_null_value_roundtrip_correctly()
@@ -68,7 +68,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             var data = allPropertyTypesCountingFrom1.Serialize();
             var roundTripped = HasAllPropertyTypes.Deserialize(data);
 
-            roundTripped.ShouldBeEquivalentTo(allPropertyTypesCountingFrom1);
+            roundTripped.Should().BeEquivalentTo(allPropertyTypesCountingFrom1);
         }
 
 
@@ -87,7 +87,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             var data = allPropertyTypesCountingFrom1.Serialize();
             var roundTripped = HasAllPropertyTypes.Deserialize(data);
 
-            roundTripped.ShouldBeEquivalentTo(allPropertyTypesCountingFrom1);
+            roundTripped.Should().BeEquivalentTo(allPropertyTypesCountingFrom1);
         }
     }
 }

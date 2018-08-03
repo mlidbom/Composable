@@ -87,7 +87,7 @@ namespace AccountManagement.UnitTests.UI.Commands.UserCommands
             _registerAccountUiCommand.Password = null; //Null is normally caught by the Require attribute.
             // ReSharper disable once AssignNullToNotNullAttribute
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-            _registerAccountUiCommand.Invoking(command => command.Validate(null).ToArray()).ShouldThrow<Exception>();
+            _registerAccountUiCommand.Invoking(command => command.Validate(null).ToArray()).Should().Throw<Exception>();
         }
 
         string ValidateAndGetFirstMessage() => CommandValidator.ValidationFailures(_registerAccountUiCommand).First().ErrorMessage;

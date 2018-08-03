@@ -17,11 +17,11 @@ namespace Composable.Tests.System.Configuration
 
         [Test] public void ConnectionStringProvider_should_throw_ConfigurationErrorsException_when_name_does_not_exist() =>
             this.Invoking(_ => _providerSource.GetConnectionProvider("ErrorTest1").OpenConnection())
-                .ShouldThrow<ConfigurationErrorsException>();
+                .Should().Throw<ConfigurationErrorsException>();
 
         [Test] public void ConnectionStringProvider_exception_should_contain_ConnectionString_name() =>
             this.Invoking(_ => _providerSource.GetConnectionProvider("ErrorTest1").OpenConnection())
-                .ShouldThrow<ConfigurationErrorsException>()
+                .Should().Throw<ConfigurationErrorsException>()
                 .And.Message.Should()
                 .Contain("ErrorTest1");
     }

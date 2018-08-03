@@ -95,7 +95,7 @@ namespace Composable.Tests.Serialization
                                             insertionOrder: 40,
                                             utcTimeStamp: DateTime.Now + 1.Minutes());
 
-            var eventWithOnlySubclassValues = new TestEvent("Test1", "Test2")
+            TestEvent eventWithOnlySubclassValues = new TestEvent("Test1", "Test2")
                                               {
                                                   EventId = Guid.Empty,
                                                   UtcTimeStamp = DateTime.MinValue
@@ -103,7 +103,7 @@ namespace Composable.Tests.Serialization
 
             var eventWithAllValuesJson = _eventSerializer.Serialize(eventWithAllValuesSet);
             var eventWithOnlySubclassValuesJson = _eventSerializer.Serialize(eventWithOnlySubclassValues);
-            var roundTripped = _eventSerializer.Deserialize(typeof(TestEvent), eventWithAllValuesJson);
+            TestEvent roundTripped = (TestEvent)_eventSerializer.Deserialize(typeof(TestEvent), eventWithAllValuesJson);
 
             SafeConsole.WriteLine(eventWithAllValuesJson);
 
@@ -113,8 +113,11 @@ namespace Composable.Tests.Serialization
 }");
             eventWithAllValuesJson.Should().Be(eventWithOnlySubclassValuesJson);
 
-            roundTripped.ShouldBeEquivalentTo(eventWithOnlySubclassValues,
-                config => config.Excluding(@event => @event.UtcTimeStamp)//Timestamp is defaulted in the constructor used by serialization.
+            roundTripped.Should().BeEquivalentTo(eventWithOnlySubclassValues,
+                config => config
+                        .RespectingRuntimeTypes()
+                        .ComparingByMembers<AggregateEvent>()
+                        .Excluding(@event => @event.UtcTimeStamp)//Timestamp is defaulted in the constructor used by serialization.
                         .Excluding(@event => @event.EventId)
                         .Excluding(@event => @event.DeduplicationId)
                 );

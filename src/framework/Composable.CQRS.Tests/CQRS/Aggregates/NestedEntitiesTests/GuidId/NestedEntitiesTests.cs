@@ -84,20 +84,20 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
             Qm.Entities.Exists(qmEntity2.Id).Should().Be(false);
             Ag.Entities.InCreationOrder.Count.Should().Be(1);
             Qm.Entities.InCreationOrder.Count.Should().Be(1);
-            Ag.Invoking(_ => Ag.Entities.Get(agEntity2.Id)).ShouldThrow<Exception>();
-            Qm.Invoking(_ => Ag.Entities.Get(qmEntity2.Id)).ShouldThrow<Exception>();
-            Ag.Invoking(_ => { var __ = Ag.Entities[agEntity2.Id]; }).ShouldThrow<Exception>();
-            Qm.Invoking(_ => { var __ = Ag.Entities[qmEntity2.Id]; }).ShouldThrow<Exception>();
+            Ag.Invoking(_ => Ag.Entities.Get(agEntity2.Id)).Should().Throw<Exception>();
+            Qm.Invoking(_ => Ag.Entities.Get(qmEntity2.Id)).Should().Throw<Exception>();
+            Ag.Invoking(_ => { var __ = Ag.Entities[agEntity2.Id]; }).Should().Throw<Exception>();
+            Qm.Invoking(_ => { var __ = Ag.Entities[qmEntity2.Id]; }).Should().Throw<Exception>();
 
             agEntity1.Remove();
             Ag.Entities.Exists(agEntity1.Id).Should().Be(false);
             Qm.Entities.Exists(agEntity1.Id).Should().Be(false);
             Ag.Entities.InCreationOrder.Count.Should().Be(0);
             Qm.Entities.InCreationOrder.Count.Should().Be(0);
-            Ag.Invoking(_ => Ag.Entities.Get(agEntity1.Id)).ShouldThrow<Exception>();
-            Qm.Invoking(_ => Ag.Entities.Get(agEntity1.Id)).ShouldThrow<Exception>();
-            Ag.Invoking(_ => { var __ = Ag.Entities[agEntity1.Id]; }).ShouldThrow<Exception>();
-            Qm.Invoking(_ => { var __ = Ag.Entities[agEntity1.Id]; }).ShouldThrow<Exception>();
+            Ag.Invoking(_ => Ag.Entities.Get(agEntity1.Id)).Should().Throw<Exception>();
+            Qm.Invoking(_ => Ag.Entities.Get(agEntity1.Id)).Should().Throw<Exception>();
+            Ag.Invoking(_ => { var __ = Ag.Entities[agEntity1.Id]; }).Should().Throw<Exception>();
+            Qm.Invoking(_ => { var __ = Ag.Entities[agEntity1.Id]; }).Should().Throw<Exception>();
         }
 
         [Test]
@@ -129,7 +129,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
 
             var entity1Id = Guid.NewGuid();
             var agComponentEntity1 = agComponent.AddEntity("entity1", entity1Id);
-            agComponent.Invoking(@this => @this.AddEntity("entity2", entity1Id)).ShouldThrow<Exception>();
+            agComponent.Invoking(@this => @this.AddEntity("entity2", entity1Id)).Should().Throw<Exception>();
 
             var qmComponentEntity1 = qmComponent.Entities.InCreationOrder[0];
 
@@ -147,7 +147,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
 
             var entity2Id = Guid.NewGuid();
             var agEntity2 = agComponent.AddEntity("entity2", entity2Id);
-            agComponent.Invoking(@this => @this.AddEntity("entity3", entity2Id)).ShouldThrow<Exception>();
+            agComponent.Invoking(@this => @this.AddEntity("entity3", entity2Id)).Should().Throw<Exception>();
 
             var qmEntity2 = qmComponent.Entities.InCreationOrder[1];
             agEntity2.Name.Should().Be("entity2");
@@ -179,20 +179,20 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
             qmComponent.Entities.Exists(agEntity2.Id).Should().Be(false);
             agComponent.Entities.InCreationOrder.Count.Should().Be(1);
             qmComponent.Entities.InCreationOrder.Count.Should().Be(1);
-            agComponent.Invoking(@this => @this.Entities.Get(agEntity2.Id)).ShouldThrow<Exception>();
-            qmComponent.Invoking(@this => @this.Entities.Get(agEntity2.Id)).ShouldThrow<Exception>();
-            agComponent.Invoking(@this => { var __ = @this.Entities[agEntity2.Id]; }).ShouldThrow<Exception>();
-            qmComponent.Invoking(@this => { var __ = @this.Entities[agEntity2.Id]; }).ShouldThrow<Exception>();
+            agComponent.Invoking(@this => @this.Entities.Get(agEntity2.Id)).Should().Throw<Exception>();
+            qmComponent.Invoking(@this => @this.Entities.Get(agEntity2.Id)).Should().Throw<Exception>();
+            agComponent.Invoking(@this => { var __ = @this.Entities[agEntity2.Id]; }).Should().Throw<Exception>();
+            qmComponent.Invoking(@this => { var __ = @this.Entities[agEntity2.Id]; }).Should().Throw<Exception>();
 
             agComponentEntity1.Remove();
             agComponent.Entities.Exists(agComponentEntity1.Id).Should().Be(false);
             qmComponent.Entities.Exists(agComponentEntity1.Id).Should().Be(false);
             agComponent.Entities.InCreationOrder.Count.Should().Be(0);
             qmComponent.Entities.InCreationOrder.Count.Should().Be(0);
-            agComponent.Invoking(@this => @this.Entities.Get(agComponentEntity1.Id)).ShouldThrow<Exception>();
-            qmComponent.Invoking(@this => @this.Entities.Get(agComponentEntity1.Id)).ShouldThrow<Exception>();
-            agComponent.Invoking(@this => { var __ = @this.Entities[agComponentEntity1.Id]; }).ShouldThrow<Exception>();
-            qmComponent.Invoking(@this => { var __ = @this.Entities[agComponentEntity1.Id]; }).ShouldThrow<Exception>();
+            agComponent.Invoking(@this => @this.Entities.Get(agComponentEntity1.Id)).Should().Throw<Exception>();
+            qmComponent.Invoking(@this => @this.Entities.Get(agComponentEntity1.Id)).Should().Throw<Exception>();
+            agComponent.Invoking(@this => { var __ = @this.Entities[agComponentEntity1.Id]; }).Should().Throw<Exception>();
+            qmComponent.Invoking(@this => { var __ = @this.Entities[agComponentEntity1.Id]; }).Should().Throw<Exception>();
         }
 
 
@@ -206,7 +206,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
             var agNestedEntity1 = agRootEntity.AddEntity("entity1", entity1Id);
             var qmNestedEntity1 = qmRootEntity.Entities.InCreationOrder[0];
 
-            agRootEntity.Invoking(@this => @this.AddEntity("entity2", entity1Id)).ShouldThrow<Exception>();
+            agRootEntity.Invoking(@this => @this.AddEntity("entity2", entity1Id)).Should().Throw<Exception>();
 
             agNestedEntity1.Id.Should().Be(entity1Id);
             qmNestedEntity1.Id.Should().Be(entity1Id);
@@ -224,7 +224,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
             var entity2Id = Guid.NewGuid();
             var agNestedEntity2 = agRootEntity.AddEntity("entity2", entity2Id);
             var qmNestedEntity2 = qmRootEntity.Entities.InCreationOrder[1];
-            agRootEntity.Invoking(@this => @this.AddEntity("entity3", entity2Id)).ShouldThrow<Exception>();
+            agRootEntity.Invoking(@this => @this.AddEntity("entity3", entity2Id)).Should().Throw<Exception>();
 
             agNestedEntity2.Id.Should().Be(entity2Id);
             qmNestedEntity2.Id.Should().Be(entity2Id);
@@ -257,20 +257,20 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
             qmRootEntity.Entities.Exists(agNestedEntity2.Id).Should().Be(false);
             agRootEntity.Entities.InCreationOrder.Count.Should().Be(1);
             qmRootEntity.Entities.InCreationOrder.Count.Should().Be(1);
-            agRootEntity.Invoking(_ => agRootEntity.Entities.Get(agNestedEntity2.Id)).ShouldThrow<Exception>();
-            qmRootEntity.Invoking(_ => agRootEntity.Entities.Get(agNestedEntity2.Id)).ShouldThrow<Exception>();
-            agRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[agNestedEntity2.Id]; }).ShouldThrow<Exception>();
-            qmRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[agNestedEntity2.Id]; }).ShouldThrow<Exception>();
+            agRootEntity.Invoking(_ => agRootEntity.Entities.Get(agNestedEntity2.Id)).Should().Throw<Exception>();
+            qmRootEntity.Invoking(_ => agRootEntity.Entities.Get(agNestedEntity2.Id)).Should().Throw<Exception>();
+            agRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[agNestedEntity2.Id]; }).Should().Throw<Exception>();
+            qmRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[agNestedEntity2.Id]; }).Should().Throw<Exception>();
 
             agNestedEntity1.Remove();
             agRootEntity.Entities.Exists(agNestedEntity1.Id).Should().Be(false);
             qmRootEntity.Entities.Exists(agNestedEntity1.Id).Should().Be(false);
             agRootEntity.Entities.InCreationOrder.Count.Should().Be(0);
             qmRootEntity.Entities.InCreationOrder.Count.Should().Be(0);
-            agRootEntity.Invoking(_ => agRootEntity.Entities.Get(agNestedEntity1.Id)).ShouldThrow<Exception>();
-            qmRootEntity.Invoking(_ => agRootEntity.Entities.Get(agNestedEntity1.Id)).ShouldThrow<Exception>();
-            agRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[agNestedEntity1.Id]; }).ShouldThrow<Exception>();
-            qmRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[agNestedEntity1.Id]; }).ShouldThrow<Exception>();
+            agRootEntity.Invoking(_ => agRootEntity.Entities.Get(agNestedEntity1.Id)).Should().Throw<Exception>();
+            qmRootEntity.Invoking(_ => agRootEntity.Entities.Get(agNestedEntity1.Id)).Should().Throw<Exception>();
+            agRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[agNestedEntity1.Id]; }).Should().Throw<Exception>();
+            qmRootEntity.Invoking(_ => { var __ = agRootEntity.Entities[agNestedEntity1.Id]; }).Should().Throw<Exception>();
         }
 
     }

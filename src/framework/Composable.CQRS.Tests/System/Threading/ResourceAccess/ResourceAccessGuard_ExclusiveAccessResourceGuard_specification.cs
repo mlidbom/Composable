@@ -6,6 +6,7 @@ using Composable.System.Threading.ResourceAccess;
 using FluentAssertions;
 using NUnit.Framework;
 using Assert = NUnit.Framework.Assert;
+using Composable.System;
 
 namespace Composable.Tests.System.Threading.ResourceAccess
 {

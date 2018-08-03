@@ -12,6 +12,6 @@ namespace AccountManagement.UserStories.Scenarios
         public abstract TResult Execute();
 
 
-        public ExceptionAssertions<TException> ExecutingShouldThrow<TException>() where TException : Exception => this.Invoking(@this => @this.Execute()).ShouldThrow<TException>();
+        public ExceptionAssertions<TException> ExecutingShouldThrow<TException>() where TException : Exception => this.Invoking(@this => @this.Execute()).Should().Throw<TException>();
     }
 }

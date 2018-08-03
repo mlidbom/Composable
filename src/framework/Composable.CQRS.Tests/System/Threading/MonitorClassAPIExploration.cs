@@ -3,6 +3,7 @@ using System.Threading;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
+using Composable.System;
 
 namespace Composable.Tests.System.Threading
 {

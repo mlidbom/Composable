@@ -16,6 +16,7 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using ITestingEventStore = Composable.DependencyInjection.Persistence.IEventStore<Composable.Tests.ITestingEventStoreUpdater, Composable.Tests.ITestingEventStoreReader>;
+using Composable.System;
 
 // ReSharper disable AccessToModifiedClosure
 
@@ -247,10 +248,11 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                     });
 
                 migratedHistory.Cast<AggregateEvent>()
-                               .ShouldAllBeEquivalentTo(
-                                   expected,
+                               .Should().BeEquivalentTo(
+                                   expected.Cast<AggregateEvent>(),
                                    config => config.RespectingRuntimeTypes()
                                                    .WithStrictOrdering()
+                                                   .ComparingByMembers<AggregateEvent>()
                                                    .Excluding(@event => @event.DeduplicationId)
                                                    .Excluding(@event => @event.EventId)
                                                    .Excluding(@event => @event.InsertionOrder)

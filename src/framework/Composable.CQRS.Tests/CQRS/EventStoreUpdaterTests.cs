@@ -482,7 +482,7 @@ namespace Composable.Tests.CQRS
                                         Assert.That(_eventSpy.DispatchedMessages.OfType<IAggregateEvent>().Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
                                         var allPersistedEvents = ServiceLocator.EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
 
-                                        _eventSpy.DispatchedMessages.OfType<IAggregateEvent>().ShouldBeEquivalentTo(allPersistedEvents,options => options.WithStrictOrdering());
+                                        _eventSpy.DispatchedMessages.OfType<IAggregateEvent>().Should().BeEquivalentTo(allPersistedEvents,options => options.WithStrictOrdering());
                                     });
         }
 

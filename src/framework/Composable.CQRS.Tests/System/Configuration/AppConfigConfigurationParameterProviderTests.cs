@@ -18,7 +18,7 @@ namespace Composable.Tests.System.Configuration
 
         [Test] public void ParameterProvider_exception_should_contain_parameter_key() =>
             this.Invoking(_ => _provider.GetString("ErrorTest1"))
-                .ShouldThrow<ConfigurationErrorsException>()
+                .Should().Throw<ConfigurationErrorsException>()
                 .And.Message.Should()
                 .Contain("ErrorTest1");
     }

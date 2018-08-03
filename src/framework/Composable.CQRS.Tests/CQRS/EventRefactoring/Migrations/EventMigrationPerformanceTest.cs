@@ -13,6 +13,7 @@ using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
 using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
+using Composable.System;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {

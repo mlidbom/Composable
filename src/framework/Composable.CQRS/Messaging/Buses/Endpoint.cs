@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
+using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
@@ -62,7 +63,12 @@ namespace Composable.Messaging.Buses
 
         public async Task ConnectAsync()
         {
-            await Task.WhenAll(_endpointRegistry.ServerEndpoints.Select(address => _interProcessTransport.ConnectAsync(address)));
+            var serverEndpoints = _endpointRegistry.ServerEndpoints.ToSet();
+            if (!_configuration.IsPureClientEndpoint)
+            {
+                serverEndpoints.Add(Address); //Yes, we do connect to ourselves. Scheduled commands need to dispatch over the remote protocol to get the delivery guarantees...
+            }
+            await Task.WhenAll(serverEndpoints.Select(address => _interProcessTransport.ConnectAsync(address)));
         }
 
         static void RunSanityChecks()

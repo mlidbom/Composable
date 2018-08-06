@@ -13,13 +13,13 @@ namespace Composable.Messaging.Buses
     ///<summary>Dispatches messages within a process.</summary>
     public interface ILocalApiNavigatorSession
     {
-        ///<summary>Syncronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
+        ///<summary>Synchronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
         TResult Execute<TResult>(BusApi.StrictlyLocal.IQuery<TResult> query);
 
-        ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
+        ///<summary>Synchronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
         TResult Execute<TResult>(BusApi.StrictlyLocal.ICommand<TResult> command);
 
-        ///<summary>Syncronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
+        ///<summary>Synchronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
         void Execute(BusApi.StrictlyLocal.ICommand command);
     }
 
@@ -35,7 +35,7 @@ namespace Composable.Messaging.Buses
         ///<summary>Gets the result of a handler somewhere on the bus handling the <paramref name="query"/></summary>
         Task<TResult> GetAsync<TResult>(BusApi.Remotable.NonTransactional.IQuery<TResult> query);
 
-        ///<summary>Syncronous wrapper for: <see cref="GetAsync{TResult}"/>.</summary>
+        ///<summary>Synchronous wrapper for: <see cref="GetAsync{TResult}"/>.</summary>
         TResult Get<TResult>(BusApi.Remotable.NonTransactional.IQuery<TResult> query);
     }
 

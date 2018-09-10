@@ -18,7 +18,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class Inbox : IInbox, IDisposable
     {
-        readonly EndpointConfiguration _configuration;
+        readonly RealEndpointConfiguration _configuration;
         readonly ITypeMapper _typeMapper;
         readonly IResourceGuard _resourceGuard = ResourceGuard.WithTimeout(1.Seconds());
 
@@ -38,7 +38,7 @@ namespace Composable.Messaging.Buses.Implementation
         CancellationTokenSource _cancellationTokenSource;
         IRemotableMessageSerializer _serializer;
 
-        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
+        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, RealEndpointConfiguration configuration, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
         {
             _configuration = configuration;
             _typeMapper = typeMapper;

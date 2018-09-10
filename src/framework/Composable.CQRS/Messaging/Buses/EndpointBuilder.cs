@@ -79,8 +79,12 @@ namespace Composable.Messaging.Buses
                 _container.Register(Singleton.For<IEndpointRegistry>().CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => new AppConfigEndpointRegistry(configurationParameterProvider)));
             }
 
+            if(!_container.HasComponent<IConfigurationParameterProvider>())
+            {
+                _container.Register(Singleton.For<IConfigurationParameterProvider>().CreatedBy(() => new AppConfigConfigurationParameterProvider()));
+            }
+
             _container.Register(
-                Singleton.For<IConfigurationParameterProvider>().CreatedBy(() => new AppConfigConfigurationParameterProvider()),
                 Singleton.For<ISqlConnectionProviderSource>().CreatedBy(() => _connectionProvider).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITypeMappingRegistar, ITypeMapper, TypeMapper>().CreatedBy(() => _typeMapper).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITaskRunner>().CreatedBy(() => new TaskRunner()),
@@ -116,6 +120,8 @@ namespace Composable.Messaging.Buses
             _connectionProvider = _container.RunMode.IsTesting
                                       ? (ISqlConnectionProviderSource)new SqlServerDatabasePoolSqlConnectionProviderSource()
                                       : new ConfigurationSqlConnectionProviderSource(_container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>());
+            //Review:mlidbo: This is not pretty. Find a better way than a magic init method that has to be called at a magic moment.
+            Configuration.Init(_container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>());
         }
 
         bool _disposed;

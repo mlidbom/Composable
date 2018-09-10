@@ -61,7 +61,7 @@ namespace Composable.Messaging.Buses
 
             _connectionProvider = container.RunMode.IsTesting
                                          ? (ISqlConnectionProviderSource)new SqlServerDatabasePoolSqlConnectionProviderSource()
-                                         : new AppConfigSqlConnectionProviderSource();
+                                         : new ConfigurationSqlConnectionProviderSource(new AppConfigConfigurationParameterProvider());
 
             var endpointSqlConnection = new LazySqlServerConnectionProvider(
                 () => _container.CreateServiceLocator().Resolve<ISqlConnectionProviderSource>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString);

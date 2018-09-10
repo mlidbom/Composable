@@ -58,7 +58,7 @@ namespace Composable.Testing.Databases
                 _masterConnectionString = masterConnectionString;
             } else
             {
-                _masterConnectionString = new AppConfigSqlConnectionProviderSource().GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
+                _masterConnectionString = new ConfigurationSqlConnectionProviderSource(new AppConfigConfigurationParameterProvider()).GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
             }
 
             _masterConnectionString = _masterConnectionString.Replace("\\", "_");

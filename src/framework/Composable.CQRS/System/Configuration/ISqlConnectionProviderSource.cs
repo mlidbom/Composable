@@ -6,6 +6,6 @@ namespace Composable.System.Configuration
     interface ISqlConnectionProviderSource
     {
         ///<summary>Returns the connection string with the given name.</summary>
-        Data.SqlClient.ISqlConnectionProvider GetConnectionProvider(string parameterName);
+        Data.SqlClient.ISqlConnectionProvider GetConnectionProvider(string connectionStringName);
     }
 }

@@ -85,7 +85,9 @@ namespace Composable.Messaging.Buses
             }
 
             _container.Register(
-                Singleton.For<ISqlConnectionProviderSource>().CreatedBy(() => _connectionProvider).DelegateToParentServiceLocatorWhenCloning(),
+                Singleton.For<ISqlConnectionProviderSource>().CreatedBy(() => _connectionProvider = _container.RunMode.IsTesting
+                                                                                                                    ? (ISqlConnectionProviderSource)new SqlServerDatabasePoolSqlConnectionProviderSource(_container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())
+                                                                                                                    : new ConfigurationSqlConnectionProviderSource(_container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITypeMappingRegistar, ITypeMapper, TypeMapper>().CreatedBy(() => _typeMapper).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITaskRunner>().CreatedBy(() => new TaskRunner()),
                 Singleton.For<EndpointId>().CreatedBy(() => Configuration.Id),
@@ -117,9 +119,6 @@ namespace Composable.Messaging.Buses
                 _container.Register(Singleton.For<IUtcTimeTimeSource, TestingTimeSource>().CreatedBy(() => TestingTimeSource.FollowingSystemClock).DelegateToParentServiceLocatorWhenCloning());
             }
 
-            _connectionProvider = _container.RunMode.IsTesting
-                                      ? (ISqlConnectionProviderSource)new SqlServerDatabasePoolSqlConnectionProviderSource()
-                                      : new ConfigurationSqlConnectionProviderSource(_container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>());
             //Review:mlidbo: This is not pretty. Find a better way than a magic init method that has to be called at a magic moment.
             Configuration.Init(_container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>());
         }

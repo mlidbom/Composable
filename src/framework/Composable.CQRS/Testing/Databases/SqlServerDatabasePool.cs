@@ -19,6 +19,7 @@ namespace Composable.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
+        readonly IConfigurationParameterProvider _configurationParameterProvider;
         const string InitialCatalogMaster = ";Initial Catalog=master;";
 
         static string _masterConnectionString;
@@ -79,6 +80,11 @@ namespace Composable.Testing.Databases
 
         ILogger _log = Logger.For<SqlServerDatabasePool>();
         bool _disposed;
+
+        public SqlServerDatabasePool(IConfigurationParameterProvider configurationParameterProvider)
+        {
+            _configurationParameterProvider = configurationParameterProvider;
+        }
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 

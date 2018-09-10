@@ -1,6 +1,8 @@
 using System;
+using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.Testing.Databases;
+using Composable.Tests.System.Configuration;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -16,7 +18,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
 
         [SetUp] public void SetupTask()
         {
-            _manager = new SqlServerDatabasePool();
+            _manager = new SqlServerDatabasePool(new AppConfigConfigurationParameterProvider());
             _dB1ConnectionString = _manager.ConnectionProviderFor(Db1);
             _dB2ConnectionString = _manager.ConnectionProviderFor(Db2);
         }

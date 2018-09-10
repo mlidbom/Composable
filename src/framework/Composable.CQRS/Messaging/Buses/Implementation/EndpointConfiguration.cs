@@ -22,17 +22,19 @@ namespace Composable.Messaging.Buses.Implementation
                         return "invalid";
                     } else
                     {
-                        var port = _configurationParameterProvider.GetString($"HostedEndpoint.{Name}.Port").Trim();
-                        return $"tcp://localhost:{port}";
+                        return $"tcp://localhost:{EndpointConfigurationValue("Port")}";
                     }
                 }
             }
         }
 
+        string EndpointConfigurationValue(string name) => _configurationParameterProvider.GetString(ConfigurationParameterName(name)).Trim();
+        string ConfigurationParameterName(string name) => $"HostedEndpoint.{Name}.{name}";
+
         public string Name { get; }
         public EndpointId Id { get; }
-        public string ConnectionStringName => Name;
-        internal bool IsPureClientEndpoint { get; set; }
+        public string ConnectionStringName => ConfigurationParameterName("ConnectionString");
+        internal bool IsPureClientEndpoint { get; }
 
         internal bool HasMessageHandlers => !IsPureClientEndpoint;
 

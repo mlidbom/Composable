@@ -26,10 +26,10 @@ namespace AccountManagement
 
         static void RegisterDomainComponents(IEndpointBuilder builder)
         {
-            builder.Container.RegisterSqlServerEventStore(builder.Configuration.ConnectionStringName)
+            builder.RegisterSqlServerEventStore()
                    .HandleAggregate<Account, AccountEvent.Root>(builder.RegisterHandlers);
 
-            builder.Container.RegisterSqlServerDocumentDb(builder.Configuration.ConnectionStringName)
+            builder.RegisterSqlServerDocumentDb()
                    .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(builder.RegisterHandlers)
                    .HandleDocumentType<AccountStatistics.SingletonStatisticsQuerymodel>(builder.RegisterHandlers);
         }

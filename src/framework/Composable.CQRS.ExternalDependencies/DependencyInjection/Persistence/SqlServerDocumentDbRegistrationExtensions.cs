@@ -46,6 +46,9 @@ namespace Composable.DependencyInjection.Persistence
             }
         }
 
+        public static DocumentDbRegistrationBuilder RegisterSqlServerDocumentDb(this IEndpointBuilder @this)
+            => @this.Container.RegisterSqlServerDocumentDb(@this.Configuration.ConnectionStringName);
+
         public static DocumentDbRegistrationBuilder RegisterSqlServerDocumentDb(this IDependencyInjectionContainer @this, string connectionName)
         {
             Contract.Argument(() => connectionName).NotNullEmptyOrWhiteSpace();

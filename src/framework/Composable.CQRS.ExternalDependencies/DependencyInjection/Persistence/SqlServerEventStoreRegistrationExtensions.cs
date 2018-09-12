@@ -71,7 +71,7 @@ namespace Composable.DependencyInjection.Persistence
 
 
         public static SqlServerEventStoreRegistrationBuilder RegisterSqlServerEventStore(this IEndpointBuilder @this,
-                                                                                         IReadOnlyList<IEventMigration> migrations = null) 
+                                                                                         IReadOnlyList<IEventMigration> migrations = null)
             => @this.Container.RegisterSqlServerEventStore(@this.Configuration.ConnectionStringName, migrations);
 
         public static SqlServerEventStoreRegistrationBuilder RegisterSqlServerEventStore(this IDependencyInjectionContainer @this,

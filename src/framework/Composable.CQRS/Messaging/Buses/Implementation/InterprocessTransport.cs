@@ -28,14 +28,14 @@ namespace Composable.Messaging.Buses.Implementation
             public MessageStorage MessageStorage { get; set; }
             public ITypeMapper TypeMapper { get; set; }
             public IRemotableMessageSerializer Serializer { get; set; }
-            public EndpointConfiguration Configuration;
+            public RealEndpointConfiguration Configuration;
             public Thread PollerThread;
         }
 
         readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
         ITaskRunner _taskRunner;
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, EndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => _state.WithExclusiveAccess(@this =>
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => _state.WithExclusiveAccess(@this =>
         {
             _taskRunner = taskRunner;
             @this.Configuration = configuration;

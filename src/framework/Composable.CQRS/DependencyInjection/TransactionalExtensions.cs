@@ -41,7 +41,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        internal static void ExecuteInIsolatedScope(this IServiceLocator me, [InstantHandle]Action action)
+        public static void ExecuteInIsolatedScope(this IServiceLocator me, [InstantHandle]Action action)
         {
             using (me.BeginScope())
             {

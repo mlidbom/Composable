@@ -35,7 +35,7 @@ namespace Composable.Testing.Performance
                                                               ? timespan.Value.MultiplyBy(MachineSlowdownFactor)
                                                               : (TimeSpan?)null;
 
-        internal static StopwatchExtensions.TimedExecutionSummary Execute
+        public static StopwatchExtensions.TimedExecutionSummary Execute
             ([InstantHandle]Action action,
              int iterations = 1,
              TimeSpan? maxAverage = null,
@@ -90,7 +90,7 @@ namespace Composable.Testing.Performance
             return executionSummary;
         }
 
-        internal static StopwatchExtensions.TimedThreadedExecutionSummary ExecuteThreaded
+        public static StopwatchExtensions.TimedThreadedExecutionSummary ExecuteThreaded
             ([InstantHandle]Action action,
              int iterations = 1,
              TimeSpan? maxAverage = null,

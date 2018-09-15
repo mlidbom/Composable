@@ -28,7 +28,7 @@ namespace Composable.System.Diagnostics
 
 
         // ReSharper disable once MethodOverloadWithOptionalParameter
-        internal static TimedExecutionSummary TimeExecution([InstantHandle]Action action, int iterations = 1) => MachineWideSingleThreaded.Execute(() =>
+        public static TimedExecutionSummary TimeExecution([InstantHandle]Action action, int iterations = 1) => MachineWideSingleThreaded.Execute(() =>
         {
             var total = TimeExecution(
                 () =>
@@ -42,7 +42,7 @@ namespace Composable.System.Diagnostics
             return new TimedExecutionSummary(iterations, total);
         });
 
-        internal static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle] Action action, int iterations = 1, bool timeIndividualExecutions = false, int maxDegreeOfParallelism = -1) => MachineWideSingleThreaded.Execute(() =>
+        public static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle] Action action, int iterations = 1, bool timeIndividualExecutions = false, int maxDegreeOfParallelism = -1) => MachineWideSingleThreaded.Execute(() =>
         {
             maxDegreeOfParallelism = maxDegreeOfParallelism == -1
                                          ? Math.Max(Environment.ProcessorCount, 8) / 2
@@ -75,7 +75,7 @@ namespace Composable.System.Diagnostics
             return new TimedThreadedExecutionSummary(iterations, executionTimes, total);
         });
 
-        internal class TimedExecutionSummary
+        public class TimedExecutionSummary
         {
             public TimedExecutionSummary(int iterations, TimeSpan total)
             {
@@ -88,7 +88,7 @@ namespace Composable.System.Diagnostics
             public TimeSpan Average => (Total.TotalMilliseconds / Iterations).Milliseconds();
         }
 
-        internal class TimedThreadedExecutionSummary : TimedExecutionSummary
+        public class TimedThreadedExecutionSummary : TimedExecutionSummary
         {
             public TimedThreadedExecutionSummary(int iterations, IReadOnlyList<TimeSpan> individualExecutionTimes, TimeSpan total): base(iterations, total) => IndividualExecutionTimes = individualExecutionTimes;
 

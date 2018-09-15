@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using NUnit.Framework;
 
 namespace AccountManagement
@@ -40,7 +41,7 @@ namespace AccountManagement
         {
             static int _registeredAccounts = 1;
 
-            internal static string CreateUnusedEmail() => $"test.test@test{_registeredAccounts++}.se";
+            internal static string CreateUnusedEmail() => $"test.test@test{Interlocked.Increment(ref _registeredAccounts)}.se";
 
             internal static IEnumerable<string> InvalidEmails => InvalidEmailsTestData.Select(@this => @this.Data);
 

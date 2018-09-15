@@ -20,7 +20,8 @@ namespace AccountManagement.UI.QueryModels
         {
             RegisterEventAppliers()
                .For<AccountEvent.PropertyUpdated.Email>(@event => Email = @event.Email)
-               .For<AccountEvent.PropertyUpdated.Password>(@event => Password = @event.Password);
+               .For<AccountEvent.PropertyUpdated.Password>(@event => Password = @event.Password)
+               .IgnoreUnhandled<AccountEvent.LoginAttempted>();
 
             LoadFromHistory(events);
         }

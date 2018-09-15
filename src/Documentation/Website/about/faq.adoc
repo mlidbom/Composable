@@ -23,10 +23,10 @@ If only a small subset of your data requires this level of write scalability, co
 
 == Reliability
 
-Why do you enforce transactions for all update?::
+Why do you enforce transactions for all updates?::
 Because it is our opinion that without transactions you have to sacrifice either reliability or simplicity/maintainability and we prioritize those over scalability and performance.
 
-Why do you enforce exacly once delivery for domain events?::
+Why do you enforce exactly once delivery for domain events?::
 Because it is our opinion that without exactly once delivery you have to sacrifice either reliability or simplicity/maintainability and we prioritize those over scalability and performance.
 
 Isn't exactly once delivery impossible?::

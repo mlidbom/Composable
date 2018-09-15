@@ -17,6 +17,7 @@ Composable consistently prioritizes reliability, productivity and maintainabilit
 * Transactions and TransactionScope.
 * High performance black box testing using the real production components.
 * Renaming and moving classes already persisted in production data without breaking production data
+* Renaming properties and fields without breaking production data (using Newtonsoft.Net attributes)
 * Powerful semantic event modelling paradigm
 * Compile time and runtime design validation catching all known common design mistakes.
 * link:about/faq#performance[All the performance and scalability that we can squeeze out]

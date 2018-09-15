@@ -35,6 +35,7 @@ A unified messaging platform that gives you
 ==== Event Store
 * Build complex aggregates nesting entities and components in each other to arbitrary depths with ease through semantic events.
 * Refactoring of event histories including fully removing obsolete code
+* Performance on-demand generation of query models from events dramatically reduces the need for persisted query models
 * All the features from <<How Composable components are different>>
 
 ==== Document Database

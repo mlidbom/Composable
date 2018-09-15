@@ -199,7 +199,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                 command =>
                 {
                     command.CommandType = CommandType.Text;
-                    command.CommandText = SqlServerEventStore.SqlStatements.FixManualVersionsForAggregate(aggregateId);
+                    command.CommandText = SqlServerEventStore.SqlStatements.FixManualVersionsForAggregate;
                     command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});
                     command.ExecuteNonQuery();
                 });

@@ -1,11 +1,9 @@
-using System;
-
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     static class SqlServerEventStore
     {
         internal static class SqlStatements {
-            internal static string FixManualVersionsForAggregate(Guid aggregateId) => $@"
+            internal static readonly string FixManualVersionsForAggregate = $@"
 update replaced
 set replaced.{EventTable.Columns.ManualReadOrder} = -abs(replaced.{EventTable.Columns.EffectiveReadOrder})
 from {EventTable.Name} replaced

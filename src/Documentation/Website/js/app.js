@@ -19,7 +19,11 @@ $(document).ready(
 
         $(".top-bar ul.dropdown.menu li a")
             .filter(function(e, i) {
-                return i.href == document.location.href
+
+                var current_base_url = document.location.href.indexOf('#') > -1 ?
+                    document.location.href.substr(0, document.location.href.indexOf('#'))
+                    : document.location.href;
+                return i.href == current_base_url
             }).each(function (_, elem) {
                 console.log(elem)
                 $(elem).parent().addClass("active")

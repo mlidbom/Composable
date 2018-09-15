@@ -19,7 +19,7 @@ Composable consistently prioritizes reliability, productivity and maintainabilit
 * Renaming and moving classes already persisted in production data without breaking production data
 * Powerful semantic event modelling paradigm
 * Compile time and runtime design validation catching all known common design mistakes.
-* <<about/faq#performance, All the performance and scalability that we can squeeze out>>
+* link:about/faq#performance[All the performance and scalability that we can squeeze out]
 
 ==== Hypermedia Service Bus
 A unified messaging platform that gives you

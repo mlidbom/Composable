@@ -153,7 +153,7 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion},
                         command.CommandText +=
                             $@"
 INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
-(       {EventTable.Columns.AggregateId},  {EventTable.Columns.InsertedVersion},  {EventTable.Columns.ManualVersion}, {EventTable.Columns.ManualReadOrder}, {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.UtcTimeStamp},  {EventTable.Columns.Event},  {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore},  {EventTable.Columns.Replaces}) 
+(       {EventTable.Columns.AggregateId},  {EventTable.Columns.InsertedVersion},  {EventTable.Columns.ManualVersion},  {EventTable.Columns.ManualReadOrder},  {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.UtcTimeStamp},  {EventTable.Columns.Event},  {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore},  {EventTable.Columns.Replaces}) 
 VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.ManualVersion}, @{EventTable.Columns.ManualReadOrder}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.UtcTimeStamp}, @{EventTable.Columns.Event}, @{EventTable.Columns.InsertAfter},@{EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces})
 SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
@@ -234,8 +234,8 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             var selectStatement = $@"
 SELECT  {EventTable.Columns.InsertionOrder},
         {EventTable.Columns.EffectiveReadOrder},        
-        (select top 1 EffectiveReadorder from Event e1 where e1.EffectiveReadOrder < Event.EffectiveReadOrder order by EffectiveReadOrder desc) PreviousReadOrder,
-        (select top 1 EffectiveReadorder from Event e1 where e1.EffectiveReadOrder > Event.EffectiveReadOrder order by EffectiveReadOrder) NextReadOrder
+        (select top 1 {EventTable.Columns.EffectiveReadOrder} from {EventTable.Name} e1 where e1.{EventTable.Columns.EffectiveReadOrder} < {EventTable.Name}.{EventTable.Columns.EffectiveReadOrder} order by {EventTable.Columns.EffectiveReadOrder} desc) PreviousReadOrder,
+        (select top 1 {EventTable.Columns.EffectiveReadOrder} from {EventTable.Name} e1 where e1.{EventTable.Columns.EffectiveReadOrder} > {EventTable.Name}.{EventTable.Columns.EffectiveReadOrder} order by {EventTable.Columns.EffectiveReadOrder}) NextReadOrder
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
 where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertionOrder}";
 

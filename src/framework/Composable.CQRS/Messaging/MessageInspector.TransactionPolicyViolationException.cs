@@ -20,7 +20,7 @@ In order to minimize your risk of encountering such problems we have runtime val
 Rules: 
 
 * Within a transaction you are not allowed send any {typeof(BusApi.IForbidTransactionalRemoteSender).FullName}
-These messages will not respect the transaction so if you want to send them during a transaction you have to aknowledge that they will not by suppressing the current transaction before sending them.
+These messages will not respect the transaction so if you want to send them during a transaction you have to acknowledge that they will not by suppressing the current transaction before sending them.
 
 
 * There must be a transaction for you to send a {typeof(BusApi.IRequireTransactionalSender).FullName}

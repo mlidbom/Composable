@@ -3,7 +3,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
     class EventTableSchemaManager : TableSchemaManager
     {
         internal override string Name { get; } = EventTable.Name;
-
+        //Review:mlidbom: Consider changing the event ordering scheme. https://github.com/mlidbom/Composable/issues/46
         internal override string CreateTableSql => $@"
 CREATE TABLE dbo.{Name}(
     {EventTable.Columns.InsertionOrder} bigint IDENTITY(1,1) NOT NULL,

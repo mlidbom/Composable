@@ -1,7 +1,7 @@
 = Composable: Modern architecture for normal projects
 
 == Modern architecture for normal projects
-Composable provides tooling for normal modern architecture projects. What do we mean by that?
+Composable provides tooling for normal modern architecture projects.
 
 Modern architectures::
 By modern architecture we mean software that tend to use tools or designs with labels such as Event Driven Architecture, Event Driven SOA, CQRS, Microservices, NoSql, Event Sourcing etc.

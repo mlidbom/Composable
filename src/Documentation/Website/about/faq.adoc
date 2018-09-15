@@ -1,11 +1,19 @@
-:page-toc:
+= FAQ
 
-Should I use Composable?::
-We believe that this question is one that only you can answer and that you need to understand what you can expect from Composable now and in the future to answer it. We would suggest you start by reading about how our CoreBeliefs lead to our DesignPrinciples  and which PrimaryArchitecturalChoices this has lead us to. If the reasoning in these documents mostly fit your thinking you can continue by starting to read the Documentation. If reading all of this sounds like an unreasonable amount of work to you we suspect that Composable is not for you. Composable does have a quite steep learning curve in order to use it to full effect. If this is not acceptable to you you should probably look elsewhere.
+What if we need extreme querying scalability?::
+Given this requirement we assume that you are willing to sacrifice some level of consistency in query results. Given that these are possible options:
+* Maintain query models in any storage with sufficient scalablility.
+* Add a layer on top of your querying API that makes use of a distributed cache.
+
+What if we need extreme write side scalability?::
+If only a small subset of your data requires this level of write scalability, consider implementing only that part using other tools. If most of your data requires that level of scalability we would not recommend using our tools.
 
 Why do you enforce transactions for all update?::
-Please read CoreBeliefs and DesignPrinciples
+Because it is our opinion that without transactions you have to sacrifice either reliability or simplicity/maintainability and we prioritize those over scalability and performance.
+
+Why do you enforce exacly once delivery for domain events?::
+Because it is our opinion that without exactly once delivery you have to sacrifice either reliability or simplicity/maintainability and we prioritize those over scalability and performance.
 
 Isn't exactly once delivery impossible?::
-No. All "arguments" to that effect that we have encountered "reason" by disallowing transactions and/or message deduplication. Only through imposing this artificial constraint does exactly once delivery become "impossible". Exactly once  == at least once + deduplication + transactions.
+No. All arguments to that effect that we have encountered reason by disallowing transactions and/or message deduplication. Only through imposing this artificial constraint does exactly once delivery become "impossible". Exactly once  == at least once + deduplication + transactions.
 

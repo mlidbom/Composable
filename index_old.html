@@ -1,0 +1,384 @@
+<!doctype html>
+<html class="no-js" lang="en">
+    <head>
+    <!--foundation template lines-->
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/go.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/agate.min.css" >
+
+    <link rel="stylesheet" href="/vendor/foundation-6.2.4-complete.zip/css/foundation.css">
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--End foundation template lines-->
+
+
+    <link rel="stylesheet" href="/vendor-css/font-awesome-4.7.0.min.css">
+    <link rel="stylesheet" href="/vendor-css/asciidoctor.css">
+
+
+    <meta name="description" content="A .Net toolkit making CQRS, Event Sourcing, Event Driven Architecture, VEST testing and DDD simpler and more productive.
+">
+    <link rel="stylesheet" href="/styles/app.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?">
+</head>
+<head>
+    <title></title>
+</head>
+<body>
+    <div class="row">
+        <div id="page-start-anchor" ></div>
+
+        <div class="top-bar">
+    <div class="top-bar-left">
+        <ul class="dropdown menu" data-dropdown-menu data-close-on-click-inside="false">
+            <li class="menu-text">Composable Toolkit</li>
+            <li>
+                <a href="/">Home</a>
+            </li>
+            <li>
+                <a href="/documentation/">Documentation</a>
+            </li>
+            <!--
+            <li>
+                <a href="/about/">About</a>
+            </li>
+
+            <li>
+                <a href="/documentation/">Documentation</a>
+                <ul class="menu">
+                    <li>
+                        <a href="/documentation/">Written</a>
+                    </li>
+                    <li>
+                        <a href="/apidoc/">(Legacy API)</a>
+                        <ul class="menu">
+                            <li><a href="/apidocs/3.4.6">Version 3.4.6</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="/about/faq/">FAQ</a>
+            </li>
+            -->
+        </ul>
+    </div>
+</div>
+
+
+        
+            <div class="large-3 columns page-toc" data-sticky-container>
+    <nav data-sticky data-options="marginTop:4;stickyOn:large">
+        <ul class="sectlevel1">
+<li><a href="#ioc_wiring_framework">IOC wiring framework</a></li>
+<li><a href="#vest_testing_framework">Vest testing framework</a></li>
+<li><a href="#event_store">Event store</a>
+<ul class="sectlevel2">
+<li><a href="#refactoring_support">Refactoring support</a></li>
+</ul>
+</li>
+<li><a href="#semantic_event_routing">Semantic Event Routing</a></li>
+<li><a href="#service_bus">Service Bus</a></li>
+</ul>
+    </nav>
+</div>
+            <div class="large-9 columns asciidoc" role="content">
+                <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Event driven SOA, Event Sourcing and CQRS constitutes an architecture that is far superior to classical architectures.
+<strong>In theory.</strong>
+In practice most teams attempting this architecture struggle or fail.
+The composable toolkit sets out to change that.
+To make this architecture just as superior in practice as in theory.
+Over half a decade of production use practical solutions have been found for each significant roadblock encountered.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ioc_wiring_framework">IOC wiring framework</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>All Composable components provides built in wiring support including VEST testing support.</p>
+</li>
+<li>
+<p>Achieve better encapsulation and reusability of your libraries by having them provide their own wiring.</p>
+</li>
+<li>
+<p>Libraries request wiring from libraries they directly depend on only.</p>
+</li>
+<li>
+<p>Application bootstrappers request wiring from libraries they directly depend on only and the framework wires everything up correctly.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="vest_testing_framework">Vest testing framework</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Get real confidence in your tests by running the full production code including IOC wiring when testing.</p>
+</li>
+<li>
+<p>All Composable components have functionally equivalent
+<sup class="footnote" id="_footnote_testing-components-differences">[<a id="_footnoteref_1" class="footnote" href="#_footnote_1" title="View footnote.">1</a>]</sup>
+testing implementations.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Testing implementations pass the same tests as production implementations.
+<sup class="footnoteref">[<a class="footnote" href="#_footnote_1" title="View footnote.">1</a>]</sup></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Creating a testing mode container is trivially simple.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Slow or hard to test components are automatically replaced with equivalent testing implementations.</p>
+</li>
+<li>
+<p>Test code needs no knowledge of which components are replaced.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Container extensions makes registering your own replacement components for testing trivially simple.</p>
+</li>
+<li>
+<p>Test scheduled logic by stepping the DummyTimeSource forward.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="event_store">Event store</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Full VEST Testing Support</p>
+</li>
+<li>
+<p>Comprehensive refactoring support keeps your code base clean and flexible.</p>
+</li>
+<li>
+<p>No pollution of public interfaces with event applier methods.</p>
+</li>
+<li>
+<p>Build complex aggregates by nesting components and entity collections to arbitrary depths.</p>
+</li>
+<li>
+<p>Reduce the number of event appliers through semantic event routing. (Often by an order of magnitude or more).</p>
+</li>
+<li>
+<p>Generate query models from the event stream with excellent performance.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Minimize downtime and development friction by minimizing the number of persisted Query Models.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="refactoring_support">Refactoring support</h3>
+<div class="paragraph">
+<p>Maintain flexibility and a clean code base with comprehensive refactoring support.</p>
+</div>
+<div class="sect3">
+<h4 id="newtonsoft_json_supported_refactorings">Newtonsoft.JSON supported refactorings</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Take effect immediately without any need to wait for batches.</p>
+</li>
+<li>
+<p>Completely encapsulated. Clients of the event store see only refactored events and aggregates.</p>
+</li>
+<li>
+<p>Some possible refactorings</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Rename properties and fields.</p>
+</li>
+<li>
+<p>Add properties including calculating values for historical events that originally did not have the new property.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="event_stream_migrations">Event Stream migrations</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Take effect immediately without any need to wait for batches.</p>
+</li>
+<li>
+<p>Completely encapsulated. Clients of the event store see only refactored streams and aggregates.</p>
+</li>
+<li>
+<p>Supported Refactorings</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Rename event</p>
+</li>
+<li>
+<p>Replace legacy event with new event(s).</p>
+</li>
+<li>
+<p>Insert new event(s) before or after existing event.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Persist migrations to storage</p>
+<div class="ulist">
+<ul>
+<li>
+<p>On-line persisting of in-memory migrations.</p>
+</li>
+<li>
+<p>Remove legacy events, handlers, and persisted migrations from your codebase.</p>
+</li>
+<li>
+<p>Complete history including refactorings is retained in storage.</p>
+</li>
+<li>
+<p>Comprehensively test the refactorings in-memory before choosing to persist them.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="semantic_event_routing">Semantic Event Routing</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Declarative programming model.</p>
+</li>
+<li>
+<p>Powerful tool for designing and reasoning about a domain.</p>
+</li>
+<li>
+<p>Decouple subscribers from publishers.</p>
+</li>
+<li>
+<p>Reduce the number of required event appliers (Often by an order of magnitude or more)</p>
+</li>
+<li>
+<p>Reduce the number of required event handlers.</p>
+</li>
+<li>
+<p>Performant in-memory event routing components let you leverage semantic routing in your own components.
+<sup class="footnote">[<a id="_footnoteref_2" class="footnote" href="#_footnote_2" title="View footnote.">2</a>]</sup></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="service_bus">Service Bus</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Semantic Routing</p>
+</li>
+<li>
+<p>Full TransactionScope and DTC support.</p>
+</li>
+<li>
+<p>Exactly once delivery.</p>
+</li>
+<li>
+<p>In order delivery. <sup class="footnote">[<a id="_footnoteref_3" class="footnote" href="#_footnote_3" title="View footnote.">3</a>]</sup></p>
+</li>
+<li>
+<p>Full VEST testing support including testing of sagas.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Step the DummyTimeSource forward and watch your sagas unfold as scheduled messages are sent.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>in-process implementation</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Easily switch between running a component in-process, remotely or both without changing either the sender or receiver of messages.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<hr>
+<div class="footnote" id="_footnote_1">
+<a href="#_footnoteref_1">1</a>. Some testing implementations may bypass serialization or have different semantics when transactions fail.
+</div>
+<div class="footnote" id="_footnote_2">
+<a href="#_footnoteref_2">2</a>. This is how many composable components are implemented internally. Such as the aggregate root, the query model updaters, the servicebuses etc.
+</div>
+<div class="footnote" id="_footnote_3">
+<a href="#_footnoteref_3">3</a>. On a per sender/receiver basis. Not guaranteed if a message handler fails after all level one retries.
+</div>
+</div>
+            </div>
+        
+
+    </div>
+
+    <footer class="row">
+    <div class="large-12 columns">
+        <hr>
+        <div class="row">
+            <div class="large-12 columns">
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <script src="/vendor/foundation-6.2.4-complete.zip/js/vendor/jquery.js"></script>
+<script src="/vendor/foundation-6.2.4-complete.zip/js/vendor/what-input.js"></script>
+<script src="/vendor/foundation-6.2.4-complete.zip/js/vendor/foundation.js"></script>
+<script src="/js/app.js"></script>
+
+</body>
+</html>

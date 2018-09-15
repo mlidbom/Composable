@@ -24,9 +24,6 @@
     <link rel="stylesheet" href="/styles/app.css">
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?">
 </head>
-<head>
-    <title></title>
-</head>
 <body>
     <div class="row">
         <div id="page-start-anchor" ></div>
@@ -39,13 +36,15 @@
                 <a href="/">Home</a>
             </li>
             <li>
-                <a href="/documentation/">Documentation</a>
-            </li>
-            <!--
-            <li>
-                <a href="/about/">About</a>
-            </li>
+                <a href="#">About</a>
+                <ul class="menu">
+                    <li><a href="/about/faq">FAQ</a></li>
+                    <li><a href="/about/core-beliefs">Core Beliefs</a></li>
+                    <li><a href="/about/primary-architectural-choices">Primary Architectural Choices</a></li>
+                    <li><a href="/about/design-principles">Design Principles</a></li>
 
+                </ul>
+            </li>
             <li>
                 <a href="/documentation/">Documentation</a>
                 <ul class="menu">
@@ -60,33 +59,56 @@
                     </li>
                 </ul>
             </li>
-
-            <li>
-                <a href="/about/faq/">FAQ</a>
-            </li>
-            -->
         </ul>
     </div>
 </div>
 
 
         
-            <div class="large-12 columns asciidoc" role="content">
-                <div class="admonitionblock caution">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-caution" title="Caution"></i>
-</td>
-<td class="content">
-404 error: Unfortunately the page you are searching for does not seem to exist
-</td>
-</tr>
-</table>
+            <div class="large-3 large-push-9 columns" data-sticky-container>
+    <aside data-sticky  data-options="marginTop:4;stickyOn:large">
+        <h4>News</h4>
+        <ul id="posts" class="posts nav">
+            
+            <li><a href="/2016/11/28/site-published.html">2016-11-28 Site published</a></li>
+            
+        </ul>
+
+    </aside>
 </div>
-            </div>
         
 
+        <div class="large-9 columns asciidoc" role="content">
+    <div class="ulist">
+<ul>
+<li>
+<p>Strive to minimize total mental burden</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Over minimizing initial learning effort</p>
+</li>
+<li>
+<p>Over minimizing local complexity</p>
+</li>
+<li>
+<p>Over minimizing lines of code</p>
+</li>
+<li>
+<p>Over minimizing component complexity</p>
+</li>
+<li>
+<p>Over maximizing performance</p>
+</li>
+<li>
+<p>Over maximizing scalability</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
     </div>
 
     <footer class="row">

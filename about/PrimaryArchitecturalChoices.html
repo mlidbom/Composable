@@ -1,0 +1,125 @@
+<!doctype html>
+<html class="no-js" lang="en">
+    <head>
+    <!--foundation template lines-->
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/go.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/agate.min.css" >
+
+    <link rel="stylesheet" href="/vendor/foundation-6.2.4-complete.zip/css/foundation.css">
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <!--End foundation template lines-->
+
+
+    <link rel="stylesheet" href="/vendor-css/font-awesome-4.7.0.min.css">
+    <link rel="stylesheet" href="/vendor-css/asciidoctor.css">
+
+
+    <meta name="description" content="A .Net toolkit making CQRS, Event Sourcing, Event Driven Architecture, VEST testing and DDD simpler and more productive.
+">
+    <link rel="stylesheet" href="/styles/app.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?">
+</head>
+<body>
+    <div class="row">
+        <div id="page-start-anchor" ></div>
+
+        <div class="top-bar">
+    <div class="top-bar-left">
+        <ul class="dropdown menu" data-dropdown-menu data-close-on-click-inside="false">
+            <li class="menu-text">Composable Toolkit</li>
+            <li>
+                <a href="/">Home</a>
+            </li>
+            <li>
+                <a href="#">About</a>
+                <ul class="menu">
+                    <li><a href="/faq">FAQ</a></li>
+                    <li><a href="/core-beliefs">Core beliefs</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="/documentation/">Documentation</a>
+                <ul class="menu">
+                    <li>
+                        <a href="/documentation/">Written</a>
+                    </li>
+                    <li>
+                        <a href="/apidoc/">(Legacy API)</a>
+                        <ul class="menu">
+                            <li><a href="/apidocs/3.4.6">Version 3.4.6</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+        
+            <div class="large-3 large-push-9 columns" data-sticky-container>
+    <aside data-sticky  data-options="marginTop:4;stickyOn:large">
+        <h4>News</h4>
+        <ul id="posts" class="posts nav">
+            
+            <li><a href="/2016/11/28/site-published.html">2016-11-28 Site published</a></li>
+            
+        </ul>
+
+    </aside>
+</div>
+        
+
+        <div class="large-9 columns asciidoc" role="content">
+    <div class="sect3">
+<h4 id="we_require_you_to_learn_a_new_modelling_paradigm_semantic_events">We require you to learn a "new" modelling paradigm, semantic events</h4>
+<div class="paragraph">
+<p>We do not believe that we would be able to build highly complicated software using a language that did not support a flexible modelling paradigm, such as object oriented programming, without great loss of productivity, simplicity and safety. We believe that such standardized modelling paradigms enable us to successfully manage far greater levels of complexity than we could without them.</p>
+</div>
+<div class="paragraph">
+<p>This is what we aim to achieve by ubiquitously leveraging the semantic event modeling paradigm throughout our tools. Using the existing interface support in C# we enable you to model a highly complicated domain in terms of which events can occur and how the meanings of these events relate to each other, the aggregate root to which they belong, and to other abstractions in the domain. The same modelling paradigm is utilized at all levels of design. From the smallest component or entity nested in an aggregate to designing and implementing the highest level integrations in an ecosystem of integrated systems.</p>
+</div>
+<div class="paragraph">
+<p>Our experience is that this new modelling paradigm, this new view of your domain and ecosystem of domains, is highly beneficial to managing and scaling complexity of the domains and integrations between them. We also find it highly beneficial in communicating with with domain experts. It has given us an expressive way of viewing a system in terms of what can happen, without getting bogged down in the details of how.</p>
+</div>
+<div class="paragraph">
+<p>On the technical side it enables us to dramatically cut down on manual code and manual configuration. It enables us to build complicated aggregates, read models, and message based integrations with simple, SOLID, expressive code. All with zero manual routing code or configuration to take into consideration. You can use the same powerful mental model to understand how everything will work at all levels instead of having to design and remember countless custom routes within aggregates and within the bus.</p>
+</div>
+<div class="paragraph">
+<p>Our experience is that this as a whole dramatically reduces the total mental burden of understanding a large system or ecosystem of systems. Our experience is that it allows us to scale to far greater complexity of a domain and exposed features without development slowing or virtually stalling due to the runaway mental burden of an implementation that does not leverage a powerful modelling paradigm.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="we_enforce_the_use_of_transactions_for_all_domain_data_updates">We enforce the use of transactions for all domain data updates</h4>
+
+</div>
+<div class="sect3">
+<h4 id="we_enforce_the_use_of_exactly_once_delivery_for_domain_events_and_commands">We enforce the use of exactly once delivery for domain events and commands</h4>
+
+</div>
+</div>
+    </div>
+
+    <footer class="row">
+    <div class="large-12 columns">
+        <hr>
+        <div class="row">
+            <div class="large-12 columns">
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <script src="/vendor/foundation-6.2.4-complete.zip/js/vendor/jquery.js"></script>
+<script src="/vendor/foundation-6.2.4-complete.zip/js/vendor/what-input.js"></script>
+<script src="/vendor/foundation-6.2.4-complete.zip/js/vendor/foundation.js"></script>
+<script src="/js/app.js"></script>
+
+</body>
+</html>

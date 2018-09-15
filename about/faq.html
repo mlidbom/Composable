@@ -25,7 +25,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?">
 </head>
 <head>
-    <title></title>
+    <title>FAQ</title>
 </head>
 <body>
     <div class="row">
@@ -72,17 +72,39 @@
 
         
             <div class="large-12 columns asciidoc" role="content">
-                <div class="admonitionblock caution">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-caution" title="Caution"></i>
-</td>
-<td class="content">
-404 error: Unfortunately the page you are searching for does not seem to exist
-</td>
-</tr>
-</table>
+                <div class="dlist">
+<dl>
+<dt class="hdlist1">What if we need extreme querying scalability?</dt>
+<dd>
+<p>Given this requirement we assume that you are willing to sacrifice some level of consistency in query results. Given that these are possible options:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Maintain query models in any storage with sufficient scalablility.</p>
+</li>
+<li>
+<p>Add a layer on top of your querying API that makes use of a distributed cache.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1">What if we need extreme write side scalability?</dt>
+<dd>
+<p>If only a small subset of your data requires this level of write scalability, consider implementing only that part using other tools. If most of your data requires that level of scalability we would not recommend using our tools.</p>
+</dd>
+<dt class="hdlist1">Why do you enforce transactions for all update?</dt>
+<dd>
+<p>Because it is our opinion that without transactions you have to sacrifice either reliability or simplicity/maintainability and we prioritize those over scalability and performance.</p>
+</dd>
+<dt class="hdlist1">Why do you enforce exacly once delivery for domain events?</dt>
+<dd>
+<p>Because it is our opinion that without exactly once delivery you have to sacrifice either reliability or simplicity/maintainability and we prioritize those over scalability and performance.</p>
+</dd>
+<dt class="hdlist1">Isn&#8217;t exactly once delivery impossible?</dt>
+<dd>
+<p>No. All arguments to that effect that we have encountered reason by disallowing transactions and/or message deduplication. Only through imposing this artificial constraint does exactly once delivery become "impossible". Exactly once  == at least once + deduplication + transactions.</p>
+</dd>
+</dl>
 </div>
             </div>
         

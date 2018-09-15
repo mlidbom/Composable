@@ -24,6 +24,9 @@
     <link rel="stylesheet" href="/styles/app.css">
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?">
 </head>
+<head>
+    <title>Asciidoctor Demo</title>
+</head>
 <body>
     <div class="row">
         <div id="page-start-anchor" ></div>
@@ -35,6 +38,14 @@
             <li>
                 <a href="/">Home</a>
             </li>
+            <li>
+                <a href="/documentation/">Documentation</a>
+            </li>
+            <!--
+            <li>
+                <a href="/about/">About</a>
+            </li>
+
             <li>
                 <a href="/documentation/">Documentation</a>
                 <ul class="menu">
@@ -49,6 +60,11 @@
                     </li>
                 </ul>
             </li>
+
+            <li>
+                <a href="/about/faq/">FAQ</a>
+            </li>
+            -->
         </ul>
     </div>
 </div>
@@ -57,7 +73,6 @@
         
             <div class="large-3 columns page-toc" data-sticky-container>
     <nav data-sticky data-options="marginTop:4;stickyOn:large">
-        <h4>TOC</h4>
         <ul class="sectlevel1">
 <li><a href="#first">1. First Steps with AsciiDoc</a>
 <ul class="sectlevel2">
@@ -117,10 +132,8 @@
 </ul>
     </nav>
 </div>
-        
-
-        <div class="large-9 columns asciidoc" role="content">
-    <div id="preamble">
+            <div class="large-9 columns asciidoc" role="content">
+                <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph lead">
 <p>This is a demonstration of Asciidoc. And this is the preamble of this document.</p>
@@ -911,7 +924,9 @@ One more thing. Happy documenting!
 </div>
 </div>
 </div>
-</div>
+            </div>
+        
+
     </div>
 
     <footer class="row">

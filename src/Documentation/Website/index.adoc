@@ -39,7 +39,9 @@ A unified messaging platform that gives you
 * All the features from <<How Composable components are different>>
 
 ==== Document Database
-The document database is intentionally simplistic and "only" supports all the features from <<How Composable components are different>>
+* Save or load instances of any class serializable with Newtonsoft.Json with a single line of code.
+* Automatically tracks and persists changes to loaded documents
+* All the features from <<How Composable components are different>>
 
 ==== Hypermedia API
 Most APIs consist of a number of service classes and interfaces. Imagine instead an APIs that is a lot like a website. That had a start resource from which you follow links to other resources where you could fill in commands and post them. That is essentially what a Hypermedia API is. Hypermedia API have these advantages among others:

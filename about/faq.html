@@ -60,11 +60,11 @@
                     </li>
                 </ul>
             </li>
+            -->
 
             <li>
                 <a href="/about/faq/">FAQ</a>
             </li>
-            -->
         </ul>
     </div>
 </div>
@@ -72,11 +72,35 @@
 
         
             <div class="large-12 columns asciidoc" role="content">
-                <div class="dlist">
+                <div class="sect1">
+<h2 id="general">General</h2>
+<div class="sectionbody">
+<div class="dlist">
 <dl>
+<dt class="hdlist1">How stable is Composable?</dt>
+<dd>
+<p>The event store and the document database have been proven in production for a number of years. The service bus is new and untried in production. Of course all the components have test suites. No component has known bugs. We normally prioritize bug fixes over all feature development.</p>
+</dd>
+<dt class="hdlist1">What type of infrastructure does Composable require?</dt>
+<dd>
+<p>Composable uses a relational database for all storage. Currently the only supported database is Sql Server. Other than a Sql Server instance composable components have no special requirements.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="performance">Performance &amp; scalability</h2>
+<div class="sectionbody">
+<div class="dlist">
+<dl>
+<dt class="hdlist1">How well does Composable components perform?</dt>
+<dd>
+<p>Very well and it will only get better. We have spent a ton of effort making sure that both performance and scalability is as high as possible without sacrificing reliability, productivity and maintainability. We have automated performance degradation tests that run continuously as we develop. We continuously look for ways to make things even faster and as we do we adjust the tests to require the new level of performance that we have achieved.</p>
+</dd>
 <dt class="hdlist1">What if we need extreme querying scalability?</dt>
 <dd>
-<p>Given this requirement we assume that you are willing to sacrifice some level of consistency in query results. Given that these are possible options:</p>
+<p>Given this requirement we assume that you are willing to sacrifice some level of consistency in query results. These are then possible options:</p>
 <div class="ulist">
 <ul>
 <li>
@@ -92,6 +116,15 @@
 <dd>
 <p>If only a small subset of your data requires this level of write scalability, consider implementing only that part using other tools. If most of your data requires that level of scalability we would not recommend using our tools.</p>
 </dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="reliability">Reliability</h2>
+<div class="sectionbody">
+<div class="dlist">
+<dl>
 <dt class="hdlist1">Why do you enforce transactions for all update?</dt>
 <dd>
 <p>Because it is our opinion that without transactions you have to sacrifice either reliability or simplicity/maintainability and we prioritize those over scalability and performance.</p>
@@ -105,6 +138,8 @@
 <p>No. All arguments to that effect that we have encountered reason by disallowing transactions and/or message deduplication. Only through imposing this artificial constraint does exactly once delivery become "impossible". Exactly once  == at least once + deduplication + transactions.</p>
 </dd>
 </dl>
+</div>
+</div>
 </div>
             </div>
         

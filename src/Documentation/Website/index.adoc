@@ -26,11 +26,12 @@ Composable consistently prioritizes reliability, productivity and maintainabilit
 A unified messaging platform that gives you
 
  * Powerful zero configuration routing
- * Service bus supporting at-most-once and exactly-once delivery guarantees
- * RPC framework letting you build
- ** Type safe Hypermedia APIs that can be consumed with with full intellisense and type safety in
- *** .Net language clients such as ASP.Net or Blazor (Blazor support not yet implemented)
- *** Typescript (Not yet implemented)
+ * A service bus with an exactly-once delivery guarantee
+ * RPC style communication with optional command deduplication
+ ** Letting you build
+ *** Type safe Hypermedia APIs that can be consumed with with full intellisense and type safety in
+ **** .Net language clients such as ASP.Net or Blazor (Blazor support not yet implemented)
+ **** Typescript (Not yet implemented)
  * All the features from <<How Composable components are different>>
 
 ==== Event Store

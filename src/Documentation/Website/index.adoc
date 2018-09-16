@@ -26,7 +26,7 @@ Composable consistently prioritizes reliability, productivity and maintainabilit
 A unified messaging platform that gives you
 
  * Powerful zero configuration routing
- * Service bus supporting at-most-once, at-least-once and exactly-once delivery guarantees
+ * Service bus supporting at-most-once and exactly-once delivery guarantees
  * RPC framework letting you build
  ** Type safe Hypermedia APIs that can be consumed with with full intellisense and type safety in
  *** .Net language clients such as ASP.Net or Blazor (Blazor support not yet implemented)

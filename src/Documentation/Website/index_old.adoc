@@ -19,7 +19,7 @@ Over half a decade of production use practical solutions have been found for eac
 == Vest testing framework
 * Get real confidence in your tests by running the full production code including IOC wiring when testing.
 * All Composable components have functionally equivalent
-footnoteref:[testing-components-differences ,Some testing implementations may bypass serialization or have different semantics when transactions fail.]
+footnoteref:[testing-components-differences,Some testing implementations may bypass serialization or have different semantics when transactions fail.]
 testing implementations.
 ** Testing implementations pass the same tests as production implementations.
 footnoteref:[testing-components-differences]

@@ -3,18 +3,15 @@
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable InconsistentNaming
 
+// tutorial tag::namespace[]
 namespace AccountManagement.Domain.Events
 {
+    // tutorial tag::class[]
     public static partial class AccountEvent
     {
         public interface Root : IAggregateEvent {}
 
-        public interface Created : Root, IAggregateCreatedEvent
-            //Used in multiple places by the infrastructure and clients. Things WILL BREAK without this.
-            //Aggregate: Sets the ID when such an event is raised.
-            //Creates a viewmodel automatically when received by an SingleAggregateQueryModelUpdater
-        {}
-
+        public interface Created : Root, IAggregateCreatedEvent {}
 
         public interface UserRegistered :
             Created,
@@ -27,30 +24,30 @@ namespace AccountManagement.Domain.Events
         public interface UserChangedPassword :
             PropertyUpdated.Password {}
 
-        public static class PropertyUpdated
-        {
-            public interface Password : AccountEvent.Root
-            {
-                Passwords.Password Password { get; /* Never add a setter! */ }
-            }
-
-            public interface Email : AccountEvent.Root
-            {
-                Domain.Email Email { get; /* Never add a setter! */ }
-            }
-        }
-
-        public interface LoginAttempted : AccountEvent.Root
-        {
-        }
+        public interface LoginAttempted : Root {}
 
         public interface LoggedIn : LoginAttempted
         {
             string AuthenticationToken { get; }
         }
 
-        public interface LoginFailed : LoginAttempted
+        public interface LoginFailed : LoginAttempted {}
+
+        // tag::property-updated[]
+        public static class PropertyUpdated
         {
+            public interface Password : Root
+            {
+                Passwords.Password Password { get; }
+            }
+
+            public interface Email : Root
+            {
+                Domain.Email Email { get; }
+            }
         }
+        // end::property-updated[]
     }
+    // tutorial end::class[]
 }
+// end::namespace[]

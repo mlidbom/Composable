@@ -1,7 +1,7 @@
 = Documentation
 :page-permalink: /documentation/
 :page-toc:
-:toclevels = 3:
+:toclevels: 2
 :doctype: book
 :imagesdir: images
 :source-highlighter: highlightjs

@@ -1,5 +1,7 @@
 include::service-bus/basics.adoc[]
+
 include::event-store/basics.adoc[]
+
 include::event-store/refactoring.adoc[]
 
 

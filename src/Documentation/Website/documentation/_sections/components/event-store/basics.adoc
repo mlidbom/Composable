@@ -1,7 +1,8 @@
 = Event Store
+Coming soon
 
 == Aggregate Roots
+Coming soon
 
-== The Event Store Session
-
-== Saving and loading aggregate roots.
+== Saving and loading aggregate roots
+Coming soon

@@ -1,7 +1,11 @@
 = Endpoints
+Coming soon
 
 == Registering endpoints
+Coming soon
 
 === Mapping types
+Coming soon
 
 === Registering handlers
+Coming soon

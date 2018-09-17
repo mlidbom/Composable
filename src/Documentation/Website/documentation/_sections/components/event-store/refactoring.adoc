@@ -6,7 +6,12 @@ There are a few supported ways of refactoring your events. You can:
 ** Possibly
 
 === Newtonsoft.Json refactorings
+Coming soon
+
 === Aggregate history migrations
 These are the currently supported refactorings:
+
 * Replace one existing event with one or more new events
 * Insert one or more new events before or after an existing event
+
+Coming soon

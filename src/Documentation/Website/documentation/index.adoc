@@ -1,13 +1,11 @@
 = Documentation
 :page-permalink: /documentation/
 :page-toc:
-:sectnums:
+:toclevels = 3:
 :doctype: book
 :imagesdir: images
 :source-highlighter: highlightjs
 :highlightjs-theme: agate
-
-
 
 include::_include-directory.adoc[]
 

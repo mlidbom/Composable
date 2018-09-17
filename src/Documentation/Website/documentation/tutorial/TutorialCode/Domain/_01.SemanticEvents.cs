@@ -6,43 +6,31 @@ namespace TutorialCode
     {
         public interface Root : IAggregateEvent {}
 
-        public interface Created : AccountEvent.Root, IAggregateCreatedEvent{}
+        public interface Registered : Root,
+                                      PropertyUpdated.Email,
+                                      PropertyUpdated.Password,
+                                      IAggregateCreatedEvent {}
 
-        public interface UserRegistered :
-            AccountEvent.Created,
-            PropertyUpdated.Email,
-            PropertyUpdated.Password {}
+        public interface NewEmailEntered : Root
+        {
+            string NewEmail { get; }
+        }
 
-        public interface UserChangedEmail :
-            PropertyUpdated.Email {}
+        public interface NewEmailValidated : PropertyUpdated.Email {}
 
-        public interface UserChangedPassword :
-            PropertyUpdated.Password {}
+        public interface UserChangedPassword : PropertyUpdated.Password {}
 
         public static class PropertyUpdated
         {
-            public interface Password : AccountEvent.Root
+            public interface Password : Root
             {
                 string Password { get; }
             }
 
-            public interface Email : AccountEvent.Root
+            public interface Email : Root
             {
                 string Email { get; }
             }
-        }
-
-        public interface LoginAttempted : AccountEvent.Root
-        {
-        }
-
-        public interface LoggedIn : LoginAttempted
-        {
-            string AuthenticationToken { get; }
-        }
-
-        public interface LoginFailed : LoginAttempted
-        {
         }
     }
 }

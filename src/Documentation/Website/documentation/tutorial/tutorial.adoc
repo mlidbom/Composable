@@ -5,6 +5,7 @@
 
 :source-indent: 0
 :account-management-dir: ..\..\..\..\..\src\Samples\AccountManagement\
+:sample-dir: TutorialCode
 
 == Introduction
 For the vast majority of developers much of what is covered here is both unfamiliar and new. Composable requires a quite significant learning investment in order to use it to full advantage. This is not by accident. Our experience is that the investment in time required to learn how to leverage these powerful tools and design paradigms pays of many times over before your project is over. So please don't be discouraged if things seem quite confusing the first time through. There is method to the madness, we assure you!
@@ -17,5 +18,5 @@ For the vast majority of developers much of what is covered here is both unfamil
 
 [source]
 ----
-include::{account-management-dir}AccountManagement.Domain.Events\IAccountEvent.cs[tag=class]
+include::{sample-dir}/Domain/_01.SemanticEvents.cs[]
 ----

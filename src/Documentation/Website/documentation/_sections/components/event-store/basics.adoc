@@ -1,7 +1,7 @@
-== Event Store Basics
+= Event Store
 
-=== Aggregate Roots
+== Aggregate Roots
 
-=== The Event Store Session
+== The Event Store Session
 
-==== Saving and loading aggregate roots.
+== Saving and loading aggregate roots.

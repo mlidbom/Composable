@@ -1,1 +1,12 @@
 == Refactoring Event Streams
+There are a few supported ways of refactoring your events. You can:
+
+* Freely rename both classes and interfaces
+* Rename properties with the help of Newtonsoft.Json attributes
+** Possibly
+
+=== Newtonsoft.Json refactorings
+=== Aggregate history migrations
+These are the currently supported refactorings:
+* Replace one existing event with one or more new events
+* Insert one or more new events before or after an existing event

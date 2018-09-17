@@ -1,0 +1,7 @@
+= Endpoints
+
+== Registering endpoints
+
+=== Mapping types
+
+=== Registering handlers

@@ -1,0 +1,41 @@
+:page-permalink: /tutorial
+:imagesdir: images
+:source-highlighter: highlightjs
+:highlightjs-theme: agate
+
+:source-indent: 0
+:account-management-dir: ..\..\..\..\..\..\src\Samples\AccountManagement\
+:sample-dir: .\
+
+== Introduction
+For the vast majority of developers much of what is covered here is both unfamiliar and new. 
+Composable requires a quite significant learning investment in order to use it to full advantage. 
+This is not by accident. 
+Our experience is that the investment in time required to learn how to leverage these powerful tools and design paradigms pays of many times over before your project is over. 
+So please don't be discouraged if things seem quite confusing the first time through. 
+There is method to the madness, we assure you!
+
+=== Domain Driven Design with Semantic Events
+I we know that A has happened, does that mean that B,C or D have also happened?
+Modelling by declaring such relationships of meaning between events can enable us to construct rich views of domains.
+A view that is a great complement to the classical views of data and functions.
+In essense you create a forest of meaning that includes everything that can happen in the system and how these events relate to each other and to the abstractions in the domain. 
+Your aggregates correlete to the trees, their nested entities and components to the branches, and the concrete events raised are the leaves.
+
+.Introduction: What can we learn from events?
+[source]
+----
+include::{sample-dir}/Domain/_01.SemanticEvents.cs[tag=recruitment-birds-eye-view]
+----
+Once  we become accustomed to reading this view of a domain it turns out to be quite rich and concise. In this short sample we can see that:
+
+<1> We have two types of users that perform actions in the system. Job seekers and Recruiters.
+<2> There is an aggregate in our domain called Recruitment
+<3> A recruitment can be registered which 
+<4> -- is performed by a recruiter
+<5> -- creates the recruitment
+<6> A Recruitment contains entities called Applications
+<7> A Job Seeker can be applied for the position a recruitment manages which
+<8> -- creates an Application
+<9> -- is done by the Job Seekers themselves
+

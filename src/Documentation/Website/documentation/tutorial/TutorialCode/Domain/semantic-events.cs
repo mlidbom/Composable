@@ -1,5 +1,4 @@
-﻿using System;
-using Composable.Persistence.EventStore;
+﻿using Composable.Persistence.EventStore;
 
 // ReSharper disable InconsistentNaming
 

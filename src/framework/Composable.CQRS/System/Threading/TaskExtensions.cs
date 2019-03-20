@@ -19,7 +19,7 @@ namespace Composable.System.Threading
             }
             catch(AggregateException exception)
             {
-                if(exception.InnerExceptions.Count == 1)
+                if(exception.InnerExceptions.Count == 1 && exception.InnerException != null)
                 {
                     ExceptionDispatchInfo.Capture(exception.InnerException).Throw();
                 } else
@@ -40,7 +40,7 @@ namespace Composable.System.Threading
             }
             catch(AggregateException exception)
             {
-                if(exception.InnerExceptions.Count == 1)
+                if(exception.InnerExceptions.Count == 1 && exception.InnerException != null)
                 {
                     ExceptionDispatchInfo.Capture(exception.InnerException).Throw();
                 } else

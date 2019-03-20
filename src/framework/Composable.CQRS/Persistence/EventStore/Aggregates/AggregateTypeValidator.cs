@@ -49,6 +49,7 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
             var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
             var publicProperties = properties
+                                   // ReSharper disable once ConstantConditionalAccessQualifier The property documentation explicitly talks about it being null if the property is read only.
                                   .Where(member => member?.SetMethod?.IsPublic == true)
                                   .ToList();
 

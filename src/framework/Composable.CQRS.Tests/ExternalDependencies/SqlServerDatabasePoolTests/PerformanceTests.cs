@@ -41,7 +41,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_70_milliseconds()
+        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_130_milliseconds()
         {
             var dbName = "EB82270F-E0BA-49F7-BC09-79AE95BA109F";
 
@@ -57,7 +57,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
                 },
                 iterations: 10,
                 timeIndividualExecutions: true,
-                maxTotal: 70.Milliseconds());
+                maxTotal: 130.Milliseconds());
         }
 
         [Test]

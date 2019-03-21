@@ -22,10 +22,10 @@ namespace Composable.Testing.Databases
         readonly IConfigurationParameterProvider _configurationParameterProvider;
         const string InitialCatalogMaster = ";Initial Catalog=master;";
 
-        static string _masterConnectionString;
+        string _masterConnectionString;
         static SqlServerConnectionProvider _masterConnectionProvider;
 
-        static MachineWideSharedObject<SharedState> _machineWideState;
+        MachineWideSharedObject<SharedState> _machineWideState;
 
         static string _databaseRootFolderOverride;
         static readonly HashSet<string> RebootedMasterConnections = new HashSet<string>();

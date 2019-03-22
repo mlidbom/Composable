@@ -61,7 +61,7 @@ namespace Composable.System.Threading
                 {
                     try
                     {
-                        _file = MemoryMappedFile.OpenExisting(name1, desiredAccessRights: MemoryMappedFileRights.FullControl, inheritability: HandleInheritability.None);
+                        _file = MemoryMappedFile.OpenExisting(name1, desiredAccessRights: MemoryMappedFileRights.ReadWrite, inheritability: HandleInheritability.None);
                     }
                     catch (FileNotFoundException)
                     {

@@ -113,13 +113,13 @@ namespace Composable.Tests.System.Threading
             {
                 // ReSharper disable AccessToDisposedClosure
                 taskRunner.Start(() => shared1.Update(@this => { updateGate.AwaitPassthrough(); }));
-                taskRunner.Start(() => conflictingUpdateSectionSameInstance.Execute(() => shared1.Update(@me => {})));
+                taskRunner.Start(() => conflictingUpdateSectionSameInstance.Execute(() => shared1.Update(me => {})));
                 taskRunner.Start(() => conflictingGetCopySectionSameInstance.Execute(() => shared1.GetCopy()));
-                taskRunner.Start(() => conflictingUpdateSectionOtherInstance.Execute(() => shared2.Update(@me => {})));
+                taskRunner.Start(() => conflictingUpdateSectionOtherInstance.Execute(() => shared2.Update(me => {})));
                 taskRunner.Start(() => conflictingGetCopySectionOtherInstance.Execute(() => shared2.GetCopy()));
 
                 updateGate.AwaitQueueLengthEqualTo(1);
-                conflictingGates.ForEach(@gate =>
+                conflictingGates.ForEach(gate =>
                 {
                     gate.EntranceGate.AwaitQueueLengthEqualTo(1);
                     gate.Open();
@@ -127,9 +127,9 @@ namespace Composable.Tests.System.Threading
 
                 Thread.Sleep(50.Milliseconds());
 
-                conflictingGates.ForEach(@gate => gate.ExitGate.PassedThrough.Count.Should().Be(0));
+                conflictingGates.ForEach(gate => gate.ExitGate.PassedThrough.Count.Should().Be(0));
                 updateGate.Open();
-                conflictingGates.ForEach(@gate => gate.ExitGate.AwaitPassedThroughCountEqualTo(1));
+                conflictingGates.ForEach(gate => gate.ExitGate.AwaitPassedThroughCountEqualTo(1));
 
                 taskRunner.WaitForTasksToComplete();
                 // ReSharper restore AccessToDisposedClosure

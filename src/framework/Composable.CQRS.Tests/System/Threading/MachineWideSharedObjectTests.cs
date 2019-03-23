@@ -8,11 +8,12 @@ using Composable.System.Threading;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using FluentAssertions.Extensions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace Composable.Tests.System.Threading
 {
-    class SharedObject : BinarySerialized<SharedObject>
+    [UsedImplicitly] class SharedObject : BinarySerialized<SharedObject>
     {
         public string Name { get; set; } = "Default";
         protected override IEnumerable<MemberGetterSetter> CreateGetterSetters() => new[] {GetterSetter.ForString(@this => @this.Name, (@this, value) => @this.Name = value)};

@@ -73,7 +73,7 @@ namespace Composable.Tests.System.Threading
             }
         }
 
-        [Test] public void Once_all_instance_are_disposed_data_is_gone()
+        [Test] public void Non_persistent_Once_all_instance_are_disposed_data_is_gone()
         {
             var name = Guid.NewGuid().ToString();
             MachineWideSharedObject<SharedObject> shared2;
@@ -90,6 +90,27 @@ namespace Composable.Tests.System.Threading
             using(var shared = MachineWideSharedObject<SharedObject>.For(name))
             {
                 shared.GetCopy().Name.Should().Be("Default");
+            }
+        }
+
+        [Test] public void Persistent_Once_all_instance_are_disposed_data_is_retained()
+        {
+            var name = "40BD77DF-7C32-4B28-9A49-DA2CE202CC4F";
+            var newName = Guid.NewGuid().ToString();
+            MachineWideSharedObject<SharedObject> shared2;
+            using(var shared = MachineWideSharedObject<SharedObject>.For(name, usePersistentFile:true))
+            {
+                shared.Update(@this => @this.Name = newName).Name.Should().Be(newName);
+                shared2 = MachineWideSharedObject<SharedObject>.For(name, usePersistentFile:true);
+                shared.GetCopy().Name.Should().Be(newName);
+            }
+
+            shared2.GetCopy().Name.Should().Be(newName);
+            shared2.Dispose();
+
+            using(var shared = MachineWideSharedObject<SharedObject>.For(name, usePersistentFile:true))
+            {
+                shared.GetCopy().Name.Should().Be(newName);
             }
         }
 

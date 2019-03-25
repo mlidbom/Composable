@@ -7,6 +7,7 @@ using System.Transactions;
 using Composable.Contracts;
 using Composable.GenericAbstractions;
 using Composable.Logging;
+using Composable.Persistence;
 using Composable.System;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
@@ -42,20 +43,9 @@ namespace Composable.Testing.Databases
 
                 _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 30.Seconds();
 
-                var tempDirectory = Environment.GetEnvironmentVariable("COMPOSABLE_TEMP_DRIVE");
-
-                if(!tempDirectory.IsNullOrWhiteSpace())
+                if(ComposableTempFolder.IsOverridden)
                 {
-                    if(!Directory.Exists(tempDirectory))
-                    {
-                        Directory.CreateDirectory(tempDirectory);
-                    }
-
-                    _databaseRootFolderOverride = Path.Combine(tempDirectory, "DatabasePoolData");
-                    if(!Directory.Exists(_databaseRootFolderOverride))
-                    {
-                        Directory.CreateDirectory(_databaseRootFolderOverride);
-                    }
+                    _databaseRootFolderOverride = ComposableTempFolder.EnsureFolderExists("DatabasePoolData");
                 }
 
                 var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_DATABASE_POOL_MASTER_CONNECTIONSTRING";

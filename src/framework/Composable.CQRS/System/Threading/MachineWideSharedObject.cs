@@ -2,32 +2,14 @@
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using Composable.Contracts;
+using Composable.Persistence;
 using Composable.Serialization;
 
 namespace Composable.System.Threading
 {
     class MachineWideSharedObject
     {
-        protected static readonly string DataFolder;
-        static MachineWideSharedObject()
-        {
-            var tempDirectory = Environment.GetEnvironmentVariable("COMPOSABLE_TEMP_DRIVE");
-            if (tempDirectory.IsNullOrWhiteSpace())
-            {
-                tempDirectory = Path.Combine(Path.GetTempPath(), "Composable_TEMP");
-            }
-
-            if (!Directory.Exists(tempDirectory))
-            {
-                Directory.CreateDirectory(tempDirectory);
-            }
-
-            DataFolder = Path.Combine(tempDirectory, "MemoryMappedFiles");
-            if (!Directory.Exists(DataFolder))
-            {
-                Directory.CreateDirectory(DataFolder);
-            }
-        }
+        protected static readonly string DataFolder = ComposableTempFolder.EnsureFolderExists("MemoryMappedFiles");
     }
 
     class MachineWideSharedObject<TObject> : MachineWideSharedObject, IDisposable where TObject : BinarySerialized<TObject>

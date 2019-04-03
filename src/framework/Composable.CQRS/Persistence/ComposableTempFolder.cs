@@ -10,10 +10,10 @@ namespace Composable.Persistence
     ///<summary>Manages the Temp folder in a machine wide thread safe manner.</summary>
     static class ComposableTempFolder
     {
+        static readonly MachineWideSingleThreaded WithMachineWideLock = MachineWideSingleThreaded.For(nameof(ComposableTempFolder));
         static readonly string DefaultPath = SPath.Combine(SPath.GetTempPath(), "Composable_TEMP");
         static readonly string Path = EnsureFolderExists();
         internal static readonly bool IsOverridden = Path != DefaultPath;
-        static readonly MachineWideSingleThreaded WithMachineWideLock = MachineWideSingleThreaded.For(nameof(ComposableTempFolder));
 
         internal static string EnsureFolderExists(string folderName) => WithMachineWideLock.Execute(() =>
         {

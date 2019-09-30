@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace AccountManagement.UI.MVC
 {
@@ -34,7 +35,7 @@ namespace AccountManagement.UI.MVC
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        [UsedImplicitly] public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        [UsedImplicitly] public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -44,17 +45,22 @@ namespace AccountManagement.UI.MVC
             else
             {
                 app.UseExceptionHandler("/Home/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
             }
 
             app.UseStaticFiles();
 
+
+            app.UseRouting();
+
             app.Use(async (context, next) => await _clientEndpoint.ExecuteRequestAsync(async () => await next.Invoke()));
 
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
+                endpoints.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

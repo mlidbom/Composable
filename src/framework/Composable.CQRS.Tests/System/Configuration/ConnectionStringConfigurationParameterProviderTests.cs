@@ -11,7 +11,7 @@ namespace Composable.Tests.System.Configuration
         [SetUp] public void SetupTask() { _providerSource = new ConfigurationSqlConnectionProviderSource(new AppConfigConfigurationParameterProvider()); }
 
         [Test] public void ConnectionStringProvider_should_return_connection_string_specified_in_the_configuration_file() =>
-            Assert.AreEqual(ConfigurationManager.AppSettings["CSTest1"],
+            Assert.AreEqual("CSvalue1",
                             _providerSource.GetConnectionProvider("CSTest1").ConnectionString);
 
         [Test] public void ConnectionStringProvider_should_throw_ConfigurationErrorsException_when_name_does_not_exist() =>

@@ -7,6 +7,7 @@ namespace Composable.DependencyInjection
 {
     public static class ServiceLocatorTransactionRunner
     {
+#pragma warning disable IDE0060 // Remove unused parameter
         public static TResult ExecuteTransaction<TResult>(this IServiceLocator ignored, [InstantHandle]Func<TResult> function)
         {
             return TransactionScopeCe.Execute(function);
@@ -16,6 +17,7 @@ namespace Composable.DependencyInjection
         {
             TransactionScopeCe.Execute(action);
         }
+#pragma warning restore IDE0060 // Remove unused parameter
 
         internal static TResult ExecuteTransactionInIsolatedScope<TResult>(this IServiceLocator me, [InstantHandle]Func<TResult> function)
         {

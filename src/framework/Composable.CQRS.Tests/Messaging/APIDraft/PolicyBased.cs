@@ -1,5 +1,5 @@
 ﻿// ReSharper disable All
-#pragma warning disable // Remove unused private members
+#pragma warning disable
 
 namespace Composable.Tests.Messaging.APIDraft
 {

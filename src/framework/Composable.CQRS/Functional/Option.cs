@@ -5,6 +5,7 @@ namespace Composable.Functional
     public static class Option
     {
         public static Option<T> NoneIfNull<T>(T value) where T: class => value == null ? None<T>() : Some(value);
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalse ReSharper is plain about this warning.
         public static Option<T> NoneIfDefault<T>(T value) where T: struct => Equals(value, default(T)) ? None<T>() : Some(value);
 
         public static Option<T> Some<T>(T value) => new Some<T>(value);

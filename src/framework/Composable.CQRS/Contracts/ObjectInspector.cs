@@ -29,6 +29,7 @@ namespace Composable.Contracts
             where TValue : struct
         {
             return me.Inspect(
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse ReSharper is plain about this warning.
                 inspected => !Equals(inspected, default(TValue)),
                 badValue => new ObjectIsDefaultContractViolationException(badValue));
         }

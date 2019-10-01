@@ -11,15 +11,22 @@ namespace Composable.Tests.Contracts
         [Test]
         public void ThrowsObjectIsDefaultExceptionIfAnyValueIsDefault()
         {
-            var myStructure = new MyStructure();
+            var myDefaultStructure = new MyStructure();
             // ReSharper disable ConvertToConstant.Local
             var zero = 0;
             // ReSharper restore ConvertToConstant.Local
 
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => zero).NotDefault());
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => zero).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myStructure).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myDefaultStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myDefaultStructure).NotDefault());
+
+            var myNonDefaultStructure = new MyStructure()
+                            {
+                                Value = 2
+                            };
+
+            Contract.Argument(() => myNonDefaultStructure).NotDefault();
 
             InspectionTestHelper.InspectBadValue<ObjectIsDefaultContractViolationException, MyStructure>(
                 inspected => inspected.NotDefault(),
@@ -31,6 +38,10 @@ namespace Composable.Tests.Contracts
                 goodValues: new List<int> {1, 2, 3});
         }
 
-        struct MyStructure {}
+        struct MyStructure
+        {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
+            public int Value { get; set; }
+        }
     }
 }

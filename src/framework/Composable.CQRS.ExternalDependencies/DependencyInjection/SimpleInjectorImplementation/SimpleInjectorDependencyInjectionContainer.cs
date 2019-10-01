@@ -33,18 +33,12 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
 
             foreach(var componentRegistration in registrations)
             {
-                SimpleInjector.Lifestyle lifestyle;
-                switch (componentRegistration.Lifestyle)
+                var lifestyle = componentRegistration.Lifestyle switch
                 {
-                    case Lifestyle.Singleton:
-                        lifestyle = SimpleInjector.Lifestyle.Singleton;
-                        break;
-                    case Lifestyle.Scoped:
-                        lifestyle = SimpleInjector.Lifestyle.Scoped;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(componentRegistration.Lifestyle));
-                }
+                    Lifestyle.Singleton => SimpleInjector.Lifestyle.Singleton,
+                    Lifestyle.Scoped => SimpleInjector.Lifestyle.Scoped,
+                    _ => throw new ArgumentOutOfRangeException(nameof(componentRegistration.Lifestyle))
+                };
 
                 if (componentRegistration.InstantiationSpec.Instance != null)
                 {
@@ -74,15 +68,12 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
 
         SimpleInjector.Lifestyle GetSimpleInjectorLifestyle(Lifestyle @this)
         {
-            switch(@this)
+            return @this switch
             {
-                case Lifestyle.Singleton:
-                    return SimpleInjector.Lifestyle.Singleton;
-                case Lifestyle.Scoped:
-                    return SimpleInjector.Lifestyle.Scoped;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(@this), @this, null);
-            }
+                Lifestyle.Singleton => SimpleInjector.Lifestyle.Singleton,
+                Lifestyle.Scoped => SimpleInjector.Lifestyle.Scoped,
+                _ => throw new ArgumentOutOfRangeException(nameof(@this), @this, null)
+            };
         }
 
         public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents;

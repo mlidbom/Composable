@@ -19,14 +19,12 @@ namespace AccountManagement.UI
 
                 if(bus.Execute(AccountApi.Queries.TryGetByEmail(email)) is Some<Account> account)
                 {
-                    switch(account.Value.Login(logIn.Password))
+                    return account.Value.Login(logIn.Password) switch
                     {
-                        case AccountEvent.LoggedIn loggedIn:
-                            return AccountResource.Command.LogIn.LoginAttemptResult.Success(loggedIn.AuthenticationToken);
-                        case AccountEvent.LoginFailed _:
-                            return AccountResource.Command.LogIn.LoginAttemptResult.Failure();
-                        default: throw new ArgumentOutOfRangeException();
-                    }
+                        AccountEvent.LoggedIn loggedIn => AccountResource.Command.LogIn.LoginAttemptResult.Success(loggedIn.AuthenticationToken),
+                        AccountEvent.LoginFailed _ => AccountResource.Command.LogIn.LoginAttemptResult.Failure(),
+                        _ => throw new ArgumentOutOfRangeException()
+                    };
                 } else
                 {
                     return AccountResource.Command.LogIn.LoginAttemptResult.Failure();
@@ -45,15 +43,12 @@ namespace AccountManagement.UI
             (AccountResource.Command.Register command, ILocalApiNavigatorSession bus) =>
             {
                 var (status, account) = Account.Register(command.AccountId, Email.Parse(command.Email), new Password(command.Password), bus);
-                switch(status)
+                return status switch
                 {
-                    case RegistrationAttemptStatus.Successful:
-                        return new AccountResource.Command.Register.RegistrationAttemptResult(status, new AccountResource(account));
-                    case RegistrationAttemptStatus.EmailAlreadyRegistered:
-                        return new AccountResource.Command.Register.RegistrationAttemptResult(status, null);
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                    RegistrationAttemptStatus.Successful => new AccountResource.Command.Register.RegistrationAttemptResult(status, new AccountResource(account)),
+                    RegistrationAttemptStatus.EmailAlreadyRegistered => new AccountResource.Command.Register.RegistrationAttemptResult(status, null),
+                    _ => throw new ArgumentOutOfRangeException()
+                };
             });
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(

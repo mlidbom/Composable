@@ -18,7 +18,7 @@ namespace Composable.Tests.ExternalDependencies.KeyValueStorage.Sql
         {
             using var cloneServiceLocator = ServiceLocator.Clone();
             cloneServiceLocator.ExecuteTransactionInIsolatedScope(() => cloneServiceLocator.DocumentDbUpdater()
-                                                                                           .Save(new User() {Id = userId}));
+                                                                                           .Save(new User {Id = userId}));
         }
 
         [Test]

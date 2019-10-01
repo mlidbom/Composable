@@ -113,8 +113,8 @@ namespace Composable.Persistence.EventStore
 
         MemoryCache _internalCache;
 
-        static readonly MemoryCacheEntryOptions Policy = new MemoryCacheEntryOptions()
-                                                 {
+        static readonly MemoryCacheEntryOptions Policy = new MemoryCacheEntryOptions
+                                                         {
                                                      SlidingExpiration = 20.Minutes()
                                                  };
 

@@ -73,7 +73,7 @@ namespace Composable.Messaging.Buses.Implementation
             _responseQueue.ReceiveReady += SendResponseMessage;
 
             _cancellationTokenSource = new CancellationTokenSource();
-            _poller = new NetMQPoller() {_serverSocket, _responseQueue};
+            _poller = new NetMQPoller {_serverSocket, _responseQueue};
             _pollerThread = new Thread(() => _poller.Run()){Name = $"{nameof(Inbox)}_{nameof(_pollerThread)}_{_configuration.Name}"};
             _pollerThread.Start();
 

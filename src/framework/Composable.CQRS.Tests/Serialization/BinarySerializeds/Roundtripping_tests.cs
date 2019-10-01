@@ -20,7 +20,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
         [Test] public void Class_with_single_property_roundtrips_correctly()
         {
-            var singleString = new SingleStringProperty() {Name = "NonDefault"};
+            var singleString = new SingleStringProperty {Name = "NonDefault"};
 
             var data = singleString.Serialize();
             var roundTripped = SingleStringProperty.Deserialize(data);
@@ -57,7 +57,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
         {
             var allPropertyTypesCountingFrom1 = HasAllPropertyTypes.CreateInstanceWithSaneValues();
 
-            allPropertyTypesCountingFrom1.RecursiveListProperty = new List<HasAllPropertyTypes>()
+            allPropertyTypesCountingFrom1.RecursiveListProperty = new List<HasAllPropertyTypes>
                                                                   {
                                                                       HasAllPropertyTypes.CreateInstanceWithSaneValues(),
                                                                       null,

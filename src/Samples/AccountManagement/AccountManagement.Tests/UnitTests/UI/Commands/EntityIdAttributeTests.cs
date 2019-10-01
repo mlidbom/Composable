@@ -13,14 +13,14 @@ namespace AccountManagement.UnitTests.UI.Commands
         [Test]
         public void IsValidIfIdIsNull()
         {
-            CommandValidator.ValidationFailures(new ACommand() {AnId = null})
+            CommandValidator.ValidationFailures(new ACommand {AnId = null})
                 .Should().BeEmpty();
         }
 
         [Test]
         public void IsNotValidIfIdIsEmpty()
         {
-            CommandValidator.ValidationFailures(new ACommand() {AnId = Guid.Empty})
+            CommandValidator.ValidationFailures(new ACommand {AnId = Guid.Empty})
                 .Should().NotBeEmpty();
         }
 

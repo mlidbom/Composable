@@ -32,8 +32,8 @@ namespace Composable.Tests.Serialization.BinarySerializeds
                                                   HasAllPropertyTypes.CreateInstanceWithSaneValues()
                                               };
 
-            _instance.RecursiveListProperty = new List<HasAllPropertyTypes>()
-                                             {
+            _instance.RecursiveListProperty = new List<HasAllPropertyTypes>
+                                              {
                                                  HasAllPropertyTypes.CreateInstanceWithSaneValues(),
                                                  null,
                                                  HasAllPropertyTypes.CreateInstanceWithSaneValues()

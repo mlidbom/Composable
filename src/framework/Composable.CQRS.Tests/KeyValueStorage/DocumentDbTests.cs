@@ -105,7 +105,7 @@ namespace Composable.Tests.KeyValueStorage
         {
             var ids = 1.Through(9).Select(index => Guid.Parse($"00000000-0000-0000-0000-00000000000{index}")).ToArray();
 
-            var users = ids.Select(id => new User() { Id = id }).ToArray();
+            var users = ids.Select(id => new User { Id = id }).ToArray();
 
             UseInTransactionalScope((reader, updater) => users.ForEach(user => updater.Save(user)));
 
@@ -121,7 +121,7 @@ namespace Composable.Tests.KeyValueStorage
                        .Select(index => Guid.Parse($"00000000-0000-0000-0000-00000000000{index}"))
                        .ToArray();
 
-            var users = ids.Select(id => new User() {Id = id})
+            var users = ids.Select(id => new User {Id = id})
                            .ToArray();
 
             UseInTransactionalScope((reader,updater) => users.ForEach(user => updater.Save(user)));
@@ -140,7 +140,7 @@ namespace Composable.Tests.KeyValueStorage
         {
             var ids = 1.Through(9).Select(index => Guid.Parse($"00000000-0000-0000-0000-00000000000{index}")).ToArray();
 
-            var users = ids.Select(id => new User() { Id = id }).ToArray();
+            var users = ids.Select(id => new User { Id = id }).ToArray();
 
             UseInTransactionalScope((reader,updater) => users.ForEach(user => updater.Save(user)));
 
@@ -605,7 +605,7 @@ namespace Composable.Tests.KeyValueStorage
                                          });
             wait.Wait();
 
-            var user = new User() { Id = Guid.NewGuid() };
+            var user = new User { Id = Guid.NewGuid() };
 
             Assert.Throws<MultiThreadedUseException>(() => session.Get<User>(Guid.NewGuid()));
             Assert.Throws<MultiThreadedUseException>(() => session.GetAll<User>());
@@ -758,13 +758,13 @@ namespace Composable.Tests.KeyValueStorage
 
             1.Through(4).ForEach(num =>
             {
-                var user = new User() { Id = Guid.NewGuid()};
+                var user = new User { Id = Guid.NewGuid()};
                 store.Add(user.Id, user, dictionary);
             });
 
             1.Through(4).ForEach(num =>
             {
-                var person = new Person() { Id = Guid.NewGuid() };
+                var person = new Person { Id = Guid.NewGuid() };
                 store.Add(person.Id, person, dictionary);
             });
 
@@ -788,13 +788,13 @@ namespace Composable.Tests.KeyValueStorage
 
             1.Through(4).ForEach(num =>
             {
-                var user = new User() { Id = Guid.NewGuid() };
+                var user = new User { Id = Guid.NewGuid() };
                 store.Add(user.Id, user, dictionary);
             });
 
             1.Through(4).ForEach(num =>
             {
-                var person = new Person() { Id = Guid.NewGuid() };
+                var person = new Person { Id = Guid.NewGuid() };
                 store.Add(person.Id, person, dictionary);
             });
 

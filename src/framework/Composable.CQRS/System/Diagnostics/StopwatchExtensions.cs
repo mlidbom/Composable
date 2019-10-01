@@ -65,7 +65,7 @@ namespace Composable.System.Diagnostics
                         Parallel.For(fromInclusive: 0,
                                      toExclusive: iterations,
                                      body: index => action(),
-                                     parallelOptions: new ParallelOptions()
+                                     parallelOptions: new ParallelOptions
                                                       {
                                                           MaxDegreeOfParallelism = maxDegreeOfParallelism
                                                       });

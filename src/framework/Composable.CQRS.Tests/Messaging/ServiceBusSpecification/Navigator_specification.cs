@@ -103,7 +103,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             RegisterUserCommand() : base(DeduplicationIdHandling.Reuse) {}
 
-            public static RegisterUserCommand Create(string name) => new RegisterUserCommand()
+            public static RegisterUserCommand Create(string name) => new RegisterUserCommand
                                                                      {
                                                                          Name = name,
                                                                          DeduplicationId = Guid.NewGuid()

@@ -14,7 +14,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             Thread _awaitDispatchableMessageThread;
 
-            readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
+            readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>
                                                                                 {
                                                                                     new QueriesExecuteAfterAllCommandsAndEventsAreDone(),
                                                                                     new CommandsAndEventHandlersDoNotRunInParallelWithEachOtherInTheSameEndpoint()

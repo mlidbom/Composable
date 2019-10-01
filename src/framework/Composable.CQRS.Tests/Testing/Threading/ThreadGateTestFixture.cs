@@ -43,7 +43,7 @@ namespace Composable.Tests.Testing.Threading
         {
             EntrantEvents = 1.Through(NumberOfThreads)
                              .Select(
-                                 _ => new Entrant()
+                                 _ => new Entrant
                                       {
                                           HasStarted = new ManualResetEventSlim(),
                                           HasCompleted = new ManualResetEventSlim()

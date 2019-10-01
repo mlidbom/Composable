@@ -5,6 +5,8 @@ using FluentAssertions;
 using Xunit;
 using Composable.System;
 
+#pragma warning disable IDE0051 // Remove unused private members
+
 namespace Composable.Tests.System.Threading
 {
     public class MonitorClassAPIExploration

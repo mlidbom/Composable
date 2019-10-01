@@ -1,4 +1,5 @@
 ﻿// ReSharper disable All
+#pragma warning disable
 
 using System;
 using Composable.Messaging;

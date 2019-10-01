@@ -2,6 +2,7 @@
 using Composable.System.Linq;
 
 // ReSharper disable All
+#pragma warning disable
 
 namespace Composable.Tests.Messaging.APIDraft._01
 {
@@ -19,7 +20,9 @@ namespace Composable.Tests.Messaging.APIDraft._01
         class MessageHandler
         {
             public MessageHandler ForEvent<TEvent>(Action<TEvent> action) => this;
+
             public MessageHandler ForCommand<TCommand>(Action<TCommand> action) => this;
+
             public MessageHandler ForQuery<TQuery, TResult>(Func<TQuery, TResult> action) => this;
         }
 
@@ -108,3 +111,5 @@ namespace Composable.Tests.Messaging.APIDraft._01
 
     }
 }
+
+#pragma warning restore // Remove unused parameter

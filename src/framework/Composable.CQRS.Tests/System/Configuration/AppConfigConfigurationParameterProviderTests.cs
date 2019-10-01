@@ -11,7 +11,7 @@ namespace Composable.Tests.System.Configuration
         [SetUp] public void SetupTask() { _provider = new AppConfigConfigurationParameterProvider(); }
 
         [Test] public void ParameterProvider_should_return_the_value_specified_in_the_configuration_file() =>
-            Assert.AreEqual(ConfigurationManager.AppSettings["KeyTest1"], _provider.GetString("KeyTest1"));
+            Assert.AreEqual("ValueTest1", _provider.GetString("KeyTest1"));
 
         [Test] public void ParameterProvider_should_throw_ConfigurationErrorsException_when_key_does_not_exist() =>
             Assert.Throws<ConfigurationErrorsException>(() => _provider.GetString("ErrorTest1"));

@@ -4,13 +4,8 @@ using System.Transactions;
 using Composable.System;
 using Composable.System.Threading.ResourceAccess;
 using Composable.SystemExtensions.TransactionsCE;
-#if NET461
-using System.Runtime.Caching;
-#endif
 
-#if NETSTANDARD2_0
-    using Microsoft.Extensions.Caching.Memory;
-#endif
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Composable.Persistence.EventStore
 {
@@ -116,35 +111,6 @@ namespace Composable.Persistence.EventStore
 
         public void Remove(Guid id) => RemoveInternal(id);
 
-#if NET461
-        const string CacheName = "EventStore";
-
-        MemoryCache _internalCache;
-
-        static readonly CacheItemPolicy Policy = new CacheItemPolicy
-                                                 {
-                                                     SlidingExpiration = 20.Minutes()
-                                                 };
-
-        void Reset()
-        {
-            _internalCache = new MemoryCache(CacheName);
-            _transactionalOverlay = new TransactionalOverlay(this);
-        }
-
-        void StoreInternal(Guid id, Entry value) => _internalCache.Set(key: id.ToString(), policy: Policy, value: value);
-        void RemoveInternal(Guid id) => _internalCache.Remove(key: id.ToString());
-        Entry GetInternal(Guid id) => (Entry)_internalCache.Get(id.ToString());
-
-        public void Clear()
-        {
-            var originalCache = _internalCache;
-            Reset();
-            originalCache.Dispose();
-        }
-#endif
-
-#if NETSTANDARD2_0
         MemoryCache _internalCache;
 
         static readonly MemoryCacheEntryOptions Policy = new MemoryCacheEntryOptions()
@@ -168,6 +134,5 @@ namespace Composable.Persistence.EventStore
             _internalCache = new MemoryCache(new MemoryCacheOptions()) {};
             originalCache.Dispose();
         }
-#endif
     }
 }

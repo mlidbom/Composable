@@ -216,9 +216,11 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     var result = new List<Response.Incoming>();
                     NetMQMessage received = null;
-                    while(socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref received))
+                    int fetched = 0;
+                    while(fetched < batchMaximum && socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref received))
                     {
                         result.Add(FromMultipartMessage(received, typeMapper));
+                        fetched++;
                     }
                     return result;
                 }

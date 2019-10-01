@@ -120,6 +120,7 @@ namespace Composable.DependencyInjection
 
             var scopeCache = _scopeCache.Value;
 
+            // ReSharper disable once PatternAlwaysOfType Silly ReSharper is wrong again
             if (scopeCache != null && scopeCache.TryGet<TService>() is TService scoped)
             {
                 return scoped;
@@ -209,6 +210,7 @@ namespace Composable.DependencyInjection
                 throw new Exception("Attempted to resolve scoped component without a scope");
             }
 
+            // ReSharper disable once PatternAlwaysOfType Silly ReSharper is wrong again
             if (scopeCache.TryGet<TService>() is TService scoped)
             {
                 return scoped;

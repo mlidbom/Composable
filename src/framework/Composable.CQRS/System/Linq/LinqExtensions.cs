@@ -59,6 +59,7 @@ namespace Composable.System.Linq
             ContractOptimized.Argument(me, nameof(me))
                              .NotNull();
 
+            // ReSharper disable once GenericEnumeratorNotDisposed ReSharper is plain wrong again.
             using var enumerator = me.GetEnumerator();
             var yielded = size;
             while(yielded == size)
@@ -69,10 +70,12 @@ namespace Composable.System.Linq
                 {
                     next[yielded++] = enumerator.Current;
                 }
+
                 if(yielded == 0)
                 {
                     yield break;
                 }
+
                 yield return yielded == size ? next : next.Take(yielded);
             }
         }

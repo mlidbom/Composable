@@ -8,6 +8,7 @@ using NUnit.Framework;
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable UnusedMember.Local
 // ReSharper disable ObjectCreationAsStatement
+// ReSharper disable MemberCanBeInternal
 
 namespace Composable.Tests.CQRS.Aggregates
 {

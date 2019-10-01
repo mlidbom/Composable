@@ -44,11 +44,11 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 
             if(!IsKnownType(typeof(TValue)))
             {
-                value = default(TValue);
+                value = default;
                 return false;
             }
 
-            value = default(TValue);
+            value = default;
 
             object found;
             using(var connection = _connectionProvider.OpenConnection())

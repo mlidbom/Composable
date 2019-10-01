@@ -54,7 +54,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
 
             if (!HandlesDocumentType<TDocument>(requireVersioningSupport: requiresVersioning))
             {
-                document = default(TDocument);
+                document = default;
                 return false;
             }
 

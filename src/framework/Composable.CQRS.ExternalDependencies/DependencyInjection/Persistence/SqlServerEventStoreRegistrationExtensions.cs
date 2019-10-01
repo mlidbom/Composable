@@ -81,7 +81,7 @@ namespace Composable.DependencyInjection.Persistence
               Contract.Argument(() => connectionName)
                     .NotNullEmptyOrWhiteSpace();
 
-            migrations = migrations ?? new List<IEventMigration>();
+            migrations ??= new List<IEventMigration>();
 
             @this.Register(Singleton.For<EventCache>().CreatedBy(() => new EventCache()));
 
@@ -136,7 +136,7 @@ namespace Composable.DependencyInjection.Persistence
         {
             Contract.Argument(() => connectionName)
                     .NotNullEmptyOrWhiteSpace();
-            migrations = migrations ?? (() => EmptyMigrationsArray);
+            migrations ??= (() => EmptyMigrationsArray);
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSessionInterface, TReaderInterface>());
 

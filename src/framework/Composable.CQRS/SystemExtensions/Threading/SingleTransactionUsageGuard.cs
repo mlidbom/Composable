@@ -9,7 +9,7 @@ namespace Composable.SystemExtensions.Threading
 
         public void AssertNoContextChangeOccurred(object guarded)
         {
-            _transaction = _transaction ?? Transaction.Current;
+            _transaction ??= Transaction.Current;
             if(Transaction.Current != null && Transaction.Current != _transaction)
             {
                 throw new ComponentUsedByMultipleTransactionsException(guarded.GetType());

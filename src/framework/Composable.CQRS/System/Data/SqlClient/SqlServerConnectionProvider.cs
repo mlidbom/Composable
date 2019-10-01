@@ -106,7 +106,7 @@ namespace Composable.System.Data.SqlClient
         public static async Task<object> ExecuteScalarAsync(this SqlCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteScalarAsync();
         public static void ExecuteNonQuery(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteNonQuery();
         public static async Task ExecuteNonQueryAsync(this SqlCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteNonQueryAsync();
-        public static SqlCommand AppendCommandText(this SqlCommand @this, string append) => @this.Mutate(me => me.CommandText = me.CommandText + append);
+        public static SqlCommand AppendCommandText(this SqlCommand @this, string append) => @this.Mutate(me => me.CommandText += append);
         public static SqlCommand SetCommandText(this SqlCommand @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
     }
 

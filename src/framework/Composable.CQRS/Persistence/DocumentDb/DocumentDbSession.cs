@@ -202,7 +202,9 @@ namespace Composable.Persistence.DocumentDb
         readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
 
+#pragma warning disable IDE0069 // Disposable fields should be disposed
         Transaction _participatingIn = null;
+#pragma warning restore IDE0069 // Disposable fields should be disposed
         void EnsureParticipatingInTransaction()
         {
             var ambientTransaction = Transaction.Current;

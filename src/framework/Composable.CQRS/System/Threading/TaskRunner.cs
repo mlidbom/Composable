@@ -71,7 +71,11 @@ namespace Composable.System.Threading
 
             protected override void EnqueueWrappedTask(Action action) => Task.Run(action, _cancellationTokenSource.Token);
 
-            public void Dispose() => _cancellationTokenSource.Cancel();
+            public void Dispose()
+            {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
+            }
         }
 
         // ReSharper disable once UnusedMember.Local
@@ -125,6 +129,7 @@ namespace Composable.System.Threading
             public void Dispose()
             {
                 _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
                 _dispatcherThread.InterruptAndJoin();
             }
         }
@@ -164,7 +169,9 @@ namespace Composable.System.Threading
             public void Dispose()
             {
                 _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
                 _taskRunnerThreads.ForEach(thread => thread.InterruptAndJoin());
+                _tasksQueue.Dispose();
             }
         }
     }

@@ -99,6 +99,7 @@ namespace Composable.Messaging.Buses
         {
             if(IsRunning) Stop();
             ServiceLocator.Dispose();
+            _commandScheduler?.Dispose();
         }
     }
 }

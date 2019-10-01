@@ -172,7 +172,11 @@ namespace Composable.Messaging.Buses.Implementation
         public void Dispose()
         {
             if(_running)
+            {
                 Stop();
+            }
+
+            _receivedMessageBatches.Dispose();
         }
     }
 }

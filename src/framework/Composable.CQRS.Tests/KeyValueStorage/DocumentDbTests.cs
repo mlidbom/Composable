@@ -597,7 +597,7 @@ namespace Composable.Tests.KeyValueStorage
         public void ThrowsIfUsedByMultipleThreads()
         {
             IDocumentDbSession session = null;
-            var wait = new ManualResetEventSlim();
+            using var wait = new ManualResetEventSlim();
             ThreadPool.QueueUserWorkItem(state =>
                                          {
                                              ServiceLocator.ExecuteInIsolatedScope(() => session = ServiceLocator.DocumentDbSession());

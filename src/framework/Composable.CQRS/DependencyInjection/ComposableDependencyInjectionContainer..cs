@@ -57,6 +57,7 @@ namespace Composable.DependencyInjection
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
         {
+            Assert.State.Assert(!_disposed);
             if(!_createdServiceLocator)
             {
                 _createdServiceLocator = true;
@@ -82,6 +83,7 @@ namespace Composable.DependencyInjection
 
         IDisposable IServiceLocator.BeginScope()
         {
+            Assert.State.Assert(!_disposed);
             if(_scopeCache.Value != null)
             {
                 throw new Exception("Scope already exists. Nested scopes are not supported.");
@@ -106,6 +108,7 @@ namespace Composable.DependencyInjection
         [ThreadStatic] static ComponentRegistration _parentComponent;
         public TService Resolve<TService>() where TService : class
         {
+            Assert.State.Assert(!_disposed);
             var (registrations, instance) = _cache.Get<TService>();
 
             if(instance is TService singleton)
@@ -169,6 +172,7 @@ namespace Composable.DependencyInjection
 
         internal TService ResolveSingleton<TService>(ComponentRegistration currentComponent) where TService : class
         {
+            Assert.State.Assert(!_disposed);
             var (registrations, instance) = _cache.Get<TService>();
 
             if(instance is TService singleton)
@@ -195,6 +199,7 @@ namespace Composable.DependencyInjection
 
         internal TService ResolveScoped<TService>(ComponentRegistration currentComponent) where TService : class
         {
+            Assert.State.Assert(!_disposed);
              var scopeCache = _scopeCache.Value;
 
             if(scopeCache == null)

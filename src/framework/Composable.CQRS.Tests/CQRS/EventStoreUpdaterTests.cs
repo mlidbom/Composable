@@ -104,7 +104,7 @@ namespace Composable.Tests.CQRS
         {
             IEventStoreUpdater updater = null;
             IEventStoreReader reader = null;
-            var wait = new ManualResetEventSlim();
+            using var wait = new ManualResetEventSlim();
             ThreadPool.QueueUserWorkItem(_ =>
                                          {
                                              ServiceLocator.ExecuteInIsolatedScope(() =>

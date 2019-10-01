@@ -18,8 +18,8 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
             var exclusiveLock = resourceGuard.AwaitExclusiveLock();
 
-            var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
-            var otherThreadGotLock = new ManualResetEventSlim(false);
+            using var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
+            using var otherThreadGotLock = new ManualResetEventSlim(false);
             var otherThreadTask = Task.Run(
                 () =>
                 {
@@ -46,8 +46,8 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             var exclusiveLock1 = resourceGuard.AwaitExclusiveLock();
             var exclusiveLock2 = resourceGuard.AwaitExclusiveLock();
 
-            var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
-            var otherThreadGotLock = new ManualResetEventSlim(false);
+            using var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
+            using var otherThreadGotLock = new ManualResetEventSlim(false);
             var otherThreadTask = Task.Run(
                 () =>
                 {

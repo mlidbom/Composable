@@ -16,7 +16,9 @@ namespace Composable.DependencyInjection.Testing
         {
             var sourceContainer = (IDependencyInjectionContainer)@this;
 
+#pragma warning disable IDE0067 // Dispose objects before losing scope
             var cloneContainer = DependencyInjectionContainer.Create();
+#pragma warning restore IDE0067 // Dispose objects before losing scope
 
             sourceContainer.RegisteredComponents()
                            .Where(component => TypesThatAreFacadesForTheContainer.None(facadeForTheContainer => component.ServiceTypes.Contains(facadeForTheContainer)))

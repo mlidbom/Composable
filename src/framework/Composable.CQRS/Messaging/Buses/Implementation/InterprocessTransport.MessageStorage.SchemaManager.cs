@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 public static async Task EnsureTablesExistAsync(ISqlConnectionProvider connectionFactory)
                 {
-                    using var connection = connectionFactory.OpenConnection();
+                    await using var connection = connectionFactory.OpenConnection();
                     await connection.ExecuteNonQueryAsync($@"
 IF NOT EXISTS (select name from sys.tables where name = '{OutboxMessages.TableName}')
 BEGIN

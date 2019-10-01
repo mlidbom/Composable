@@ -4,6 +4,7 @@ using Composable.Logging;
 using FluentAssertions;
 using NUnit.Framework;
 // ReSharper disable All
+#pragma warning disable // Make local function 'static'
 
 namespace Composable.Tests
 {

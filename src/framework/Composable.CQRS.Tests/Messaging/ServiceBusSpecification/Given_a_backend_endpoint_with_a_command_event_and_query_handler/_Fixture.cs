@@ -38,7 +38,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [SetUp]public async Task Setup()
         {
-            void MapBackendEndpointTypes(IEndpointBuilder builder) =>
+            static void MapBackendEndpointTypes(IEndpointBuilder builder) =>
                 builder.TypeMapper.Map<MyExactlyOnceCommand>("0ddefcaa-4d4d-48b2-9e1a-762c0b835275")
                        .Map<MyAtMostOnceCommandWithResult>("24248d03-630b-4909-a6ea-e7fdaf82baa2")
                        .Map<MyExactlyOnceEvent>("2fdde21f-c6d4-46a2-95e5-3429b820dfc3")

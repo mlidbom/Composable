@@ -120,7 +120,7 @@ namespace ScratchPad
 
                     var newBackMap = new Type[BackMap.Length + 1];
                     Array.Copy(BackMap, newBackMap, BackMap.Length);
-                    newBackMap[newBackMap.Length - 1] = type;
+                    newBackMap[^1] = type;
                     BackMap = newBackMap;
                     return ServiceCount - 1;
                 }

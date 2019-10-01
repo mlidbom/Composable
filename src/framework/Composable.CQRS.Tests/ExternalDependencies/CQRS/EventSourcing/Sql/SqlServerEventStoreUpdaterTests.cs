@@ -101,7 +101,7 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
 
                var threads = 2;
 
-            var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail())).ToArray();
+            var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(UpdateEmail)).ToArray();
 
             changeEmailSection.EntranceGate.Open();
             changeEmailSection.EntranceGate.AwaitPassedThroughCountEqualTo(2);

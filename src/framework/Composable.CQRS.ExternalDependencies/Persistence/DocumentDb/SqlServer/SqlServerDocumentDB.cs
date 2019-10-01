@@ -167,22 +167,22 @@ WHERE Id=@Id AND ValueTypeId
             EnsureInitialized();
             values = values.ToList();
             using var connection = _connectionProvider.OpenConnection();
-            foreach(var entry in values)
+            foreach(var (key, value) in values)
             {
                 using var command = connection.CreateCommand();
                 command.CommandType = CommandType.Text;
-                var stringValue = _serializer.Serialize(entry.Value);
+                var stringValue = _serializer.Serialize(value);
 
-                var idString = GetIdString(entry.Key);
-                var needsUpdate = !persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(idString, out var oldValue) || stringValue != oldValue;
+                var idString = GetIdString(key);
+                var needsUpdate = !persistentValues.GetOrAddDefault(value.GetType()).TryGetValue(idString, out var oldValue) || stringValue != oldValue;
                 if(needsUpdate)
                 {
-                    persistentValues.GetOrAddDefault(entry.Value.GetType())[idString] = stringValue;
+                    persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
                     command.CommandText += "UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId \n";
-                    command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = entry.Key});
+                    command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = key});
                     command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) {Value = _timeSource.UtcNow});
 
-                    AddTypeCriteria(command, entry.Value.GetType());
+                    AddTypeCriteria(command, value.GetType());
 
                     command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
                 }

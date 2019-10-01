@@ -67,9 +67,9 @@ namespace AccountManagement
                                          setup: () => currentAccount = -1,
                                          action: () =>
                                          {
-                                             var account = accountsArray[Interlocked.Increment(ref currentAccount)];
+                                             var (email, password, _) = accountsArray[Interlocked.Increment(ref currentAccount)];
 
-                                             var loginResult = _scenarioApi.Login(account.Email, account.Password).Execute();
+                                             var loginResult = _scenarioApi.Login(email, password).Execute();
                                              if(!loginResult.Succeeded)
                                              {
                                                  throw new Exception();
@@ -83,10 +83,10 @@ namespace AccountManagement
                                          setup: () => currentAccount = -1,
                                          action: () =>
                                          {
-                                             var account = accountsArray[Interlocked.Increment(ref currentAccount)];
+                                             var (_, _, id) = accountsArray[Interlocked.Increment(ref currentAccount)];
 
-                                             var accountResource = _clientEndpoint.ExecuteRequest(AccountApi.Instance.Query.AccountById(account.Id));
-                                             if(accountResource.Id != account.Id)
+                                             var accountResource = _clientEndpoint.ExecuteRequest(AccountApi.Instance.Query.AccountById(id));
+                                             if(accountResource.Id != id)
                                              {
                                                  throw new Exception();
                                              }

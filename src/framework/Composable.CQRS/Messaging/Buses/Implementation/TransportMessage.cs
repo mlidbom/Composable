@@ -129,7 +129,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        internal class Response
+        internal static class Response
         {
             internal enum ResponseType
             {

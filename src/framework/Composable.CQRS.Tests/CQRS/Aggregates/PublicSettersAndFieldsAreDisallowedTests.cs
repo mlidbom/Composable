@@ -4,6 +4,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.Testing;
 using FluentAssertions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable UnusedMember.Local
@@ -39,7 +40,7 @@ namespace Composable.Tests.CQRS.Aggregates
             {
                 public interface IRoot : RootEvent.IRoot{ string            Public4 { get; set; }  }
                 internal class Root : RootEvent.Root, IRoot { public string Public4 { get; set; }
-                    public class GetterSetter : IGetSetAggregateEntityEventEntityId<Guid, Root, IRoot>
+                    [UsedImplicitly] public class GetterSetter : IGetSetAggregateEntityEventEntityId<Guid, Root, IRoot>
                     {
                         public Guid GetId(IRoot @event) { throw new NotImplementedException(); }
                         public void SetEntityId(Root @event, Guid id) { throw new NotImplementedException(); }

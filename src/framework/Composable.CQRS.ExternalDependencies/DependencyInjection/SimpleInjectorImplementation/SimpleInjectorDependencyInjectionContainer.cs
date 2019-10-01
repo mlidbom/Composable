@@ -7,6 +7,7 @@ using SimpleInjector.Lifestyles;
 
 namespace Composable.DependencyInjection.SimpleInjectorImplementation
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class SimpleInjectorDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
         readonly Container _container;

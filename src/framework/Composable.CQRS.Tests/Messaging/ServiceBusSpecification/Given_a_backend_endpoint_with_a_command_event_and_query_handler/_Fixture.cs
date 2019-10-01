@@ -14,6 +14,7 @@ using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 using Composable.System;
+// ReSharper disable ClassNeverInstantiated.Global
 
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -120,7 +121,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public interface IRoot : IAggregateEvent {}
             public interface Created : IRoot, IAggregateCreatedEvent {}
             public interface Updated : IRoot {}
-            public class Implementation
+            public static class Implementation
             {
                 public class Root : AggregateEvent, IRoot
                 {

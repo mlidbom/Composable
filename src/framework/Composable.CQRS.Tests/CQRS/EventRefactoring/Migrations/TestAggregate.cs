@@ -7,6 +7,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.System.Reflection;
 using JetBrains.Annotations;
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {

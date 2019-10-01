@@ -1,4 +1,5 @@
 using Composable.Persistence.EventStore.Aggregates;
+using JetBrains.Annotations;
 
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable RedundantNameQualifier
@@ -35,7 +36,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.IntegerId
                     {
                         public int NestedEntityId { get; protected set; }
 
-                        public new class IdGetterSetter : Root, IGetSetAggregateEntityEventEntityId<int, Root, IRoot>
+                        [UsedImplicitly] public new class IdGetterSetter : Root, IGetSetAggregateEntityEventEntityId<int, Root, IRoot>
                         {
                             public void SetEntityId(Root @event, int id) => @event.NestedEntityId = id;
                             public int GetId(IRoot @event) => @event.NestedEntityId;

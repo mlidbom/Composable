@@ -4,6 +4,7 @@ using Composable.Messaging.Buses;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using FluentAssertions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -66,7 +67,7 @@ namespace Composable.Tests.Serialization
         {
             public string TypeAName { get; set; }
 
-            public class TypeAA : TypeA
+            [UsedImplicitly] public class TypeAA : TypeA
             {
                 public string TypeAAName { get; set; }
             }
@@ -76,7 +77,7 @@ namespace Composable.Tests.Serialization
         {
             public string TypeBName { get; set; }
 
-            public class TypeBB : TypeB
+            [UsedImplicitly] public class TypeBB : TypeB
             {
                 public string TypeBBName { get; set; }
             }

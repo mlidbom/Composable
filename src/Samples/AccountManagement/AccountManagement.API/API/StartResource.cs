@@ -1,8 +1,9 @@
 ﻿using Composable.Messaging;
+using JetBrains.Annotations;
 
 namespace AccountManagement.API
 {
-    public class StartResource
+    [UsedImplicitly] public class StartResource
     {
         public Command Commands { get; private set; } = new Command();
 

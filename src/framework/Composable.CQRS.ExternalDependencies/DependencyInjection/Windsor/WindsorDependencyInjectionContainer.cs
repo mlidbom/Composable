@@ -10,6 +10,7 @@ using Composable.Contracts;
 
 namespace Composable.DependencyInjection.Windsor
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     class WindsorDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator
     {
         readonly IWindsorContainer _windsorContainer;

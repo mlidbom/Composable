@@ -7,6 +7,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using Assert = NUnit.Framework.Assert;
 using Composable.System;
+// ReSharper disable AccessToDisposedClosure
 
 namespace Composable.Tests.System.Threading.ResourceAccess
 {

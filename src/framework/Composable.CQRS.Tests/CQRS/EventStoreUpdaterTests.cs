@@ -19,6 +19,7 @@ using Composable.Testing.Transactions;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
+// ReSharper disable AccessToDisposedClosure
 
 namespace Composable.Tests.CQRS
 {

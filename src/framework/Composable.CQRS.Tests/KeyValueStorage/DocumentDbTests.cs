@@ -12,6 +12,7 @@ using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 using Composable.System;
+// ReSharper disable AccessToDisposedClosure
 
 namespace Composable.Tests.KeyValueStorage
 {

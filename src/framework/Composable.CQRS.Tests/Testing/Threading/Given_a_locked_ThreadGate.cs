@@ -6,6 +6,7 @@ using Composable.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;
 using Composable.System;
+// ReSharper disable AccessToDisposedClosure
 
 namespace Composable.Tests.Testing.Threading
 {

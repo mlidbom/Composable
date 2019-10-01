@@ -48,28 +48,38 @@ namespace Composable.Messaging.Buses.Implementation
         });
 
         //performance:tests: make async
-        public async Task ConnectAsync(EndPointAddress remoteEndpoint) => await _state.WithExclusiveAccess(async @this =>
+        public async Task ConnectAsync(EndPointAddress remoteEndpoint)
         {
-            var clientConnection = await ClientConnection.CreateAsync(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer);
-            @this.EndpointConnections.Add(clientConnection.EndPointinformation.Id, clientConnection);
-            @this.HandlerStorage.AddRegistrations(clientConnection.EndPointinformation.Id, clientConnection.EndPointinformation.HandledMessageTypes);
-        });
+            var clientConnection = _state.WithExclusiveAccess(@this => new ClientConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer));
 
-        public async Task StartAsync() => await _state.WithExclusiveAccess(async state =>
+            await clientConnection.Init(clientConnection);
+
+            _state.WithExclusiveAccess(@this =>
+            {
+                @this.EndpointConnections.Add(clientConnection.EndPointinformation.Id, clientConnection);
+                @this.HandlerStorage.AddRegistrations(clientConnection.EndPointinformation.Id, clientConnection.EndPointinformation.HandledMessageTypes);
+            });
+        }
+
+        public async Task StartAsync()
         {
-            Assert.State.Assert(!state.Running);
-            state.Running = true;
+            Task storageStartTask = null;
+            _state.WithExclusiveAccess(state =>
+            {
+                Assert.State.Assert(!state.Running);
+                state.Running = true;
 
-            var storageStartTask = state.Configuration.IsPureClientEndpoint
+                storageStartTask = state.Configuration.IsPureClientEndpoint
                                        ? Task.CompletedTask
                                        : state.MessageStorage.StartAsync();
 
-            state.Poller = new NetMQPoller();
-            state.PollerThread =  new Thread(() => state.Poller.Run()){Name = $"{nameof(InterprocessTransport)}_{nameof(state.PollerThread)}"};
-            state.PollerThread.Start();
+                state.Poller = new NetMQPoller();
+                state.PollerThread = new Thread(() => state.Poller.Run()) {Name = $"{nameof(InterprocessTransport)}_{nameof(state.PollerThread)}"};
+                state.PollerThread.Start();
+            });
 
             await storageStartTask;
-        });
+        }
 
         public void Stop() => _state.WithExclusiveAccess(state =>
         {
@@ -105,28 +115,38 @@ namespace Composable.Messaging.Buses.Implementation
             connection.DispatchIfTransactionCommits(exactlyOnceCommand);
         });
 
-        public async Task DispatchAsync(BusApi.Remotable.AtMostOnce.ICommand atMostOnceCommand)  => await _state.WithExclusiveAccess(async state =>
+        public async Task DispatchAsync(BusApi.Remotable.AtMostOnce.ICommand atMostOnceCommand)
         {
-            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand);
-            var connection = state.EndpointConnections[endPointId];
+            IClientConnection connection = _state.WithExclusiveAccess(state =>
+            {
+                var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand);
+                return state.EndpointConnections[endPointId];
+            });
 
             await connection.DispatchAsync(atMostOnceCommand).NoMarshalling();
-        });
+        }
 
-        public async Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand) => await _state.WithExclusiveAccess(async state =>
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand)
         {
-            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand);
-            var connection = state.EndpointConnections[endPointId];
+            IClientConnection connection = _state.WithExclusiveAccess(state =>
+            {
+                var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand);
+                return state.EndpointConnections[endPointId];
+            });
 
             return await connection.DispatchAsync(atMostOnceCommand);
-        });
+        }
 
-        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remotable.NonTransactional.IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remotable.NonTransactional.IQuery<TQueryResult> query)
         {
-            var endPointId = state.HandlerStorage.GetQueryHandlerEndpoint(query);
-            var connection = state.EndpointConnections[endPointId];
+            var connection = _state.WithExclusiveAccess(state =>
+            {
+                var endPointId = state.HandlerStorage.GetQueryHandlerEndpoint(query);
+                return state.EndpointConnections[endPointId];
+            });
+
             return await connection.DispatchAsync(query);
-        });
+        }
 
         public void Dispose() => _state.WithExclusiveAccess(state =>
         {

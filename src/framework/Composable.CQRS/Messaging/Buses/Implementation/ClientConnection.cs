@@ -26,42 +26,51 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper, state.Serializer))));
 
-        public async Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remotable.AtMostOnce.ICommand<TCommandResult> command) => (TCommandResult)await _state.WithExclusiveAccess(async state =>
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remotable.AtMostOnce.ICommand<TCommandResult> command)
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper, state.Serializer);
+            _state.WithExclusiveAccess(state =>
+            {
+                var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper, state.Serializer);
 
-            state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-            DispatchMessage(state, outGoingMessage);
+                state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+                DispatchMessage(state, outGoingMessage);
+            });
 
-            return await taskCompletionSource.Task;
-        });
+            return (TCommandResult)await taskCompletionSource.Task;
+        }
 
-        public async Task DispatchAsync(BusApi.Remotable.AtMostOnce.ICommand command) => await _state.WithExclusiveAccess(async state =>
+        public async Task DispatchAsync(BusApi.Remotable.AtMostOnce.ICommand command)
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper, state.Serializer);
+            _state.WithExclusiveAccess(state =>
+            {
+                var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper, state.Serializer);
 
-            state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-            DispatchMessage(state, outGoingMessage);
+                state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+                DispatchMessage(state, outGoingMessage);
+            });
 
-            return await taskCompletionSource.Task;
-        });
+            await taskCompletionSource.Task;
+        }
 
-        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remotable.NonTransactional.IQuery<TQueryResult> query) => (TQueryResult)await _state.WithExclusiveAccess(async state =>
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remotable.NonTransactional.IQuery<TQueryResult> query)
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            var outGoingMessage = TransportMessage.OutGoing.Create(query, state.TypeMapper, state.Serializer);
+            _state.WithExclusiveAccess(state =>
+            {
+                var outGoingMessage = TransportMessage.OutGoing.Create(query, state.TypeMapper, state.Serializer);
 
-            state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-            state.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
-            state.DispatchQueue.Enqueue(outGoingMessage);
+                state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+                state.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
+                state.DispatchQueue.Enqueue(outGoingMessage);
+            });
 
-            return await taskCompletionSource.Task;
-        });
+            return (TQueryResult)await taskCompletionSource.Task;
+        }
 
         static void DispatchMessage(State @this, TransportMessage.OutGoing outGoingMessage)
         {
@@ -74,21 +83,9 @@ namespace Composable.Messaging.Buses.Implementation
             @this.DispatchQueue.Enqueue(outGoingMessage);
         }
 
-        public static async Task<ClientConnection> CreateAsync(IGlobalBusStateTracker globalBusStateTracker,
-                                                         EndPointAddress serverEndpoint,
-                                                         NetMQPoller poller,
-                                                         IUtcTimeTimeSource timeSource,
-                                                         InterprocessTransport.MessageStorage messageStorage,
-                                                         ITypeMapper typeMapper,
-                                                         ITaskRunner taskRunner,
-                                                         IRemotableMessageSerializer serializer)
-        {
-            var clientConnection = new ClientConnection(globalBusStateTracker, serverEndpoint, poller, timeSource, messageStorage, typeMapper, taskRunner, serializer);
-            clientConnection.EndPointinformation = await clientConnection.DispatchAsync(new BusApi.Internal.EndpointInformationQuery());
-            return clientConnection;
-        }
+        internal async Task Init(ClientConnection clientConnection) { EndPointinformation = await clientConnection.DispatchAsync(new BusApi.Internal.EndpointInformationQuery()); }
 
-        ClientConnection(IGlobalBusStateTracker globalBusStateTracker,
+        internal ClientConnection(IGlobalBusStateTracker globalBusStateTracker,
                                 EndPointAddress serverEndpoint,
                                 NetMQPoller poller,
                                 IUtcTimeTimeSource timeSource,

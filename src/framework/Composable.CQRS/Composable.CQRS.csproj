@@ -8,10 +8,6 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>Composable</RootNamespace>
   </PropertyGroup>
-  
-  <PropertyGroup>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
     
   <ItemGroup>
     <None Remove="Composable.Core.v3.ncrunchproject" />

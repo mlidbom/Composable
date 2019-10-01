@@ -9,11 +9,9 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         public bool Exists(SqlConnection connection)
         {
-            using (var checkForTableCommand = connection.CreateCommand())
-            {
-                checkForTableCommand.CommandText = $"select count(*) from sys.tables where name = '{Name}'";
-                return 1 == (int)checkForTableCommand.ExecuteScalar();
-            }
+            using var checkForTableCommand = connection.CreateCommand();
+            checkForTableCommand.CommandText = $"select count(*) from sys.tables where name = '{Name}'";
+            return 1 == (int)checkForTableCommand.ExecuteScalar();
         }
 
         public void Create(SqlConnection connection)
@@ -23,11 +21,9 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         static void ExecuteNonQuery(SqlConnection connection, string sql)
         {
-            using (var createTableCommand = connection.CreateCommand())
-            {
-                createTableCommand.CommandText = sql;
-                createTableCommand.ExecuteNonQuery();
-            }
+            using var createTableCommand = connection.CreateCommand();
+            createTableCommand.CommandText = sql;
+            createTableCommand.ExecuteNonQuery();
         }
 
     }

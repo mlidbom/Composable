@@ -47,25 +47,21 @@ namespace Composable.Serialization
         internal byte[] Serialize()
         {
             //Optimization to know the size of the buffer to use from the start so we don't need to reallocate or to use ToArray. We can just return the existing buffer we created.
-            using(var stream = new MemoryStream())
+            using var stream = new MemoryStream();
+            using(var binaryWriter = new BinaryWriter(stream))
             {
-                using(var binaryWriter = new BinaryWriter(stream))
-                {
-                    Serialize(binaryWriter);
-                }
-
-                return stream.ToArray();
+                Serialize(binaryWriter);
             }
+
+            return stream.ToArray();
         }
 
         internal static TInheritor Deserialize(byte[] data)
         {
-            using(var reader = new BinaryReader(new MemoryStream(data)))
-            {
-                var instance = DefaultConstructor();
-                instance.Deserialize(reader);
-                return instance;
-            }
+            using var reader = new BinaryReader(new MemoryStream(data));
+            var instance = DefaultConstructor();
+            instance.Deserialize(reader);
+            return instance;
         }
 
         protected abstract class MemberGetterSetter

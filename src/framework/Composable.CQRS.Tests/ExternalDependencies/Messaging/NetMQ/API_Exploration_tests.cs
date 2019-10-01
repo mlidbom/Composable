@@ -9,23 +9,21 @@ namespace Composable.Tests.ExternalDependencies.Messaging.NetMQ
     {
         [Test] public void Play_with_router()
         {
-            using(var router = new RouterSocket())
-            using(var dealer = new DealerSocket())
-            {
-                var dealerId = new Byte[] { 5 };
-                dealer.Options.Identity = dealerId;
+            using var router = new RouterSocket();
+            using var dealer = new DealerSocket();
+            var dealerId = new Byte[] { 5 };
+            dealer.Options.Identity = dealerId;
 
-                var address = router.BindLocalhostPort();
-                dealer.Connect(address);
-                Console.WriteLine(address);
+            var address = router.BindLocalhostPort();
+            dealer.Connect(address);
+            Console.WriteLine(address);
 
-                dealer.SendMoreFrame(new byte[0]);
-                dealer.SendFrame("Hello!");
+            dealer.SendMoreFrame(new byte[0]);
+            dealer.SendFrame("Hello!");
 
-                Console.WriteLine($"#1# {router.ReceiveFrameString()}");
-                Console.WriteLine($"#2# {router.ReceiveFrameString()}");
-                Console.WriteLine($"#2# {router.ReceiveFrameString()}");
-            }
+            Console.WriteLine($"#1# {router.ReceiveFrameString()}");
+            Console.WriteLine($"#2# {router.ReceiveFrameString()}");
+            Console.WriteLine($"#2# {router.ReceiveFrameString()}");
         }
     }
 

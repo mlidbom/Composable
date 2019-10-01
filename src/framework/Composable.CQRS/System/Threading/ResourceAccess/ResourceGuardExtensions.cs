@@ -51,18 +51,16 @@ namespace Composable.System.Threading.ResourceAccess
         public static bool TryAwaitCondition(this IResourceGuard @this, TimeSpan timeout, Func<bool> condition)
         {
             var startTime = DateTime.Now;
-            using(var @lock = @this.AwaitExclusiveLock(timeout))
+            using var @lock = @this.AwaitExclusiveLock(timeout);
+            while(!condition())
             {
-                while(!condition())
+                if(DateTime.Now - startTime > timeout)
                 {
-                    if(DateTime.Now - startTime > timeout)
-                    {
-                        return false;
-                    }
-                    @lock.TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeout);
+                    return false;
                 }
-                return true;
+                @lock.TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeout);
             }
+            return true;
         }
 
         public static TResult Read<TResult>(this IResourceGuard @this, Func<TResult> read)

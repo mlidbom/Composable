@@ -35,14 +35,12 @@ namespace Composable.Testing.Threading
 
         public IThreadGate AwaitLetOneThreadPassthrough()
         {
-            using(var ownedLock = _resourceGuard.AwaitExclusiveLock())
-            {
-                Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
-                _isOpen = true;
-                _lockOnNextPass = true;
-                ownedLock.NotifyWaitingThreadsAboutUpdate();
-                return this.AwaitClosed();
-            }
+            using var ownedLock = _resourceGuard.AwaitExclusiveLock();
+            Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
+            _isOpen = true;
+            _lockOnNextPass = true;
+            ownedLock.NotifyWaitingThreadsAboutUpdate();
+            return this.AwaitClosed();
         }
 
         public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _resourceGuard.TryAwaitCondition(timeout, condition);

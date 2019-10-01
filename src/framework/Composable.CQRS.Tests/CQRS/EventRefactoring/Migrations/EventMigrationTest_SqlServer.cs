@@ -25,40 +25,36 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations {
             IReadOnlyList<IEventMigration> migrations = new List<IEventMigration>();
 
             // ReSharper disable once AccessToModifiedClosure this is exactly what we wish to achieve here...
-            using (var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType))
-            {
-                IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader> PersistingEventStore() => serviceLocator.Resolve<IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>>();
+            using var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType);
+            IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader> PersistingEventStore() => serviceLocator.Resolve<IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>>();
 
-                using (var otherProcessServiceLocator = serviceLocator.Clone())
-                {
-                    // ReSharper disable once AccessToDisposedClosure
-                    ITestingEventStoreUpdater OtherEventStoreSession() => otherProcessServiceLocator.Resolve<ITestingEventStoreUpdater>();
+            using var otherProcessServiceLocator = serviceLocator.Clone();
 
-                    var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            // ReSharper disable once AccessToDisposedClosure
+            ITestingEventStoreUpdater OtherEventStoreSession() => otherProcessServiceLocator.Resolve<ITestingEventStoreUpdater>();
 
-                    var aggregate = TestAggregate.FromEvents(
-                        serviceLocator.Resolve<IUtcTimeTimeSource>(),
-                        id,
-                        Seq.OfTypes<Ec1, E1, E2, E3, E4>());
+            var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-                    otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => OtherEventStoreSession().Save(aggregate));
-                    migrations = actualMigrations;
-                    otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => OtherEventStoreSession().Get<TestAggregate>(id));
+            var aggregate = TestAggregate.FromEvents(
+                serviceLocator.Resolve<IUtcTimeTimeSource>(),
+                id,
+                Seq.OfTypes<Ec1, E1, E2, E3, E4>());
 
-                    var test = serviceLocator.ExecuteTransactionInIsolatedScope(() => PersistingEventStore().GetAggregateHistory(id));
-                    test.Count.Should().BeGreaterThan(0);
+            otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => OtherEventStoreSession().Save(aggregate));
+            migrations = actualMigrations;
+            otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => OtherEventStoreSession().Get<TestAggregate>(id));
 
-                    serviceLocator.ExecuteInIsolatedScope(() => PersistingEventStore().PersistMigrations());
+            var test = serviceLocator.ExecuteTransactionInIsolatedScope(() => PersistingEventStore().GetAggregateHistory(id));
+            test.Count.Should().BeGreaterThan(0);
 
-                    otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => OtherEventStoreSession().Get<TestAggregate>(id).Publish(new E3()));
+            serviceLocator.ExecuteInIsolatedScope(() => PersistingEventStore().PersistMigrations());
 
-                    var firstProcessHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => PersistingEventStore().GetAggregateHistory(id));
-                    var secondProcessHistory = otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => otherProcessServiceLocator.Resolve<IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>>().GetAggregateHistory(id));
+            otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => OtherEventStoreSession().Get<TestAggregate>(id).Publish(new E3()));
 
-                    EventMigrationTestBase.AssertStreamsAreIdentical(firstProcessHistory, secondProcessHistory, "Both process histories should be identical");
+            var firstProcessHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => PersistingEventStore().GetAggregateHistory(id));
+            var secondProcessHistory = otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => otherProcessServiceLocator.Resolve<IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>>().GetAggregateHistory(id));
 
-                }
-            }
+            EventMigrationTestBase.AssertStreamsAreIdentical(firstProcessHistory, secondProcessHistory, "Both process histories should be identical");
         }
     }
 }

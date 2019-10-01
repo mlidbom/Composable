@@ -24,54 +24,48 @@ namespace Composable.Tests.System.Threading
         [Test] public void Create()
         {
             var name = Guid.NewGuid().ToString();
-            using(var shared = MachineWideSharedObject<SharedObject>.For(name))
-            {
-                var test = shared.GetCopy();
+            using var shared = MachineWideSharedObject<SharedObject>.For(name);
+            var test = shared.GetCopy();
 
-                test.Name.Should().Be("Default");
-            }
+            test.Name.Should().Be("Default");
         }
 
         [Test] public void Create_update_and_get()
         {
             var name = Guid.NewGuid().ToString();
-            using(var shared = MachineWideSharedObject<SharedObject>.For(name))
-            {
-                var test = shared.GetCopy();
+            using var shared = MachineWideSharedObject<SharedObject>.For(name);
+            var test = shared.GetCopy();
 
-                test.Name.Should().Be("Default");
+            test.Name.Should().Be("Default");
 
-                test = shared.Update(@this => @this.Name = "Updated");
+            test = shared.Update(@this => @this.Name = "Updated");
 
-                test.Name.Should().Be("Updated");
+            test.Name.Should().Be("Updated");
 
-                test = shared.GetCopy();
+            test = shared.GetCopy();
 
-                test.Name.Should().Be("Updated");
-            }
+            test.Name.Should().Be("Updated");
         }
 
         [Test] public void Two_instances_with_same_name_share_data()
         {
             var name = Guid.NewGuid().ToString();
-            using(var shared1 = MachineWideSharedObject<SharedObject>.For(name))
-            using(var shared2 = MachineWideSharedObject<SharedObject>.For(name))
-            {
-                var test1 = shared1.GetCopy();
-                var test2 = shared2.GetCopy();
+            using var shared1 = MachineWideSharedObject<SharedObject>.For(name);
+            using var shared2 = MachineWideSharedObject<SharedObject>.For(name);
+            var test1 = shared1.GetCopy();
+            var test2 = shared2.GetCopy();
 
-                test1.Name.Should().Be("Default");
-                test2.Name.Should().Be("Default");
+            test1.Name.Should().Be("Default");
+            test2.Name.Should().Be("Default");
 
-                test1 = shared1.Update(@this => @this.Name = "Updated");
-                test2 = shared2.GetCopy();
+            test1 = shared1.Update(@this => @this.Name = "Updated");
+            test2 = shared2.GetCopy();
 
-                test1.Name.Should().Be("Updated");
-                test2.Name.Should().Be("Updated");
+            test1.Name.Should().Be("Updated");
+            test2.Name.Should().Be("Updated");
 
-                test1 = shared1.GetCopy();
-                test1.Name.Should().Be("Updated");
-            }
+            test1 = shared1.GetCopy();
+            test1.Name.Should().Be("Updated");
         }
 
         [Test] public void Non_persistent_Once_all_instance_are_disposed_data_is_gone()
@@ -129,33 +123,31 @@ namespace Composable.Tests.System.Threading
                                               conflictingGetCopySectionOtherInstance).ToList();
 
             var name = Guid.NewGuid().ToString();
-            using(var shared1 = MachineWideSharedObject<SharedObject>.For(name))
-            using(var shared2 = MachineWideSharedObject<SharedObject>.For(name))
-            using(var taskRunner = new TestingTaskRunner(100.Milliseconds()))
+            using var shared1 = MachineWideSharedObject<SharedObject>.For(name);
+            using var shared2 = MachineWideSharedObject<SharedObject>.For(name);
+            using var taskRunner = new TestingTaskRunner(100.Milliseconds());
+            // ReSharper disable AccessToDisposedClosure
+            taskRunner.Start(() => shared1.Update(@this => { updateGate.AwaitPassthrough(); }));
+            taskRunner.Start(() => conflictingUpdateSectionSameInstance.Execute(() => shared1.Update(me => {})));
+            taskRunner.Start(() => conflictingGetCopySectionSameInstance.Execute(() => shared1.GetCopy()));
+            taskRunner.Start(() => conflictingUpdateSectionOtherInstance.Execute(() => shared2.Update(me => {})));
+            taskRunner.Start(() => conflictingGetCopySectionOtherInstance.Execute(() => shared2.GetCopy()));
+
+            updateGate.AwaitQueueLengthEqualTo(1);
+            conflictingGates.ForEach(gate =>
             {
-                // ReSharper disable AccessToDisposedClosure
-                taskRunner.Start(() => shared1.Update(@this => { updateGate.AwaitPassthrough(); }));
-                taskRunner.Start(() => conflictingUpdateSectionSameInstance.Execute(() => shared1.Update(me => {})));
-                taskRunner.Start(() => conflictingGetCopySectionSameInstance.Execute(() => shared1.GetCopy()));
-                taskRunner.Start(() => conflictingUpdateSectionOtherInstance.Execute(() => shared2.Update(me => {})));
-                taskRunner.Start(() => conflictingGetCopySectionOtherInstance.Execute(() => shared2.GetCopy()));
+                gate.EntranceGate.AwaitQueueLengthEqualTo(1);
+                gate.Open();
+            });
 
-                updateGate.AwaitQueueLengthEqualTo(1);
-                conflictingGates.ForEach(gate =>
-                {
-                    gate.EntranceGate.AwaitQueueLengthEqualTo(1);
-                    gate.Open();
-                });
+            Thread.Sleep(50.Milliseconds());
 
-                Thread.Sleep(50.Milliseconds());
+            conflictingGates.ForEach(gate => gate.ExitGate.PassedThrough.Count.Should().Be(0));
+            updateGate.Open();
+            conflictingGates.ForEach(gate => gate.ExitGate.AwaitPassedThroughCountEqualTo(1));
 
-                conflictingGates.ForEach(gate => gate.ExitGate.PassedThrough.Count.Should().Be(0));
-                updateGate.Open();
-                conflictingGates.ForEach(gate => gate.ExitGate.AwaitPassedThroughCountEqualTo(1));
-
-                taskRunner.WaitForTasksToComplete();
-                // ReSharper restore AccessToDisposedClosure
-            }
+            taskRunner.WaitForTasksToComplete();
+            // ReSharper restore AccessToDisposedClosure
         }
     }
 }

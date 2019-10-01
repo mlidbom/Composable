@@ -493,20 +493,17 @@ namespace Composable.Tests.CQRS
             User user = null;
             void ChangeAnotherUsersEmailInOtherInstance()
             {
-                using (var clonedServiceLocator = ServiceLocator.Clone())
+                using var clonedServiceLocator = ServiceLocator.Clone();
+                clonedServiceLocator.ExecuteTransactionInIsolatedScope(() =>
                 {
-                    clonedServiceLocator.ExecuteTransactionInIsolatedScope(() =>
-                                                                          {
-                                                                              // ReSharper disable once AccessToDisposedClosure
-                                                                              var session = clonedServiceLocator.Resolve<ITestingEventStoreUpdater>();
-                                                                              otherUser = User.Register(session,
-                                                                                                        "email@email.se",
-                                                                                                        "password",
-                                                                                                        Guid.NewGuid());
-                                                                              otherUser.ChangeEmail("otheruser@email.new");
-                                                                          });
-
-                }
+                    // ReSharper disable once AccessToDisposedClosure
+                    var session = clonedServiceLocator.Resolve<ITestingEventStoreUpdater>();
+                    otherUser = User.Register(session,
+                                              "email@email.se",
+                                              "password",
+                                              Guid.NewGuid());
+                    otherUser.ChangeEmail("otheruser@email.new");
+                });
             }
 
             UseInTransactionalScope(session => user = User.Register(session, "email@email.se", "password", Guid.NewGuid()));

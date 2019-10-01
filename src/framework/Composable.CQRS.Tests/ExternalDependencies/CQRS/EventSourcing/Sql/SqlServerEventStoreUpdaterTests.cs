@@ -130,14 +130,12 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
         {
             using (ServiceLocator.BeginScope())
             {
-                using (var updater = ServiceLocator.Resolve<ITestingEventStoreUpdater>())
-                {
-                    var user = new User();
-                    user.Register("email@email.se", "password", Guid.NewGuid());
+                using var updater = ServiceLocator.Resolve<ITestingEventStoreUpdater>();
+                var user = new User();
+                user.Register("email@email.se", "password", Guid.NewGuid());
 
-                    TransactionScopeCe.Execute(() => updater.Save(user));
-                    AssertThrows.Exception<ComponentUsedByMultipleTransactionsException>(() => TransactionScopeCe.Execute(() => updater.Get<User>(user.Id)));
-                }
+                TransactionScopeCe.Execute(() => updater.Save(user));
+                AssertThrows.Exception<ComponentUsedByMultipleTransactionsException>(() => TransactionScopeCe.Execute(() => updater.Get<User>(user.Id)));
             }
         }
     }

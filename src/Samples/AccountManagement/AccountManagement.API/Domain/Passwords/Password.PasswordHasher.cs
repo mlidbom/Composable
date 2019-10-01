@@ -17,10 +17,8 @@ namespace AccountManagement.Domain.Passwords
                 var encodedPassword = Encoding.Unicode.GetBytes(password);
                 var saltedPassword = salt.Concat(encodedPassword).ToArray();
 
-                using(var algorithm = SHA256.Create())
-                {
-                    return algorithm.ComputeHash(saltedPassword);
-                }
+                using var algorithm = SHA256.Create();
+                return algorithm.ComputeHash(saltedPassword);
             }
         }
     }

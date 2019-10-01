@@ -80,14 +80,12 @@ drop database [{db.Name()}]";
                 action: command =>
                         {
                             command.CommandText = "select name from sysdatabases";
-                            using(var reader = command.ExecuteReader())
+                            using var reader = command.ExecuteReader();
+                            while(reader.Read())
                             {
-                                while(reader.Read())
-                                {
-                                    var dbName = reader.GetString(i: 0);
-                                    if(dbName.StartsWith(PoolDatabaseNamePrefix))
-                                        databases.Add(dbName);
-                                }
+                                var dbName = reader.GetString(i: 0);
+                                if(dbName.StartsWith(PoolDatabaseNamePrefix))
+                                    databases.Add(dbName);
                             }
                         });
 

@@ -40,18 +40,14 @@ namespace Composable.System.Data.SqlClient
     {
         public static void UseCommand(this SqlConnection @this, Action<SqlCommand> action)
         {
-            using(var command = @this.CreateCommand())
-            {
-                action(command);
-            }
+            using var command = @this.CreateCommand();
+            action(command);
         }
 
         public static TResult UseCommand<TResult>(this SqlConnection @this, Func<SqlCommand, TResult> action)
         {
-            using(var command = @this.CreateCommand())
-            {
-                return action(command);
-            }
+            using var command = @this.CreateCommand();
+            return action(command);
         }
 
         public static void ExecuteNonQuery(this SqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteNonQuery(commandText));
@@ -79,18 +75,14 @@ namespace Composable.System.Data.SqlClient
 
         public static void UseConnection(this ISqlConnectionProvider @this, Action<SqlConnection> action)
         {
-            using(var connection = @this.OpenConnection())
-            {
-                action(connection);
-            }
+            using var connection = @this.OpenConnection();
+            action(connection);
         }
 
         static TResult UseConnection<TResult>(this ISqlConnectionProvider @this, Func<SqlConnection, TResult> action)
         {
-            using(var connection = @this.OpenConnection())
-            {
-                return action(connection);
-            }
+            using var connection = @this.OpenConnection();
+            return action(connection);
         }
 
         public static void UseCommand(this ISqlConnectionProvider @this, Action<SqlCommand> action) => @this.UseConnection(connection => connection.UseCommand(action));

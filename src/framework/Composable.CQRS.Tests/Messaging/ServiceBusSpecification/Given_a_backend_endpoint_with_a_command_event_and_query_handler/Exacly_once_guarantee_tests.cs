@@ -21,7 +21,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 session.Send(new MyExactlyOnceCommand());
             }));
 
-            CommandHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
+            CommandHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, 1.Seconds())
                                     .Should()
                                     .Be(false, "command should not reach handler");
         }
@@ -38,7 +38,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             MyLocalAggregateEventHandlerThreadGate.Passed.Should().BeGreaterOrEqualTo(1);
 
-            MyRemoteAggregateEventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
+            MyRemoteAggregateEventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, 1.Seconds())
                                                    .Should()
                                                    .Be(false, "event should not reach handler");
         }

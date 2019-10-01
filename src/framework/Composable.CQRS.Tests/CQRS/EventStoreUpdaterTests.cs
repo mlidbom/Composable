@@ -423,7 +423,7 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session => session.Save(user));
 
             var threadedIterations = 5;
-            var delayEachTransactionBy = TimeSpanExtensions.Milliseconds(10);
+            var delayEachTransactionBy = 10.Milliseconds();
 
             void ReadUserHistory()
             {
@@ -443,7 +443,7 @@ namespace Composable.Tests.CQRS
                 action: ReadUserHistory,
                 iterations: threadedIterations,
                 timeIndividualExecutions:true,
-                maxTotal: TimeSpanExtensions.Milliseconds((approximateSinglethreadedExecutionTimeInMilliseconds / 2)),
+                maxTotal: (approximateSinglethreadedExecutionTimeInMilliseconds / 2).Milliseconds(),
                 description: $"If access is serialized the time will be approximately {approximateSinglethreadedExecutionTimeInMilliseconds} milliseconds. If parallelized it should be far below this value.");
 
             timingsSummary.Average.Should().BeLessThan(delayEachTransactionBy);

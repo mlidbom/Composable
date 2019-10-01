@@ -20,7 +20,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Test] public void ExactlyOnce_Event_raised_in_handler_does_not_reach_remote_handler()
         {
-            MyRemoteAggregateEventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
+            MyRemoteAggregateEventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, 1.Seconds())
                                                    .Should()
                                                    .Be(false, "event should not reach handler");
         }

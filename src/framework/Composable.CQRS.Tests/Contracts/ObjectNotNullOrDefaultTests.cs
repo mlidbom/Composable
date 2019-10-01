@@ -48,7 +48,7 @@ namespace Composable.Tests.Contracts
         {
             // ReSharper disable NotAccessedField.Local
 #pragma warning disable IDE0052 // Remove unread private members
-            int _value;
+            readonly int _value;
 #pragma warning restore IDE0052 // Remove unread private members
             // ReSharper restore NotAccessedField.Local
 

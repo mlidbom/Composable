@@ -4,7 +4,7 @@ namespace Composable.Testing.Databases
 {
     static class DatabaseHelpers
     {
-        static string DropAllObjectsStatement = @"
+        static readonly string DropAllObjectsStatement = @"
 
 DECLARE @statements nvarchar(max)
 

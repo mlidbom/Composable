@@ -7,7 +7,7 @@ namespace Composable.Tests.Contracts
     [TestFixture]
     public class ExpressionValueExtractorTests
     {
-        string _testString = "TestString";
+        readonly string _testString = "TestString";
 
         string TestString => _testString;
 

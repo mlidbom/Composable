@@ -1,7 +1,7 @@
 ﻿namespace Composable.SystemExtensions.Threading {
     class CombinationUsageGuard : ISingleContextUseGuard
     {
-        ISingleContextUseGuard[] _usageGuards;
+        readonly ISingleContextUseGuard[] _usageGuards;
         public CombinationUsageGuard(params ISingleContextUseGuard[] usageGuards) => _usageGuards = usageGuards;
         public void AssertNoContextChangeOccurred(object guarded)
         {

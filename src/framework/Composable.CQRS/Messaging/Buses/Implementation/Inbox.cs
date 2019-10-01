@@ -36,7 +36,7 @@ namespace Composable.Messaging.Buses.Implementation
         Thread _messageReceiverThread;
         Thread _pollerThread;
         CancellationTokenSource _cancellationTokenSource;
-        IRemotableMessageSerializer _serializer;
+        readonly IRemotableMessageSerializer _serializer;
 
         public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, RealEndpointConfiguration configuration, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
         {

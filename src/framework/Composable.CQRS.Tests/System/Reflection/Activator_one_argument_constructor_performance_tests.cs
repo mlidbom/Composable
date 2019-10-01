@@ -14,7 +14,7 @@ namespace Composable.Tests.System.Reflection
 {
     [TestFixture, Performance, Serial]public class Activator_one_argument_constructor_performance_tests
     {
-        static string _argument = "AnArgument";
+        static readonly string _argument = "AnArgument";
 
         [UsedImplicitly] class Simple
         {

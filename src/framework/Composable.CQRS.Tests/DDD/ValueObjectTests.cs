@@ -12,7 +12,7 @@ namespace Composable.Tests.DDD
         class Address : ValueObject<Address>
         {
 
-            [UsedImplicitly] string _address1;
+            [UsedImplicitly] readonly string _address1;
             [UsedImplicitly] readonly string _city;
             [UsedImplicitly] readonly string[] _states;
 

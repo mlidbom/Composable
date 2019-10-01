@@ -26,7 +26,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
         readonly object _lockObject = new object();
         bool _initialized;
         ConcurrentDictionary<Type, int> _knownTypes = null;
-        SchemaManager _schemaManager;
+        readonly SchemaManager _schemaManager;
 
         internal SqlServerDocumentDb(ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
         {

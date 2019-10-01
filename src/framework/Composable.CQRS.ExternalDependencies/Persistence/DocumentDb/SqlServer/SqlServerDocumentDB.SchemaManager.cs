@@ -55,6 +55,8 @@ END
 ");
                         });
                     }
+
+                    _initialized = true;
                 }
             }
         }

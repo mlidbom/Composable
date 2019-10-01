@@ -12,6 +12,8 @@ using Composable.Testing.Performance;
 using NCrunch.Framework;
 using NUnit.Framework;
 
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+
 namespace ScratchPad
 {
     [TestFixture, NUnit.Framework.Category("Performance"), Serial] public class TypeExploration

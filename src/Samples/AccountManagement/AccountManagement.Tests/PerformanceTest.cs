@@ -49,10 +49,10 @@ namespace AccountManagement
                                          action: () =>
                                          {
                                              var registerAccountScenario = _scenarioApi.Register;
-                                             var account = registerAccountScenario.Execute();
-                                             if(account.Result.Status != RegistrationAttemptStatus.Successful)
+                                             var result = registerAccountScenario.Execute().Result;
+                                             if(result.Status != RegistrationAttemptStatus.Successful)
                                              {
-                                                 throw new Exception(account.Result.Status.ToString());
+                                                 throw new Exception(result.Status.ToString());
                                              }
 
                                              accountsArray[Interlocked.Increment(ref currentAccount)] = (registerAccountScenario.Email, registerAccountScenario.Password, registerAccountScenario.AccountId);

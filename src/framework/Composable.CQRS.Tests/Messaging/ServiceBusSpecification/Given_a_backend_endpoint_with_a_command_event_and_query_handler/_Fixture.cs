@@ -15,6 +15,8 @@ using JetBrains.Annotations;
 using NUnit.Framework;
 using Composable.System;
 
+#pragma warning disable IDE1006 // Naming Styles
+
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
     public class Fixture

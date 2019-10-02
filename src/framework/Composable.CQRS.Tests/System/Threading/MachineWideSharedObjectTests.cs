@@ -10,6 +10,7 @@ using FluentAssertions;
 using FluentAssertions.Extensions;
 using JetBrains.Annotations;
 using NUnit.Framework;
+// ReSharper disable ImplicitlyCapturedClosure
 
 namespace Composable.Tests.System.Threading
 {

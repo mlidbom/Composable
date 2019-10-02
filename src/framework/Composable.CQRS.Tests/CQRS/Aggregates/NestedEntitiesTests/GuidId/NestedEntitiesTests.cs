@@ -6,6 +6,7 @@ using Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.QueryModels;
 using FluentAssertions;
 using NUnit.Framework;
 // ReSharper disable InconsistentNaming
+// ReSharper disable ImplicitlyCapturedClosure
 
 // ReSharper disable MemberHidesStaticFromOuterClass
 namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId

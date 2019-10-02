@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using NUnit.Framework;
+// ReSharper disable ImplicitlyCapturedClosure
 
 // ReSharper disable InconsistentNaming
 

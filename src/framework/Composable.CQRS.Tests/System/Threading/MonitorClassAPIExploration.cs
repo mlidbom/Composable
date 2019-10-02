@@ -4,6 +4,7 @@ using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
 using Composable.System;
+// ReSharper disable ImplicitlyCapturedClosure
 
 #pragma warning disable IDE0051 // Remove unused private members
 

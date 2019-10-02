@@ -58,21 +58,21 @@ namespace Composable.Tests.Serialization.BinarySerializeds
         public List<HasAllPropertyTypes> RecursiveListProperty { get; set; }
         public HasAllPropertyTypes[] RecursiveArrayProperty { get; set; }
 
-        public Boolean Boolean { get; set; }
-        public Byte Byte { get; set; }
-        public char Char { get; set; }
-        public Decimal Decimal { get; set; }
-        public Double Double { get; set; }
-        public Int16 Int16 { get; set; }
-        public Int32 Int32 { get; set; }
-        public Int64 Int64 { get; set; }
-        public UInt16 UInt16 { get; set; }
-        public UInt32 UInt32 { get; set; }
-        public UInt64 UInt64 { get; set; }
-        public Single Single { get; set; }
-        public SByte SByte { get; set; }
-        public String String { get; set; }
-        public Guid Guid { get; set; }
-        public DateTime DateTime { get; set; }
+        Boolean Boolean { get; set; }
+        Byte Byte { get; set; }
+        char Char { get; set; }
+        Decimal Decimal { get; set; }
+        Double Double { get; set; }
+        Int16 Int16 { get; set; }
+        Int32 Int32 { get; set; }
+        Int64 Int64 { get; set; }
+        UInt16 UInt16 { get; set; }
+        UInt32 UInt32 { get; set; }
+        UInt64 UInt64 { get; set; }
+        Single Single { get; set; }
+        SByte SByte { get; set; }
+        String String { get; set; }
+        Guid Guid { get; set; }
+        DateTime DateTime { get; set; }
     }
 }

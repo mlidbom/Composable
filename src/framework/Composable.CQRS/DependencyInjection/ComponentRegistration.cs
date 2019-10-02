@@ -43,7 +43,7 @@ namespace Composable.DependencyInjection
         internal ComponentRegistrationWithoutInstantiationSpec(Lifestyle lifestyle, IEnumerable<Type> serviceTypes)
         {
             _lifestyle = lifestyle;
-            ServiceTypes = serviceTypes.Concat(new List<Type>() {typeof(TService)}).ToList();
+            ServiceTypes = serviceTypes.Concat(new List<Type> {typeof(TService)}).ToList();
         }
 
         internal ComponentRegistration<TService> CreatedBy<TImplementation>(Func<IServiceLocatorKernel, TImplementation> factoryMethod)

@@ -8,16 +8,19 @@ using FluentAssertions;
 using JetBrains.Annotations;
 using NCrunch.Framework;
 using NUnit.Framework;
+#pragma warning disable IDE1006 // Naming Styles
 
 namespace Composable.Tests.System.Reflection
 {
     [TestFixture, Performance, Serial]public class Activator_one_argument_constructor_performance_tests
     {
-        static string _argument = "AnArgument";
+        static readonly string _argument = "AnArgument";
 
         [UsedImplicitly] class Simple
         {
+#pragma warning disable IDE0060 // Remove unused parameter
             public Simple(string arg1){}
+#pragma warning restore IDE0060 // Remove unused parameter
         }
 
         [Test, Serial] public void Can_create_instance() => Constructor.For<Simple>.WithArgument<string>.Instance(_argument).Should().NotBe(null);

@@ -26,7 +26,7 @@ namespace Composable.DependencyInjection
                     var newMap = new Dictionary<Type, int>(_map) {{type, ServiceCount++}};
                     var newBackMap = new Type[_backMap.Length + 1];
                     Array.Copy(_backMap, newBackMap, _backMap.Length);
-                    newBackMap[newBackMap.Length - 1] = type;
+                    newBackMap[^1] = type;
                     _backMap = newBackMap;
                     _map = newMap;
                     return ServiceCount - 1;

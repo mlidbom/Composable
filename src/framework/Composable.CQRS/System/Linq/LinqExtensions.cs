@@ -59,23 +59,24 @@ namespace Composable.System.Linq
             ContractOptimized.Argument(me, nameof(me))
                              .NotNull();
 
-            using (var enumerator = me.GetEnumerator())
+            // ReSharper disable once GenericEnumeratorNotDisposed ReSharper is plain wrong again.
+            using var enumerator = me.GetEnumerator();
+            var yielded = size;
+            while(yielded == size)
             {
-                var yielded = size;
-                while(yielded == size)
+                yielded = 0;
+                var next = new T[size];
+                while(yielded < size && enumerator.MoveNext())
                 {
-                    yielded = 0;
-                    var next = new T[size];
-                    while(yielded < size && enumerator.MoveNext())
-                    {
-                        next[yielded++] = enumerator.Current;
-                    }
-                    if(yielded == 0)
-                    {
-                        yield break;
-                    }
-                    yield return yielded == size ? next : next.Take(yielded);
+                    next[yielded++] = enumerator.Current;
                 }
+
+                if(yielded == 0)
+                {
+                    yield break;
+                }
+
+                yield return yielded == size ? next : next.Take(yielded);
             }
         }
 

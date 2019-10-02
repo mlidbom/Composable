@@ -13,21 +13,17 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         void UseConnection(Action<SqlConnection> action, bool suppressTransactionWarning = false)
         {
-            using(var connection = OpenConnection(suppressTransactionWarning))
-            {
-                action(connection);
-            }
+            using var connection = OpenConnection(suppressTransactionWarning);
+            action(connection);
         }
 
         public void UseCommand(Action<SqlCommand> action, bool suppressTransactionWarning = false)
         {
             UseConnection(connection =>
-                          {
-                              using(var command = connection.CreateCommand())
-                              {
-                                  action(command);
-                              }
-                          }, suppressTransactionWarning);
+            {
+                using var command = connection.CreateCommand();
+                action(command);
+            }, suppressTransactionWarning);
         }
 
         public SqlConnection OpenConnection(bool suppressTransactionWarning = false)

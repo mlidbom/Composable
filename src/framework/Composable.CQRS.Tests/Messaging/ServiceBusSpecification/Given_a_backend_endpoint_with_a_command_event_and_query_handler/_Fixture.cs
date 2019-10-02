@@ -14,6 +14,9 @@ using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 using Composable.System;
+// ReSharper disable ClassNeverInstantiated.Global
+
+#pragma warning disable IDE1006 // Naming Styles
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
@@ -38,7 +41,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [SetUp]public async Task Setup()
         {
-            void MapBackendEndpointTypes(IEndpointBuilder builder) =>
+            static void MapBackendEndpointTypes(IEndpointBuilder builder) =>
                 builder.TypeMapper.Map<MyExactlyOnceCommand>("0ddefcaa-4d4d-48b2-9e1a-762c0b835275")
                        .Map<MyAtMostOnceCommandWithResult>("24248d03-630b-4909-a6ea-e7fdaf82baa2")
                        .Map<MyExactlyOnceEvent>("2fdde21f-c6d4-46a2-95e5-3429b820dfc3")
@@ -89,7 +92,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             await Host.StartAsync();
 
-            AllGates = new List<IThreadGate>()
+            AllGates = new List<IThreadGate>
                        {
                            (CommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
                            (CommandHandlerWithResultThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
@@ -118,7 +121,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public interface IRoot : IAggregateEvent {}
             public interface Created : IRoot, IAggregateCreatedEvent {}
             public interface Updated : IRoot {}
-            public class Implementation
+            public static class Implementation
             {
                 public class Root : AggregateEvent, IRoot
                 {
@@ -159,7 +162,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             MyCreateAggregateCommand() : base(DeduplicationIdHandling.Reuse) {}
 
-            internal static MyCreateAggregateCommand Create() => new MyCreateAggregateCommand()
+            internal static MyCreateAggregateCommand Create() => new MyCreateAggregateCommand
                                                                  {
                                                                      DeduplicationId = Guid.NewGuid(),
                                                                      AggregateId = Guid.NewGuid()
@@ -182,13 +185,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         protected class MyAtMostOnceCommand : BusApi.Remotable.AtMostOnce.Command<MyCommandResult>
         {
             protected MyAtMostOnceCommand() : base(DeduplicationIdHandling.Reuse) {}
-            internal static MyAtMostOnceCommand Create() => new MyAtMostOnceCommand() {DeduplicationId = Guid.NewGuid()};
+            internal static MyAtMostOnceCommand Create() => new MyAtMostOnceCommand {DeduplicationId = Guid.NewGuid()};
         }
 
         protected class MyAtMostOnceCommandWithResult : BusApi.Remotable.AtMostOnce.Command<MyCommandResult>
         {
             MyAtMostOnceCommandWithResult() : base(DeduplicationIdHandling.Reuse) {}
-            internal static MyAtMostOnceCommandWithResult Create() => new MyAtMostOnceCommandWithResult() {DeduplicationId = Guid.NewGuid()};
+            internal static MyAtMostOnceCommandWithResult Create() => new MyAtMostOnceCommandWithResult {DeduplicationId = Guid.NewGuid()};
         }
         protected class MyCommandResult {}
     }

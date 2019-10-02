@@ -2,6 +2,7 @@ using System;
 using Composable.DDD;
 using JetBrains.Annotations;
 using NUnit.Framework;
+#pragma warning disable IDE0052 // Remove unread private members
 
 namespace Composable.Tests.DDD
 {
@@ -10,7 +11,8 @@ namespace Composable.Tests.DDD
     {
         class Address : ValueObject<Address>
         {
-            [UsedImplicitly] string _address1;
+
+            [UsedImplicitly] readonly string _address1;
             [UsedImplicitly] readonly string _city;
             [UsedImplicitly] readonly string[] _states;
 

@@ -5,7 +5,6 @@ namespace Composable.GenericAbstractions.Time
     /// <summary> Just statically returns whatever value was assigned.</summary>
     class TestingTimeSource : IUtcTimeTimeSource
     {
-        TimeSpan? _offset = null;
         DateTime? _freezeAt;
 
 
@@ -32,8 +31,6 @@ namespace Composable.GenericAbstractions.Time
             get
             {
                 if(_freezeAt != null) return _freezeAt.Value;
-                if(_offset != null) return DateTime.UtcNow + _offset.Value;
-
                 return DateTime.UtcNow;
             }
         }

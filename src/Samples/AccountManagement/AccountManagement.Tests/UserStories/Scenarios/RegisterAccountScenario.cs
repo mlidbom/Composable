@@ -31,15 +31,12 @@ namespace AccountManagement.UserStories.Scenarios
         {
             var registrationAttemptResult = _clientEndpoint.ExecuteRequest(Api.Command.Register(AccountId, Email, Password));
 
-            switch(registrationAttemptResult.Status)
+            return registrationAttemptResult.Status switch
             {
-                case RegistrationAttemptStatus.Successful:
-                    return (registrationAttemptResult, Api.Query.AccountById(AccountId).ExecuteAsRequestOn(_clientEndpoint));
-                case RegistrationAttemptStatus.EmailAlreadyRegistered:
-                    return (registrationAttemptResult, null);
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                RegistrationAttemptStatus.Successful => (registrationAttemptResult, Api.Query.AccountById(AccountId).ExecuteAsRequestOn(_clientEndpoint)),
+                RegistrationAttemptStatus.EmailAlreadyRegistered => (registrationAttemptResult, null),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
 }

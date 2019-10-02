@@ -166,7 +166,7 @@ namespace Composable.Serialization
                 {
                     var value = Getter(inheritor);
 
-                    if(!ReferenceEquals(value, null))
+                    if(!(value is null))
                     {
                         writer.Write(true);
                         value.Serialize(writer);
@@ -206,7 +206,7 @@ namespace Composable.Serialization
                         writer.Write(list.Count);
                         foreach(var serializable in list)
                         {
-                            if(!ReferenceEquals(serializable, null))
+                            if(!(serializable is null))
                             {
                                 writer.Write(true);
                                 serializable.Serialize(writer);
@@ -265,7 +265,7 @@ namespace Composable.Serialization
                         writer.Write(list.Length);
                         foreach(var serializable in list)
                         {
-                            if(!ReferenceEquals(serializable, null))
+                            if(!(serializable is null))
                             {
                                 writer.Write(true);
                                 serializable.Serialize(writer);

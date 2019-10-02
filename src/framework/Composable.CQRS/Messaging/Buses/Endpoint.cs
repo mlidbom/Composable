@@ -43,7 +43,7 @@ namespace Composable.Messaging.Buses
 
             RunSanityChecks();
 
-            var initTasks = new List<Task>()
+            var initTasks = new List<Task>
                             {
                                 _transport.StartAsync()
                             };
@@ -99,6 +99,7 @@ namespace Composable.Messaging.Buses
         {
             if(IsRunning) Stop();
             ServiceLocator.Dispose();
+            _commandScheduler?.Dispose();
         }
     }
 }

@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Composable.Contracts
 {
-    public class Assert
+    public static class Assert
     {
         ///<summary>Assert conditions about current state of "this". Failures would mean that someone made a call that is illegal given state of "this".</summary>
         public static BaseAssertion State { get; } = BaseAssertion.StateInstance;

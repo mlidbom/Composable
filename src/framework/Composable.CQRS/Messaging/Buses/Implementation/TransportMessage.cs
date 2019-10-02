@@ -129,7 +129,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        internal class Response
+        internal static class Response
         {
             internal enum ResponseType
             {
@@ -174,13 +174,7 @@ namespace Composable.Messaging.Buses.Implementation
                     response.Append(incoming.MessageId);
                     response.Append((int)ResponseType.Failure);
 
-                    if(failure.InnerExceptions.Count == 1)
-                    {
-                        response.Append(failure.InnerException.ToString());
-                    } else
-                    {
-                        response.Append(failure.ToString());
-                    }
+                    response.Append(failure.InnerExceptions.Count == 1 ? failure.InnerException.ToString() : failure.ToString());
 
                     return response;
                 }
@@ -222,9 +216,11 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     var result = new List<Response.Incoming>();
                     NetMQMessage received = null;
-                    while(socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref received))
+                    int fetched = 0;
+                    while(fetched < batchMaximum && socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref received))
                     {
                         result.Add(FromMultipartMessage(received, typeMapper));
+                        fetched++;
                     }
                     return result;
                 }

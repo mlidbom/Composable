@@ -11,33 +11,29 @@ namespace Composable.System.Threading
 
         internal void Execute([InstantHandle]Action action)
         {
-            using(var mutex = new Mutex(initiallyOwned: false, name: _lockId))
+            using var mutex = new Mutex(initiallyOwned: false, name: _lockId);
+            try
             {
-                try
-                {
-                    mutex.WaitOne();
-                    action();
-                }
-                finally
-                {
-                    mutex.ReleaseMutex();
-                }
+                mutex.WaitOne();
+                action();
+            }
+            finally
+            {
+                mutex.ReleaseMutex();
             }
         }
 
         internal TResult Execute<TResult>([InstantHandle]Func<TResult> func)
         {
-            using(var mutex = new Mutex(initiallyOwned: false, name: _lockId))
+            using var mutex = new Mutex(initiallyOwned: false, name: _lockId);
+            try
             {
-                try
-                {
-                    mutex.WaitOne();
-                    return func();
-                }
-                finally
-                {
-                    mutex.ReleaseMutex();
-                }
+                mutex.WaitOne();
+                return func();
+            }
+            finally
+            {
+                mutex.ReleaseMutex();
             }
         }
 

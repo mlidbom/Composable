@@ -20,9 +20,8 @@ namespace Composable.Persistence.DocumentDb.SqlServer
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            using(var connection = _connectionProvider.OpenConnection())
-                            {
-                                connection.ExecuteNonQuery(@"
+                            using var connection = _connectionProvider.OpenConnection();
+                            connection.ExecuteNonQuery(@"
 IF NOT EXISTS(select name from sys.tables where name = 'ValueType')
 BEGIN 
 
@@ -54,9 +53,10 @@ BEGIN
     ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
 END
 ");
-                            }
                         });
                     }
+
+                    _initialized = true;
                 }
             }
         }

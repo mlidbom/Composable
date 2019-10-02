@@ -4,6 +4,7 @@ using Composable.Messaging.Buses;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using FluentAssertions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -25,7 +26,7 @@ namespace Composable.Tests.Serialization
 
             public class TypeAA : TypeA
             {
-                public new static TypeA Create() => new TypeAA() {TypeAAName = typeof(TypeAA).FullName};
+                public new static TypeA Create() => new TypeAA {TypeAAName = typeof(TypeAA).FullName};
                 public string TypeAAName { get; set; }
             }
         }
@@ -37,18 +38,18 @@ namespace Composable.Tests.Serialization
 
             public class TypeBB : TypeB
             {
-                public new static TypeBB Create() => new TypeBB() {TypeBBName = typeof(TypeBB).FullName};
+                public new static TypeBB Create() => new TypeBB {TypeBBName = typeof(TypeBB).FullName};
                 public string TypeBBName { get; set; }
             }
         }
 
         class Root
         {
-            internal static Root Create() => new Root()
+            internal static Root Create() => new Root
                                              {
                                                  TypeA = OriginalTypes.TypeA.Create(),
                                                  TypeB = OriginalTypes.TypeB.Create(),
-                                                 ListOfTypeA = new List<BaseTypeA>() {OriginalTypes.TypeA.Create(), OriginalTypes.TypeB.Create(), OriginalTypes.TypeA.TypeAA.Create(), OriginalTypes.TypeB.TypeBB.Create()}
+                                                 ListOfTypeA = new List<BaseTypeA> {OriginalTypes.TypeA.Create(), OriginalTypes.TypeB.Create(), OriginalTypes.TypeA.TypeAA.Create(), OriginalTypes.TypeB.TypeBB.Create()}
                                              };
 
             public BaseTypeA TypeA { get; set; }
@@ -66,7 +67,7 @@ namespace Composable.Tests.Serialization
         {
             public string TypeAName { get; set; }
 
-            public class TypeAA : TypeA
+            [UsedImplicitly] public class TypeAA : TypeA
             {
                 public string TypeAAName { get; set; }
             }
@@ -76,7 +77,7 @@ namespace Composable.Tests.Serialization
         {
             public string TypeBName { get; set; }
 
-            public class TypeBB : TypeB
+            [UsedImplicitly] public class TypeBB : TypeB
             {
                 public string TypeBBName { get; set; }
             }

@@ -1,6 +1,8 @@
  // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable RedundantNameQualifier
 // ReSharper disable InconsistentNaming
+// ReSharper disable MemberCanBePrivate.Global
+#pragma warning disable IDE1006 // Naming Styles
 namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.Domain.Events
 {
     static partial class RootEvent

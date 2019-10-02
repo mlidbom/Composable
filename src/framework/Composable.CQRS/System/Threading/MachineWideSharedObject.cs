@@ -118,13 +118,10 @@ namespace Composable.System.Threading
         {
             _synchronizer.Execute(
                 () =>
-                    {
-                        using (var viewAccessor = _file.CreateViewAccessor())
-                        {
-                            action(viewAccessor);
-                        }
-
-                    });
+                {
+                    using var viewAccessor = _file.CreateViewAccessor();
+                    action(viewAccessor);
+                });
         }
 
         public void Dispose()

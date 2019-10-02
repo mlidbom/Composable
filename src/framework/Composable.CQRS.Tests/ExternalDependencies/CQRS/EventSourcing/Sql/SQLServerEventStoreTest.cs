@@ -65,13 +65,11 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
                 user.Register("email@email.se", "password", Guid.NewGuid());
                 var stored = (IEventStored)user;
 
-                using(var tran = new TransactionScope())
-                {
-                    eventStore.SaveEvents(stored.GetChanges());
-                    eventStore.GetAggregateHistory(user.Id);
-                    Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Not.Empty);
-                    tran.Complete();
-                }
+                using var tran = new TransactionScope();
+                eventStore.SaveEvents(stored.GetChanges());
+                eventStore.GetAggregateHistory(user.Id);
+                Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Not.Empty);
+                tran.Complete();
             }
 
             IAggregateEvent firstRead;

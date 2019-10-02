@@ -34,17 +34,15 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             SafeConsole.WriteLine($"###############$$$$$$$Running {scenarios.Length} scenario(s) with EventStoreType: {EventStoreType}");
 
             IList<IEventMigration> migrations = new List<IEventMigration>();
-            using(var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations.ToArray(), EventStoreType))
+            using var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations.ToArray(), EventStoreType);
+            var timeSource = serviceLocator.Resolve<TestingTimeSource>();
+            timeSource.FreezeAtUtcTime(DateTime.Parse("2001-01-01 01:01:01.01"));
+            var scenarioIndex = 1;
+            foreach(var migrationScenario in scenarios)
             {
-                var timeSource = serviceLocator.Resolve<TestingTimeSource>();
-                timeSource.FreezeAtUtcTime(DateTime.Parse("2001-01-01 01:01:01.01"));
-                var scenarioIndex = 1;
-                foreach(var migrationScenario in scenarios)
-                {
-                    timeSource.FreezeAtUtcTime(timeSource.UtcNow + 1.Hours()); //No time collision between scenarios please.
-                    migrations = migrationScenario.Migrations.ToList();
-                    RunScenarioWithEventStoreType(migrationScenario, serviceLocator, migrations, scenarioIndex++);
-                }
+                timeSource.FreezeAtUtcTime(timeSource.UtcNow + 1.Hours()); //No time collision between scenarios please.
+                migrations = migrationScenario.Migrations.ToList();
+                RunScenarioWithEventStoreType(migrationScenario, serviceLocator, migrations, scenarioIndex++);
             }
         }
 
@@ -155,20 +153,17 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
 
             SafeConsole.WriteLine("Cloning service locator / starting new instance of application");
-            using(var clonedServiceLocator2 = serviceLocator.Clone())
-            {
+            using var clonedServiceLocator2 = serviceLocator.Clone();
+            migratedHistory = clonedServiceLocator2.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<ITestingEventStoreUpdater>()
+                                                                                                                 .Get<TestAggregate>(initialAggregate.Id))
+                                                   .History;
+            AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
-                migratedHistory = clonedServiceLocator2.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<ITestingEventStoreUpdater>()
-                                                                                                        .Get<TestAggregate>(initialAggregate.Id))
-                                                .History;
-                AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
-
-                SafeConsole.WriteLine("Streaming all events in store");
-                streamedEvents = clonedServiceLocator2.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<ITestingEventStore>()
-                                                                                                        .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
-                                                                                                        .ToList());
-                AssertStreamsAreIdentical(expectedCompleteEventStoreStream, streamedEvents, "Streaming all events in store");
-            }
+            SafeConsole.WriteLine("Streaming all events in store");
+            streamedEvents = clonedServiceLocator2.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<ITestingEventStore>()
+                                                                                                                .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
+                                                                                                                .ToList());
+            AssertStreamsAreIdentical(expectedCompleteEventStoreStream, streamedEvents, "Streaming all events in store");
         }
         protected static void ClearCache(IServiceLocator serviceLocator)
         {

@@ -82,9 +82,9 @@ namespace Composable.Persistence.EventStore
 
         void AcceptTransactionResult(Dictionary<Guid, Entry> overlay)
         {
-            foreach(var entry in overlay)
+            foreach(var (key, value) in overlay)
             {
-                StoreInternal(entry.Key, entry.Value);
+                StoreInternal(key, value);
             }
         }
 
@@ -113,8 +113,8 @@ namespace Composable.Persistence.EventStore
 
         MemoryCache _internalCache;
 
-        static readonly MemoryCacheEntryOptions Policy = new MemoryCacheEntryOptions()
-                                                 {
+        static readonly MemoryCacheEntryOptions Policy = new MemoryCacheEntryOptions
+                                                         {
                                                      SlidingExpiration = 20.Minutes()
                                                  };
 

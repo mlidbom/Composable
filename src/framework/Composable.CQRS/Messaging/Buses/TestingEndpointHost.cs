@@ -20,8 +20,8 @@ namespace Composable.Messaging.Buses
         public IEndpoint RegisterTestingEndpoint(string name = null, EndpointId id = null, Action<IEndpointBuilder> setup = null)
         {
             var endpointId = id ?? new EndpointId(Guid.NewGuid());
-            name = name ?? $"TestingEndpoint-{endpointId.GuidValue}";
-            setup = setup ?? (builder => {});
+            name ??= $"TestingEndpoint-{endpointId.GuidValue}";
+            setup ??= (builder => {});
             return RegisterEndpoint(name, endpointId, setup);
         }
 

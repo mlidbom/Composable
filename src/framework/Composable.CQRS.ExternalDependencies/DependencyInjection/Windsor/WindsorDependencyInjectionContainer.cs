@@ -10,6 +10,7 @@ using Composable.Contracts;
 
 namespace Composable.DependencyInjection.Windsor
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     class WindsorDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator
     {
         readonly IWindsorContainer _windsorContainer;
@@ -64,15 +65,12 @@ namespace Composable.DependencyInjection.Windsor
                 throw new Exception($"Invalid {nameof(InstantiationSpec)}");
             }
 
-            switch (componentRegistration.Lifestyle)
+            return componentRegistration.Lifestyle switch
             {
-                case Lifestyle.Singleton:
-                    return registration.LifestyleSingleton();
-                case Lifestyle.Scoped:
-                    return registration.LifestyleScoped();
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(componentRegistration.Lifestyle));
-            }
+                Lifestyle.Singleton => registration.LifestyleSingleton(),
+                Lifestyle.Scoped => registration.LifestyleScoped(),
+                _ => throw new ArgumentOutOfRangeException(nameof(componentRegistration.Lifestyle))
+            };
         }
 
         sealed class WindsorServiceLocatorKernel : IServiceLocatorKernel

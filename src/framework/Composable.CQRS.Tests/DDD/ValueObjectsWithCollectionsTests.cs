@@ -26,11 +26,11 @@ namespace Composable.Tests.DDD
         [Test]
         public void DifferingPropertiesShouldReturnFalse()
         {
-            var lhs = new ExternalJobsDashboardViewModel()
+            var lhs = new ExternalJobsDashboardViewModel
                       {
                           CompanyState = "SomeState"
                       };
-            var rhs = new ExternalJobsDashboardViewModel()
+            var rhs = new ExternalJobsDashboardViewModel
                       {
                           CompanyState = "SomeOtherState"
                       };
@@ -41,15 +41,15 @@ namespace Composable.Tests.DDD
         [Test]
         public void DifferingCollectionsShouldNotBeEqual()
         {
-            var lhs = new ExternalJobsDashboardViewModel()
-            {
-                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>()
+            var lhs = new ExternalJobsDashboardViewModel
+                      {
+                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>
                                     {
                                         new ExternalJobsDashboardViewModel.JobAdvertisement()
                                     }
             };
-            var rhs = new ExternalJobsDashboardViewModel()
-            {
+            var rhs = new ExternalJobsDashboardViewModel
+                      {
                 JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>()
             };
 
@@ -59,16 +59,16 @@ namespace Composable.Tests.DDD
         [Test]
         public void IdenticalCollectionsShouldBeEqual()
         {
-            var lhs = new ExternalJobsDashboardViewModel()
-            {
-                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>()
+            var lhs = new ExternalJobsDashboardViewModel
+                      {
+                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>
                                     {
                                         new ExternalJobsDashboardViewModel.JobAdvertisement()
                                     }
             };
-            var rhs = new ExternalJobsDashboardViewModel()
-            {
-                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>()
+            var rhs = new ExternalJobsDashboardViewModel
+                      {
+                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>
                                     {
                                         new ExternalJobsDashboardViewModel.JobAdvertisement()
                                     }
@@ -80,21 +80,21 @@ namespace Composable.Tests.DDD
         [Test]
         public void PropertiesDifferingInCollectionShouldNotBeEqual()
         {
-            var lhs = new ExternalJobsDashboardViewModel()
-            {
-                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>()
+            var lhs = new ExternalJobsDashboardViewModel
+                      {
+                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>
                                     {
-                                        new ExternalJobsDashboardViewModel.JobAdvertisement()
+                                        new ExternalJobsDashboardViewModel.JobAdvertisement
                                         {
                                             Name = "AValue"
                                         }
                                     }
             };
-            var rhs = new ExternalJobsDashboardViewModel()
-            {
-                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>()
+            var rhs = new ExternalJobsDashboardViewModel
+                      {
+                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>
                                     {
-                                        new ExternalJobsDashboardViewModel.JobAdvertisement()
+                                        new ExternalJobsDashboardViewModel.JobAdvertisement
                                         {
                                             Name = "ANotherValue"
                                         }
@@ -107,21 +107,21 @@ namespace Composable.Tests.DDD
         [Test]
         public void IdenticalInCollectionShouldBeEqual()
         {
-            var lhs = new ExternalJobsDashboardViewModel()
-            {
-                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>()
+            var lhs = new ExternalJobsDashboardViewModel
+                      {
+                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>
                                     {
-                                        new ExternalJobsDashboardViewModel.JobAdvertisement()
+                                        new ExternalJobsDashboardViewModel.JobAdvertisement
                                         {
                                             Name = "AValue"
                                         }
                                     }
             };
-            var rhs = new ExternalJobsDashboardViewModel()
-            {
-                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>()
+            var rhs = new ExternalJobsDashboardViewModel
+                      {
+                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>
                                     {
-                                        new ExternalJobsDashboardViewModel.JobAdvertisement()
+                                        new ExternalJobsDashboardViewModel.JobAdvertisement
                                         {
                                             Name = "AValue"
                                         }
@@ -134,23 +134,23 @@ namespace Composable.Tests.DDD
         [Test]
         public void IfOneCollectionIsNullObjectsAreNotEqual()
         {
-            var lhs = new ExternalJobsDashboardViewModel()
-            {
+            var lhs = new ExternalJobsDashboardViewModel
+                      {
                 JobAdvertisements = null
             };
-            var rhs = new ExternalJobsDashboardViewModel()
-            {
-                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>(){}
+            var rhs = new ExternalJobsDashboardViewModel
+                      {
+                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement> {}
             };
 
             Assert.That(lhs, Is.Not.EqualTo(rhs));
 
-            lhs = new ExternalJobsDashboardViewModel()
-            {
-                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement>() { }
+            lhs = new ExternalJobsDashboardViewModel
+                  {
+                JobAdvertisements = new List<ExternalJobsDashboardViewModel.JobAdvertisement> { }
             };
-            rhs = new ExternalJobsDashboardViewModel()
-            {
+            rhs = new ExternalJobsDashboardViewModel
+                  {
                 JobAdvertisements = null
             };
             Assert.That(lhs, Is.Not.EqualTo(rhs));
@@ -159,12 +159,12 @@ namespace Composable.Tests.DDD
         [Test]
         public void IfBothCollectionsAreNullObjectsAreEqual()
         {
-            var lhs = new ExternalJobsDashboardViewModel()
-            {
+            var lhs = new ExternalJobsDashboardViewModel
+                      {
                 JobAdvertisements = null
             };
-            var rhs = new ExternalJobsDashboardViewModel()
-            {
+            var rhs = new ExternalJobsDashboardViewModel
+                      {
                 JobAdvertisements = null
             };
 

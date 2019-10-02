@@ -14,6 +14,8 @@ using Composable.Testing.Performance;
 using FluentAssertions.Extensions;
 using NUnit.Framework;
 
+#pragma warning disable IDE1006 // Naming Styles
+
 namespace AccountManagement
 {
     [TestFixture] class PerformanceTest
@@ -49,10 +51,10 @@ namespace AccountManagement
                                          action: () =>
                                          {
                                              var registerAccountScenario = _scenarioApi.Register;
-                                             var account = registerAccountScenario.Execute();
-                                             if(account.Result.Status != RegistrationAttemptStatus.Successful)
+                                             var result = registerAccountScenario.Execute().Result;
+                                             if(result.Status != RegistrationAttemptStatus.Successful)
                                              {
-                                                 throw new Exception(account.Result.Status.ToString());
+                                                 throw new Exception(result.Status.ToString());
                                              }
 
                                              accountsArray[Interlocked.Increment(ref currentAccount)] = (registerAccountScenario.Email, registerAccountScenario.Password, registerAccountScenario.AccountId);
@@ -65,9 +67,9 @@ namespace AccountManagement
                                          setup: () => currentAccount = -1,
                                          action: () =>
                                          {
-                                             var account = accountsArray[Interlocked.Increment(ref currentAccount)];
+                                             var (email, password, _) = accountsArray[Interlocked.Increment(ref currentAccount)];
 
-                                             var loginResult = _scenarioApi.Login(account.Email, account.Password).Execute();
+                                             var loginResult = _scenarioApi.Login(email, password).Execute();
                                              if(!loginResult.Succeeded)
                                              {
                                                  throw new Exception();
@@ -81,10 +83,10 @@ namespace AccountManagement
                                          setup: () => currentAccount = -1,
                                          action: () =>
                                          {
-                                             var account = accountsArray[Interlocked.Increment(ref currentAccount)];
+                                             var (_, _, id) = accountsArray[Interlocked.Increment(ref currentAccount)];
 
-                                             var accountResource = _clientEndpoint.ExecuteRequest(AccountApi.Instance.Query.AccountById(account.Id));
-                                             if(accountResource.Id != account.Id)
+                                             var accountResource = _clientEndpoint.ExecuteRequest(AccountApi.Instance.Query.AccountById(id));
+                                             if(accountResource.Id != id)
                                              {
                                                  throw new Exception();
                                              }

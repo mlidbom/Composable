@@ -159,7 +159,7 @@ namespace Composable.Persistence.EventStore
             }
             else
             {
-                aggregate = default(TAggregate);
+                aggregate = default;
                 return false;
             }
         }

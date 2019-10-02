@@ -18,7 +18,7 @@ namespace Composable.DDD
         /// <see cref="object.Equals(object)"/>
         public override bool Equals(object obj)
         {
-            if(ReferenceEquals(obj, null))
+            if(obj is null)
                 return false;
 
             var other = obj as T;
@@ -43,13 +43,13 @@ namespace Composable.DDD
 
                 if (value is IEnumerable enumerableValue && !(value is string))
                 {
-                    var value1Array = enumerableValue.Cast<object>().Where(me => !ReferenceEquals(me, null)).ToArray();
+                    var value1Array = enumerableValue.Cast<object>().Where(me => !(me is null)).ToArray();
                     foreach(var something in value1Array)
                     {
                         hashCode = hashCode * multiplier + something.GetHashCode();
                     }
                 }
-                else if(!ReferenceEquals(value, null))
+                else if(!(value is null))
                     hashCode = hashCode * multiplier + value.GetHashCode();
             }
 
@@ -59,7 +59,7 @@ namespace Composable.DDD
         /// <see cref="object.Equals(object)"/>
         public virtual bool Equals(T other)
         {
-            if(ReferenceEquals(other, null))
+            if(other is null)
                 return false;
 
             var myType = GetType();
@@ -75,14 +75,14 @@ namespace Composable.DDD
                 var value1 = fieldGetter(other);
                 var value2 = fieldGetter((T)this);
 
-                if(ReferenceEquals(value1, null))
+                if(value1 is null)
                 {
-                    if(!ReferenceEquals(value2 , null))
+                    if(!(value2 is null))
                         return false;
                 }
                 else if (value1 is IEnumerable && !(value1 is string))
                 {
-                    if (ReferenceEquals(value2, null))
+                    if (value2 is null)
                     {
                         return false;
                     }
@@ -116,7 +116,7 @@ namespace Composable.DDD
                 return true;
             }
 
-            return !ReferenceEquals(lhs,null) && lhs.Equals(rhs);
+            return !(lhs is null) && lhs.Equals(rhs);
         }
 
         ///<summary>Compares the objects for inequality using value semantics</summary>

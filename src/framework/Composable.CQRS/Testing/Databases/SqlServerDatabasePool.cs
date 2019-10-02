@@ -50,13 +50,7 @@ namespace Composable.Testing.Databases
 
                 var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_DATABASE_POOL_MASTER_CONNECTIONSTRING";
                 var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
-                if(masterConnectionString != null)
-                {
-                    _masterConnectionString = masterConnectionString;
-                } else
-                {
-                    _masterConnectionString = new ConfigurationSqlConnectionProviderSource(_configurationParameterProvider).GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
-                }
+                _masterConnectionString = masterConnectionString ?? new ConfigurationSqlConnectionProviderSource(_configurationParameterProvider).GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
 
                 _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 

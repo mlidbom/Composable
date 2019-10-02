@@ -12,21 +12,21 @@ namespace AccountManagement.UnitTests.UI.Commands
         [Test]
         public void IsValidIfEmailIsNull()
         {
-            CommandValidator.ValidationFailures(new ACommand() {Email = null})
+            CommandValidator.ValidationFailures(new ACommand {Email = null})
                 .Should().BeEmpty();
         }
 
         [Test]
         public void IsValidIfEmailIsEmpty()
         {
-            CommandValidator.ValidationFailures(new ACommand() {Email = ""})
+            CommandValidator.ValidationFailures(new ACommand {Email = ""})
                 .Should().BeEmpty();
         }
 
         [Test]
         public void IsNotValidIfEmailIsInvalid()
         {
-            CommandValidator.ValidationFailures(new ACommand() {Email = "InvalidEmail"})
+            CommandValidator.ValidationFailures(new ACommand {Email = "InvalidEmail"})
                 .Should().NotBeEmpty();
         }
 

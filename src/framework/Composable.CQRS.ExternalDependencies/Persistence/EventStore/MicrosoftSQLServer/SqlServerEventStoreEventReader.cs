@@ -67,29 +67,25 @@ FROM {EventTable.Name} {lockHint} ";
             var historyData = new List<EventReadDataRow>();
             using (var connection = _connectionManager.OpenConnection(suppressTransactionWarning: !takeWriteLock))
             {
-                using (var loadCommand = connection.CreateCommand())
+                using var loadCommand = connection.CreateCommand();
+                loadCommand.CommandText = $"{GetSelectClause(takeWriteLock)} WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
+                loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", SqlDbType.UniqueIdentifier) {Value = aggregateId});
+
+                if (startAfterInsertedVersion > 0)
                 {
-                    loadCommand.CommandText = $"{GetSelectClause(takeWriteLock)} WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
-                    loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", SqlDbType.UniqueIdentifier) {Value = aggregateId});
+                    loadCommand.CommandText += $" AND {EventTable.Columns.InsertedVersion} > @CachedVersion";
+                    loadCommand.Parameters.Add(new SqlParameter("CachedVersion", SqlDbType.Int) {Value = startAfterInsertedVersion});
+                }
 
-                    if (startAfterInsertedVersion > 0)
+                loadCommand.CommandText += $" ORDER BY {EventTable.Columns.EffectiveReadOrder} ASC";
+
+                using var reader = loadCommand.ExecuteReader();
+                while (reader.Read())
+                {
+                    var eventDataRow = ReadDataRow(reader);
+                    if (eventDataRow.EffectiveVersion > 0)
                     {
-                        loadCommand.CommandText += $" AND {EventTable.Columns.InsertedVersion} > @CachedVersion";
-                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", SqlDbType.Int) {Value = startAfterInsertedVersion});
-                    }
-
-                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.EffectiveReadOrder} ASC";
-
-                    using (var reader = loadCommand.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var eventDataRow = ReadDataRow(reader);
-                            if (eventDataRow.EffectiveVersion > 0)
-                            {
-                                historyData.Add(eventDataRow);
-                            }
-                        }
+                        historyData.Add(eventDataRow);
                     }
                 }
             }
@@ -100,37 +96,35 @@ FROM {EventTable.Name} {lockHint} ";
         public IEnumerable<EventReadDataRow> StreamEvents(int batchSize)
         {
             SqlDecimal lastReadEventReadOrder = 0;
-            using (var connection = _connectionManager.OpenConnection(suppressTransactionWarning: true))
+            using var connection = _connectionManager.OpenConnection(suppressTransactionWarning: true);
+            var done = false;
+            while (!done)
             {
-                var done = false;
-                while (!done)
+                var historyData = new List<EventReadDataRow>();
+                using (var loadCommand = connection.CreateCommand())
                 {
-                    var historyData = new List<EventReadDataRow>();
-                    using (var loadCommand = connection.CreateCommand())
+
+                    loadCommand.CommandText = SelectTopClause(batchSize, takeWriteLock: false) + $"WHERE {EventTable.Columns.EffectiveReadOrder} > 0 AND {EventTable.Columns.EffectiveReadOrder}  > @{EventTable.Columns.EffectiveReadOrder}" + ReadSortOrder;
+
+                    loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EffectiveReadOrder, SqlDbType.Decimal) {Value = lastReadEventReadOrder});
+
+                    var fetchedInThisBatch = 0;
+                    using (var reader = loadCommand.ExecuteReader())
                     {
-
-                        loadCommand.CommandText = SelectTopClause(batchSize, takeWriteLock: false) + $"WHERE {EventTable.Columns.EffectiveReadOrder} > 0 AND {EventTable.Columns.EffectiveReadOrder}  > @{EventTable.Columns.EffectiveReadOrder}" + ReadSortOrder;
-
-                        loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EffectiveReadOrder, SqlDbType.Decimal) {Value = lastReadEventReadOrder});
-
-                        var fetchedInThisBatch = 0;
-                        using (var reader = loadCommand.ExecuteReader())
+                        while (reader.Read())
                         {
-                            while (reader.Read())
-                            {
-                                historyData.Add(ReadDataRow(reader));
-                                fetchedInThisBatch++;
-                                lastReadEventReadOrder = reader.GetSqlDecimal(12);
-                            }
+                            historyData.Add(ReadDataRow(reader));
+                            fetchedInThisBatch++;
+                            lastReadEventReadOrder = reader.GetSqlDecimal(12);
                         }
-                        done = fetchedInThisBatch < batchSize;
                     }
+                    done = fetchedInThisBatch < batchSize;
+                }
 
-                    //We do not yield while reading from the reader since that may cause code to run that will cause another sql call into the same connection. Something that throws an exception unless you use an unusual and non-recommended connection string setting.
-                    foreach (var eventDataRow in historyData)
-                    {
-                        yield return eventDataRow;
-                    }
+                //We do not yield while reading from the reader since that may cause code to run that will cause another sql call into the same connection. Something that throws an exception unless you use an unusual and non-recommended connection string setting.
+                foreach (var eventDataRow in historyData)
+                {
+                    yield return eventDataRow;
                 }
             }
         }
@@ -140,19 +134,15 @@ FROM {EventTable.Name} {lockHint} ";
             var ids = new List<Guid>();
             using (var connection = _connectionManager.OpenConnection(suppressTransactionWarning:true))
             {
-                using (var loadCommand = connection.CreateCommand())
-                {
-                    loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId}, {EventTable.Columns.EventType} FROM {EventTable.Name} WHERE {EventTable.Columns.EffectiveVersion} = 1 AND {EventTable.Columns.EffectiveReadOrder} > 0 {ReadSortOrder}";
+                using var loadCommand = connection.CreateCommand();
+                loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId}, {EventTable.Columns.EventType} FROM {EventTable.Name} WHERE {EventTable.Columns.EffectiveVersion} = 1 AND {EventTable.Columns.EffectiveReadOrder} > 0 {ReadSortOrder}";
 
-                    using (var reader = loadCommand.ExecuteReader())
+                using var reader = loadCommand.ExecuteReader();
+                while (reader.Read())
+                {
+                    if(eventBaseType == null || eventBaseType.IsAssignableFrom(EventTypeToIdMapper.GetType(reader.GetInt32(1))))
                     {
-                        while (reader.Read())
-                        {
-                            if(eventBaseType == null || eventBaseType.IsAssignableFrom(EventTypeToIdMapper.GetType(reader.GetInt32(1))))
-                            {
-                                ids.Add((Guid)reader[0]);
-                            }
-                        }
+                        ids.Add((Guid)reader[0]);
                     }
                 }
             }

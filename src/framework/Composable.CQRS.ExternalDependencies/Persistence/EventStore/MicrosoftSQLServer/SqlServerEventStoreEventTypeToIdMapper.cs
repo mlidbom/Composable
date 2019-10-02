@@ -87,29 +87,27 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         IdTypeMapping InsertNewType(Type newType) => TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
         {
-            using(var connection = _connectionManager.OpenConnection(suppressTransactionWarning: true))
+            using var connection = _connectionManager.OpenConnection(suppressTransactionWarning: true);
+            using(var command = connection.CreateCommand())
             {
-                using(var command = connection.CreateCommand())
+                var reader = command.SetCommandText($@"SELECT {EventTypeTable.Columns.Id} FROM {EventTypeTable.Name} WHERE {EventTypeTable.Columns.EventType}=@{EventTypeTable.Columns.EventType}")
+                                    .AddParameter(EventTypeTable.Columns.EventType, _typeMapper.GetId(newType).GuidValue)
+                                    .ExecuteReader();
+                using(reader)
                 {
-                    var reader = command.SetCommandText($@"SELECT {EventTypeTable.Columns.Id} FROM {EventTypeTable.Name} WHERE {EventTypeTable.Columns.EventType}=@{EventTypeTable.Columns.EventType}")
-                                        .AddParameter(EventTypeTable.Columns.EventType, _typeMapper.GetId(newType).GuidValue)
-                                        .ExecuteReader();
-                    using(reader)
+                    if(reader.Read())
                     {
-                        if(reader.Read())
-                        {
-                            return new IdTypeMapping(id: reader.GetInt32(0), type: newType);
-                        }
+                        return new IdTypeMapping(id: reader.GetInt32(0), type: newType);
                     }
                 }
+            }
 
-                using(var command = connection.CreateCommand())
-                {
-                    var insertedTypeIntegerId = command.SetCommandText($@"INSERT {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} ) OUTPUT INSERTED.{EventTypeTable.Columns.Id} VALUES( @{EventTypeTable.Columns.EventType} )")
-                                                       .AddParameter(EventTypeTable.Columns.EventType, _typeMapper.GetId(newType).GuidValue)
-                                                       .ExecuteScalar();
-                    return new IdTypeMapping(id: (int)insertedTypeIntegerId, type: newType);
-                }
+            using(var command = connection.CreateCommand())
+            {
+                var insertedTypeIntegerId = command.SetCommandText($@"INSERT {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} ) OUTPUT INSERTED.{EventTypeTable.Columns.Id} VALUES( @{EventTypeTable.Columns.EventType} )")
+                                                   .AddParameter(EventTypeTable.Columns.EventType, _typeMapper.GetId(newType).GuidValue)
+                                                   .ExecuteScalar();
+                return new IdTypeMapping(id: (int)insertedTypeIntegerId, type: newType);
             }
         });
 
@@ -118,34 +116,30 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             var types = new List<IIdTypeMapping>();
             using(var connection = _connectionManager.OpenConnection(suppressTransactionWarning: true))
             {
-                using(var command = connection.CreateCommand())
+                using var command = connection.CreateCommand();
+                command.CommandText = $"SELECT {EventTypeTable.Columns.Id} , {EventTypeTable.Columns.EventType} FROM {EventTypeTable.Name}";
+                using var reader = command.ExecuteReader();
+                while(reader.Read())
                 {
-                    command.CommandText = $"SELECT {EventTypeTable.Columns.Id} , {EventTypeTable.Columns.EventType} FROM {EventTypeTable.Name}";
-                    using(var reader = command.ExecuteReader())
+                    var eventType = new TypeId(reader.GetGuid(1));
+                    var eventTypeId = reader.GetInt32(0);
+                    Type foundEventType = null;
+
+                    try
                     {
-                        while(reader.Read())
-                        {
-                            var eventType = new TypeId(reader.GetGuid(1));
-                            var eventTypeId = reader.GetInt32(0);
-                            Type foundEventType = null;
+                        foundEventType = _typeMapper.GetType(eventType);
+                    }
+                    catch(CouldNotFindTypeForTypeIdException)
+                    {
+                        this.Log().Warning($"The type of event: Id: {eventTypeId}, Name: {eventType} that exists in the database could not be found in the loaded assemblies. No mapping will be created for this class. If an event of this type is read from the store an exception will be thrown");
+                    }
 
-                            try
-                            {
-                                foundEventType = _typeMapper.GetType(eventType);
-                            }
-                            catch(CouldNotFindTypeForTypeIdException)
-                            {
-                                this.Log().Warning($"The type of event: Id: {eventTypeId}, Name: {eventType} that exists in the database could not be found in the loaded assemblies. No mapping will be created for this class. If an event of this type is read from the store an exception will be thrown");
-                            }
-
-                            if(foundEventType != null)
-                            {
-                                types.Add(new IdTypeMapping(id: eventTypeId, type: foundEventType));
-                            } else
-                            {
-                                types.Add(new BrokenIdTypeMapping(id: eventTypeId, typeId: eventType));
-                            }
-                        }
+                    if(foundEventType != null)
+                    {
+                        types.Add(new IdTypeMapping(id: eventTypeId, type: foundEventType));
+                    } else
+                    {
+                        types.Add(new BrokenIdTypeMapping(id: eventTypeId, typeId: eventType));
                     }
                 }
             }

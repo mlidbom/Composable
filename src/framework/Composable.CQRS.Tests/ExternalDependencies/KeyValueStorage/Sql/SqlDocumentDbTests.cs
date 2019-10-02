@@ -16,11 +16,9 @@ namespace Composable.Tests.ExternalDependencies.KeyValueStorage.Sql
 
         void InsertUsersInOtherDocumentDb(Guid userId)
         {
-            using(var cloneServiceLocator = ServiceLocator.Clone())
-            {
-                cloneServiceLocator.ExecuteTransactionInIsolatedScope(() => cloneServiceLocator.DocumentDbUpdater()
-                                                                                    .Save(new User() {Id = userId}));
-            }
+            using var cloneServiceLocator = ServiceLocator.Clone();
+            cloneServiceLocator.ExecuteTransactionInIsolatedScope(() => cloneServiceLocator.DocumentDbUpdater()
+                                                                                           .Save(new User {Id = userId}));
         }
 
         [Test]

@@ -26,7 +26,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
         readonly object _lockObject = new object();
         bool _initialized;
         ConcurrentDictionary<Type, int> _knownTypes = null;
-        SchemaManager _schemaManager;
+        readonly SchemaManager _schemaManager;
 
         internal SqlServerDocumentDb(ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
         {
@@ -44,42 +44,38 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 
             if(!IsKnownType(typeof(TValue)))
             {
-                value = default(TValue);
+                value = default;
                 return false;
             }
 
-            value = default(TValue);
+            value = default;
 
             object found;
             using(var connection = _connectionProvider.OpenConnection())
             {
-                using(var command = connection.CreateCommand())
-                {
-                    var lockHint = DocumentDbSession.UseUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
-                    command.CommandText = $@"
+                using var command = connection.CreateCommand();
+                var lockHint = DocumentDbSession.UseUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
+                command.CommandText = $@"
 SELECT Value, ValueTypeId FROM Store {lockHint} 
 WHERE Id=@Id AND ValueTypeId
 ";
-                    var idString = GetIdString(key);
-                    command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = idString});
+                var idString = GetIdString(key);
+                command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = idString});
 
-                    AddTypeCriteria(command, typeof(TValue));
+                AddTypeCriteria(command, typeof(TValue));
 
-                    using(var reader = command.ExecuteReader())
-                    {
-                        if(!reader.Read())
-                        {
-                            return false;
-                        }
-
-                        var stringValue = reader.GetString(0);
-                        found = _serializer.Deserialize(GetTypeFromId(reader.GetInt32(1)), stringValue);
-
-                        //Things such as TimeZone etc can cause roundtripping serialization to result in different values from the original so don't cache the read string. Cache the result of serializing it again.
-                        //performance: Try to find a way to remove the need to do this so that we can get rid of the overhead of an extra serialization.
-                        persistentValues.GetOrAddDefault(found.GetType())[idString] = _serializer.Serialize(found);
-                    }
+                using var reader = command.ExecuteReader();
+                if(!reader.Read())
+                {
+                    return false;
                 }
+
+                var stringValue = reader.GetString(0);
+                found = _serializer.Deserialize(GetTypeFromId(reader.GetInt32(1)), stringValue);
+
+                //Things such as TimeZone etc can cause roundtripping serialization to result in different values from the original so don't cache the read string. Cache the result of serializing it again.
+                //performance: Try to find a way to remove the need to do this so that we can get rid of the overhead of an extra serialization.
+                persistentValues.GetOrAddDefault(found.GetType())[idString] = _serializer.Serialize(found);
             }
 
             value = (TValue)found;
@@ -92,38 +88,34 @@ WHERE Id=@Id AND ValueTypeId
 
             var idString = GetIdString(id);
             EnsureTypeRegistered(value.GetType());
-            using(var connection = _connectionProvider.OpenConnection())
+            using var connection = _connectionProvider.OpenConnection();
+            using var command = connection.CreateCommand();
+            var now = _timeSource.UtcNow;
+            command.CommandType = CommandType.Text;
+
+            command.CommandText += @"INSERT INTO Store(Id, ValueTypeId, Value, Created, Updated) VALUES(@Id, @ValueTypeId, @Value, @Created, @Updated)";
+
+            command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = idString});
+            command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) {Value = _knownTypes[value.GetType()]});
+            command.Parameters.Add(new SqlParameter("Created", SqlDbType.DateTime2) {Value = now});
+            command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) {Value = now});
+
+            var stringValue = _serializer.Serialize(value);
+            command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
+
+            persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
+            try
             {
-                using(var command = connection.CreateCommand())
+                command.ExecuteNonQuery();
+            }
+            catch(SqlException e)
+            {
+                if(e.Number == UniqueConstraintViolationErrorNumber)
                 {
-                    var now = _timeSource.UtcNow;
-                    command.CommandType = CommandType.Text;
-
-                    command.CommandText += @"INSERT INTO Store(Id, ValueTypeId, Value, Created, Updated) VALUES(@Id, @ValueTypeId, @Value, @Created, @Updated)";
-
-                    command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = idString});
-                    command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) {Value = _knownTypes[value.GetType()]});
-                    command.Parameters.Add(new SqlParameter("Created", SqlDbType.DateTime2) {Value = now});
-                    command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) {Value = now});
-
-                    var stringValue = _serializer.Serialize(value);
-                    command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
-
-                    persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
-                    try
-                    {
-                        command.ExecuteNonQuery();
-                    }
-                    catch(SqlException e)
-                    {
-                        if(e.Number == UniqueConstraintViolationErrorNumber)
-                        {
-                            throw new AttemptToSaveAlreadyPersistedValueException(id, value);
-                        }
-
-                        throw;
-                    }
+                    throw new AttemptToSaveAlreadyPersistedValueException(id, value);
                 }
+
+                throw;
             }
         }
 
@@ -137,44 +129,36 @@ WHERE Id=@Id AND ValueTypeId
         public int RemoveAll<T>()
         {
             EnsureInitialized();
-            using(var connection = _connectionProvider.OpenConnection())
-            {
-                using(var command = connection.CreateCommand())
-                {
-                    command.CommandType = CommandType.Text;
-                    command.CommandText += "DELETE Store WHERE ValueTypeId = @TypeId";
+            using var connection = _connectionProvider.OpenConnection();
+            using var command = connection.CreateCommand();
+            command.CommandType = CommandType.Text;
+            command.CommandText += "DELETE Store WHERE ValueTypeId = @TypeId";
 
-                    command.Parameters.Add(new SqlParameter("TypeId", SqlDbType.Int) {Value = _knownTypes[typeof(T)]});
+            command.Parameters.Add(new SqlParameter("TypeId", SqlDbType.Int) {Value = _knownTypes[typeof(T)]});
 
-                    return command.ExecuteNonQuery();
-                }
-            }
+            return command.ExecuteNonQuery();
         }
 
         public void Remove(object id, Type documentType)
         {
             EnsureInitialized();
-            using(var connection = _connectionProvider.OpenConnection())
+            using var connection = _connectionProvider.OpenConnection();
+            using var command = connection.CreateCommand();
+            command.CommandType = CommandType.Text;
+            command.CommandText += "DELETE Store WHERE Id = @Id AND ValueTypeId ";
+            command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = GetIdString(id)});
+
+            AddTypeCriteria(command, documentType);
+
+            var rowsAffected = command.ExecuteNonQuery();
+            if(rowsAffected < 1)
             {
-                using(var command = connection.CreateCommand())
-                {
-                    command.CommandType = CommandType.Text;
-                    command.CommandText += "DELETE Store WHERE Id = @Id AND ValueTypeId ";
-                    command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = GetIdString(id)});
+                throw new NoSuchDocumentException(id, documentType);
+            }
 
-                    AddTypeCriteria(command, documentType);
-
-                    var rowsAffected = command.ExecuteNonQuery();
-                    if(rowsAffected < 1)
-                    {
-                        throw new NoSuchDocumentException(id, documentType);
-                    }
-
-                    if(rowsAffected > 1)
-                    {
-                        throw new TooManyItemsDeletedException();
-                    }
-                }
+            if(rowsAffected > 1)
+            {
+                throw new TooManyItemsDeletedException();
             }
         }
 
@@ -182,34 +166,30 @@ WHERE Id=@Id AND ValueTypeId
         {
             EnsureInitialized();
             values = values.ToList();
-            using(var connection = _connectionProvider.OpenConnection())
+            using var connection = _connectionProvider.OpenConnection();
+            foreach(var (key, value) in values)
             {
-                foreach(var entry in values)
+                using var command = connection.CreateCommand();
+                command.CommandType = CommandType.Text;
+                var stringValue = _serializer.Serialize(value);
+
+                var idString = GetIdString(key);
+                var needsUpdate = !persistentValues.GetOrAddDefault(value.GetType()).TryGetValue(idString, out var oldValue) || stringValue != oldValue;
+                if(needsUpdate)
                 {
-                    using(var command = connection.CreateCommand())
-                    {
-                        command.CommandType = CommandType.Text;
-                        var stringValue = _serializer.Serialize(entry.Value);
+                    persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
+                    command.CommandText += "UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId \n";
+                    command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = key});
+                    command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) {Value = _timeSource.UtcNow});
 
-                        var idString = GetIdString(entry.Key);
-                        var needsUpdate = !persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(idString, out var oldValue) || stringValue != oldValue;
-                        if(needsUpdate)
-                        {
-                            persistentValues.GetOrAddDefault(entry.Value.GetType())[idString] = stringValue;
-                            command.CommandText += "UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId \n";
-                            command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = entry.Key});
-                            command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) {Value = _timeSource.UtcNow});
+                    AddTypeCriteria(command, value.GetType());
 
-                            AddTypeCriteria(command, entry.Value.GetType());
+                    command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
+                }
 
-                            command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
-                        }
-
-                        if(!command.CommandText.IsNullOrWhiteSpace())
-                        {
-                            command.ExecuteNonQuery();
-                        }
-                    }
+                if(!command.CommandText.IsNullOrWhiteSpace())
+                {
+                    command.ExecuteNonQuery();
                 }
             }
         }
@@ -222,22 +202,16 @@ WHERE Id=@Id AND ValueTypeId
                 yield break;
             }
 
-            using(var connection = _connectionProvider.OpenConnection())
+            using var connection = _connectionProvider.OpenConnection();
+            using var loadCommand = connection.CreateCommand();
+            loadCommand.CommandText = @" SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId ";
+
+            AddTypeCriteria(loadCommand, typeof(T));
+
+            using var reader = loadCommand.ExecuteReader();
+            while(reader.Read())
             {
-                using(var loadCommand = connection.CreateCommand())
-                {
-                    loadCommand.CommandText = @" SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId ";
-
-                    AddTypeCriteria(loadCommand, typeof(T));
-
-                    using(var reader = loadCommand.ExecuteReader())
-                    {
-                        while(reader.Read())
-                        {
-                            yield return (T)_serializer.Deserialize(GetTypeFromId(reader.GetInt32(2)), reader.GetString(1));
-                        }
-                    }
-                }
+                yield return (T)_serializer.Deserialize(GetTypeFromId(reader.GetInt32(2)), reader.GetString(1));
             }
         }
 
@@ -249,24 +223,18 @@ WHERE Id=@Id AND ValueTypeId
                 yield break;
             }
 
-            using(var connection = _connectionProvider.OpenConnection())
+            using var connection = _connectionProvider.OpenConnection();
+            using var loadCommand = connection.CreateCommand();
+            loadCommand.CommandText = @"SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId ";
+
+            AddTypeCriteria(loadCommand, typeof(T));
+
+            loadCommand.CommandText += " AND Id IN('" + ids.Select(id => id.ToString()).Join("','") + "')";
+
+            using var reader = loadCommand.ExecuteReader();
+            while(reader.Read())
             {
-                using(var loadCommand = connection.CreateCommand())
-                {
-                    loadCommand.CommandText = @"SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId ";
-
-                    AddTypeCriteria(loadCommand, typeof(T));
-
-                    loadCommand.CommandText += " AND Id IN('" + ids.Select(id => id.ToString()).Join("','") + "')";
-
-                    using(var reader = loadCommand.ExecuteReader())
-                    {
-                        while(reader.Read())
-                        {
-                            yield return (T)_serializer.Deserialize(GetTypeFromId(reader.GetInt32(2)), reader.GetString(1));
-                        }
-                    }
-                }
+                yield return (T)_serializer.Deserialize(GetTypeFromId(reader.GetInt32(2)), reader.GetString(1));
             }
         }
 
@@ -278,22 +246,16 @@ WHERE Id=@Id AND ValueTypeId
                 yield break;
             }
 
-            using(var connection = _connectionProvider.OpenConnection())
+            using var connection = _connectionProvider.OpenConnection();
+            using var loadCommand = connection.CreateCommand();
+            loadCommand.CommandText = @"SELECT Id FROM Store WHERE ValueTypeId ";
+
+            AddTypeCriteria(loadCommand, typeof(T));
+
+            using var reader = loadCommand.ExecuteReader();
+            while(reader.Read())
             {
-                using(var loadCommand = connection.CreateCommand())
-                {
-                    loadCommand.CommandText = @"SELECT Id FROM Store WHERE ValueTypeId ";
-
-                    AddTypeCriteria(loadCommand, typeof(T));
-
-                    using(var reader = loadCommand.ExecuteReader())
-                    {
-                        while(reader.Read())
-                        {
-                            yield return Guid.Parse(reader.GetString(0));
-                        }
-                    }
-                }
+                yield return Guid.Parse(reader.GetString(0));
             }
         }
 
@@ -303,11 +265,9 @@ WHERE Id=@Id AND ValueTypeId
             {
                 if(!IsKnownType(type))
                 {
-                    using(var connection = _connectionProvider.OpenConnection())
-                    {
-                        using(var command = connection.CreateCommand())
-                        {
-                            command.CommandText = @"
+                    using var connection = _connectionProvider.OpenConnection();
+                    using var command = connection.CreateCommand();
+                    command.CommandText = @"
 
 IF NOT EXISTS(SELECT Id FROM ValueType WHERE ValueType = @ValueType)
 	BEGIN
@@ -319,12 +279,10 @@ ELSE
 		SELECT @ValueTypeId = Id FROM ValueType WHERE ValueType = @ValueType
 	END
 ";
-                            command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) {Direction = ParameterDirection.Output});
-                            command.Parameters.Add(new SqlParameter("ValueType", SqlDbType.VarChar, 500) {Value = type.FullName});
-                            command.ExecuteNonQuery();
-                            _knownTypes.TryAdd(type, (int)command.Parameters["ValueTypeId"].Value);
-                        }
-                    }
+                    command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) {Direction = ParameterDirection.Output});
+                    command.Parameters.Add(new SqlParameter("ValueType", SqlDbType.VarChar, 500) {Value = type.FullName});
+                    command.ExecuteNonQuery();
+                    _knownTypes.TryAdd(type, (int)command.Parameters["ValueTypeId"].Value);
                 }
             }
         }

@@ -16,7 +16,9 @@ namespace Composable.DependencyInjection
         readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
+#pragma warning disable IDE0069 // Disposable fields should be disposed
         readonly IDisposable _scopeDisposer;
+#pragma warning restore IDE0069 // Disposable fields should be disposed
 
         RootCache _cache;
 
@@ -57,6 +59,7 @@ namespace Composable.DependencyInjection
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
         {
+            Assert.State.Assert(!_disposed);
             if(!_createdServiceLocator)
             {
                 _createdServiceLocator = true;
@@ -82,6 +85,7 @@ namespace Composable.DependencyInjection
 
         IDisposable IServiceLocator.BeginScope()
         {
+            Assert.State.Assert(!_disposed);
             if(_scopeCache.Value != null)
             {
                 throw new Exception("Scope already exists. Nested scopes are not supported.");
@@ -106,6 +110,7 @@ namespace Composable.DependencyInjection
         [ThreadStatic] static ComponentRegistration _parentComponent;
         public TService Resolve<TService>() where TService : class
         {
+            Assert.State.Assert(!_disposed);
             var (registrations, instance) = _cache.Get<TService>();
 
             if(instance is TService singleton)
@@ -115,6 +120,7 @@ namespace Composable.DependencyInjection
 
             var scopeCache = _scopeCache.Value;
 
+            // ReSharper disable once PatternAlwaysOfType Silly ReSharper is wrong again
             if (scopeCache != null && scopeCache.TryGet<TService>() is TService scoped)
             {
                 return scoped;
@@ -169,6 +175,7 @@ namespace Composable.DependencyInjection
 
         internal TService ResolveSingleton<TService>(ComponentRegistration currentComponent) where TService : class
         {
+            Assert.State.Assert(!_disposed);
             var (registrations, instance) = _cache.Get<TService>();
 
             if(instance is TService singleton)
@@ -195,6 +202,7 @@ namespace Composable.DependencyInjection
 
         internal TService ResolveScoped<TService>(ComponentRegistration currentComponent) where TService : class
         {
+            Assert.State.Assert(!_disposed);
              var scopeCache = _scopeCache.Value;
 
             if(scopeCache == null)
@@ -202,6 +210,7 @@ namespace Composable.DependencyInjection
                 throw new Exception("Attempted to resolve scoped component without a scope");
             }
 
+            // ReSharper disable once PatternAlwaysOfType Silly ReSharper is wrong again
             if (scopeCache.TryGet<TService>() is TService scoped)
             {
                 return scoped;

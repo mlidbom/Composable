@@ -48,7 +48,7 @@ namespace Composable.System.Reflection
                 static Delegate CompileForSignature(Type delegateType)
                 {
                     var delegateTypeGenericArgumentTypes = delegateType.GetGenericArguments();
-                    var instanceType = delegateTypeGenericArgumentTypes[delegateTypeGenericArgumentTypes.Length -1];
+                    var instanceType = delegateTypeGenericArgumentTypes[^1];
                     var constructorArgumentTypes = delegateTypeGenericArgumentTypes.Length > 1 ? delegateTypeGenericArgumentTypes.Take(delegateTypeGenericArgumentTypes.Length - 1).ToArray() : Type.EmptyTypes;
 
                     ConstructorInfo constructor = instanceType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, types: constructorArgumentTypes, modifiers: null);

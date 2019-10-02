@@ -16,7 +16,7 @@ namespace Composable.Contracts
             where TValue : class
         {
             return me.Inspect(
-                inspected => !ReferenceEquals(inspected, null),
+                inspected => !(inspected is null),
                 badValue => new ObjectIsNullContractViolationException(badValue));
         }
 
@@ -42,7 +42,7 @@ namespace Composable.Contracts
         public static IInspected<TValue> NotNullOrDefault<TValue>(this IInspected<TValue> me)
         {
             me.Inspect(
-                inspected => !ReferenceEquals(inspected, null),
+                inspected => !(inspected is null),
                 badValue => new ObjectIsNullContractViolationException(badValue));
 
             return me.Inspect(

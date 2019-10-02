@@ -19,6 +19,7 @@ using Composable.Testing.Transactions;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
+// ReSharper disable AccessToDisposedClosure
 
 namespace Composable.Tests.CQRS
 {
@@ -104,7 +105,7 @@ namespace Composable.Tests.CQRS
         {
             IEventStoreUpdater updater = null;
             IEventStoreReader reader = null;
-            var wait = new ManualResetEventSlim();
+            using var wait = new ManualResetEventSlim();
             ThreadPool.QueueUserWorkItem(_ =>
                                          {
                                              ServiceLocator.ExecuteInIsolatedScope(() =>
@@ -423,7 +424,7 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session => session.Save(user));
 
             var threadedIterations = 5;
-            var delayEachTransactionBy = TimeSpanExtensions.Milliseconds(10);
+            var delayEachTransactionBy = 10.Milliseconds();
 
             void ReadUserHistory()
             {
@@ -443,7 +444,7 @@ namespace Composable.Tests.CQRS
                 action: ReadUserHistory,
                 iterations: threadedIterations,
                 timeIndividualExecutions:true,
-                maxTotal: TimeSpanExtensions.Milliseconds((approximateSinglethreadedExecutionTimeInMilliseconds / 2)),
+                maxTotal: (approximateSinglethreadedExecutionTimeInMilliseconds / 2).Milliseconds(),
                 description: $"If access is serialized the time will be approximately {approximateSinglethreadedExecutionTimeInMilliseconds} milliseconds. If parallelized it should be far below this value.");
 
             timingsSummary.Average.Should().BeLessThan(delayEachTransactionBy);
@@ -493,20 +494,17 @@ namespace Composable.Tests.CQRS
             User user = null;
             void ChangeAnotherUsersEmailInOtherInstance()
             {
-                using (var clonedServiceLocator = ServiceLocator.Clone())
+                using var clonedServiceLocator = ServiceLocator.Clone();
+                clonedServiceLocator.ExecuteTransactionInIsolatedScope(() =>
                 {
-                    clonedServiceLocator.ExecuteTransactionInIsolatedScope(() =>
-                                                                          {
-                                                                              // ReSharper disable once AccessToDisposedClosure
-                                                                              var session = clonedServiceLocator.Resolve<ITestingEventStoreUpdater>();
-                                                                              otherUser = User.Register(session,
-                                                                                                        "email@email.se",
-                                                                                                        "password",
-                                                                                                        Guid.NewGuid());
-                                                                              otherUser.ChangeEmail("otheruser@email.new");
-                                                                          });
-
-                }
+                    // ReSharper disable once AccessToDisposedClosure
+                    var session = clonedServiceLocator.Resolve<ITestingEventStoreUpdater>();
+                    otherUser = User.Register(session,
+                                              "email@email.se",
+                                              "password",
+                                              Guid.NewGuid());
+                    otherUser.ChangeEmail("otheruser@email.new");
+                });
             }
 
             UseInTransactionalScope(session => user = User.Register(session, "email@email.se", "password", Guid.NewGuid()));

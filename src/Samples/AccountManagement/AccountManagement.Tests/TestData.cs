@@ -15,7 +15,7 @@ namespace AccountManagement
             {
                 public const string Null = null;
                 public static readonly string EmptyString = string.Empty;
-                public static readonly string ShorterThanFourCharacters = ValidPassword.Substring(0, 3);
+                public static readonly string ShorterThanFourCharacters = ValidPassword[0..3];
                 public static readonly string BorderedByWhiteSpaceAtEnd = $"{ValidPassword} ";
                 public static readonly string BorderedByWhiteSpaceAtBeginning = $" {ValidPassword}";
                 public static readonly string MissingUpperCaseCharacter = ValidPassword.ToLower();

@@ -40,18 +40,14 @@ namespace Composable.System.Data.SqlClient
     {
         public static void UseCommand(this SqlConnection @this, Action<SqlCommand> action)
         {
-            using(var command = @this.CreateCommand())
-            {
-                action(command);
-            }
+            using var command = @this.CreateCommand();
+            action(command);
         }
 
         public static TResult UseCommand<TResult>(this SqlConnection @this, Func<SqlCommand, TResult> action)
         {
-            using(var command = @this.CreateCommand())
-            {
-                return action(command);
-            }
+            using var command = @this.CreateCommand();
+            return action(command);
         }
 
         public static void ExecuteNonQuery(this SqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteNonQuery(commandText));
@@ -79,18 +75,14 @@ namespace Composable.System.Data.SqlClient
 
         public static void UseConnection(this ISqlConnectionProvider @this, Action<SqlConnection> action)
         {
-            using(var connection = @this.OpenConnection())
-            {
-                action(connection);
-            }
+            using var connection = @this.OpenConnection();
+            action(connection);
         }
 
         static TResult UseConnection<TResult>(this ISqlConnectionProvider @this, Func<SqlConnection, TResult> action)
         {
-            using(var connection = @this.OpenConnection())
-            {
-                return action(connection);
-            }
+            using var connection = @this.OpenConnection();
+            return action(connection);
         }
 
         public static void UseCommand(this ISqlConnectionProvider @this, Action<SqlCommand> action) => @this.UseConnection(connection => connection.UseCommand(action));
@@ -106,7 +98,7 @@ namespace Composable.System.Data.SqlClient
         public static async Task<object> ExecuteScalarAsync(this SqlCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteScalarAsync();
         public static void ExecuteNonQuery(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteNonQuery();
         public static async Task ExecuteNonQueryAsync(this SqlCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteNonQueryAsync();
-        public static SqlCommand AppendCommandText(this SqlCommand @this, string append) => @this.Mutate(me => me.CommandText = me.CommandText + append);
+        public static SqlCommand AppendCommandText(this SqlCommand @this, string append) => @this.Mutate(me => me.CommandText += append);
         public static SqlCommand SetCommandText(this SqlCommand @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
     }
 

@@ -36,7 +36,7 @@ namespace Composable.Messaging.Buses.Implementation
         Thread _messageReceiverThread;
         Thread _pollerThread;
         CancellationTokenSource _cancellationTokenSource;
-        IRemotableMessageSerializer _serializer;
+        readonly IRemotableMessageSerializer _serializer;
 
         public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, RealEndpointConfiguration configuration, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
         {
@@ -73,7 +73,7 @@ namespace Composable.Messaging.Buses.Implementation
             _responseQueue.ReceiveReady += SendResponseMessage;
 
             _cancellationTokenSource = new CancellationTokenSource();
-            _poller = new NetMQPoller() {_serverSocket, _responseQueue};
+            _poller = new NetMQPoller {_serverSocket, _responseQueue};
             _pollerThread = new Thread(() => _poller.Run()){Name = $"{nameof(Inbox)}_{nameof(_pollerThread)}_{_configuration.Name}"};
             _pollerThread.Start();
 
@@ -172,7 +172,11 @@ namespace Composable.Messaging.Buses.Implementation
         public void Dispose()
         {
             if(_running)
+            {
                 Stop();
+            }
+
+            _receivedMessageBatches.Dispose();
         }
     }
 }

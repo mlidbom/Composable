@@ -37,7 +37,7 @@ namespace Composable.Persistence.EventStore.Aggregates
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
 
         int _raiseEventReentrancyLevel = 0;
-        List<TAggregateEventImplementation> _raiseEventUnpushedEvents = new List<TAggregateEventImplementation>();
+        readonly List<TAggregateEventImplementation> _raiseEventUnpushedEvents = new List<TAggregateEventImplementation>();
         bool _applyingEvents;
 
         protected TEvent Publish<TEvent>(TEvent theEvent)

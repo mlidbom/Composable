@@ -5,6 +5,7 @@ using FluentAssertions;
 using NUnit.Framework;
 
 // ReSharper disable All
+#pragma warning disable
 
 namespace Composable.Tests.Messaging.APIDraft.Policyv2
 {

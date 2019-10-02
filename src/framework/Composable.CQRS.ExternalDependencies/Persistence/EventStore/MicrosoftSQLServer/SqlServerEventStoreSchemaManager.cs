@@ -41,11 +41,10 @@ AT:
         {
             if(!_verifiedConnectionString)
             {
-                using(var connection = OpenConnection())
-                {
-                    IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionProvider, _typeMapper);
+                using var connection = OpenConnection();
+                IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionProvider, _typeMapper);
 
-                    connection.ExecuteNonQuery($@"
+                connection.ExecuteNonQuery($@"
 IF NOT EXISTS(SELECT NAME FROM sys.tables WHERE name = '{_eventTable.Name}')
 BEGIN
     {_eventTypeTable.CreateTableSql}
@@ -54,8 +53,7 @@ BEGIN
 END 
 ");
 
-                    _verifiedConnectionString = true;
-                }
+                _verifiedConnectionString = true;
             }
         });
     }

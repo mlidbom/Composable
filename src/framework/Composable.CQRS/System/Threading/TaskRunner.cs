@@ -24,11 +24,12 @@ namespace Composable.System.Threading
         readonly ITaskRunner _inner;
         public TaskRunner()
         {
-            var physicalCores = Math.Max(Environment.ProcessorCount, 2) / 2;
+            //var physicalCores = Math.Max(Environment.ProcessorCount, 2) / 2;
             // ReSharper disable once UnusedVariable
-            var maxParallelTasks = Math.Max(physicalCores, 8);
+            //var maxParallelTasks = Math.Max(physicalCores, 8);
             //_inner = new ManualThreadsRunner(maxParallelTasks);
             //_inner = new ThrottledSystemTasksRunner(maxParallelTasks);
+            // ReSharper disable once ArrangeConstructorOrDestructorBody
             _inner = new SystemTasksRunner();
         }
 
@@ -71,7 +72,11 @@ namespace Composable.System.Threading
 
             protected override void EnqueueWrappedTask(Action action) => Task.Run(action, _cancellationTokenSource.Token);
 
-            public void Dispose() => _cancellationTokenSource.Cancel();
+            public void Dispose()
+            {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
+            }
         }
 
         // ReSharper disable once UnusedMember.Local
@@ -125,6 +130,7 @@ namespace Composable.System.Threading
             public void Dispose()
             {
                 _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
                 _dispatcherThread.InterruptAndJoin();
             }
         }
@@ -164,7 +170,9 @@ namespace Composable.System.Threading
             public void Dispose()
             {
                 _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
                 _taskRunnerThreads.ForEach(thread => thread.InterruptAndJoin());
+                _tasksQueue.Dispose();
             }
         }
     }

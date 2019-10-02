@@ -194,36 +194,34 @@ namespace Composable.Persistence.EventStore
                         try
                         {
                             //performance: bug: Look at ways to avoid taking a lock for a long time as we do now. This might be a problem in production.
-                            using(var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes()))
-                            {
-                                var original = GetAggregateEventsFromPersistenceLayer(aggregateId: aggregateId, takeWriteLock: true);
+                            using var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes());
+                            var original = GetAggregateEventsFromPersistenceLayer(aggregateId: aggregateId, takeWriteLock: true);
 
-                                var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
+                            var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
 
-                                var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
+                            var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
 
-                                SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
-                                    _migrationFactories,
-                                    original,
-                                    newEvents =>
-                                    {
-                                        //Make sure we don't try to insert into an occupied InsertedVersion
-                                        newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
-                                        //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
-                                        var eventRows = newEvents
-                                            .Select(@this => new EventWriteDataRow(@event: @this, eventAsJson: _serializer.Serialize(@this)))
-                                            .ToList();
+                            SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
+                                _migrationFactories,
+                                original,
+                                newEvents =>
+                                {
+                                    //Make sure we don't try to insert into an occupied InsertedVersion
+                                    newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
+                                    //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
+                                    var eventRows = newEvents
+                                                   .Select(@this => new EventWriteDataRow(@event: @this, eventAsJson: _serializer.Serialize(@this)))
+                                                   .ToList();
 
-                                        _eventWriter.InsertRefactoringEvents(eventRows);
-                                        updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
-                                        newEventCount += newEvents.Count;
-                                    });
+                                    _eventWriter.InsertRefactoringEvents(eventRows);
+                                    updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
+                                    newEventCount += newEvents.Count;
+                                });
 
-                                transaction.Complete();
+                            transaction.Complete();
 
-                                migratedAggregates++;
-                                succeeded = true;
-                            }
+                            migratedAggregates++;
+                            succeeded = true;
                         }
                         catch(Exception e) when(IsRecoverableSqlException(e) && ++retries <= recoverableErrorRetriesToMake)
                         {

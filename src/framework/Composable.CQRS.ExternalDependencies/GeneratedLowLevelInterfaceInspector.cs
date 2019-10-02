@@ -18,7 +18,7 @@ namespace Composable {
 //");
         }
 
-        static readonly HashSet<string> RequiredNames = new HashSet<string>()
+        static readonly HashSet<string> RequiredNames = new HashSet<string>
                                                         {
                                                             InternalsRequiredToBeVisibleTo.Assembly1,
                                                             InternalsRequiredToBeVisibleTo.Assembly2,

@@ -12,6 +12,7 @@ using Composable.Persistence.EventStore.Aggregates;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;
+// ReSharper disable MemberCanBeInternal
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
@@ -122,7 +123,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
                 RegisterUserCommand() : base(DeduplicationIdHandling.Reuse) {}
 
-                internal static RegisterUserCommand Create() => new RegisterUserCommand(){ DeduplicationId =  Guid.NewGuid()};
+                internal static RegisterUserCommand Create() => new RegisterUserCommand { DeduplicationId =  Guid.NewGuid()};
             }
         }
 

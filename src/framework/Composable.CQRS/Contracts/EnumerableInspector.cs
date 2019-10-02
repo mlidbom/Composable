@@ -16,7 +16,7 @@ namespace Composable.Contracts
             where TValue : IEnumerable
         {
             me.Inspect(
-                inspected => !ReferenceEquals(inspected, null),
+                inspected => !(inspected is null),
                 badValue => new ObjectIsNullContractViolationException(badValue));
 
             return me.Inspect(

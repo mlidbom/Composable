@@ -101,7 +101,7 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
 
                var threads = 2;
 
-            var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail())).ToArray();
+            var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(UpdateEmail)).ToArray();
 
             changeEmailSection.EntranceGate.Open();
             changeEmailSection.EntranceGate.AwaitPassedThroughCountEqualTo(2);
@@ -130,14 +130,12 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
         {
             using (ServiceLocator.BeginScope())
             {
-                using (var updater = ServiceLocator.Resolve<ITestingEventStoreUpdater>())
-                {
-                    var user = new User();
-                    user.Register("email@email.se", "password", Guid.NewGuid());
+                using var updater = ServiceLocator.Resolve<ITestingEventStoreUpdater>();
+                var user = new User();
+                user.Register("email@email.se", "password", Guid.NewGuid());
 
-                    TransactionScopeCe.Execute(() => updater.Save(user));
-                    AssertThrows.Exception<ComponentUsedByMultipleTransactionsException>(() => TransactionScopeCe.Execute(() => updater.Get<User>(user.Id)));
-                }
+                TransactionScopeCe.Execute(() => updater.Save(user));
+                AssertThrows.Exception<ComponentUsedByMultipleTransactionsException>(() => TransactionScopeCe.Execute(() => updater.Get<User>(user.Id)));
             }
         }
     }

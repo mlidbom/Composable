@@ -21,7 +21,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 session.Send(new MyExactlyOnceCommand());
             }));
 
-            CommandHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
+            CommandHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, 1.Seconds())
                                     .Should()
                                     .Be(false, "command should not reach handler");
         }
@@ -31,14 +31,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             var exceptionMessage = "82369B6E-80D4-4E64-92B6-A564A7195CC5";
             MyCreateAggregateCommandHandlerThreadGate.FailTransactionOnPreparePostPassThrough(new Exception(exceptionMessage));
 
-            var something = Host.AssertThatRunningScenarioThrowsBackendAndClientException<TransactionAbortedException>(() => ClientEndpoint.ExecuteRequest(session => RemoteNavigator.Post(MyCreateAggregateCommand.Create())));
+            var (backendException, frontEndException) = Host.AssertThatRunningScenarioThrowsBackendAndClientException<TransactionAbortedException>(() => ClientEndpoint.ExecuteRequest(session => RemoteNavigator.Post(MyCreateAggregateCommand.Create())));
 
-            something.BackendException.InnerException.Message.Should().Contain(exceptionMessage);
-            something.FrontEndException.Message.Should().Contain(exceptionMessage);
+            backendException.InnerException.Message.Should().Contain(exceptionMessage);
+            frontEndException.Message.Should().Contain(exceptionMessage);
 
             MyLocalAggregateEventHandlerThreadGate.Passed.Should().BeGreaterOrEqualTo(1);
 
-            MyRemoteAggregateEventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, TimeSpanExtensions.Seconds(1))
+            MyRemoteAggregateEventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, 1.Seconds())
                                                    .Should()
                                                    .Be(false, "event should not reach handler");
         }

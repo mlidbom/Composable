@@ -27,11 +27,9 @@ namespace Composable.System.Transactions
 
         internal static void Execute([InstantHandle]Action action, TransactionScopeOption option = TransactionScopeOption.Required, IsolationLevel isolationLevel = IsolationLevel.Serializable)
         {
-            using(var transaction = CreateScope(option, isolationLevel))
-            {
-                action();
-                transaction.Complete();
-            }
+            using var transaction = CreateScope(option, isolationLevel);
+            action();
+            transaction.Complete();
         }
 
         static TransactionScope CreateScope(TransactionScopeOption options, IsolationLevel isolationLevel) =>

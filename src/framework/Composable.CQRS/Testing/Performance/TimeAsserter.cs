@@ -22,7 +22,7 @@ namespace Composable.Testing.Performance
             {
                 if(!double.TryParse(enviromentOverride, NumberStyles.Any, CultureInfo.InvariantCulture, out var adjustment))
                 {
-                    throw new Exception($"Environment varible har invalid value: {machineSlowdownfactor}. It should be parsable as a double.");
+                    throw new Exception($"Environment variable har invalid value: {machineSlowdownfactor}. It should be parsable as a double.");
                 }
 
                 return adjustment;
@@ -31,9 +31,7 @@ namespace Composable.Testing.Performance
             return 1.0;
         }
 
-        static TimeSpan? AdjustTime(TimeSpan? timespan) => timespan != null
-                                                              ? timespan.Value.MultiplyBy(MachineSlowdownFactor)
-                                                              : (TimeSpan?)null;
+        static TimeSpan? AdjustTime(TimeSpan? timespan) => timespan?.MultiplyBy(MachineSlowdownFactor);
 
         public static StopwatchExtensions.TimedExecutionSummary Execute
             ([InstantHandle]Action action,

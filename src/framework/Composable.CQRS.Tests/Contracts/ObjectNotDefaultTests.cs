@@ -21,8 +21,8 @@ namespace Composable.Tests.Contracts
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myDefaultStructure).NotDefault());
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myDefaultStructure).NotDefault());
 
-            var myNonDefaultStructure = new MyStructure()
-                            {
+            var myNonDefaultStructure = new MyStructure
+                                        {
                                 Value = 2
                             };
 

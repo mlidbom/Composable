@@ -4,6 +4,7 @@ using Composable.Logging;
 using FluentAssertions;
 using NUnit.Framework;
 // ReSharper disable All
+#pragma warning disable // Make local function 'static'
 
 namespace Composable.Tests
 {
@@ -210,15 +211,12 @@ namespace Composable.Tests
 
         static string Switch_on_type_pattern(object value)
         {
-            switch(value)
+            return value switch
             {
-                case int i:
-                    return i.ToString();
-                case string s:
-                    return s;
-                default:
-                    throw new ArgumentException();
-            }
+                int i => i.ToString(),
+                string s => s,
+                _ => throw new ArgumentException()
+            };
         }
 
         static bool TryGet(out int val1, out string val2)

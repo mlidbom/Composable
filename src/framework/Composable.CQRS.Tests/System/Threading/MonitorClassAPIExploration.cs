@@ -4,6 +4,9 @@ using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
 using Composable.System;
+// ReSharper disable ImplicitlyCapturedClosure
+
+#pragma warning disable IDE0051 // Remove unused private members
 
 namespace Composable.Tests.System.Threading
 {
@@ -29,35 +32,33 @@ namespace Composable.Tests.System.Threading
             var waitTimeout = 100.Milliseconds();
 
             var waitSucceeded = false;
-            using(var taskRunner = TestingTaskRunner.WithTimeout(1.Seconds()))
+            using var taskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
+            taskRunner.Start(() =>
             {
-                taskRunner.Start(() =>
-                {
-                    Monitor.Enter(guarded);
-                    threadOneWaitsOnLockSection.Execute(() => waitSucceeded = Monitor.Wait(guarded, waitTimeout));
-                });
+                Monitor.Enter(guarded);
+                threadOneWaitsOnLockSection.Execute(() => waitSucceeded = Monitor.Wait(guarded, waitTimeout));
+            });
 
-                threadOneWaitsOnLockSection.EntranceGate.AwaitPassedThroughCountEqualTo(1);
+            threadOneWaitsOnLockSection.EntranceGate.AwaitPassedThroughCountEqualTo(1);
 
-                taskRunner.Start(() =>
-                {
-                    Monitor.Enter(guarded);
-                    threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitPassthrough();
-                    Monitor.Exit(guarded);
-                });
+            taskRunner.Start(() =>
+            {
+                Monitor.Enter(guarded);
+                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitPassthrough();
+                Monitor.Exit(guarded);
+            });
 
-                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitQueueLengthEqualTo(1);
+            threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitQueueLengthEqualTo(1);
 
-                threadOneWaitsOnLockSection.ExitGate
-                                           .TryAwaitPassededThroughCountEqualTo(1, timeout: 200.Milliseconds())
-                                           .Should().Be(false);
+            threadOneWaitsOnLockSection.ExitGate
+                                       .TryAwaitPassededThroughCountEqualTo(1, timeout: 200.Milliseconds())
+                                       .Should().Be(false);
 
-                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitLetOneThreadPassthrough();
+            threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitLetOneThreadPassthrough();
 
-                threadOneWaitsOnLockSection.ExitGate.AwaitPassedThroughCountEqualTo(1);
+            threadOneWaitsOnLockSection.ExitGate.AwaitPassedThroughCountEqualTo(1);
 
-                waitSucceeded.Should().Be(false);
-            }
+            waitSucceeded.Should().Be(false);
         }
 
         [Fact] void Wait_does_not_hang_on_long_timeout_values()
@@ -70,36 +71,34 @@ namespace Composable.Tests.System.Threading
             var waitTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
 
             var waitSucceeded = false;
-            using(var taskRunner = TestingTaskRunner.WithTimeout(1.Seconds()))
+            using var taskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
+            taskRunner.Start(() =>
             {
-                taskRunner.Start(() =>
-                {
-                    Monitor.Enter(guarded);
-                    threadOneWaitsOnLockSection.Execute(() => waitSucceeded = Monitor.Wait(guarded, waitTimeout));
-                });
+                Monitor.Enter(guarded);
+                threadOneWaitsOnLockSection.Execute(() => waitSucceeded = Monitor.Wait(guarded, waitTimeout));
+            });
 
-                threadOneWaitsOnLockSection.EntranceGate.AwaitPassedThroughCountEqualTo(1);
+            threadOneWaitsOnLockSection.EntranceGate.AwaitPassedThroughCountEqualTo(1);
 
-                taskRunner.Start(() =>
-                {
-                    Monitor.Enter(guarded);
-                    threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitPassthrough();
-                    Monitor.PulseAll(guarded);
-                    Monitor.Exit(guarded);
-                });
+            taskRunner.Start(() =>
+            {
+                Monitor.Enter(guarded);
+                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitPassthrough();
+                Monitor.PulseAll(guarded);
+                Monitor.Exit(guarded);
+            });
 
-                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitQueueLengthEqualTo(1);
+            threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitQueueLengthEqualTo(1);
 
-                threadOneWaitsOnLockSection.ExitGate
-                                           .TryAwaitPassededThroughCountEqualTo(1, timeout: 200.Milliseconds())
-                                           .Should().Be(false);
+            threadOneWaitsOnLockSection.ExitGate
+                                       .TryAwaitPassededThroughCountEqualTo(1, timeout: 200.Milliseconds())
+                                       .Should().Be(false);
 
-                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitLetOneThreadPassthrough();
+            threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitLetOneThreadPassthrough();
 
-                threadOneWaitsOnLockSection.ExitGate.AwaitPassedThroughCountEqualTo(1);
+            threadOneWaitsOnLockSection.ExitGate.AwaitPassedThroughCountEqualTo(1);
 
-                waitSucceeded.Should().Be(true);
-            }
+            waitSucceeded.Should().Be(true);
         }
     }
 }

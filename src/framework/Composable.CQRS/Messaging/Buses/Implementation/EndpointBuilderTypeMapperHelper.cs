@@ -5,7 +5,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     static class EndpointBuilderTypeMapperHelper
     {
-        static string WithPostFix(this string guidTemplate, char postfix) => guidTemplate.Substring(0, guidTemplate.Length - 1) + postfix;
+        static string WithPostFix(this string guidTemplate, char postfix) => guidTemplate[0..^1] + postfix;
 
         static class Postfix
         {

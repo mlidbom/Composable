@@ -19,7 +19,7 @@ namespace Composable.Tests
 
     static class TestWiringHelper
     {
-        static string DocumentDbConnectionStringName = "Fake_connectionstring_for_database_testing";
+        static readonly string DocumentDbConnectionStringName = "Fake_connectionstring_for_database_testing";
         internal static string EventStoreConnectionStringName = "Fake_connectionstring_for_database_testing";
 
         internal static IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader> EventStore(this IServiceLocator @this) =>

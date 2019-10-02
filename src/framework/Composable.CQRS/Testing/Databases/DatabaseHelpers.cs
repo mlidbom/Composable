@@ -4,7 +4,7 @@ namespace Composable.Testing.Databases
 {
     static class DatabaseHelpers
     {
-        static string DropAllObjectsStatement = @"
+        static readonly string DropAllObjectsStatement = @"
 
 DECLARE @statements nvarchar(max)
 
@@ -40,23 +40,20 @@ declare @sql nvarchar(500)
 set @sql = 'ALTER DATABASE [' + @databaseName +  '] SET READ_COMMITTED_SNAPSHOT ON'
 exec sp_executesql @sql";
 
-        internal static void DropAllObjects(this IDbConnection connection) {
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = DropAllObjectsStatement;
-                cmd.ExecuteNonQuery();
-            }
+        internal static void DropAllObjects(this IDbConnection connection)
+        {
+            using var cmd = connection.CreateCommand();
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = DropAllObjectsStatement;
+            cmd.ExecuteNonQuery();
         }
 
         internal static void DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(this IDbConnection connection)
         {
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = DropAllObjectsStatement + SetReadCommittedSnapshotOnStatement;
-                cmd.ExecuteNonQuery();
-            }
+            using var cmd = connection.CreateCommand();
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = DropAllObjectsStatement + SetReadCommittedSnapshotOnStatement;
+            cmd.ExecuteNonQuery();
         }
 
 

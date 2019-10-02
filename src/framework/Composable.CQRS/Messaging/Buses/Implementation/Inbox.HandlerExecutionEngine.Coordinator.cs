@@ -31,7 +31,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 internal HandlerExecutionTask AwaitExecutableHandlerExecutionTask(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
                 {
-                    HandlerExecutionTask message = null;
+                    HandlerExecutionTask? message = null;
                     _implementation.Await(implementation => implementation.TryGetDispatchableMessage(dispatchingRules, out message));
                     return message;
                 }
@@ -116,7 +116,7 @@ namespace Composable.Messaging.Buses.Implementation
                         _messagesWaitingToExecute.Remove(dispatchable);
                     }
 
-                    void DoneDispatching(HandlerExecutionTask doneExecuting, Exception exception = null)
+                    void DoneDispatching(HandlerExecutionTask doneExecuting, Exception? exception = null)
                     {
                         _executingMessages--;
 

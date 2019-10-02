@@ -9,7 +9,7 @@ namespace Composable.System.Reactive
         readonly Action<Exception> _onError;
         readonly Action _onCompleted;
 
-        public SimpleObserver(Action<TEvent> onNext = null, Action<Exception> onError = null, Action onCompleted = null)
+        public SimpleObserver(Action<TEvent>? onNext = null, Action<Exception>? onError = null, Action? onCompleted = null)
         {
             _onNext = onNext ?? (ignored => { });
             _onError = onError ?? (exception => ExceptionDispatchInfo.Capture(exception).Throw());

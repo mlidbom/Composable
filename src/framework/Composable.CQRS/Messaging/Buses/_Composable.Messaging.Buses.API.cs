@@ -103,7 +103,7 @@ namespace Composable.Messaging.Buses
 
     public interface ITestingEndpointHost : IEndpointHost
     {
-        IEndpoint RegisterTestingEndpoint(string name = null, EndpointId id = null, Action<IEndpointBuilder> setup = null);
+        IEndpoint RegisterTestingEndpoint(string? name = null, EndpointId? id = null, Action<IEndpointBuilder>? setup = null);
         IEndpoint RegisterClientEndpointForRegisteredEndpoints();
         TException AssertThrown<TException>() where TException : Exception;
     }

@@ -39,10 +39,10 @@ namespace Composable.Testing.Performance
              TimeSpan? maxAverage = null,
              TimeSpan? maxTotal = null,
              string description = "",
-             string timeFormat = null,
+             string? timeFormat = null,
              int maxTries = 10,
-             [InstantHandle]Action setup = null,
-             [InstantHandle]Action tearDown = null)
+             [InstantHandle]Action? setup = null,
+             [InstantHandle]Action? tearDown = null)
         {
             maxAverage = AdjustTime(maxAverage);
             maxTotal = AdjustTime(maxTotal);
@@ -95,9 +95,9 @@ namespace Composable.Testing.Performance
              TimeSpan? maxTotal = null,
              bool timeIndividualExecutions = false,
              string description = "",
-             string timeFormat = null,
-             [InstantHandle]Action setup = null,
-             [InstantHandle]Action tearDown = null,
+             string? timeFormat = null,
+             [InstantHandle]Action? setup = null,
+             [InstantHandle]Action? tearDown = null,
              int maxTries = 10,
             int maxDegreeOfParallelism = -1)
         {

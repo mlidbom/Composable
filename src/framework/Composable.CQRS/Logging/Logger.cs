@@ -8,7 +8,7 @@ namespace Composable.Logging
     interface ILogger
     {
         ILogger WithLogLevel(LogLevel level);
-        void Error(Exception exception, string message = null);
+        void Error(Exception exception, string? message = null);
         void Warning(string message);
         void Warning(Exception exception, string message);
         void Info(string message);

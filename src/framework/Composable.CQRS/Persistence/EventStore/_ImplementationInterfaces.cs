@@ -14,7 +14,7 @@ namespace Composable.Persistence.EventStore
     {
         IReadOnlyList<EventReadDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0);
         IEnumerable<EventReadDataRow> StreamEvents(int batchSize);
-        IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null);
+        IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventBaseType = null);
     }
 
     interface IEventStoreEventWriter

@@ -4,7 +4,7 @@
     public interface IConfigurationParameterProvider
     {
         ///<summary>Gets a string configuration value.</summary>
-        string GetString(string parameterName, string valueIfMissing = null);
+        string GetString(string parameterName, string? valueIfMissing = null);
     }
 
     static class ConfigurationParameterProvider

@@ -22,10 +22,8 @@ namespace Composable.System.Configuration
             _appSettingsSection = config.GetSection("appSettings");
         }
 
-        public string GetString(string parameterName, string valueIfMissing = null)
+        public string GetString(string parameterName, string? valueIfMissing = null)
         {
-
-
             var parameter = _appSettingsSection[parameterName];
             if(parameter != null) return parameter;
             if(valueIfMissing != null)

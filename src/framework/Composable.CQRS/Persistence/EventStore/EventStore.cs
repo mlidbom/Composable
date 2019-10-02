@@ -255,7 +255,7 @@ namespace Composable.Persistence.EventStore
             return message.Contains("timeout") || message.Contains("deadlock");
         }
 
-        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventType = null)
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventType = null)
         {
             Contract.Assert.That(eventType == null || eventType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType),
                 "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType)");

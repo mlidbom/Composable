@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses
 
         public void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }
 
-        public IEndpoint RegisterTestingEndpoint(string name = null, EndpointId id = null, Action<IEndpointBuilder> setup = null)
+        public IEndpoint RegisterTestingEndpoint(string? name = null, EndpointId? id = null, Action<IEndpointBuilder>? setup = null)
         {
             var endpointId = id ?? new EndpointId(Guid.NewGuid());
             name ??= $"TestingEndpoint-{endpointId.GuidValue}";

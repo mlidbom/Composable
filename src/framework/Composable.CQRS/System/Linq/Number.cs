@@ -9,24 +9,25 @@ namespace Composable.System.Linq
         /// <summary>
         /// Represents a sequence first yielding <see cref="StartValue"/> and then infinitely yielding the last value plus <see cref="StepSize"/>
         /// </summary>
-        public struct IterationSpecification
+        public readonly struct IterationSpecification
         {
+            public IterationSpecification(int startValue, int stepSize)
+            {
+                StartValue = startValue;
+                StepSize = stepSize;
+            }
             /// <summary/>
-            public int StartValue;
+            public readonly int StartValue;
 
             /// <summary/>
-            public int StepSize;
+            public readonly int StepSize;
         }
 
         /// <summary>
         /// generates a sequence of integers beginning with <paramref name="me"/> where each element is
-        /// <paramref name="stepsize"/> larger than the previous
+        /// <paramref name="stepSize"/> larger than the previous
         /// </summary>
-        public static IterationSpecification By(this int me, int stepsize) => new IterationSpecification
-                                                                              {
-                                                                                  StartValue = me,
-                                                                                  StepSize = stepsize
-                                                                              };
+        public static IterationSpecification By(this int me, int stepSize) => new IterationSpecification(me, stepSize);
 
         /// <summary>
         /// generates a sequence of integers beginning with <paramref name="me"/> where each element is

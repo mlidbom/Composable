@@ -19,7 +19,7 @@ namespace Composable.Contracts
 
 
 
-        public struct BaseAssertion
+        public readonly struct BaseAssertion
         {
             internal static BaseAssertion InvariantInstance = new BaseAssertion(InspectionType.Invariant);
             internal static BaseAssertion ArgumentsInstance = new BaseAssertion(InspectionType.Argument);
@@ -41,7 +41,7 @@ namespace Composable.Contracts
             [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt; c4:null => halt")] public ChainedAssertion NotNull(object c1, object c2, object c3, object c4) => RunNotNull(0, _inspectionType, c1, c2, c3, c4);
         }
 
-        public struct ChainedAssertion
+        public readonly struct ChainedAssertion
         {
             readonly InspectionType _inspectionType;
             readonly int _recursionDepth;

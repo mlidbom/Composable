@@ -38,7 +38,7 @@ namespace Composable.DependencyInjection
 
         class TestingEndpointHostDisposer : IDisposable
         {
-            ITestingEndpointHost _host;
+            readonly ITestingEndpointHost _host;
             public TestingEndpointHostDisposer(ITestingEndpointHost host) => _host = host;
             public void Dispose() => _host.Dispose();
         }

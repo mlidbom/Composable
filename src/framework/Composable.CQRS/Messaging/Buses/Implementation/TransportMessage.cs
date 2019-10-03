@@ -59,7 +59,7 @@ namespace Composable.Messaging.Buses.Implementation
             public static IReadOnlyList<InComing> ReceiveBatch(RouterSocket socket, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 var result = new List<TransportMessage.InComing>();
-                NetMQMessage receivedMessage = null;
+                NetMQMessage? receivedMessage = null;
                 while(socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref receivedMessage))
                 {
 
@@ -215,7 +215,7 @@ namespace Composable.Messaging.Buses.Implementation
                 public static IReadOnlyList<Response.Incoming> ReceiveBatch(IReceivingSocket socket, ITypeMapper typeMapper, int batchMaximum)
                 {
                     var result = new List<Response.Incoming>();
-                    NetMQMessage received = null;
+                    NetMQMessage? received = null;
                     int fetched = 0;
                     while(fetched < batchMaximum && socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref received))
                     {

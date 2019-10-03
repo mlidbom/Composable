@@ -12,7 +12,7 @@ namespace Composable.DependencyInjection
     partial class ComposableDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
     {
         bool _createdServiceLocator;
-        readonly AsyncLocal<ScopeCache> _scopeCache = new AsyncLocal<ScopeCache>();
+        readonly AsyncLocal<ScopeCache?> _scopeCache = new AsyncLocal<ScopeCache?>();
         readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
@@ -20,7 +20,7 @@ namespace Composable.DependencyInjection
         readonly IDisposable _scopeDisposer;
 #pragma warning restore IDE0069 // Disposable fields should be disposed
 
-        RootCache _cache;
+        RootCache? _cache;
 
         int _maxComponentIndex;
 
@@ -55,7 +55,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        internal ComponentRegistration GetRegistrationFor<TService>() => _cache.Get<TService>().Registrations.Single();
+        internal ComponentRegistration GetRegistrationFor<TService>() => _cache!.Get<TService>().Registrations.Single();
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
         {
@@ -91,7 +91,7 @@ namespace Composable.DependencyInjection
                 throw new Exception("Scope already exists. Nested scopes are not supported.");
             }
 
-            _scopeCache.Value = _cache.CreateScopeCache();
+            _scopeCache.Value = _cache!.CreateScopeCache();
 
             return _scopeDisposer;
         }
@@ -107,11 +107,11 @@ namespace Composable.DependencyInjection
             _scopeCache.Value = null;
         }
 
-        [ThreadStatic] static ComponentRegistration _parentComponent;
+        [ThreadStatic] static ComponentRegistration? _parentComponent;
         public TService Resolve<TService>() where TService : class
         {
             Assert.State.Assert(!_disposed);
-            var (registrations, instance) = _cache.Get<TService>();
+            var (registrations, instance) = _cache!.Get<TService>();
 
             if(instance is TService singleton)
             {
@@ -176,7 +176,7 @@ namespace Composable.DependencyInjection
         internal TService ResolveSingleton<TService>(ComponentRegistration currentComponent) where TService : class
         {
             Assert.State.Assert(!_disposed);
-            var (registrations, instance) = _cache.Get<TService>();
+            var (registrations, instance) = _cache!.Get<TService>();
 
             if(instance is TService singleton)
             {

@@ -6,13 +6,26 @@ namespace Composable.DependencyInjection
     {
         class ComponentPromise<TService> where TService : class
         {
+            class ComposableState
+            {
+                public ComposableState(TService? singletonInstance, ComponentRegistration registration, IServiceLocatorKernel initialKernel, Lifestyle lifestyle)
+                {
+                    SingletonInstance = singletonInstance;
+                    Registration = registration;
+                    InitialKernel = initialKernel;
+                    Lifestyle = lifestyle;
+                }
+
+                public readonly TService? SingletonInstance;
+                public readonly ComponentRegistration Registration;
+                public readonly IServiceLocatorKernel InitialKernel;
+                public readonly Lifestyle Lifestyle;
+            }
+
             readonly object _lock = new object();
             bool _unInitialized = true;
-            bool _isComposableContainer;
-            TService _singletonInstance;
-            Lifestyle _lifestyle;
-            ComponentRegistration _registration;
-            IServiceLocatorKernel _initialKernel;
+            ComposableState? _composableState;
+            TService? _singletonInstance;
             public TService Resolve(IServiceLocatorKernel kernel)
             {
                 if(_unInitialized)
@@ -23,14 +36,11 @@ namespace Composable.DependencyInjection
                         {
                             if(kernel is ComposableDependencyInjectionContainer container)
                             {
-                                _initialKernel = kernel;
-                                _isComposableContainer = true;
-                                _registration = container.GetRegistrationFor<TService>();
-                                _lifestyle = _registration.Lifestyle;
-                                switch(_registration.Lifestyle)
+                                var registration = container.GetRegistrationFor<TService>();
+                                switch(registration.Lifestyle)
                                 {
                                     case Lifestyle.Singleton:
-                                        _singletonInstance = container.ResolveSingleton<TService>(_registration);
+                                        _singletonInstance = container.ResolveSingleton<TService>(registration);
                                         break;
                                     case Lifestyle.Scoped:
                                         //performance: Custom method for resolving scoped components.
@@ -38,6 +48,8 @@ namespace Composable.DependencyInjection
                                     default:
                                         throw new ArgumentOutOfRangeException();
                                 }
+
+                                _composableState = new ComposableState(_singletonInstance, registration, kernel, registration.Lifestyle);
                             }
 
                             _unInitialized = false;
@@ -45,18 +57,18 @@ namespace Composable.DependencyInjection
                     }
                 }
 
-                if(!_isComposableContainer) return kernel.Resolve<TService>();
+                if(_composableState is null) return kernel.Resolve<TService>();
 
-                switch(_lifestyle)
+                switch(_composableState.Lifestyle)
                 {
                     case Lifestyle.Singleton:
-                        if(_initialKernel == kernel)
+                        if(_composableState.InitialKernel == kernel)
                         {
-                            return _singletonInstance;
+                            return _composableState.SingletonInstance!;
                         }
-                        return ((ComposableDependencyInjectionContainer)kernel).ResolveSingleton<TService>(_registration);
+                        return ((ComposableDependencyInjectionContainer)kernel).ResolveSingleton<TService>(_composableState.Registration);
                     case Lifestyle.Scoped:
-                        return ((ComposableDependencyInjectionContainer)kernel).ResolveScoped<TService>(_registration);
+                        return ((ComposableDependencyInjectionContainer)kernel).ResolveScoped<TService>(_composableState.Registration);
                     default:
                         throw new ArgumentOutOfRangeException();
                 }

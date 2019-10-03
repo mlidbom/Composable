@@ -47,6 +47,18 @@ namespace Composable.Contracts
                 TValue instance => instance,
                 null => throw new AssertionException(_inspectionType, 0)
             };
+
+            [return: global::System.Diagnostics.CodeAnalysis.NotNull] [ContractAnnotation("obj:null => halt")]
+            public TValue NotNullOrDefault<TValue>(TValue obj)
+            {
+                if(Equals(obj, default(TValue)))
+                {
+                    throw new AssertionException(_inspectionType, 0);
+                }
+
+                return obj;
+            }
+
             [ContractAnnotation("c1:null => halt; c2:null => halt")] public ChainedAssertion NotNull(object c1, object c2) => RunNotNull(0, _inspectionType, c1, c2);
             [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt")] public ChainedAssertion NotNull(object c1, object c2, object c3) => RunNotNull(0, _inspectionType, c1, c2, c3);
             [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt; c4:null => halt")] public ChainedAssertion NotNull(object c1, object c2, object c3, object c4) => RunNotNull(0, _inspectionType, c1, c2, c3, c4);

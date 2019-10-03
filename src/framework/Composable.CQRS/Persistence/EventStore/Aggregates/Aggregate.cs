@@ -110,7 +110,9 @@ namespace Composable.Persistence.EventStore.Aggregates
                 _applyingEvents = true;
                 if (theEvent is IAggregateCreatedEvent)
                 {
+#pragma warning disable 618
                     SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateId);
+#pragma warning restore 618
                 }
                 Version = theEvent.AggregateVersion;
                 _eventDispatcher.Dispatch(theEvent);

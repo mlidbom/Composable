@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
+using NotNull = global::System.Diagnostics.CodeAnalysis.NotNullAttribute;
 
 namespace Composable.Contracts
 {
@@ -40,7 +41,7 @@ namespace Composable.Contracts
             [ContractAnnotation("c1:false => halt; c2:false => halt; c3:false => halt; c4:false => halt")] public ChainedAssertion Assert([DoesNotReturnIf(false)]bool c1, [DoesNotReturnIf(false)]bool c2, [DoesNotReturnIf(false)]bool c3, [DoesNotReturnIf(false)]bool c4) => RunAssertions(0, _inspectionType, c1, c2, c3, c4);
 
 
-            [return: global::System.Diagnostics.CodeAnalysis.NotNull] [ContractAnnotation("obj:null => halt")]
+            [return: NotNull] [ContractAnnotation("obj:null => halt")]
             public TValue NotNull<TValue>([global::System.Diagnostics.CodeAnalysis.NotNull]TValue obj) => obj switch
             {
                 // ReSharper disable once PatternAlwaysOfType
@@ -48,8 +49,8 @@ namespace Composable.Contracts
                 null => throw new AssertionException(_inspectionType, 0)
             };
 
-            [return: global::System.Diagnostics.CodeAnalysis.NotNull] [ContractAnnotation("obj:null => halt")]
-            public TValue NotNullOrDefault<TValue>([global::System.Diagnostics.CodeAnalysis.NotNull]TValue obj)
+            [return: NotNull] [ContractAnnotation("obj:null => halt")]
+            public TValue NotNullOrDefault<TValue>([NotNull]TValue obj)
             {
                 if(NullOrDefaultTester<TValue>.IsNullOrDefault(obj))
                 {
@@ -59,9 +60,9 @@ namespace Composable.Contracts
                 return obj;
             }
 
-            [ContractAnnotation("c1:null => halt; c2:null => halt")] public ChainedAssertion NotNull(object c1, object c2) => RunNotNull(0, _inspectionType, c1, c2);
-            [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt")] public ChainedAssertion NotNull(object c1, object c2, object c3) => RunNotNull(0, _inspectionType, c1, c2, c3);
-            [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt; c4:null => halt")] public ChainedAssertion NotNull(object c1, object c2, object c3, object c4) => RunNotNull(0, _inspectionType, c1, c2, c3, c4);
+            [ContractAnnotation("c1:null => halt; c2:null => halt")] public ChainedAssertion NotNull([NotNull]object c1, [NotNull]object c2) => RunNotNull(0, _inspectionType, c1, c2);
+            [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt")] public ChainedAssertion NotNull([NotNull]object c1, [NotNull]object c2, [NotNull]object c3) => RunNotNull(0, _inspectionType, c1, c2, c3);
+            [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt; c4:null => halt")] public ChainedAssertion NotNull([NotNull]object c1, [NotNull]object c2, [NotNull]object c3, [NotNull]object c4) => RunNotNull(0, _inspectionType, c1, c2, c3, c4);
         }
 
         public readonly struct ChainedAssertion

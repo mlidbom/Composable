@@ -21,7 +21,7 @@ namespace Composable.DependencyInjection
             {
                 setup(builder.Container);
                 //Hack to get the host to be disposed by the container when the container is disposed.
-                builder.Container.Register(Singleton.For<ITestingEndpointHost>().CreatedBy(() => host).DelegateToParentServiceLocatorWhenCloning());
+                builder.Container.Register(Singleton.For<TestingEndpointHostDisposer>().CreatedBy(() => new TestingEndpointHostDisposer(host)).DelegateToParentServiceLocatorWhenCloning());
             });
 
             return endpoint.ServiceLocator;
@@ -34,6 +34,13 @@ namespace Composable.DependencyInjection
             IDependencyInjectionContainer container = new ComposableDependencyInjectionContainer(runMode);
             container.Register(Singleton.For<IServiceLocator>().CreatedBy(() => container.CreateServiceLocator()));
             return container;
+        }
+
+        class TestingEndpointHostDisposer : IDisposable
+        {
+            ITestingEndpointHost _host;
+            public TestingEndpointHostDisposer(ITestingEndpointHost host) => _host = host;
+            public void Dispose() => _host.Dispose();
         }
     }
 }

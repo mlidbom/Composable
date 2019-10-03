@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
@@ -33,6 +34,7 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     HandlerExecutionTask? message = null;
                     _implementation.Await(implementation => implementation.TryGetDispatchableMessage(dispatchingRules, out message));
+                    Assert.Result.Assert(message != null);
                     return message;
                 }
 

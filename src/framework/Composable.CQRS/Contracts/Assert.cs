@@ -8,6 +8,10 @@ namespace Composable.Contracts
     {
         ///<summary>Assert conditions about current state of "this". Failures would mean that someone made a call that is illegal given state of "this".</summary>
         public static BaseAssertion State { get; } = BaseAssertion.StateInstance;
+        [ContractAnnotation("c1:false => halt")] public static ChainedAssertion Arg([DoesNotReturnIf(false)]bool c1) => RunAssertions(0, InspectionType.Argument, c1);
+        [ContractAnnotation("c1:false => halt; c2:false => halt")] public static ChainedAssertion Arg([DoesNotReturnIf(false)]bool c1, [DoesNotReturnIf(false)]bool c2) => RunAssertions(0, InspectionType.Argument, c1, c2);
+        [ContractAnnotation("c1:false => halt; c2:false => halt; c3:false => halt")] public static ChainedAssertion Arg([DoesNotReturnIf(false)]bool c1, [DoesNotReturnIf(false)]bool c2, [DoesNotReturnIf(false)]bool c3) => RunAssertions(0, InspectionType.Argument, c1, c2, c3);
+        [ContractAnnotation("c1:false => halt; c2:false => halt; c3:false => halt; c4:false => halt")] public static ChainedAssertion Arg([DoesNotReturnIf(false)]bool c1, [DoesNotReturnIf(false)]bool c2, [DoesNotReturnIf(false)]bool c3, [DoesNotReturnIf(false)]bool c4) => RunAssertions(0, InspectionType.Argument, c1, c2, c3, c4);
 
         ///<summary>Assert something that must always be true for "this".</summary>
         public static BaseAssertion Invariant { get; } = BaseAssertion.InvariantInstance;
@@ -36,7 +40,13 @@ namespace Composable.Contracts
             [ContractAnnotation("c1:false => halt; c2:false => halt; c3:false => halt; c4:false => halt")] public ChainedAssertion Assert([DoesNotReturnIf(false)]bool c1, [DoesNotReturnIf(false)]bool c2, [DoesNotReturnIf(false)]bool c3, [DoesNotReturnIf(false)]bool c4) => RunAssertions(0, _inspectionType, c1, c2, c3, c4);
 
 
-            [ContractAnnotation("c1:null => halt")] public ChainedAssertion NotNull(object c1) => RunNotNull(0, _inspectionType, c1);
+            [return: global::System.Diagnostics.CodeAnalysis.NotNull] [ContractAnnotation("obj:null => halt")]
+            public TValue NotNull<TValue>(TValue obj) => obj switch
+            {
+                // ReSharper disable once PatternAlwaysOfType
+                TValue instance => instance,
+                null => throw new AssertionException(_inspectionType, 0)
+            };
             [ContractAnnotation("c1:null => halt; c2:null => halt")] public ChainedAssertion NotNull(object c1, object c2) => RunNotNull(0, _inspectionType, c1, c2);
             [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt")] public ChainedAssertion NotNull(object c1, object c2, object c3) => RunNotNull(0, _inspectionType, c1, c2, c3);
             [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt; c4:null => halt")] public ChainedAssertion NotNull(object c1, object c2, object c3, object c4) => RunNotNull(0, _inspectionType, c1, c2, c3, c4);

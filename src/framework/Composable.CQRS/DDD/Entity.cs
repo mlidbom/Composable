@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using Composable.Contracts;
 
 namespace Composable.DDD
 {
@@ -15,13 +17,19 @@ namespace Composable.DDD
     [DebuggerDisplay("{" + nameof(ToString) + "()}")]
     public class Entity<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : Entity<TEntity, TKEy>
     {
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
         ///<summary>Construct an instance with <param name="id"> as the <see cref="Id"/></param>.</summary>
         protected Entity(TKEy id) => Id = id;
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 
         TKEy _id;
 
         /// <inheritdoc />
-        public virtual TKEy Id { get => _id; private set => _id = value; }
+        [NotNull]public virtual TKEy Id
+        {
+            get => _id;
+            private set => _id = Assert.Argument.NotNull(value);
+        }
 
         ///<summary>Sets the id of the instance. Should probably never be used except by infrastructure code.</summary>
         protected void SetIdBeVerySureYouKnowWhatYouAreDoing(TKEy id)
@@ -42,7 +50,7 @@ namespace Composable.DDD
         /// Implements equals using persistent reference semantics.
         /// If two instances have the same Id, Equals will return true.
         /// </summary>
-        public override bool Equals(object other) => Equals(other as TEntity);
+        public override bool Equals(object other) => (other is TEntity actualOther) && Equals(actualOther);
 
         /// <inheritdoc />
         public override int GetHashCode() => Id.GetHashCode();

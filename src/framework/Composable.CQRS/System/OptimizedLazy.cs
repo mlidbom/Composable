@@ -5,7 +5,7 @@ namespace Composable.System
     class OptimizedLazy<TValue> where TValue : class
     {
         readonly object _lock = new object();
-        TValue _value;
+        TValue? _value;
         readonly Func<TValue> _factory;
 
         public TValue Value

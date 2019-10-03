@@ -24,7 +24,7 @@ namespace Composable.DDD
         TKey _id;
 
         /// <inheritdoc />
-        public virtual TKey Id
+        [NotNull]public virtual TKey Id
         {
             get => Assert.Result.NotNullOrDefault(_id);
             private set => _id = Assert.Argument.NotNullOrDefault(value);

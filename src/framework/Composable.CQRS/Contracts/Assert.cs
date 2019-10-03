@@ -42,7 +42,7 @@ namespace Composable.Contracts
 
 
             [return: NotNull] [ContractAnnotation("obj:null => halt")]
-            public TValue NotNull<TValue>([global::System.Diagnostics.CodeAnalysis.NotNull]TValue obj) => obj switch
+            public TValue NotNull<TValue>([NotNull]TValue obj) => obj switch
             {
                 // ReSharper disable once PatternAlwaysOfType
                 TValue instance => instance,

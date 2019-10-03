@@ -46,15 +46,7 @@ namespace Composable.Contracts
                 badValue => new ObjectIsNullContractViolationException(badValue));
 
             return me.Inspect(
-                inspected =>
-                {
-                    if(!inspected.GetType().IsValueType)
-                    {
-                        return true;
-                    }
-                    var valueTypeDefault = Activator.CreateInstance(inspected.GetType());
-                    return !Equals(inspected, valueTypeDefault);
-                },
+                inspected => !NullOrDefaultTester<TValue>.IsNullOrDefault(inspected),
                 badValue => new ObjectIsDefaultContractViolationException(badValue));
         }
 

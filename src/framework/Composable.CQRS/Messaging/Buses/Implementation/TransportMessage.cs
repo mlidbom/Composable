@@ -39,7 +39,7 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     _message = _serializer.DeserializeMessage(MessageType, Body);
 
-                    Assert.State.Assert(!(_message is BusApi.Remotable.ExactlyOnce.IMessage) || MessageId == (_message as BusApi.Remotable.ExactlyOnce.IMessage).DeduplicationId);
+                    Assert.State.Assert(!(_message is BusApi.Remotable.ExactlyOnce.IMessage actualMessage) || MessageId == actualMessage.DeduplicationId);
                 }
                 return _message;
             }

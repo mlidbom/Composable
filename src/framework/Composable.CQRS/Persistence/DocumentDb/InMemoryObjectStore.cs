@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Composable.Contracts;
 using Composable.DDD;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
@@ -59,6 +60,7 @@ namespace Composable.Persistence.DocumentDb
 
         public virtual void Add<T>(object id, T value)
         {
+            Assert.Argument.NotNull(value);
             lock(LockObject)
             {
                 var idString = GetIdString(id);

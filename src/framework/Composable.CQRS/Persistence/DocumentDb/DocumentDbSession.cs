@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Transactions;
+using Composable.Contracts;
 using Composable.DDD;
 using Composable.Logging;
 using Composable.System.Linq;
@@ -127,6 +128,7 @@ namespace Composable.Persistence.DocumentDb
 
         public virtual void Save<TValue>(object id, TValue value)
         {
+            Contract.ArgumentNotNull(value, nameof(value));
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
 

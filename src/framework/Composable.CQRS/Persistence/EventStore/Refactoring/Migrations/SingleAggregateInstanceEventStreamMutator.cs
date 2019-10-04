@@ -24,7 +24,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
         public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateEvent>>? eventsAddedCallback = null) => new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
 
         SingleAggregateInstanceEventStreamMutator
-            (IAggregateEvent creationEvent, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateEvent>> eventsAddedCallback)
+            (IAggregateEvent creationEvent, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateEvent>>? eventsAddedCallback)
         {
             _eventModifier = new EventModifier(eventsAddedCallback ?? (_ => { }));
             _aggregateId = creationEvent.AggregateId;

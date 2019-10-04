@@ -63,8 +63,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public async Task StartAsync()
         {
-            Task storageStartTask = null;
-            _state.WithExclusiveAccess(state =>
+            Task storageStartTask = _state.WithExclusiveAccess(state =>
             {
                 Assert.State.Assert(!state.Running);
                 state.Running = true;
@@ -76,6 +75,7 @@ namespace Composable.Messaging.Buses.Implementation
                 state.Poller = new NetMQPoller();
                 state.PollerThread = new Thread(() => state.Poller.Run()) {Name = $"{nameof(InterprocessTransport)}_{nameof(state.PollerThread)}"};
                 state.PollerThread.Start();
+                return storageStartTask;
             });
 
             await storageStartTask;

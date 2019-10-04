@@ -25,7 +25,7 @@ namespace Composable.Messaging.Buses.Implementation
                     readonly IServiceLocator _serviceLocator;
                     readonly IMessageHandlerRegistry _handlerRegistry;
 
-                    internal Task<object> Task => _taskCompletionSource.Task;
+                    internal Task<object?> Task => _taskCompletionSource.Task;
                     public Guid MessageId { get; }
 
                     public void Execute()

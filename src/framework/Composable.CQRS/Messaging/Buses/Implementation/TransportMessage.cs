@@ -192,7 +192,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal class Incoming
             {
-                internal readonly string Body;
+                internal readonly string? Body;
                 readonly TypeId? _responseTypeId;
                 readonly ITypeMapper _typeMapper;
                 object? _result;
@@ -207,7 +207,7 @@ namespace Composable.Messaging.Buses.Implementation
                         {
                             return null;
                         }
-                        _result = serializer.DeserializeResponse(_typeMapper.GetType(_responseTypeId!), Body);
+                        _result = serializer.DeserializeResponse(_typeMapper.GetType(_responseTypeId!), Body!);
                     }
                     return _result;
                 }
@@ -252,7 +252,7 @@ namespace Composable.Messaging.Buses.Implementation
                     }
                 }
 
-                Incoming(ResponseType type, Guid respondingToMessageId, string body, TypeId? responseTypeId, ITypeMapper typeMapper)
+                Incoming(ResponseType type, Guid respondingToMessageId, string? body, TypeId? responseTypeId, ITypeMapper typeMapper)
                 {
                     Body = body;
                     _responseTypeId = responseTypeId;

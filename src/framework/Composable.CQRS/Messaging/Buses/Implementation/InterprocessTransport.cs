@@ -19,33 +19,45 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class State
         {
+            public State(IGlobalBusStateTracker globalBusStateTracker, HandlerStorage handlerStorage, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, MessageStorage messageStorage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            {
+                GlobalBusStateTracker = globalBusStateTracker;
+                HandlerStorage = handlerStorage;
+                Configuration = configuration;
+                TimeSource = timeSource;
+                MessageStorage = messageStorage;
+                TypeMapper = typeMapper;
+                Serializer = serializer;
+            }
+
             internal bool Running;
-            public IGlobalBusStateTracker GlobalBusStateTracker;
+            public readonly IGlobalBusStateTracker GlobalBusStateTracker;
             internal readonly Dictionary<EndpointId, IClientConnection> EndpointConnections = new Dictionary<EndpointId, IClientConnection>();
-            internal HandlerStorage HandlerStorage;
-            internal NetMQPoller Poller;
-            public IUtcTimeTimeSource TimeSource { get; set; }
-            public MessageStorage MessageStorage { get; set; }
-            public ITypeMapper TypeMapper { get; set; }
-            public IRemotableMessageSerializer Serializer { get; set; }
-            public RealEndpointConfiguration Configuration;
-            public Thread PollerThread;
+            internal readonly HandlerStorage HandlerStorage;
+            internal NetMQPoller? Poller;
+            public IUtcTimeTimeSource TimeSource { get; }
+            public MessageStorage MessageStorage { get; }
+            public ITypeMapper TypeMapper { get; }
+            public IRemotableMessageSerializer Serializer { get; }
+            public readonly RealEndpointConfiguration Configuration;
+            public Thread? PollerThread;
         }
 
-        readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
-        ITaskRunner _taskRunner;
+        readonly IThreadShared<State> _state;
+        readonly ITaskRunner _taskRunner;
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => _state.WithExclusiveAccess(@this =>
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
         {
             _taskRunner = taskRunner;
-            @this.Configuration = configuration;
-            @this.Serializer = serializer;
-            @this.HandlerStorage = new HandlerStorage(typeMapper);
-            @this.TypeMapper = typeMapper;
-            @this.MessageStorage = new MessageStorage(connectionFactory, typeMapper, serializer);
-            @this.TimeSource = timeSource;
-            @this.GlobalBusStateTracker = globalBusStateTracker;
-        });
+            _state = new OptimizedThreadShared<State>(new State(
+                                                          globalBusStateTracker,
+                                                          new HandlerStorage(typeMapper),
+                                                          configuration,
+                                                          timeSource,
+                                                          new MessageStorage(connectionFactory, typeMapper, serializer),
+                                                          typeMapper,
+                                                          serializer));
+        }
 
         //performance:tests: make async
         public async Task ConnectAsync(EndPointAddress remoteEndpoint)
@@ -83,7 +95,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Stop() => _state.WithExclusiveAccess(state =>
         {
-            Assert.State.Assert(state.Running);
+            Assert.State.Assert(state.Running, state.PollerThread != null, state.Poller != null);
             state.Running = false;
             state.Poller.StopAsync();
             state.PollerThread.Join();

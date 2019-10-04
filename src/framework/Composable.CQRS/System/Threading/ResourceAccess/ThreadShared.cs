@@ -18,7 +18,7 @@ namespace Composable.System.Threading.ResourceAccess
         public static ThreadShared<TResource> WithTimeout(TimeSpan timeout) => new ThreadShared<TResource>(ResourceGuard.WithTimeout(timeout), new TResource());
         public static IThreadShared<TResource> Optimized() => new OptimizedThreadShared<TResource>(new TResource());
 
-        ThreadShared(IResourceGuard guard, TResource resource)
+        internal ThreadShared(IResourceGuard guard, TResource resource)
         {
             _guard = guard;
             _resource = resource;

@@ -89,7 +89,7 @@ namespace Composable.Messaging.Events
             #endregion
         }
 
-        Dictionary<Type, Action<object>[]> _typeToHandlerCache;
+        Dictionary<Type, Action<object>[]> _typeToHandlerCache = new Dictionary<Type, Action<object>[]>();
         int _cachedTotalHandlers;
         // ReSharper disable once StaticMemberInGenericType
         static readonly Action<object>[] NullHandlerList = new Action<object>[0];

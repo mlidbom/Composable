@@ -50,8 +50,8 @@ namespace Composable.Contracts
             _inspectedValues = new IInspectedValue<TValue>[inspectedValues.Length];
             for(var i = 0; i < inspectedValues.Length; i++)
             {
-                var current = inspectedValues[i];
-                _inspectedValues[i] = new InspectedValue<TValue>(inspectionType, current.Value, current.Name);
+                var (value, name) = inspectedValues[i];
+                _inspectedValues[i] = new InspectedValue<TValue>(inspectionType, value, name);
             }
         }
     }

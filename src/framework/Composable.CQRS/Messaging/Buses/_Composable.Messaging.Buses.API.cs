@@ -65,7 +65,7 @@ namespace Composable.Messaging.Buses
     {
         EndpointId Id { get; }
         IServiceLocator ServiceLocator { get; }
-        EndPointAddress Address { get; }
+        EndPointAddress? Address { get; }
         bool IsRunning { get; }
         Task InitAsync();
         Task ConnectAsync();

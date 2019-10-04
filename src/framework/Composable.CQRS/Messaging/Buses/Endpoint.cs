@@ -13,33 +13,35 @@ namespace Composable.Messaging.Buses
     {
         readonly EndpointConfiguration _configuration;
         public bool IsRunning { get; private set; }
-        public Endpoint(IServiceLocator serviceLocator, EndpointConfiguration configuration)
+        public Endpoint(IServiceLocator serviceLocator,
+                        IGlobalBusStateTracker globalStateTracker,
+                        IInterprocessTransport transport,
+                        IEndpointRegistry endpointRegistry,
+                        IInterprocessTransport interProcessTransport,
+                        EndpointConfiguration configuration)
         {
             Assert.Argument.Assert(serviceLocator != null, configuration != null);
             ServiceLocator = serviceLocator;
+            _globalStateTracker = globalStateTracker;
+            _transport = transport;
             _configuration = configuration;
+            _endpointRegistry = endpointRegistry;
+            _interProcessTransport = interProcessTransport;
         }
         public EndpointId Id => _configuration.Id;
         public IServiceLocator ServiceLocator { get; }
 
-        public EndPointAddress Address => _inbox.Address;
-        IGlobalBusStateTracker _globalStateTracker;
-        IInbox _inbox;
-        IInterprocessTransport _transport;
-        CommandScheduler _commandScheduler;
-        IEndpointRegistry _endpointRegistry;
-        IInterprocessTransport _interProcessTransport;
+        public EndPointAddress? Address => _inbox?.Address;
+        readonly IGlobalBusStateTracker _globalStateTracker;
+        IInbox? _inbox;
+        readonly IInterprocessTransport _transport;
+        CommandScheduler? _commandScheduler;
+        readonly IEndpointRegistry _endpointRegistry;
+        readonly IInterprocessTransport _interProcessTransport;
 
         public async Task InitAsync()
         {
             Assert.State.Assert(!IsRunning);
-
-            IsRunning = true;
-
-            _globalStateTracker = ServiceLocator.Resolve<IGlobalBusStateTracker>();
-            _transport = ServiceLocator.Resolve<IInterprocessTransport>();
-            _endpointRegistry = ServiceLocator.Resolve<IEndpointRegistry>();
-            _interProcessTransport = ServiceLocator.Resolve<IInterprocessTransport>();
 
             RunSanityChecks();
 
@@ -59,6 +61,7 @@ namespace Composable.Messaging.Buses
             }
 
             await Task.WhenAll(initTasks);
+            IsRunning = true;
         }
 
         public async Task ConnectAsync()

@@ -40,7 +40,7 @@ namespace Composable.Refactoring.Naming
             throw new Exception($"Could not find type for {nameof(TypeId)}: {typeId}");
         });
 
-        public bool TryGetType(TypeId typeId, out Type type)
+        public bool TryGetType(TypeId typeId, out Type? type)
         {
             type = _state.WithExclusiveAccess(state => state.TypeIdToTypeMap.TryGetValue(typeId, out var innerType) ? innerType : null);
 

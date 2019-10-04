@@ -86,7 +86,7 @@ namespace Composable.Testing.Performance
                 break;
             }
 
-            return executionSummary;
+            return Assert.Result.NotNull(executionSummary);
         }
 
         public static StopwatchExtensions.TimedThreadedExecutionSummary ExecuteThreaded

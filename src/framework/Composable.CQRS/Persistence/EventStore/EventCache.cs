@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Transactions;
+using Composable.Contracts;
 using Composable.System;
 using Composable.System.Threading.ResourceAccess;
 using Composable.SystemExtensions.TransactionsCE;
@@ -27,7 +28,7 @@ namespace Composable.Persistence.EventStore
 
                     if(_overlays.WithExclusiveAccess(@this => @this.TryGetValue(transactionId, out overlay)))
                     {
-                        return overlay;
+                        return Assert.Result.NotNull(overlay);
                     }
 
                     overlay = new Dictionary<Guid, Entry>();

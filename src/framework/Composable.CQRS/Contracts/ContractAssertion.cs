@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Composable.System;
 using JetBrains.Annotations;
 
@@ -7,7 +8,7 @@ namespace Composable.Contracts
     static class ContractAssertion
     {
         [AssertionMethod]
-        internal static void That(this IContractAssertion @this, [AssertionCondition(AssertionConditionType.IS_TRUE)] bool assertion, string message)
+        internal static void That(this IContractAssertion @this, [AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]bool assertion, string message)
         {
             if(message.IsNullOrWhiteSpace())
             {

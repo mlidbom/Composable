@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using Composable.Contracts;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Diagnostics;
@@ -162,7 +163,7 @@ namespace Composable.Testing.Performance
                 break;
             }
 
-            return executionSummary;
+            return Assert.Result.NotNull(executionSummary);
         }
 
         static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchExtensions.TimedExecutionSummary executionSummary, [InstantHandle]Func<TimeSpan?, string> format)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Composable.Contracts {
     static class NullOrDefaultTester<TType>
@@ -30,6 +31,6 @@ namespace Composable.Contracts {
             throw new Exception("WTF");
         }
 
-        public static bool IsNullOrDefault(TType obj) => IsNullOrDefaultInternal(obj);
+        public static bool IsNullOrDefault([AllowNull]TType obj) => IsNullOrDefaultInternal(obj);
     }
 }

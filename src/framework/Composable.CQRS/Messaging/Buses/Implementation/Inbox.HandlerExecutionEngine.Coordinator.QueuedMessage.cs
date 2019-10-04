@@ -16,10 +16,10 @@ namespace Composable.Messaging.Buses.Implementation
                 // ReSharper disable once MemberCanBePrivate.Local Resharper is just confused....
                 internal class HandlerExecutionTask
                 {
-                    readonly TaskCompletionSource<object> _taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    readonly TaskCompletionSource<object?> _taskCompletionSource = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
                     internal readonly TransportMessage.InComing TransportMessage;
                     readonly Coordinator _coordinator;
-                    readonly Func<object, object> _messageTask;
+                    readonly Func<object, object?> _messageTask;
                     readonly ITaskRunner _taskRunner;
                     readonly MessageStorage _messageStorage;
                     readonly IServiceLocator _serviceLocator;

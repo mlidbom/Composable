@@ -31,7 +31,7 @@ namespace Composable.Persistence.DocumentDb
                     value = (T)found;
                     return true;
                 }
-                value = default;
+                value = default!;
                 return false;
             }
         }

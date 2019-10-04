@@ -132,6 +132,6 @@ namespace Composable.Messaging.Buses
 
         void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage);
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
-        void DoneWith(Guid message, Exception exception);
+        void DoneWith(Guid message, Exception? exception);
     }
 }

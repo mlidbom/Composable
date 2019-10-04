@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading;
+using JetBrains.Annotations;
 
 namespace Composable.System.Threading.ResourceAccess
 {
     interface IThreadShared<out TResource>
     {
         TResult WithExclusiveAccess<TResult>(Func<TResource, TResult> func);
-        void WithExclusiveAccess(Action<TResource> func);
+        void WithExclusiveAccess([InstantHandle]Action<TResource> func);
     }
 
     class ThreadShared<TResource> : IThreadShared<TResource> where TResource : new()

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.DDD;
+using Composable.Functional;
 using Composable.Persistence.DocumentDb;
 using Composable.SystemExtensions.Threading;
 
@@ -47,14 +49,15 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
 
         public virtual bool TryGet<TDocument>(object key, out TDocument document) => TryGetVersion(key, out document);
 
-        public virtual bool TryGetVersion<TDocument>(object key, out TDocument document, int version = -1)
+        public virtual bool TryGetVersion<TDocument>(object key, [NotNullWhen(true)][MaybeNull]out TDocument document, int version = -1)
         {
             var requiresVersioning = version > 0;
             _usageGuard.AssertNoContextChangeOccurred(this);
 
+            document = default!;
+
             if (!HandlesDocumentType<TDocument>(requireVersioningSupport: requiresVersioning))
             {
-                document = default;
                 return false;
             }
 
@@ -70,9 +73,10 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
                 return true;
             }
 
-            document = TryGenerateModel<TDocument>(key, version);
-            if (!Equals(document, default(TDocument)))
+            var option = TryGenerateModel<TDocument>(key, version);
+            if (option is Some<TDocument> returned)
             {
+                document = returned.Value;
                 if(!requiresVersioning)
                 {
                     _idMap.Add(key, document);
@@ -82,19 +86,17 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
             return false;
         }
 
-        TDocument TryGenerateModel<TDocument>(object key, int version)
+        Option<TDocument> TryGenerateModel<TDocument>(object key, int version)
         {
             if(version < 0)
             {
                 return GetGeneratorsForDocumentType<TDocument>()
                     .Select(generator => generator.TryGenerate((Guid)key))
-                    .Where(foundDocument => !Equals(foundDocument, default(TDocument)))
                     .SingleOrDefault();
             }
 
             return VersionedGeneratorsForDocumentType<TDocument>()
                     .Select(generator => generator.TryGenerate((Guid)key, version))
-                    .Where(foundDocument => !Equals(foundDocument, default(TDocument)))
                     .SingleOrDefault();
         }
 

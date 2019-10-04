@@ -91,7 +91,7 @@ namespace Composable.Messaging.Buses.Implementation
                         _messageTask = CreateMessageTask();
                     }
 
-                    Func<object, object> CreateMessageTask()
+                    Func<object, object?> CreateMessageTask()
                     {
 #pragma warning disable IDE0066 // Convert switch statement to expression disabled because once converted resharper incorrectly reports a compilation error.
                         switch(TransportMessage.MessageTypeEnum)

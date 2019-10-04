@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-
+using NotNull = global::System.Diagnostics.CodeAnalysis.NotNullAttribute;
 // ReSharper disable UnusedParameter.Global
 
 namespace Composable.Contracts
@@ -64,34 +64,34 @@ namespace Composable.Contracts
             new Inspected<TInspected>(InspectionType.Invariant, (p1!, n1), (p2!, n2), (p3!, n3));
 
 
-        public static void ArgumentNotNull([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1) =>
+        public static void ArgumentNotNull([NotNull]object? p1, [InvokerParameterName] string n1) =>
             ArgumentNotNull((p1, n1));
-        public static void ArgumentNotNull([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1, [JetBrains.Annotations.NotNull]object? p2, [InvokerParameterName] string n2) =>
+        public static void ArgumentNotNull([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2) =>
             ArgumentNotNull((p1, n1), (p2, n2));
-        public static void ArgumentNotNull([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1, [JetBrains.Annotations.NotNull]object? p2, [InvokerParameterName] string n2, [JetBrains.Annotations.NotNull]object? p3, [InvokerParameterName] string n3) =>
+        public static void ArgumentNotNull([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2, [NotNull]object? p3, [InvokerParameterName] string n3) =>
             ArgumentNotNull((p1, n1), (p2, n2), (p3, n3));
-        public static void ArgumentNotNull([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1, [JetBrains.Annotations.NotNull]object? p2, [InvokerParameterName] string n2, [JetBrains.Annotations.NotNull]object? p3, [InvokerParameterName] string n3, [JetBrains.Annotations.NotNull]object? p4, [InvokerParameterName] string n4) =>
+        public static void ArgumentNotNull([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2, [NotNull]object? p3, [InvokerParameterName] string n3, [NotNull]object? p4, [InvokerParameterName] string n4) =>
             ArgumentNotNull((p1, n1), (p2, n2), (p3, n3),(p4, n4));
-        public static void ArgumentNotNull([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1, [JetBrains.Annotations.NotNull]object? p2, [InvokerParameterName] string n2, [JetBrains.Annotations.NotNull]object? p3, [InvokerParameterName] string n3, [JetBrains.Annotations.NotNull]object? p4, [InvokerParameterName] string n4, [JetBrains.Annotations.NotNull]object? p5, [InvokerParameterName] string n5) =>
+        public static void ArgumentNotNull([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2, [NotNull]object? p3, [InvokerParameterName] string n3, [NotNull]object? p4, [InvokerParameterName] string n4, [NotNull]object? p5, [InvokerParameterName] string n5) =>
             ArgumentNotNull((p1, n1), (p2, n2), (p3, n3),(p4, n4),(p5, n5));
-        public static void ArgumentNotNull([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1, [JetBrains.Annotations.NotNull]object? p2, [InvokerParameterName] string n2, [JetBrains.Annotations.NotNull]object? p3, [InvokerParameterName] string n3, [JetBrains.Annotations.NotNull]object? p4, [InvokerParameterName] string n4, [JetBrains.Annotations.NotNull]object? p5, [InvokerParameterName] string n5, [JetBrains.Annotations.NotNull]object? p6, [InvokerParameterName] string n6) =>
+        public static void ArgumentNotNull([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2, [NotNull]object? p3, [InvokerParameterName] string n3, [NotNull]object? p4, [InvokerParameterName] string n4, [NotNull]object? p5, [InvokerParameterName] string n5, [NotNull]object? p6, [InvokerParameterName] string n6) =>
             ArgumentNotNull((p1, n1), (p2, n2), (p3, n3),(p4, n4),(p5, n5),(p6, n6));
-        public static void ArgumentNotNull([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1, [JetBrains.Annotations.NotNull]object? p2, [InvokerParameterName] string n2, [JetBrains.Annotations.NotNull]object? p3, [InvokerParameterName] string n3, [JetBrains.Annotations.NotNull]object? p4, [InvokerParameterName] string n4, [JetBrains.Annotations.NotNull]object? p5, [InvokerParameterName] string n5, [JetBrains.Annotations.NotNull]object? p6, [InvokerParameterName] string n6, [JetBrains.Annotations.NotNull]object? p7, [InvokerParameterName] string n7) =>
+        public static void ArgumentNotNull([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2, [NotNull]object? p3, [InvokerParameterName] string n3, [NotNull]object? p4, [InvokerParameterName] string n4, [NotNull]object? p5, [InvokerParameterName] string n5, [NotNull]object? p6, [InvokerParameterName] string n6, [NotNull]object? p7, [InvokerParameterName] string n7) =>
             ArgumentNotNull((p1, n1), (p2, n2), (p3, n3),(p4, n4),(p5, n5),(p6, n6), (p7, n7));
 
-        public static void ArgumentNotNullOrDefault([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1) =>
+        public static void ArgumentNotNullOrDefault([NotNull]object? p1, [InvokerParameterName] string n1) =>
             ArgumentNotNullOrDefault((p1, n1));
-        public static void ArgumentNotNullOrDefault([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1, [JetBrains.Annotations.NotNull]object? p2, [InvokerParameterName] string n2) =>
+        public static void ArgumentNotNullOrDefault([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2) =>
             ArgumentNotNullOrDefault((p1, n1), (p2, n2));
-        public static void ArgumentNotNullOrDefault([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1, [JetBrains.Annotations.NotNull]object? p2, [InvokerParameterName] string n2, [JetBrains.Annotations.NotNull]object? p3, [InvokerParameterName] string n3) =>
+        public static void ArgumentNotNullOrDefault([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2, [NotNull]object? p3, [InvokerParameterName] string n3) =>
             ArgumentNotNullOrDefault((p1, n1), (p2, n2), (p3, n3));
-        public static void ArgumentNotNullOrDefault([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1, [JetBrains.Annotations.NotNull]object? p2, [InvokerParameterName] string n2, [JetBrains.Annotations.NotNull]object? p3, [InvokerParameterName] string n3, [JetBrains.Annotations.NotNull]object? p4, [InvokerParameterName] string n4) =>
+        public static void ArgumentNotNullOrDefault([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2, [NotNull]object? p3, [InvokerParameterName] string n3, [NotNull]object? p4, [InvokerParameterName] string n4) =>
             ArgumentNotNullOrDefault((p1, n1), (p2, n2), (p3, n3),(p4, n4));
-        public static void ArgumentNotNullOrDefault([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1, [JetBrains.Annotations.NotNull]object? p2, [InvokerParameterName] string n2, [JetBrains.Annotations.NotNull]object? p3, [InvokerParameterName] string n3, [JetBrains.Annotations.NotNull]object? p4, [InvokerParameterName] string n4, [JetBrains.Annotations.NotNull]object? p5, [InvokerParameterName] string n5) =>
+        public static void ArgumentNotNullOrDefault([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2, [NotNull]object? p3, [InvokerParameterName] string n3, [NotNull]object? p4, [InvokerParameterName] string n4, [NotNull]object? p5, [InvokerParameterName] string n5) =>
             ArgumentNotNullOrDefault((p1, n1), (p2, n2), (p3, n3),(p4, n4),(p5, n5));
-        public static void ArgumentNotNullOrDefault([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1, [JetBrains.Annotations.NotNull]object? p2, [InvokerParameterName] string n2, [JetBrains.Annotations.NotNull]object? p3, [InvokerParameterName] string n3, [JetBrains.Annotations.NotNull]object? p4, [InvokerParameterName] string n4, [JetBrains.Annotations.NotNull]object? p5, [InvokerParameterName] string n5, [JetBrains.Annotations.NotNull]object? p6, [InvokerParameterName] string n6) =>
+        public static void ArgumentNotNullOrDefault([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2, [NotNull]object? p3, [InvokerParameterName] string n3, [NotNull]object? p4, [InvokerParameterName] string n4, [NotNull]object? p5, [InvokerParameterName] string n5, [NotNull]object? p6, [InvokerParameterName] string n6) =>
             ArgumentNotNullOrDefault((p1, n1), (p2, n2), (p3, n3),(p4, n4),(p5, n5),(p6, n6));
-        public static void ArgumentNotNullOrDefault([JetBrains.Annotations.NotNull]object? p1, [InvokerParameterName] string n1, [JetBrains.Annotations.NotNull]object? p2, [InvokerParameterName] string n2, [JetBrains.Annotations.NotNull]object? p3, [InvokerParameterName] string n3, [JetBrains.Annotations.NotNull]object? p4, [InvokerParameterName] string n4, [JetBrains.Annotations.NotNull]object? p5, [InvokerParameterName] string n5, [JetBrains.Annotations.NotNull]object? p6, [InvokerParameterName] string n6, [JetBrains.Annotations.NotNull]object? p7, [InvokerParameterName] string n7) =>
+        public static void ArgumentNotNullOrDefault([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2, [NotNull]object? p3, [InvokerParameterName] string n3, [NotNull]object? p4, [InvokerParameterName] string n4, [NotNull]object? p5, [InvokerParameterName] string n5, [NotNull]object? p6, [InvokerParameterName] string n6, [NotNull]object? p7, [InvokerParameterName] string n7) =>
             ArgumentNotNullOrDefault((p1, n1), (p2, n2), (p3, n3),(p4, n4),(p5, n5),(p6, n6), (p7, n7));
 
         static void ArgumentNotNull(params (object? Argument, string Name)[] arguments)

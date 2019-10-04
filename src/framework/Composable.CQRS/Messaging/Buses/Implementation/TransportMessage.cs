@@ -193,13 +193,13 @@ namespace Composable.Messaging.Buses.Implementation
             internal class Incoming
             {
                 internal readonly string Body;
-                readonly TypeId _responseTypeId;
+                readonly TypeId? _responseTypeId;
                 readonly ITypeMapper _typeMapper;
-                object _result;
+                object? _result;
                 internal ResponseType ResponseType { get; }
                 internal Guid RespondingToMessageId { get; }
 
-                public object DeserializeResult(IRemotableMessageSerializer serializer)
+                public object? DeserializeResult(IRemotableMessageSerializer serializer)
                 {
                     if(_result == null)
                     {
@@ -207,7 +207,7 @@ namespace Composable.Messaging.Buses.Implementation
                         {
                             return null;
                         }
-                        _result = serializer.DeserializeResponse(_typeMapper.GetType(_responseTypeId), Body);
+                        _result = serializer.DeserializeResponse(_typeMapper.GetType(_responseTypeId!), Body);
                     }
                     return _result;
                 }
@@ -235,7 +235,7 @@ namespace Composable.Messaging.Buses.Implementation
                         case ResponseType.Success:
                         {
                             var responseBody = message[3].ConvertToString();
-                            TypeId responseType = null;
+                            TypeId? responseType = null;
                             if(responseBody != Constants.NullString)
                             {
                                 responseType = new TypeId(new Guid(message[2].ToByteArray()));
@@ -252,7 +252,7 @@ namespace Composable.Messaging.Buses.Implementation
                     }
                 }
 
-                Incoming(ResponseType type, Guid respondingToMessageId, string body, TypeId responseTypeId, ITypeMapper typeMapper)
+                Incoming(ResponseType type, Guid respondingToMessageId, string body, TypeId? responseTypeId, ITypeMapper typeMapper)
                 {
                     Body = body;
                     _responseTypeId = responseTypeId;

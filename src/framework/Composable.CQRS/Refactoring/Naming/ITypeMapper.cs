@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Composable.Refactoring.Naming
 {
@@ -8,7 +9,7 @@ namespace Composable.Refactoring.Naming
         //todo: Use static type and indexing trick to improve performance
         TypeId GetId(Type type);
         Type GetType(TypeId eventTypeId);
-        bool TryGetType(TypeId typeId, out Type? type);
+        bool TryGetType(TypeId typeId, [NotNullWhen(true)]out Type? type);
         void AssertMappingsExistFor(IEnumerable<Type> typesThatRequireMappings);
     }
 

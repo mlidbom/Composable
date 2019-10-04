@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
@@ -38,7 +39,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 
         Type GetTypeFromId(int id) { return _knownTypes.Single(pair => pair.Value == id).Key; }
 
-        bool IDocumentDb.TryGet<TValue>(object key, out TValue value, Dictionary<Type, Dictionary<string, string>> persistentValues)
+        bool IDocumentDb.TryGet<TValue>(object key, [NotNullWhen(true)][MaybeNull]out TValue value, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
             EnsureInitialized();
 

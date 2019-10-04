@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.Functional;
 
 namespace Composable.Persistence.EventStore.Query.Models.Generators
 {
@@ -6,8 +7,8 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
     {
     }
 
-    interface IVersioningQueryModelGenerator<out TDocument> : IVersioningQueryModelGenerator
+    interface IVersioningQueryModelGenerator<TDocument> : IVersioningQueryModelGenerator
     {
-        TDocument TryGenerate(Guid id, int version);
+        Option<TDocument> TryGenerate(Guid id, int version);
     }
 }

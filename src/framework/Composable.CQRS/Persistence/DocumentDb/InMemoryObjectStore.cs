@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.DDD;
 using Composable.System.Collections.Collections;
@@ -21,7 +22,7 @@ namespace Composable.Persistence.DocumentDb
             }
         }
 
-        internal bool TryGet<T>(object id, out T value)
+        internal bool TryGet<T>(object id, [NotNullWhen(true)][MaybeNull]out T value)
         {
             lock(LockObject)
             {
@@ -35,7 +36,7 @@ namespace Composable.Persistence.DocumentDb
             }
         }
 
-        protected bool TryGet(Type typeOfValue, object id, out object value)
+        protected bool TryGet(Type typeOfValue, object id, [NotNullWhen(true)]out object? value)
         {
             var idstring = GetIdString(id);
             value = null;

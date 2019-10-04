@@ -39,7 +39,7 @@ namespace Composable.GenericAbstractions.Hierarchies
 
             internal Hierarchy(T nodeValue, Func<T, IEnumerable<T>> childGetter)
             {
-                ContractOptimized.Argument(childGetter, nameof(childGetter)).NotNull();
+                Assert.Argument.NotNull(childGetter);
                 Wrapped = nodeValue;
                 _childGetter = childGetter;
             }

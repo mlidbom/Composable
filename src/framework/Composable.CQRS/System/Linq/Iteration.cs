@@ -13,7 +13,7 @@ namespace Composable.System.Linq
         /// </summary>
         public static void ForEach<TSource, TReturn>(this IEnumerable<TSource> source, Func<TSource, TReturn> action)
         {
-            ContractOptimized.Argument(source, nameof(source), action, nameof(action))
+            Contract.Argument(source, nameof(source), action, nameof(action))
                              .NotNull();
             foreach(var item in source)
             {
@@ -26,7 +26,7 @@ namespace Composable.System.Linq
         /// </summary>
         public static void ForEach<T>(this IEnumerable<T> source, [InstantHandle]Action<T> action)
         {
-            ContractOptimized.Argument(source, nameof(source), action, nameof(action))
+            Contract.Argument(source, nameof(source), action, nameof(action))
                              .NotNull();
 
             foreach (var item in source)
@@ -40,7 +40,7 @@ namespace Composable.System.Linq
         /// </summary>
         public static void ForEach<T>(this IEnumerable<T> source, Action<T, int> action)
         {
-            ContractOptimized.Argument(source, nameof(source), action, nameof(action))
+            Contract.Argument(source, nameof(source), action, nameof(action))
                              .NotNull();
 
             var index = 0;

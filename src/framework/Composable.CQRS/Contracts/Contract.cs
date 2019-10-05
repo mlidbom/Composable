@@ -7,17 +7,7 @@ using NotNull = global::System.Diagnostics.CodeAnalysis.NotNullAttribute;
 
 namespace Composable.Contracts
 {
- /// <summary>
-    /// Ensures that a class's contract is followed.
-    /// <para>Inspects arguments, members and return values and throws different <see cref="ContractViolationException"/>s if the inspection fails.</para>
-    /// <para><see cref="Argument{TParameter}"/> inspects method arguments. Call at the very beginning of methods.</para>
-    /// <para><see cref="ReturnValue{TReturnValue}"/> and <see cref="Return{TReturnValue}"/> inspects the return value from a method. Call at the very end of a method.</para>
-    /// <para><see cref="Invariant"/> inspects class members(Fields and Properties). Call within a shared method called something like AssertInvariantsAreMet.</para>
-    /// <para>.</para>
-    /// <para>The returned type of all these methods: <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
-    /// <code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }
-    /// </code>
-    /// </summary>
+    /// <summary>Ensures that a class's contract is followed.</summary>
     public static class Contract
     {
         ///<summary>

@@ -39,7 +39,7 @@ namespace Composable.Messaging.Buses
             SetupInternalTypeMap();
             BusApi.Internal.RegisterHandlers(RegisterHandlers);
             var serviceLocator = _container.CreateServiceLocator();
-            var endpoint = new Endpoint(serviceLocator, 
+            var endpoint = new Endpoint(serviceLocator,
                                         serviceLocator.Resolve<IGlobalBusStateTracker>(),
                                         serviceLocator.Resolve<IInterprocessTransport>(),
                                         serviceLocator.Resolve<IEndpointRegistry>(),

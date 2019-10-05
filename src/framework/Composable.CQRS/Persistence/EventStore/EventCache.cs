@@ -128,12 +128,6 @@ namespace Composable.Persistence.EventStore
         Entry GetInternal(Guid id) => (Entry)_internalCache.Get(id.ToString());
         void RemoveInternal(Guid id) => _internalCache.Remove(key: id.ToString());
 
-        void Reset()
-        {
-            _internalCache = new MemoryCache(new MemoryCacheOptions());
-            _transactionalOverlay = new TransactionalOverlay(this);
-        }
-
         public void Clear()
         {
             var originalCache = _internalCache;

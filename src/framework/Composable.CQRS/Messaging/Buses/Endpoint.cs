@@ -13,25 +13,25 @@ namespace Composable.Messaging.Buses
     {
         class ServerComponents : IDisposable
         {
-            public readonly CommandScheduler CommandScheduler;
+            readonly CommandScheduler _commandScheduler;
             public readonly IInbox Inbox;
 
             public ServerComponents(CommandScheduler commandScheduler, IInbox inbox)
             {
-                CommandScheduler = commandScheduler;
+                _commandScheduler = commandScheduler;
                 Inbox = inbox;
             }
 
-            public async Task InitAsync() => await Task.WhenAll(Inbox.StartAsync(), CommandScheduler.StartAsync());
+            public async Task InitAsync() => await Task.WhenAll(Inbox.StartAsync(), _commandScheduler.StartAsync());
             public void Stop()
             {
-                CommandScheduler.Stop();
+                _commandScheduler.Stop();
                 Inbox.Stop();
             }
 
             public void Dispose()
             {
-                CommandScheduler.Dispose();
+                _commandScheduler.Dispose();
             }
         }
 
@@ -55,13 +55,13 @@ namespace Composable.Messaging.Buses
         public EndpointId Id => _configuration.Id;
         public IServiceLocator ServiceLocator { get; }
 
-        public EndPointAddress? Address => _serverComponents?.Inbox?.Address;
+        public EndPointAddress? Address => _serverComponents?.Inbox.Address;
         readonly IGlobalBusStateTracker _globalStateTracker;
         readonly IInterprocessTransport _transport;
         readonly IEndpointRegistry _endpointRegistry;
         readonly IInterprocessTransport _interProcessTransport;
 
-        ServerComponents _serverComponents;
+        ServerComponents? _serverComponents;
 
         public async Task InitAsync()
         {
@@ -90,9 +90,9 @@ namespace Composable.Messaging.Buses
         public async Task ConnectAsync()
         {
             var serverEndpoints = _endpointRegistry.ServerEndpoints.ToSet();
-            if (!_configuration.IsPureClientEndpoint)
+            if (_serverComponents != null)
             {
-                serverEndpoints.Add(Address); //Yes, we do connect to ourselves. Scheduled commands need to dispatch over the remote protocol to get the delivery guarantees...
+                serverEndpoints.Add(_serverComponents.Inbox.Address); //Yes, we do connect to ourselves. Scheduled commands need to dispatch over the remote protocol to get the delivery guarantees...
             }
             await Task.WhenAll(serverEndpoints.Select(address => _interProcessTransport.ConnectAsync(address)));
         }

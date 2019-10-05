@@ -59,7 +59,6 @@ namespace Composable.Messaging.Buses.Implementation
                                                           serializer));
         }
 
-        //performance:tests: make async
         public async Task ConnectAsync(EndPointAddress remoteEndpoint)
         {
             var clientConnection = _state.WithExclusiveAccess(@this => new ClientConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer));

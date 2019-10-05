@@ -50,39 +50,42 @@ namespace Composable.Messaging.Buses.Implementation
 
         public EndPointAddress Address => new EndPointAddress(_address);
 
-        public async Task StartAsync() => await _resourceGuard.Update(async () =>
+        public async Task StartAsync()
         {
-            Assert.State.Assert(!_running);
-            _running = true;
-
             var storageStartTask = _storage.StartAsync();
+            _resourceGuard.Update(() =>
+            {
+                Assert.State.Assert(!_running);
+                _running = true;
 
-            _serverSocket = new RouterSocket();
-            //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
-            _serverSocket.Options.SendHighWatermark = int.MaxValue;
-            _serverSocket.Options.ReceiveHighWatermark = int.MaxValue;
+                _serverSocket = new RouterSocket();
+                //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
+                _serverSocket.Options.SendHighWatermark = int.MaxValue;
+                _serverSocket.Options.ReceiveHighWatermark = int.MaxValue;
 
-            //We guarantee delivery upon restart in other ways. When we shut down, just do it.
-            _serverSocket.Options.Linger = 0.Milliseconds();
+                //We guarantee delivery upon restart in other ways. When we shut down, just do it.
+                _serverSocket.Options.Linger = 0.Milliseconds();
 
-            _address = _serverSocket.BindAndReturnActualAddress(_address);
-            _serverSocket.ReceiveReady += HandleIncomingMessage;
+                _address = _serverSocket.BindAndReturnActualAddress(_address);
+                _serverSocket.ReceiveReady += HandleIncomingMessage;
 
-            _responseQueue = new NetMQQueue<NetMQMessage>();
+                _responseQueue = new NetMQQueue<NetMQMessage>();
 
-            _responseQueue.ReceiveReady += SendResponseMessage;
+                _responseQueue.ReceiveReady += SendResponseMessage;
 
-            _cancellationTokenSource = new CancellationTokenSource();
-            _poller = new NetMQPoller {_serverSocket, _responseQueue};
-            _pollerThread = new Thread(() => _poller.Run()){Name = $"{nameof(Inbox)}_{nameof(_pollerThread)}_{_configuration.Name}"};
-            _pollerThread.Start();
+                _cancellationTokenSource = new CancellationTokenSource();
+                _poller = new NetMQPoller {_serverSocket, _responseQueue};
+                _pollerThread = new Thread(() => _poller.Run()) {Name = $"{nameof(Inbox)}_{nameof(_pollerThread)}_{_configuration.Name}"};
+                _pollerThread.Start();
 
-            _messageReceiverThread = new Thread(MessageReceiverThread){Name = $"{nameof(Inbox)}_{nameof(MessageReceiverThread)}_{_configuration.Name}"};
-            _messageReceiverThread.Start();
+                _messageReceiverThread = new Thread(MessageReceiverThread) {Name = $"{nameof(Inbox)}_{nameof(MessageReceiverThread)}_{_configuration.Name}"};
+                _messageReceiverThread.Start();
 
-            _handlerExecutionEngine.Start();
+                _handlerExecutionEngine.Start();
+            });
+
             await storageStartTask;
-        });
+        }
 
         public void Stop()
         {

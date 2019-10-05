@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses
         readonly IDependencyInjectionContainer _container;
         readonly TypeMapper _typeMapper;
         bool _builtSuccessfully;
-        ISqlConnectionProviderSource _connectionProvider;
+        ISqlConnectionProviderSource? _connectionProvider;
 
         public IDependencyInjectionContainer Container => _container;
         public ITypeMappingRegistar TypeMapper => _typeMapper;

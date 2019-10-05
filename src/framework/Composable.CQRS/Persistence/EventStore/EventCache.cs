@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.System;
@@ -52,7 +53,7 @@ namespace Composable.Persistence.EventStore
                 }
             }
 
-            internal bool TryGet(Guid aggregateId, out Entry entry)
+            internal bool TryGet(Guid aggregateId, [NotNullWhen(true)]out Entry? entry)
             {
                 entry = null;
                 if(Transaction.Current == null) return false;
@@ -79,7 +80,11 @@ namespace Composable.Persistence.EventStore
 
         TransactionalOverlay _transactionalOverlay;
 
-        public EventCache() => Reset();
+        public EventCache()
+        {
+            _internalCache = new MemoryCache(new MemoryCacheOptions());
+            _transactionalOverlay = new TransactionalOverlay(this);
+        }
 
         void AcceptTransactionResult(Dictionary<Guid, Entry> overlay)
         {

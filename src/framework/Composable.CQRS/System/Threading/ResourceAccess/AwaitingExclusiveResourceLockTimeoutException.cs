@@ -24,7 +24,7 @@ namespace Composable.System.Threading.ResourceAccess
 
         internal AwaitingExclusiveResourceLockTimeoutException() : base("Timed out awaiting exclusive access to resource.") { }
 
-        string _blockingThreadStacktrace;
+        string? _blockingThreadStacktrace;
         readonly ManualResetEvent _blockingStacktraceWaitHandle = new ManualResetEvent(false);
 
         public override string Message

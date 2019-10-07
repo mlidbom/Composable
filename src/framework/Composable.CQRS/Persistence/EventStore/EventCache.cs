@@ -25,7 +25,7 @@ namespace Composable.Persistence.EventStore
                 get
                 {
                     var transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
-                    Dictionary<Guid, Entry> overlay = null;
+                    Dictionary<Guid, Entry>? overlay = null;
 
                     if(_overlays.WithExclusiveAccess(@this => @this.TryGetValue(transactionId, out overlay)))
                     {

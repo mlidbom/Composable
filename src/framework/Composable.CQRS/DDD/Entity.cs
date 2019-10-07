@@ -15,7 +15,7 @@ namespace Composable.DDD
     /// 
     /// </summary>
     [DebuggerDisplay("{" + nameof(ToString) + "()}")]
-    public class Entity<TEntity, TKey> : IEquatable<TEntity>, IHasPersistentIdentity<TKey> 
+    public class Entity<TEntity, TKey> : IEquatable<TEntity>, IHasPersistentIdentity<TKey>
         where TEntity : Entity<TEntity, TKey>
     {
         ///<summary>Construct an instance with <param name="id"> as the <see cref="Id"/></param>.</summary>

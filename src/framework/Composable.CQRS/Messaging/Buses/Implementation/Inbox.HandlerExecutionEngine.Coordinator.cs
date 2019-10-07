@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Composable.Contracts;
@@ -38,7 +39,7 @@ namespace Composable.Messaging.Buses.Implementation
                     return message;
                 }
 
-                public Task<object> EnqueueMessageTask(TransportMessage.InComing message) => _implementation.Update(implementation =>
+                public Task<object?> EnqueueMessageTask(TransportMessage.InComing message) => _implementation.Update(implementation =>
                 {
                     var inflightMessage = new HandlerExecutionTask(message, this, _taskRunner, _messageStorage, _serviceLocator, _messageHandlerRegistry);
                     implementation.EnqueueMessageTask(inflightMessage);
@@ -66,9 +67,9 @@ namespace Composable.Messaging.Buses.Implementation
                     readonly List<HandlerExecutionTask> _messagesWaitingToExecute = new List<HandlerExecutionTask>();
                     public NonThreadsafeImplementation(IGlobalBusStateTracker globalStateTracker) => _globalStateTracker = globalStateTracker;
 
-                    internal bool TryGetDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules, out HandlerExecutionTask dispatchable)
+                    internal bool TryGetDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules, [NotNullWhen(true)][MaybeNull] out HandlerExecutionTask dispatchable)
                     {
-                        dispatchable = null;
+                        dispatchable = null!;
                         if(_executingMessages >= MaxConcurrentlyExecutingHandlers)
                         {
                             return false;

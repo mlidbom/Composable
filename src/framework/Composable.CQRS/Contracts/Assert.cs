@@ -9,10 +9,6 @@ namespace Composable.Contracts
     {
         ///<summary>Assert conditions about current state of "this". Failures would mean that someone made a call that is illegal given state of "this".</summary>
         public static BaseAssertion State { get; } = BaseAssertion.StateInstance;
-        [ContractAnnotation("c1:false => halt")] public static ChainedAssertion Arg([DoesNotReturnIf(false)]bool c1) => RunAssertions(0, InspectionType.Argument, c1);
-        [ContractAnnotation("c1:false => halt; c2:false => halt")] public static ChainedAssertion Arg([DoesNotReturnIf(false)]bool c1, [DoesNotReturnIf(false)]bool c2) => RunAssertions(0, InspectionType.Argument, c1, c2);
-        [ContractAnnotation("c1:false => halt; c2:false => halt; c3:false => halt")] public static ChainedAssertion Arg([DoesNotReturnIf(false)]bool c1, [DoesNotReturnIf(false)]bool c2, [DoesNotReturnIf(false)]bool c3) => RunAssertions(0, InspectionType.Argument, c1, c2, c3);
-        [ContractAnnotation("c1:false => halt; c2:false => halt; c3:false => halt; c4:false => halt")] public static ChainedAssertion Arg([DoesNotReturnIf(false)]bool c1, [DoesNotReturnIf(false)]bool c2, [DoesNotReturnIf(false)]bool c3, [DoesNotReturnIf(false)]bool c4) => RunAssertions(0, InspectionType.Argument, c1, c2, c3, c4);
 
         ///<summary>Assert something that must always be true for "this".</summary>
         public static BaseAssertion Invariant { get; } = BaseAssertion.InvariantInstance;
@@ -42,7 +38,7 @@ namespace Composable.Contracts
 
 
             [return: NotNull] [ContractAnnotation("obj:null => halt")]
-            public TValue NotNull<TValue>([NotNull]TValue obj) => obj switch
+            public TValue NotNull<TValue>([NotNull][AllowNull]TValue obj) => obj switch
             {
                 // ReSharper disable once PatternAlwaysOfType
                 TValue instance => instance,
@@ -50,7 +46,7 @@ namespace Composable.Contracts
             };
 
             [return: NotNull] [ContractAnnotation("obj:null => halt")]
-            public TValue NotNullOrDefault<TValue>([NotNull]TValue obj)
+            public TValue NotNullOrDefault<TValue>([NotNull][AllowNull]TValue obj)
             {
                 if(NullOrDefaultTester<TValue>.IsNullOrDefault(obj))
                 {
@@ -60,9 +56,9 @@ namespace Composable.Contracts
                 return obj;
             }
 
-            [ContractAnnotation("c1:null => halt; c2:null => halt")] public ChainedAssertion NotNull([NotNull]object c1, [NotNull]object c2) => RunNotNull(0, _inspectionType, c1, c2);
-            [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt")] public ChainedAssertion NotNull([NotNull]object c1, [NotNull]object c2, [NotNull]object c3) => RunNotNull(0, _inspectionType, c1, c2, c3);
-            [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt; c4:null => halt")] public ChainedAssertion NotNull([NotNull]object c1, [NotNull]object c2, [NotNull]object c3, [NotNull]object c4) => RunNotNull(0, _inspectionType, c1, c2, c3, c4);
+            [ContractAnnotation("c1:null => halt; c2:null => halt")] public ChainedAssertion NotNull([NotNull][AllowNull]object c1, [NotNull][AllowNull]object c2) => RunNotNull(0, _inspectionType, c1, c2);
+            [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt")] public ChainedAssertion NotNull([NotNull][AllowNull]object c1, [NotNull][AllowNull]object c2, [NotNull][AllowNull]object c3) => RunNotNull(0, _inspectionType, c1, c2, c3);
+            [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt; c4:null => halt")] public ChainedAssertion NotNull([NotNull][AllowNull]object c1, [NotNull][AllowNull]object c2, [NotNull][AllowNull]object c3, [NotNull][AllowNull]object c4) => RunNotNull(0, _inspectionType, c1, c2, c3, c4);
         }
 
         public readonly struct ChainedAssertion
@@ -114,37 +110,5 @@ namespace Composable.Contracts
         {
             public AssertionException(InspectionType inspectionType, int index) : base($"{inspectionType}: {index}") { }
         }
-    }
-
-    static class NullOrDefaultTester<TType>
-    {
-        static readonly Func<TType, bool> IsNullOrDefaultInternal;
-        static NullOrDefaultTester()
-        {
-            var type = typeof(TType);
-
-            if(type.IsInterface || type == typeof(object))
-            {
-                IsNullOrDefaultInternal = obj => (obj is null) || (obj.GetType().IsValueType && Equals(obj, Activator.CreateInstance(obj.GetType())));
-                return;
-            }
-
-            if(type.IsClass)
-            {
-                IsNullOrDefaultInternal = obj => obj is null;
-                return;
-            }
-
-            if(type.IsValueType)
-            {
-                var defaultValue = Activator.CreateInstance(type);
-                IsNullOrDefaultInternal = obj => Equals(obj, defaultValue);
-                return;
-            }
-
-            throw new Exception("WTF");
-        }
-
-        public static bool IsNullOrDefault(TType obj) => IsNullOrDefaultInternal(obj);
     }
 }

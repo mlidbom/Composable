@@ -101,7 +101,7 @@ namespace Composable.Testing.Databases
                     throw new Exception("Timed out waiting for database. Have you missed disposing a database pool? Please check your logs for errors about non-disposed pools.");
                 }
 
-                Exception thrownException = null;
+                Exception? thrownException = null;
                 _machineWideState.Update(
                     machineWide =>
                     {
@@ -114,9 +114,9 @@ namespace Composable.Testing.Databases
 
                             if(!machineWide.IsValid)
                             {
-                                _log.Error(null, "Detected corrupt database pool. Rebooting pool");
-                                RebootPool(machineWide);
                                 thrownException = new Exception("Detected corrupt database pool.Rebooting pool");
+                                _log.Error(thrownException, "Detected corrupt database pool. Rebooting pool");
+                                RebootPool(machineWide);
                             }
 
                             if(machineWide.TryReserve(out reservedDatabase, reservationName, _poolId, _reservationLength))

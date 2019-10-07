@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Transactions;
+using Composable.Contracts;
 using Composable.DDD;
 using Composable.Logging;
 using Composable.System.Linq;
@@ -32,7 +34,7 @@ namespace Composable.Persistence.DocumentDb
 
         public virtual bool TryGet<TValue>(object key, out TValue document) => TryGetInternal(key, typeof(TValue), out document);
 
-        bool TryGetInternal<TValue>(object key, Type documentType, out TValue value)
+        bool TryGetInternal<TValue>(object key, Type documentType, [NotNullWhen(true)][MaybeNull]out TValue value)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
@@ -126,6 +128,7 @@ namespace Composable.Persistence.DocumentDb
 
         public virtual void Save<TValue>(object id, TValue value)
         {
+            Contract.ArgumentNotNull(value, nameof(value));
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
 

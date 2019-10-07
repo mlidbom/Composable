@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using System.Linq;
+using Composable.Contracts;
 
 namespace Composable.System.Collections.Collections
 {
@@ -56,7 +57,7 @@ namespace Composable.System.Collections.Collections
                 current = @this.List.AddAfter(@this, newItem);
             }
             @this.List.Remove(@this);
-            return current;
+            return Assert.Result.NotNull(current);
         }
 
 

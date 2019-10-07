@@ -7,6 +7,7 @@ using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Refactoring.Naming;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace Composable.Messaging
 {
@@ -20,7 +21,13 @@ namespace Composable.Messaging
 
             internal class EndpointInformation
             {
-                [UsedImplicitly] EndpointInformation() {}
+                [UsedImplicitly][JsonConstructor]EndpointInformation(string name, EndpointId id, HashSet<TypeId> handledMessageTypes)
+                {
+                    Name = name;
+                    Id = id;
+                    HandledMessageTypes = handledMessageTypes;
+                }
+
                 public EndpointInformation(IEnumerable<TypeId> handledRemoteMessageTypeIds, EndpointConfiguration configuration)
                 {
                     Id = configuration.Id;

@@ -30,8 +30,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
             protected Entity(TQueryModel queryModel) : this(queryModel.RegisterEventAppliers()) {}
 
-            Entity
-                (IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
+            Entity(IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
             {
                 RegisterEventAppliers()
                     .For<TEntityCreatedEvent>(e => Id = IdGetter.GetId(e));

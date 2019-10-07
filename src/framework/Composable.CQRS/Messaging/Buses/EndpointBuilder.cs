@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses
         readonly IDependencyInjectionContainer _container;
         readonly TypeMapper _typeMapper;
         bool _builtSuccessfully;
-        ISqlConnectionProviderSource _connectionProvider;
+        ISqlConnectionProviderSource? _connectionProvider;
 
         public IDependencyInjectionContainer Container => _container;
         public ITypeMappingRegistar TypeMapper => _typeMapper;
@@ -38,7 +38,13 @@ namespace Composable.Messaging.Buses
             SetupContainer();
             SetupInternalTypeMap();
             BusApi.Internal.RegisterHandlers(RegisterHandlers);
-            var endpoint = new Endpoint(_container.CreateServiceLocator(), Configuration);
+            var serviceLocator = _container.CreateServiceLocator();
+            var endpoint = new Endpoint(serviceLocator,
+                                        serviceLocator.Resolve<IGlobalBusStateTracker>(),
+                                        serviceLocator.Resolve<IInterprocessTransport>(),
+                                        serviceLocator.Resolve<IEndpointRegistry>(),
+                                        serviceLocator.Resolve<IInterprocessTransport>(),
+                                        Configuration);
             _builtSuccessfully = true;
             return endpoint;
         }

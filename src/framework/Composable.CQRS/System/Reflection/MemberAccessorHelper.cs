@@ -16,7 +16,7 @@ namespace Composable.System.Reflection
 
         static Func<object, object> BuildFieldGetter(FieldInfo field)
         {
-            ContractOptimized.Argument(field, nameof(field))
+            Contract.Argument(field, nameof(field))
                              .NotNull();
 
             Contract.Assert.That(field.DeclaringType != null, "field.DeclaringType != null");
@@ -36,7 +36,7 @@ namespace Composable.System.Reflection
         ///<summary>Returns functions that when invoked will return the values of the fields an properties in an instance of the supplied type.</summary>
         public static Func<Object, Object>[] GetFieldGetters(Type type)
         {
-            ContractOptimized.Argument(type, nameof(type))
+            Contract.Argument(type, nameof(type))
                              .NotNull();
 
             return InnerGetFields(type);
@@ -76,7 +76,7 @@ namespace Composable.System.Reflection
         ///<summary>Returns functions that when invoked will return the values of the fields an properties in an instance of the supplied type.</summary>
         public static Func<object, object>[] GetFieldGetters(Type type)
         {
-            ContractOptimized.Argument(type, nameof(type))
+            Contract.Argument(type, nameof(type))
                              .NotNull();
 
             if(type == typeof(T))

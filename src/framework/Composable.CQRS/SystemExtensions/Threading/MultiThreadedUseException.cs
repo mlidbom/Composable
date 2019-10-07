@@ -12,7 +12,7 @@ namespace Composable.SystemExtensions.Threading
             : base(
                    $"Attempt to use {guarded} from thread Id:{currentThread.ManagedThreadId}, Name: {currentThread.Name} when owning thread was Id: {owningThread.ManagedThreadId} Name: {owningThread.Name}")
         {
-            ContractOptimized.Argument(guarded, nameof(guarded), owningThread, nameof(owningThread), currentThread, nameof(currentThread))
+            Contract.Argument(guarded, nameof(guarded), owningThread, nameof(owningThread), currentThread, nameof(currentThread))
                              .NotNull();
         }
     }

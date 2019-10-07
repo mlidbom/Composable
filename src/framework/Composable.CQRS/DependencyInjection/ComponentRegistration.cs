@@ -100,7 +100,7 @@ namespace Composable.DependencyInjection
 
         InstantiationSpec(object instance)
         {
-            ContractOptimized.Argument(instance, nameof(instance)).NotNull();
+            Assert.Argument.NotNull(instance);
             Instance = instance;
             FactoryMethod = kern => instance;
             FactoryMethodReturnType = instance.GetType();

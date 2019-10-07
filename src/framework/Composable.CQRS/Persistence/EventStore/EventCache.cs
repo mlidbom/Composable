@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Transactions;
+using Composable.Contracts;
 using Composable.System;
 using Composable.System.Threading.ResourceAccess;
 using Composable.SystemExtensions.TransactionsCE;
@@ -27,7 +29,7 @@ namespace Composable.Persistence.EventStore
 
                     if(_overlays.WithExclusiveAccess(@this => @this.TryGetValue(transactionId, out overlay)))
                     {
-                        return overlay;
+                        return Assert.Result.NotNull(overlay);
                     }
 
                     overlay = new Dictionary<Guid, Entry>();
@@ -51,7 +53,7 @@ namespace Composable.Persistence.EventStore
                 }
             }
 
-            internal bool TryGet(Guid aggregateId, out Entry entry)
+            internal bool TryGet(Guid aggregateId, [NotNullWhen(true)]out Entry? entry)
             {
                 entry = null;
                 if(Transaction.Current == null) return false;
@@ -78,7 +80,11 @@ namespace Composable.Persistence.EventStore
 
         TransactionalOverlay _transactionalOverlay;
 
-        public EventCache() => Reset();
+        public EventCache()
+        {
+            _internalCache = new MemoryCache(new MemoryCacheOptions());
+            _transactionalOverlay = new TransactionalOverlay(this);
+        }
 
         void AcceptTransactionResult(Dictionary<Guid, Entry> overlay)
         {
@@ -121,12 +127,6 @@ namespace Composable.Persistence.EventStore
         void StoreInternal(Guid id, Entry entry) => _internalCache.Set(key: id.ToString(), value: entry, options: Policy);
         Entry GetInternal(Guid id) => (Entry)_internalCache.Get(id.ToString());
         void RemoveInternal(Guid id) => _internalCache.Remove(key: id.ToString());
-
-        void Reset()
-        {
-            _internalCache = new MemoryCache(new MemoryCacheOptions());
-            _transactionalOverlay = new TransactionalOverlay(this);
-        }
 
         public void Clear()
         {

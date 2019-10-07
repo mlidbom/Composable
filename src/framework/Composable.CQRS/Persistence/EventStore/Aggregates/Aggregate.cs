@@ -26,7 +26,7 @@ namespace Composable.Persistence.EventStore.Aggregates
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected Aggregate(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
         {
-            Contract.Assert.That(timeSource != null, "timeSource != null");
+            Assert.Argument.NotNull(timeSource);
             Contract.Assert.That(typeof(TAggregateEvent).IsInterface, "typeof(TAggregateEvent).IsInterface");
             TimeSource = timeSource;
             _eventHandlersEventDispatcher.Register().IgnoreUnhandled<TAggregateEvent>();

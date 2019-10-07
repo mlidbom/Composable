@@ -20,7 +20,7 @@ namespace Composable.Messaging.Buses.Implementation
             _implementation.Await(implementation => implementation.InflightMessages.Count == 0);
         }
 
-        public void DoneWith(Guid messageId, Exception exception) => _implementation.Update(implementation => implementation.DoneWith(messageId, exception));
+        public void DoneWith(Guid messageId, Exception? exception) => _implementation.Update(implementation => implementation.DoneWith(messageId, exception));
 
         class InFlightMessage
         {
@@ -41,7 +41,7 @@ namespace Composable.Messaging.Buses.Implementation
                 inFlightMessage.RemainingReceivers++;
             }
 
-            public void DoneWith(Guid messageId, Exception exception)
+            public void DoneWith(Guid messageId, Exception? exception)
             {
                 if(exception != null)
                 {
@@ -63,6 +63,6 @@ namespace Composable.Messaging.Buses.Implementation
         public IReadOnlyList<Exception> GetExceptions() => new List<Exception>();
         public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage) { }
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) { }
-        public void DoneWith(Guid message, Exception exception) { }
+        public void DoneWith(Guid message, Exception? exception) { }
     }
 }

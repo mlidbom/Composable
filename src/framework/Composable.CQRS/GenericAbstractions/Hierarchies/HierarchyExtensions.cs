@@ -39,7 +39,7 @@ namespace Composable.GenericAbstractions.Hierarchies
 
             internal Hierarchy(T nodeValue, Func<T, IEnumerable<T>> childGetter)
             {
-                ContractOptimized.Argument(childGetter, nameof(childGetter)).NotNull();
+                Assert.Argument.NotNull(childGetter);
                 Wrapped = nodeValue;
                 _childGetter = childGetter;
             }
@@ -51,7 +51,7 @@ namespace Composable.GenericAbstractions.Hierarchies
         /// </summary>
         public static IAutoHierarchy<T> AsHierarchy<T>(this T me, Func<T, IEnumerable<T>> childGetter)
         {
-            ContractOptimized.Argument(me, nameof(me), childGetter, nameof(childGetter)).NotNull();
+            Contract.Argument<object>(me, nameof(me), childGetter, nameof(childGetter)).NotNull();
             return Contract.Return(new Hierarchy<T>(me, childGetter), inspect => inspect.NotNull());
         }
 
@@ -61,7 +61,7 @@ namespace Composable.GenericAbstractions.Hierarchies
         /// </summary>
         public static IEnumerable<T> Flatten<T>(this T root) where T : IHierarchy<T>
         {
-            ContractOptimized.Argument(root, nameof(root)).NotNull();
+            Contract.ArgumentNotNull(root, nameof(root));
             return Seq.Create(root).FlattenHierarchy(me => me.Children);
         }
 
@@ -71,7 +71,7 @@ namespace Composable.GenericAbstractions.Hierarchies
         /// </summary>
         public static IEnumerable<T> Unwrap<T>(this IEnumerable<IAutoHierarchy<T>> root)
         {
-            ContractOptimized.Argument(root, nameof(root)).NotNull();
+            Contract.Argument(root, nameof(root)).NotNull();
             return root.Select(me => me.Wrapped);
         }
     }

@@ -14,7 +14,7 @@ namespace Composable.Tests.Contracts
             var one = 1;
 
             TimeAsserter.Execute(
-                action: () => Contract.Argument(() => one).NotDefault(),
+                action: () => Contract.Argument(one, nameof(one)).NotDefault(),
                 iterations: 500,
                 maxTotal: 10.Milliseconds());
         }
@@ -24,7 +24,11 @@ namespace Composable.Tests.Contracts
             var one = 1;
 
             TimeAsserter.Execute(
-                action: () => Contract.Argument(() => one).NotNullOrDefault(),
+                action: () =>
+                {
+                    var inspected = Contract.Argument(one, nameof(one));
+                    inspected.NotNullOrDefault();
+                },
                 iterations: 500,
                 maxTotal: 10.Milliseconds());
         }

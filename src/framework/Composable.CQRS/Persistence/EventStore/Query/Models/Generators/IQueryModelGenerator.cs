@@ -1,11 +1,12 @@
 ﻿using System;
+using Composable.Functional;
 
 namespace Composable.Persistence.EventStore.Query.Models.Generators
 {
     public interface IQueryModelGenerator { }
 
-    interface IQueryModelGenerator<out TDocument> : IQueryModelGenerator
+    interface IQueryModelGenerator<TDocument> : IQueryModelGenerator
     {
-        TDocument TryGenerate(Guid id);
+        Option<TDocument> TryGenerate(Guid id);
     }
 }

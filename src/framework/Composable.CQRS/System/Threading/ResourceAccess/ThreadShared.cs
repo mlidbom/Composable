@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading;
+using JetBrains.Annotations;
 
 namespace Composable.System.Threading.ResourceAccess
 {
     interface IThreadShared<out TResource>
     {
         TResult WithExclusiveAccess<TResult>(Func<TResource, TResult> func);
-        void WithExclusiveAccess(Action<TResource> func);
+        void WithExclusiveAccess([InstantHandle]Action<TResource> func);
     }
 
     class ThreadShared<TResource> : IThreadShared<TResource> where TResource : new()
@@ -17,7 +18,7 @@ namespace Composable.System.Threading.ResourceAccess
         public static ThreadShared<TResource> WithTimeout(TimeSpan timeout) => new ThreadShared<TResource>(ResourceGuard.WithTimeout(timeout), new TResource());
         public static IThreadShared<TResource> Optimized() => new OptimizedThreadShared<TResource>(new TResource());
 
-        ThreadShared(IResourceGuard guard, TResource resource)
+        internal ThreadShared(IResourceGuard guard, TResource resource)
         {
             _guard = guard;
             _resource = resource;

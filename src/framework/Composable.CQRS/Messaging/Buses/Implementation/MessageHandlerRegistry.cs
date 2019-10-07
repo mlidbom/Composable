@@ -113,7 +113,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return command =>
                 {
                     handler(command);
-                    return null;
+                    return null!;
                 };
             }
 

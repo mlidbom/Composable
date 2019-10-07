@@ -21,7 +21,7 @@ namespace Composable.Persistence.DocumentDb
                 Key = key;
             }
 
-            Object Document { get; set; }
+            object? Document { get; set; }
             public bool IsDeleted { get; private set; }
             bool IsInBackingStore { get; set; }
 

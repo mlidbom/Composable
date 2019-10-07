@@ -11,7 +11,7 @@ namespace Composable.Contracts
         public TValue Value { get; private set; }
 
         ///<summary>Standard constructor</summary>
-        internal InspectedValue(TValue value, InspectionType type, string name = "") : base(type, name) => Value = value;
+        internal InspectedValue(InspectionType type, TValue value, string name = "") : base(type, name) => Value = value;
     }
 
 

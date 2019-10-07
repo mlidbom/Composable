@@ -44,5 +44,15 @@ namespace Composable.Contracts
 
         ///<summary>Standard constructor</summary>
         internal Inspected(params IInspectedValue<TValue>[] inspectedValues) => _inspectedValues = inspectedValues;
+
+        internal Inspected(InspectionType inspectionType, params (TValue Value, string Name)[] inspectedValues)
+        {
+            _inspectedValues = new IInspectedValue<TValue>[inspectedValues.Length];
+            for(var i = 0; i < inspectedValues.Length; i++)
+            {
+                var (value, name) = inspectedValues[i];
+                _inspectedValues[i] = new InspectedValue<TValue>(inspectionType, value, name);
+            }
+        }
     }
 }

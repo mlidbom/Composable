@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
@@ -140,7 +141,7 @@ namespace Composable.Persistence.EventStore
             return history;
         }
 
-        bool DoTryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
+        bool DoTryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)][MaybeNull]out TAggregate aggregate) where TAggregate : IEventStored
         {
             if (_idMap.TryGetValue(aggregateId, out var es))
             {
@@ -159,7 +160,7 @@ namespace Composable.Persistence.EventStore
             }
             else
             {
-                aggregate = default;
+                aggregate = default!;
                 return false;
             }
         }

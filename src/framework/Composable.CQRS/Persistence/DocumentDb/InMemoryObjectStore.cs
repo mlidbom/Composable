@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Composable.Contracts;
 using Composable.DDD;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
@@ -21,7 +23,7 @@ namespace Composable.Persistence.DocumentDb
             }
         }
 
-        internal bool TryGet<T>(object id, out T value)
+        internal bool TryGet<T>(object id, [NotNullWhen(true)][MaybeNull]out T value)
         {
             lock(LockObject)
             {
@@ -30,12 +32,12 @@ namespace Composable.Persistence.DocumentDb
                     value = (T)found;
                     return true;
                 }
-                value = default;
+                value = default!;
                 return false;
             }
         }
 
-        protected bool TryGet(Type typeOfValue, object id, out object value)
+        protected bool TryGet(Type typeOfValue, object id, [NotNullWhen(true)]out object? value)
         {
             var idstring = GetIdString(id);
             value = null;
@@ -58,6 +60,7 @@ namespace Composable.Persistence.DocumentDb
 
         public virtual void Add<T>(object id, T value)
         {
+            Assert.Argument.NotNull(value);
             lock(LockObject)
             {
                 var idString = GetIdString(id);

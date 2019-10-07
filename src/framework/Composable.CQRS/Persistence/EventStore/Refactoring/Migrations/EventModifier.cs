@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Contracts;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 
@@ -14,16 +15,16 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
     class EventModifier : IEventModifier
     {
         readonly Action<IReadOnlyList<AggregateEvent>> _eventsAddedCallback;
-        internal LinkedList<AggregateEvent> Events;
-        AggregateEvent[] _replacementEvents;
-        AggregateEvent[] _insertedEvents;
+        internal LinkedList<AggregateEvent>? Events;
+        AggregateEvent[]? _replacementEvents;
+        AggregateEvent[]? _insertedEvents;
 
         public EventModifier(Action<IReadOnlyList<AggregateEvent>> eventsAddedCallback) => _eventsAddedCallback = eventsAddedCallback;
 
-        public AggregateEvent Event;
+        public AggregateEvent? Event;
 
-        LinkedListNode<AggregateEvent> _currentNode;
-        AggregateEvent _lastEventInActualStream;
+        LinkedListNode<AggregateEvent>? _currentNode;
+        AggregateEvent? _lastEventInActualStream;
 
         LinkedListNode<AggregateEvent> CurrentNode
         {
@@ -105,7 +106,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
             _insertedEvents = insert;
 
-            if(Event.GetType() == typeof(EndOfAggregateHistoryEventPlaceHolder))
+            if(Event is EndOfAggregateHistoryEventPlaceHolder)
             {
                 _insertedEvents.ForEach(
                     (e, index) =>
@@ -134,6 +135,6 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             _eventsAddedCallback.Invoke(_insertedEvents);
         }
 
-        internal AggregateEvent[] MutatedHistory => Events?.ToArray() ?? new[] { Event };
+        internal AggregateEvent[] MutatedHistory => Events?.ToArray() ?? new[] { Assert.Result.NotNull(Event) };
     }
 }

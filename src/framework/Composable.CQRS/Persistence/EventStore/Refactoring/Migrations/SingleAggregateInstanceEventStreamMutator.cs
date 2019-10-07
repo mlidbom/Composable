@@ -122,7 +122,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
         }
     }
 
-    class EndOfAggregateHistoryEventPlaceHolder : AggregateEvent {
+    sealed class EndOfAggregateHistoryEventPlaceHolder : AggregateEvent {
         public EndOfAggregateHistoryEventPlaceHolder(Guid aggregateId, int i):base(aggregateId) => AggregateVersion = i;
     }
 }

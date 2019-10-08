@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Composable.Contracts;
 
 namespace Composable.Testing.Threading
@@ -61,7 +62,7 @@ namespace Composable.Testing.Threading
 
         public static TResult WithExclusiveLock<TResult>(this IGatedCodeSection @this, Func<TResult> function)
         {
-            var result = default(TResult);
+            TResult result = default(TResult)!;
             @this.WithExclusiveLock(() => result = function());
             return result;
         }

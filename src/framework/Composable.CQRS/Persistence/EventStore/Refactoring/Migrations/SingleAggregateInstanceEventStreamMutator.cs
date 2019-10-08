@@ -34,12 +34,13 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 .ToArray();
         }
 
+        static IEnumerable<AggregateEvent> SingleEventSequence(AggregateEvent @event) { yield return @event; }
         public IEnumerable<AggregateEvent> Mutate(AggregateEvent @event)
         {
             Contract.Assert.That(_aggregateId == @event.AggregateId, "_aggregateId == @event.AggregateId");
             if (_eventMigrators.Length == 0)
             {
-                return Seq.Create(@event);
+                return SingleEventSequence(@event);
             }
 
             @event.AggregateVersion = _aggregateVersion;

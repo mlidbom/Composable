@@ -16,7 +16,7 @@ namespace Composable.System.Threading
     {
         const int LengthIndicatorIntegerLengthInBytes = 4;
         readonly long _capacity;
-        MemoryMappedFile _file;
+        MemoryMappedFile? _file;
         readonly MachineWideSingleThreaded _synchronizer;
         bool _disposed;
 
@@ -119,7 +119,7 @@ namespace Composable.System.Threading
             _synchronizer.Execute(
                 () =>
                 {
-                    using var viewAccessor = _file.CreateViewAccessor();
+                    using var viewAccessor = _file!.CreateViewAccessor();
                     action(viewAccessor);
                 });
         }

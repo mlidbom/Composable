@@ -45,7 +45,7 @@ namespace Composable.System.Collections.Collections
                 throw new ArgumentNullException();
             }
 
-            LinkedListNode<T> current = null;
+            LinkedListNode<T> current = null!;
             var newItemsReversed = items.Reverse().ToList();
             if(newItemsReversed.Count < 1)
             {

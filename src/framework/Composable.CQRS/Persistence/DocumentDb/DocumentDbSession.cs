@@ -206,7 +206,7 @@ namespace Composable.Persistence.DocumentDb
 
 
 #pragma warning disable IDE0069 // Disposable fields should be disposed
-        Transaction _participatingIn = null;
+        Transaction? _participatingIn = null;
 #pragma warning restore IDE0069 // Disposable fields should be disposed
         void EnsureParticipatingInTransaction()
         {

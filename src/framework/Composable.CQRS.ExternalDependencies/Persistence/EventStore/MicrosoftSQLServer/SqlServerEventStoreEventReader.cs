@@ -44,23 +44,22 @@ FROM {EventTable.Name} {lockHint} ";
             _schemaManager = schemaManager;
         }
 
-        static EventReadDataRow ReadDataRow(SqlDataReader eventReader) => new EventReadDataRow
-                                                                      {
-                                                                          EventJson = eventReader.GetString(1),
-                                                                          EventType = eventReader.GetInt32(0),
-                                                                          AggregateId = eventReader.GetGuid(2),
-                                                                          AggregateVersion = eventReader[3] as int? ?? eventReader.GetInt32(10),
-                                                                          EventId = eventReader.GetGuid(4),
-                                                                          //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
-                                                                          UtcTimeStamp = DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
-                                                                          InsertionOrder = eventReader.GetInt64(6),
-                                                                          InsertAfter = eventReader[7] as long?,
-                                                                          InsertBefore = eventReader[8] as long?,
-                                                                          Replaces = eventReader[9] as long?,
-                                                                          InsertedVersion = eventReader.GetInt32(10),
-                                                                          ManualVersion = eventReader[11] as int?,
-                                                                          EffectiveVersion = eventReader[3] as int?
-                                                                      };
+        static EventReadDataRow ReadDataRow(SqlDataReader eventReader) => new EventReadDataRow(
+            eventType: eventReader.GetInt32(0),
+            eventJson: eventReader.GetString(1),
+            eventId: eventReader.GetGuid(4),
+            aggregateVersion: eventReader[3] as int? ?? eventReader.GetInt32(10),
+            aggregateId: eventReader.GetGuid(2),
+            //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
+            utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
+            insertionOrder: eventReader.GetInt64(6),
+            insertAfter: eventReader[7] as long?,
+            insertBefore: eventReader[8] as long?,
+            replaces: eventReader[9] as long?,
+            insertedVersion: eventReader.GetInt32(10),
+            manualVersion: eventReader[11] as int?,
+            effectiveVersion: eventReader[3] as int?
+        );
 
         public IReadOnlyList<EventReadDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {

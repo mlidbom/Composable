@@ -38,6 +38,23 @@ namespace Composable.Persistence.EventStore
 
     class EventReadDataRow
     {
+        public EventReadDataRow(int eventType, string eventJson, Guid eventId, int aggregateVersion, Guid aggregateId, DateTime utcTimeStamp, int insertedVersion, int? effectiveVersion, int? manualVersion, long insertionOrder, long? replaces, long? insertBefore, long? insertAfter)
+        {
+            EventType = eventType;
+            EventJson = eventJson;
+            EventId = eventId;
+            AggregateVersion = aggregateVersion;
+            AggregateId = aggregateId;
+            UtcTimeStamp = utcTimeStamp;
+            InsertedVersion = insertedVersion;
+            EffectiveVersion = effectiveVersion;
+            ManualVersion = manualVersion;
+            InsertionOrder = insertionOrder;
+            Replaces = replaces;
+            InsertBefore = insertBefore;
+            InsertAfter = insertAfter;
+        }
+
         public int EventType { get; set; }
         public string EventJson { get; set; }
         public Guid EventId { get; internal set; }

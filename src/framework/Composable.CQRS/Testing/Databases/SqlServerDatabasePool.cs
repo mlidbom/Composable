@@ -23,12 +23,12 @@ namespace Composable.Testing.Databases
         readonly IConfigurationParameterProvider _configurationParameterProvider;
         const string InitialCatalogMaster = ";Initial Catalog=master;";
 
-        string _masterConnectionString;
-        static SqlServerConnectionProvider _masterConnectionProvider;
+        string? _masterConnectionString;
+        static SqlServerConnectionProvider? _masterConnectionProvider;
 
-        MachineWideSharedObject<SharedState> _machineWideState;
+        MachineWideSharedObject<SharedState>? _machineWideState;
 
-        static string _databaseRootFolderOverride;
+        static string? _databaseRootFolderOverride;
         static readonly HashSet<string> RebootedMasterConnections = new HashSet<string>();
 
         static TimeSpan _reservationLength;
@@ -102,7 +102,7 @@ namespace Composable.Testing.Databases
                 }
 
                 Exception? thrownException = null;
-                _machineWideState.Update(
+                _machineWideState!.Update(
                     machineWide =>
                     {
                         try
@@ -165,7 +165,7 @@ namespace Composable.Testing.Databases
         }
 
         internal string ConnectionStringForDbNamed(string dbName)
-            => _masterConnectionString.Replace(InitialCatalogMaster, $";Initial Catalog={dbName};");
+            => _masterConnectionString!.Replace(InitialCatalogMaster, $";Initial Catalog={dbName};");
 
         Database InsertDatabase(SharedState machineWide)
         {
@@ -183,7 +183,7 @@ namespace Composable.Testing.Databases
         {
             if(_disposed || !_initialized) return;
             _disposed = true;
-            _machineWideState.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
+            _machineWideState!.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
             _machineWideState.Dispose();
         }
     }

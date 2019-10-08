@@ -38,7 +38,9 @@ namespace Composable.Persistence.EventStore.Aggregates
             protected Entity(TAggregate aggregate)
                 : this(aggregate.TimeSource, @event => aggregate.Publish(@event), aggregate.RegisterEventAppliers()) {}
 
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
             Entity
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
                 (IUtcTimeTimeSource timeSource,
                  Action<TEntityEventImplementation> raiseEventThroughParent,
                  IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)

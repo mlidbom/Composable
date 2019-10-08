@@ -61,7 +61,8 @@ namespace Composable.Messaging.Buses
         List<Exception> GetThrownExceptions() => GlobalBusStateTracker.GetExceptions().ToList();
 
         public IEnumerable<EndPointAddress> ServerEndpoints => Endpoints.Where(endpoint => endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds().Any())
-                                                                        .Select(@this => @this.Address)
+                                                                        .Where(@this => !(@this.Address is null))
+                                                                        .Select(@this => @this.Address!)
                                                                         .ToList();
     }
 }

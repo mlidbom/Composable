@@ -29,7 +29,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly TransportMessageType MessageTypeEnum;
             internal bool Is<TType>() => typeof(TType).IsAssignableFrom(MessageType);
 
-            BusApi.IMessage _message;
+            BusApi.IMessage? _message;
             readonly ITypeMapper _typeMapper;
 
             //performance: detect BinarySerializable and use instead.

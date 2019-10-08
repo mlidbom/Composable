@@ -30,7 +30,9 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
             protected Entity(TQueryModel queryModel) : this(queryModel.RegisterEventAppliers()) {}
 
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
             Entity(IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
             {
                 RegisterEventAppliers()
                     .For<TEntityCreatedEvent>(e => Id = IdGetter.GetId(e));

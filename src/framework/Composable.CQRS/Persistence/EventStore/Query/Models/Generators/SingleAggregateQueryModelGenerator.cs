@@ -25,7 +25,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         {
             _session = session;
             _eventDispatcher.RegisterHandlers()
-                .ForGenericEvent<IAggregateCreatedEvent>(e => Model.SetId(e.AggregateId))
+                .ForGenericEvent<IAggregateCreatedEvent>(e => Model!.SetId(e.AggregateId))
                 .ForGenericEvent<IAggregateDeletedEvent>(e => Model = null);
         }
 

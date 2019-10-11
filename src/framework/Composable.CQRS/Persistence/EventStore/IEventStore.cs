@@ -8,6 +8,7 @@ namespace Composable.Persistence.EventStore
         IReadOnlyList<IAggregateEvent> GetAggregateHistoryForUpdate(Guid id);
         IReadOnlyList<IAggregateEvent> GetAggregateHistory(Guid id);
         void SaveEvents(IEnumerable<IAggregateEvent> events);
+        //todo: Utilize C# 8 asynchronous streams.
         void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateEvent>> handleEvents);
         void DeleteAggregate(Guid aggregateId);
         void PersistMigrations();

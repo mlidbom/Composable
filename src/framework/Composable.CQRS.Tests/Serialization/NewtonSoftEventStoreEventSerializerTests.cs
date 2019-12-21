@@ -58,15 +58,15 @@ namespace Composable.Tests.Serialization
                 DateTime utcTimeStamp)
 #pragma warning disable CS0618 // Type or member is obsolete
                 : base(
-                       aggregateId: aggregateId,
-                       aggregateVersion: aggregateVersion,
                        eventId: eventId,
+                       aggregateVersion: aggregateVersion,
+                       aggregateId: aggregateId,
+                       utcTimeStamp: utcTimeStamp,
                        insertAfter: insertAfter,
                        insertBefore: insertBefore,
                        replaces: replaces,
-                       insertionOrder: insertionOrder,
-                       utcTimeStamp: utcTimeStamp
-                      )
+                       insertionOrder: insertionOrder
+                )
 #pragma warning restore CS0618 // Type or member is obsolete
             {
                 Test1 = test1;

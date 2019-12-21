@@ -16,31 +16,6 @@ namespace Composable.Persistence.EventStore
 
         protected AggregateEvent(Guid aggregateId) : this() => AggregateId = aggregateId;
 
-        [Obsolete("Only intended for testing. Do not use for normal inheritance.")] protected AggregateEvent(Guid? eventId = null,
-                                                                                                                 int? aggregateVersion = null,
-                                                                                                                 Guid? aggregateId = null,
-                                                                                                                 DateTime? utcTimeStamp = null,
-                                                                                                                 int? insertedVersion = null,
-                                                                                                                 int? effectiveVersion = null,
-                                                                                                                 int? manualVersion = null,
-                                                                                                                 long? insertionOrder = null,
-                                                                                                                 long? replaces = null,
-                                                                                                                 long? insertBefore = null,
-                                                                                                                 long? insertAfter = null)
-        {
-            EventId = eventId ?? EventId;
-            AggregateVersion = aggregateVersion ?? AggregateVersion;
-            AggregateId = aggregateId ?? AggregateId;
-            UtcTimeStamp = utcTimeStamp ?? UtcTimeStamp;
-            InsertedVersion = insertedVersion ?? InsertedVersion;
-            EffectiveVersion = effectiveVersion;
-            ManualVersion = manualVersion;
-            InsertionOrder = insertionOrder ?? InsertionOrder;
-            Replaces = replaces;
-            InsertBefore = insertBefore;
-            InsertAfter = insertAfter;
-        }
-
         public Guid EventId { get; internal set; }
         public int AggregateVersion { get; internal set; }
 

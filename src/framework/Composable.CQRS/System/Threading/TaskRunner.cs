@@ -80,6 +80,7 @@ namespace Composable.System.Threading
         }
 
         // ReSharper disable once UnusedMember.Local
+        // ReSharper disable once UnusedType.Local
         class ThrottledSystemTasksRunner : RunnerBase, IDisposable
         {
             readonly int _maxRunningTasks;
@@ -136,6 +137,7 @@ namespace Composable.System.Threading
         }
 
         // ReSharper disable once UnusedMember.Local
+        // ReSharper disable once UnusedType.Local
         class ManualThreadsRunner : RunnerBase, IDisposable
         {
             readonly BlockingCollection<Action> _tasksQueue = new BlockingCollection<Action>();

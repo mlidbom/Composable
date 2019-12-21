@@ -161,9 +161,11 @@ namespace Composable.Messaging.Buses.Implementation
             _state.WithExclusiveAccess(state =>
             {
                 foreach(var response in responseBatch)
+                {
                     switch(response.ResponseType)
                     {
                         case TransportMessage.Response.ResponseType.Success:
+                        {
                             var successResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
                             _taskRunner.RunAndCrashProcessIfTaskThrows(() =>
                             {
@@ -176,6 +178,7 @@ namespace Composable.Messaging.Buses.Implementation
                                     successResponse.SetException(exception);
                                 }
                             });
+                        }
                             break;
                         case TransportMessage.Response.ResponseType.Failure:
                             var failureResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
@@ -188,6 +191,7 @@ namespace Composable.Messaging.Buses.Implementation
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+                }
             });
         }
     }

@@ -31,7 +31,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
         {
             get
             {
-                if (Events == null)
+                if (_currentNode == null)
                 {
                     Events = new LinkedList<AggregateEvent>();
                     _currentNode = Events.AddFirst(Event);
@@ -86,6 +86,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             }
             Event = @event;
             Events = null;
+            _currentNode = null;
             _insertedEvents = null;
             _replacementEvents = null;
         }

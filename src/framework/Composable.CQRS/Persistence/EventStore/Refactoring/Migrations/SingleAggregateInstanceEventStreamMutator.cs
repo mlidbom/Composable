@@ -58,7 +58,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                     while (node != null)
                     {
                         _eventModifier.MoveTo(node);
-                        _eventMigrators[index].MigrateEvent(_eventModifier.Event, _eventModifier);
+                        _eventMigrators[index].MigrateEvent(node.Value, _eventModifier);
                         node = node.Next;
                     }
                 }

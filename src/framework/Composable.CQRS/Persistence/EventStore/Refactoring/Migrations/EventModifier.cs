@@ -22,7 +22,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         public EventModifier(Action<IReadOnlyList<AggregateEvent>> eventsAddedCallback) => _eventsAddedCallback = eventsAddedCallback;
 
-        public AggregateEvent? Event;
+        AggregateEvent? Event;
 
         LinkedListNode<AggregateEvent>? _currentNode;
         AggregateEvent? _lastEventInActualStream;

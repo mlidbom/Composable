@@ -23,7 +23,7 @@ namespace Composable.System.Collections.Collections
         ///<summary>Enumerates this and all following node values.</summary>
         public static IEnumerable<T> ValuesFrom<T>(this LinkedListNode<T> @this) { return @this.NodesFrom().Select(node => node.Value); }
 
-        ///<summary>Inserts <paramref name="items"/> after the <paramref name="this"/>  node and returns the nodes that were inserted.</summary>
+        ///<summary>Inserts <paramref name="items"/> after the <paramref name="this"/></summary>
         public static void AddBefore<T>(this LinkedListNode<T> @this, IEnumerable<T> items)
         {
             if(items == null || @this == null)
@@ -59,7 +59,5 @@ namespace Composable.System.Collections.Collections
             @this.List.Remove(@this);
             return Assert.Result.NotNull(current);
         }
-
-
     }
 }

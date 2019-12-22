@@ -47,7 +47,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         void AssertNoPriorModificationsHaveBeenMade()
         {
-            if(_replacementEvents != null | _insertedEvents != null)
+            if(_replacementEvents != null || _insertedEvents != null)
             {
                 throw new Exception("You can only modify the current event once.");
             }

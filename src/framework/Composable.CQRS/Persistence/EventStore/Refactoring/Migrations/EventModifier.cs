@@ -22,7 +22,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         public EventModifier(Action<IReadOnlyList<AggregateEvent>> eventsAddedCallback) => _eventsAddedCallback = eventsAddedCallback;
 
-        AggregateEvent? Event;
+        AggregateEvent? _event;
 
         LinkedListNode<AggregateEvent>? _currentNode;
         AggregateEvent? _lastEventInActualStream;
@@ -34,14 +34,14 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 if (_currentNode == null)
                 {
                     Events = new LinkedList<AggregateEvent>();
-                    _currentNode = Events.AddFirst(Event);
+                    _currentNode = Events.AddFirst(_event);
                 }
                 return _currentNode;
             }
             set
             {
                 _currentNode = value;
-                Event = _currentNode.Value;
+                _event = _currentNode.Value;
             }
         }
 
@@ -57,7 +57,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
         public void Replace(params AggregateEvent[] events)
         {
             AssertNoPriorModificationsHaveBeenMade();
-            if(Event is EndOfAggregateHistoryEventPlaceHolder)
+            if(_event is EndOfAggregateHistoryEventPlaceHolder)
             {
                 throw new Exception("You cannot call replace on the event that signifies the end of the stream");
 
@@ -68,10 +68,10 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             _replacementEvents.ForEach(
                 (e, index) =>
                 {
-                    e.ManualVersion = e.AggregateVersion = Event.AggregateVersion + index;
-                    e.Replaces = Event.InsertionOrder;
-                    e.AggregateId = Event.AggregateId;
-                    e.UtcTimeStamp = Event.UtcTimeStamp;
+                    e.ManualVersion = e.AggregateVersion = _event.AggregateVersion + index;
+                    e.Replaces = _event.InsertionOrder;
+                    e.AggregateId = _event.AggregateId;
+                    e.UtcTimeStamp = _event.UtcTimeStamp;
                 });
 
             CurrentNode = CurrentNode.Replace(_replacementEvents);
@@ -80,11 +80,11 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         public void Reset(AggregateEvent @event)
         {
-            if(@event is EndOfAggregateHistoryEventPlaceHolder && !(Event is EndOfAggregateHistoryEventPlaceHolder))
+            if(@event is EndOfAggregateHistoryEventPlaceHolder && !(_event is EndOfAggregateHistoryEventPlaceHolder))
             {
-                _lastEventInActualStream = Event;
+                _lastEventInActualStream = _event;
             }
-            Event = @event;
+            _event = @event;
             Events = null;
             _currentNode = null;
             _insertedEvents = null;
@@ -93,9 +93,9 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         public void MoveTo(LinkedListNode<AggregateEvent> current)
         {
-            if (current.Value is EndOfAggregateHistoryEventPlaceHolder && !(Event is EndOfAggregateHistoryEventPlaceHolder))
+            if (current.Value is EndOfAggregateHistoryEventPlaceHolder && !(_event is EndOfAggregateHistoryEventPlaceHolder))
             {
-                _lastEventInActualStream = Event;
+                _lastEventInActualStream = _event;
             }
             CurrentNode = current;
             _insertedEvents = null;
@@ -108,14 +108,14 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
             _insertedEvents = insert;
 
-            if(Event is EndOfAggregateHistoryEventPlaceHolder)
+            if(_event is EndOfAggregateHistoryEventPlaceHolder)
             {
                 _insertedEvents.ForEach(
                     (e, index) =>
                     {
                         e.InsertAfter = _lastEventInActualStream.InsertionOrder;
-                        e.ManualVersion = e.AggregateVersion = Event.AggregateVersion + index;
-                        e.AggregateId = Event.AggregateId;
+                        e.ManualVersion = e.AggregateVersion = _event.AggregateVersion + index;
+                        e.AggregateId = _event.AggregateId;
                         e.UtcTimeStamp = _lastEventInActualStream.UtcTimeStamp;
                     });
             }
@@ -124,10 +124,10 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 _insertedEvents.ForEach(
                     (e, index) =>
                     {
-                        e.InsertBefore = Event.InsertionOrder;
-                        e.ManualVersion = e.AggregateVersion = Event.AggregateVersion + index;
-                        e.AggregateId = Event.AggregateId;
-                        e.UtcTimeStamp = Event.UtcTimeStamp;
+                        e.InsertBefore = _event.InsertionOrder;
+                        e.ManualVersion = e.AggregateVersion = _event.AggregateVersion + index;
+                        e.AggregateId = _event.AggregateId;
+                        e.UtcTimeStamp = _event.UtcTimeStamp;
                     });
             }
 
@@ -137,6 +137,6 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             _eventsAddedCallback.Invoke(_insertedEvents);
         }
 
-        internal AggregateEvent[] MutatedHistory => Events?.ToArray() ?? new[] { Assert.Result.NotNull(Event) };
+        internal AggregateEvent[] MutatedHistory => Events?.ToArray() ?? new[] { Assert.Result.NotNull(_event) };
     }
 }

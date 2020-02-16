@@ -115,7 +115,7 @@ namespace Composable.Messaging.Buses
             _serverComponents?.Stop();
         }
 
-        public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) => _globalStateTracker?.AwaitNoMessagesInFlight(timeoutOverride);
+        public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) => _globalStateTracker.AwaitNoMessagesInFlight(timeoutOverride);
 
         public void Dispose()
         {

@@ -82,7 +82,7 @@ namespace Composable.Contracts
             [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt; c4:null => halt")] public ChainedAssertion NotNull(object c1, object c2, object c3, object c4) => RunNotNull(0, _inspectionType, c1, c2, c3, c4);
         }
 
-        static ChainedAssertion RunNotNull(int recursionLevel, InspectionType inspectionType, params object[] instances)
+        static ChainedAssertion RunNotNull(int recursionLevel, InspectionType inspectionType, params object?[] instances)
         {
             for (var index = 0; index < instances.Length; index++)
             {

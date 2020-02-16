@@ -86,6 +86,7 @@ namespace Composable.Testing.Databases
             EnsureInitialized();
 
             var reservedDatabase = _transientCache.SingleOrDefault(db => db.IsReserved && db.ReservedByPoolId == _poolId && db.ReservationName == reservationName);
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if(reservedDatabase != null)
             {
                 _log.Debug($"Retrieved reserved pool database: {reservedDatabase.Id}");

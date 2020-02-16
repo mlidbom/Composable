@@ -85,7 +85,7 @@ namespace Composable.DependencyInjection
     {
         internal object? Instance { get; }
         internal object RunFactoryMethod(IServiceLocatorKernel kern) => FactoryMethod(kern);
-        internal Func<IServiceLocatorKernel, object> FactoryMethod { get; }
+        internal Func<IServiceLocatorKernel, object>? FactoryMethod { get; }
         internal Type FactoryMethodReturnType { get; }
 
         internal static InstantiationSpec FromInstance(object instance) => new InstantiationSpec(instance);

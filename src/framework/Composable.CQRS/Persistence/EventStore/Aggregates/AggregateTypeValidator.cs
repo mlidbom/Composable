@@ -55,6 +55,7 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
 
             var totalMutableProperties = publicFields.Concat(publicProperties).ToList();
             // ReSharper disable once AssignNullToNotNullAttribute
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             totalMutableProperties = totalMutableProperties.Where(member => member.DeclaringType.GetCustomAttribute<AllowPublicSettersAttribute>() == null).ToList();
 
             return totalMutableProperties;

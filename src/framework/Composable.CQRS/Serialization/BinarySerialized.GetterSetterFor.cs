@@ -166,14 +166,17 @@ namespace Composable.Serialization
                 {
                     var value = Getter(inheritor);
 
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                     if(!(value is null))
                     {
                         writer.Write(true);
                         value.Serialize(writer);
                     } else
+                        // ReSharper disable HeuristicUnreachableCode
                     {
                         writer.Write(false);
                     }
+                    // ReSharper restore HeuristicUnreachableCode
                 }
                 internal override void Deserialize(TInheritor inheritor, BinaryReader reader)
                 {
@@ -200,6 +203,7 @@ namespace Composable.Serialization
                 internal override void Serialize(TInheritor inheritor, BinaryWriter writer)
                 {
                     var list = Getter(inheritor);
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                     if(list != null)
                     {
                         writer.Write(true);
@@ -216,9 +220,11 @@ namespace Composable.Serialization
                             }
                         }
                     } else
+                        // ReSharper disable HeuristicUnreachableCode
                     {
                         writer.Write(false);
                     }
+                    // ReSharper restore HeuristicUnreachableCode
                 }
 
                 internal override void Deserialize(TInheritor inheritor, BinaryReader reader)
@@ -259,6 +265,7 @@ namespace Composable.Serialization
                 internal override void Serialize(TInheritor inheritor, BinaryWriter writer)
                 {
                     var list = Getter(inheritor);
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                     if(list != null)
                     {
                         writer.Write(true);
@@ -275,9 +282,11 @@ namespace Composable.Serialization
                             }
                         }
                     } else
+                        // ReSharper disable HeuristicUnreachableCode
                     {
                         writer.Write(false);
                     }
+                    // ReSharper restore HeuristicUnreachableCode
                 }
 
                 internal override void Deserialize(TInheritor inheritor, BinaryReader reader)

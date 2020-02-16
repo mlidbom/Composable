@@ -155,12 +155,15 @@ namespace Composable.DependencyInjection
                     }
                     case Lifestyle.Scoped:
                     {
+                        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                         if(scopeCache == null)
                         {
                             throw new Exception("Attempted to resolve scoped component without a scope");
                         }
+                        // ReSharper disable HeuristicUnreachableCode
                         var newInstance = currentComponent.CreateInstance(this);
                         scopeCache.Set(newInstance, currentComponent);
+                        // ReSharper restore HeuristicUnreachableCode
                         return (TService)newInstance;
                     }
                     default:
@@ -216,6 +219,7 @@ namespace Composable.DependencyInjection
                 return scoped;
             }
 
+            // ReSharper disable HeuristicUnreachableCode
             if(_parentComponent?.Lifestyle == Lifestyle.Singleton)
             {
                 throw new Exception($"{Lifestyle.Singleton} service: {_parentComponent.ServiceTypes.First().FullName} depends on {currentComponent.Lifestyle} service: {currentComponent.ServiceTypes.First().FullName} ");
@@ -233,6 +237,7 @@ namespace Composable.DependencyInjection
             {
                 _parentComponent = previousResolvingComponent;
             }
+            // ReSharper restore HeuristicUnreachableCode
         }
 
         bool _disposed;

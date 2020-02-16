@@ -74,7 +74,7 @@ namespace Composable.System.Reflection
         static MemberAccessorHelper() => Fields = MemberAccessorHelper.GetFieldGetters(typeof(T));
 
         ///<summary>Returns functions that when invoked will return the values of the fields an properties in an instance of the supplied type.</summary>
-        public static Func<object, object>[] GetFieldGetters(Type type)
+        public static Func<object, object?>[] GetFieldGetters(Type type)
         {
             Contract.Argument(type, nameof(type))
                              .NotNull();

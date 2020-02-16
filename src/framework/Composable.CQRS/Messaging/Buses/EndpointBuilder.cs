@@ -136,7 +136,7 @@ namespace Composable.Messaging.Buses
                 if(!_builtSuccessfully)
                 {
                     (_connectionProvider as IDisposable)?.Dispose();
-                    _container?.Dispose();
+                    _container.Dispose();
                 }
             }
         }

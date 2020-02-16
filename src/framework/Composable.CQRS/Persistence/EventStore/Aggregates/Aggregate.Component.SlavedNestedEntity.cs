@@ -66,10 +66,13 @@ namespace Composable.Persistence.EventStore.Aggregates
                         throw new Exception("You must assign Id before calling RaiseEvent");
                     }
                     var id = IdGetterSetter.GetId(@event);
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                     if (Equals(id, default(TEntityId)!))
+                        // ReSharper disable HeuristicUnreachableCode
                     {
                         IdGetterSetter.SetEntityId(@event, Id);
                     }
+                    // ReSharper restore HeuristicUnreachableCode
                     else if (!Equals(id, Id))
                     {
                         throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");

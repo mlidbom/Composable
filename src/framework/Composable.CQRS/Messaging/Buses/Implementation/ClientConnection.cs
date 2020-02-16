@@ -138,10 +138,10 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly Dictionary<Guid, DateTime> PendingDeliveryNotifications = new Dictionary<Guid, DateTime>();
             internal DealerSocket Socket;
             internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
-            internal IUtcTimeTimeSource TimeSource { get; set; }
-            internal InterprocessTransport.MessageStorage MessageStorage { get; set; }
-            public ITypeMapper TypeMapper { get; set; }
-            public IRemotableMessageSerializer Serializer { get; set; }
+            internal IUtcTimeTimeSource TimeSource { get; private set; }
+            internal InterprocessTransport.MessageStorage MessageStorage { get; private set; }
+            public ITypeMapper TypeMapper { get; private set; }
+            public IRemotableMessageSerializer Serializer { get; private set; }
 
             public State(ITypeMapper typeMapper, IUtcTimeTimeSource timeSource, InterprocessTransport.MessageStorage messageStorage, IRemotableMessageSerializer serializer, IGlobalBusStateTracker globalBusStateTracker)
             {

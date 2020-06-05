@@ -27,7 +27,7 @@ namespace Composable.Testing.Threading
         public TestingTaskRunner Start(IEnumerable<Action> tasks) => Start(tasks.ToArray());
         public TestingTaskRunner Start(params Action[] tasks)
         {
-            tasks.ForEach(task => _monitoredTasks.Add(Task.Run(task)));
+            tasks.ForEach(task => _monitoredTasks.Add(Task.Factory.StartNew(task, TaskCreationOptions.LongRunning)));
             return this;
         }
 

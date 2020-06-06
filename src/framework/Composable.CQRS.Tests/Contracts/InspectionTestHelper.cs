@@ -30,13 +30,13 @@ namespace Composable.Tests.Contracts
 
         static void InspectGoodValues<TInspected>(Action<IInspected<TInspected>> assert, TInspected goodValue)
         {
-            var inspected = Contract.Argument(() => goodValue);
+            var inspected = Contract.Argument(goodValue, nameof(goodValue));
             assert(inspected);
 
-            inspected = Contract.Argument(() => goodValue);
+            inspected = Contract.Argument(goodValue, nameof(goodValue));
             assert(inspected);
 
-            inspected = Contract.Invariant(() => goodValue);
+            inspected = Contract.Invariant(goodValue, nameof(goodValue));
             assert(inspected);
 
             Return(goodValue, assert);

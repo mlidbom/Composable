@@ -30,7 +30,7 @@ namespace Composable.Testing.Threading
 
         public TransactionInformationSnapshot TransactionInformation { get; }
 
-        [CanBeNull] public static TransactionSnapshot TakeSnapshot()
+        public static TransactionSnapshot? TakeSnapshot()
         {
             var currentTransaction = Transaction.Current;
             if(currentTransaction == null)

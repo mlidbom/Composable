@@ -15,7 +15,7 @@ namespace Composable.System.Reactive
         ///<summary>Calls <see cref="IObserver{T}.OnNext"/> for each subscribed observer.</summary>
         public void OnNext(TEvent @event)
         {
-            ContractOptimized.Argument(@event, nameof(@event)).NotNull();
+            Contract.ArgumentNotNull(@event, nameof(@event));
 
             _observerCollection.WithExclusiveAccess(@this => @this.ForEach(observer => observer.OnNext(@event)));
         }

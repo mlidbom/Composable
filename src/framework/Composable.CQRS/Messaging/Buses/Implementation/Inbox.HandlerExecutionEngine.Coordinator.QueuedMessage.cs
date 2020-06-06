@@ -16,16 +16,16 @@ namespace Composable.Messaging.Buses.Implementation
                 // ReSharper disable once MemberCanBePrivate.Local Resharper is just confused....
                 internal class HandlerExecutionTask
                 {
-                    readonly TaskCompletionSource<object> _taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    readonly TaskCompletionSource<object?> _taskCompletionSource = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
                     internal readonly TransportMessage.InComing TransportMessage;
                     readonly Coordinator _coordinator;
-                    readonly Func<object, object> _messageTask;
+                    readonly Func<object, object?> _messageTask;
                     readonly ITaskRunner _taskRunner;
                     readonly MessageStorage _messageStorage;
                     readonly IServiceLocator _serviceLocator;
                     readonly IMessageHandlerRegistry _handlerRegistry;
 
-                    internal Task<object> Task => _taskCompletionSource.Task;
+                    internal Task<object?> Task => _taskCompletionSource.Task;
                     public Guid MessageId { get; }
 
                     public void Execute()
@@ -91,7 +91,7 @@ namespace Composable.Messaging.Buses.Implementation
                         _messageTask = CreateMessageTask();
                     }
 
-                    Func<object, object> CreateMessageTask()
+                    Func<object, object?> CreateMessageTask()
                     {
 #pragma warning disable IDE0066 // Convert switch statement to expression disabled because once converted resharper incorrectly reports a compilation error.
                         switch(TransportMessage.MessageTypeEnum)

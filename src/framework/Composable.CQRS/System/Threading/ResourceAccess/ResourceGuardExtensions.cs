@@ -6,7 +6,7 @@ namespace Composable.System.Threading.ResourceAccess
     {
         static IExclusiveResourceLock AwaitExclusiveLockWhen(this IResourceGuard @this, TimeSpan timeout, Func<bool> condition)
         {
-            IExclusiveResourceLock exclusiveLock = null;
+            IExclusiveResourceLock? exclusiveLock = null;
             try
             {
                 exclusiveLock = @this.AwaitExclusiveLock();

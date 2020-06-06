@@ -10,6 +10,7 @@ namespace Composable.Functional
 
         public static Option<T> Some<T>(T value) => new Some<T>(value);
         public static  Option<T> None<T>() => Functional.None<T>.Instance;
+        public static bool IsSome<T>(Option<T> option) => option is Some<T>;
     }
 
     public abstract class Option<T> : DiscriminatedUnion<Option<T>, Some<T>, None<T>>

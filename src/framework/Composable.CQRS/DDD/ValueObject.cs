@@ -16,15 +16,7 @@ namespace Composable.DDD
     public abstract class ValueObject<T> : IEquatable<T> where T : ValueObject<T>
     {
         /// <see cref="object.Equals(object)"/>
-        public override bool Equals(object obj)
-        {
-            if(obj is null)
-                return false;
-
-            var other = obj as T;
-
-            return Equals(other);
-        }
+        public override bool Equals(object obj) => obj is T other && Equals(other);
 
         /// <see cref="object.GetHashCode"/>
         public override int GetHashCode()

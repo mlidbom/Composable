@@ -56,21 +56,18 @@ namespace Composable.Tests.Serialization
                 long? insertBefore,
                 long? insertAfter,
                 DateTime utcTimeStamp)
-#pragma warning disable CS0618 // Type or member is obsolete
-                : base(
-                       aggregateId: aggregateId,
-                       aggregateVersion: aggregateVersion,
-                       eventId: eventId,
-                       insertAfter: insertAfter,
-                       insertBefore: insertBefore,
-                       replaces: replaces,
-                       insertionOrder: insertionOrder,
-                       utcTimeStamp: utcTimeStamp
-                      )
-#pragma warning restore CS0618 // Type or member is obsolete
             {
                 Test1 = test1;
                 Test2 = test2;
+
+                EventId = eventId;
+                AggregateVersion = aggregateVersion;
+                AggregateId = aggregateId;
+                InsertionOrder = insertionOrder;
+                Replaces = replaces;
+                InsertBefore = insertBefore;
+                InsertAfter = insertAfter;
+                UtcTimeStamp = utcTimeStamp;
             }
 
             // ReSharper disable once MemberCanBePrivate.Local

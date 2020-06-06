@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses
 
         public void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }
 
-        public IEndpoint RegisterTestingEndpoint(string name = null, EndpointId id = null, Action<IEndpointBuilder> setup = null)
+        public IEndpoint RegisterTestingEndpoint(string? name = null, EndpointId? id = null, Action<IEndpointBuilder>? setup = null)
         {
             var endpointId = id ?? new EndpointId(Guid.NewGuid());
             name ??= $"TestingEndpoint-{endpointId.GuidValue}";
@@ -61,7 +61,8 @@ namespace Composable.Messaging.Buses
         List<Exception> GetThrownExceptions() => GlobalBusStateTracker.GetExceptions().ToList();
 
         public IEnumerable<EndPointAddress> ServerEndpoints => Endpoints.Where(endpoint => endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds().Any())
-                                                                        .Select(@this => @this.Address)
+                                                                        .Where(@this => !(@this.Address is null))
+                                                                        .Select(@this => @this.Address!)
                                                                         .ToList();
     }
 }

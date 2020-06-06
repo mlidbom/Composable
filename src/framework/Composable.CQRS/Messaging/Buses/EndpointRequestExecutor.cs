@@ -17,15 +17,15 @@ namespace Composable.Messaging.Buses
         public static void ExecuteRequest(this IEndpoint @this, Action<IRemoteApiNavigatorSession> request) => @this.ServiceLocator.ExecuteInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IRemoteApiNavigatorSession>()));
         public static TResult ExecuteRequest<TResult>(this IEndpoint @this, Func<IRemoteApiNavigatorSession, TResult> request) => @this.ServiceLocator.ExecuteInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IRemoteApiNavigatorSession>()));
         public static async Task<TResult> ExecuteRequestAsync<TResult>(this IEndpoint @this, Func<IRemoteApiNavigatorSession, Task<TResult>> request) =>
-            await @this.ServiceLocator.ExecuteInIsolatedScope(async () => await request(@this.ServiceLocator.Resolve<IRemoteApiNavigatorSession>()));
+            await @this.ServiceLocator.ExecuteInIsolatedScopeAsync(async () => await request(@this.ServiceLocator.Resolve<IRemoteApiNavigatorSession>()));
 
         public static async Task<TResult> ExecuteRequestAsync<TResult>(this IEndpoint endpoint, Func<IServiceBusSession, Task<TResult>> request) =>
-            await endpoint.ServiceLocator.ExecuteInIsolatedScope(async () => await request(endpoint.ServiceLocator.Resolve<IServiceBusSession>()));
+            await endpoint.ServiceLocator.ExecuteInIsolatedScopeAsync(async () => await request(endpoint.ServiceLocator.Resolve<IServiceBusSession>()));
 
-        public static async Task ExecuteRequestAsync(this IEndpoint endpoint, Func<Task> request) =>await endpoint.ServiceLocator.ExecuteInIsolatedScope(async () => await request());
+        public static async Task ExecuteRequestAsync(this IEndpoint endpoint, Func<Task> request) =>await endpoint.ServiceLocator.ExecuteInIsolatedScopeAsync(async () => await request());
 
         public static async Task ExecuteRequestAsync(this IEndpoint endpoint, Func<IServiceBusSession, Task> request) =>
-            await endpoint.ServiceLocator.ExecuteInIsolatedScope(async () => await request(endpoint.ServiceLocator.Resolve<IServiceBusSession>()));
+            await endpoint.ServiceLocator.ExecuteInIsolatedScopeAsync(async () => await request(endpoint.ServiceLocator.Resolve<IServiceBusSession>()));
 
         //Leverage the manual implementations above to enable running navigation specifications as requests
         public static TResult ExecuteRequest<TResult>(this IEndpoint @this, NavigationSpecification<TResult> navigation) => @this.ExecuteRequest(navigation.NavigateOn);

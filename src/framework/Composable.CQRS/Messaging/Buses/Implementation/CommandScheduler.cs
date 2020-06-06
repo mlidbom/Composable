@@ -15,7 +15,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         readonly IInterprocessTransport _transport;
         readonly IUtcTimeTimeSource _timeSource;
-        Timer _scheduledMessagesTimer;
+        Timer? _scheduledMessagesTimer;
         readonly List<ScheduledCommand> _scheduledMessages = new List<ScheduledCommand>();
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(1.Seconds());
 
@@ -25,11 +25,11 @@ namespace Composable.Messaging.Buses.Implementation
             _timeSource = timeSource;
         }
 
-        public async Task StartAsync() => await _guard.Update(async () =>
+        public async Task StartAsync()
         {
             _scheduledMessagesTimer = new Timer(callback: _ => SendDueCommands(), state: null, dueTime: 0.Seconds(), period: 100.Milliseconds());
             await Task.CompletedTask;
-        });
+        }
 
         public void Schedule(DateTime sendAt, BusApi.Remotable.ExactlyOnce.ICommand message) => _guard.Update(() =>
         {

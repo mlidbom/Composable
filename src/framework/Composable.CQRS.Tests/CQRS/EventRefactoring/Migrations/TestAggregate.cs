@@ -44,10 +44,12 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
     {
         public void Publish(params RootEvent[] events)
         {
+#pragma warning disable 618
             if (GetIdBypassContractValidation() == Guid.Empty && events.First().AggregateId == Guid.Empty)
             {
                 SetIdBeVerySureYouKnowWhatYouAreDoing(Guid.NewGuid());
                 events.Cast<AggregateEvent>().First().AggregateId = Id;
+#pragma warning restore 618
             }
 
             foreach (var @event in events)

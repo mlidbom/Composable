@@ -83,9 +83,9 @@ namespace Composable.DependencyInjection
 
     class InstantiationSpec
     {
-        internal object Instance { get; }
-        internal object RunFactoryMethod(IServiceLocatorKernel kern) => FactoryMethod(kern);
-        internal Func<IServiceLocatorKernel, object> FactoryMethod { get; }
+        internal object? Instance { get; }
+        internal object RunFactoryMethod(IServiceLocatorKernel kern) => FactoryMethod!(kern);
+        internal Func<IServiceLocatorKernel, object>? FactoryMethod { get; }
         internal Type FactoryMethodReturnType { get; }
 
         internal static InstantiationSpec FromInstance(object instance) => new InstantiationSpec(instance);
@@ -100,9 +100,10 @@ namespace Composable.DependencyInjection
 
         InstantiationSpec(object instance)
         {
-            ContractOptimized.Argument(instance, nameof(instance)).NotNull();
+            Assert.Argument.NotNull(instance);
             Instance = instance;
             FactoryMethod = kern => instance;
+            FactoryMethodReturnType = instance.GetType();
         }
     }
 
@@ -117,7 +118,7 @@ namespace Composable.DependencyInjection
         internal readonly int[] ServiceTypeIndexes;
 
         readonly object _lock = new object();
-        object _singletonInstance;
+        object? _singletonInstance;
 
         internal object CreateInstance(IServiceLocatorKernel kernel) => InstantiationSpec.FactoryMethod(kernel);
 
@@ -143,7 +144,6 @@ namespace Composable.DependencyInjection
             serviceTypes = serviceTypes.ToList();
 
             ServiceTypeIndexes = serviceTypes.Select(ComposableDependencyInjectionContainer.ServiceTypeIndex.For).ToArray();
-
             Contract.Arguments.That(lifestyle == Lifestyle.Singleton || instantiationSpec.Instance == null, $"{nameof(InstantiationSpec.Instance)} registrations must be {nameof(Lifestyle.Singleton)}s");
 
             ServiceTypes = serviceTypes;
@@ -183,6 +183,7 @@ namespace Composable.DependencyInjection
                 return new ComponentRegistration<TService>(Lifestyle, ServiceTypes, InstantiationSpec);
             }
 
+            Assert.State.Assert(Lifestyle == Lifestyle.Singleton);
             //We must use singleton instance registrations when delegating because otherwise the containers will both attempt to dispose the service.
             //Instance registrations are not disposed.
             return new ComponentRegistration<TService>(

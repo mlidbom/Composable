@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
@@ -31,12 +33,13 @@ namespace Composable.Messaging.Buses.Implementation
 
                 internal HandlerExecutionTask AwaitExecutableHandlerExecutionTask(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
                 {
-                    HandlerExecutionTask message = null;
+                    HandlerExecutionTask? message = null;
                     _implementation.Await(implementation => implementation.TryGetDispatchableMessage(dispatchingRules, out message));
+                    Assert.Result.Assert(message != null);
                     return message;
                 }
 
-                public Task<object> EnqueueMessageTask(TransportMessage.InComing message) => _implementation.Update(implementation =>
+                public Task<object?> EnqueueMessageTask(TransportMessage.InComing message) => _implementation.Update(implementation =>
                 {
                     var inflightMessage = new HandlerExecutionTask(message, this, _taskRunner, _messageStorage, _serviceLocator, _messageHandlerRegistry);
                     implementation.EnqueueMessageTask(inflightMessage);
@@ -64,9 +67,9 @@ namespace Composable.Messaging.Buses.Implementation
                     readonly List<HandlerExecutionTask> _messagesWaitingToExecute = new List<HandlerExecutionTask>();
                     public NonThreadsafeImplementation(IGlobalBusStateTracker globalStateTracker) => _globalStateTracker = globalStateTracker;
 
-                    internal bool TryGetDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules, out HandlerExecutionTask dispatchable)
+                    internal bool TryGetDispatchableMessage(IReadOnlyList<IMessageDispatchingRule> dispatchingRules, [NotNullWhen(true)][MaybeNull] out HandlerExecutionTask dispatchable)
                     {
-                        dispatchable = null;
+                        dispatchable = null!;
                         if(_executingMessages >= MaxConcurrentlyExecutingHandlers)
                         {
                             return false;
@@ -116,7 +119,7 @@ namespace Composable.Messaging.Buses.Implementation
                         _messagesWaitingToExecute.Remove(dispatchable);
                     }
 
-                    void DoneDispatching(HandlerExecutionTask doneExecuting, Exception exception = null)
+                    void DoneDispatching(HandlerExecutionTask doneExecuting, Exception? exception = null)
                     {
                         _executingMessages--;
 

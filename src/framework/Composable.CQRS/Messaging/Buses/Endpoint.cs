@@ -11,35 +11,61 @@ namespace Composable.Messaging.Buses
 {
     class Endpoint : IEndpoint
     {
+        class ServerComponents : IDisposable
+        {
+            readonly CommandScheduler _commandScheduler;
+            public readonly IInbox Inbox;
+
+            public ServerComponents(CommandScheduler commandScheduler, IInbox inbox)
+            {
+                _commandScheduler = commandScheduler;
+                Inbox = inbox;
+            }
+
+            public async Task InitAsync() => await Task.WhenAll(Inbox.StartAsync(), _commandScheduler.StartAsync());
+            public void Stop()
+            {
+                _commandScheduler.Stop();
+                Inbox.Stop();
+            }
+
+            public void Dispose()
+            {
+                _commandScheduler.Dispose();
+            }
+        }
+
         readonly EndpointConfiguration _configuration;
         public bool IsRunning { get; private set; }
-        public Endpoint(IServiceLocator serviceLocator, EndpointConfiguration configuration)
+        public Endpoint(IServiceLocator serviceLocator,
+                        IGlobalBusStateTracker globalStateTracker,
+                        IInterprocessTransport transport,
+                        IEndpointRegistry endpointRegistry,
+                        IInterprocessTransport interProcessTransport,
+                        EndpointConfiguration configuration)
         {
             Assert.Argument.Assert(serviceLocator != null, configuration != null);
             ServiceLocator = serviceLocator;
+            _globalStateTracker = globalStateTracker;
+            _transport = transport;
             _configuration = configuration;
+            _endpointRegistry = endpointRegistry;
+            _interProcessTransport = interProcessTransport;
         }
         public EndpointId Id => _configuration.Id;
         public IServiceLocator ServiceLocator { get; }
 
-        public EndPointAddress Address => _inbox.Address;
-        IGlobalBusStateTracker _globalStateTracker;
-        IInbox _inbox;
-        IInterprocessTransport _transport;
-        CommandScheduler _commandScheduler;
-        IEndpointRegistry _endpointRegistry;
-        IInterprocessTransport _interProcessTransport;
+        public EndPointAddress? Address => _serverComponents?.Inbox.Address;
+        readonly IGlobalBusStateTracker _globalStateTracker;
+        readonly IInterprocessTransport _transport;
+        readonly IEndpointRegistry _endpointRegistry;
+        readonly IInterprocessTransport _interProcessTransport;
+
+        ServerComponents? _serverComponents;
 
         public async Task InitAsync()
         {
             Assert.State.Assert(!IsRunning);
-
-            IsRunning = true;
-
-            _globalStateTracker = ServiceLocator.Resolve<IGlobalBusStateTracker>();
-            _transport = ServiceLocator.Resolve<IInterprocessTransport>();
-            _endpointRegistry = ServiceLocator.Resolve<IEndpointRegistry>();
-            _interProcessTransport = ServiceLocator.Resolve<IInterprocessTransport>();
 
             RunSanityChecks();
 
@@ -51,22 +77,22 @@ namespace Composable.Messaging.Buses
             //todo: find cleaner way of handling what an endpoint supports
             if(!_configuration.IsPureClientEndpoint)
             {
-                _commandScheduler = ServiceLocator.Resolve<CommandScheduler>();
-                _inbox = ServiceLocator.Resolve<IInbox>();
+                _serverComponents = new ServerComponents(ServiceLocator.Resolve<CommandScheduler>(), ServiceLocator.Resolve<IInbox>());
 
-                initTasks.Add(_inbox.StartAsync());
-                initTasks.Add(_commandScheduler.StartAsync());
+                initTasks.Add(_serverComponents.InitAsync());
             }
 
             await Task.WhenAll(initTasks);
+
+            IsRunning = true;
         }
 
         public async Task ConnectAsync()
         {
             var serverEndpoints = _endpointRegistry.ServerEndpoints.ToSet();
-            if (!_configuration.IsPureClientEndpoint)
+            if (_serverComponents != null)
             {
-                serverEndpoints.Add(Address); //Yes, we do connect to ourselves. Scheduled commands need to dispatch over the remote protocol to get the delivery guarantees...
+                serverEndpoints.Add(_serverComponents.Inbox.Address); //Yes, we do connect to ourselves. Scheduled commands need to dispatch over the remote protocol to get the delivery guarantees...
             }
             await Task.WhenAll(serverEndpoints.Select(address => _interProcessTransport.ConnectAsync(address)));
         }
@@ -86,20 +112,16 @@ namespace Composable.Messaging.Buses
             Assert.State.Assert(IsRunning);
             IsRunning = false;
             _transport.Stop();
-            if(!_configuration.IsPureClientEndpoint)
-            {
-                _commandScheduler.Stop();
-                _inbox.Stop();
-            }
+            _serverComponents?.Stop();
         }
 
-        public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) => _globalStateTracker?.AwaitNoMessagesInFlight(timeoutOverride);
+        public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) => _globalStateTracker.AwaitNoMessagesInFlight(timeoutOverride);
 
         public void Dispose()
         {
             if(IsRunning) Stop();
             ServiceLocator.Dispose();
-            _commandScheduler?.Dispose();
+            _serverComponents?.Dispose();
         }
     }
 }

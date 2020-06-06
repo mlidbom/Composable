@@ -16,7 +16,7 @@ namespace Composable.System.Threading
     {
         const int LengthIndicatorIntegerLengthInBytes = 4;
         readonly long _capacity;
-        MemoryMappedFile _file;
+        MemoryMappedFile? _file;
         readonly MachineWideSingleThreaded _synchronizer;
         bool _disposed;
 
@@ -68,7 +68,7 @@ namespace Composable.System.Threading
                     action(instance);
                     Set(instance, accessor);
                 });
-            return instance;
+            return Assert.Result.NotNull(instance);
         }
 
         void Set(TObject value, MemoryMappedViewAccessor accessor)
@@ -89,7 +89,7 @@ namespace Composable.System.Threading
         {
             var instance = default(TObject);
             UseViewAccessor(accessor => instance = GetCopy(accessor));
-            return instance;
+            return Assert.Result.NotNull(instance);
         }
 
         TObject GetCopy(MemoryMappedViewAccessor accessor)
@@ -119,7 +119,7 @@ namespace Composable.System.Threading
             _synchronizer.Execute(
                 () =>
                 {
-                    using var viewAccessor = _file.CreateViewAccessor();
+                    using var viewAccessor = _file!.CreateViewAccessor();
                     action(viewAccessor);
                 });
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using Composable.Messaging;
@@ -40,7 +41,7 @@ namespace Composable.Refactoring.Naming
             throw new Exception($"Could not find type for {nameof(TypeId)}: {typeId}");
         });
 
-        public bool TryGetType(TypeId typeId, out Type type)
+        public bool TryGetType(TypeId typeId, [NotNullWhen(true)]out Type? type)
         {
             type = _state.WithExclusiveAccess(state => state.TypeIdToTypeMap.TryGetValue(typeId, out var innerType) ? innerType : null);
 

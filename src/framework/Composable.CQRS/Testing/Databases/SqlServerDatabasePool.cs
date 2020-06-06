@@ -23,12 +23,12 @@ namespace Composable.Testing.Databases
         readonly IConfigurationParameterProvider _configurationParameterProvider;
         const string InitialCatalogMaster = ";Initial Catalog=master;";
 
-        string _masterConnectionString;
-        static SqlServerConnectionProvider _masterConnectionProvider;
+        string? _masterConnectionString;
+        static SqlServerConnectionProvider? _masterConnectionProvider;
 
-        MachineWideSharedObject<SharedState> _machineWideState;
+        MachineWideSharedObject<SharedState>? _machineWideState;
 
-        static string _databaseRootFolderOverride;
+        static string? _databaseRootFolderOverride;
         static readonly HashSet<string> RebootedMasterConnections = new HashSet<string>();
 
         static TimeSpan _reservationLength;
@@ -86,6 +86,7 @@ namespace Composable.Testing.Databases
             EnsureInitialized();
 
             var reservedDatabase = _transientCache.SingleOrDefault(db => db.IsReserved && db.ReservedByPoolId == _poolId && db.ReservationName == reservationName);
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if(reservedDatabase != null)
             {
                 _log.Debug($"Retrieved reserved pool database: {reservedDatabase.Id}");
@@ -101,8 +102,8 @@ namespace Composable.Testing.Databases
                     throw new Exception("Timed out waiting for database. Have you missed disposing a database pool? Please check your logs for errors about non-disposed pools.");
                 }
 
-                Exception thrownException = null;
-                _machineWideState.Update(
+                Exception? thrownException = null;
+                _machineWideState!.Update(
                     machineWide =>
                     {
                         try
@@ -114,9 +115,9 @@ namespace Composable.Testing.Databases
 
                             if(!machineWide.IsValid)
                             {
-                                _log.Error(null, "Detected corrupt database pool. Rebooting pool");
-                                RebootPool(machineWide);
                                 thrownException = new Exception("Detected corrupt database pool.Rebooting pool");
+                                _log.Error(thrownException, "Detected corrupt database pool. Rebooting pool");
+                                RebootPool(machineWide);
                             }
 
                             if(machineWide.TryReserve(out reservedDatabase, reservationName, _poolId, _reservationLength))
@@ -165,7 +166,7 @@ namespace Composable.Testing.Databases
         }
 
         internal string ConnectionStringForDbNamed(string dbName)
-            => _masterConnectionString.Replace(InitialCatalogMaster, $";Initial Catalog={dbName};");
+            => _masterConnectionString!.Replace(InitialCatalogMaster, $";Initial Catalog={dbName};");
 
         Database InsertDatabase(SharedState machineWide)
         {
@@ -183,7 +184,7 @@ namespace Composable.Testing.Databases
         {
             if(_disposed || !_initialized) return;
             _disposed = true;
-            _machineWideState.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
+            _machineWideState!.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
             _machineWideState.Dispose();
         }
     }

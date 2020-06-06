@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using Composable.Contracts;
 
 namespace Composable.DDD
 {
@@ -13,24 +15,31 @@ namespace Composable.DDD
     /// 
     /// </summary>
     [DebuggerDisplay("{" + nameof(ToString) + "()}")]
-    public class Entity<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : Entity<TEntity, TKEy>
+    public class Entity<TEntity, TKey> : IEquatable<TEntity>, IHasPersistentIdentity<TKey>
+        where TEntity : Entity<TEntity, TKey>
     {
         ///<summary>Construct an instance with <param name="id"> as the <see cref="Id"/></param>.</summary>
-        protected Entity(TKEy id) => Id = id;
+        protected Entity(TKey id) => _id = id;
 
-        TKEy _id;
+        TKey _id;
 
         /// <inheritdoc />
-        public virtual TKEy Id { get => _id; private set => _id = value; }
+        [NotNull]public virtual TKey Id
+        {
+            get => Assert.Result.NotNullOrDefault(_id);
+            private set => _id = Assert.Argument.NotNullOrDefault(value);
+        }
 
         ///<summary>Sets the id of the instance. Should probably never be used except by infrastructure code.</summary>
-        protected void SetIdBeVerySureYouKnowWhatYouAreDoing(TKEy id)
+        [Obsolete("Should probably never be used except by infrastructure code.")]
+        protected void SetIdBeVerySureYouKnowWhatYouAreDoing(TKey id)
         {
             Id = id;
         }
 
         ///<summary>Gets the id of the instance bypassing contract validation. Should probably never be used except by infrastructure code.</summary>
-        protected TKEy GetIdBypassContractValidation() => _id;
+        [Obsolete("Should probably never be used except by infrastructure code.")]
+        protected TKey GetIdBypassContractValidation() => _id;
 
         /// <summary>
         /// Implements equals using persistent reference semantics.
@@ -42,13 +51,13 @@ namespace Composable.DDD
         /// Implements equals using persistent reference semantics.
         /// If two instances have the same Id, Equals will return true.
         /// </summary>
-        public override bool Equals(object other) => Equals(other as TEntity);
+        public override bool Equals(object other) => (other is TEntity actualOther) && Equals(actualOther);
 
         /// <inheritdoc />
         public override int GetHashCode() => Id.GetHashCode();
 
         ///<summary>True if both instances have the same ID</summary>
-        public static bool operator ==(Entity<TEntity, TKEy> lhs, Entity<TEntity, TKEy> rhs)
+        public static bool operator ==(Entity<TEntity, TKey> lhs, Entity<TEntity, TKey> rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -59,7 +68,7 @@ namespace Composable.DDD
         }
 
         ///<summary>True if both instances do not have the same ID</summary>
-        public static bool operator !=(Entity<TEntity, TKEy> lhs, Entity<TEntity, TKEy> rhs) => !(lhs == rhs);
+        public static bool operator !=(Entity<TEntity, TKey> lhs, Entity<TEntity, TKey> rhs) => !(lhs == rhs);
 
         ///<summary>Returns a string similar to: MyType:MyId</summary>
         public override string ToString() => $"{GetType().Name}:{Id}";
@@ -84,7 +93,6 @@ namespace Composable.DDD
         /// </summary>
         protected Entity(Guid id):base(id)
         {
-            SetIdBeVerySureYouKnowWhatYouAreDoing(id);
         }
 
         /// <summary>

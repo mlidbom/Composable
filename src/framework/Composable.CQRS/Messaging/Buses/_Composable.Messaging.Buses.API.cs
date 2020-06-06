@@ -65,7 +65,7 @@ namespace Composable.Messaging.Buses
     {
         EndpointId Id { get; }
         IServiceLocator ServiceLocator { get; }
-        EndPointAddress Address { get; }
+        EndPointAddress? Address { get; }
         bool IsRunning { get; }
         Task InitAsync();
         Task ConnectAsync();
@@ -103,7 +103,7 @@ namespace Composable.Messaging.Buses
 
     public interface ITestingEndpointHost : IEndpointHost
     {
-        IEndpoint RegisterTestingEndpoint(string name = null, EndpointId id = null, Action<IEndpointBuilder> setup = null);
+        IEndpoint RegisterTestingEndpoint(string? name = null, EndpointId? id = null, Action<IEndpointBuilder>? setup = null);
         IEndpoint RegisterClientEndpointForRegisteredEndpoints();
         TException AssertThrown<TException>() where TException : Exception;
     }
@@ -132,6 +132,6 @@ namespace Composable.Messaging.Buses
 
         void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage);
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
-        void DoneWith(Guid message, Exception exception);
+        void DoneWith(Guid message, Exception? exception);
     }
 }

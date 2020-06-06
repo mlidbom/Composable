@@ -15,14 +15,14 @@ namespace Composable.Tests.Contracts
         {
             String aNullString = null;
             // ReSharper disable ExpressionIsAlwaysNull
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => aNullString).NotNullEmptyOrWhiteSpace());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(aNullString, nameof(aNullString)).NotNullEmptyOrWhiteSpace());
             // ReSharper restore ExpressionIsAlwaysNull
         }
 
         [Test]
         public void ThrowsStringIsEmptyArgumentExceptionForEmptyStrings()
         {
-            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Argument(() => string.Empty).NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Argument(string.Empty, nameof(string.Empty)).NotNullEmptyOrWhiteSpace());
         }
 
         [Test]
@@ -33,13 +33,13 @@ namespace Composable.Tests.Contracts
             var lineBreak = "\n";
             var newLine = "\r\n";
             var environmentNewLine = Environment.NewLine;
-            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(() => space).NotNullEmptyOrWhiteSpace());
-            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(() => tab).NotNullEmptyOrWhiteSpace());
-            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(() => lineBreak).NotNullEmptyOrWhiteSpace());
-            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(() => newLine).NotNullEmptyOrWhiteSpace());
-            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(() => environmentNewLine).NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(space, nameof(space)).NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(tab, nameof(tab)).NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(lineBreak, nameof(lineBreak)).NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(newLine, nameof(newLine)).NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(environmentNewLine, nameof(environmentNewLine)).NotNullEmptyOrWhiteSpace());
 
-            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(() => environmentNewLine, () => space).NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(environmentNewLine, nameof(environmentNewLine), space, nameof(space)).NotNullEmptyOrWhiteSpace());
 
 
             var badValues = new List<string> {space, tab, lineBreak, newLine, environmentNewLine};
@@ -55,7 +55,7 @@ namespace Composable.Tests.Contracts
         public void ShouldUseArgumentNameForException()
         {
             var newLine = Environment.NewLine;
-            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(()  => newLine).NotNullEmptyOrWhiteSpace())
+            Assert.Throws<StringIsWhitespaceContractViolationException>(() => Contract.Argument(newLine, nameof(newLine)).NotNullEmptyOrWhiteSpace())
                 .Message.Should().Contain("newLine");
         }
     }

@@ -943,6 +943,7 @@ public void $SetupTask$()&#xD;
 	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=10E33A02F76B9E4C96791BF941539598/Name/@EntryValue">ReviewRebuttal</s:String>
 	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=10E33A02F76B9E4C96791BF941539598/Pattern/@EntryValue">(?&lt;=\W|^)(?&lt;TAG&gt;REVIEW:REBUTTAL:)(.*)</s:String>
 	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=10E33A02F76B9E4C96791BF941539598/TodoIconStyle/@EntryValue">Warning</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=4386F01B791C56499C7EA059B55FFB54/Pattern/@EntryValue">(?&lt;=\W|^)(?&lt;TAG&gt;BUG:)(\W|$)(.*)</s:String>
 	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=961894CCC510410ABE2B99132B253C80/TodoIconStyle/@EntryValue">Question</s:String>
 	
 	
@@ -953,7 +954,7 @@ public void $SetupTask$()&#xD;
 	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=AC50C31DB9FDE8428AF0165C9D063114/Color/@EntryValue">WindowText</s:String>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=AC50C31DB9FDE8428AF0165C9D063114/MatchComments/@EntryValue">True</s:Boolean>
 	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=AC50C31DB9FDE8428AF0165C9D063114/Name/@EntryValue">Refactor</s:String>
-	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=AC50C31DB9FDE8428AF0165C9D063114/Pattern/@EntryValue">(?&lt;=\W|^)(?&lt;TAG&gt;REFACTOR)(\W|$)(.*)</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=AC50C31DB9FDE8428AF0165C9D063114/Pattern/@EntryValue">(?&lt;=\W|^)(?&lt;TAG&gt;REFACTOR:)(\W|$)(.*)</s:String>
 	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=AC50C31DB9FDE8428AF0165C9D063114/TodoIconStyle/@EntryValue">Warning</s:String>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=AD80C359C2647644A1D107C00E4FFF62/@KeyIndexDefined">True</s:Boolean>
 	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=AD80C359C2647644A1D107C00E4FFF62/Color/@EntryValue">WindowText</s:String>
@@ -971,7 +972,7 @@ public void $SetupTask$()&#xD;
 	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=C6C102DE86E322439B5BFFAC439381E3/Color/@EntryValue">207, 157, 50</s:String>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=C6C102DE86E322439B5BFFAC439381E3/MatchComments/@EntryValue">True</s:Boolean>
 	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=C6C102DE86E322439B5BFFAC439381E3/Name/@EntryValue">Performance</s:String>
-	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=C6C102DE86E322439B5BFFAC439381E3/Pattern/@EntryValue">(?&lt;=\W|^)(?&lt;TAG&gt;PERFORMANCE)(\W|$)(.*)</s:String>
+	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=C6C102DE86E322439B5BFFAC439381E3/Pattern/@EntryValue">(?&lt;=\W|^)(?&lt;TAG&gt;PERFORMANCE:)(\W|$)(.*)</s:String>
 	<s:String x:Key="/Default/PatternsAndTemplates/Todo/TodoPatterns/=C6C102DE86E322439B5BFFAC439381E3/TodoIconStyle/@EntryValue">Normal</s:String>
 	<s:Boolean x:Key="/Default/ReSpeller/SplitInPairs/@EntryValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/ReSpeller/UserDictionaries/=en_005Fus/@KeyIndexDefined">True</s:Boolean>
@@ -1014,6 +1015,7 @@ public void $SetupTask$()&#xD;
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Composable/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Deduplication/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Deserialize/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=Dispatchable/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Enumerable/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Enumerables/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Guid/@EntryIndexedValue">True</s:Boolean>
@@ -1025,6 +1027,7 @@ public void $SetupTask$()&#xD;
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=ncrunch/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Newable/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=parallelized/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=pipelining/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Poller/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=reentrancy/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Reentrant/@EntryIndexedValue">True</s:Boolean>

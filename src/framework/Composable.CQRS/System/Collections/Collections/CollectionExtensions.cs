@@ -13,7 +13,7 @@ namespace Composable.System.Collections.Collections
         ///<summary>Remove entries matching the condition from the collection.</summary>
         public static IReadOnlyList<T> RemoveWhere<T>(this ICollection<T> me, Func<T, bool> condition)
         {
-            ContractOptimized.Argument(me, nameof(me), condition, nameof(condition)).NotNull();
+            Contract.Argument(me, nameof(me), condition, nameof(condition)).NotNull();
             var removed = me.Where(condition).ToList();
             removed.ForEach(removeMe => me.Remove(removeMe));
             return removed;

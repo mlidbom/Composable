@@ -12,7 +12,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         partial class HandlerExecutionEngine
         {
-            Thread _awaitDispatchableMessageThread;
+            Thread? _awaitDispatchableMessageThread;
 
             readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>
                                                                                 {
@@ -55,7 +55,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public void Stop()
             {
-                _awaitDispatchableMessageThread.InterruptAndJoin();
+                _awaitDispatchableMessageThread?.InterruptAndJoin();
                 _awaitDispatchableMessageThread = null;
             }
         }

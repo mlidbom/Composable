@@ -61,7 +61,7 @@ namespace Composable.System
             }
         }
 
-        string ReservationCallStack { get; }
+        string? ReservationCallStack { get; }
 
         bool _disposed;
 
@@ -124,9 +124,9 @@ namespace Composable.System
     ///<summary><see cref="IStrictlyManagedResource"/></summary>
     class StrictlyManagedResourceWasFinalizedException : Exception
     {
-        public StrictlyManagedResourceWasFinalizedException(Type instanceType, string reservationCallStack) : base(FormatMessage(instanceType, reservationCallStack)) { }
+        public StrictlyManagedResourceWasFinalizedException(Type instanceType, string? reservationCallStack) : base(FormatMessage(instanceType, reservationCallStack)) { }
 
-        static string FormatMessage(Type instanceType, string reservationCallStack)
+        static string FormatMessage(Type instanceType, string? reservationCallStack)
             => !reservationCallStack.IsNullOrWhiteSpace()
                    ? $@"User code failed to Dispose this instance of {instanceType.FullName}
 Construction call stack: {reservationCallStack}"

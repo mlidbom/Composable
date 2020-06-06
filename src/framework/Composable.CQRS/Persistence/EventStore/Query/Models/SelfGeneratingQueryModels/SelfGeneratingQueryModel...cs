@@ -25,7 +25,9 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
         {
             if(theEvent is IAggregateCreatedEvent)
             {
+#pragma warning disable 618
                 SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateId);
+#pragma warning restore 618
             }
 
             Version = theEvent.AggregateVersion;

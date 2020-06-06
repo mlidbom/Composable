@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using System.Linq;
+using Composable.Contracts;
 
 namespace Composable.System.Collections.Collections
 {
@@ -22,7 +23,7 @@ namespace Composable.System.Collections.Collections
         ///<summary>Enumerates this and all following node values.</summary>
         public static IEnumerable<T> ValuesFrom<T>(this LinkedListNode<T> @this) { return @this.NodesFrom().Select(node => node.Value); }
 
-        ///<summary>Inserts <paramref name="items"/> after the <paramref name="this"/>  node and returns the nodes that were inserted.</summary>
+        ///<summary>Inserts <paramref name="items"/> after the <paramref name="this"/></summary>
         public static void AddBefore<T>(this LinkedListNode<T> @this, IEnumerable<T> items)
         {
             if(items == null || @this == null)
@@ -44,7 +45,7 @@ namespace Composable.System.Collections.Collections
                 throw new ArgumentNullException();
             }
 
-            LinkedListNode<T> current = null;
+            LinkedListNode<T> current = null!;
             var newItemsReversed = items.Reverse().ToList();
             if(newItemsReversed.Count < 1)
             {
@@ -56,9 +57,7 @@ namespace Composable.System.Collections.Collections
                 current = @this.List.AddAfter(@this, newItem);
             }
             @this.List.Remove(@this);
-            return current;
+            return Assert.Result.NotNull(current);
         }
-
-
     }
 }

@@ -96,17 +96,10 @@ namespace Composable.Messaging.Buses.Implementation
         {
             _typeMapper = typeMapper;
             _taskRunner = taskRunner;
+            _state = new OptimizedThreadShared<State>(new State(typeMapper, timeSource, messageStorage, serializer, globalBusStateTracker));
+
             _state.WithExclusiveAccess(state =>
             {
-                state.TypeMapper = typeMapper;
-                state.TimeSource = timeSource;
-
-                state.MessageStorage = messageStorage;
-
-                state.Serializer = serializer;
-
-                state.GlobalBusStateTracker = globalBusStateTracker;
-
                 poller.Add(state.DispatchQueue);
 
                 state.DispatchQueue.ReceiveReady += DispatchQueuedMessages;
@@ -140,18 +133,27 @@ namespace Composable.Messaging.Buses.Implementation
 
         class State
         {
-            internal IGlobalBusStateTracker GlobalBusStateTracker;
-            internal readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
+            internal readonly IGlobalBusStateTracker GlobalBusStateTracker;
+            internal readonly Dictionary<Guid, TaskCompletionSource<object?>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object?>>();
             internal readonly Dictionary<Guid, DateTime> PendingDeliveryNotifications = new Dictionary<Guid, DateTime>();
             internal DealerSocket Socket;
             internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
-            internal IUtcTimeTimeSource TimeSource { get; set; }
-            internal InterprocessTransport.MessageStorage MessageStorage { get; set; }
-            public ITypeMapper TypeMapper { get; set; }
-            public IRemotableMessageSerializer Serializer { get; set; }
+            internal IUtcTimeTimeSource TimeSource { get; private set; }
+            internal InterprocessTransport.MessageStorage MessageStorage { get; private set; }
+            public ITypeMapper TypeMapper { get; private set; }
+            public IRemotableMessageSerializer Serializer { get; private set; }
+
+            public State(ITypeMapper typeMapper, IUtcTimeTimeSource timeSource, InterprocessTransport.MessageStorage messageStorage, IRemotableMessageSerializer serializer, IGlobalBusStateTracker globalBusStateTracker)
+            {
+                TypeMapper = typeMapper;
+                TimeSource = timeSource;
+                MessageStorage = messageStorage;
+                Serializer = serializer;
+                GlobalBusStateTracker = globalBusStateTracker;
+            }
         }
 
-        readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
+        readonly IThreadShared<State> _state;
 
         //Runs on poller thread so NO BLOCKING HERE!
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
@@ -161,9 +163,11 @@ namespace Composable.Messaging.Buses.Implementation
             _state.WithExclusiveAccess(state =>
             {
                 foreach(var response in responseBatch)
+                {
                     switch(response.ResponseType)
                     {
                         case TransportMessage.Response.ResponseType.Success:
+                        {
                             var successResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
                             _taskRunner.RunAndCrashProcessIfTaskThrows(() =>
                             {
@@ -176,6 +180,7 @@ namespace Composable.Messaging.Buses.Implementation
                                     successResponse.SetException(exception);
                                 }
                             });
+                        }
                             break;
                         case TransportMessage.Response.ResponseType.Failure:
                             var failureResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
@@ -188,6 +193,7 @@ namespace Composable.Messaging.Buses.Implementation
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+                }
             });
         }
     }

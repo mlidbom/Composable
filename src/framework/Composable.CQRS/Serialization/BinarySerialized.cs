@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Composable.System.Reflection;
+using JetBrains.Annotations;
 
 // ReSharper disable ForCanBeConvertedToForeach optimization is important in this file. It is really the whole purpose of it :)
 
@@ -72,9 +74,12 @@ namespace Composable.Serialization
 
         protected abstract class MemberGetterSetter<TValue> : MemberGetterSetter
         {
-            protected readonly Func<TInheritor, TValue> Getter;
-            protected readonly Action<TInheritor, TValue> Setter;
-            protected MemberGetterSetter(Func<TInheritor, TValue> getter, Action<TInheritor, TValue> setter)
+            public delegate void SetterFunction(TInheritor inheritor, [AllowNull]TValue value);
+            [return: MaybeNull]public delegate TValue GetterFunction(TInheritor inheritor);
+
+            protected readonly GetterFunction Getter;
+            protected readonly SetterFunction Setter;
+            protected MemberGetterSetter(GetterFunction getter, SetterFunction setter)
             {
                 Getter = getter;
                 Setter = setter;

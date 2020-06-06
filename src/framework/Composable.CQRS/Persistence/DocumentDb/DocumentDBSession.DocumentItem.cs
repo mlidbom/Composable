@@ -21,7 +21,7 @@ namespace Composable.Persistence.DocumentDb
                 Key = key;
             }
 
-            Object Document { get; set; }
+            object? Document { get; set; }
             public bool IsDeleted { get; private set; }
             bool IsInBackingStore { get; set; }
 
@@ -68,7 +68,7 @@ namespace Composable.Persistence.DocumentDb
                     }
                     else if(ScheduledForRemoval)
                     {
-                        var docType = Document.GetType();
+                        var docType = Document!.GetType();
                         Document = null;
                         IsInBackingStore = false;
                         _backingStore.Remove(Key.Id, docType);
@@ -76,7 +76,7 @@ namespace Composable.Persistence.DocumentDb
                     }
                     else if(ScheduledForUpdate)
                     {
-                        _backingStore.Update(Seq.Create(new KeyValuePair<string, object>(Key.Id, Document)), _persistentValues);
+                        _backingStore.Update(Seq.Create(new KeyValuePair<string, object>(Key.Id, Document!)), _persistentValues);
                     }
                 }
             }

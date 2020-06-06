@@ -10,7 +10,7 @@ namespace Composable.Contracts
         /// <param name="buildException">Expression that should return an appropriate exception if the inspection fails. If not supplied a default <see cref="ContractViolationException"/> will be created.</param>
         /// <returns>The same instance (this) in order to enable fluent chaining style code.</returns>
         /// <exception cref="Exception">The exception created by the buildException argument will be thrown if an <see cref="InspectedValue{TValue}"/> fails inspection.</exception>
-        IInspected<TValue> Inspect(Func<TValue, bool> isValueValid, Func<IInspectedValue<TValue>, Exception> buildException = null);
+        IInspected<TValue> Inspect(Func<TValue, bool> isValueValid, Func<IInspectedValue<TValue>, Exception>? buildException = null);
     }
 
     class Inspected<TValue> : IInspected<TValue>
@@ -24,7 +24,7 @@ namespace Composable.Contracts
         /// <param name="buildException">Expression that should return an appropriate exception if the inspection fails. If not supplied a default <see cref="ContractViolationException"/> will be created.</param>
         /// <returns>The same instance (this) in order to enable fluent chaining style code.</returns>
         /// <exception cref="Exception">The exception created by the buildException argument will be thrown if an <see cref="InspectedValue{TValue}"/> fails inspection.</exception>
-        public IInspected<TValue> Inspect(Func<TValue, bool> isValueValid, Func<IInspectedValue<TValue>, Exception> buildException = null)
+        public IInspected<TValue> Inspect(Func<TValue, bool> isValueValid, Func<IInspectedValue<TValue>, Exception>? buildException = null)
         {
             if(buildException == null)
             {
@@ -44,5 +44,15 @@ namespace Composable.Contracts
 
         ///<summary>Standard constructor</summary>
         internal Inspected(params IInspectedValue<TValue>[] inspectedValues) => _inspectedValues = inspectedValues;
+
+        internal Inspected(InspectionType inspectionType, params (TValue Value, string Name)[] inspectedValues)
+        {
+            _inspectedValues = new IInspectedValue<TValue>[inspectedValues.Length];
+            for(var i = 0; i < inspectedValues.Length; i++)
+            {
+                var (value, name) = inspectedValues[i];
+                _inspectedValues[i] = new InspectedValue<TValue>(inspectionType, value, name);
+            }
+        }
     }
 }

@@ -96,9 +96,9 @@ Current state of gate:
 
                 _queuedThreads.Remove(currentThread);
                 _passedThreads.Add(currentThread);
-                _prePassThroughAction?.Invoke(currentThread);
-                _passThroughAction?.Invoke(currentThread);
-                _postPassThroughAction?.Invoke(currentThread);
+                _prePassThroughAction.Invoke(currentThread);
+                _passThroughAction.Invoke(currentThread);
+                _postPassThroughAction.Invoke(currentThread);
             }
         }
 
@@ -117,9 +117,9 @@ Current state of gate:
         readonly TimeSpan _defaultTimeout;
         readonly IResourceGuard _resourceGuard;
         bool _lockOnNextPass;
-        Action<ThreadSnapshot> _passThroughAction;
-        Action<ThreadSnapshot> _prePassThroughAction;
-        Action<ThreadSnapshot> _postPassThroughAction;
+        Action<ThreadSnapshot> _passThroughAction = _ => { };
+        Action<ThreadSnapshot> _prePassThroughAction = _ => { };
+        Action<ThreadSnapshot> _postPassThroughAction = _ => { };
         bool _isOpen;
         readonly List<ThreadSnapshot> _requestsThreads = new List<ThreadSnapshot>();
         readonly LinkedList<ThreadSnapshot> _queuedThreads = new LinkedList<ThreadSnapshot>();

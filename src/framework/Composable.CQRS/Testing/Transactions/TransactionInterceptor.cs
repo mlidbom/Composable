@@ -6,16 +6,16 @@ namespace Composable.Testing.Transactions
     class TransactionInterceptor : IEnlistmentNotification
     {
         readonly Transaction _transaction;
-        readonly Action<PreparingEnlistment> _onPrepare;
-        readonly Action<Enlistment> _onCommit;
-        readonly Action<Enlistment> _onRollback;
-        readonly Action<Enlistment> _onInDoubt;
+        readonly Action<PreparingEnlistment>? _onPrepare;
+        readonly Action<Enlistment>? _onCommit;
+        readonly Action<Enlistment>? _onRollback;
+        readonly Action<Enlistment>? _onInDoubt;
 
         public TransactionInterceptor(Transaction transaction,
-                                      Action<PreparingEnlistment> onPrepare = null,
-                                      Action<Enlistment> onCommit = null,
-                                      Action<Enlistment> onRollback = null,
-                                      Action<Enlistment> onInDoubt = null)
+                                      Action<PreparingEnlistment>? onPrepare = null,
+                                      Action<Enlistment>? onCommit = null,
+                                      Action<Enlistment>? onRollback = null,
+                                      Action<Enlistment>? onInDoubt = null)
         {
             _transaction = transaction;
             _onPrepare = onPrepare;
@@ -26,7 +26,7 @@ namespace Composable.Testing.Transactions
             transaction.TransactionCompleted += (sender, args) => CompletedInformation = args.Transaction.TransactionInformation;
         }
 
-        public TransactionInformation CompletedInformation { get; private set; }
+        public TransactionInformation? CompletedInformation { get; private set; }
 
         public TransactionStatus Status => CompletedInformation?.Status ?? _transaction.TransactionInformation.Status;
 

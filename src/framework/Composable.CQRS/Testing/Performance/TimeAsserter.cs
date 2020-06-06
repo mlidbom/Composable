@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using Composable.Contracts;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Diagnostics;
@@ -39,11 +40,12 @@ namespace Composable.Testing.Performance
              TimeSpan? maxAverage = null,
              TimeSpan? maxTotal = null,
              string description = "",
-             string timeFormat = null,
-             int maxTries = 10,
-             [InstantHandle]Action setup = null,
-             [InstantHandle]Action tearDown = null)
+             string? timeFormat = null,
+             uint maxTries = 10,
+             [InstantHandle]Action? setup = null,
+             [InstantHandle]Action? tearDown = null)
         {
+            Assert.Argument.Assert(maxTries > 0);
             maxAverage = AdjustTime(maxAverage);
             maxTotal = AdjustTime(maxTotal);
 
@@ -60,12 +62,10 @@ namespace Composable.Testing.Performance
 
             string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
 
-            StopwatchExtensions.TimedExecutionSummary executionSummary = null;
-
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
+                var executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
                 tearDown?.Invoke();
                 try
                 {
@@ -82,10 +82,10 @@ namespace Composable.Testing.Performance
                     continue;
                 }
                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
-                break;
+                return executionSummary;
             }
 
-            return executionSummary;
+            throw new Exception("Unreachable");
         }
 
         public static StopwatchExtensions.TimedThreadedExecutionSummary ExecuteThreaded
@@ -95,14 +95,12 @@ namespace Composable.Testing.Performance
              TimeSpan? maxTotal = null,
              bool timeIndividualExecutions = false,
              string description = "",
-             string timeFormat = null,
-             [InstantHandle]Action setup = null,
-             [InstantHandle]Action tearDown = null,
+             string? timeFormat = null,
+             [InstantHandle]Action? setup = null,
+             [InstantHandle]Action? tearDown = null,
              int maxTries = 10,
             int maxDegreeOfParallelism = -1)
         {
-            StopwatchExtensions.TimedThreadedExecutionSummary executionSummary = null;
-
             maxAverage = AdjustTime(maxAverage);
             maxTotal = AdjustTime(maxTotal);
 
@@ -122,7 +120,7 @@ namespace Composable.Testing.Performance
 
             string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
 
-            void PrintResults()
+            void PrintResults(StopwatchExtensions.TimedThreadedExecutionSummary executionSummary)
             {
                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
 
@@ -142,7 +140,7 @@ namespace Composable.Testing.Performance
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions, maxDegreeOfParallelism: maxDegreeOfParallelism);
+                var executionSummary  = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions, maxDegreeOfParallelism: maxDegreeOfParallelism);
                 tearDown?.Invoke();
                 try
                 {
@@ -153,16 +151,15 @@ namespace Composable.Testing.Performance
                     SafeConsole.WriteLine($"Try: {tries} {e.GetType() .FullName}: {e.Message}");
                     if(tries >= maxTries)
                     {
-                        PrintResults();
+                        PrintResults(executionSummary);
                         throw;
                     }
                     continue;
                 }
-                PrintResults();
-                break;
+                PrintResults(executionSummary);
+                return executionSummary;
             }
-
-            return executionSummary;
+            throw new Exception("Unreachable");
         }
 
         static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchExtensions.TimedExecutionSummary executionSummary, [InstantHandle]Func<TimeSpan?, string> format)

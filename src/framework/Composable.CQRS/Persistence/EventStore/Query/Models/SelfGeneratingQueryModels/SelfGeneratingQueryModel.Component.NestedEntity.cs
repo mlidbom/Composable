@@ -31,7 +31,9 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
                 protected NestedEntity(TComponent parent): this(parent.RegisterEventAppliers()) { }
 
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
                 protected NestedEntity(IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
                 {
                     RegisterEventAppliers()
                         .For<TEntityCreatedEvent>(e => Id = IdGetter.GetId(e));

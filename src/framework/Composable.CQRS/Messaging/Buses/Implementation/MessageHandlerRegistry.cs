@@ -113,7 +113,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return command =>
                 {
                     handler(command);
-                    return null;
+                    return null!;
                 };
             }
 
@@ -228,6 +228,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                                                                                             {
                                                                                                                                 var result = handlerMethod((TCommand)command);
                                                                                                                                 // ReSharper disable once CompareNonConstrainedGenericWithNull (null is never OK, but defaults might possibly be fine for structs.)
+                                                                                                                                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                                                                                                                                 if(result == null)
                                                                                                                                 {
                                                                                                                                     throw new Exception("You cannot return null from a command handler");
@@ -244,6 +245,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                                                                       {
                                                                                                           var result = handlerMethod((TQuery)command);
                                                                                                           // ReSharper disable once CompareNonConstrainedGenericWithNull (null is never OK, but defaults might possibly be fine for structs.)
+                                                                                                          // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                                                                                                           if(result == null)
                                                                                                           {
                                                                                                               throw new Exception("You cannot return null from a query handler");

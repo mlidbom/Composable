@@ -47,7 +47,9 @@ namespace Composable.Persistence.EventStore.Aggregates
                 protected SlavedNestedEntity(TComponent parent)
                     : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers()) { }
 
+#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
                 protected SlavedNestedEntity
+#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
                     (IUtcTimeTimeSource timeSource,
                      Action<TEntityEventImplementation> raiseEventThroughParent,
                      IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)
@@ -59,15 +61,18 @@ namespace Composable.Persistence.EventStore.Aggregates
 
                 protected override void Publish(TEntityEventImplementation @event)
                 {
-                    if(object.Equals(Id, default(TEntityId)))
+                    if(object.Equals(Id, default(TEntityId)!))
                     {
                         throw new Exception("You must assign Id before calling RaiseEvent");
                     }
                     var id = IdGetterSetter.GetId(@event);
-                    if (Equals(id, default(TEntityId)))
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                    if (Equals(id, default(TEntityId)!))
+                        // ReSharper disable HeuristicUnreachableCode
                     {
                         IdGetterSetter.SetEntityId(@event, Id);
                     }
+                    // ReSharper restore HeuristicUnreachableCode
                     else if (!Equals(id, Id))
                     {
                         throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");

@@ -29,17 +29,17 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly TransportMessageType MessageTypeEnum;
             internal bool Is<TType>() => typeof(TType).IsAssignableFrom(MessageType);
 
-            BusApi.IMessage? _message;
+            MessageTypes.IMessage? _message;
             readonly ITypeMapper _typeMapper;
 
             //performance: detect BinarySerializable and use instead.
-            public BusApi.IMessage DeserializeMessageAndCacheForNextCall()
+            public MessageTypes.IMessage DeserializeMessageAndCacheForNextCall()
             {
                 if(_message == null)
                 {
                     _message = _serializer.DeserializeMessage(MessageType, Body);
 
-                    Assert.State.Assert(!(_message is BusApi.Remotable.ExactlyOnce.IMessage actualMessage) || MessageId == actualMessage.DeduplicationId);
+                    Assert.State.Assert(!(_message is MessageTypes.Remotable.ExactlyOnce.IMessage actualMessage) || MessageId == actualMessage.DeduplicationId);
                 }
                 return _message;
             }
@@ -75,13 +75,13 @@ namespace Composable.Messaging.Buses.Implementation
 
             static TransportMessageType GetMessageType(Type messageType)
             {
-                if(typeof(BusApi.Remotable.NonTransactional.IQuery).IsAssignableFrom(messageType))
+                if(typeof(MessageTypes.Remotable.NonTransactional.IQuery).IsAssignableFrom(messageType))
                     return TransportMessageType.NonTransactionalQuery;
-                if(typeof(BusApi.Remotable.AtMostOnce.ICommand).IsAssignableFrom(messageType))
+                if(typeof(MessageTypes.Remotable.AtMostOnce.ICommand).IsAssignableFrom(messageType))
                     return TransportMessageType.AtMostOnceCommand;
-                else if(typeof(BusApi.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(messageType))
+                else if(typeof(MessageTypes.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(messageType))
                     return TransportMessageType.ExactlyOnceEvent;
-                if(typeof(BusApi.Remotable.ExactlyOnce.ICommand).IsAssignableFrom(messageType))
+                if(typeof(MessageTypes.Remotable.ExactlyOnce.ICommand).IsAssignableFrom(messageType))
                     return TransportMessageType.ExactlyOnceCommand;
                 else
                     throw new ArgumentOutOfRangeException();
@@ -112,12 +112,12 @@ namespace Composable.Messaging.Buses.Implementation
                 socket.SendMultipartMessage(message);
             }
 
-            public static OutGoing Create(BusApi.Remotable.IMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public static OutGoing Create(MessageTypes.Remotable.IMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
-                var messageId = (message as BusApi.Remotable.IAtMostOnceMessage)?.DeduplicationId ?? Guid.NewGuid();
+                var messageId = (message as MessageTypes.Remotable.IAtMostOnceMessage)?.DeduplicationId ?? Guid.NewGuid();
                 //performance: detect implementation of BinarySerialized and use that when available
                 var body = serializer.SerializeMessage(message);
-                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is BusApi.Remotable.ExactlyOnce.IMessage);
+                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is MessageTypes.Remotable.ExactlyOnce.IMessage);
             }
 
             OutGoing(TypeId messageType, Guid messageId, string messageBody, bool isExactlyOnceDeliveryMessage)

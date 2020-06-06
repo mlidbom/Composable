@@ -45,7 +45,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
 
             //performance: Use static type and indexing trick to improve performance
-            internal EndpointId GetCommandHandlerEndpoint(BusApi.Remotable.ICommand command)
+            internal EndpointId GetCommandHandlerEndpoint(MessageTypes.Remotable.ICommand command)
             {
                 _handlerHasBeenResolved = true;
                 var commandTypeId = _typeMapper.GetId(command.GetType());
@@ -59,7 +59,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
 
             //performance: Use static type and indexing trick to improve performance
-            internal EndpointId GetQueryHandlerEndpoint(BusApi.IQuery query)
+            internal EndpointId GetQueryHandlerEndpoint(MessageTypes.IQuery query)
             {
                 _handlerHasBeenResolved = true;
                 var queryTypeId = _typeMapper.GetId(query.GetType());
@@ -73,7 +73,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
 
             //performance: Use static type and indexing trick to improve performance
-            internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(BusApi.Remotable.ExactlyOnce.IEvent @event)
+            internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
             {
                 _handlerHasBeenResolved = true;
                 var typedEventHandlerRegistrations = _eventHandlerRegistrations
@@ -90,9 +90,9 @@ namespace Composable.Messaging.Buses.Implementation
                        .ToList();
             }
 
-            static bool IsRemoteCommand(Type type) => typeof(BusApi.Remotable.ICommand).IsAssignableFrom(type);
-            static bool IsRemoteEvent(Type type) => typeof(BusApi.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(type);
-            static bool IsRemoteQuery(Type type) => typeof(BusApi.Remotable.NonTransactional.IQuery).IsAssignableFrom(type);
+            static bool IsRemoteCommand(Type type) => typeof(MessageTypes.Remotable.ICommand).IsAssignableFrom(type);
+            static bool IsRemoteEvent(Type type) => typeof(MessageTypes.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(type);
+            static bool IsRemoteQuery(Type type) => typeof(MessageTypes.Remotable.NonTransactional.IQuery).IsAssignableFrom(type);
         }
     }
 }

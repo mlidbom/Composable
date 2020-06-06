@@ -2,6 +2,7 @@
 using AccountManagement.API;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 using Composable.Refactoring.Naming;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
@@ -31,7 +32,7 @@ namespace AccountManagement.UI.MVC
             _clientEndpoint = _host.RegisterClientEndpoint(AccountApi.RegisterWithClientEndpoint);
 
             _host.Start();
-            services.AddScoped(_ => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>());
+            services.AddScoped(_ => _clientEndpoint.ServiceLocator.Resolve<IRemoteHypermediaNavigator>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

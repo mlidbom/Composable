@@ -17,13 +17,13 @@ namespace Composable.Messaging.Buses.Implementation
         Task StartAsync();
         Task ConnectAsync(EndPointAddress remoteEndpoint);
 
-        void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
-        void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);
+        void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
+        void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);
 
-        Task DispatchAsync(BusApi.Remotable.AtMostOnce.ICommand atMostOnceCommand);
-        Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand);
+        Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand);
+        Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand);
 
-        Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remotable.NonTransactional.IQuery<TQueryResult> query);
+        Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
     }
 
     interface IEndpointRegistry
@@ -33,29 +33,29 @@ namespace Composable.Messaging.Buses.Implementation
 
     interface IClientConnection : IDisposable
     {
-        void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.IEvent @event);
-        void DispatchIfTransactionCommits(BusApi.Remotable.ExactlyOnce.ICommand command);
+        void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
+        void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand command);
 
-        Task DispatchAsync(BusApi.Remotable.AtMostOnce.ICommand command);
-        Task<TCommandResult> DispatchAsync<TCommandResult>(BusApi.Remotable.AtMostOnce.ICommand<TCommandResult> command);
-        Task<TQueryResult> DispatchAsync<TQueryResult>(BusApi.Remotable.NonTransactional.IQuery<TQueryResult> query);
+        Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand command);
+        Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command);
+        Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
     }
 
     interface IMessageHandlerRegistry
     {
         IReadOnlyList<Type> GetTypesNeedingMappings();
 
-        Action<object> GetCommandHandler(BusApi.ICommand message);
+        Action<object> GetCommandHandler(MessageTypes.ICommand message);
 
-        Func<BusApi.ICommand, object> GetCommandHandler(Type commandType);
-        Func<BusApi.IQuery, object> GetQueryHandler(Type commandType);
-        IReadOnlyList<Action<BusApi.IEvent>> GetEventHandlers(Type eventType);
+        Func<MessageTypes.ICommand, object> GetCommandHandler(Type commandType);
+        Func<MessageTypes.IQuery, object> GetQueryHandler(Type commandType);
+        IReadOnlyList<Action<MessageTypes.IEvent>> GetEventHandlers(Type eventType);
 
-        Func<BusApi.IQuery<TResult>, TResult> GetQueryHandler<TResult>(BusApi.IQuery<TResult> query);
+        Func<MessageTypes.IQuery<TResult>, TResult> GetQueryHandler<TResult>(MessageTypes.IQuery<TResult> query);
 
-        Func<BusApi.ICommand<TResult>, TResult> GetCommandHandler<TResult>(BusApi.ICommand<TResult> command);
+        Func<MessageTypes.ICommand<TResult>, TResult> GetCommandHandler<TResult>(MessageTypes.ICommand<TResult> command);
 
-        IEventDispatcher<BusApi.IEvent> CreateEventDispatcher();
+        IEventDispatcher<MessageTypes.IEvent> CreateEventDispatcher();
 
         ISet<TypeId> HandledRemoteMessageTypeIds();
     }

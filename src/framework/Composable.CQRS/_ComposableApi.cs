@@ -9,6 +9,5 @@ namespace Composable
     {
         public EventStoreApi EventStore => new EventStoreApi();
         public DocumentDbApi DocumentDb => new DocumentDbApi();
-        public BusApiInstance Bus => new BusApiInstance();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AccountManagement.API;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -8,8 +9,8 @@ namespace AccountManagement.UI.MVC.Views.Login
 {
     public class LoginController : ControllerBase
     {
-        readonly IRemoteApiNavigatorSession _bus;
-        public LoginController(IRemoteApiNavigatorSession remoteApiNavigator) => _bus = remoteApiNavigator;
+        readonly IRemoteHypermediaNavigator _bus;
+        public LoginController(IRemoteHypermediaNavigator remoteApiNavigator) => _bus = remoteApiNavigator;
 
         public IActionResult Login(AccountResource.Command.LogIn loginCommand)
         {

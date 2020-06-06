@@ -22,7 +22,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _serializer = serializer;
             }
 
-            public void SaveMessage(BusApi.Remotable.ExactlyOnce.IMessage message, params EndpointId[] receiverEndpointIds) =>
+            public void SaveMessage(MessageTypes.Remotable.ExactlyOnce.IMessage message, params EndpointId[] receiverEndpointIds) =>
                 _connectionFactory.UseCommand(
                     command =>
                     {

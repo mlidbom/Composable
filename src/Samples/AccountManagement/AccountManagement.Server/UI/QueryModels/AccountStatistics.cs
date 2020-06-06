@@ -3,6 +3,7 @@ using AccountManagement.Domain.Events;
 using Composable.DependencyInjection;
 using Composable.Functional;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels;
 
@@ -36,7 +37,7 @@ namespace AccountManagement.UI.QueryModels
         }
 
         static void MaintainStatisticsWhenRelevantEventsAreReceived(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
-            (AccountEvent.Root @event, ILocalApiNavigatorSession bus, StatisticsSingletonInitializer initializer) =>
+            (AccountEvent.Root @event, ILocalHypermediaNavigator bus, StatisticsSingletonInitializer initializer) =>
             {
                 initializer.EnsureInitialized(bus);
 
@@ -58,7 +59,7 @@ namespace AccountManagement.UI.QueryModels
             readonly object _initializationlock = new object();
             bool _isInitialized;
             readonly DocumentDbApi _documentDbApi = new DocumentDbApi();
-            public void EnsureInitialized(ILocalApiNavigatorSession bus)
+            public void EnsureInitialized(ILocalHypermediaNavigator bus)
             {
                 lock(_initializationlock)
                 {

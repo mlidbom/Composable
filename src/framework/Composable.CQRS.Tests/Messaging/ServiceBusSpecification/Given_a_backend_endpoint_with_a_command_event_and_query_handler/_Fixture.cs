@@ -6,6 +6,7 @@ using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.System.Linq;
@@ -37,7 +38,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
         protected IEndpoint ClientEndpoint;
         protected IEndpoint RemoteEndpoint;
-        protected IRemoteApiNavigatorSession RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
+        protected IRemoteHypermediaNavigator RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteHypermediaNavigator>();
 
         [SetUp]public async Task Setup()
         {
@@ -70,8 +71,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
                     builder.RegisterHandlers
                            .ForCommand((MyExactlyOnceCommand command) => CommandHandlerThreadGate.AwaitPassthrough())
-                           .ForCommand((MyCreateAggregateCommand command, ILocalApiNavigatorSession navigator) => MyCreateAggregateCommandHandlerThreadGate.AwaitPassthroughAndExecute(() => MyAggregate.Create(command.AggregateId, navigator)))
-                           .ForCommand((MyUpdateAggregateCommand command, ILocalApiNavigatorSession navigator) => MyUpdateAggregateCommandHandlerThreadGate.AwaitPassthroughAndExecute(() => navigator.Execute(new ComposableApi().EventStore.Queries.GetForUpdate<MyAggregate>(command.AggregateId)).Update()))
+                           .ForCommand((MyCreateAggregateCommand command, ILocalHypermediaNavigator navigator) => MyCreateAggregateCommandHandlerThreadGate.AwaitPassthroughAndExecute(() => MyAggregate.Create(command.AggregateId, navigator)))
+                           .ForCommand((MyUpdateAggregateCommand command, ILocalHypermediaNavigator navigator) => MyUpdateAggregateCommandHandlerThreadGate.AwaitPassthroughAndExecute(() => navigator.Execute(new ComposableApi().EventStore.Queries.GetForUpdate<MyAggregate>(command.AggregateId)).Update()))
                            .ForEvent((MyExactlyOnceEvent myEvent) => EventHandlerThreadGate.AwaitPassthrough())
                            .ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyLocalAggregateEventHandlerThreadGate.AwaitPassthrough())
                            .ForQuery((MyQuery query) => QueryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
@@ -150,7 +151,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             internal void Update() => Publish(new MyAggregateEvent.Implementation.Updated());
 
-            internal static void Create(Guid id, ILocalApiNavigatorSession bus)
+            internal static void Create(Guid id, ILocalHypermediaNavigator bus)
             {
                 var created = new MyAggregate();
                 created.Publish(new MyAggregateEvent.Implementation.Created(id));
@@ -158,7 +159,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        protected class MyCreateAggregateCommand : BusApi.Remotable.AtMostOnce.Command
+        protected class MyCreateAggregateCommand : MessageTypes.Remotable.AtMostOnce.Command
         {
             MyCreateAggregateCommand() : base(DeduplicationIdHandling.Reuse) {}
 
@@ -171,24 +172,24 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public Guid AggregateId { get; set; }
         }
 
-        protected class MyUpdateAggregateCommand : BusApi.Remotable.AtMostOnce.Command
+        protected class MyUpdateAggregateCommand : MessageTypes.Remotable.AtMostOnce.Command
         {
             [UsedImplicitly] MyUpdateAggregateCommand() : base(DeduplicationIdHandling.Reuse) {}
             public MyUpdateAggregateCommand(Guid aggregateId) : base(DeduplicationIdHandling.Create) => AggregateId = aggregateId;
             public Guid AggregateId { get; private set; }
         }
 
-        protected class MyExactlyOnceCommand : BusApi.Remotable.ExactlyOnce.Command {}
+        protected class MyExactlyOnceCommand : MessageTypes.Remotable.ExactlyOnce.Command {}
         protected class MyExactlyOnceEvent : AggregateEvent {}
-        protected class MyQuery : BusApi.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
+        protected class MyQuery : MessageTypes.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
         protected class MyQueryResult {}
-        protected class MyAtMostOnceCommand : BusApi.Remotable.AtMostOnce.Command<MyCommandResult>
+        protected class MyAtMostOnceCommand : MessageTypes.Remotable.AtMostOnce.Command<MyCommandResult>
         {
             protected MyAtMostOnceCommand() : base(DeduplicationIdHandling.Reuse) {}
             internal static MyAtMostOnceCommand Create() => new MyAtMostOnceCommand {DeduplicationId = Guid.NewGuid()};
         }
 
-        protected class MyAtMostOnceCommandWithResult : BusApi.Remotable.AtMostOnce.Command<MyCommandResult>
+        protected class MyAtMostOnceCommandWithResult : MessageTypes.Remotable.AtMostOnce.Command<MyCommandResult>
         {
             MyAtMostOnceCommandWithResult() : base(DeduplicationIdHandling.Reuse) {}
             internal static MyAtMostOnceCommandWithResult Create() => new MyAtMostOnceCommandWithResult {DeduplicationId = Guid.NewGuid()};

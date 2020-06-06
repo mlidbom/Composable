@@ -76,12 +76,12 @@ namespace Composable.Messaging.Buses.Implementation
                         var transportMessageBatch = _receivedMessageBatches.Take(_cancellationTokenSource.Token);
                         foreach(var transportMessage in transportMessageBatch)
                         {
-                            if(transportMessage.Is<BusApi.Remotable.IAtMostOnceMessage>())
+                            if(transportMessage.Is<MessageTypes.Remotable.IAtMostOnceMessage>())
                             {
                                 //todo: handle the exception that will be thrown if this is a duplicate message
                                 _storage.SaveIncomingMessage(transportMessage);
 
-                                if(transportMessage.Is<BusApi.Remotable.ExactlyOnce.IMessage>())
+                                if(transportMessage.Is<MessageTypes.Remotable.ExactlyOnce.IMessage>())
                                 {
                                     var persistedResponse = transportMessage.CreatePersistedResponse();
                                     _responseQueue.Enqueue(persistedResponse);
@@ -93,7 +93,7 @@ namespace Composable.Messaging.Buses.Implementation
                             dispatchTask.ContinueWith(dispatchResult =>
                             {
                                 var message = transportMessage.DeserializeMessageAndCacheForNextCall();
-                                if(message is BusApi.Remotable.IRequireRemoteResponse)
+                                if(message is MessageTypes.Remotable.IRequireRemoteResponse)
                                 {
                                     if(dispatchResult.IsFaulted)
                                     {

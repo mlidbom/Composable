@@ -11,13 +11,13 @@ using Newtonsoft.Json;
 
 namespace Composable.Messaging
 {
-    public static partial class BusApi
+    public static partial class MessageTypes
     {
         internal static class Internal
         {
             internal interface IMessage {}
 
-            internal class EndpointInformationQuery : Internal.IMessage, BusApi.Remotable.NonTransactional.IQuery<EndpointInformation> {}
+            internal class EndpointInformationQuery : Internal.IMessage, MessageTypes.Remotable.NonTransactional.IQuery<EndpointInformation> {}
 
             internal class EndpointInformation
             {

@@ -12,7 +12,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public partial class Register : BusApi.Remotable.AtMostOnce.Command<Register.RegistrationAttemptResult>, IValidatableObject
+            public partial class Register : MessageTypes.Remotable.AtMostOnce.Command<Register.RegistrationAttemptResult>, IValidatableObject
             {
                 public Register():base(DeduplicationIdHandling.Reuse) {}
 

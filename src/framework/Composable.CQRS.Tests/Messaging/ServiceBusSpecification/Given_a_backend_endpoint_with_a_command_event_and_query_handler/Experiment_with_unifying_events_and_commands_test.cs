@@ -7,6 +7,7 @@ using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.Testing.Threading;
@@ -26,7 +27,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         IServiceLocator _userDomainServiceLocator;
         IEndpoint _clientEndpoint;
 
-        IRemoteApiNavigatorSession RemoteNavigator => _clientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
+        IRemoteHypermediaNavigator RemoteNavigator => _clientEndpoint.ServiceLocator.Resolve<IRemoteHypermediaNavigator>();
 
         [SetUp] public async Task Setup()
         {
@@ -117,7 +118,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarCommand
         {
-            public class RegisterUserCommand : BusApi.Remotable.AtMostOnce.Command<RegisterUserResult>
+            public class RegisterUserCommand : MessageTypes.Remotable.AtMostOnce.Command<RegisterUserResult>
             {
                 public Guid UserId { get; private set; } = Guid.NewGuid();
 
@@ -176,7 +177,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        public class GetUserQuery : BusApi.Remotable.NonTransactional.Queries.Query<UserResource>
+        public class GetUserQuery : MessageTypes.Remotable.NonTransactional.Queries.Query<UserResource>
         {
             public Guid UserId { get; private set; }
             public GetUserQuery(Guid userId) => UserId = userId;

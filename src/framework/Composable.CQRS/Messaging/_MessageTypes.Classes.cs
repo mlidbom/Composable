@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace Composable.Messaging
 {
-    public static partial class BusApi
+    public static partial class MessageTypes
     {
         public partial class StrictlyLocal
         {
@@ -128,9 +128,9 @@ namespace Composable.Messaging
         internal static void MapTypes(ITypeMappingRegistar typeMapper)
         {
             typeMapper
-               .MapTypeAndStandardCollectionTypes<BusApi.Remotable.IEvent>("1E0DB1B4-71A6-4D2E-901F-E238ABA30B63")
-               .MapTypeAndStandardCollectionTypes<BusApi.Internal.EndpointInformationQuery>("D94259E4-7479-442C-99AE-D49C12CF8713")
-               .MapTypeAndStandardCollectionTypes<BusApi.Internal.EndpointInformation>("2B598C6D-4893-4CB9-B4CE-7B705AD92DF9");
+               .MapTypeAndStandardCollectionTypes<MessageTypes.Remotable.IEvent>("1E0DB1B4-71A6-4D2E-901F-E238ABA30B63")
+               .MapTypeAndStandardCollectionTypes<MessageTypes.Internal.EndpointInformationQuery>("D94259E4-7479-442C-99AE-D49C12CF8713")
+               .MapTypeAndStandardCollectionTypes<MessageTypes.Internal.EndpointInformation>("2B598C6D-4893-4CB9-B4CE-7B705AD92DF9");
         }
     }
 }

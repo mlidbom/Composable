@@ -3,6 +3,7 @@
 using System;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 
 namespace AccountManagement.API
 {
@@ -14,7 +15,7 @@ namespace AccountManagement.API
     /// </summary>
     public static class AccountWebClientApi
     {
-        public static BusApi.Remotable.NonTransactional.Queries.NewableResultLink<StartResource> Start => new BusApi.Remotable.NonTransactional.Queries.NewableResultLink<StartResource>();
+        public static MessageTypes.Remotable.NonTransactional.Queries.NewableResultLink<StartResource> Start => new MessageTypes.Remotable.NonTransactional.Queries.NewableResultLink<StartResource>();
     }
 
 

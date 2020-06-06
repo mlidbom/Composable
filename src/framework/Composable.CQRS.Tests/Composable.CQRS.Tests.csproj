@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Composable.Hypermedia.Server\Composable.Hypermedia.Server.csproj" />
     <ProjectReference Include="..\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
     <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
   </ItemGroup>

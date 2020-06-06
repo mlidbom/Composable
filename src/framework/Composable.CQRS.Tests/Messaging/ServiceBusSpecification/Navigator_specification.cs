@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -87,7 +88,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             public RegisterUserCommand RegisterUser(string userName) => RegisterUserCommand.Create(userName);
         }
 
-        protected class GetUserQuery : BusApi.Remotable.NonTransactional.Queries.Query<UserResource>
+        protected class GetUserQuery : MessageTypes.Remotable.NonTransactional.Queries.Query<UserResource>
         {
             public GetUserQuery(string name) => Name = name;
             public string Name { get; private set; }
@@ -99,7 +100,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             public string Name { get; private set; }
         }
 
-        protected class RegisterUserCommand : BusApi.Remotable.AtMostOnce.Command<UserRegisteredConfirmationResource>
+        protected class RegisterUserCommand : MessageTypes.Remotable.AtMostOnce.Command<UserRegisteredConfirmationResource>
         {
             RegisterUserCommand() : base(DeduplicationIdHandling.Reuse) {}
 
@@ -119,6 +120,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             public string Name { get; }
         }
 
-        class UserApiStartPageQuery : BusApi.Remotable.NonTransactional.Queries.Query<UserApiStartPage> {}
+        class UserApiStartPageQuery : MessageTypes.Remotable.NonTransactional.Queries.Query<UserApiStartPage> {}
     }
 }

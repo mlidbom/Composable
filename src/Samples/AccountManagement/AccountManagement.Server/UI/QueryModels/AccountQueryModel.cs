@@ -6,6 +6,7 @@ using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Passwords;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels;
 
@@ -32,13 +33,13 @@ namespace AccountManagement.UI.QueryModels
             internal Query Queries => new Query();
             internal class Query
             {
-                public BusApi.StrictlyLocal.Queries.EntityLink<AccountQueryModel> Get(Guid id) => new BusApi.StrictlyLocal.Queries.EntityLink<AccountQueryModel>(id);
+                public MessageTypes.StrictlyLocal.Queries.EntityLink<AccountQueryModel> Get(Guid id) => new MessageTypes.StrictlyLocal.Queries.EntityLink<AccountQueryModel>(id);
             }
 
             public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => Get(registrar);
 
             static void Get(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-                (BusApi.StrictlyLocal.Queries.EntityLink<AccountQueryModel> query, ILocalApiNavigatorSession bus) =>
+                (MessageTypes.StrictlyLocal.Queries.EntityLink<AccountQueryModel> query, ILocalHypermediaNavigator bus) =>
                     new AccountQueryModel(bus.Execute(new EventStoreApi().Queries.GetHistory<AccountEvent.Root>(query.EntityId))));
         }
     }

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 using NCrunch.Framework;
 using NUnit.Framework;
 
@@ -15,7 +16,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         protected ITestingEndpointHost Host;
         protected IEndpoint ServerEndpoint;
         public IEndpoint ClientEndpoint;
-        protected IRemoteApiNavigatorSession RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteApiNavigatorSession>();
+        protected IRemoteHypermediaNavigator RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteHypermediaNavigator>();
         protected IServiceBusSession ServerBusSession => ServerEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
 
         [SetUp] public async Task Setup()
@@ -42,8 +43,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 
         [TearDown] public void TearDown() { Host.Dispose(); }
 
-        protected class MyRemoteQuery : BusApi.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
-        protected class MyLocalQuery : BusApi.StrictlyLocal.Queries.Query<MyQueryResult> {}
+        protected class MyRemoteQuery : MessageTypes.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
+        protected class MyLocalQuery : MessageTypes.StrictlyLocal.Queries.Query<MyQueryResult> {}
         protected class MyQueryResult {}
     }
 }

@@ -2,6 +2,7 @@
 using Composable;
 using Composable.Functional;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 using Composable.Persistence.DocumentDb;
 using JetBrains.Annotations;
 using AccountLink = Composable.Persistence.EventStore.EventStoreApi.Query.AggregateLink<AccountManagement.Domain.Account>;
@@ -13,7 +14,7 @@ namespace AccountManagement.Domain
         static DocumentDbApi DocumentDb => new ComposableApi().DocumentDb;
 
         internal static void UpdateMappingWhenEmailChanges(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
-            (AccountEvent.PropertyUpdated.Email emailUpdated, ILocalApiNavigatorSession bus) =>
+            (AccountEvent.PropertyUpdated.Email emailUpdated, ILocalHypermediaNavigator bus) =>
             {
                 if(emailUpdated.AggregateVersion > 1)
                 {
@@ -26,7 +27,7 @@ namespace AccountManagement.Domain
             });
 
         internal static void TryGetAccountByEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (AccountApi.Query.TryGetByEmailQuery query, ILocalApiNavigatorSession bus) =>
+            (AccountApi.Query.TryGetByEmailQuery query, ILocalHypermediaNavigator bus) =>
                 bus.Execute(DocumentDb.Queries.TryGet<AccountLink>(query.Email.StringValue)) is Some<AccountLink> accountLink
                     ? Option.Some(bus.Execute(accountLink.Value))
                     : Option.None<Account>());

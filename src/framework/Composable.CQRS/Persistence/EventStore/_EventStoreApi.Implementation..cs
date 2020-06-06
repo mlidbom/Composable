@@ -13,7 +13,7 @@ namespace Composable.Persistence.EventStore
     {
         public partial class Query
         {
-            public class AggregateLink<TAggregate> : BusApi.StrictlyLocal.Queries.Query<TAggregate> where TAggregate : IEventStored
+            public class AggregateLink<TAggregate> : MessageTypes.StrictlyLocal.Queries.Query<TAggregate> where TAggregate : IEventStored
             {
                 [JsonConstructor] internal AggregateLink(Guid id) => Id = id;
                 [JsonProperty] Guid Id { get; }
@@ -22,7 +22,7 @@ namespace Composable.Persistence.EventStore
                     (AggregateLink<TAggregate> query, IEventStoreUpdater updater) => updater.Get<TAggregate>(query.Id));
             }
 
-            public class GetAggregateHistory<TEvent> : BusApi.StrictlyLocal.Queries.Query<IEnumerable<TEvent>> where TEvent : IAggregateEvent
+            public class GetAggregateHistory<TEvent> : MessageTypes.StrictlyLocal.Queries.Query<IEnumerable<TEvent>> where TEvent : IAggregateEvent
             {
                 [JsonConstructor] internal GetAggregateHistory(Guid id) => Id = id;
                 [JsonProperty] Guid Id { get; }
@@ -31,7 +31,7 @@ namespace Composable.Persistence.EventStore
                     (GetAggregateHistory<TEvent> query, IEventStoreReader reader) => reader.GetHistory(query.Id).Cast<TEvent>());
             }
 
-            public class GetReadonlyCopyOfAggregate<TAggregate> : BusApi.StrictlyLocal.Queries.Query<TAggregate> where TAggregate : IEventStored
+            public class GetReadonlyCopyOfAggregate<TAggregate> : MessageTypes.StrictlyLocal.Queries.Query<TAggregate> where TAggregate : IEventStored
             {
                 [JsonConstructor] internal GetReadonlyCopyOfAggregate(Guid id) => Id = id;
                 [JsonProperty] Guid Id { get; }
@@ -40,7 +40,7 @@ namespace Composable.Persistence.EventStore
                     (GetReadonlyCopyOfAggregate<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopy<TAggregate>(query.Id));
             }
 
-            public class GetReadonlyCopyOfAggregateVersion<TAggregate> : BusApi.StrictlyLocal.Queries.Query<TAggregate> where TAggregate : IEventStored
+            public class GetReadonlyCopyOfAggregateVersion<TAggregate> : MessageTypes.StrictlyLocal.Queries.Query<TAggregate> where TAggregate : IEventStored
             {
                 [JsonConstructor] internal GetReadonlyCopyOfAggregateVersion(Guid id, int version)
                 {
@@ -58,7 +58,7 @@ namespace Composable.Persistence.EventStore
 
         public partial class Command
         {
-            public class SaveAggregate<TAggregate> : BusApi.StrictlyLocal.Commands.Command
+            public class SaveAggregate<TAggregate> : MessageTypes.StrictlyLocal.Commands.Command
                 where TAggregate : IEventStored
             {
                 [JsonConstructor] internal SaveAggregate(TAggregate entity) => Entity = entity;

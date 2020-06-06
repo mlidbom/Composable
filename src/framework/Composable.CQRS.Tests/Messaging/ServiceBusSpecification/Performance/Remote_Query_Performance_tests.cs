@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Messaging;
+using Composable.Messaging.Hypermedia;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.Testing.Performance;

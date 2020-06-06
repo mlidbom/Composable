@@ -10,7 +10,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public class ChangeEmail : BusApi.Remotable.AtMostOnce.Command
+            public class ChangeEmail : MessageTypes.Remotable.AtMostOnce.Command
             {
                 [UsedImplicitly] public ChangeEmail():base(DeduplicationIdHandling.Reuse) {}
                 internal ChangeEmail(Guid accountId):base(DeduplicationIdHandling.Create) => AccountId = accountId;

@@ -36,7 +36,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
             {
                 var lifestyle = componentRegistration.Lifestyle switch
                 {
-                    Lifestyle.Singleton => SimpleInjector.Lifestyle.Singleton,
+                    Lifestyle.Singleton => (SimpleInjector.Lifestyle)SimpleInjector.Lifestyle.Singleton,
                     Lifestyle.Scoped => SimpleInjector.Lifestyle.Scoped,
                     _ => throw new ArgumentOutOfRangeException(nameof(componentRegistration.Lifestyle))
                 };

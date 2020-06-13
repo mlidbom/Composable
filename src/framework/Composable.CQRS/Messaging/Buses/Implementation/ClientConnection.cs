@@ -134,7 +134,7 @@ namespace Composable.Messaging.Buses.Implementation
         class State
         {
             internal readonly IGlobalBusStateTracker GlobalBusStateTracker;
-            internal readonly Dictionary<Guid, TaskCompletionSource<object?>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object?>>();
+            internal readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
             internal readonly Dictionary<Guid, DateTime> PendingDeliveryNotifications = new Dictionary<Guid, DateTime>();
             internal DealerSocket Socket;
             internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
@@ -150,8 +150,7 @@ namespace Composable.Messaging.Buses.Implementation
                 MessageStorage = messageStorage;
                 Serializer = serializer;
                 GlobalBusStateTracker = globalBusStateTracker;
-            }
-        }
+            }        }
 
         readonly IThreadShared<State> _state;
 

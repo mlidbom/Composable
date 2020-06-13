@@ -89,7 +89,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public NetMQMessage CreateFailureResponse(AggregateException exception) => Response.Create.Failure(this, exception);
 
-            public NetMQMessage CreateSuccessResponse(object response) => Response.Create.Success(this, response, _serializer, _typeMapper);
+            public NetMQMessage CreateSuccessResponse(object? response) => Response.Create.Success(this, response, _serializer, _typeMapper);
 
             public NetMQMessage CreatePersistedResponse() => Response.Create.Persisted(this);
         }
@@ -145,7 +145,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal static class Create
             {
-                public static NetMQMessage Success(TransportMessage.InComing incoming, object response, IRemotableMessageSerializer serializer, ITypeMapper typeMapper)
+                public static NetMQMessage Success(TransportMessage.InComing incoming, object? response, IRemotableMessageSerializer serializer, ITypeMapper typeMapper)
                 {
                     var responseMessage = new NetMQMessage();
 

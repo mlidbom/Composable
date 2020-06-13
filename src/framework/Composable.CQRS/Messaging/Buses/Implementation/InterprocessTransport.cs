@@ -67,8 +67,8 @@ namespace Composable.Messaging.Buses.Implementation
 
             _state.WithExclusiveAccess(@this =>
             {
-                @this.EndpointConnections.Add(clientConnection.EndPointinformation.Id, clientConnection);
-                @this.HandlerStorage.AddRegistrations(clientConnection.EndPointinformation.Id, clientConnection.EndPointinformation.HandledMessageTypes);
+                @this.EndpointConnections.Add(clientConnection.EndpointInformation.Id, clientConnection);
+                @this.HandlerStorage.AddRegistrations(clientConnection.EndpointInformation.Id, clientConnection.EndpointInformation.HandledMessageTypes);
             });
         }
 

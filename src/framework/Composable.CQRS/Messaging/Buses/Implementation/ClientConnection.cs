@@ -19,7 +19,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
-        internal MessageTypes.Internal.EndpointInformation EndPointinformation { get; private set; }
+        internal MessageTypes.Internal.EndpointInformation EndpointInformation { get; private set; }
         readonly ITypeMapper _typeMapper;
         readonly ITaskRunner _taskRunner;
         public void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper, state.Serializer))));
@@ -83,7 +83,7 @@ namespace Composable.Messaging.Buses.Implementation
             @this.DispatchQueue.Enqueue(outGoingMessage);
         }
 
-        internal async Task Init(ClientConnection clientConnection) { EndPointinformation = await clientConnection.DispatchAsync(new MessageTypes.Internal.EndpointInformationQuery()); }
+        internal async Task Init(ClientConnection clientConnection) { EndpointInformation = await clientConnection.DispatchAsync(new MessageTypes.Internal.EndpointInformationQuery()); }
 
         internal ClientConnection(IGlobalBusStateTracker globalBusStateTracker,
                                 EndPointAddress serverEndpoint,
@@ -187,7 +187,7 @@ namespace Composable.Messaging.Buses.Implementation
                             break;
                         case TransportMessage.Response.ResponseType.Received:
                             Assert.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
-                            _taskRunner.RunAndCrashProcessIfTaskThrows(() => state.MessageStorage.MarkAsReceived(response, EndPointinformation.Id));
+                            _taskRunner.RunAndCrashProcessIfTaskThrows(() => state.MessageStorage.MarkAsReceived(response, EndpointInformation.Id));
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();

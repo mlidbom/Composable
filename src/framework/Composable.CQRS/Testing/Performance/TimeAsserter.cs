@@ -162,6 +162,7 @@ namespace Composable.Testing.Performance
             throw new Exception("Unreachable");
         }
 
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchExtensions.TimedExecutionSummary executionSummary, [InstantHandle]Func<TimeSpan?, string> format)
         {
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)

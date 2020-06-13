@@ -66,8 +66,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
             }
         }
 
-
-        SimpleInjector.Lifestyle GetSimpleInjectorLifestyle(Lifestyle @this)
+        static SimpleInjector.Lifestyle GetSimpleInjectorLifestyle(Lifestyle @this)
         {
             return @this switch
             {

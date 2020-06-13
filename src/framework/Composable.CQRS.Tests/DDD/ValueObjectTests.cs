@@ -246,7 +246,7 @@ namespace Composable.Tests.DDD
         public void ComparisonWithRhsNullReturnsFalse()
         {
             var lhs = new Address();
-            Assert.That(lhs.Equals(null), Is.False);
+            Assert.That(lhs.Equals(null!), Is.False);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             Assert.That(lhs == null, Is.False);
         }

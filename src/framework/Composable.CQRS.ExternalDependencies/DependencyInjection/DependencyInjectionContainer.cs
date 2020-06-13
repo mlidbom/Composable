@@ -27,7 +27,8 @@ namespace Composable.DependencyInjection
             return endpoint.ServiceLocator;
         }
 
-        public static IDependencyInjectionContainer Create(IRunMode runMode = null)
+        public static IDependencyInjectionContainer Create() => Create(RunMode.Production);
+        public static IDependencyInjectionContainer Create(IRunMode runMode)
         {
             //IDependencyInjectionContainer container = new SimpleInjectorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);
             //IDependencyInjectionContainer container = new WindsorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);

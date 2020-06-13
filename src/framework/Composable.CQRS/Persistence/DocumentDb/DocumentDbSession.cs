@@ -51,7 +51,7 @@ namespace Composable.Persistence.DocumentDb
             var documentItem = GetDocumentItem(key, documentType);
             if(!documentItem.IsDeleted && _backingStore.TryGet(key, out value, _persistentValues) && documentType.IsInstanceOfType(value))
             {
-                OnInitialLoad(key, value);
+                OnInitialLoad(key, value!);
                 return true;
             }
 
@@ -118,9 +118,11 @@ namespace Composable.Persistence.DocumentDb
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
+#pragma warning disable 8600
             if (TryGet(key, out TValue value))
+#pragma warning restore 8600
             {
-                return value;
+                return value!;
             }
 
             throw new NoSuchDocumentException(key, typeof(TValue));

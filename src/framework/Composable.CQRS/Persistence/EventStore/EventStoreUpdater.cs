@@ -38,11 +38,13 @@ namespace Composable.Persistence.EventStore
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
+#pragma warning disable 8600
             if (!DoTryGet(aggregateId, out TAggregate result))
+#pragma warning restore 8600
             {
                 throw new AggregateNotFoundException(aggregateId);
             }
-            return result;
+            return result!;
         }
 
         public bool TryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)][MaybeNull]out TAggregate aggregate) where TAggregate : IEventStored

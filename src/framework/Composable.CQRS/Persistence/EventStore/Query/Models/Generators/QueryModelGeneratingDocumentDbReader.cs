@@ -28,9 +28,11 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         public virtual TValue Get<TValue>(object key)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
+#pragma warning disable 8600
             if (TryGet(key, out TValue value))
+#pragma warning restore 8600
             {
-                return value;
+                return value!;
             }
 
             throw new NoSuchDocumentException(key, typeof(TValue));
@@ -39,9 +41,11 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         public virtual TValue GetVersion<TValue>(object key, int version)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
+#pragma warning disable 8600
             if (TryGetVersion(key, out TValue value, version))
+#pragma warning restore 8600
             {
-                return value;
+                return value!;
             }
 
             throw new NoSuchDocumentException(key, typeof(TValue));

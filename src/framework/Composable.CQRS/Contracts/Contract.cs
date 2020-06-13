@@ -26,7 +26,7 @@ namespace Composable.Contracts
             new Inspected<object>(InspectionType.Argument, (p1!, n1), (p2!, n2), (p3!, n3));
 
         public static IInspected<TInspected> Argument<TInspected>([AllowNull]TInspected p1, [InvokerParameterName] string n1) =>
-            new Inspected<TInspected>(InspectionType.Argument, (p1, n1));
+            new Inspected<TInspected>(InspectionType.Argument, (p1!, n1));
 
         public static IInspected<TInspected> Argument<TInspected>([AllowNull]TInspected p1, [InvokerParameterName] string n1, [AllowNull]TInspected p2, [InvokerParameterName] string n2) =>
             new Inspected<TInspected>(InspectionType.Argument, (p1!, n1), (p2!, n2));
@@ -45,7 +45,7 @@ namespace Composable.Contracts
             new Inspected<object>(InspectionType.Invariant, (p1!, n1), (p2!, n2), (p3!, n3));
 
         public static IInspected<TInspected> Invariant<TInspected>([AllowNull]TInspected p1, [InvokerParameterName] string n1) =>
-            new Inspected<TInspected>(InspectionType.Invariant, (p1, n1));
+            new Inspected<TInspected>(InspectionType.Invariant, (p1!, n1));
 
         public static IInspected<TInspected> Invariant<TInspected>([AllowNull]TInspected p1, [InvokerParameterName] string n1, [AllowNull]TInspected p2, [InvokerParameterName] string n2) =>
             new Inspected<TInspected>(InspectionType.Invariant, (p1!, n1), (p2!, n2));

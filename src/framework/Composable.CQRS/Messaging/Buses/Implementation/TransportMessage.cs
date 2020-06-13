@@ -63,7 +63,7 @@ namespace Composable.Messaging.Buses.Implementation
                 while(socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref receivedMessage))
                 {
 
-                    var client = receivedMessage[0].ToByteArray();
+                    var client = receivedMessage![0].ToByteArray();
                     var messageId = new Guid(receivedMessage[1].ToByteArray());
                     var messageType = new TypeId(new Guid(receivedMessage[2].ToByteArray()));
                     var messageBody = receivedMessage[3].ConvertToString();
@@ -219,7 +219,7 @@ namespace Composable.Messaging.Buses.Implementation
                     int fetched = 0;
                     while(fetched < batchMaximum && socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref received))
                     {
-                        result.Add(FromMultipartMessage(received, typeMapper));
+                        result.Add(FromMultipartMessage(received!, typeMapper));
                         fetched++;
                     }
                     return result;

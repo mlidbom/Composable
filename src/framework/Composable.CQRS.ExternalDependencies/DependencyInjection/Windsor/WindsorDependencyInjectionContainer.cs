@@ -48,7 +48,7 @@ namespace Composable.DependencyInjection.Windsor
         IDisposable IServiceLocator.BeginScope() => _windsorContainer.BeginScope();
         void IDisposable.Dispose() => _windsorContainer.Dispose();
 
-        IRegistration ToWindsorRegistration(ComponentRegistration componentRegistration)
+        static IRegistration ToWindsorRegistration(ComponentRegistration componentRegistration)
         {
             Castle.MicroKernel.Registration.ComponentRegistration<object> registration = Castle.MicroKernel.Registration.Component.For(componentRegistration.ServiceTypes);
 

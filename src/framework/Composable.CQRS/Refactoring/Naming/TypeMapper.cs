@@ -97,7 +97,7 @@ namespace Composable.Refactoring.Naming
             }
         }
 
-        Exception BuildExceptionDescribingHowToAddMissingMappings(List<Type> typesWithMissingMappings)
+        static Exception BuildExceptionDescribingHowToAddMissingMappings(List<Type> typesWithMissingMappings)
         {
             typesWithMissingMappings = typesWithMissingMappings.Distinct().OrderBy(type => type.GetFullNameCompilable()).ToList();
 
@@ -121,7 +121,7 @@ You should map them in your endpoint configuration by using {typeof(IEndpointBui
             public readonly Dictionary<TypeId, Type> TypeIdToTypeMap = new Dictionary<TypeId, Type>();
         }
 
-        string MapMethodCallforType(Type type) => $@"{nameof(ITypeMappingRegistar.Map)}<{type.GetFullNameCompilable()}>(""{Guid.NewGuid()}"")";
-        string StartOfMappingList => $"endpointBuilder.{nameof(IEndpointBuilder.TypeMapper)}";
+        static string MapMethodCallforType(Type type) => $@"{nameof(ITypeMappingRegistar.Map)}<{type.GetFullNameCompilable()}>(""{Guid.NewGuid()}"")";
+        static string StartOfMappingList => $"endpointBuilder.{nameof(IEndpointBuilder.TypeMapper)}";
     }
 }

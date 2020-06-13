@@ -45,7 +45,7 @@ namespace Composable.Persistence.EventStore
             return result;
         }
 
-        public bool TryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
+        public bool TryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)][MaybeNull]out TAggregate aggregate) where TAggregate : IEventStored
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);

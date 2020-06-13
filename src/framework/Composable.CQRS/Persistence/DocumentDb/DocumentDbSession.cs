@@ -32,7 +32,7 @@ namespace Composable.Persistence.DocumentDb
             _backingStore = backingStore;
         }
 
-        public virtual bool TryGet<TValue>(object key, out TValue document) => TryGetInternal(key, typeof(TValue), out document);
+        public virtual bool TryGet<TValue>(object key, [NotNullWhen(true)][MaybeNull]out TValue document) => TryGetInternal(key, typeof(TValue), out document);
 
         bool TryGetInternal<TValue>(object key, Type documentType, [NotNullWhen(true)][MaybeNull]out TValue value)
         {

@@ -1,4 +1,5 @@
-﻿using Composable.Contracts;
+﻿using System.Diagnostics.CodeAnalysis;
+using Composable.Contracts;
 
 namespace Composable.Functional
 {
@@ -26,7 +27,7 @@ namespace Composable.Functional
             Value = value;
         }
 
-        public T Value { get; }
+        [NotNull]public T Value { get; }
         public override bool HasValue => true;
     }
 

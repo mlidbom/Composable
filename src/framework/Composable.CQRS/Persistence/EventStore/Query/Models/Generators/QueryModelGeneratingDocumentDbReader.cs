@@ -47,7 +47,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
             throw new NoSuchDocumentException(key, typeof(TValue));
         }
 
-        public virtual bool TryGet<TDocument>(object key, out TDocument document) => TryGetVersion(key, out document);
+        public virtual bool TryGet<TDocument>(object key, [NotNullWhen(true)][MaybeNull]out TDocument document) => TryGetVersion(key, out document);
 
         public virtual bool TryGetVersion<TDocument>(object key, [NotNullWhen(true)][MaybeNull]out TDocument document, int version = -1)
         {

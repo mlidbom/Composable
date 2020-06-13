@@ -28,7 +28,7 @@ namespace ScratchPad
                                    .SelectMany(type => type.Assembly.GetTypes())
                                    .ToList();
 
-            _mappableTypes = _assemblyTypes.Where(type => !type.IsAbstract || (typeof(BusApi.Remotable.IEvent).IsAssignableFrom(type))).ToList();
+            _mappableTypes = _assemblyTypes.Where(type => !type.IsAbstract || (typeof(MessageTypes.Remotable.IEvent).IsAssignableFrom(type))).ToList();
 
             _assemblyTypes.ForEach(type => TypeIndex.For(type));
 

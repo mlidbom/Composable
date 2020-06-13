@@ -83,7 +83,7 @@ namespace Composable.Messaging.Buses.Implementation
             @this.DispatchQueue.Enqueue(outGoingMessage);
         }
 
-        internal async Task Init(ClientConnection clientConnection) { EndpointInformation = await clientConnection.DispatchAsync(new MessageTypes.Internal.EndpointInformationQuery()); }
+        internal async Task Init() { EndpointInformation = await DispatchAsync(new MessageTypes.Internal.EndpointInformationQuery()); }
 
         internal ClientConnection(IGlobalBusStateTracker globalBusStateTracker,
                                 EndPointAddress serverEndpoint,
@@ -149,7 +149,8 @@ namespace Composable.Messaging.Buses.Implementation
                 MessageStorage = messageStorage;
                 Serializer = serializer;
                 GlobalBusStateTracker = globalBusStateTracker;
-            }        }
+            }
+        }
 
         readonly IThreadShared<State> _state;
 

@@ -63,7 +63,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var clientConnection = _state.WithExclusiveAccess(@this => new ClientConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller!, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer));
 
-            await clientConnection.Init(clientConnection);
+            await clientConnection.Init();
 
             _state.WithExclusiveAccess(@this =>
             {

@@ -96,15 +96,13 @@ namespace Composable.Messaging.Buses.Implementation
         {
             _typeMapper = typeMapper;
             _taskRunner = taskRunner;
-            _state = new OptimizedThreadShared<State>(new State(typeMapper, timeSource, messageStorage, serializer, globalBusStateTracker));
+            _state = new OptimizedThreadShared<State>(new State(typeMapper, timeSource, messageStorage, new DealerSocket(), serializer, globalBusStateTracker));
 
             _state.WithExclusiveAccess(state =>
             {
                 poller.Add(state.DispatchQueue);
 
                 state.DispatchQueue.ReceiveReady += DispatchQueuedMessages;
-
-                state.Socket = new DealerSocket();
 
                 //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
                 state.Socket.Options.SendHighWatermark = int.MaxValue;
@@ -136,15 +134,16 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly IGlobalBusStateTracker GlobalBusStateTracker;
             internal readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
             internal readonly Dictionary<Guid, DateTime> PendingDeliveryNotifications = new Dictionary<Guid, DateTime>();
-            internal DealerSocket Socket;
+            internal readonly DealerSocket Socket;
             internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
             internal IUtcTimeTimeSource TimeSource { get; private set; }
             internal InterprocessTransport.MessageStorage MessageStorage { get; private set; }
             public ITypeMapper TypeMapper { get; private set; }
             public IRemotableMessageSerializer Serializer { get; private set; }
 
-            public State(ITypeMapper typeMapper, IUtcTimeTimeSource timeSource, InterprocessTransport.MessageStorage messageStorage, IRemotableMessageSerializer serializer, IGlobalBusStateTracker globalBusStateTracker)
+            public State(ITypeMapper typeMapper, IUtcTimeTimeSource timeSource, InterprocessTransport.MessageStorage messageStorage, DealerSocket socket, IRemotableMessageSerializer serializer, IGlobalBusStateTracker globalBusStateTracker)
             {
+                Socket = socket;
                 TypeMapper = typeMapper;
                 TimeSource = timeSource;
                 MessageStorage = messageStorage;

@@ -53,7 +53,7 @@ namespace Composable.Contracts
         public static IInspected<TInspected> Invariant<TInspected>([AllowNull]TInspected p1, [InvokerParameterName] string n1, [AllowNull]TInspected p2, [InvokerParameterName] string n2, [AllowNull]TInspected p3, [InvokerParameterName] string n3) =>
             new Inspected<TInspected>(InspectionType.Invariant, (p1!, n1), (p2!, n2), (p3!, n3));
 
-
+#pragma warning disable CS8777 // Parameter must have a non-null value when exiting.
         public static void ArgumentNotNull([NotNull]object? p1, [InvokerParameterName] string n1) =>
             ArgumentNotNull((p1, n1));
         public static void ArgumentNotNull([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2) =>
@@ -83,7 +83,7 @@ namespace Composable.Contracts
             ArgumentNotNullOrDefault((p1, n1), (p2, n2), (p3, n3),(p4, n4),(p5, n5),(p6, n6));
         public static void ArgumentNotNullOrDefault([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2, [NotNull]object? p3, [InvokerParameterName] string n3, [NotNull]object? p4, [InvokerParameterName] string n4, [NotNull]object? p5, [InvokerParameterName] string n5, [NotNull]object? p6, [InvokerParameterName] string n6, [NotNull]object? p7, [InvokerParameterName] string n7) =>
             ArgumentNotNullOrDefault((p1, n1), (p2, n2), (p3, n3),(p4, n4),(p5, n5),(p6, n6), (p7, n7));
-
+#pragma warning restore CS8777 // Parameter must have a non-null value when exiting.
         static void ArgumentNotNull(params (object? Argument, string Name)[] arguments)
         {
             for(int i = 0; i < arguments.Length; i++)

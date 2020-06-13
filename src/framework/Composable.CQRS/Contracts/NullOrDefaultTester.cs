@@ -31,6 +31,8 @@ namespace Composable.Contracts {
             throw new Exception("WTF");
         }
 
+#pragma warning disable 8604
         public static bool IsNullOrDefault([AllowNull]TType obj) => IsNullOrDefaultInternal(obj);
+#pragma warning restore 8604
     }
 }

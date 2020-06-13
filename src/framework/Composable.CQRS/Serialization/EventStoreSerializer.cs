@@ -29,7 +29,7 @@ namespace Composable.Serialization
         public object Deserialize(Type type, string json)
         {
             json = _renamingDecorator.RestoreTypeNames(json);
-            return JsonConvert.DeserializeObject(json, type, _jsonSettings);
+            return JsonConvert.DeserializeObject(json, type, _jsonSettings)!;
         }
     }
 

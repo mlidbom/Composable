@@ -184,7 +184,7 @@ namespace Composable.Messaging.Buses.Implementation
                             break;
                         case TransportMessage.Response.ResponseType.Failure:
                             var failureResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
-                            failureResponse.SetException(new MessageDispatchingFailedException(response.Body));
+                            failureResponse.SetException(new MessageDispatchingFailedException(response.Body ?? "Got no exception text from remote end."));
                             break;
                         case TransportMessage.Response.ResponseType.Received:
                             Assert.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));

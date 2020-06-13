@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Messaging.Events;
 using Composable.System.Reflection;
@@ -23,6 +24,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                                                  TEntityCreatedEvent,
                                                  TEntityEventIdGetterSetter> : IEntityCollectionManager<TEntity,
                                                                                    TEntityId,
+                                                                                   TEntityEvent,
                                                                                    TEntityEventImplementation,
                                                                                    TEntityCreatedEvent>
                 where TEntityEvent : class, TAggregateEvent

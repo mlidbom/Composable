@@ -12,9 +12,11 @@ namespace Composable.Persistence.EventStore.Aggregates
         TEntity this[TEntityId id] { get; }
     }
 
-    interface IEntityCollectionManager<TEntity, in TEntityId, in TEventClass, in TEntityCreationInterface>
+    interface IEntityCollectionManager<TEntity, in TEntityId,in TEntityEvent, in TEntityEventImplementation, in TEntityCreatedEvent>
+        where TEntityEvent : class
+        where TEntityCreatedEvent : TEntityEvent
     {
         IReadOnlyEntityCollection<TEntity, TEntityId> Entities { get; }
-        TEntity AddByPublishing<TCreationEvent>(TCreationEvent creationEvent) where TCreationEvent : TEventClass, TEntityCreationInterface;
+        TEntity AddByPublishing<TCreationEvent>(TCreationEvent creationEvent) where TCreationEvent : TEntityEventImplementation, TEntityCreatedEvent;
     }
 }

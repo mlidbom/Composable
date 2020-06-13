@@ -85,14 +85,16 @@ namespace Composable.Messaging.Buses.Implementation
 
         internal async Task Init() { EndpointInformation = await DispatchAsync(new MessageTypes.Internal.EndpointInformationQuery()); }
 
+#pragma warning disable 8618 //Refactor: This really should not be suppressed. We do have a bad design that might cause null reference exceptions here if Init has not been called.
         internal ClientConnection(IGlobalBusStateTracker globalBusStateTracker,
-                                EndPointAddress serverEndpoint,
-                                NetMQPoller poller,
-                                IUtcTimeTimeSource timeSource,
-                                InterprocessTransport.MessageStorage messageStorage,
-                                ITypeMapper typeMapper,
-                                ITaskRunner taskRunner,
-                                IRemotableMessageSerializer serializer)
+#pragma warning restore 8618
+                                  EndPointAddress serverEndpoint,
+                                  NetMQPoller poller,
+                                  IUtcTimeTimeSource timeSource,
+                                  InterprocessTransport.MessageStorage messageStorage,
+                                  ITypeMapper typeMapper,
+                                  ITaskRunner taskRunner,
+                                  IRemotableMessageSerializer serializer)
         {
             _typeMapper = typeMapper;
             _taskRunner = taskRunner;
@@ -172,7 +174,7 @@ namespace Composable.Messaging.Buses.Implementation
                             {
                                 try
                                 {
-                                    successResponse.SetResult(response.DeserializeResult(state.Serializer));
+                                    successResponse.SetResult(response.DeserializeResult(state.Serializer)!);//Refactor: Lying about nullability to the compiler is not pretty at all.
                                 }
                                 catch(Exception exception)
                                 {

@@ -22,18 +22,29 @@ namespace Composable.Messaging.Buses.Implementation
         internal MessageTypes.Internal.EndpointInformation EndpointInformation { get; private set; }
         readonly ITypeMapper _typeMapper;
         readonly ITaskRunner _taskRunner;
-        public void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(@event, state.TypeMapper, state.Serializer))));
+        readonly IRemotableMessageSerializer _serializer;
 
-        public void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(() => _state.WithExclusiveAccess(state => DispatchMessage(state, TransportMessage.OutGoing.Create(command, state.TypeMapper, state.Serializer))));
+        public void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(
+            () =>
+            {
+                var message = TransportMessage.OutGoing.Create(@event, _typeMapper, _serializer);
+                _state.WithExclusiveAccess(state => DispatchMessage(state, message));
+            });
+
+        public void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(
+            () =>
+            {
+                var message = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
+                _state.WithExclusiveAccess(state => DispatchMessage(state, message));
+            });
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command)
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
 
             _state.WithExclusiveAccess(state =>
             {
-                var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper, state.Serializer);
-
                 state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
                 DispatchMessage(state, outGoingMessage);
             });
@@ -44,11 +55,10 @@ namespace Composable.Messaging.Buses.Implementation
         public async Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
 
             _state.WithExclusiveAccess(state =>
             {
-                var outGoingMessage = TransportMessage.OutGoing.Create(command, state.TypeMapper, state.Serializer);
-
                 state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
                 DispatchMessage(state, outGoingMessage);
             });
@@ -59,11 +69,10 @@ namespace Composable.Messaging.Buses.Implementation
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var outGoingMessage = TransportMessage.OutGoing.Create(query, _typeMapper, _serializer);
 
             _state.WithExclusiveAccess(state =>
             {
-                var outGoingMessage = TransportMessage.OutGoing.Create(query, state.TypeMapper, state.Serializer);
-
                 state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
                 state.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
                 state.DispatchQueue.Enqueue(outGoingMessage);
@@ -96,9 +105,10 @@ namespace Composable.Messaging.Buses.Implementation
                                   ITaskRunner taskRunner,
                                   IRemotableMessageSerializer serializer)
         {
+            _serializer = serializer;
             _typeMapper = typeMapper;
             _taskRunner = taskRunner;
-            _state = new OptimizedThreadShared<State>(new State(typeMapper, timeSource, messageStorage, new DealerSocket(), serializer, globalBusStateTracker));
+            _state = new OptimizedThreadShared<State>(new State(timeSource, messageStorage, new DealerSocket(), globalBusStateTracker));
 
             _state.WithExclusiveAccess(state =>
             {
@@ -140,16 +150,12 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
             internal IUtcTimeTimeSource TimeSource { get; private set; }
             internal InterprocessTransport.MessageStorage MessageStorage { get; private set; }
-            public ITypeMapper TypeMapper { get; private set; }
-            public IRemotableMessageSerializer Serializer { get; private set; }
 
-            public State(ITypeMapper typeMapper, IUtcTimeTimeSource timeSource, InterprocessTransport.MessageStorage messageStorage, DealerSocket socket, IRemotableMessageSerializer serializer, IGlobalBusStateTracker globalBusStateTracker)
+            public State(IUtcTimeTimeSource timeSource, InterprocessTransport.MessageStorage messageStorage, DealerSocket socket, IGlobalBusStateTracker globalBusStateTracker)
             {
                 Socket = socket;
-                TypeMapper = typeMapper;
                 TimeSource = timeSource;
                 MessageStorage = messageStorage;
-                Serializer = serializer;
                 GlobalBusStateTracker = globalBusStateTracker;
             }
         }
@@ -174,7 +180,7 @@ namespace Composable.Messaging.Buses.Implementation
                             {
                                 try
                                 {
-                                    successResponse.SetResult(response.DeserializeResult(state.Serializer)!);//Refactor: Lying about nullability to the compiler is not pretty at all.
+                                    successResponse.SetResult(response.DeserializeResult(_serializer)!);//Refactor: Lying about nullability to the compiler is not pretty at all.
                                 }
                                 catch(Exception exception)
                                 {

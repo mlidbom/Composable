@@ -51,7 +51,7 @@ namespace Composable.Messaging.Buses.Implementation
                 Body = body;
                 MessageTypeId = messageTypeId;
                 MessageType = typeMapper.GetType(messageTypeId);
-                MessageTypeEnum = GetMessageType(MessageType);
+                MessageTypeEnum = GetMessageTypeEnum(MessageType);
                 Client = client;
                 MessageId = messageId;
             }
@@ -73,7 +73,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return result;
             }
 
-            static TransportMessageType GetMessageType(Type messageType)
+            static TransportMessageType GetMessageTypeEnum(Type messageType)
             {
                 if(typeof(MessageTypes.Remotable.NonTransactional.IQuery).IsAssignableFrom(messageType))
                     return TransportMessageType.NonTransactionalQuery;
@@ -89,7 +89,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public NetMQMessage CreateFailureResponse(AggregateException exception) => Response.Create.Failure(this, exception);
 
-            public NetMQMessage CreateSuccessResponse(object? response) => Response.Create.Success(this, response, _serializer, _typeMapper);
+            public NetMQMessage CreateSuccessResponse(object? response) => Response.Create.SuccessWithData(this, response, _serializer, _typeMapper);
 
             public NetMQMessage CreatePersistedResponse() => Response.Create.Persisted(this);
         }
@@ -133,9 +133,10 @@ namespace Composable.Messaging.Buses.Implementation
         {
             internal enum ResponseType
             {
-                Success,
+                SuccessWithData,
                 Failure,
-                Received
+                Received,
+                Success
             }
 
             static class Constants
@@ -145,13 +146,13 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal static class Create
             {
-                public static NetMQMessage Success(TransportMessage.InComing incoming, object? response, IRemotableMessageSerializer serializer, ITypeMapper typeMapper)
+                public static NetMQMessage SuccessWithData(TransportMessage.InComing incoming, object? response, IRemotableMessageSerializer serializer, ITypeMapper typeMapper)
                 {
                     var responseMessage = new NetMQMessage();
 
                     responseMessage.Append(incoming.Client);
                     responseMessage.Append(incoming.MessageId);
-                    responseMessage.Append((int)ResponseType.Success);
+                    responseMessage.Append((int)ResponseType.SuccessWithData);
 
                     if(response != null)
                     {
@@ -163,6 +164,18 @@ namespace Composable.Messaging.Buses.Implementation
                         responseMessage.Append(Constants.NullString);
                         responseMessage.Append(Constants.NullString);
                     }
+                    return responseMessage;
+                }
+
+                public static NetMQMessage Success(TransportMessage.InComing incoming, ITypeMapper typeMapper)
+                {
+                    var responseMessage = new NetMQMessage();
+
+                    responseMessage.Append(incoming.Client);
+                    responseMessage.Append(incoming.MessageId);
+                    responseMessage.Append((int)ResponseType.Success);
+                    responseMessage.Append(Constants.NullString);
+                    responseMessage.Append(Constants.NullString);
                     return responseMessage;
                 }
 
@@ -232,7 +245,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     switch(type)
                     {
-                        case ResponseType.Success:
+                        case ResponseType.SuccessWithData:
                         {
                             var responseBody = message[3].ConvertToString();
                             TypeId? responseType = null;
@@ -242,6 +255,10 @@ namespace Composable.Messaging.Buses.Implementation
                             }
 
                             return new Incoming(type: type, respondingToMessageId: messageId, body: responseBody, responseTypeId: responseType, typeMapper: typeMapper);
+                        }
+                        case ResponseType.Success:
+                        {
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: null, responseTypeId: null, typeMapper: typeMapper);
                         }
                         case ResponseType.Failure:
                             return new Incoming(type: type, respondingToMessageId: messageId, body: message[2].ConvertToString(), responseTypeId: null, typeMapper: typeMapper);

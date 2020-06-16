@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
+using Composable.GenericAbstractions;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
@@ -11,6 +12,7 @@ using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
+using Composable.System.Threading.Tasks;
 using Composable.SystemExtensions.TransactionsCE;
 using NetMQ;
 using NetMQ.Sockets;
@@ -145,6 +147,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             internal readonly IGlobalBusStateTracker GlobalBusStateTracker;
             internal readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
+            internal readonly Dictionary<Guid, VoidTaskCompletionSource> ExpectedCompletionTasks = new Dictionary<Guid, VoidTaskCompletionSource>();
             internal readonly Dictionary<Guid, DateTime> PendingDeliveryNotifications = new Dictionary<Guid, DateTime>();
             internal readonly DealerSocket Socket;
             internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
@@ -173,7 +176,7 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     switch(response.ResponseType)
                     {
-                        case TransportMessage.Response.ResponseType.Success:
+                        case TransportMessage.Response.ResponseType.SuccessWithData:
                         {
                             var successResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
                             _taskRunner.RunAndCrashProcessIfTaskThrows(() =>
@@ -181,6 +184,22 @@ namespace Composable.Messaging.Buses.Implementation
                                 try
                                 {
                                     successResponse.SetResult(response.DeserializeResult(_serializer)!);//Refactor: Lying about nullability to the compiler is not pretty at all.
+                                }
+                                catch(Exception exception)
+                                {
+                                    successResponse.SetException(exception);
+                                }
+                            });
+                        }
+                            break;
+                        case TransportMessage.Response.ResponseType.Success:
+                        {
+                            var successResponse = state.ExpectedCompletionTasks.GetAndRemove(response.RespondingToMessageId);
+                            _taskRunner.RunAndCrashProcessIfTaskThrows(() =>
+                            {
+                                try
+                                {
+                                    successResponse.SetResult();
                                 }
                                 catch(Exception exception)
                                 {

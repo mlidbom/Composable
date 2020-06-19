@@ -12,18 +12,18 @@ namespace Composable.Testing.Performance
     {
         const string DefaultTimeFormat = "ss\\.fff";
         const string ShortTimeFormat = "ss\\.ffffff";
+        const string MachineSlowdownFactorEnvironmentVariable = "COMPOSABLE_MACHINE_SLOWNESS";
 
         static readonly double MachineSlowdownFactor = DetectEnvironmentPerformanceAdjustment();
 
         static double DetectEnvironmentPerformanceAdjustment()
         {
-            const string machineSlowdownfactor = "COMPOSABLE_MACHINE_SLOWNESS";
-            var enviromentOverride = Environment.GetEnvironmentVariable(machineSlowdownfactor);
+            var enviromentOverride = Environment.GetEnvironmentVariable(MachineSlowdownFactorEnvironmentVariable);
             if(enviromentOverride != null)
             {
                 if(!double.TryParse(enviromentOverride, NumberStyles.Any, CultureInfo.InvariantCulture, out var adjustment))
                 {
-                    throw new Exception($"Environment variable har invalid value: {machineSlowdownfactor}. It should be parsable as a double.");
+                    throw new Exception($"Environment variable har invalid value: {MachineSlowdownFactorEnvironmentVariable}. It should be parsable as a double.");
                 }
 
                 return adjustment;
@@ -33,6 +33,15 @@ namespace Composable.Testing.Performance
         }
 
         static TimeSpan? AdjustTime(TimeSpan? timespan) => timespan?.MultiplyBy(MachineSlowdownFactor);
+
+        static void LogTimeAdjustment()
+        {
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            if(MachineSlowdownFactor != 1.0)
+            {
+                Console.WriteLine($"Adjusting allowed execution time with value {MachineSlowdownFactor} from environment variable {MachineSlowdownFactorEnvironmentVariable}");
+            }
+        }
 
         public static StopwatchExtensions.TimedExecutionSummary Execute
             ([InstantHandle]Action action,
@@ -48,6 +57,7 @@ namespace Composable.Testing.Performance
             Assert.Argument.Assert(maxTries > 0);
             maxAverage = AdjustTime(maxAverage);
             maxTotal = AdjustTime(maxTotal);
+            LogTimeAdjustment();
 
             if(timeFormat == null)
             {
@@ -103,6 +113,7 @@ namespace Composable.Testing.Performance
         {
             maxAverage = AdjustTime(maxAverage);
             maxTotal = AdjustTime(maxTotal);
+            LogTimeAdjustment();
 
             if(timeFormat == null)
             {

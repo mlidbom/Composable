@@ -41,6 +41,9 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
         {
             Assert.State.Assert(Version == 0);
             history.ForEach(theEvent => ApplyEvent((TAggregateEvent)theEvent));
+            AssertInvariantsAreMet();
         }
+
+        protected virtual void AssertInvariantsAreMet(){}
     }
 }

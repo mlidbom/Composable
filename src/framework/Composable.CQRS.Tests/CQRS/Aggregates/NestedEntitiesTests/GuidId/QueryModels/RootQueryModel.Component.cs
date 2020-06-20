@@ -18,7 +18,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.QueryModel
         // ReSharper disable once NotAccessedField.Local
         public NestedComponent CComponent { get; private set; }
 
-        public string Name { get; private set; }
+        public string Name { get; private set; } = string.Empty;
         public IReadonlyQueryModelEntityCollection<Entity, Guid> Entities => _entities.Entities;
     }
 }

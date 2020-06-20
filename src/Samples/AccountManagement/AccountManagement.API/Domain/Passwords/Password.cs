@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace AccountManagement.Domain.Passwords
 {
@@ -15,7 +16,11 @@ namespace AccountManagement.Domain.Passwords
         public byte[] Hash { get; private set; }
         public byte[] Salt { get; private set; }
 
-        [UsedImplicitly] Password() { }
+        [JsonConstructor]Password(byte[] hash, byte[] salt)
+        {
+            Hash = hash;
+            Salt = salt;
+        }
 
         public Password(string password)
         {

@@ -9,7 +9,7 @@ namespace AccountManagement.API.ValidationAttributes.Helpers
             // ReSharper disable once ConvertIfStatementToReturnStatement
             if(value == null)
             {
-                return true; //Validating whether something is required is the job of the Required attribute so other attributes always consider null to be valid.
+                return false; //We don't mind empty strings, but null is taboo.
             }
             return InternalIsValid(value);
         }

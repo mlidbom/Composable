@@ -12,7 +12,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.QueryModel
                                         RootEvent.Entity.NestedEntity.Removed,
                                         RootEvent.Entity.NestedEntity.Implementation.Root.IdGetterSetter>
         {
-            public string Name { get; private set; }
+            public string Name { get; private set; } = string.Empty;
             public RemovableNestedEntity(Entity entity) : base(entity)
             {
                 RegisterEventAppliers()

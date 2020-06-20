@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace AccountManagement.API
 {
@@ -6,7 +7,11 @@ namespace AccountManagement.API
     {
         public class CommandsCollection
         {
-            [UsedImplicitly] CommandsCollection() {}
+            [JsonConstructor]CommandsCollection(Command.ChangeEmail changeEmail, Command.ChangePassword changePassword)
+            {
+                ChangeEmail = changeEmail;
+                ChangePassword = changePassword;
+            }
 
             public CommandsCollection(AccountResource accountResource)
             {

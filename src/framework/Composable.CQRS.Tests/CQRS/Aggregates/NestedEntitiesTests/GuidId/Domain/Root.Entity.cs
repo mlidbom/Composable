@@ -12,7 +12,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.Domain
                                                          RootEvent.Entity.Removed,
                                                          RootEvent.Entity.Implementation.Root.IdGetterSetter>
     {
-        public string Name { get; private set; }
+        public string Name { get; private set; } = string.Empty;
         public RemovableEntity(Root root) : base(root)
         {
             _entities = RemovableNestedEntity.CreateSelfManagingCollection(this);

@@ -7,7 +7,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.IntegerId
     class Root : Aggregate<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {
         static int _instances;
-        public string Name { get; private set; }
+        public string Name { get; private set; } = string.Empty;
         readonly RemovableEntity.CollectionManager _entities;
         public Component Component { get; private set; }
 
@@ -29,7 +29,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.IntegerId
     class Component : Root.Component<Component, RootEvent.Component.Implementation.Root, RootEvent.Component.IRoot>
     {
         static int _instances;
-        public string Name { get; private set; }
+        public string Name { get; private set; } = string.Empty;
         public Component(Root root) : base(root)
         {
             _entities = Entity.CreateSelfManagingCollection(this);
@@ -52,7 +52,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.IntegerId
                                   RootEvent.Component.Entity.Removed,
                                   RootEvent.Component.Entity.Implementation.Root.IdGetterSetter>
         {
-            public string Name { get; private set; }
+            public string Name { get; private set; } = string.Empty;
             public Entity(Component parent) : base(parent)
             {
                 RegisterEventAppliers()
@@ -73,7 +73,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.IntegerId
                               RootEvent.Entity.Implementation.Root.IdGetterSetter>
     {
         static int _instances;
-        public string Name { get; private set; }
+        public string Name { get; private set; } = string.Empty;
         public RemovableEntity(Root root) : base(root)
         {
             _entities = RemovableNestedEntity.CreateSelfManagingCollection(this);
@@ -95,7 +95,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.IntegerId
                                         RootEvent.Entity.NestedEntity.Removed,
                                         RootEvent.Entity.NestedEntity.Implementation.Root.IdGetterSetter>
         {
-            public string Name { get; private set; }
+            public string Name { get; private set; } = string.Empty;
             public RemovableNestedEntity(RemovableEntity removableEntity) : base(removableEntity)
             {
                 RegisterEventAppliers()

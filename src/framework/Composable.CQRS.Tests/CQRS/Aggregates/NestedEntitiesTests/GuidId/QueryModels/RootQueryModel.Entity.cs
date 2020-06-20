@@ -11,7 +11,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.QueryModel
                               RootEvent.Entity.Removed,
                               RootEvent.Entity.Implementation.Root.IdGetterSetter>
     {
-        public string Name { get; private set; }
+        public string Name { get; private set; } = string.Empty;
         public Entity(RootQueryModel root) : base(root)
         {
             _entities = RemovableNestedEntity.CreateSelfManagingCollection(this);

@@ -17,8 +17,8 @@ namespace AccountManagement.API
                 public ChangePassword(Guid accountId):base(DeduplicationIdHandling.Create) => AccountId = accountId;
 
                 [Required] [EntityId] public Guid AccountId { get; set; }
-                [Required] public string OldPassword { get; set; }
-                [Required] public string NewPassword { get; set; }
+                [Required] public string OldPassword { get; set; } = string.Empty;
+                [Required] public string NewPassword { get; set; } = string.Empty;
 
                 public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Passwords.Password.Policy.Validate(NewPassword, this, () => NewPassword);
 

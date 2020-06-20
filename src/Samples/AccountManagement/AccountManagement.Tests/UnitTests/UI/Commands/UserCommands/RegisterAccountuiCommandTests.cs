@@ -34,7 +34,7 @@ namespace AccountManagement.UnitTests.UI.Commands.UserCommands
         [Test]
         public void IsInvalidIfEmailIsNull()
         {
-            _registerAccountUiCommand.Email = null;
+            _registerAccountUiCommand.Email = null!;
             CommandValidator.ValidationFailures(_registerAccountUiCommand).Should().NotBeEmpty();
         }
 
@@ -48,7 +48,7 @@ namespace AccountManagement.UnitTests.UI.Commands.UserCommands
         [Test]
         public void IsInvalidIfPasswordIsNull()
         {
-            _registerAccountUiCommand.Password = null;
+            _registerAccountUiCommand.Password = null!;
             CommandValidator.ValidationFailures(_registerAccountUiCommand).Should().NotBeEmpty();
         }
 
@@ -77,14 +77,14 @@ namespace AccountManagement.UnitTests.UI.Commands.UserCommands
             _registerAccountUiCommand.Password = TestData.Passwords.Invalid.MissingUpperCaseCharacter;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_MissingUpperCaseCharacter);
 
-            _registerAccountUiCommand.Password = TestData.Passwords.Invalid.Null;
+            _registerAccountUiCommand.Password = TestData.Passwords.Invalid.Null!;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.PasswordMissing);
         }
 
         [Test]
         public void FailsIfUnHandledPolicyFailureIsDetected()
         {
-            _registerAccountUiCommand.Password = null; //Null is normally caught by the Require attribute.
+            _registerAccountUiCommand.Password = null!; //Null is normally caught by the Require attribute.
             // ReSharper disable once AssignNullToNotNullAttribute
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             _registerAccountUiCommand.Invoking(command => command.Validate(null).ToArray()).Should().Throw<Exception>();

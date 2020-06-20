@@ -8,7 +8,7 @@ using FluentAssertions;
 using JetBrains.Annotations;
 using NCrunch.Framework;
 using NUnit.Framework;
-#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable IDE1006 //Review OK: Test Naming Styles
 
 namespace Composable.Tests.System.Reflection
 {
@@ -18,7 +18,7 @@ namespace Composable.Tests.System.Reflection
 
         [UsedImplicitly] class Simple
         {
-#pragma warning disable IDE0060 // Remove unused parameter
+#pragma warning disable IDE0060 //Review OK: unused parameter is intentional
             public Simple(string arg1){}
 #pragma warning restore IDE0060 // Remove unused parameter
         }

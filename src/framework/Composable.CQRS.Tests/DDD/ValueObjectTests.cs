@@ -2,7 +2,7 @@ using System;
 using Composable.DDD;
 using JetBrains.Annotations;
 using NUnit.Framework;
-#pragma warning disable IDE0052 // Remove unread private members
+#pragma warning disable IDE0052 //Review OK:unread private members are intentional in this test.
 
 namespace Composable.Tests.DDD
 {

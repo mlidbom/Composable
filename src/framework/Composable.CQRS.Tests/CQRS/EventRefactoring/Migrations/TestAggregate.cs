@@ -44,7 +44,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
     {
         public void Publish(params RootEvent[] events)
         {
-#pragma warning disable 618
+#pragma warning disable 618 //Review OK: This test class is allowed to use these "obsolete" methods.
             if (GetIdBypassContractValidation() == Guid.Empty && events.First().AggregateId == Guid.Empty)
             {
                 SetIdBeVerySureYouKnowWhatYouAreDoing(Guid.NewGuid());

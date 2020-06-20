@@ -17,7 +17,7 @@ using NUnit.Framework;
 using Composable.System;
 // ReSharper disable ClassNeverInstantiated.Global
 
-#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable IDE1006 //Review OK: Test Naming Styles
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {

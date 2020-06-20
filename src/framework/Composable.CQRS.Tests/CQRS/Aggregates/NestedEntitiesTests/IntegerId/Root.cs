@@ -9,9 +9,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.IntegerId
         static int _instances;
         public string Name { get; private set; }
         readonly RemovableEntity.CollectionManager _entities;
-#pragma warning disable 108,114
         public Component Component { get; private set; }
-#pragma warning restore 108,114
 
         public Root(string name) : base(new DateTimeNowTimeSource())
         {

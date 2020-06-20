@@ -8,7 +8,7 @@ using Composable.System;
 
 namespace Composable.Tests.System.Threading
 {
-    public class MonitorClassAPIExploration
+    public class MonitorClassApiExploration
     {
         [Fact] public void Wait_returns_after_timeout_even_without_pulse()
         {

@@ -16,6 +16,7 @@ using JetBrains.Annotations;
 using NUnit.Framework;
 using Composable.System;
 // ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable InconsistentNaming for testing
 
 #pragma warning disable IDE1006 //Review OK: Test Naming Styles
 

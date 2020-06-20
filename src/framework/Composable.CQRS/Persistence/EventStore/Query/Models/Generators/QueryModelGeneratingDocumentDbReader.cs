@@ -39,9 +39,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         public virtual TValue GetVersion<TValue>(object key, int version)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-#pragma warning disable 8600 //Review OK-ish: This is a Resharper bug. No real warning here.
             if (TryGetVersion(key, out TValue value, version))
-#pragma warning restore 8600
             {
                 return value!;
             }
@@ -49,9 +47,9 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
             throw new NoSuchDocumentException(key, typeof(TValue));
         }
 
-        public virtual bool TryGet<TDocument>(object key, [NotNullWhen(true)][MaybeNull]out TDocument document) => TryGetVersion(key, out document);
+        public virtual bool TryGet<TDocument>(object key, [NotNullWhen(true)]out TDocument document) => TryGetVersion(key, out document);
 
-        public virtual bool TryGetVersion<TDocument>(object key, [NotNullWhen(true)][MaybeNull]out TDocument document, int version = -1)
+        public virtual bool TryGetVersion<TDocument>(object key, [NotNullWhen(true)]out TDocument document, int version = -1)
         {
             var requiresVersioning = version > 0;
             _usageGuard.AssertNoContextChangeOccurred(this);

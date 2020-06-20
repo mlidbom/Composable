@@ -38,16 +38,14 @@ namespace Composable.Persistence.EventStore
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
-#pragma warning disable 8600//Review OK-ish: This is a Resharper bug. No real warning here.
             if (!DoTryGet(aggregateId, out TAggregate result))
-#pragma warning restore 8600
             {
                 throw new AggregateNotFoundException(aggregateId);
             }
             return result!;
         }
 
-        public bool TryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)][MaybeNull]out TAggregate aggregate) where TAggregate : IEventStored
+        public bool TryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)]out TAggregate aggregate) where TAggregate : IEventStored
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
@@ -143,7 +141,7 @@ namespace Composable.Persistence.EventStore
             return history;
         }
 
-        bool DoTryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)][MaybeNull]out TAggregate aggregate) where TAggregate : IEventStored
+        bool DoTryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)]out TAggregate aggregate) where TAggregate : IEventStored
         {
             if (_idMap.TryGetValue(aggregateId, out var es))
             {

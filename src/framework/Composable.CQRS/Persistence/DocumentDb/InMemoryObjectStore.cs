@@ -23,7 +23,7 @@ namespace Composable.Persistence.DocumentDb
             }
         }
 
-        internal bool TryGet<T>(object id, [NotNullWhen(true)][MaybeNull]out T value)
+        internal bool TryGet<T>(object id, [NotNullWhen(true)]out T value)
         {
             lock(LockObject)
             {

@@ -32,9 +32,9 @@ namespace Composable.Persistence.DocumentDb
             _backingStore = backingStore;
         }
 
-        public virtual bool TryGet<TValue>(object key, [NotNullWhen(true)][MaybeNull]out TValue document) => TryGetInternal(key, typeof(TValue), out document);
+        public virtual bool TryGet<TValue>(object key, [NotNullWhen(true)]out TValue document) => TryGetInternal(key, typeof(TValue), out document);
 
-        bool TryGetInternal<TValue>(object key, Type documentType, [NotNullWhen(true)][MaybeNull]out TValue value)
+        bool TryGetInternal<TValue>(object key, Type documentType, [NotNullWhen(true)]out TValue value)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
@@ -118,9 +118,7 @@ namespace Composable.Persistence.DocumentDb
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
-#pragma warning disable 8600 //Review OK-ish: This is a Resharper bug. No real warning here.
             if (TryGet(key, out TValue value))
-#pragma warning restore 8600
             {
                 return value!;
             }

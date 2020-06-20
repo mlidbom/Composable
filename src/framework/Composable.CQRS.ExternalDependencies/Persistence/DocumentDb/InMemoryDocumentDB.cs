@@ -15,7 +15,7 @@ namespace Composable.Persistence.DocumentDb
         public InMemoryDocumentDb(IDocumentDbSerializer serializer) => _serializer = serializer;
         readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
-        public bool TryGet<T>(object id, [NotNullWhen(true)][MaybeNull]out T value, Dictionary<Type, Dictionary<string, string>> persistentValues) => TryGet(id, out value);
+        public bool TryGet<T>(object id, [NotNullWhen(true)]out T value, Dictionary<Type, Dictionary<string, string>> persistentValues) => TryGet(id, out value);
 
         public void Add<T>(object id, T value, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {

@@ -449,7 +449,7 @@ namespace Composable.Tests.CQRS
 
             timingsSummary.Average.Should().BeLessThan(delayEachTransactionBy);
 
-            timingsSummary.IndividualExecutionTimes.Sum().Should().BeGreaterThan(timingsSummary.Total);
+            timingsSummary.IndividualExecutionTimes.Sum().Should().BeGreaterThan(timingsSummary.Total, "If the sum elapsed time of the parts that run in parallel is not greater than the clock time passed parallelism is not taking place.");
         }
 
         [Test]

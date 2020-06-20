@@ -128,7 +128,7 @@ FROM {EventTable.Name} {lockHint} ";
             }
         }
 
-        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventBaseType = null)
         {
             var ids = new List<Guid>();
             using (var connection = _connectionManager.OpenConnection(suppressTransactionWarning:true))

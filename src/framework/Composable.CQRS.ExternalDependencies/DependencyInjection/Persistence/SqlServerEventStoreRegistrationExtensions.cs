@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Castle.DynamicProxy;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
@@ -38,7 +39,7 @@ namespace Composable.DependencyInjection.Persistence
 
         class InMemoryEventStore<TSessionInterface, TReaderInterface> : InMemoryEventStore, IEventStore<TSessionInterface, TReaderInterface>
         {
-            public InMemoryEventStore(IEnumerable<IEventMigration> migrations = null) : base(migrations) {}
+            public InMemoryEventStore(IEnumerable<IEventMigration> migrations ) : base(migrations) {}
         }
 
         [UsedImplicitly] class EventStoreUpdater<TSessionInterface, TReaderInterface> : EventStoreUpdater, IEventStoreUpdater<TSessionInterface, TReaderInterface>
@@ -70,13 +71,15 @@ namespace Composable.DependencyInjection.Persistence
         {}
 
 
-        public static SqlServerEventStoreRegistrationBuilder RegisterSqlServerEventStore(this IEndpointBuilder @this,
-                                                                                         IReadOnlyList<IEventMigration> migrations = null)
+        public static SqlServerEventStoreRegistrationBuilder RegisterSqlServerEventStore(this IEndpointBuilder @this) => @this.RegisterSqlServerEventStore(new List<IEventMigration>());
+        public static SqlServerEventStoreRegistrationBuilder RegisterSqlServerEventStore(this IEndpointBuilder @this, IReadOnlyList<IEventMigration> migrations)
             => @this.Container.RegisterSqlServerEventStore(@this.Configuration.ConnectionStringName, migrations);
 
         public static SqlServerEventStoreRegistrationBuilder RegisterSqlServerEventStore(this IDependencyInjectionContainer @this,
+                                                                                         string connectionName) => @this.RegisterSqlServerEventStore(connectionName, new List<IEventMigration>());
+        public static SqlServerEventStoreRegistrationBuilder RegisterSqlServerEventStore(this IDependencyInjectionContainer @this,
                                                                                             string connectionName,
-                                                                                            IReadOnlyList<IEventMigration> migrations = null)
+                                                                                            IReadOnlyList<IEventMigration> migrations)
         {
               Contract.Argument(connectionName, nameof(connectionName))
                     .NotNullEmptyOrWhiteSpace();
@@ -117,8 +120,14 @@ namespace Composable.DependencyInjection.Persistence
         }
 
         public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
+                                                                                            string connectionName)
+            where TSessionInterface : class, IEventStoreUpdater
+            where TReaderInterface : IEventStoreReader
+            => @this.RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(connectionName, new List<IEventMigration>());
+
+        public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
                                                                                             string connectionName,
-                                                                                            IReadOnlyList<IEventMigration> migrations = null)
+                                                                                            IReadOnlyList<IEventMigration> migrations)
             where TSessionInterface : class, IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
             => @this.RegisterSqlServerEventStoreForFlexibleTesting<TSessionInterface, TReaderInterface>(

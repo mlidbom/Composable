@@ -76,6 +76,7 @@ namespace Composable.Messaging.Buses.Implementation
                         var transportMessageBatch = _receivedMessageBatches.Take(_cancellationTokenSource.Token);
                         foreach(var transportMessage in transportMessageBatch)
                         {
+                            //performance: With the current design having this code here causes all queries to wait for persisting of all transactional messages that arrived before them.
                             if(transportMessage.Is<MessageTypes.Remotable.IAtMostOnceMessage>())
                             {
                                 //todo: handle the exception that will be thrown if this is a duplicate message
@@ -92,6 +93,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                             dispatchTask.ContinueWith(dispatchResult =>
                             {
+                                //refactor: Consider moving these responsibilities into the message class. Probably create more subtypes so that no type checking is required.
                                 var message = transportMessage.DeserializeMessageAndCacheForNextCall();
                                 if(message is MessageTypes.Remotable.IRequireRemoteResponse)
                                 {

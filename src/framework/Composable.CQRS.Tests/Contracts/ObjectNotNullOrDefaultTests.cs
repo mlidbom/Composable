@@ -47,7 +47,7 @@ namespace Composable.Tests.Contracts
         struct MyStructure
         {
             // ReSharper disable NotAccessedField.Local
-#pragma warning disable IDE0052 // Remove unread private members
+#pragma warning disable IDE0052 //Review OK: This member is used through reflection.
             readonly int _value;
 #pragma warning restore IDE0052 // Remove unread private members
             // ReSharper restore NotAccessedField.Local

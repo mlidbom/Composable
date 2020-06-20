@@ -7,7 +7,7 @@ namespace Composable.Persistence.DocumentDb
 {
     interface IDocumentDb
     {
-        bool TryGet<T>(object id, [NotNullWhen(true)][MaybeNull]out T value, Dictionary<Type,Dictionary<string,string>> persistentValues);
+        bool TryGet<T>(object id, [NotNullWhen(true)]out T value, Dictionary<Type,Dictionary<string,string>> persistentValues);
         void Add<T>(object id, T value, Dictionary<Type, Dictionary<string, string>> persistentValues);
         void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> persistentValues);
 

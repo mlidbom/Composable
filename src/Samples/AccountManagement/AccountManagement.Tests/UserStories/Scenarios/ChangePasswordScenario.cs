@@ -2,6 +2,7 @@
 using Composable.Contracts;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 using Composable.System.Linq;
 
 namespace AccountManagement.UserStories.Scenarios

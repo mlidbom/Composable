@@ -50,5 +50,16 @@ namespace Composable.System.Collections.Collections
             @this.Remove(key);
             return value;
         }
+
+        public static bool TryGetAndRemove<TKey, TValue>(this IDictionary<TKey, TValue> @this, TKey key, out TValue value)
+        {
+            if(@this.TryGetValue(key, out value))
+            {
+                @this.Remove(key);
+                return true;
+            }
+
+            return false;
+        }
     }
 }

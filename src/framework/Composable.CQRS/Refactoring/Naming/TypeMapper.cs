@@ -14,10 +14,7 @@ namespace Composable.Refactoring.Naming
 {
     class TypeMapper : ITypeMapper, ITypeMappingRegistar
     {
-        // ReSharper disable once NotAccessedField.Local todo: implement
-#pragma warning disable IDE0052 // Remove unread private members
         readonly LazySqlServerConnectionProvider _endpointSqlConnectionProvider;
-#pragma warning restore IDE0052 // Remove unread private members
         readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
         public TypeMapper(LazySqlServerConnectionProvider endpointSqlConnectionProvider) => _endpointSqlConnectionProvider = endpointSqlConnectionProvider;
 
@@ -90,14 +87,14 @@ namespace Composable.Refactoring.Naming
         {
             if(type.IsAbstract)
             {
-                if(!(typeof(BusApi.Remotable.IEvent).IsAssignableFrom(type)))
+                if(!(typeof(MessageTypes.Remotable.IEvent).IsAssignableFrom(type)))
                 {
-                    throw new Exception($"Type: {type.FullName} is abstract and is not a {typeof(BusApi.Remotable.IEvent).FullName}. For other types you should only map concrete types.");
+                    throw new Exception($"Type: {type.FullName} is abstract and is not a {typeof(MessageTypes.Remotable.IEvent).FullName}. For other types you should only map concrete types.");
                 }
             }
         }
 
-        Exception BuildExceptionDescribingHowToAddMissingMappings(List<Type> typesWithMissingMappings)
+        static Exception BuildExceptionDescribingHowToAddMissingMappings(List<Type> typesWithMissingMappings)
         {
             typesWithMissingMappings = typesWithMissingMappings.Distinct().OrderBy(type => type.GetFullNameCompilable()).ToList();
 
@@ -121,7 +118,7 @@ You should map them in your endpoint configuration by using {typeof(IEndpointBui
             public readonly Dictionary<TypeId, Type> TypeIdToTypeMap = new Dictionary<TypeId, Type>();
         }
 
-        string MapMethodCallforType(Type type) => $@"{nameof(ITypeMappingRegistar.Map)}<{type.GetFullNameCompilable()}>(""{Guid.NewGuid()}"")";
-        string StartOfMappingList => $"endpointBuilder.{nameof(IEndpointBuilder.TypeMapper)}";
+        static string MapMethodCallforType(Type type) => $@"{nameof(ITypeMappingRegistar.Map)}<{type.GetFullNameCompilable()}>(""{Guid.NewGuid()}"")";
+        static string StartOfMappingList => $"endpointBuilder.{nameof(IEndpointBuilder.TypeMapper)}";
     }
 }

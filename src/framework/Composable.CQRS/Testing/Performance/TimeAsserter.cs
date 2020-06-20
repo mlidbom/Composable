@@ -12,18 +12,18 @@ namespace Composable.Testing.Performance
     {
         const string DefaultTimeFormat = "ss\\.fff";
         const string ShortTimeFormat = "ss\\.ffffff";
+        const string MachineSlowdownFactorEnvironmentVariable = "COMPOSABLE_MACHINE_SLOWNESS";
 
         static readonly double MachineSlowdownFactor = DetectEnvironmentPerformanceAdjustment();
 
         static double DetectEnvironmentPerformanceAdjustment()
         {
-            const string machineSlowdownfactor = "COMPOSABLE_MACHINE_SLOWNESS";
-            var enviromentOverride = Environment.GetEnvironmentVariable(machineSlowdownfactor);
+            var enviromentOverride = Environment.GetEnvironmentVariable(MachineSlowdownFactorEnvironmentVariable);
             if(enviromentOverride != null)
             {
                 if(!double.TryParse(enviromentOverride, NumberStyles.Any, CultureInfo.InvariantCulture, out var adjustment))
                 {
-                    throw new Exception($"Environment variable har invalid value: {machineSlowdownfactor}. It should be parsable as a double.");
+                    throw new Exception($"Environment variable har invalid value: {MachineSlowdownFactorEnvironmentVariable}. It should be parsable as a double.");
                 }
 
                 return adjustment;
@@ -33,6 +33,15 @@ namespace Composable.Testing.Performance
         }
 
         static TimeSpan? AdjustTime(TimeSpan? timespan) => timespan?.MultiplyBy(MachineSlowdownFactor);
+
+        static void LogTimeAdjustment()
+        {
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            if(MachineSlowdownFactor != 1.0)
+            {
+                Console.WriteLine($"Adjusting allowed execution time with value {MachineSlowdownFactor} from environment variable {MachineSlowdownFactorEnvironmentVariable}");
+            }
+        }
 
         public static StopwatchExtensions.TimedExecutionSummary Execute
             ([InstantHandle]Action action,
@@ -48,6 +57,7 @@ namespace Composable.Testing.Performance
             Assert.Argument.Assert(maxTries > 0);
             maxAverage = AdjustTime(maxAverage);
             maxTotal = AdjustTime(maxTotal);
+            LogTimeAdjustment();
 
             if(timeFormat == null)
             {
@@ -65,8 +75,16 @@ namespace Composable.Testing.Performance
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                var executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
-                tearDown?.Invoke();
+                StopwatchExtensions.TimedExecutionSummary executionSummary;
+                try
+                {
+                    executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
+                }
+                finally
+                {
+                    tearDown?.Invoke();
+                }
+
                 try
                 {
                     RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format: Format);
@@ -103,6 +121,7 @@ namespace Composable.Testing.Performance
         {
             maxAverage = AdjustTime(maxAverage);
             maxTotal = AdjustTime(maxTotal);
+            LogTimeAdjustment();
 
             if(timeFormat == null)
             {
@@ -140,8 +159,16 @@ namespace Composable.Testing.Performance
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                var executionSummary  = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions, maxDegreeOfParallelism: maxDegreeOfParallelism);
-                tearDown?.Invoke();
+                StopwatchExtensions.TimedThreadedExecutionSummary executionSummary;
+                try
+                {
+                    executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions, maxDegreeOfParallelism: maxDegreeOfParallelism);
+                }
+                finally
+                {
+                    tearDown?.Invoke();
+                }
+
                 try
                 {
                     RunAsserts(maxAverage, maxTotal, executionSummary, Format);
@@ -162,6 +189,7 @@ namespace Composable.Testing.Performance
             throw new Exception("Unreachable");
         }
 
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchExtensions.TimedExecutionSummary executionSummary, [InstantHandle]Func<TimeSpan?, string> format)
         {
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)

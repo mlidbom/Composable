@@ -9,7 +9,7 @@ namespace AccountManagement.UnitTests.Emails
         [TestFixture] public class An_InvalidEmailException_containing_the_email_is_thrown_if_email_
         {
             [Test, TestCaseSource(typeof(TestData.Emails), nameof(TestData.Emails.InvalidEmailsTestData))]
-            public void in_each_of_these_cases_and_the_message_contains_the_email(string invalidEmail)
+            public void In_each_of_these_cases_and_the_message_contains_the_email(string invalidEmail)
             {
                 var invalidEmailException = Assert.Throws<InvalidEmailException>(() => Email.Parse(invalidEmail));
 

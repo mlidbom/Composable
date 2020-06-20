@@ -14,7 +14,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         readonly ITypeMapper _typeMapper;
         readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
-        readonly Dictionary<Type, List<Action<BusApi.IEvent>>> _eventHandlers = new Dictionary<Type, List<Action<BusApi.IEvent>>>();
+        readonly Dictionary<Type, List<Action<MessageTypes.IEvent>>> _eventHandlers = new Dictionary<Type, List<Action<MessageTypes.IEvent>>>();
         readonly Dictionary<Type, HandlerWithResultRegistration> _queryHandlers = new Dictionary<Type, HandlerWithResultRegistration>();
         readonly Dictionary<Type, HandlerWithResultRegistration> _commandHandlersReturningResults = new Dictionary<Type, HandlerWithResultRegistration>();
         readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
@@ -28,7 +28,7 @@ namespace Composable.Messaging.Buses.Implementation
             MessageInspector.AssertValid<TEvent>();
             lock(_lock)
             {
-                _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<BusApi.IEvent>>()).Add(@event => handler((TEvent)@event));
+                _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<MessageTypes.IEvent>>()).Add(@event => handler((TEvent)@event));
                 _eventHandlerRegistrations.Add(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
                 return this;
             }
@@ -38,7 +38,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             MessageInspector.AssertValid<TCommand>();
 
-            if(typeof(TCommand).Implements(typeof(BusApi.ICommand<>)))
+            if(typeof(TCommand).Implements(typeof(MessageTypes.ICommand<>)))
             {
                 throw new Exception($"{typeof(TCommand)} expects a result. You must register a method that returns a result.");
             }
@@ -50,7 +50,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : BusApi.ICommand<TResult>
+        public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : MessageTypes.ICommand<TResult>
         {
             MessageInspector.AssertValid<TCommand>();
             lock (_lock)
@@ -76,18 +76,18 @@ namespace Composable.Messaging.Buses.Implementation
                                                .Concat(_commandHandlersReturningResults.Keys)
                                                .Concat(_queryHandlers.Keys)
                                                .Concat(_eventHandlerRegistrations.Select(reg => reg.Type))
-                                               .Where(messageType => messageType.Implements<BusApi.Remotable.IMessage>())
+                                               .Where(messageType => messageType.Implements<MessageTypes.Remotable.IMessage>())
                                                .ToSet();
 
             var remoteResultTypes = _commandHandlersReturningResults.Concat(_queryHandlers)
-                                                                    .Where(handler => handler.Key.Implements<BusApi.Remotable.IMessage>())
+                                                                    .Where(handler => handler.Key.Implements<MessageTypes.Remotable.IMessage>())
                                                                     .Select(handler => handler.Value.ReturnValueType)
                                                                     .ToList();
 
             return handledTypes.Concat(remoteResultTypes).ToList();
         }
 
-        Action<object> IMessageHandlerRegistry.GetCommandHandler(BusApi.ICommand message)
+        Action<object> IMessageHandlerRegistry.GetCommandHandler(MessageTypes.ICommand message)
         {
             if(TryGetCommandHandler(message, out var handler))
             {
@@ -97,7 +97,7 @@ namespace Composable.Messaging.Buses.Implementation
             throw new NoHandlerException(message.GetType());
         }
 
-        bool TryGetCommandHandler(BusApi.ICommand message, out Action<object> handler)
+        bool TryGetCommandHandler(MessageTypes.ICommand message, out Action<object> handler)
         {
             lock(_lock)
             {
@@ -105,7 +105,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        public Func<BusApi.ICommand, object> GetCommandHandler(Type commandType)
+        public Func<MessageTypes.ICommand, object> GetCommandHandler(Type commandType)
         {
             if(_commandHandlers.TryGetValue(commandType, out var handler))
             {
@@ -120,15 +120,15 @@ namespace Composable.Messaging.Buses.Implementation
             return _commandHandlersReturningResults[commandType].HandlerMethod;
         }
 
-        public Func<BusApi.IQuery, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType].HandlerMethod;
+        public Func<MessageTypes.IQuery, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType].HandlerMethod;
 
-        public IReadOnlyList<Action<BusApi.IEvent>> GetEventHandlers(Type eventType)
+        public IReadOnlyList<Action<MessageTypes.IEvent>> GetEventHandlers(Type eventType)
         {
             //performance: Use static caching trick.
             return _eventHandlers.Where(@this => @this.Key.IsAssignableFrom(eventType)).SelectMany(@this => @this.Value).ToList();
         }
 
-        Func<BusApi.IQuery<TResult>, TResult> IMessageHandlerRegistry.GetQueryHandler<TResult>(BusApi.IQuery<TResult> query)
+        Func<MessageTypes.IQuery<TResult>, TResult> IMessageHandlerRegistry.GetQueryHandler<TResult>(MessageTypes.IQuery<TResult> query)
         {
             try
             {
@@ -144,7 +144,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        public Func<BusApi.ICommand<TResult>, TResult> GetCommandHandler<TResult>(BusApi.ICommand<TResult> command)
+        public Func<MessageTypes.ICommand<TResult>, TResult> GetCommandHandler<TResult>(MessageTypes.ICommand<TResult> command)
         {
             try
             {
@@ -161,11 +161,11 @@ namespace Composable.Messaging.Buses.Implementation
         }
 
 
-        IEventDispatcher<BusApi.IEvent> IMessageHandlerRegistry.CreateEventDispatcher()
+        IEventDispatcher<MessageTypes.IEvent> IMessageHandlerRegistry.CreateEventDispatcher()
         {
-            var dispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<BusApi.IEvent>();
+            var dispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<MessageTypes.IEvent>();
             var registrar = dispatcher.RegisterHandlers()
-                                      .IgnoreUnhandled<BusApi.IEvent>();
+                                      .IgnoreUnhandled<MessageTypes.IEvent>();
             lock(_lock)
             {
                 _eventHandlerRegistrations.ForEach(handlerRegistration => handlerRegistration.RegisterHandlerWithRegistrar(registrar));
@@ -180,13 +180,13 @@ namespace Composable.Messaging.Buses.Implementation
                                                .Concat(_commandHandlersReturningResults.Keys)
                                                .Concat(_queryHandlers.Keys)
                                                .Concat(_eventHandlerRegistrations.Select(reg => reg.Type))
-                                               .Where(messageType => messageType.Implements<BusApi.Remotable.IMessage>())
-                                               .Where(messageType => !messageType.Implements<BusApi.Internal.IMessage>())
+                                               .Where(messageType => messageType.Implements<MessageTypes.Remotable.IMessage>())
+                                               .Where(messageType => !messageType.Implements<MessageTypes.Internal.IMessage>())
                                                .ToSet();
 
 
             var remoteResultTypes = _commandHandlersReturningResults
-                                   .Where(handler => handler.Key.Implements<BusApi.Remotable.IMessage>())
+                                   .Where(handler => handler.Key.Implements<MessageTypes.Remotable.IMessage>())
                                    .Select(handler => handler.Value.ReturnValueType)
                                    .ToList();
 
@@ -201,8 +201,8 @@ namespace Composable.Messaging.Buses.Implementation
         class EventHandlerRegistration
         {
             public Type Type { get; }
-            public Action<IEventHandlerRegistrar<BusApi.IEvent>> RegisterHandlerWithRegistrar { get; }
-            public EventHandlerRegistration(Type type, Action<IEventHandlerRegistrar<BusApi.IEvent>> registerHandlerWithRegistrar)
+            public Action<IEventHandlerRegistrar<MessageTypes.IEvent>> RegisterHandlerWithRegistrar { get; }
+            public EventHandlerRegistration(Type type, Action<IEventHandlerRegistrar<MessageTypes.IEvent>> registerHandlerWithRegistrar)
             {
                 Type = type;
                 RegisterHandlerWithRegistrar = registerHandlerWithRegistrar;

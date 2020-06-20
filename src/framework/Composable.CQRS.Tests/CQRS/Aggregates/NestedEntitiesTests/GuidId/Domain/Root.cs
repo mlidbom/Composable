@@ -9,9 +9,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.Domain
     {
         public string Name { get; private set; }
         readonly RemovableEntity.CollectionManager _entities;
-#pragma warning disable 108,114
         public Component Component { get; private set; }
-#pragma warning restore 108,114
 
         public Root(string name, Guid id) : base(new DateTimeNowTimeSource())
         {

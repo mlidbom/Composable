@@ -57,8 +57,8 @@ namespace Composable.Messaging
 
         class MustBeIMessage : SimpleMessageTypeDesignRule
         {
-            protected override bool IsInvalid(Type type) => !type.Implements<BusApi.IMessage>();
-            protected override string CreateMessage(Type type) => $"{type.GetFullNameCompilable()} does not implement {typeof(BusApi.IMessage).GetFullNameCompilable()}";
+            protected override bool IsInvalid(Type type) => !type.Implements<MessageTypes.IMessage>();
+            protected override string CreateMessage(Type type) => $"{type.GetFullNameCompilable()} does not implement {typeof(MessageTypes.IMessage).GetFullNameCompilable()}";
         }
 
         class MutuallyExclusiveInterfaces<TInterface1, TInterface2> : SimpleMessageTypeDesignRule
@@ -67,24 +67,24 @@ namespace Composable.Messaging
             protected override string CreateMessage(Type type) => $"{type.GetFullNameCompilable()} implements both {typeof(TInterface1).GetFullNameCompilable()} and {typeof(TInterface2).GetFullNameCompilable()}";
         }
 
-        class CannotBeBothCommandAndEvent : MutuallyExclusiveInterfaces<BusApi.ICommand, BusApi.IEvent> {}
+        class CannotBeBothCommandAndEvent : MutuallyExclusiveInterfaces<MessageTypes.ICommand, MessageTypes.IEvent> {}
 
-        class CannotBeBothCommandAndQuery : MutuallyExclusiveInterfaces<BusApi.ICommand, BusApi.IQuery> {}
+        class CannotBeBothCommandAndQuery : MutuallyExclusiveInterfaces<MessageTypes.ICommand, MessageTypes.IQuery> {}
 
-        class CannotBeBothEventAndQuery : MutuallyExclusiveInterfaces<BusApi.IEvent, BusApi.IQuery> {}
+        class CannotBeBothEventAndQuery : MutuallyExclusiveInterfaces<MessageTypes.IEvent, MessageTypes.IQuery> {}
 
-        class CannotBeBothRemotableAndStrictlyLocal : MutuallyExclusiveInterfaces<BusApi.Remotable.IMessage, BusApi.StrictlyLocal.IMessage> {}
+        class CannotBeBothRemotableAndStrictlyLocal : MutuallyExclusiveInterfaces<MessageTypes.Remotable.IMessage, MessageTypes.StrictlyLocal.IMessage> {}
 
-        class CannotForbidAndRequireTransactionalSender :  MutuallyExclusiveInterfaces<BusApi.IRequireTransactionalSender, BusApi.IForbidTransactionalRemoteSender> {}
+        class CannotForbidAndRequireTransactionalSender :  MutuallyExclusiveInterfaces<MessageTypes.IRequireTransactionalSender, MessageTypes.IForbidTransactionalRemoteSender> {}
 
 
         class ConcreteQueryMustImplementGenericQueryInterface : MessageTypeDesignRule
         {
             internal override void AssertFulfilledBy(Type type)
             {
-                if(type.Implements<BusApi.IQuery>() && !type.IsAbstract && !type.Implements(typeof(BusApi.IQuery<>)))
+                if(type.Implements<MessageTypes.IQuery>() && !type.IsAbstract && !type.Implements(typeof(MessageTypes.IQuery<>)))
                 {
-                    throw new MessageTypeDesignViolationException($"{type.GetFullNameCompilable()} implements only: {typeof(BusApi.IQuery).GetFullNameCompilable()}. Concrete classes must implement {typeof(BusApi.IQuery<>).GetFullNameCompilable()}");
+                    throw new MessageTypeDesignViolationException($"{type.GetFullNameCompilable()} implements only: {typeof(MessageTypes.IQuery).GetFullNameCompilable()}. Concrete classes must implement {typeof(MessageTypes.IQuery<>).GetFullNameCompilable()}");
 
                 }
             }
@@ -94,14 +94,14 @@ namespace Composable.Messaging
         {
             internal override void AssertFulfilledBy(Type type)
             {
-                if(type.Implements<BusApi.Remotable.AtMostOnce.ICommand>())
+                if(type.Implements<MessageTypes.Remotable.AtMostOnce.ICommand>())
                 {
-                    var instance = (BusApi.Remotable.AtMostOnce.ICommand)Constructor.CreateInstance(type);
+                    var instance = (MessageTypes.Remotable.AtMostOnce.ICommand)Constructor.CreateInstance(type);
                     if(instance.DeduplicationId != Guid.Empty)
                     {
-                        throw new MessageTypeDesignViolationException($@"The default constructor of {type.GetFullNameCompilable()} sets {nameof(BusApi.Remotable.IAtMostOnceMessage)}.{nameof(BusApi.Remotable.IAtMostOnceMessage.DeduplicationId)} to a value other than Guid.Empty.
-Since {type.GetFullNameCompilable()} is an {typeof(BusApi.Remotable.AtMostOnce.ICommand).GetFullNameCompilable()} this is very likely to break the exactly once guarantee.
-For instance: If you bind this command in a web UI and forget to bind the {nameof(BusApi.Remotable.IAtMostOnceMessage.DeduplicationId)} then the infrastructure will be unable to realize that this is NOT the correct originally created {nameof(BusApi.Remotable.IAtMostOnceMessage.DeduplicationId)}.
+                        throw new MessageTypeDesignViolationException($@"The default constructor of {type.GetFullNameCompilable()} sets {nameof(MessageTypes.Remotable.IAtMostOnceMessage)}.{nameof(MessageTypes.Remotable.IAtMostOnceMessage.DeduplicationId)} to a value other than Guid.Empty.
+Since {type.GetFullNameCompilable()} is an {typeof(MessageTypes.Remotable.AtMostOnce.ICommand).GetFullNameCompilable()} this is very likely to break the exactly once guarantee.
+For instance: If you bind this command in a web UI and forget to bind the {nameof(MessageTypes.Remotable.IAtMostOnceMessage.DeduplicationId)} then the infrastructure will be unable to realize that this is NOT the correct originally created {nameof(MessageTypes.Remotable.IAtMostOnceMessage.DeduplicationId)}.
 This in turn means that if your user clicks multiple times the command may well be both sent and handled multiple times. Thus breaking the exactly once guarantee. The same thing if a Single Page Application receives an HTTP timeout and retries the command. 
 And another example: If you make the setter private many serialization technologies will not be able to maintain the value of the property. But since you used this constructor the property will have a value. A new one each time the instance is deserialized. Again breaking the at most once guarantee.
 ");

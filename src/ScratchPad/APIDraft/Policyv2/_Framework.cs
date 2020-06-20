@@ -1,5 +1,5 @@
 ﻿// ReSharper disable All
-#pragma warning disable
+#pragma warning disable //Review OK: This is API experimental code that is never ever used.
 
 using System;
 using Composable.Messaging;
@@ -20,7 +20,7 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
 
     interface IMessageHandlerPolicy
     {
-        void Configure(IHandlerPolicyConfigurationBuilder builder, BusApi.IMessage message);
+        void Configure(IHandlerPolicyConfigurationBuilder builder, MessageTypes.IMessage message);
     }
 
 
@@ -93,6 +93,6 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
     class CompositePolicy : IMessageHandlerPolicy
     {
         public CompositePolicy(params IMessageHandlerPolicy[] policies) { }
-        public void Configure(IHandlerPolicyConfigurationBuilder builder, BusApi.IMessage message) { throw new NotImplementedException(); }
+        public void Configure(IHandlerPolicyConfigurationBuilder builder, MessageTypes.IMessage message) { throw new Exception(); }
     }
 }

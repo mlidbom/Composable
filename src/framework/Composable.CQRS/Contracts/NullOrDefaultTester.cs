@@ -31,6 +31,6 @@ namespace Composable.Contracts {
             throw new Exception("WTF");
         }
 
-        public static bool IsNullOrDefault([AllowNull]TType obj) => IsNullOrDefaultInternal(obj);
+        public static bool IsNullOrDefault([AllowNull]TType obj) => IsNullOrDefaultInternal(obj!);//We know that the method we are calling will correctly handle any null values but cannot declare it as such because it is a generic Func
     }
 }

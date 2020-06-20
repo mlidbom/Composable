@@ -8,9 +8,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.QueryModel
     {
         public string Name { get; private set; }
         readonly Entity.CollectionManager _entities;
-#pragma warning disable 108,114
         public Component Component { get; private set; }
-#pragma warning restore 108,114
 
         public RootQueryModel()
         {

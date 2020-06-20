@@ -5,60 +5,32 @@ using Composable.Contracts;
 using Composable.DDD;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Messaging.Hypermedia;
 using Composable.Refactoring.Naming;
 using Newtonsoft.Json;
 
 namespace Composable.Messaging.Buses
 {
-    ///<summary>Dispatches messages within a process.</summary>
-    public interface ILocalApiNavigatorSession
-    {
-        ///<summary>Synchronously executes local handler for <paramref name="query"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        TResult Execute<TResult>(BusApi.StrictlyLocal.IQuery<TResult> query);
-
-        ///<summary>Synchronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        TResult Execute<TResult>(BusApi.StrictlyLocal.ICommand<TResult> command);
-
-        ///<summary>Synchronously executes local handler for <paramref name="command"/>. The handler takes part in the active transaction and guarantees consistent results within a transaction.</summary>
-        void Execute(BusApi.StrictlyLocal.ICommand command);
-    }
-
-
-    public interface IRemoteApiNavigatorSession
-    {
-        Task PostAsync(BusApi.Remotable.AtMostOnce.ICommand command);
-        void Post(BusApi.Remotable.AtMostOnce.ICommand command);
-
-        Task<TResult> PostAsync<TResult>(BusApi.Remotable.AtMostOnce.ICommand<TResult> command);
-        TResult Post<TResult>(BusApi.Remotable.AtMostOnce.ICommand<TResult> command);
-
-        ///<summary>Gets the result of a handler somewhere on the bus handling the <paramref name="query"/></summary>
-        Task<TResult> GetAsync<TResult>(BusApi.Remotable.NonTransactional.IQuery<TResult> query);
-
-        ///<summary>Synchronous wrapper for: <see cref="GetAsync{TResult}"/>.</summary>
-        TResult Get<TResult>(BusApi.Remotable.NonTransactional.IQuery<TResult> query);
-    }
-
     public interface IIntegrationBusSession
     {
         ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
-        void Send(BusApi.Remotable.ExactlyOnce.ICommand command);
+        void Send(MessageTypes.Remotable.ExactlyOnce.ICommand command);
 
         ///<summary>Schedules a command to be sent later if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
-        void ScheduleSend(DateTime sendAt, BusApi.Remotable.ExactlyOnce.ICommand command);
+        void ScheduleSend(DateTime sendAt, MessageTypes.Remotable.ExactlyOnce.ICommand command);
     }
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IServiceBusSession : ILocalApiNavigatorSession, IRemoteApiNavigatorSession, IIntegrationBusSession
+    public interface IServiceBusSession : ILocalHypermediaNavigator, IRemoteHypermediaNavigator, IIntegrationBusSession
     {
     }
 
     public interface IMessageHandlerRegistrar
     {
-        IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : BusApi.IEvent;
-        IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : BusApi.ICommand;
-        IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : BusApi.ICommand<TResult>;
-        IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : BusApi.IQuery<TResult>;
+        IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : MessageTypes.IEvent;
+        IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : MessageTypes.ICommand;
+        IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : MessageTypes.ICommand<TResult>;
+        IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : MessageTypes.IQuery<TResult>;
     }
 
     public interface IEndpoint : IDisposable

@@ -2,7 +2,7 @@ using System;
 using Composable.DDD;
 using JetBrains.Annotations;
 using NUnit.Framework;
-#pragma warning disable IDE0052 // Remove unread private members
+#pragma warning disable IDE0052 //Review OK:unread private members are intentional in this test.
 
 namespace Composable.Tests.DDD
 {
@@ -246,7 +246,7 @@ namespace Composable.Tests.DDD
         public void ComparisonWithRhsNullReturnsFalse()
         {
             var lhs = new Address();
-            Assert.That(lhs.Equals(null), Is.False);
+            Assert.That(lhs.Equals(null!), Is.False);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             Assert.That(lhs == null, Is.False);
         }

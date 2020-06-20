@@ -66,6 +66,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             _host.Dispose();
         }
 
-        class ScheduledCommand : BusApi.Remotable.ExactlyOnce.Command {}
+        class ScheduledCommand : MessageTypes.Remotable.ExactlyOnce.Command {}
     }
 }

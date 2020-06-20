@@ -43,14 +43,14 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
                                             {
                                                 ((IEventStoreReader)session).GetHistory(user.Id);
                                             }
-                                            ServiceLocator.ExecuteTransaction(() =>
-                                                                             {
-                                                                                 using(changeEmailSection.Enter())
-                                                                                 {
-                                                                                     var userToUpdate = session.Get<User>(user.Id);
-                                                                                     userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
-                                                                                 }
-                                                                             });
+                                            TransactionScopeCe.Execute(() =>
+                                            {
+                                                using(changeEmailSection.Enter())
+                                                {
+                                                    var userToUpdate = session.Get<User>(user.Id);
+                                                    userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
+                                                }
+                                            });
                                         });
             }
 

@@ -31,7 +31,7 @@ namespace Composable.Messaging.Buses.Implementation
             await Task.CompletedTask;
         }
 
-        public void Schedule(DateTime sendAt, BusApi.Remotable.ExactlyOnce.ICommand message) => _guard.Update(() =>
+        public void Schedule(DateTime sendAt, MessageTypes.Remotable.ExactlyOnce.ICommand message) => _guard.Update(() =>
         {
             if(_timeSource.UtcNow > sendAt.ToUniversalTime())
                 throw new InvalidOperationException(message: "You cannot schedule a queuedMessageInformation to be sent in the past.");
@@ -54,9 +54,9 @@ namespace Composable.Messaging.Buses.Implementation
         class ScheduledCommand
         {
             public DateTime SendAt { get; }
-            public BusApi.Remotable.ExactlyOnce.ICommand Command { get; }
+            public MessageTypes.Remotable.ExactlyOnce.ICommand Command { get; }
 
-            public ScheduledCommand(DateTime sendAt, BusApi.Remotable.ExactlyOnce.ICommand command)
+            public ScheduledCommand(DateTime sendAt, MessageTypes.Remotable.ExactlyOnce.ICommand command)
             {
                 SendAt = sendAt.SafeToUniversalTime();
                 Command = command;

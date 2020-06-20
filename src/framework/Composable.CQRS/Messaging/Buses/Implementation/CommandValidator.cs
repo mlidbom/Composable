@@ -6,7 +6,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     static class CommandValidator
     {
-        public static void AssertCommandIsValid(BusApi.ICommand command)
+        public static void AssertCommandIsValid(MessageTypes.ICommand command)
         {
             var failures = ValidationFailures(command);
             if(failures.Any())

@@ -3,6 +3,7 @@ using AccountManagement.API;
 using AccountManagement.Domain.Registration;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -10,8 +11,8 @@ namespace AccountManagement.UI.MVC.Views.Register
 {
     public class RegisterController : ControllerBase
     {
-        readonly IRemoteApiNavigatorSession _bus;
-        public RegisterController(IRemoteApiNavigatorSession remoteApiNavigator) => _bus = remoteApiNavigator;
+        readonly IRemoteHypermediaNavigator _bus;
+        public RegisterController(IRemoteHypermediaNavigator remoteApiNavigator) => _bus = remoteApiNavigator;
 
         public IActionResult Register(AccountResource.Command.Register registrationCommand)
         {

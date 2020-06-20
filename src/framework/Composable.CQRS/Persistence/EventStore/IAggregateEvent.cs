@@ -3,7 +3,7 @@ using Composable.Messaging;
 
 namespace Composable.Persistence.EventStore
 {
-    public interface IAggregateEvent : BusApi.Remotable.ExactlyOnce.IEvent
+    public interface IAggregateEvent : MessageTypes.Remotable.ExactlyOnce.IEvent
     {
         Guid EventId { get; }
         int AggregateVersion { get; }

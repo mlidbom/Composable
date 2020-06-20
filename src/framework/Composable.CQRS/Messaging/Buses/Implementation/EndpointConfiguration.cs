@@ -5,7 +5,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     public class EndpointConfiguration
     {
-        internal readonly IRunMode _mode;
+        internal readonly IRunMode Mode;
 
         string ConfigurationParameterName(string name) => $"HostedEndpoint.{Name}.{name}";
 
@@ -19,7 +19,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         internal EndpointConfiguration(string name, EndpointId id, IRunMode mode, bool isPureClientEndpoint)
         {
-            _mode = mode;
+            Mode = mode;
             Name = name;
             Id = id;
             IsPureClientEndpoint = isPureClientEndpoint;
@@ -40,7 +40,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             get
             {
-                if(_conf._mode.IsTesting)
+                if(_conf.Mode.IsTesting)
                 {
                     return "tcp://localhost:0";
                 } else

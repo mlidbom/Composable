@@ -44,6 +44,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.UI.MVC", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScratchPad", "ScratchPad\ScratchPad.csproj", "{AB038B9C-E713-432E-BDB8-46DC70BB9454}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.Messaging.Hypermedia.Server", "framework\Composable.Messaging.Hypermedia.Server\Composable.Messaging.Hypermedia.Server.csproj", "{E319D503-311D-46C5-8BB7-87839135ED84}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +111,12 @@ Global
 		{AB038B9C-E713-432E-BDB8-46DC70BB9454}.docs|Any CPU.Build.0 = Debug|Any CPU
 		{AB038B9C-E713-432E-BDB8-46DC70BB9454}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB038B9C-E713-432E-BDB8-46DC70BB9454}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E319D503-311D-46C5-8BB7-87839135ED84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E319D503-311D-46C5-8BB7-87839135ED84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E319D503-311D-46C5-8BB7-87839135ED84}.docs|Any CPU.ActiveCfg = Debug|Any CPU
+		{E319D503-311D-46C5-8BB7-87839135ED84}.docs|Any CPU.Build.0 = Debug|Any CPU
+		{E319D503-311D-46C5-8BB7-87839135ED84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E319D503-311D-46C5-8BB7-87839135ED84}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,7 +11,7 @@ namespace AccountManagement.API
 
         public class Query
         {
-            public BusApi.Remotable.NonTransactional.Queries.EntityLink<AccountResource> AccountById { get; private set; } = new BusApi.Remotable.NonTransactional.Queries.EntityLink<AccountResource>();
+            public MessageTypes.Remotable.NonTransactional.Queries.EntityLink<AccountResource> AccountById { get; private set; } = new MessageTypes.Remotable.NonTransactional.Queries.EntityLink<AccountResource>();
         }
 
         public class Command

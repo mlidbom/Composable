@@ -7,6 +7,7 @@ using Composable.Contracts;
 using Composable.Functional;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 using Composable.Persistence.EventStore.Aggregates;
 
 namespace AccountManagement.Domain
@@ -40,7 +41,7 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        internal static (RegistrationAttemptStatus Status, Account Registered) Register(Guid accountId, Email email ,Password password, ILocalApiNavigatorSession bus)
+        internal static (RegistrationAttemptStatus Status, Account Registered) Register(Guid accountId, Email email ,Password password, ILocalHypermediaNavigator bus)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.

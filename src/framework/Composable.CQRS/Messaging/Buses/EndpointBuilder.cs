@@ -3,6 +3,7 @@ using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Messaging.Hypermedia;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.Refactoring.Naming;
@@ -37,7 +38,7 @@ namespace Composable.Messaging.Buses
         {
             SetupContainer();
             SetupInternalTypeMap();
-            BusApi.Internal.RegisterHandlers(RegisterHandlers);
+            MessageTypes.Internal.RegisterHandlers(RegisterHandlers);
             var serviceLocator = _container.CreateServiceLocator();
             var endpoint = new Endpoint(serviceLocator,
                                         serviceLocator.Resolve<IGlobalBusStateTracker>(),
@@ -52,7 +53,7 @@ namespace Composable.Messaging.Buses
         void SetupInternalTypeMap()
         {
             EventStoreApi.MapTypes(TypeMapper);
-            BusApi.MapTypes(TypeMapper);
+            MessageTypes.MapTypes(TypeMapper);
         }
 
         public EndpointBuilder(IEndpointHost host, IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointConfiguration configuration)
@@ -106,7 +107,7 @@ namespace Composable.Messaging.Buses
                 Singleton.For<IRemotableMessageSerializer>().CreatedBy(() => new RemotableMessageSerializer(_typeMapper)),
                 Singleton.For<IAggregateTypeValidator>().CreatedBy(() => new AggregateTypeValidator(_typeMapper)),
                 Singleton.For<IEventstoreEventPublisher>().CreatedBy((IInterprocessTransport interprocessTransport, IMessageHandlerRegistry messageHandlerRegistry) => new EventstoreEventPublisher(interprocessTransport, messageHandlerRegistry)),
-                Scoped.For<IRemoteApiNavigatorSession>().CreatedBy((IInterprocessTransport interprocessTransport) => new RemoteApiBrowserSession(interprocessTransport)),
+                Scoped.For<IRemoteHypermediaNavigator>().CreatedBy((IInterprocessTransport interprocessTransport) => new RemoteApiBrowserSession(interprocessTransport)),
                 Singleton.For<RealEndpointConfiguration>().CreatedBy((EndpointConfiguration conf, IConfigurationParameterProvider configurationParameterProvider) => new RealEndpointConfiguration(conf, configurationParameterProvider)));
 
             if(Configuration.HasMessageHandlers)
@@ -114,7 +115,7 @@ namespace Composable.Messaging.Buses
                 _container.Register(
                     Singleton.For<IInbox>().CreatedBy((IServiceLocator serviceLocator, RealEndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => new Inbox(serviceLocator, _globalStateTracker, _registry, endpointConfiguration, _endpointSqlConnection, _typeMapper, taskRunner, serializer)),
                     Singleton.For<CommandScheduler>().CreatedBy((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource)),
-                    Scoped.For<IServiceBusSession, ILocalApiNavigatorSession>().CreatedBy((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteApiNavigatorSession remoteNavigator) => new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry, remoteNavigator))
+                    Scoped.For<IServiceBusSession, ILocalHypermediaNavigator>().CreatedBy((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteHypermediaNavigator remoteNavigator) => new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry, remoteNavigator))
                 );
             }
 

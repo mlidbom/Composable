@@ -7,13 +7,14 @@ using AccountManagement.Domain.Registration;
 using Composable.Functional;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Hypermedia;
 
 namespace AccountManagement.UI
 {
     static class AccountUIAdapter
     {
         public static void Login(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
-            (AccountResource.Command.LogIn logIn, ILocalApiNavigatorSession bus) =>
+            (AccountResource.Command.LogIn logIn, ILocalHypermediaNavigator bus) =>
             {
                 var email = Email.Parse(logIn.Email);
 
@@ -32,15 +33,15 @@ namespace AccountManagement.UI
             });
 
         internal static void ChangePassword(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
-            (AccountResource.Command.ChangePassword command, ILocalApiNavigatorSession bus) =>
+            (AccountResource.Command.ChangePassword command, ILocalHypermediaNavigator bus) =>
                 bus.Execute(AccountApi.Queries.GetForUpdate(command.AccountId)).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
 
         internal static void ChangeEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
-            (AccountResource.Command.ChangeEmail command, ILocalApiNavigatorSession bus) =>
+            (AccountResource.Command.ChangeEmail command, ILocalHypermediaNavigator bus) =>
                 bus.Execute(AccountApi.Queries.GetForUpdate(command.AccountId)).ChangeEmail(Email.Parse(command.Email)));
 
         internal static void Register(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
-            (AccountResource.Command.Register command, ILocalApiNavigatorSession bus) =>
+            (AccountResource.Command.Register command, ILocalHypermediaNavigator bus) =>
             {
                 var (status, account) = Account.Register(command.AccountId, Email.Parse(command.Email), new Password(command.Password), bus);
                 return status switch
@@ -52,7 +53,7 @@ namespace AccountManagement.UI
             });
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (BusApi.Remotable.NonTransactional.Queries.EntityLink<AccountResource> accountQuery, ILocalApiNavigatorSession bus)
+            (MessageTypes.Remotable.NonTransactional.Queries.EntityLink<AccountResource> accountQuery, ILocalHypermediaNavigator bus)
                 => new AccountResource(bus.Execute(AccountApi.AccountQueryModel.Queries.Get(accountQuery.EntityId))));
     }
 }

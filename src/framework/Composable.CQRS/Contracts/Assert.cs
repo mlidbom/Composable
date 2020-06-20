@@ -45,20 +45,22 @@ namespace Composable.Contracts
                 null => throw new AssertionException(_inspectionType, 0)
             };
 
+#pragma warning disable CS8777 //Reviewed OK: We do know for sure that these parameters have been verified to not be null when method exits.
             [return: NotNull] [ContractAnnotation("obj:null => halt")]
-            public TValue NotNullOrDefault<TValue>([NotNull][AllowNull]TValue obj)
+            public TValue NotNullOrDefault<TValue>([AllowNull]TValue obj)
             {
                 if(NullOrDefaultTester<TValue>.IsNullOrDefault(obj))
                 {
                     throw new AssertionException(_inspectionType, 0);
                 }
 
-                return obj;
+                return obj!;
             }
 
             [ContractAnnotation("c1:null => halt; c2:null => halt")] public ChainedAssertion NotNull([NotNull][AllowNull]object c1, [NotNull][AllowNull]object c2) => RunNotNull(0, _inspectionType, c1, c2);
             [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt")] public ChainedAssertion NotNull([NotNull][AllowNull]object c1, [NotNull][AllowNull]object c2, [NotNull][AllowNull]object c3) => RunNotNull(0, _inspectionType, c1, c2, c3);
             [ContractAnnotation("c1:null => halt; c2:null => halt; c3:null => halt; c4:null => halt")] public ChainedAssertion NotNull([NotNull][AllowNull]object c1, [NotNull][AllowNull]object c2, [NotNull][AllowNull]object c3, [NotNull][AllowNull]object c4) => RunNotNull(0, _inspectionType, c1, c2, c3, c4);
+#pragma warning restore CS8777 // Parameter must have a non-null value when exiting.
         }
 
         public readonly struct ChainedAssertion

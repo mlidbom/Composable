@@ -5,7 +5,7 @@
 
 namespace Composable.Messaging
 {
-    public static partial class BusApi
+    public static partial class MessageTypes
     {
         ///<summary>Any object that is used to transfer data from a sender to a receiver through a messaging infrastructure.</summary>
         public interface IMessage {}
@@ -17,14 +17,17 @@ namespace Composable.Messaging
         ///<summary>Informs the receiver that something has happened.</summary>
         public interface IEvent : IMessage { }
 
-        /// <summary>Instructs the recevier to perform an action.</summary>
-        public interface ICommand : IRequireTransactionalReceiver { }
-        public interface ICommand<TResult> : ICommand{ }
+        public interface IHasReturnValue : IMessage
+        {}
 
-        public interface IQuery : IForbidTransactionalRemoteSender { }
+        /// <summary>Instructs the receiver to perform an action.</summary>
+        public interface ICommand : IRequireTransactionalReceiver { }
+        public interface ICommand<TResult> : ICommand, IHasReturnValue{ }
+
+        public interface IQuery : IForbidTransactionalRemoteSender, IHasReturnValue { }
 
         ///<summary>An instructs the receiver to return a result based upon the data in the query.</summary>
-        public interface IQuery<TResult> : BusApi.IQuery { }
+        public interface IQuery<TResult> : MessageTypes.IQuery { }
 
         ///<summary>Many resources in a hypermedia API do not actually need access to backend data. The data in the query is sufficient to create the result. For such queries implement this interface. That way no network roundtrip etc is required to perform the query. Greatly enhancing performance</summary>
         public interface ICreateMyOwnResultQuery<TResult> : IQuery<TResult>
@@ -35,10 +38,10 @@ namespace Composable.Messaging
         public static partial class StrictlyLocal
         {
             public interface IMessage {}
-            public interface IEvent : BusApi.IEvent, StrictlyLocal.IMessage { }
-            public interface ICommand : BusApi.ICommand, IRequireTransactionalSender, StrictlyLocal.IMessage { }
-            public interface ICommand<TResult> : BusApi.ICommand<TResult>, IRequireTransactionalSender, StrictlyLocal.ICommand, StrictlyLocal.IMessage  { }
-            public interface IQuery<TResult> : BusApi.IQuery<TResult>, StrictlyLocal.IMessage { }
+            public interface IEvent : MessageTypes.IEvent, StrictlyLocal.IMessage { }
+            public interface ICommand : MessageTypes.ICommand, IRequireTransactionalSender, StrictlyLocal.IMessage { }
+            public interface ICommand<TResult> : MessageTypes.ICommand<TResult>, IRequireTransactionalSender, StrictlyLocal.ICommand, StrictlyLocal.IMessage  { }
+            public interface IQuery<TResult> : MessageTypes.IQuery<TResult>, StrictlyLocal.IMessage { }
         }
 
         public static partial class Remotable
@@ -51,17 +54,17 @@ namespace Composable.Messaging
                 Guid DeduplicationId { get; }
             }
 
-            public interface IMessage : BusApi.IMessage {}
-            public interface IEvent : Remotable.IMessage, BusApi.IEvent {}
+            public interface IMessage : MessageTypes.IMessage {}
+            public interface IEvent : Remotable.IMessage, MessageTypes.IEvent {}
             public interface IRequireRemoteResponse : Remotable.IMessage {}
-            public interface ICommand : BusApi.ICommand, Remotable.IMessage { }
-            public interface ICommand<TResult> : ICommand, BusApi.ICommand<TResult>, IRequireRemoteResponse { }
+            public interface ICommand : MessageTypes.ICommand, Remotable.IMessage { }
+            public interface ICommand<TResult> : ICommand, MessageTypes.ICommand<TResult>, IRequireRemoteResponse { }
 
             public static partial class NonTransactional
             {
                 public interface IMessage : IForbidTransactionalRemoteSender, Remotable.IMessage {}
-                public interface IQuery : Remotable.IRequireRemoteResponse, NonTransactional.IMessage, BusApi.IQuery { }
-                public interface IQuery<TResult> : NonTransactional.IQuery, BusApi.IQuery<TResult> { }
+                public interface IQuery : Remotable.IRequireRemoteResponse, NonTransactional.IMessage, MessageTypes.IQuery { }
+                public interface IQuery<TResult> : NonTransactional.IQuery, MessageTypes.IQuery<TResult> { }
             }
 
             public static partial class AtMostOnce

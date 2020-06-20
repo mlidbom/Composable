@@ -39,11 +39,11 @@ namespace Composable.Messaging.Buses.Implementation
                             {
                                 try
                                 {
-                                    var result = message is BusApi.IRequireTransactionalReceiver
+                                    var result = message is MessageTypes.IRequireTransactionalReceiver
                                                      ? _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
                                                      {
                                                          var innerResult = _messageTask(message);
-                                                         if(message is BusApi.Remotable.IAtMostOnceMessage)
+                                                         if(message is MessageTypes.Remotable.IAtMostOnceMessage)
                                                          {
                                                              _messageStorage.MarkAsSucceeded(TransportMessage);
                                                          }
@@ -58,14 +58,14 @@ namespace Composable.Messaging.Buses.Implementation
                                 }
                                 catch(Exception exception)
                                 {
-                                    if(message is BusApi.Remotable.IAtMostOnceMessage)
+                                    if(message is MessageTypes.Remotable.IAtMostOnceMessage)
                                     {
                                         _messageStorage.RecordException(TransportMessage, exception);
                                     }
 
                                     if(!retryPolicy.TryAwaitNextRetryTimeForException(exception))
                                     {
-                                        if(message is BusApi.Remotable.IAtMostOnceMessage)
+                                        if(message is MessageTypes.Remotable.IAtMostOnceMessage)
                                         {
                                             _messageStorage.MarkAsFailed(TransportMessage);
                                         }
@@ -91,41 +91,32 @@ namespace Composable.Messaging.Buses.Implementation
                         _messageTask = CreateMessageTask();
                     }
 
-                    Func<object, object?> CreateMessageTask()
-                    {
-#pragma warning disable IDE0066 // Convert switch statement to expression disabled because once converted resharper incorrectly reports a compilation error.
-                        switch(TransportMessage.MessageTypeEnum)
-#pragma warning restore IDE0066 // Convert switch statement to expression
+                    Func<object, object?> CreateMessageTask() =>
+                        TransportMessage.MessageTypeEnum switch
                         {
-                            case Implementation.TransportMessage.TransportMessageType.ExactlyOnceEvent:
-                                return message =>
-                                {
-                                    var eventHandlers = _handlerRegistry.GetEventHandlers(message.GetType());
-                                    eventHandlers.ForEach(handler => handler((BusApi.Remotable.ExactlyOnce.IEvent)message));
-                                    return null;
-                                };
-                            case Implementation.TransportMessage.TransportMessageType.AtMostOnceCommand:
-                                return message =>
-                                {
-                                    var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
-                                    return commandHandler((BusApi.Remotable.AtMostOnce.ICommand)message);
-                                };
-                            case Implementation.TransportMessage.TransportMessageType.ExactlyOnceCommand:
-                                return message =>
-                                {
-                                    var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
-                                    return commandHandler((BusApi.Remotable.ExactlyOnce.ICommand)message);
-                                };
-                            case Implementation.TransportMessage.TransportMessageType.NonTransactionalQuery:
-                                return actualMessage =>
-                                {
-                                    var queryHandler = _handlerRegistry.GetQueryHandler(actualMessage.GetType());
-                                    return queryHandler((BusApi.IQuery)actualMessage);
-                                };
-                            default:
-                                throw new ArgumentOutOfRangeException();
-                        }
-                    }
+                            Implementation.TransportMessage.TransportMessageType.ExactlyOnceEvent => message =>
+                            {
+                                var eventHandlers = _handlerRegistry.GetEventHandlers(message.GetType());
+                                eventHandlers.ForEach(handler => handler((MessageTypes.Remotable.ExactlyOnce.IEvent)message));
+                                return null;
+                            },
+                            Implementation.TransportMessage.TransportMessageType.AtMostOnceCommand => message =>
+                            {
+                                var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
+                                return commandHandler((MessageTypes.Remotable.AtMostOnce.ICommand)message);
+                            },
+                            Implementation.TransportMessage.TransportMessageType.ExactlyOnceCommand => message =>
+                            {
+                                var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
+                                return commandHandler((MessageTypes.Remotable.ExactlyOnce.ICommand)message);
+                            },
+                            Implementation.TransportMessage.TransportMessageType.NonTransactionalQuery => actualMessage =>
+                            {
+                                var queryHandler = _handlerRegistry.GetQueryHandler(actualMessage.GetType());
+                                return queryHandler((MessageTypes.IQuery)actualMessage);
+                            },
+                            _ => throw new ArgumentOutOfRangeException()
+                        };
                 }
             }
         }

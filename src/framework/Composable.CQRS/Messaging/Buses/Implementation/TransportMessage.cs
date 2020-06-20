@@ -29,17 +29,17 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly TransportMessageType MessageTypeEnum;
             internal bool Is<TType>() => typeof(TType).IsAssignableFrom(MessageType);
 
-            BusApi.IMessage? _message;
+            MessageTypes.IMessage? _message;
             readonly ITypeMapper _typeMapper;
 
             //performance: detect BinarySerializable and use instead.
-            public BusApi.IMessage DeserializeMessageAndCacheForNextCall()
+            public MessageTypes.IMessage DeserializeMessageAndCacheForNextCall()
             {
                 if(_message == null)
                 {
                     _message = _serializer.DeserializeMessage(MessageType, Body);
 
-                    Assert.State.Assert(!(_message is BusApi.Remotable.ExactlyOnce.IMessage actualMessage) || MessageId == actualMessage.DeduplicationId);
+                    Assert.State.Assert(!(_message is MessageTypes.Remotable.ExactlyOnce.IMessage actualMessage) || MessageId == actualMessage.DeduplicationId);
                 }
                 return _message;
             }
@@ -51,7 +51,7 @@ namespace Composable.Messaging.Buses.Implementation
                 Body = body;
                 MessageTypeId = messageTypeId;
                 MessageType = typeMapper.GetType(messageTypeId);
-                MessageTypeEnum = GetMessageType(MessageType);
+                MessageTypeEnum = GetMessageTypeEnum(MessageType);
                 Client = client;
                 MessageId = messageId;
             }
@@ -63,7 +63,7 @@ namespace Composable.Messaging.Buses.Implementation
                 while(socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref receivedMessage))
                 {
 
-                    var client = receivedMessage[0].ToByteArray();
+                    var client = receivedMessage![0].ToByteArray();
                     var messageId = new Guid(receivedMessage[1].ToByteArray());
                     var messageType = new TypeId(new Guid(receivedMessage[2].ToByteArray()));
                     var messageBody = receivedMessage[3].ConvertToString();
@@ -73,15 +73,15 @@ namespace Composable.Messaging.Buses.Implementation
                 return result;
             }
 
-            static TransportMessageType GetMessageType(Type messageType)
+            static TransportMessageType GetMessageTypeEnum(Type messageType)
             {
-                if(typeof(BusApi.Remotable.NonTransactional.IQuery).IsAssignableFrom(messageType))
+                if(typeof(MessageTypes.Remotable.NonTransactional.IQuery).IsAssignableFrom(messageType))
                     return TransportMessageType.NonTransactionalQuery;
-                if(typeof(BusApi.Remotable.AtMostOnce.ICommand).IsAssignableFrom(messageType))
+                if(typeof(MessageTypes.Remotable.AtMostOnce.ICommand).IsAssignableFrom(messageType))
                     return TransportMessageType.AtMostOnceCommand;
-                else if(typeof(BusApi.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(messageType))
+                else if(typeof(MessageTypes.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(messageType))
                     return TransportMessageType.ExactlyOnceEvent;
-                if(typeof(BusApi.Remotable.ExactlyOnce.ICommand).IsAssignableFrom(messageType))
+                if(typeof(MessageTypes.Remotable.ExactlyOnce.ICommand).IsAssignableFrom(messageType))
                     return TransportMessageType.ExactlyOnceCommand;
                 else
                     throw new ArgumentOutOfRangeException();
@@ -89,7 +89,9 @@ namespace Composable.Messaging.Buses.Implementation
 
             public NetMQMessage CreateFailureResponse(AggregateException exception) => Response.Create.Failure(this, exception);
 
-            public NetMQMessage CreateSuccessResponse(object response) => Response.Create.Success(this, response, _serializer, _typeMapper);
+            public NetMQMessage CreateSuccessResponseWithData(object? response) => Response.Create.SuccessWithData(this, response, _serializer, _typeMapper);
+
+            public NetMQMessage CreateSuccessResponse() => Response.Create.Success(this);
 
             public NetMQMessage CreatePersistedResponse() => Response.Create.Persisted(this);
         }
@@ -112,12 +114,12 @@ namespace Composable.Messaging.Buses.Implementation
                 socket.SendMultipartMessage(message);
             }
 
-            public static OutGoing Create(BusApi.Remotable.IMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public static OutGoing Create(MessageTypes.Remotable.IMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
-                var messageId = (message as BusApi.Remotable.IAtMostOnceMessage)?.DeduplicationId ?? Guid.NewGuid();
+                var messageId = (message as MessageTypes.Remotable.IAtMostOnceMessage)?.DeduplicationId ?? Guid.NewGuid();
                 //performance: detect implementation of BinarySerialized and use that when available
                 var body = serializer.SerializeMessage(message);
-                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is BusApi.Remotable.ExactlyOnce.IMessage);
+                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is MessageTypes.Remotable.ExactlyOnce.IMessage);
             }
 
             OutGoing(TypeId messageType, Guid messageId, string messageBody, bool isExactlyOnceDeliveryMessage)
@@ -133,9 +135,11 @@ namespace Composable.Messaging.Buses.Implementation
         {
             internal enum ResponseType
             {
-                Success,
+                SuccessWithData,
+                FailureExpectedReturnValue,
                 Failure,
-                Received
+                Received,
+                Success
             }
 
             static class Constants
@@ -145,13 +149,13 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal static class Create
             {
-                public static NetMQMessage Success(TransportMessage.InComing incoming, object response, IRemotableMessageSerializer serializer, ITypeMapper typeMapper)
+                public static NetMQMessage SuccessWithData(TransportMessage.InComing incoming, object? response, IRemotableMessageSerializer serializer, ITypeMapper typeMapper)
                 {
                     var responseMessage = new NetMQMessage();
 
                     responseMessage.Append(incoming.Client);
                     responseMessage.Append(incoming.MessageId);
-                    responseMessage.Append((int)ResponseType.Success);
+                    responseMessage.Append((int)ResponseType.SuccessWithData);
 
                     if(response != null)
                     {
@@ -166,13 +170,31 @@ namespace Composable.Messaging.Buses.Implementation
                     return responseMessage;
                 }
 
+                public static NetMQMessage Success(TransportMessage.InComing incoming)
+                {
+                    var responseMessage = new NetMQMessage();
+
+                    responseMessage.Append(incoming.Client);
+                    responseMessage.Append(incoming.MessageId);
+                    responseMessage.Append((int)ResponseType.Success);
+                    responseMessage.Append(Constants.NullString);
+                    responseMessage.Append(Constants.NullString);
+                    return responseMessage;
+                }
+
                 public static NetMQMessage Failure(TransportMessage.InComing incoming, AggregateException failure)
                 {
                     var response = new NetMQMessage();
 
                     response.Append(incoming.Client);
                     response.Append(incoming.MessageId);
-                    response.Append((int)ResponseType.Failure);
+                    if(incoming.Is<MessageTypes.IHasReturnValue>())
+                    {
+                        response.Append((int)ResponseType.FailureExpectedReturnValue);
+                    } else
+                    {
+                        response.Append((int)ResponseType.Failure);
+                    }
 
                     response.Append(failure.InnerExceptions.Count == 1 ? failure.InnerException.ToString() : failure.ToString());
 
@@ -219,7 +241,7 @@ namespace Composable.Messaging.Buses.Implementation
                     int fetched = 0;
                     while(fetched < batchMaximum && socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref received))
                     {
-                        result.Add(FromMultipartMessage(received, typeMapper));
+                        result.Add(FromMultipartMessage(received!, typeMapper));
                         fetched++;
                     }
                     return result;
@@ -232,7 +254,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     switch(type)
                     {
-                        case ResponseType.Success:
+                        case ResponseType.SuccessWithData:
                         {
                             var responseBody = message[3].ConvertToString();
                             TypeId? responseType = null;
@@ -243,6 +265,12 @@ namespace Composable.Messaging.Buses.Implementation
 
                             return new Incoming(type: type, respondingToMessageId: messageId, body: responseBody, responseTypeId: responseType, typeMapper: typeMapper);
                         }
+                        case ResponseType.Success:
+                        {
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: null, responseTypeId: null, typeMapper: typeMapper);
+                        }
+                        case ResponseType.FailureExpectedReturnValue:
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: message[2].ConvertToString(), responseTypeId: null, typeMapper: typeMapper);
                         case ResponseType.Failure:
                             return new Incoming(type: type, respondingToMessageId: messageId, body: message[2].ConvertToString(), responseTypeId: null, typeMapper: typeMapper);
                         case ResponseType.Received:

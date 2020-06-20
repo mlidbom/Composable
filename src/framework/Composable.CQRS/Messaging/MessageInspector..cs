@@ -11,19 +11,19 @@ namespace Composable.Messaging
 
         internal static void AssertValid<TMessage>() => MessageTypeInspector.AssertValid(typeof(TMessage));
 
-        internal static void AssertValidToSendRemote(BusApi.IMessage message)
+        internal static void AssertValidToSendRemote(MessageTypes.IMessage message)
         {
-            if(message is BusApi.StrictlyLocal.IMessage strictlyLocalMessage) throw new AttemptToSendStrictlyLocalMessageRemotely(strictlyLocalMessage);
-            if(message is BusApi.IRequireTransactionalSender && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(BusApi.IRequireTransactionalSender).FullName} but there is no transaction.");
-            if(message is BusApi.IForbidTransactionalRemoteSender && Transaction.Current != null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(BusApi.IForbidTransactionalRemoteSender).FullName} but there is a transaction.");
-            if(message is BusApi.Remotable.IAtMostOnceMessage atMostOnce && atMostOnce.DeduplicationId == Guid.Empty) throw new Exception($"{nameof(BusApi.Remotable.IAtMostOnceMessage.DeduplicationId)} was Guid.Empty for message of type: {message.GetType().FullName}");
+            if(message is MessageTypes.StrictlyLocal.IMessage strictlyLocalMessage) throw new AttemptToSendStrictlyLocalMessageRemotely(strictlyLocalMessage);
+            if(message is MessageTypes.IRequireTransactionalSender && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IRequireTransactionalSender).FullName} but there is no transaction.");
+            if(message is MessageTypes.IForbidTransactionalRemoteSender && Transaction.Current != null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IForbidTransactionalRemoteSender).FullName} but there is a transaction.");
+            if(message is MessageTypes.Remotable.IAtMostOnceMessage atMostOnce && atMostOnce.DeduplicationId == Guid.Empty) throw new Exception($"{nameof(MessageTypes.Remotable.IAtMostOnceMessage.DeduplicationId)} was Guid.Empty for message of type: {message.GetType().FullName}");
 
             MessageTypeInspector.AssertValid(message.GetType());
         }
 
-        internal static void AssertValidToSendLocal(BusApi.IMessage message)
+        internal static void AssertValidToSendLocal(MessageTypes.IMessage message)
         {
-            if(message is BusApi.IRequireTransactionalSender && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(BusApi.IRequireTransactionalSender).FullName} but there is no transaction.");
+            if(message is MessageTypes.IRequireTransactionalSender && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IRequireTransactionalSender).FullName} but there is no transaction.");
 
             MessageTypeInspector.AssertValid(message.GetType());
         }

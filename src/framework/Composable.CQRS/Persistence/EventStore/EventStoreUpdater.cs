@@ -42,10 +42,10 @@ namespace Composable.Persistence.EventStore
             {
                 throw new AggregateNotFoundException(aggregateId);
             }
-            return result;
+            return result!;
         }
 
-        public bool TryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
+        public bool TryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)]out TAggregate aggregate) where TAggregate : IEventStored
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
@@ -141,7 +141,7 @@ namespace Composable.Persistence.EventStore
             return history;
         }
 
-        bool DoTryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)][MaybeNull]out TAggregate aggregate) where TAggregate : IEventStored
+        bool DoTryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)]out TAggregate aggregate) where TAggregate : IEventStored
         {
             if (_idMap.TryGetValue(aggregateId, out var es))
             {

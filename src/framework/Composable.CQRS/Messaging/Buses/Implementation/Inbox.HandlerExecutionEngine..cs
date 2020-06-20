@@ -28,7 +28,7 @@ namespace Composable.Messaging.Buses.Implementation
                                           ITaskRunner taskRunner) =>
                 _coordinator = new Coordinator(globalStateTracker, taskRunner, storage, serviceLocator, handlerRegistry);
 
-            internal Task<object> Enqueue(TransportMessage.InComing transportMessage) => _coordinator.EnqueueMessageTask(transportMessage);
+            internal Task<object?> Enqueue(TransportMessage.InComing transportMessage) => _coordinator.EnqueueMessageTask(transportMessage);
 
             void AwaitDispatchableMessageThread()
             {

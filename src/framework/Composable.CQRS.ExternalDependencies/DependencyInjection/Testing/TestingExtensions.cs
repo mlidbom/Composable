@@ -16,7 +16,7 @@ namespace Composable.DependencyInjection.Testing
         {
             var sourceContainer = (IDependencyInjectionContainer)@this;
 
-#pragma warning disable IDE0067 // Dispose objects before losing scope
+#pragma warning disable IDE0067 //Review OK-ish: The created servicelocator that is return is actually the cloneContainer cast to another interface.
             var cloneContainer = DependencyInjectionContainer.Create();
 #pragma warning restore IDE0067 // Dispose objects before losing scope
 

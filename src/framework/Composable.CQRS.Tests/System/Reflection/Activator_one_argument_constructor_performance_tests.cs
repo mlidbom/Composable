@@ -8,7 +8,7 @@ using FluentAssertions;
 using JetBrains.Annotations;
 using NCrunch.Framework;
 using NUnit.Framework;
-#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable IDE1006 //Review OK: Test Naming Styles
 
 namespace Composable.Tests.System.Reflection
 {
@@ -18,7 +18,7 @@ namespace Composable.Tests.System.Reflection
 
         [UsedImplicitly] class Simple
         {
-#pragma warning disable IDE0060 // Remove unused parameter
+#pragma warning disable IDE0060 //Review OK: unused parameter is intentional
             public Simple(string arg1){}
 #pragma warning restore IDE0060 // Remove unused parameter
         }
@@ -39,7 +39,7 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime);
         }
 
-        [Test, Serial] public void _005_Constructs_1_00_000_instances_60_times_faster_than_via_activator_createinstance()
+        [Test, Serial] public void _005_Constructs_1_00_000_instances_50_times_faster_than_via_activator_createinstance()
         {
             var constructions = 1_00_000.InstrumentationSlowdown(20);
 
@@ -49,7 +49,7 @@ namespace Composable.Tests.System.Reflection
 
 
             var defaultConstructor = StopwatchExtensions.TimeExecution(ActivatorCreateInstance, constructions).Total;
-            var maxTime = defaultConstructor.DivideBy(60);
+            var maxTime = defaultConstructor.DivideBy(50);
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.InstrumentationSlowdown(25), timeFormat: "ss\\.ffff");
         }
 

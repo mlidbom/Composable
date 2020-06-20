@@ -24,8 +24,8 @@ namespace Composable.Serialization
 
     interface IRemotableMessageSerializer
     {
-        string SerializeMessage(BusApi.Remotable.IMessage message);
-        BusApi.Remotable.IMessage DeserializeMessage(Type messageType, string json);
+        string SerializeMessage(MessageTypes.Remotable.IMessage message);
+        MessageTypes.Remotable.IMessage DeserializeMessage(Type messageType, string json);
 
         string SerializeResponse(object response);
         object DeserializeResponse(Type responseType, string json);

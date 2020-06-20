@@ -6,11 +6,9 @@ using Xunit;
 using Composable.System;
 // ReSharper disable ImplicitlyCapturedClosure
 
-#pragma warning disable IDE0051 // Remove unused private members
-
 namespace Composable.Tests.System.Threading
 {
-    public class MonitorClassAPIExploration
+    public class MonitorClassApiExploration
     {
         [Fact] public void Wait_returns_after_timeout_even_without_pulse()
         {
@@ -22,7 +20,7 @@ namespace Composable.Tests.System.Threading
                    .BeFalse();
         }
 
-        [Fact] void Wait_does_not_return_return_until_lock_is_available_to_reacquire_after_timeout()
+        [Fact] public void Wait_does_not_return_return_until_lock_is_available_to_reacquire_after_timeout()
         {
             var guarded = new object();
 
@@ -61,7 +59,7 @@ namespace Composable.Tests.System.Threading
             waitSucceeded.Should().Be(false);
         }
 
-        [Fact] void Wait_does_not_hang_on_long_timeout_values()
+        [Fact] public void Wait_does_not_hang_on_long_timeout_values()
         {
             var guarded = new object();
 

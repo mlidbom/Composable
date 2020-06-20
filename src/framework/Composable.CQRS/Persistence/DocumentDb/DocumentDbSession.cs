@@ -32,9 +32,9 @@ namespace Composable.Persistence.DocumentDb
             _backingStore = backingStore;
         }
 
-        public virtual bool TryGet<TValue>(object key, out TValue document) => TryGetInternal(key, typeof(TValue), out document);
+        public virtual bool TryGet<TValue>(object key, [NotNullWhen(true)]out TValue document) => TryGetInternal(key, typeof(TValue), out document);
 
-        bool TryGetInternal<TValue>(object key, Type documentType, [NotNullWhen(true)][MaybeNull]out TValue value)
+        bool TryGetInternal<TValue>(object key, Type documentType, [NotNullWhen(true)]out TValue value)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
@@ -51,7 +51,7 @@ namespace Composable.Persistence.DocumentDb
             var documentItem = GetDocumentItem(key, documentType);
             if(!documentItem.IsDeleted && _backingStore.TryGet(key, out value, _persistentValues) && documentType.IsInstanceOfType(value))
             {
-                OnInitialLoad(key, value);
+                OnInitialLoad(key, value!);
                 return true;
             }
 
@@ -120,7 +120,7 @@ namespace Composable.Persistence.DocumentDb
             EnsureParticipatingInTransaction();
             if (TryGet(key, out TValue value))
             {
-                return value;
+                return value!;
             }
 
             throw new NoSuchDocumentException(key, typeof(TValue));
@@ -205,7 +205,7 @@ namespace Composable.Persistence.DocumentDb
         readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
 
-#pragma warning disable IDE0069 // Disposable fields should be disposed
+#pragma warning disable IDE0069 //Reviewed OK: We should really not dispose the transaction just because we reference it :)
         Transaction? _participatingIn = null;
 #pragma warning restore IDE0069 // Disposable fields should be disposed
         void EnsureParticipatingInTransaction()

@@ -5,34 +5,11 @@ using FluentAssertions;
 using NUnit.Framework;
 
 // ReSharper disable All
-#pragma warning disable
+#pragma warning disable //Review OK: This is API experimental code that is never ever used.
 
 namespace Composable.Tests.Messaging.APIDraft.Policyv2
 {
     using Composable.System;
-
-    [TestFixture]
-    public class TestResetEvent
-    {
-        [Test]
-        public void Test()
-        {
-            var @event = new ManualResetEventSlim(false);
-
-            @event.Reset();
-            @event.Reset();
-
-            @event.Set();
-            @event.Wait(1.Milliseconds())
-                  .Should()
-                  .Be(true);
-
-            @event.Reset();
-            @event.Wait(1.Milliseconds())
-                  .Should()
-                  .Be(false);
-        }
-    }
 
     public class Testing
     {

@@ -3,8 +3,8 @@ using FluentAssertions;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-#pragma warning disable IDE0051 // Remove unused private members
-#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable IDE0051 //Review OK: unused private members are intentional in this test.
+#pragma warning disable IDE1006 //Review OK: Test Naming Styles
 
 namespace Composable.Tests.CQRS.EventHandling
 {

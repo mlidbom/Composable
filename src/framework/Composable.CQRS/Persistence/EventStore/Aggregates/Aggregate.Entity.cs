@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 using Composable.System.Reflection;
@@ -33,12 +34,13 @@ namespace Composable.Persistence.EventStore.Aggregates
 
             static readonly TEntityEventIdGetterSetter IdGetterSetter = Constructor.For<TEntityEventIdGetterSetter>.DefaultConstructor.Instance();
 
-            public TEntityId Id { get; private set; }
+            TEntityId _id;
+            public TEntityId Id => Assert.Result.NotNullOrDefault(_id);
 
             protected Entity(TAggregate aggregate)
                 : this(aggregate.TimeSource, @event => aggregate.Publish(@event), aggregate.RegisterEventAppliers()) {}
 
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+#pragma warning disable CS8618 //Review OK-ish: We ensure that we never return a null or default value from the public Id property
             Entity
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
                 (IUtcTimeTimeSource timeSource,
@@ -47,7 +49,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                 : base(timeSource, raiseEventThroughParent, appliersRegistrar, registerEventAppliers: false)
             {
                 RegisterEventAppliers()
-                    .For<TEntityCreatedEvent>(e => Id = IdGetterSetter.GetId(e));
+                    .For<TEntityCreatedEvent>(e => _id = IdGetterSetter.GetId(e));
             }
 
             protected override void Publish(TEntityEventImplementation @event)

@@ -76,12 +76,13 @@ namespace Composable.Messaging.Buses.Implementation
                         var transportMessageBatch = _receivedMessageBatches.Take(_cancellationTokenSource.Token);
                         foreach(var transportMessage in transportMessageBatch)
                         {
-                            if(transportMessage.Is<BusApi.Remotable.IAtMostOnceMessage>())
+                            //performance: With the current design having this code here causes all queries to wait for persisting of all transactional messages that arrived before them.
+                            if(transportMessage.Is<MessageTypes.Remotable.IAtMostOnceMessage>())
                             {
                                 //todo: handle the exception that will be thrown if this is a duplicate message
                                 _storage.SaveIncomingMessage(transportMessage);
 
-                                if(transportMessage.Is<BusApi.Remotable.ExactlyOnce.IMessage>())
+                                if(transportMessage.Is<MessageTypes.Remotable.ExactlyOnce.IMessage>())
                                 {
                                     var persistedResponse = transportMessage.CreatePersistedResponse();
                                     _responseQueue.Enqueue(persistedResponse);
@@ -92,19 +93,28 @@ namespace Composable.Messaging.Buses.Implementation
 
                             dispatchTask.ContinueWith(dispatchResult =>
                             {
+                                //refactor: Consider moving these responsibilities into the message class. Probably create more subtypes so that no type checking is required.
                                 var message = transportMessage.DeserializeMessageAndCacheForNextCall();
-                                if(message is BusApi.Remotable.IRequireRemoteResponse)
+                                if(message is MessageTypes.Remotable.IRequireRemoteResponse)
                                 {
                                     if(dispatchResult.IsFaulted)
                                     {
                                         var failureResponse = transportMessage.CreateFailureResponse(dispatchResult.Exception);
                                         _responseQueue.Enqueue(failureResponse);
-                                    } else if(dispatchResult.IsCompleted)
+                                    } else
                                     {
+                                        Assert.Result.Assert(dispatchResult.IsCompleted);
                                         try
                                         {
-                                            var successResponse = transportMessage.CreateSuccessResponse(dispatchResult.Result);
-                                            _responseQueue.Enqueue(successResponse);
+                                            if(message is MessageTypes.IHasReturnValue)
+                                            {
+                                                var successResponse = transportMessage.CreateSuccessResponseWithData(dispatchResult.Result);
+                                                _responseQueue.Enqueue(successResponse);
+                                            } else
+                                            {
+                                                var successResponse = transportMessage.CreateSuccessResponse();
+                                                _responseQueue.Enqueue(successResponse);
+                                            }
                                         }
                                         catch(Exception exception)
                                         {

@@ -190,7 +190,7 @@ namespace Composable.Tests
                 var parts = Name.Split(' ');
                 return (parts.Length > 0) ? parts[0] : throw new InvalidOperationException("No name!");
             }
-            public string GetLastName() => throw new NotImplementedException();
+            public string GetLastName() => throw new Exception();
         }
 
         static (string ForeName, string MiddleName, string SurName) GetName() => ("ForeName", "MiddleName", "SurName");

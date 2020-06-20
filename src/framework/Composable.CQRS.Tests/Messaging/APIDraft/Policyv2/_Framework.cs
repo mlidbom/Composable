@@ -93,6 +93,6 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
     class CompositePolicy : IMessageHandlerPolicy
     {
         public CompositePolicy(params IMessageHandlerPolicy[] policies) { }
-        public void Configure(IHandlerPolicyConfigurationBuilder builder, MessageTypes.IMessage message) { throw new NotImplementedException(); }
+        public void Configure(IHandlerPolicyConfigurationBuilder builder, MessageTypes.IMessage message) { throw new Exception(); }
     }
 }

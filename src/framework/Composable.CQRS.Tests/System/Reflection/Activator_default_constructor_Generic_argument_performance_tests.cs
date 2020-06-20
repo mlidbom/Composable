@@ -17,7 +17,7 @@ namespace Composable.Tests.System.Reflection
 
         [Test, Serial] public void Can_construct_instance() => Constructor.For<Simple>.DefaultConstructor.Instance().Should().NotBe(null);
 
-        [Test, Serial] public void _005_Constructs_1_000_000_instances_within_50_percent_of_default_constructor_time()
+        [Test, Serial] public void Constructs_1_000_000_instances_within_50_percent_of_default_constructor_time()
         {
             var constructions = 1_000_000.InstrumentationSlowdown(4.7);
 
@@ -31,7 +31,7 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime);
         }
 
-        [Test, Serial] public void _005_Constructs_10_000_000_3_times_faster_than_via_new_constraint_constructor_time()
+        [Test, Serial] public void Constructs_10_000_000_3_times_faster_than_via_new_constraint_constructor_time()
         {
             var constructions = 1_000_000.InstrumentationSlowdown(10);
 
@@ -45,7 +45,7 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.InstrumentationSlowdown(4));
         }
 
-        [Test, Serial] public void _005_Constructs_1_000_000_3_times_fasterthan_via_activator_createinstance()
+        [Test, Serial] public void Constructs_1_000_000_3_times_fasterthan_via_activator_createinstance()
         {
             var constructions = 1_000_000.InstrumentationSlowdown(10);
 

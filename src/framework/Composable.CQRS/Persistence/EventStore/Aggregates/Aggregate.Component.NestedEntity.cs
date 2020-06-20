@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 using Composable.System.Reflection;
@@ -44,16 +46,16 @@ namespace Composable.Persistence.EventStore.Aggregates
                 protected NestedEntity(TComponent parent)
                     : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers()) { }
 
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+#pragma warning disable 8618 //Review OK-ish: We guarantee that we never deliver out a null or default value from the public property. The private field cannot be marked nullable because it is a generic type argument and we don't want to constrain it to either classes or structs.
                 protected NestedEntity
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-                    (IUtcTimeTimeSource timeSource,
-                     Action<TEntityEventImplementation> raiseEventThroughParent,
-                     IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)
+#pragma warning restore 8618
+                (IUtcTimeTimeSource timeSource,
+                 Action<TEntityEventImplementation> raiseEventThroughParent,
+                 IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)
                     : base(timeSource, raiseEventThroughParent, appliersRegistrar, registerEventAppliers: false)
                 {
                     RegisterEventAppliers()
-                        .For<TEntityCreatedEvent>(e => Id = IdGetterSetter.GetId(e));
+                        .For<TEntityCreatedEvent>(e => _id = IdGetterSetter.GetId(e));
                 }
 
                 protected override void Publish(TEntityEventImplementation @event)
@@ -68,12 +70,13 @@ namespace Composable.Persistence.EventStore.Aggregates
                     // ReSharper restore HeuristicUnreachableCode
                     else if (!Equals(id, Id))
                     {
-                        throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");
+                        throw new Exception($"Attempted to raise event with EntityId: {id} from within entity with EntityId: {Id}");
                     }
                     base.Publish(@event);
                 }
 
-                internal TEntityId Id { get; private set; }
+                TEntityId _id;
+                internal TEntityId Id => Assert.Result.NotNullOrDefault(_id);
 
                 // ReSharper disable once UnusedMember.Global todo: coverage
                 public  static CollectionManager CreateSelfManagingCollection(TComponent parent)

@@ -119,7 +119,7 @@ namespace Composable.DependencyInjection
 
         readonly object _lock = new object();
         object? _singletonInstance;
-#pragma warning disable 8602
+#pragma warning disable 8602 //todo: dereference of a possibly null value.
         internal object CreateInstance(IServiceLocatorKernel kernel) => InstantiationSpec.FactoryMethod(kernel);
 #pragma warning restore 8602
 

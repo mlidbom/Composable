@@ -53,7 +53,7 @@ namespace Composable.Contracts
         public static IInspected<TInspected> Invariant<TInspected>([AllowNull]TInspected p1, [InvokerParameterName] string n1, [AllowNull]TInspected p2, [InvokerParameterName] string n2, [AllowNull]TInspected p3, [InvokerParameterName] string n3) =>
             new Inspected<TInspected>(InspectionType.Invariant, (p1!, n1), (p2!, n2), (p3!, n3));
 
-#pragma warning disable CS8777 // Parameter must have a non-null value when exiting.
+#pragma warning disable CS8777 //Reviewed OK. We have verified that the parameters are non-null when method exits.
         public static void ArgumentNotNull([NotNull]object? p1, [InvokerParameterName] string n1) =>
             ArgumentNotNull((p1, n1));
         public static void ArgumentNotNull([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2) =>

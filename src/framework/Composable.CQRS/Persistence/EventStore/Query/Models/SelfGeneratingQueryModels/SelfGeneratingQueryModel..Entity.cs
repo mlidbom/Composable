@@ -1,4 +1,5 @@
-﻿using Composable.Messaging.Events;
+﻿using Composable.Contracts;
+using Composable.Messaging.Events;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.System.Reflection;
 using JetBrains.Annotations;
@@ -26,16 +27,17 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
         {
             static readonly TEventEntityIdGetter IdGetter = Constructor.For<TEventEntityIdGetter>.DefaultConstructor.Instance();
 
-            public TEntityId Id { get; private set; }
+            TEntityId _id;
+            public TEntityId Id => Assert.Result.NotNullOrDefault(_id);
 
             protected Entity(TQueryModel queryModel) : this(queryModel.RegisterEventAppliers()) {}
 
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+#pragma warning disable CS8618 //Review OK-ish: We guarantee that we never deliver out a null or default value from the public property.
             Entity(IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
             {
                 RegisterEventAppliers()
-                    .For<TEntityCreatedEvent>(e => Id = IdGetter.GetId(e));
+                    .For<TEntityCreatedEvent>(e => _id = IdGetter.GetId(e));
             }
 
             public static CollectionManager CreateSelfManagingCollection(TQueryModel parent) => new CollectionManager(parent, parent.RegisterEventAppliers());

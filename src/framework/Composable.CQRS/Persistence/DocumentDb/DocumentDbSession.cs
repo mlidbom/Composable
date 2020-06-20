@@ -118,7 +118,7 @@ namespace Composable.Persistence.DocumentDb
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
-#pragma warning disable 8600
+#pragma warning disable 8600 //Review OK-ish: This is a Resharper bug. No real warning here.
             if (TryGet(key, out TValue value))
 #pragma warning restore 8600
             {
@@ -207,7 +207,7 @@ namespace Composable.Persistence.DocumentDb
         readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
 
-#pragma warning disable IDE0069 // Disposable fields should be disposed
+#pragma warning disable IDE0069 //Reviewed OK: We should really not dispose the transaction just because we reference it :)
         Transaction? _participatingIn = null;
 #pragma warning restore IDE0069 // Disposable fields should be disposed
         void EnsureParticipatingInTransaction()

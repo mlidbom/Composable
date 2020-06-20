@@ -31,8 +31,6 @@ namespace Composable.Contracts {
             throw new Exception("WTF");
         }
 
-#pragma warning disable 8604
-        public static bool IsNullOrDefault([AllowNull]TType obj) => IsNullOrDefaultInternal(obj);
-#pragma warning restore 8604
+        public static bool IsNullOrDefault([AllowNull]TType obj) => IsNullOrDefaultInternal(obj!);//We know that the method we are calling will correctly handle any null values but cannot declare it as such because it is a generic Func
     }
 }

@@ -16,9 +16,6 @@ namespace Composable.DependencyInjection
         readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
-#pragma warning disable IDE0069 // Disposable fields should be disposed
-        readonly IDisposable _scopeDisposer;
-#pragma warning restore IDE0069 // Disposable fields should be disposed
 
         RootCache? _cache;
 
@@ -28,11 +25,7 @@ namespace Composable.DependencyInjection
 
         public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents.Values.ToList();
 
-        internal ComposableDependencyInjectionContainer(IRunMode runMode)
-        {
-            _scopeDisposer = Disposable.Create(EndScope);
-            RunMode = runMode;
-        }
+        internal ComposableDependencyInjectionContainer(IRunMode runMode) => RunMode = runMode;
 
         public void Register(params ComponentRegistration[] registrations)
         {
@@ -93,7 +86,7 @@ namespace Composable.DependencyInjection
 
             _scopeCache.Value = _cache!.CreateScopeCache();
 
-            return _scopeDisposer;
+            return Disposable.Create(EndScope);
         }
 
         void EndScope()

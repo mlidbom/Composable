@@ -45,18 +45,16 @@ namespace Composable.Contracts
                 null => throw new AssertionException(_inspectionType, 0)
             };
 
-#pragma warning disable CS8777 // Parameter must have a non-null value when exiting.
+#pragma warning disable CS8777 //Reviewed OK: We do know for sure that these parameters have been verified to not be null when method exits.
             [return: NotNull] [ContractAnnotation("obj:null => halt")]
-            public TValue NotNullOrDefault<TValue>([NotNull][AllowNull]TValue obj)
+            public TValue NotNullOrDefault<TValue>([AllowNull]TValue obj)
             {
                 if(NullOrDefaultTester<TValue>.IsNullOrDefault(obj))
                 {
                     throw new AssertionException(_inspectionType, 0);
                 }
 
-#pragma warning disable CS8603 // Possible null reference return.
-                return obj;
-#pragma warning restore CS8603 // Possible null reference return.
+                return obj!;
             }
 
             [ContractAnnotation("c1:null => halt; c2:null => halt")] public ChainedAssertion NotNull([NotNull][AllowNull]object c1, [NotNull][AllowNull]object c2) => RunNotNull(0, _inspectionType, c1, c2);

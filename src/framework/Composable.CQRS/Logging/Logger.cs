@@ -20,7 +20,7 @@ namespace Composable.Logging
     static class Logger
     {
         // ReSharper disable once UnusedParameter.Global removing the parameter would make it impossible to invoke this as an extension method :)
-#pragma warning disable IDE0060 // Remove unused parameter
+#pragma warning disable IDE0060 //Review OK: removing the parameter would make it impossible to invoke this as an extension method :)
         internal static ILogger Log<T>(this T me) => LogCache<T>.Logger;
 #pragma warning restore IDE0060 // Remove unused parameter
 

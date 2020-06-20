@@ -45,13 +45,13 @@ namespace Composable.DDD
         /// Implements equals using persistent reference semantics.
         /// If two instances have the same Id, Equals will return true.
         /// </summary>
-        public virtual bool Equals(TEntity other) => !(other is null) && other.Id.Equals(Id);
+        public virtual bool Equals(TEntity? other) => !(other is null) && other.Id.Equals(Id);
 
         /// <summary>
         /// Implements equals using persistent reference semantics.
         /// If two instances have the same Id, Equals will return true.
         /// </summary>
-        public override bool Equals(object other) => (other is TEntity actualOther) && Equals(actualOther);
+        public override bool Equals(object? other) => (other is TEntity actualOther) && Equals(actualOther);
 
         /// <inheritdoc />
         public override int GetHashCode() => Id.GetHashCode();
@@ -84,9 +84,7 @@ namespace Composable.DDD
     /// <see cref="object.GetHashCode"/>, and <see cref="IEquatable{TEntity}"/>.
     /// </summary>
     [DebuggerDisplay("{GetType().Name} Id={Id}")]
-#pragma warning disable 660,661
-    public class Entity<TEntity> : Entity<TEntity, Guid>, IPersistentEntity<Guid> where TEntity : Entity<TEntity>
-#pragma warning restore 660,661
+    public class Entity<TEntity> : Entity<TEntity, Guid>, IPersistentEntity<Guid>, IEquatable<TEntity> where TEntity : Entity<TEntity>
     {
         /// <summary>
         /// Creates an instance using the supplied <paramref name="id"/> as the Id.
@@ -115,5 +113,9 @@ namespace Composable.DDD
 
         ///<summary>True if both instances do not have the same ID</summary>
         public static bool operator !=(Entity<TEntity> lhs, Entity<TEntity> rhs) => !(lhs == rhs);
+
+        public new bool Equals(TEntity? other) => base.Equals(other);
+        public override bool Equals(object? obj) => base.Equals(obj);
+        public override int GetHashCode() => base.GetHashCode();
     }
 }

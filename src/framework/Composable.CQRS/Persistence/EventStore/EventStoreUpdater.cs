@@ -38,7 +38,7 @@ namespace Composable.Persistence.EventStore
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
-#pragma warning disable 8600
+#pragma warning disable 8600//Review OK-ish: This is a Resharper bug. No real warning here.
             if (!DoTryGet(aggregateId, out TAggregate result))
 #pragma warning restore 8600
             {

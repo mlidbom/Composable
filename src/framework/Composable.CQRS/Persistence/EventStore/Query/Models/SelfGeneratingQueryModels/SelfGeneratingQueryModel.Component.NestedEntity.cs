@@ -1,4 +1,5 @@
-﻿using Composable.Messaging.Events;
+﻿using Composable.Contracts;
+using Composable.Messaging.Events;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.System.Reflection;
 
@@ -31,15 +32,16 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
 
                 protected NestedEntity(TComponent parent): this(parent.RegisterEventAppliers()) { }
 
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+#pragma warning disable CS8618 //Review OK-ish: We guarantee that we never deliver out a null or default value from the public property.
                 protected NestedEntity(IEventHandlerRegistrar<TEntityEvent> appliersRegistrar) : base(appliersRegistrar, registerEventAppliers: false)
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
                 {
                     RegisterEventAppliers()
-                        .For<TEntityCreatedEvent>(e => Id = IdGetter.GetId(e));
+                        .For<TEntityCreatedEvent>(e => _id = IdGetter.GetId(e));
                 }
 
-                internal TEntityId Id { get; private set; }
+                TEntityId _id;
+                internal TEntityId Id => Assert.Result.NotNullOrDefault(_id);
 
                 public  static CollectionManager CreateSelfManagingCollection(TComponent parent)//todo:tests
                   =>

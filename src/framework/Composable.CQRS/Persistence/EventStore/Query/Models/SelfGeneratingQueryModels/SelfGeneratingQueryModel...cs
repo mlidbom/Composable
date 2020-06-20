@@ -25,7 +25,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
         {
             if(theEvent is IAggregateCreatedEvent)
             {
-#pragma warning disable 618
+#pragma warning disable 618 //Review OK: This is precisely the type of internal code this is supposed to use this "obsolete" method.
                 SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateId);
 #pragma warning restore 618
             }

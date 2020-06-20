@@ -117,9 +117,7 @@ namespace Composable.Persistence.DocumentDb
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-#pragma warning disable IDE0060 // Remove unused parameter
-        public void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> persistentValues)
-#pragma warning restore IDE0060 // Remove unused parameter
+        public void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> _)
         {
             lock(LockObject)
             {

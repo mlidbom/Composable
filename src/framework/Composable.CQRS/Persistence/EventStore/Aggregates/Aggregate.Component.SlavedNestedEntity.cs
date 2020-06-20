@@ -47,7 +47,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                 protected SlavedNestedEntity(TComponent parent)
                     : this(parent.TimeSource, parent.Publish, parent.RegisterEventAppliers()) { }
 
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+#pragma warning disable CS8618 //Todo: Should this unused class even be retained? Non-nullable field is uninitialized. Consider declaring as nullable.
                 protected SlavedNestedEntity
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
                     (IUtcTimeTimeSource timeSource,

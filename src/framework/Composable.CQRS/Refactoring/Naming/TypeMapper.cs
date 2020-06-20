@@ -14,7 +14,6 @@ namespace Composable.Refactoring.Naming
     class TypeMapper : ITypeMapper, ITypeMappingRegistar
     {
         readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
-        public TypeMapper() {}
 
         public TypeId GetId(Type type) => _state.WithExclusiveAccess(state =>
         {

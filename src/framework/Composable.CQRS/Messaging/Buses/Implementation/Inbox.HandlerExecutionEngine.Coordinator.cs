@@ -33,10 +33,10 @@ namespace Composable.Messaging.Buses.Implementation
 
                 internal HandlerExecutionTask AwaitExecutableHandlerExecutionTask(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
                 {
-                    HandlerExecutionTask? message = null;
-                    _implementation.Await(implementation => implementation.TryGetDispatchableMessage(dispatchingRules, out message));
-                    Assert.Result.Assert(message != null);
-                    return message;
+                    HandlerExecutionTask? handlerExecutionTask = null;
+                    _implementation.Await(implementation => implementation.TryGetDispatchableMessage(dispatchingRules, out handlerExecutionTask));
+                    Assert.Result.Assert(handlerExecutionTask != null);
+                    return handlerExecutionTask;
                 }
 
                 public Task<object?> EnqueueMessageTask(TransportMessage.InComing message) => _implementation.Update(implementation =>

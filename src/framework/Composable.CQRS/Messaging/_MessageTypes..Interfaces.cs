@@ -17,11 +17,14 @@ namespace Composable.Messaging
         ///<summary>Informs the receiver that something has happened.</summary>
         public interface IEvent : IMessage { }
 
-        /// <summary>Instructs the recevier to perform an action.</summary>
-        public interface ICommand : IRequireTransactionalReceiver { }
-        public interface ICommand<TResult> : ICommand{ }
+        public interface IHasReturnValue : IMessage
+        {}
 
-        public interface IQuery : IForbidTransactionalRemoteSender { }
+        /// <summary>Instructs the receiver to perform an action.</summary>
+        public interface ICommand : IRequireTransactionalReceiver { }
+        public interface ICommand<TResult> : ICommand, IHasReturnValue{ }
+
+        public interface IQuery : IForbidTransactionalRemoteSender, IHasReturnValue { }
 
         ///<summary>An instructs the receiver to return a result based upon the data in the query.</summary>
         public interface IQuery<TResult> : MessageTypes.IQuery { }

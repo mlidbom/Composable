@@ -89,7 +89,9 @@ namespace Composable.Messaging.Buses.Implementation
 
             public NetMQMessage CreateFailureResponse(AggregateException exception) => Response.Create.Failure(this, exception);
 
-            public NetMQMessage CreateSuccessResponse(object? response) => Response.Create.SuccessWithData(this, response, _serializer, _typeMapper);
+            public NetMQMessage CreateSuccessResponseWithData(object? response) => Response.Create.SuccessWithData(this, response, _serializer, _typeMapper);
+
+            public NetMQMessage CreateSuccessResponse() => Response.Create.Success(this);
 
             public NetMQMessage CreatePersistedResponse() => Response.Create.Persisted(this);
         }
@@ -134,6 +136,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal enum ResponseType
             {
                 SuccessWithData,
+                FailureExpectedReturnValue,
                 Failure,
                 Received,
                 Success
@@ -167,7 +170,7 @@ namespace Composable.Messaging.Buses.Implementation
                     return responseMessage;
                 }
 
-                public static NetMQMessage Success(TransportMessage.InComing incoming, ITypeMapper typeMapper)
+                public static NetMQMessage Success(TransportMessage.InComing incoming)
                 {
                     var responseMessage = new NetMQMessage();
 
@@ -185,7 +188,13 @@ namespace Composable.Messaging.Buses.Implementation
 
                     response.Append(incoming.Client);
                     response.Append(incoming.MessageId);
-                    response.Append((int)ResponseType.Failure);
+                    if(incoming.Is<MessageTypes.IHasReturnValue>())
+                    {
+                        response.Append((int)ResponseType.FailureExpectedReturnValue);
+                    } else
+                    {
+                        response.Append((int)ResponseType.Failure);
+                    }
 
                     response.Append(failure.InnerExceptions.Count == 1 ? failure.InnerException.ToString() : failure.ToString());
 
@@ -260,6 +269,8 @@ namespace Composable.Messaging.Buses.Implementation
                         {
                             return new Incoming(type: type, respondingToMessageId: messageId, body: null, responseTypeId: null, typeMapper: typeMapper);
                         }
+                        case ResponseType.FailureExpectedReturnValue:
+                            return new Incoming(type: type, respondingToMessageId: messageId, body: message[2].ConvertToString(), responseTypeId: null, typeMapper: typeMapper);
                         case ResponseType.Failure:
                             return new Incoming(type: type, respondingToMessageId: messageId, body: message[2].ConvertToString(), responseTypeId: null, typeMapper: typeMapper);
                         case ResponseType.Received:

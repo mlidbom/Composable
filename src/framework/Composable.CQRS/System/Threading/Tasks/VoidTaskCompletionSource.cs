@@ -7,7 +7,7 @@ namespace Composable.System.Threading.Tasks
 {
     class VoidTaskCompletionSource
     {
-        readonly TaskCompletionSource<Unit> _completionSource = new TaskCompletionSource<Unit>();
+        readonly TaskCompletionSource<Unit> _completionSource;
         public Task Task => _completionSource.Task;
         public void SetResult() => _completionSource.SetResult(Unit.Instance);
         public void TrySetResult() => _completionSource.TrySetResult(Unit.Instance);
@@ -17,5 +17,7 @@ namespace Composable.System.Threading.Tasks
         public void TrySetException(Exception exception) => _completionSource.TrySetException(exception);
         public void SetException(IEnumerable<Exception> exception) => _completionSource.SetException(exception);
         public void TrySetException(IEnumerable<Exception> exception) => _completionSource.TrySetException(exception);
+
+        public VoidTaskCompletionSource(TaskCreationOptions options) => _completionSource  = new TaskCompletionSource<Unit>(options);
     }
 }

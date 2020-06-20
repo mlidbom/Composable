@@ -56,12 +56,12 @@ namespace Composable.Messaging.Buses.Implementation
 
         public async Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
         {
-            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var taskCompletionSource = new VoidTaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
 
             _state.WithExclusiveAccess(state =>
             {
-                state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+                state.ExpectedCompletionTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
                 DispatchMessage(state, outGoingMessage);
             });
 
@@ -183,7 +183,7 @@ namespace Composable.Messaging.Buses.Implementation
                             {
                                 try
                                 {
-                                    successResponse.SetResult(response.DeserializeResult(_serializer)!);//Refactor: Lying about nullability to the compiler is not pretty at all.
+                                    successResponse.SetResult(Assert.Result.NotNull(response.DeserializeResult(_serializer)));//Refactor: Lying about nullability to the compiler is not pretty at all.
                                 }
                                 catch(Exception exception)
                                 {
@@ -208,9 +208,13 @@ namespace Composable.Messaging.Buses.Implementation
                             });
                         }
                             break;
-                        case TransportMessage.Response.ResponseType.Failure:
+                        case TransportMessage.Response.ResponseType.FailureExpectedReturnValue:
                             var failureResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
                             failureResponse.SetException(new MessageDispatchingFailedException(response.Body ?? "Got no exception text from remote end."));
+                            break;
+                        case TransportMessage.Response.ResponseType.Failure:
+                            var failureResponse2 = state.ExpectedCompletionTasks.GetAndRemove(response.RespondingToMessageId);
+                            failureResponse2.SetException(new MessageDispatchingFailedException(response.Body ?? "Got no exception text from remote end."));
                             break;
                         case TransportMessage.Response.ResponseType.Received:
                             Assert.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));

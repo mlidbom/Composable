@@ -101,12 +101,20 @@ namespace Composable.Messaging.Buses.Implementation
                                     {
                                         var failureResponse = transportMessage.CreateFailureResponse(dispatchResult.Exception);
                                         _responseQueue.Enqueue(failureResponse);
-                                    } else if(dispatchResult.IsCompleted)
+                                    } else
                                     {
+                                        Assert.Result.Assert(dispatchResult.IsCompleted);
                                         try
                                         {
-                                            var successResponse = transportMessage.CreateSuccessResponse(dispatchResult.Result);
-                                            _responseQueue.Enqueue(successResponse);
+                                            if(message is MessageTypes.IHasReturnValue)
+                                            {
+                                                var successResponse = transportMessage.CreateSuccessResponseWithData(dispatchResult.Result);
+                                                _responseQueue.Enqueue(successResponse);
+                                            } else
+                                            {
+                                                var successResponse = transportMessage.CreateSuccessResponse();
+                                                _responseQueue.Enqueue(successResponse);
+                                            }
                                         }
                                         catch(Exception exception)
                                         {

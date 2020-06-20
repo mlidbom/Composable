@@ -75,8 +75,16 @@ namespace Composable.Testing.Performance
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                var executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
-                tearDown?.Invoke();
+                StopwatchExtensions.TimedExecutionSummary executionSummary;
+                try
+                {
+                    executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
+                }
+                finally
+                {
+                    tearDown?.Invoke();
+                }
+
                 try
                 {
                     RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format: Format);
@@ -151,8 +159,16 @@ namespace Composable.Testing.Performance
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                var executionSummary  = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions, maxDegreeOfParallelism: maxDegreeOfParallelism);
-                tearDown?.Invoke();
+                StopwatchExtensions.TimedThreadedExecutionSummary executionSummary;
+                try
+                {
+                    executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions, maxDegreeOfParallelism: maxDegreeOfParallelism);
+                }
+                finally
+                {
+                    tearDown?.Invoke();
+                }
+
                 try
                 {
                     RunAsserts(maxAverage, maxTotal, executionSummary, Format);

@@ -11,29 +11,6 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
 {
     using Composable.System;
 
-    [TestFixture]
-    public class TestResetEvent
-    {
-        [Test]
-        public void Test()
-        {
-            var @event = new ManualResetEventSlim(false);
-
-            @event.Reset();
-            @event.Reset();
-
-            @event.Set();
-            @event.Wait(1.Milliseconds())
-                  .Should()
-                  .Be(true);
-
-            @event.Reset();
-            @event.Wait(1.Milliseconds())
-                  .Should()
-                  .Be(false);
-        }
-    }
-
     public class Testing
     {
         public void Test()

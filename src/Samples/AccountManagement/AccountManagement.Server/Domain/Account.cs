@@ -72,7 +72,7 @@ namespace AccountManagement.Domain
 
         internal void ChangeEmail(Email email)
         {
-            Contract.Argument(() => email).NotNullOrDefault();
+            Contract.ArgumentNotNullOrDefault(email, nameof(email));
 
             Publish(new AccountEvent.Implementation.UserChangedEmail(email));
         }

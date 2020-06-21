@@ -8,11 +8,8 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
     {
         protected EventMigration(Guid id, string name, string description)
         {
-            Contract.Argument(() => id)
-                        .NotNullOrDefault();
-
-            Contract.Argument(() => description, () => name)
-                        .NotNullEmptyOrWhiteSpace();
+            Contract.ArgumentNotNullOrDefault(id, nameof(id));
+            Contract.ArgumentNotNullEmptyOrWhitespace(description, nameof(description), name, nameof(name));
 
             Contract.Assert.That(typeof(TMigratedAggregateEventHierarchyRootInterface).IsInterface, "typeof(TMigratedAggregateEventHierarchyRootInterface).IsInterface");
 

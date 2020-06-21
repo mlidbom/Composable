@@ -13,7 +13,7 @@ namespace Composable.System.ComponentModel.DataAnnotations
     {
         static string ExtractMemberName(Expression<Func<object>> accessor)
         {
-            Contract.Argument(() => accessor).NotNull();
+            Contract.ArgumentNotNull(accessor, nameof(accessor));
 
             var expr = accessor.Body;
             while (expr.NodeType == ExpressionType.Convert || expr.NodeType == ExpressionType.ConvertChecked)

@@ -190,7 +190,7 @@ WHERE Id=@Id AND ValueTypeId
                     command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
                 }
 
-                if(!command.CommandText.IsNullOrWhiteSpace())
+                if(!command.CommandText.IsNullEmptyOrWhiteSpace())
                 {
                     command.ExecuteNonQuery();
                 }

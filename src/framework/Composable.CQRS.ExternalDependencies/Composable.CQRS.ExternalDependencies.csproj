@@ -18,7 +18,7 @@
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.4.1" />
     <PackageReference Include="Castle.Windsor" Version="5.0.1" />
-    <PackageReference Include="SimpleInjector" Version="5.0.0" />
+    <PackageReference Include="SimpleInjector" Version="5.0.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
   </ItemGroup>
    

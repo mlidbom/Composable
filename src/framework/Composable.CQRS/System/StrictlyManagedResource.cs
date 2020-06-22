@@ -11,11 +11,11 @@ namespace Composable.System
             ExpressionUtil.ExtractMemberPath(() => CollectStackTracesForAllStrictlyManagedResources);
 
         public static readonly bool CollectStackTracesForAllStrictlyManagedResources =
-            AppConfigConfigurationParameterProvider.Instance.GetBoolean(CollectStackTracesForAllStrictlyManagedResourcesConfigurationParameterName,
+            AppSettingsJsonConfigurationParameterProvider.Instance.GetBoolean(CollectStackTracesForAllStrictlyManagedResourcesConfigurationParameterName,
                                                                         valueIfMissing: false);
 
         public static bool CollectStackTracesFor<TManagedResource>()
-            => AppConfigConfigurationParameterProvider.Instance.GetBoolean(ConfigurationParamaterNameFor<TManagedResource>(),
+            => AppSettingsJsonConfigurationParameterProvider.Instance.GetBoolean(ConfigurationParamaterNameFor<TManagedResource>(),
                                                                            valueIfMissing: false);
 
         static string ConfigurationParamaterNameFor<TManagedResource>() => ConfigurationParamaterNameFor(typeof(TManagedResource));

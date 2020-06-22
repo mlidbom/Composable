@@ -5,12 +5,12 @@ using Microsoft.Extensions.Configuration;
 namespace Composable.System.Configuration
 {
     ///<summary>Fetches configuration variables from the application configuration file.</summary>
-    class AppConfigConfigurationParameterProvider : IConfigurationParameterProvider
+    class AppSettingsJsonConfigurationParameterProvider : IConfigurationParameterProvider
     {
-        public static readonly IConfigurationParameterProvider Instance = new AppConfigConfigurationParameterProvider();
+        public static readonly IConfigurationParameterProvider Instance = new AppSettingsJsonConfigurationParameterProvider();
         readonly IConfigurationSection _appSettingsSection;
 
-        public AppConfigConfigurationParameterProvider()
+        public AppSettingsJsonConfigurationParameterProvider()
         {
             IConfiguration config = new ConfigurationBuilder()
                                    .SetBasePath(Directory.GetCurrentDirectory())

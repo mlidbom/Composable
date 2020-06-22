@@ -82,7 +82,7 @@ namespace Composable.Messaging.Buses
 
             if(!_container.HasComponent<IConfigurationParameterProvider>())
             {
-                _container.Register(Singleton.For<IConfigurationParameterProvider>().CreatedBy(() => new AppConfigConfigurationParameterProvider()));
+                _container.Register(Singleton.For<IConfigurationParameterProvider>().CreatedBy(() => new AppSettingsJsonConfigurationParameterProvider()));
             }
 
             _container.Register(

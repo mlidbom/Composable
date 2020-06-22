@@ -8,7 +8,7 @@ namespace Composable.Tests.System.Configuration
     [TestFixture] public class ConnectionStringConfigurationParameterProviderTests
     {
         ConfigurationSqlConnectionProviderSource _providerSource;
-        [SetUp] public void SetupTask() { _providerSource = new ConfigurationSqlConnectionProviderSource(new AppConfigConfigurationParameterProvider()); }
+        [SetUp] public void SetupTask() { _providerSource = new ConfigurationSqlConnectionProviderSource(new AppSettingsJsonConfigurationParameterProvider()); }
 
         [Test] public void ConnectionStringProvider_should_return_connection_string_specified_in_the_configuration_file() =>
             Assert.AreEqual("CSvalue1",

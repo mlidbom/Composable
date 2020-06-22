@@ -19,7 +19,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class State
         {
-            public State(IGlobalBusStateTracker globalBusStateTracker, HandlerStorage handlerStorage, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, MessageStorage messageStorage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public State(IGlobalBusStateTracker globalBusStateTracker, HandlerStorage handlerStorage, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, SqlServerMessageStorage messageStorage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 GlobalBusStateTracker = globalBusStateTracker;
                 HandlerStorage = handlerStorage;
@@ -36,7 +36,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly HandlerStorage HandlerStorage;
             internal NetMQPoller? Poller;
             public IUtcTimeTimeSource TimeSource { get; }
-            public MessageStorage MessageStorage { get; }
+            public SqlServerMessageStorage MessageStorage { get; }
             public ITypeMapper TypeMapper { get; }
             public IRemotableMessageSerializer Serializer { get; }
             public readonly RealEndpointConfiguration Configuration;
@@ -54,7 +54,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                           new HandlerStorage(typeMapper),
                                                           configuration,
                                                           timeSource,
-                                                          new MessageStorage(connectionFactory, typeMapper, serializer),
+                                                          new SqlServerMessageStorage(connectionFactory, typeMapper, serializer),
                                                           typeMapper,
                                                           serializer));
         }

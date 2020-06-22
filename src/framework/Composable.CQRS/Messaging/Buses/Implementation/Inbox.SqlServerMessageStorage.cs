@@ -8,11 +8,11 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class Inbox
     {
-        public partial class MessageStorage
+        public partial class SqlServerMessageStorage
         {
             readonly ISqlConnectionProvider _connectionFactory;
 
-            public MessageStorage(ISqlConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+            public SqlServerMessageStorage(ISqlConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
 
             public void SaveIncomingMessage(TransportMessage.InComing message) =>
                 _connectionFactory.UseCommand(

@@ -9,13 +9,13 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class InterprocessTransport
     {
-        public partial class MessageStorage
+        public partial class SqlServerMessageStorage
         {
             readonly ISqlConnectionProvider _connectionFactory;
             readonly ITypeMapper _typeMapper;
             readonly IRemotableMessageSerializer _serializer;
 
-            public MessageStorage(ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public SqlServerMessageStorage(ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 _connectionFactory = connectionFactory;
                 _typeMapper = typeMapper;

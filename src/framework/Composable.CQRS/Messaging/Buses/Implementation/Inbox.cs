@@ -28,12 +28,12 @@ namespace Composable.Messaging.Buses.Implementation
             readonly CancellationTokenSource _cancellationTokenSource;
             readonly BlockingCollection<IReadOnlyList<TransportMessage.InComing>> _receivedMessageBatches = new BlockingCollection<IReadOnlyList<TransportMessage.InComing>>();
             readonly HandlerExecutionEngine _handlerExecutionEngine;
-            readonly MessageStorage _storage;
+            readonly SqlServerMessageStorage _storage;
             readonly ITypeMapper _typeMapper;
             readonly IRemotableMessageSerializer _serializer;
             internal readonly EndPointAddress Address;
 
-            public Runner(HandlerExecutionEngine handlerExecutionEngine, MessageStorage storage, string address, RealEndpointConfiguration configuration, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public Runner(HandlerExecutionEngine handlerExecutionEngine, SqlServerMessageStorage storage, string address, RealEndpointConfiguration configuration, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 _handlerExecutionEngine = handlerExecutionEngine;
                 _storage = storage;
@@ -166,7 +166,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly string _address;
         readonly ITypeMapper _typeMapper;
         readonly IRemotableMessageSerializer _serializer;
-        readonly MessageStorage _storage;
+        readonly SqlServerMessageStorage _storage;
         readonly HandlerExecutionEngine _handlerExecutionEngine;
 
         public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, RealEndpointConfiguration configuration, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
@@ -175,7 +175,7 @@ namespace Composable.Messaging.Buses.Implementation
             _typeMapper = typeMapper;
             _serializer = serializer;
             _address = configuration.Address;
-            _storage = new MessageStorage(connectionFactory);
+            _storage = new SqlServerMessageStorage(connectionFactory);
             _handlerExecutionEngine = new HandlerExecutionEngine(globalStateTracker, handlerRegistry, serviceLocator, _storage, taskRunner);
         }
 

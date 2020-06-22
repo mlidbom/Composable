@@ -27,7 +27,7 @@ namespace Composable.Messaging.Buses.Implementation
             Failed = 2
         }
 
-        partial class MessageStorage
+        partial class SqlServerMessageStorage
         {
             static class SchemaManager
             {

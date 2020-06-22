@@ -24,7 +24,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal const string IsReceived = nameof(IsReceived);
         }
 
-        partial class MessageStorage
+        partial class SqlServerMessageStorage
         {
             static class SchemaManager
             {

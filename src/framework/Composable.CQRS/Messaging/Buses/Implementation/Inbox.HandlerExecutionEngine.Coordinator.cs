@@ -17,12 +17,12 @@ namespace Composable.Messaging.Buses.Implementation
             partial class Coordinator
             {
                 readonly ITaskRunner _taskRunner;
-                readonly MessageStorage _messageStorage;
+                readonly SqlServerMessageStorage _messageStorage;
                 readonly IServiceLocator _serviceLocator;
                 readonly IMessageHandlerRegistry _messageHandlerRegistry;
                 readonly AwaitableOptimizedThreadShared<NonThreadsafeImplementation> _implementation;
 
-                public Coordinator(IGlobalBusStateTracker globalStateTracker, ITaskRunner taskRunner, MessageStorage messageStorage, IServiceLocator serviceLocator, IMessageHandlerRegistry messageHandlerRegistry)
+                public Coordinator(IGlobalBusStateTracker globalStateTracker, ITaskRunner taskRunner, SqlServerMessageStorage messageStorage, IServiceLocator serviceLocator, IMessageHandlerRegistry messageHandlerRegistry)
                 {
                     _taskRunner = taskRunner;
                     _messageStorage = messageStorage;

@@ -23,7 +23,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var queryResults = new List<UserResource>();
 
-            _host = SqlServerEndpointHost.Testing.Create(DependencyInjectionContainer.Create);
+            _host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
 
             _host.RegisterEndpoint(
                 "Backend",

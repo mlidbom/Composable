@@ -8,7 +8,7 @@ using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    partial class SqlServerInterProcessTransportMessageStorage : InterprocessTransport.ISqlServerMessageStorage
+    partial class SqlServerInterProcessTransportMessageStorage : InterprocessTransport.IMessageStorage
     {
         readonly ISqlConnectionProvider _connectionFactory;
         readonly ITypeMapper _typeMapper;

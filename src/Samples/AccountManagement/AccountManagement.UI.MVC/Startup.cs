@@ -21,7 +21,7 @@ namespace AccountManagement.UI.MVC
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            _host = SqlServerEndpointHost.Production.Create(DependencyInjectionContainer.Create);
+            _host = EndpointHost.Production.Create(DependencyInjectionContainer.Create);
             _clientEndpoint = _host.RegisterClientEndpoint(AccountApi.RegisterWithClientEndpoint);
 
         }

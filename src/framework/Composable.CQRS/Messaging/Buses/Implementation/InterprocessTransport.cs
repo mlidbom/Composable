@@ -18,7 +18,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class State
         {
-            public State(IGlobalBusStateTracker globalBusStateTracker, HandlerStorage handlerStorage, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, InterprocessTransport.ISqlServerMessageStorage messageStorage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public State(IGlobalBusStateTracker globalBusStateTracker, HandlerStorage handlerStorage, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, InterprocessTransport.IMessageStorage messageStorage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 GlobalBusStateTracker = globalBusStateTracker;
                 HandlerStorage = handlerStorage;
@@ -35,7 +35,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly HandlerStorage HandlerStorage;
             internal NetMQPoller? Poller;
             public IUtcTimeTimeSource TimeSource { get; }
-            public InterprocessTransport.ISqlServerMessageStorage MessageStorage { get; }
+            public InterprocessTransport.IMessageStorage MessageStorage { get; }
             public ITypeMapper TypeMapper { get; }
             public IRemotableMessageSerializer Serializer { get; }
             public readonly RealEndpointConfiguration Configuration;
@@ -45,7 +45,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly IThreadShared<State> _state;
         readonly ITaskRunner _taskRunner;
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, InterprocessTransport.ISqlServerMessageStorage messageStorage, ITypeMapper typeMapper, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, InterprocessTransport.IMessageStorage messageStorage, ITypeMapper typeMapper, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
         {
             _taskRunner = taskRunner;
             _state = new OptimizedThreadShared<State>(new State(

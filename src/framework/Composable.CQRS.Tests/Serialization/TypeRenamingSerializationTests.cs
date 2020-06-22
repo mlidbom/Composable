@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Refactoring.Naming;
@@ -111,8 +112,8 @@ namespace Composable.Tests.Serialization
 
         [OneTimeSetUp] public void SetupTask()
         {
-            _originalHost = SqlServerEndpointHost.Testing.Create(DependencyInjectionContainer.Create);
-            _renamedHost = SqlServerEndpointHost.Testing.Create(DependencyInjectionContainer.Create);
+            _originalHost = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
+            _renamedHost = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
 
             _originaltypesMap = _originalHost.RegisterTestingEndpoint(
                 setup: builder =>

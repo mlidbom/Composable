@@ -10,20 +10,17 @@ using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System;
 using Composable.System.Configuration;
-using Composable.System.Data.SqlClient;
 using Composable.System.Threading;
 
 // ReSharper disable ImplicitlyCapturedClosure it is very much intentional :)
 
 namespace Composable.Messaging.Buses
 {
-    //Refactor: This must not be SQL Server dependent.
-    class SqlServerEndpointBuilder : IEndpointBuilder
+    class ServerEndpointBuilder : IEndpointBuilder
     {
         readonly IDependencyInjectionContainer _container;
         readonly TypeMapper _typeMapper;
         bool _builtSuccessfully;
-        ISqlConnectionProviderSource? _connectionProvider;
 
         public IDependencyInjectionContainer Container => _container;
         public ITypeMappingRegistar TypeMapper => _typeMapper;
@@ -56,7 +53,7 @@ namespace Composable.Messaging.Buses
             MessageTypes.MapTypes(TypeMapper);
         }
 
-        public SqlServerEndpointBuilder(IEndpointHost host, IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointConfiguration configuration)
+        public ServerEndpointBuilder(IEndpointHost host, IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
             _host = host;
             _container = container;
@@ -93,7 +90,7 @@ namespace Composable.Messaging.Buses
                 Singleton.For<ITaskRunner>().CreatedBy(() => new TaskRunner()),
                 Singleton.For<EndpointId>().CreatedBy(() => Configuration.Id),
                 Singleton.For<EndpointConfiguration>().CreatedBy(() => Configuration),
-                Singleton.For<IInterprocessTransport>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, InterprocessTransport.ISqlServerMessageStorage messageStorage) => new InterprocessTransport(_globalStateTracker, timeSource, messageStorage, _typeMapper, configuration, taskRunner, serializer)),
+                Singleton.For<IInterprocessTransport>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, InterprocessTransport.IMessageStorage messageStorage) => new InterprocessTransport(_globalStateTracker, timeSource, messageStorage, _typeMapper, configuration, taskRunner, serializer)),
                 Singleton.For<IGlobalBusStateTracker>().CreatedBy(() => _globalStateTracker),
                 Singleton.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>().CreatedBy(() => _registry),
                 Singleton.For<IEventStoreSerializer>().CreatedBy(() => new EventStoreSerializer(_typeMapper)),
@@ -130,7 +127,6 @@ namespace Composable.Messaging.Buses
                 _disposed = true;
                 if(!_builtSuccessfully)
                 {
-                    (_connectionProvider as IDisposable)?.Dispose();
                     _container.Dispose();
                 }
             }

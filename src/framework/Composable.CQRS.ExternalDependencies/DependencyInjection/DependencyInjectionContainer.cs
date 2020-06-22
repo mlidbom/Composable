@@ -20,7 +20,7 @@ namespace Composable.DependencyInjection
 #pragma warning restore IDE0067 // Dispose objects before losing scope
             var endpoint = host.RegisterTestingEndpoint(setup: builder =>
             {
-                builder.Container.RegisterSqlServerPersistenceLayer(builder.Configuration);
+                builder.RegisterSqlServerPersistenceLayer();
                 setup(builder.Container);
                 //Hack to get the host to be disposed by the container when the container is disposed.
                 builder.Container.Register(Singleton.For<TestingEndpointHostDisposer>().CreatedBy(() => new TestingEndpointHostDisposer(host)).DelegateToParentServiceLocatorWhenCloning());

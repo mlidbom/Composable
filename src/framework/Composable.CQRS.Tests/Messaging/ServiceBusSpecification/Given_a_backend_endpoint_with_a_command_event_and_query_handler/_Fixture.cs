@@ -67,7 +67,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
                 builder =>
                 {
-                    builder.Container.RegisterSqlServerPersistenceLayer(builder.Configuration);
+                    builder.RegisterSqlServerPersistenceLayer();
                     builder.RegisterSqlServerEventStore()
                            .HandleAggregate<MyAggregate, MyAggregateEvent.IRoot>(builder.RegisterHandlers);
 
@@ -87,7 +87,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                   new EndpointId(Guid.Parse("E72924D3-5279-44B5-B20D-D682E537672B")),
                                   builder =>
                                   {
-                                      builder.Container.RegisterSqlServerPersistenceLayer(builder.Configuration);
+                                      builder.RegisterSqlServerPersistenceLayer();
                                       builder.RegisterHandlers.ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyRemoteAggregateEventHandlerThreadGate.AwaitPassthrough());
                                       MapBackendEndpointTypes(builder);
                                   });

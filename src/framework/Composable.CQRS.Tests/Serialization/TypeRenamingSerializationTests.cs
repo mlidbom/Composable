@@ -117,7 +117,7 @@ namespace Composable.Tests.Serialization
             _originaltypesMap = _originalHost.RegisterTestingEndpoint(
                 setup: builder =>
                 {
-                    builder.Container.RegisterSqlServerPersistenceLayer(builder.Configuration);
+                    builder.RegisterSqlServerPersistenceLayer();
                     builder.TypeMapper
                            .Map<OriginalTypes.TypeA>(Ids.TypeA)
                            .Map<OriginalTypes.TypeB>(Ids.TypeB)
@@ -128,7 +128,7 @@ namespace Composable.Tests.Serialization
             _renamedTypesMap = _originalHost.RegisterTestingEndpoint(
                 setup: builder =>
                 {
-                    builder.Container.RegisterSqlServerPersistenceLayer(builder.Configuration);
+                    builder.RegisterSqlServerPersistenceLayer();
                     builder.TypeMapper
                            .Map<RenamedTypes.TypeA>(Ids.TypeA)
                            .Map<RenamedTypes.TypeB>(Ids.TypeB)

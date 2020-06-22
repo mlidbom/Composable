@@ -40,7 +40,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 new EndpointId(Guid.Parse("A4A2BA96-8D82-47AC-8A1B-38476C7B5D5D")),
                 builder =>
                 {
-                    builder.Container.RegisterSqlServerPersistenceLayer(builder.Configuration);
+                    builder.RegisterSqlServerPersistenceLayer();
                     builder.Container.RegisterSqlServerEventStore<IUserEventStoreUpdater, IUserEventStoreReader>(builder.Configuration.ConnectionStringName);
 
                     builder.RegisterHandlers

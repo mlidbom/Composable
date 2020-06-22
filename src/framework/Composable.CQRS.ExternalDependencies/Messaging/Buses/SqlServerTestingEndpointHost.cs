@@ -29,7 +29,7 @@ namespace Composable.Messaging.Buses
         public IEndpoint RegisterClientEndpointForRegisteredEndpoints() =>
             RegisterClientEndpoint(builder =>
             {
-                builder.Container.RegisterSqlServerPersistenceLayer(builder.Configuration);
+                builder.RegisterSqlServerPersistenceLayer();
                 Endpoints.Select(otherEndpoint => otherEndpoint.ServiceLocator.Resolve<TypeMapper>())
                          .ForEach(otherTypeMapper => ((TypeMapper)builder.TypeMapper).IncludeMappingsFrom(otherTypeMapper));
             });

@@ -21,13 +21,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
         [SetUp]public async Task Setup()
         {
-            _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
+            _host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
 
             _endpoint = _host.RegisterEndpoint(
                 "endpoint",
                 new EndpointId(Guid.Parse("17ED9DF9-33A8-4DF8-B6EC-6ED97AB2030B")),
                 builder =>
                 {
+                    builder.RegisterSqlServerPersistenceLayer();
                     builder.RegisterHandlers.ForCommand<ScheduledCommand>(
                         cmd => _receivedCommandGate.AwaitPassthrough());
 

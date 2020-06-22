@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses.Implementation
                     readonly Coordinator _coordinator;
                     readonly Func<object, object?> _messageTask;
                     readonly ITaskRunner _taskRunner;
-                    readonly MessageStorage _messageStorage;
+                    readonly IMessageStorage _messageStorage;
                     readonly IServiceLocator _serviceLocator;
                     readonly IMessageHandlerRegistry _handlerRegistry;
 
@@ -79,7 +79,7 @@ namespace Composable.Messaging.Buses.Implementation
                         });
                     }
 
-                    public HandlerExecutionTask(TransportMessage.InComing transportMessage, Coordinator coordinator, ITaskRunner taskRunner, MessageStorage messageStorage, IServiceLocator serviceLocator, IMessageHandlerRegistry handlerRegistry)
+                    public HandlerExecutionTask(TransportMessage.InComing transportMessage, Coordinator coordinator, ITaskRunner taskRunner, IMessageStorage messageStorage, IServiceLocator serviceLocator, IMessageHandlerRegistry handlerRegistry)
                     {
                         MessageId = transportMessage.MessageId;
                         TransportMessage = transportMessage;

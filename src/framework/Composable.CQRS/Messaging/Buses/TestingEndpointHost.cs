@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
@@ -8,15 +9,20 @@ using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
-    class TestingEndpointHost : EndpointHost, ITestingEndpointHost, IEndpointRegistry
+    public class TestingEndpointHost : EndpointHost, ITestingEndpointHost, IEndpointRegistry
     {
+        readonly List<Exception> _handledExceptions = new List<Exception>();
         public TestingEndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory)
         {
             GlobalBusStateTracker = new GlobalBusStateTracker();
         }
 
-        public void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }
+        public IEnumerable<EndPointAddress> ServerEndpoints => Endpoints.Where(endpoint => endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds().Any())
+                                                                        .Where(@this => !(@this.Address is null))
+                                                                        .Select(@this => @this.Address!)
+                                                                        .ToList();
 
+        public void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }
         public IEndpoint RegisterTestingEndpoint(string? name = null, EndpointId? id = null, Action<IEndpointBuilder>? setup = null)
         {
             var endpointId = id ?? new EndpointId(Guid.NewGuid());
@@ -26,13 +32,19 @@ namespace Composable.Messaging.Buses
         }
 
         public IEndpoint RegisterClientEndpointForRegisteredEndpoints() =>
-            RegisterClientEndpoint(builder => Endpoints.Select(otherEndpoint => otherEndpoint.ServiceLocator.Resolve<TypeMapper>())
-                                                       .ForEach(otherTypeMapper => ((TypeMapper)builder.TypeMapper).IncludeMappingsFrom(otherTypeMapper)));
+            RegisterClientEndpoint(builder =>
+            {
+                ExtraEndpointConfiguration(builder);
+                Endpoints.Select(otherEndpoint => otherEndpoint.ServiceLocator.Resolve<TypeMapper>())
+                         .ForEach(otherTypeMapper => ((TypeMapper)builder.TypeMapper).IncludeMappingsFrom(otherTypeMapper));
+            });
+
+        internal virtual void ExtraEndpointConfiguration(IEndpointBuilder builder){}
 
         public TException AssertThrown<TException>() where TException : Exception
         {
             WaitForEndpointsToBeAtRest();
-            var matchingException = GetThrownExceptions().OfType<TException>().SingleOrDefault();
+            var matchingException = Enumerable.OfType<TException>((IEnumerable)GetThrownExceptions()).SingleOrDefault();
             if(matchingException == null)
             {
                 throw new Exception("Matching exception not thrown.");
@@ -41,12 +53,11 @@ namespace Composable.Messaging.Buses
             _handledExceptions.Add(matchingException);
             return matchingException;
         }
-
         protected override void InternalDispose()
         {
             WaitForEndpointsToBeAtRest();
 
-            var unHandledExceptions = GetThrownExceptions().Except(_handledExceptions).ToList();
+            var unHandledExceptions = Enumerable.Except<Exception>(GetThrownExceptions(), _handledExceptions).ToList();
 
             base.InternalDispose();
 
@@ -55,14 +66,6 @@ namespace Composable.Messaging.Buses
                 throw new AggregateException("Unhandled exceptions thrown in bus", unHandledExceptions.ToArray());
             }
         }
-
-        readonly List<Exception> _handledExceptions = new List<Exception>();
-
         List<Exception> GetThrownExceptions() => GlobalBusStateTracker.GetExceptions().ToList();
-
-        public IEnumerable<EndPointAddress> ServerEndpoints => Endpoints.Where(endpoint => endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds().Any())
-                                                                        .Where(@this => !(@this.Address is null))
-                                                                        .Select(@this => @this.Address!)
-                                                                        .ToList();
     }
 }

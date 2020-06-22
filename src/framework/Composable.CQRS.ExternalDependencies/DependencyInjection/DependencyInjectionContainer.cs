@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.DependencyInjection.Persistence;
 using Composable.Messaging.Buses;
 using JetBrains.Annotations;
 
@@ -15,10 +16,11 @@ namespace Composable.DependencyInjection
         public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup, TestingMode mode)
         {
 #pragma warning disable IDE0067 //Review OK-ish: We register the host in the container to ensure that it is disposed when the container is.
-            var host = EndpointHost.Testing.Create(Create, mode);
+            var host = SqlServerTestingEndpointHost.Create(Create, mode);
 #pragma warning restore IDE0067 // Dispose objects before losing scope
             var endpoint = host.RegisterTestingEndpoint(setup: builder =>
             {
+                builder.RegisterSqlServerPersistenceLayer();
                 setup(builder.Container);
                 //Hack to get the host to be disposed by the container when the container is disposed.
                 builder.Container.Register(Singleton.For<TestingEndpointHostDisposer>().CreatedBy(() => new TestingEndpointHostDisposer(host)).DelegateToParentServiceLocatorWhenCloning());

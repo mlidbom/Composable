@@ -102,7 +102,7 @@ namespace Composable.Messaging.Buses.Implementation
                                   EndPointAddress serverEndpoint,
                                   NetMQPoller poller,
                                   IUtcTimeTimeSource timeSource,
-                                  InterprocessTransport.MessageStorage messageStorage,
+                                  InterprocessTransport.IMessageStorage messageStorage,
                                   ITypeMapper typeMapper,
                                   ITaskRunner taskRunner,
                                   IRemotableMessageSerializer serializer)
@@ -152,9 +152,9 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly DealerSocket Socket;
             internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
             internal IUtcTimeTimeSource TimeSource { get; private set; }
-            internal InterprocessTransport.MessageStorage MessageStorage { get; private set; }
+            internal InterprocessTransport.IMessageStorage MessageStorage { get; private set; }
 
-            public State(IUtcTimeTimeSource timeSource, InterprocessTransport.MessageStorage messageStorage, DealerSocket socket, IGlobalBusStateTracker globalBusStateTracker)
+            public State(IUtcTimeTimeSource timeSource, InterprocessTransport.IMessageStorage messageStorage, DealerSocket socket, IGlobalBusStateTracker globalBusStateTracker)
             {
                 Socket = socket;
                 TimeSource = timeSource;

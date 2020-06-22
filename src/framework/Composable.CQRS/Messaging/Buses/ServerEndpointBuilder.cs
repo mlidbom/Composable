@@ -10,25 +10,22 @@ using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System;
 using Composable.System.Configuration;
-using Composable.System.Data.SqlClient;
 using Composable.System.Threading;
 
 // ReSharper disable ImplicitlyCapturedClosure it is very much intentional :)
 
 namespace Composable.Messaging.Buses
 {
-    class EndpointBuilder : IEndpointBuilder
+    class ServerEndpointBuilder : IEndpointBuilder
     {
         readonly IDependencyInjectionContainer _container;
         readonly TypeMapper _typeMapper;
         bool _builtSuccessfully;
-        ISqlConnectionProviderSource? _connectionProvider;
 
         public IDependencyInjectionContainer Container => _container;
         public ITypeMappingRegistar TypeMapper => _typeMapper;
         readonly IGlobalBusStateTracker _globalStateTracker;
         readonly MessageHandlerRegistry _registry;
-        readonly LazySqlServerConnectionProvider _endpointSqlConnection;
         readonly IEndpointHost _host;
         public EndpointConfiguration Configuration { get; }
 
@@ -56,7 +53,7 @@ namespace Composable.Messaging.Buses
             MessageTypes.MapTypes(TypeMapper);
         }
 
-        public EndpointBuilder(IEndpointHost host, IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointConfiguration configuration)
+        public ServerEndpointBuilder(IEndpointHost host, IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
             _host = host;
             _container = container;
@@ -64,9 +61,6 @@ namespace Composable.Messaging.Buses
 
 
             Configuration = configuration;
-
-            _endpointSqlConnection = new LazySqlServerConnectionProvider(
-                () => _container.CreateServiceLocator().Resolve<ISqlConnectionProviderSource>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString);
 
             _typeMapper = new TypeMapper();
 
@@ -92,14 +86,11 @@ namespace Composable.Messaging.Buses
             }
 
             _container.Register(
-                Singleton.For<ISqlConnectionProviderSource>().CreatedBy(() => _connectionProvider = _container.RunMode.IsTesting
-                                                                                                                    ? (ISqlConnectionProviderSource)new SqlServerDatabasePoolSqlConnectionProviderSource(_container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())
-                                                                                                                    : new ConfigurationSqlConnectionProviderSource(_container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITypeMappingRegistar, ITypeMapper, TypeMapper>().CreatedBy(() => _typeMapper).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITaskRunner>().CreatedBy(() => new TaskRunner()),
                 Singleton.For<EndpointId>().CreatedBy(() => Configuration.Id),
                 Singleton.For<EndpointConfiguration>().CreatedBy(() => Configuration),
-                Singleton.For<IInterprocessTransport>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => new InterprocessTransport(_globalStateTracker, timeSource, _endpointSqlConnection, _typeMapper, configuration, taskRunner, serializer)),
+                Singleton.For<IInterprocessTransport>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, InterprocessTransport.IMessageStorage messageStorage) => new InterprocessTransport(_globalStateTracker, timeSource, messageStorage, _typeMapper, configuration, taskRunner, serializer)),
                 Singleton.For<IGlobalBusStateTracker>().CreatedBy(() => _globalStateTracker),
                 Singleton.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>().CreatedBy(() => _registry),
                 Singleton.For<IEventStoreSerializer>().CreatedBy(() => new EventStoreSerializer(_typeMapper)),
@@ -113,7 +104,7 @@ namespace Composable.Messaging.Buses
             if(Configuration.HasMessageHandlers)
             {
                 _container.Register(
-                    Singleton.For<IInbox>().CreatedBy((IServiceLocator serviceLocator, RealEndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => new Inbox(serviceLocator, _globalStateTracker, _registry, endpointConfiguration, _endpointSqlConnection, _typeMapper, taskRunner, serializer)),
+                    Singleton.For<IInbox>().CreatedBy((IServiceLocator serviceLocator, RealEndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, Inbox.IMessageStorage messageStorage) => new Inbox(serviceLocator, _globalStateTracker, _registry, endpointConfiguration, messageStorage, _typeMapper, taskRunner, serializer)),
                     Singleton.For<CommandScheduler>().CreatedBy((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource)),
                     Scoped.For<IServiceBusSession, ILocalHypermediaNavigator>().CreatedBy((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteHypermediaNavigator remoteNavigator) => new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry, remoteNavigator))
                 );
@@ -136,7 +127,6 @@ namespace Composable.Messaging.Buses
                 _disposed = true;
                 if(!_builtSuccessfully)
                 {
-                    (_connectionProvider as IDisposable)?.Dispose();
                     _container.Dispose();
                 }
             }

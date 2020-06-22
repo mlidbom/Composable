@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Refactoring.Naming;
@@ -111,22 +112,30 @@ namespace Composable.Tests.Serialization
 
         [OneTimeSetUp] public void SetupTask()
         {
-            _originalHost = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
-            _renamedHost = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
+            _originalHost = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
+            _renamedHost = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
 
             _originaltypesMap = _originalHost.RegisterTestingEndpoint(
-                setup: builder => builder.TypeMapper
-                                         .Map<OriginalTypes.TypeA>(Ids.TypeA)
-                                         .Map<OriginalTypes.TypeB>(Ids.TypeB)
-                                         .Map<OriginalTypes.TypeA.TypeAA>(Ids.TypeAA)
-                                         .Map<OriginalTypes.TypeB.TypeBB>(Ids.TypeBB)).ServiceLocator.Resolve<ITypeMapper>();
+                setup: builder =>
+                {
+                    builder.RegisterSqlServerPersistenceLayer();
+                    builder.TypeMapper
+                           .Map<OriginalTypes.TypeA>(Ids.TypeA)
+                           .Map<OriginalTypes.TypeB>(Ids.TypeB)
+                           .Map<OriginalTypes.TypeA.TypeAA>(Ids.TypeAA)
+                           .Map<OriginalTypes.TypeB.TypeBB>(Ids.TypeBB);
+                }).ServiceLocator.Resolve<ITypeMapper>();
 
             _renamedTypesMap = _originalHost.RegisterTestingEndpoint(
-                setup: builder => builder.TypeMapper
-                                         .Map<RenamedTypes.TypeA>(Ids.TypeA)
-                                         .Map<RenamedTypes.TypeB>(Ids.TypeB)
-                                         .Map<RenamedTypes.TypeA.TypeAA>(Ids.TypeAA)
-                                         .Map<RenamedTypes.TypeB.TypeBB>(Ids.TypeBB)).ServiceLocator.Resolve<ITypeMapper>();
+                setup: builder =>
+                {
+                    builder.RegisterSqlServerPersistenceLayer();
+                    builder.TypeMapper
+                           .Map<RenamedTypes.TypeA>(Ids.TypeA)
+                           .Map<RenamedTypes.TypeB>(Ids.TypeB)
+                           .Map<RenamedTypes.TypeA.TypeAA>(Ids.TypeAA)
+                           .Map<RenamedTypes.TypeB.TypeBB>(Ids.TypeBB);
+                }).ServiceLocator.Resolve<ITypeMapper>();
 
             _originalTypesSerializer = new RenamingSupportingJsonSerializer(JsonSettings.JsonSerializerSettings, _originaltypesMap);
             _renamedTypesSerializer = new RenamingSupportingJsonSerializer(JsonSettings.JsonSerializerSettings, _renamedTypesMap);

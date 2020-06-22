@@ -23,13 +23,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var queryResults = new List<UserResource>();
 
-            _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
+            _host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
 
             _host.RegisterEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("3A1B6A8C-D232-476C-A15A-9C8295413210")),
                 builder =>
                 {
+                    builder.RegisterSqlServerPersistenceLayer();
                     builder.RegisterHandlers
                            .ForQuery((GetUserQuery query) => queryResults.Single(result => result.Name == query.Name))
                            .ForQuery((UserApiStartPageQuery query) => new UserApiStartPage())

@@ -53,25 +53,27 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         {
                 _currentMigrations = migrations;
 
-                IServiceLocator clonedLocator = null;
 
-            void LoadWithCloneLocator() => clonedLocator.ExecuteTransactionInIsolatedScope(() => clonedLocator.Resolve<ITestingEventStoreUpdater>()
-                                                                                                   .Get<TestAggregate>(_aggregate.Id));
-                TimeAsserter.Execute(
+            void LoadWithCloneLocator(IServiceLocator locator) => locator.ExecuteTransactionInIsolatedScope(() => locator.Resolve<ITestingEventStoreUpdater>()
+                                                                                                                         .Get<TestAggregate>(_aggregate.Id));
+
+            IServiceLocator clonedLocator = null;
+
+            TimeAsserter.Execute(
                     maxTotal: maxUncachedLoadTime,
                     timeFormat: "ss\\.fff",
                     setup: () => clonedLocator = _container.Clone(),
                     tearDown: () => clonedLocator?.Dispose(),
-                    action: LoadWithCloneLocator);
+                    action: () => LoadWithCloneLocator(clonedLocator!));
 
             using(clonedLocator = _container.Clone())
             {
-                LoadWithCloneLocator();//Warm up cache
+                LoadWithCloneLocator(clonedLocator);//Warm up cache
 
                 TimeAsserter.Execute(
                     maxTotal: maxCachedLoadTime,
                     timeFormat: "ss\\.fff",
-                    action: LoadWithCloneLocator);
+                    action: () => LoadWithCloneLocator(clonedLocator));
             }
         }
 

@@ -2,12 +2,18 @@
 using AccountManagement.Domain.Passwords;
 using Composable.DDD;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace AccountManagement.API
 {
     public partial class AccountResource : Entity<AccountResource>
     {
-        [UsedImplicitly] AccountResource() {}
+        [JsonConstructor] AccountResource(Email email, Password password, CommandsCollection commands)
+        {
+            Email = email;
+            Password = password;
+            Commands = commands;
+        }
 
         internal AccountResource(IAccountResourceData account) : base(account.Id)
         {

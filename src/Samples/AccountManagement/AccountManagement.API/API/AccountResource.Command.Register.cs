@@ -29,10 +29,10 @@ namespace AccountManagement.API
 
                 [Email(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "EmailInvalid")]
                 [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "EmailMissing")]
-                public string Email { [UsedImplicitly] get; set; }
+                public string Email { [UsedImplicitly] get; set; } = string.Empty;
 
                 [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "PasswordMissing")]
-                public string Password { get; set; }
+                public string Password { get; set; } = string.Empty;
 
                 public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Passwords.Password.Validate(Password, this, () => Password);
 

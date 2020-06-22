@@ -6,7 +6,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.QueryModel
 {
     class RootQueryModel : SelfGeneratingQueryModel<RootQueryModel, RootEvent.IRoot>
     {
-        public string Name { get; private set; }
+        public string Name { get; private set; } = string.Empty;
         readonly Entity.CollectionManager _entities;
         public Component Component { get; private set; }
 

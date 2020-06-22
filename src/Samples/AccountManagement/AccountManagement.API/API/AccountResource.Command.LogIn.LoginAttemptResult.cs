@@ -10,7 +10,7 @@ namespace AccountManagement.API
             {
                 public class LoginAttemptResult
                 {
-                    public string AuthenticationToken { get; private set; }
+                    public string AuthenticationToken { get; private set; }  = string.Empty;
                     public bool Succeeded { get; private set; }
 
                     public static LoginAttemptResult Success(string authenticationToken) => new LoginAttemptResult

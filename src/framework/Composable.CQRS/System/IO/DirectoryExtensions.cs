@@ -16,7 +16,7 @@ namespace Composable.System.IO
         /// <returns></returns>
         public static DirectoryInfo AsDirectory(this string path)
         {
-            Contract.Argument(() => path).NotNullEmptyOrWhiteSpace();
+            Contract.ArgumentNotNullEmptyOrWhitespace(path, nameof(path));
             return new DirectoryInfo(path);
         }
 
@@ -25,7 +25,7 @@ namespace Composable.System.IO
         /// </summary>
         public static long Size(this DirectoryInfo me)
         {
-            Contract.Argument(() => me).NotNull();
+            Contract.ArgumentNotNull(me, nameof(me));
             return me.FullName
                 .AsHierarchy(Directory.GetDirectories).Flatten().Unwrap()
                 .SelectMany(Directory.GetFiles)
@@ -41,7 +41,7 @@ namespace Composable.System.IO
         /// <param name="me"></param>
         public static void DeleteRecursive(this DirectoryInfo me)
         {
-            Contract.Argument(() => me).NotNull();
+            Contract.ArgumentNotNull(me, nameof(me));
             me.Delete(true);
         }
     }

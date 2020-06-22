@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Composable.System.Reflection
 {
@@ -39,11 +40,13 @@ namespace Composable.System.Reflection
 
         }
 
-        internal static object CreateInstance(Type type) => DefaultFor(type)();
+        internal static bool HasDefaultConstructor(Type type) => type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null) != null;
+
+        internal static object CreateInstance(Type type) => DefaultConstructorFor(type)();
 
         static readonly object Lock = new object();
         static Dictionary<Type, Func<object>> _defaultConstructors = new Dictionary<Type, Func<object>>();
-        internal static Func<object> DefaultFor(Type type)
+        internal static Func<object> DefaultConstructorFor(Type type)
         {
             if(_defaultConstructors.TryGetValue(type, out var constructor))
             {

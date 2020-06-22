@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Composable.Contracts;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
 using Composable.Serialization;
@@ -26,7 +27,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 
         readonly object _lockObject = new object();
         bool _initialized;
-        ConcurrentDictionary<Type, int> _knownTypes = null;
+        readonly ConcurrentDictionary<Type, int> _knownTypes = new ConcurrentDictionary<Type, int>();
         readonly SchemaManager _schemaManager;
 
         internal SqlServerDocumentDb(ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
@@ -39,7 +40,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 
         Type GetTypeFromId(int id) { return _knownTypes.Single(pair => pair.Value == id).Key; }
 
-        bool IDocumentDb.TryGet<TValue>(object key, [NotNullWhen(true)]out TValue value, Dictionary<Type, Dictionary<string, string>> persistentValues)
+        bool IDocumentDb.TryGet<TValue>(object key, [NotNullWhen(true)][MaybeNull]out TValue value, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
             EnsureInitialized();
 
@@ -85,6 +86,7 @@ WHERE Id=@Id AND ValueTypeId
 
         public void Add<T>(object id, T value, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
+            Assert.Argument.NotNull(value);
             EnsureInitialized();
 
             var idString = GetIdString(id);
@@ -188,7 +190,7 @@ WHERE Id=@Id AND ValueTypeId
                     command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
                 }
 
-                if(!command.CommandText.IsNullOrWhiteSpace())
+                if(!command.CommandText.IsNullEmptyOrWhiteSpace())
                 {
                     command.ExecuteNonQuery();
                 }
@@ -319,10 +321,7 @@ ELSE
                 if(!_initialized)
                 {
                     _schemaManager.EnsureInitialized();
-
-                    _knownTypes = new ConcurrentDictionary<Type, int>();
                     _initialized = true;
-
                     RefreshKnownTypes();
                 }
             }

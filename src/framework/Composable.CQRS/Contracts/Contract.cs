@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using Composable.System;
 using JetBrains.Annotations;
 using NotNull = global::System.Diagnostics.CodeAnalysis.NotNullAttribute;
 // ReSharper disable UnusedParameter.Global
@@ -83,6 +84,12 @@ namespace Composable.Contracts
             ArgumentNotNullOrDefault((p1, n1), (p2, n2), (p3, n3),(p4, n4),(p5, n5),(p6, n6));
         public static void ArgumentNotNullOrDefault([NotNull]object? p1, [InvokerParameterName] string n1, [NotNull]object? p2, [InvokerParameterName] string n2, [NotNull]object? p3, [InvokerParameterName] string n3, [NotNull]object? p4, [InvokerParameterName] string n4, [NotNull]object? p5, [InvokerParameterName] string n5, [NotNull]object? p6, [InvokerParameterName] string n6, [NotNull]object? p7, [InvokerParameterName] string n7) =>
             ArgumentNotNullOrDefault((p1, n1), (p2, n2), (p3, n3),(p4, n4),(p5, n5),(p6, n6), (p7, n7));
+
+        public static void ArgumentNotNullOrEmpty([NotNull]string? p1, [InvokerParameterName] string n1) => ArgumentNotNullOrEmpty((p1, n1));
+        public static void ArgumentNotNullOrEmpty([NotNull]string? p1, [InvokerParameterName] string n1, [NotNull]string? p2, [InvokerParameterName] string n2) => ArgumentNotNullOrEmpty((p1, n1), (p2, n2));
+
+        public static void ArgumentNotNullEmptyOrWhitespace([NotNull]string? p1, [InvokerParameterName] string n1) => ArgumentNotNullEmptyOrWhitespace((p1, n1));
+        public static void ArgumentNotNullEmptyOrWhitespace([NotNull]string? p1, [InvokerParameterName] string n1, [NotNull]string? p2, [InvokerParameterName] string n2) => ArgumentNotNullEmptyOrWhitespace((p1, n1), (p2, n2));
 #pragma warning restore CS8777 // Parameter must have a non-null value when exiting.
         static void ArgumentNotNull(params (object? Argument, string Name)[] arguments)
         {
@@ -90,7 +97,7 @@ namespace Composable.Contracts
             {
                 if(arguments[i].Argument is null)
                 {
-                    throw new ArgumentNullException(arguments[0].Name);
+                    throw new ArgumentNullException(arguments[i].Name);
                 }
             }
         }
@@ -101,7 +108,29 @@ namespace Composable.Contracts
             {
                 if(NullOrDefaultTester<object>.IsNullOrDefault(arguments[i].Value))
                 {
-                    throw new ArgumentNullException(arguments[0].Name);
+                    throw new ArgumentNullException(arguments[i].Name);
+                }
+            }
+        }
+
+        static void ArgumentNotNullOrEmpty(params (string? Value, string Name)[] arguments)
+        {
+            for(int i = 0; i < arguments.Length; i++)
+            {
+                if(string.IsNullOrEmpty(arguments[i].Value))
+                {
+                    throw new ArgumentException($"Parameter {arguments[i].Name} was either null or empty", arguments[i].Name);
+                }
+            }
+        }
+
+        static void ArgumentNotNullEmptyOrWhitespace(params (string? Value, string Name)[] arguments)
+        {
+            for(int i = 0; i < arguments.Length; i++)
+            {
+                if(arguments[i].Value.IsNullEmptyOrWhiteSpace())
+                {
+                    throw new ArgumentException($"Parameter {arguments[i].Name} was either null, empty or whitespace", arguments[i].Name);
                 }
             }
         }

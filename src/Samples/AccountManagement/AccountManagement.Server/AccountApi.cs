@@ -32,7 +32,7 @@ namespace AccountManagement
             {
                 public TryGetByEmailQuery(Email accountId)
                 {
-                    Contract.Argument(() => accountId).NotNullOrDefault();
+                    Contract.ArgumentNotNullOrDefault(accountId, nameof(Account));
                     Email = accountId;
                 }
 

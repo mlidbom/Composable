@@ -21,7 +21,8 @@ namespace Composable.Persistence.EventStore
 
         readonly object _lockObject = new object();
 
-        public InMemoryEventStore(IEnumerable<IEventMigration> migrations = null ) => _migrationFactories = migrations?.ToList() ?? new List<IEventMigration>();
+        public InMemoryEventStore() : this(Enumerable.Empty<IEventMigration>()){}
+        public InMemoryEventStore(IEnumerable<IEventMigration> migrations) => _migrationFactories = migrations?.ToList() ?? new List<IEventMigration>();
 
         public IReadOnlyList<IAggregateEvent> GetAggregateHistoryForUpdate(Guid id) => GetAggregateHistory(id);
 
@@ -84,7 +85,7 @@ namespace Composable.Persistence.EventStore
 
         public void PersistMigrations() { _events = StreamEvents().Cast<AggregateEvent>().ToList(); }
 
-        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventType = null)
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventType = null)
         {
             Contract.Assert.That(eventType == null || eventType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType),
                                  "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType)");

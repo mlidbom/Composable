@@ -21,7 +21,7 @@ namespace AccountManagement.UnitTests.Emails
         }
 
         [Test] public void An_InvalidEmailException_containing_the_string_null_is_thrown_if_the_string_passed_is_null()
-            => Assert.Throws<InvalidEmailException>(() => Email.Parse(null)).Message.Should().Contain("null");
+            => Assert.Throws<InvalidEmailException>(() => Email.Parse(null!)).Message.Should().Contain("null");
 
         [Test] public void An_InvalidEmailException_containing_an_empty_quotation_is_thrown_if_the_string_passed_is_null()
             => Assert.Throws<InvalidEmailException>(() => Email.Parse("")).Message.Should().Contain("''");

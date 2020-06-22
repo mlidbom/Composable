@@ -19,7 +19,7 @@ namespace Composable.Testing.Databases
         static void CreateDatabase(string databaseName)
         {
             var createDatabaseCommand = $@"CREATE DATABASE [{databaseName}]";
-            if(!_databaseRootFolderOverride.IsNullOrWhiteSpace())
+            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
             {
                 createDatabaseCommand += $@"
 ON      ( NAME = {databaseName}_data, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.mdf') 

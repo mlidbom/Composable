@@ -150,6 +150,7 @@ namespace Composable.Persistence.EventStore.Aggregates
             {
                 _insertedVersionToAggregateVersionOffset = maxInsertedVersion - Version;
             }
+            AssertInvariantsAreMet();
         }
     }
 }

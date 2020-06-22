@@ -36,16 +36,14 @@ namespace Composable.Persistence.DocumentDb
 
             public void Save(object document)
             {
-                Contract.Argument(() => document)
-                            .NotNull();
+                Contract.ArgumentNotNull(document,nameof(document));
                 Document = document;
                 IsDeleted = false;
             }
 
             public void DocumentLoadedFromBackingStore(object document)
             {
-                Contract.Argument(() => document)
-                            .NotNull();
+                Contract.ArgumentNotNull(document, nameof(Document));
                 Document = document;
                 IsInBackingStore = true;
             }

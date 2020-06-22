@@ -18,8 +18,8 @@ namespace AccountManagement.API
 
                 public static LogIn Create() => new LogIn {DeduplicationId = Guid.NewGuid()};
 
-                [Required] [Email] public string Email { get; set; }
-                [Required] public string Password { get; set; }
+                [Required] [Email] public string Email { get; set; } = string.Empty;
+                [Required] public string Password { get; set; } = string.Empty;
 
                 public LogIn WithValues(string email, string password) => new LogIn
                                                                             {

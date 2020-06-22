@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Composable.Contracts;
 using Composable.DDD;
 using Composable.System.Collections.Collections;
 using Composable.Serialization;
@@ -19,6 +20,7 @@ namespace Composable.Persistence.DocumentDb
 
         public void Add<T>(object id, T value, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
+            Assert.Argument.NotNull(value);
             lock(LockObject)
             {
                 var idString = GetIdString(id);
@@ -40,6 +42,7 @@ namespace Composable.Persistence.DocumentDb
 
         void SetPersistedValue<T>(T value, string idString, string stringValue)
         {
+            Assert.Argument.NotNull(value);
             _persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
         }
 

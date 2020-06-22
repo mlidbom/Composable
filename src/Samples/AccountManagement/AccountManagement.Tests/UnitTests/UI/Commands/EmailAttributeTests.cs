@@ -1,4 +1,5 @@
-﻿using AccountManagement.API.ValidationAttributes;
+﻿using System.ComponentModel.DataAnnotations;
+using AccountManagement.API.ValidationAttributes;
 using AccountManagement.UnitTests.UI.Commands.UserCommands;
 using FluentAssertions;
 using JetBrains.Annotations;
@@ -10,10 +11,10 @@ namespace AccountManagement.UnitTests.UI.Commands
     public class EmailAttributeTests
     {
         [Test]
-        public void IsValidIfEmailIsNull()
+        public void IsNotValidIfEmailIsNull()
         {
             CommandValidator.ValidationFailures(new ACommand {Email = null})
-                .Should().BeEmpty();
+                .Should().NotBeEmpty();
         }
 
         [Test]

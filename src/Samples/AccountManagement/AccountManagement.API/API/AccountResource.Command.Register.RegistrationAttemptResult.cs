@@ -14,15 +14,15 @@ namespace AccountManagement.API
             {
                 public class RegistrationAttemptResult
                 {
-                    [JsonConstructor]internal RegistrationAttemptResult(RegistrationAttemptStatus status, AccountResource registeredAccount)
+                    [JsonConstructor]internal RegistrationAttemptResult(RegistrationAttemptStatus status, AccountResource? registeredAccount)
                     {
-                        Assert.Argument.Assert(status != RegistrationAttemptStatus.Successful || registeredAccount != null);
+                        Assert.Argument.Assert(status != RegistrationAttemptStatus.Successful || !(registeredAccount is null));
                         Status = status;
                         RegisteredAccount = registeredAccount;
                     }
 
                     public RegistrationAttemptStatus Status { get; private set; }
-                    public AccountResource RegisteredAccount { get; private set; }
+                    public AccountResource? RegisteredAccount { get; private set; }
                 }
             }
         }

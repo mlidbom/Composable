@@ -8,7 +8,7 @@ namespace Composable.Messaging.Buses.Implementation
         internal string StringValue { get; private set; }
         internal EndPointAddress(string stringValue)
         {
-            Contract.Argument(() => stringValue).NotNullEmptyOrWhiteSpace();
+            Contract.ArgumentNotNullEmptyOrWhitespace(stringValue, nameof(stringValue));
             StringValue = stringValue;
         }
     }

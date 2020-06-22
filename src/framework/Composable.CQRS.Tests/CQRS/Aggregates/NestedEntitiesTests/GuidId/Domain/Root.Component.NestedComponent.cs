@@ -12,7 +12,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.Domain
                    .For<RootEvent.Component.NestedComponent.PropertyUpdated.Name>(e => Name = e.Name);
             }
 
-            public string Name { get; private set; }
+            public string Name { get; private set; } = string.Empty;
 
             public void Rename(string name) => Publish(new RootEvent.Component.NestedComponent.Implementation.Renamed(name));
         }

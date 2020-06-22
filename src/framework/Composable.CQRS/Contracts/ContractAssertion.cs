@@ -10,7 +10,7 @@ namespace Composable.Contracts
         [AssertionMethod]
         internal static void That(this IContractAssertion @this, [AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]bool assertion, string message)
         {
-            if(message.IsNullOrWhiteSpace())
+            if(message.IsNullEmptyOrWhiteSpace())
             {
                 throw new ArgumentException(nameof(message));
             }

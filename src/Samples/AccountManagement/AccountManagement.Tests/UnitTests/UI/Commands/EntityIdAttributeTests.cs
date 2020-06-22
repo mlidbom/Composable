@@ -14,7 +14,7 @@ namespace AccountManagement.UnitTests.UI.Commands
         public void IsValidIfIdIsNull()
         {
             CommandValidator.ValidationFailures(new ACommand {AnId = null})
-                .Should().BeEmpty();
+                .Should().NotBeEmpty();
         }
 
         [Test]

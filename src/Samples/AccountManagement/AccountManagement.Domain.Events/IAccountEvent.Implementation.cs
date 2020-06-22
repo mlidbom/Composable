@@ -3,6 +3,7 @@ using AccountManagement.Domain.Passwords;
 using Composable.Contracts;
 using Composable.Persistence.EventStore;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable InconsistentNaming
@@ -21,7 +22,11 @@ namespace AccountManagement.Domain.Events
 
             public class UserRegistered : Root, AccountEvent.UserRegistered
             {
-                [UsedImplicitly] UserRegistered() {}
+                [JsonConstructor] UserRegistered(Email email, Password password)
+                {
+                    Email = email;
+                    Password = password;
+                }
 
                 ///<summary>
                 /// The constructor should guarantee that the event is correctly created.
@@ -30,7 +35,7 @@ namespace AccountManagement.Domain.Events
                 /// </summary>
                 public UserRegistered(Guid accountId, Email email, Password password) : base(accountId)
                 {
-                    Assert.Argument.Assert(email != null, password != null);
+                    Assert.Argument.Assert(!(email is null), password != null);
 
                     Email = email;
                     Password = password;

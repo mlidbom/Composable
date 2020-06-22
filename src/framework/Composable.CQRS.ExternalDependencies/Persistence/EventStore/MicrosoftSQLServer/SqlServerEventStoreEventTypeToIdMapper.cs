@@ -58,7 +58,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         void EnsureInitialized()
         {
-            if(_idToTypeMap == null)
+            if(_idToTypeMap.Count == 0)
             {
                 LoadTypesFromDatabase();
             }
@@ -123,7 +123,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                 {
                     var eventType = new TypeId(reader.GetGuid(1));
                     var eventTypeId = reader.GetInt32(0);
-                    Type foundEventType = null;
+                    Type? foundEventType = null;
 
                     try
                     {
@@ -147,8 +147,8 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             return types;
         });
 
-        Dictionary<int, IIdTypeMapping> _idToTypeMap;
-        Dictionary<Type, int> _typeToIdMap;
+        Dictionary<int, IIdTypeMapping> _idToTypeMap = new Dictionary<int, IIdTypeMapping>();
+        Dictionary<Type, int> _typeToIdMap = new Dictionary<Type, int>();
         readonly object _lockObject = new object();
 
         interface IIdTypeMapping

@@ -16,7 +16,7 @@ namespace Composable.Tests.System.Reflection
         {}
 
 
-        [Test][Serial] public void CanCreateInstance() => Constructor.DefaultFor(typeof(Simple))().Should().NotBe(unexpected: null);
+        [Test][Serial] public void CanCreateInstance() => Constructor.DefaultConstructorFor(typeof(Simple))().Should().NotBe(unexpected: null);
 
         [Test][Serial] public void _005_Constructs_1_000_000_instances_faster_than_via_activator_createinstance()
         {
@@ -31,7 +31,7 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: defaultConstructor.InstrumentationSlowdown(slowdownFactor: 2));
         }
 
-        static void DynamicModuleConstruct() => Constructor.DefaultFor(typeof(Simple))();
+        static void DynamicModuleConstruct() => Constructor.DefaultConstructorFor(typeof(Simple))();
 
         // ReSharper disable once ObjectCreationAsStatement
 

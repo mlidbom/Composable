@@ -68,7 +68,7 @@ namespace Composable.Messaging.Buses
             _endpointSqlConnection = new LazySqlServerConnectionProvider(
                 () => _container.CreateServiceLocator().Resolve<ISqlConnectionProviderSource>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString);
 
-            _typeMapper = new TypeMapper(_endpointSqlConnection);
+            _typeMapper = new TypeMapper();
 
             _registry = new MessageHandlerRegistry(_typeMapper);
             RegisterHandlers = new MessageHandlerRegistrarWithDependencyInjectionSupport(_registry, new OptimizedLazy<IServiceLocator>(() => _container.CreateServiceLocator()));

@@ -13,7 +13,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.Domain
                                   RootEvent.Component.Entity.Removed,
                                   RootEvent.Component.Entity.Implementation.Root.IdGetterSetter>
         {
-            public string Name { get; private set; }
+            public string Name { get; private set; } = string.Empty;
             public Entity(Component parent) : base(parent)
             {
                 RegisterEventAppliers()

@@ -12,7 +12,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.QueryModel
                     .For<RootEvent.Component.NestedComponent.PropertyUpdated.Name>(e => Name = e.Name);
             }
 
-            public string Name { get; private set; }
+            public string Name { get; private set; } = string.Empty;
         }
     }
 }

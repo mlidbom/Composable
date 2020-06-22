@@ -68,6 +68,7 @@ namespace AccountManagement
             }
 
             public class TestData<TData> : TestCaseData
+            where TData : class
             {
                 public TData Data { get; }
                 public TestData(TData data, string description) : base(data)

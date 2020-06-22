@@ -72,13 +72,13 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion},
         {
             // ReSharper disable PossibleInvalidOperationException
             var replacementGroup = events.Where(@event => @event.Replaces.HasValue)
-                                         .GroupBy(@event => @event.Replaces.Value)
+                                         .GroupBy(@event => @event.Replaces!.Value)
                                          .SingleOrDefault();
             var insertBeforeGroup = events.Where(@event => @event.InsertBefore.HasValue)
-                                          .GroupBy(@event => @event.InsertBefore.Value)
+                                          .GroupBy(@event => @event.InsertBefore!.Value)
                                           .SingleOrDefault();
             var insertAfterGroup = events.Where(@event => @event.InsertAfter.HasValue)
-                                         .GroupBy(@event => @event.InsertAfter.Value)
+                                         .GroupBy(@event => @event.InsertAfter!.Value)
                                          .SingleOrDefault();
             // ReSharper restore PossibleInvalidOperationException
 
@@ -234,7 +234,7 @@ where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertionOrder}
 
 
 
-            EventOrderNeighborhood neighborhood = null;
+            EventOrderNeighborhood? neighborhood = null;
 
             _connectionManager.UseCommand(
                 command =>
@@ -252,7 +252,7 @@ where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertionOrder}
                         nextReadOrder: reader.GetSqlDecimal(3));
                 });
 
-            return neighborhood;
+            return Assert.Result.NotNull(neighborhood);
         }
 
         static SqlParameter Nullable(SqlParameter @this)

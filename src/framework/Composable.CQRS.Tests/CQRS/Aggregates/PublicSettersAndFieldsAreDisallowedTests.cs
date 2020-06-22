@@ -19,27 +19,27 @@ namespace Composable.Tests.CQRS.Aggregates
         {
             public interface IRoot : IAggregateEvent { string Public1 { get; set; } }
 
-            public class Root : AggregateEvent, IRoot { public string Public1 { get; set; } }
+            public class Root : AggregateEvent, IRoot { public string Public1 { get; set; } = string.Empty; }
 
             [AllowPublicSetters]
-            public class Ignored : Root { public string IgnoredMember { get; set; } }
+            public class Ignored : Root { public string IgnoredMember { get; set; } = string.Empty; }
 
             public static class Component
             {
                 public interface IRoot : RootEvent.IRoot { string Public2 { get; set; }  }
-                internal class Root : RootEvent.Root, IRoot { public string Public2 { get; set; } }
+                internal class Root : RootEvent.Root, IRoot { public string Public2 { get; set; } = string.Empty;}
 
                 public static class NestedComponent
                 {
                     public interface IRoot : Component.IRoot{ string           Public3 { get; set; }  }
-                    internal class Root : Component.Root, IRoot { public string Public3 { get; set; } }
+                    internal class Root : Component.Root, IRoot { public string Public3 { get; set; } = string.Empty; }
                 }
             }
 
             public static class Entity
             {
                 public interface IRoot : RootEvent.IRoot{ string            Public4 { get; set; }  }
-                internal class Root : RootEvent.Root, IRoot { public string Public4 { get; set; }
+                internal class Root : RootEvent.Root, IRoot { public string Public4 { get; set; } = string.Empty;
                     [UsedImplicitly] public class GetterSetter : IGetSetAggregateEntityEventEntityId<Guid, Root, IRoot>
                     {
                         public Guid GetId(IRoot @event) { throw new Exception(); }
@@ -50,12 +50,12 @@ namespace Composable.Tests.CQRS.Aggregates
                 public static class Component
                 {
                     public interface IRoot : Entity.IRoot { string           Public2 { get; set; }  }
-                    internal class Root : Entity.Root, IRoot { public string Public2 { get; set; } }
+                    internal class Root : Entity.Root, IRoot { public string Public2 { get; set; } = string.Empty; }
 
                     public static class NestedComponent
                     {
                         public interface IRoot : Component.IRoot{ string            Public3 { get; set; }  }
-                        internal class Root : Component.Root, IRoot { public string Public3 { get; set; } }
+                        internal class Root : Component.Root, IRoot { public string Public3 { get; set; } = string.Empty;}
                     }
                 }
             }
@@ -70,25 +70,25 @@ namespace Composable.Tests.CQRS.Aggregates
             {
                 public AggComponent(Root aggregate) : base(aggregate) {}
 
-                public string Public { get; set; }
+                public string Public { get; set; } = string.Empty;
 
                 public class NestedAggComponent : AggComponent.NestedComponent<NestedAggComponent, RootEvent.Component.NestedComponent.Root, RootEvent.Component.NestedComponent.IRoot>
                 {
                     public NestedAggComponent(AggComponent parent) : base(parent) {}
 
-                    public string Public { get; set; }
+                    public string Public { get; set; } = string.Empty;
                 }
             }
 
             public class AggEntity : Root.Entity<AggEntity, Guid, RootEvent.Entity.Root, RootEvent.Entity.IRoot,RootEvent.Entity.IRoot, RootEvent.Entity.Root.GetterSetter>
             {
                 public AggEntity(Root aggregate) : base(aggregate) {}
-                public string Public { get; set; }
+                public string Public { get; set; }  = string.Empty;
 
                 public class EntNestedComp : AggEntity.NestedComponent<EntNestedComp, RootEvent.Entity.Component.Root, RootEvent.Entity.Component.IRoot>
                 {
                     public EntNestedComp(AggEntity parent) : base(parent) {}
-                    public string Public2 { get; set; }
+                    public string Public2 { get; set; } = string.Empty;
                 }
             }
         }
@@ -96,7 +96,7 @@ namespace Composable.Tests.CQRS.Aggregates
 
         [Test]public void Trying_to_create_instance_of_aggregate_throws_and_lists_all_broken_types_in_exception_except_ignored()
         {
-            AssertThrows.Exception<Exception>(() => new Root(null)).InnerException
+            AssertThrows.Exception<Exception>(() => new Root(null!)).InnerException!
                         .Message
                         .Should().Contain(typeof(Root).FullName)
                         .And.Contain(typeof(RootEvent.IRoot).FullName)
@@ -106,7 +106,7 @@ namespace Composable.Tests.CQRS.Aggregates
 
         [Test] public void Trying_to_create_instance_of_component_throws_and_lists_all_broken_types_in_exception()
         {
-            AssertThrows.Exception<Exception>(() => new Root.AggComponent(null)).InnerException
+            AssertThrows.Exception<Exception>(() => new Root.AggComponent(null!)).InnerException!
                         .Message
                         .Should().Contain(typeof(Root.AggComponent).FullName).And
                         .Contain(typeof(RootEvent.Component.IRoot).FullName)
@@ -116,7 +116,7 @@ namespace Composable.Tests.CQRS.Aggregates
 
         [Test] public void Trying_to_create_instance_of_nested_nested_component_throws_and_lists_all_broken_types_in_exception()
         {
-            AssertThrows.Exception<Exception>(() => new Root.AggComponent.NestedAggComponent(null)).InnerException
+            AssertThrows.Exception<Exception>(() => new Root.AggComponent.NestedAggComponent(null!)).InnerException!
                         .Message
                .Should().Contain(typeof(Root.AggComponent.NestedAggComponent).FullName).And
                .Contain(typeof(RootEvent.Component.NestedComponent.IRoot).FullName)
@@ -125,7 +125,7 @@ namespace Composable.Tests.CQRS.Aggregates
 
         [Test] public void Trying_to_create_instance_of_entity_throws_and_lists_all_broken_types_in_exception()
         {
-            AssertThrows.Exception<Exception>(() => new Root.AggEntity(null)).InnerException
+            AssertThrows.Exception<Exception>(() => new Root.AggEntity(null!)).InnerException!
                         .Message
                         .Should().Contain(typeof(Root.AggEntity).FullName).And
                         .Contain(typeof(RootEvent.Entity.IRoot).FullName)
@@ -134,7 +134,7 @@ namespace Composable.Tests.CQRS.Aggregates
 
         [Test] public void Trying_to_create_instance_of_entity_nested_component_throws_and_lists_all_broken_types_in_exception()
         {
-            AssertThrows.Exception<Exception>(() => new Root.AggEntity.EntNestedComp(null)).InnerException
+            AssertThrows.Exception<Exception>(() => new Root.AggEntity.EntNestedComp(null!)).InnerException!
                         .Message
                         .Should().Contain(typeof(Root.AggEntity.EntNestedComp).FullName).And
                         .Contain(typeof(RootEvent.Entity.Component.IRoot).FullName)

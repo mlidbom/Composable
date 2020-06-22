@@ -4,6 +4,7 @@ using AccountManagement.API;
 using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Passwords;
+using Composable.Contracts;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
@@ -14,8 +15,8 @@ namespace AccountManagement.UI.QueryModels
 {
     class AccountQueryModel : SelfGeneratingQueryModel<AccountQueryModel, AccountEvent.Root>, IAccountResourceData
     {
-        public Password Password { get; private set; }
-        public Email Email { get; private set; }
+        public Password Password { get; private set; } = null!; //Nullable status guaranteed by AssertInvariantsAreMet
+        public Email Email { get; private set; } = null!; //Nullable status guaranteed by AssertInvariantsAreMet
 
         AccountQueryModel(IEnumerable<AccountEvent.Root> events)
         {
@@ -26,6 +27,8 @@ namespace AccountManagement.UI.QueryModels
 
             LoadFromHistory(events);
         }
+
+        protected override void AssertInvariantsAreMet() => Contract.Invariant(() => Email, () => Password, () => Id).NotNullOrDefault();
 
         // ReSharper disable MemberCanBeMadeStatic.Global fluent composable APIs and statics do not mix
         internal class Api

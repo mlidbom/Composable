@@ -15,10 +15,16 @@ namespace AccountManagement.UI.MVC
 {
     public class Startup
     {
-        IEndpointHost _host;
-        IEndpoint _clientEndpoint;
+        readonly IEndpointHost _host;
+        readonly IEndpoint _clientEndpoint;
 
-        public Startup(IConfiguration configuration) => Configuration = configuration;
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+            _host = EndpointHost.Production.Create(DependencyInjectionContainer.Create);
+            _clientEndpoint = _host.RegisterClientEndpoint(AccountApi.RegisterWithClientEndpoint);
+
+        }
 
         // ReSharper disable once MemberCanBePrivate.Global
         public IConfiguration Configuration { [UsedImplicitly] get; }
@@ -27,9 +33,6 @@ namespace AccountManagement.UI.MVC
         [UsedImplicitly] public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-
-            _host = EndpointHost.Production.Create(DependencyInjectionContainer.Create);
-            _clientEndpoint = _host.RegisterClientEndpoint(AccountApi.RegisterWithClientEndpoint);
 
             _host.Start();
             services.AddScoped(_ => _clientEndpoint.ServiceLocator.Resolve<IRemoteHypermediaNavigator>());

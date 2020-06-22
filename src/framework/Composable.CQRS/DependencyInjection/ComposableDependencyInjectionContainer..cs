@@ -48,7 +48,15 @@ namespace Composable.DependencyInjection
             }
         }
 
-        internal ComponentRegistration GetRegistrationFor<TService>() => _cache!.Get<TService>().Registrations.Single();
+        internal ComponentRegistration GetRegistrationFor<TService>()
+        {
+            var componentRegistrations = _cache!.Get<TService>().Registrations;
+            if(componentRegistrations == null)
+            {
+                throw new Exception($"There is no registered component for {typeof(TService).FullName}");
+            }
+            return componentRegistrations.Single();
+        }
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
         {

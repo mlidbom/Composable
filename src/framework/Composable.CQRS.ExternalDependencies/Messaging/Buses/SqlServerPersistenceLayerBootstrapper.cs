@@ -11,7 +11,7 @@ namespace Composable.Messaging.Buses
 {
     public static class SqlServerPersistenceLayerBootstrapper
     {
-        static IDependencyInjectionContainer RegisterSqlServerPersistenceLayer(this IDependencyInjectionContainer @this, EndpointConfiguration endpointConfiguration)
+        public static IDependencyInjectionContainer RegisterSqlServerPersistenceLayer(this IDependencyInjectionContainer @this, EndpointConfiguration endpointConfiguration)
         {
             var endpointSqlConnection = new LazySqlServerConnectionProvider(
                 () => @this.CreateServiceLocator()
@@ -23,21 +23,9 @@ namespace Composable.Messaging.Buses
                     () => @this.RunMode.IsTesting
                               ? (ISqlConnectionProviderSource)new SqlServerDatabasePoolSqlConnectionProviderSource(@this.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())
                               : new ConfigurationSqlConnectionProviderSource(@this.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())).DelegateToParentServiceLocatorWhenCloning(),
-                Singleton.For<IInterprocessTransport>().CreatedBy(
-                    (
-                            IGlobalBusStateTracker globalStateTracker,
-                            ITypeMapper typeMapper,
-                            IUtcTimeTimeSource timeSource,
-                            RealEndpointConfiguration configuration,
-                            ITaskRunner taskRunner,
-                            IRemotableMessageSerializer serializer)
-                        => new InterprocessTransport(globalStateTracker,
-                                                     timeSource,
-                                                     new SqlServerInterProcessTransportMessageStorage(endpointSqlConnection, typeMapper, serializer),
-                                                     typeMapper,
-                                                     configuration,
-                                                     taskRunner,
-                                                     serializer)),
+                Singleton.For<InterprocessTransport.ISqlServerMessageStorage>().CreatedBy(
+                    (ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+                        => new SqlServerInterProcessTransportMessageStorage(endpointSqlConnection, typeMapper,  serializer)),
                 Singleton.For<Inbox.IMessageStorage>().CreatedBy(() => new SqlServerMessageStorage(endpointSqlConnection))
             );
 

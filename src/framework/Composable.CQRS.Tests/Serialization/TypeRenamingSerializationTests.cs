@@ -115,18 +115,26 @@ namespace Composable.Tests.Serialization
             _renamedHost = SqlServerEndpointHost.Testing.Create(DependencyInjectionContainer.Create);
 
             _originaltypesMap = _originalHost.RegisterTestingEndpoint(
-                setup: builder => builder.TypeMapper
-                                         .Map<OriginalTypes.TypeA>(Ids.TypeA)
-                                         .Map<OriginalTypes.TypeB>(Ids.TypeB)
-                                         .Map<OriginalTypes.TypeA.TypeAA>(Ids.TypeAA)
-                                         .Map<OriginalTypes.TypeB.TypeBB>(Ids.TypeBB)).ServiceLocator.Resolve<ITypeMapper>();
+                setup: builder =>
+                {
+                    builder.Container.RegisterSqlServerPersistenceLayer(builder.Configuration);
+                    builder.TypeMapper
+                           .Map<OriginalTypes.TypeA>(Ids.TypeA)
+                           .Map<OriginalTypes.TypeB>(Ids.TypeB)
+                           .Map<OriginalTypes.TypeA.TypeAA>(Ids.TypeAA)
+                           .Map<OriginalTypes.TypeB.TypeBB>(Ids.TypeBB);
+                }).ServiceLocator.Resolve<ITypeMapper>();
 
             _renamedTypesMap = _originalHost.RegisterTestingEndpoint(
-                setup: builder => builder.TypeMapper
-                                         .Map<RenamedTypes.TypeA>(Ids.TypeA)
-                                         .Map<RenamedTypes.TypeB>(Ids.TypeB)
-                                         .Map<RenamedTypes.TypeA.TypeAA>(Ids.TypeAA)
-                                         .Map<RenamedTypes.TypeB.TypeBB>(Ids.TypeBB)).ServiceLocator.Resolve<ITypeMapper>();
+                setup: builder =>
+                {
+                    builder.Container.RegisterSqlServerPersistenceLayer(builder.Configuration);
+                    builder.TypeMapper
+                           .Map<RenamedTypes.TypeA>(Ids.TypeA)
+                           .Map<RenamedTypes.TypeB>(Ids.TypeB)
+                           .Map<RenamedTypes.TypeA.TypeAA>(Ids.TypeAA)
+                           .Map<RenamedTypes.TypeB.TypeBB>(Ids.TypeBB);
+                }).ServiceLocator.Resolve<ITypeMapper>();
 
             _originalTypesSerializer = new RenamingSupportingJsonSerializer(JsonSettings.JsonSerializerSettings, _originaltypesMap);
             _renamedTypesSerializer = new RenamingSupportingJsonSerializer(JsonSettings.JsonSerializerSettings, _renamedTypesMap);

@@ -30,6 +30,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 new EndpointId(Guid.Parse("3A1B6A8C-D232-476C-A15A-9C8295413210")),
                 builder =>
                 {
+                    builder.Container.RegisterSqlServerPersistenceLayer(builder.Configuration);
                     builder.RegisterHandlers
                            .ForQuery((GetUserQuery query) => queryResults.Single(result => result.Name == query.Name))
                            .ForQuery((UserApiStartPageQuery query) => new UserApiStartPage())

@@ -29,7 +29,6 @@ namespace Composable.Messaging.Buses
         public ITypeMappingRegistar TypeMapper => _typeMapper;
         readonly IGlobalBusStateTracker _globalStateTracker;
         readonly MessageHandlerRegistry _registry;
-        readonly LazySqlServerConnectionProvider _endpointSqlConnection;
         readonly IEndpointHost _host;
         public EndpointConfiguration Configuration { get; }
 
@@ -66,9 +65,6 @@ namespace Composable.Messaging.Buses
 
             Configuration = configuration;
 
-            _endpointSqlConnection = new LazySqlServerConnectionProvider(
-                () => _container.CreateServiceLocator().Resolve<ISqlConnectionProviderSource>().GetConnectionProvider(Configuration.ConnectionStringName).ConnectionString);
-
             _typeMapper = new TypeMapper();
 
             _registry = new MessageHandlerRegistry(_typeMapper);
@@ -93,14 +89,11 @@ namespace Composable.Messaging.Buses
             }
 
             _container.Register(
-                Singleton.For<ISqlConnectionProviderSource>().CreatedBy(() => _connectionProvider = _container.RunMode.IsTesting
-                                                                                                                    ? (ISqlConnectionProviderSource)new SqlServerDatabasePoolSqlConnectionProviderSource(_container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())
-                                                                                                                    : new ConfigurationSqlConnectionProviderSource(_container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITypeMappingRegistar, ITypeMapper, TypeMapper>().CreatedBy(() => _typeMapper).DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<ITaskRunner>().CreatedBy(() => new TaskRunner()),
                 Singleton.For<EndpointId>().CreatedBy(() => Configuration.Id),
                 Singleton.For<EndpointConfiguration>().CreatedBy(() => Configuration),
-                Singleton.For<IInterprocessTransport>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => new InterprocessTransport(_globalStateTracker, timeSource, new SqlServerInterProcessTransportMessageStorage(_endpointSqlConnection, _typeMapper, serializer), _typeMapper, configuration, taskRunner, serializer)),
+                Singleton.For<IInterprocessTransport>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, InterprocessTransport.ISqlServerMessageStorage messageStorage) => new InterprocessTransport(_globalStateTracker, timeSource, messageStorage, _typeMapper, configuration, taskRunner, serializer)),
                 Singleton.For<IGlobalBusStateTracker>().CreatedBy(() => _globalStateTracker),
                 Singleton.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>().CreatedBy(() => _registry),
                 Singleton.For<IEventStoreSerializer>().CreatedBy(() => new EventStoreSerializer(_typeMapper)),
@@ -114,7 +107,7 @@ namespace Composable.Messaging.Buses
             if(Configuration.HasMessageHandlers)
             {
                 _container.Register(
-                    Singleton.For<IInbox>().CreatedBy((IServiceLocator serviceLocator, RealEndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => new Inbox(serviceLocator, _globalStateTracker, _registry, endpointConfiguration, new SqlServerMessageStorage(_endpointSqlConnection), _typeMapper, taskRunner, serializer)),
+                    Singleton.For<IInbox>().CreatedBy((IServiceLocator serviceLocator, RealEndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, Inbox.IMessageStorage messageStorage) => new Inbox(serviceLocator, _globalStateTracker, _registry, endpointConfiguration, messageStorage, _typeMapper, taskRunner, serializer)),
                     Singleton.For<CommandScheduler>().CreatedBy((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource)),
                     Scoped.For<IServiceBusSession, ILocalHypermediaNavigator>().CreatedBy((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteHypermediaNavigator remoteNavigator) => new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry, remoteNavigator))
                 );

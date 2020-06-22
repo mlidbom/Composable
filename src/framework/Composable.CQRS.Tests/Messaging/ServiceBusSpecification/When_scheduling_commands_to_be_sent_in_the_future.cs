@@ -28,6 +28,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 new EndpointId(Guid.Parse("17ED9DF9-33A8-4DF8-B6EC-6ED97AB2030B")),
                 builder =>
                 {
+                    builder.Container.RegisterSqlServerPersistenceLayer(builder.Configuration);
                     builder.RegisterHandlers.ForCommand<ScheduledCommand>(
                         cmd => _receivedCommandGate.AwaitPassthrough());
 

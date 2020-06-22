@@ -7,7 +7,6 @@ using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
-using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
@@ -19,7 +18,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class State
         {
-            public State(IGlobalBusStateTracker globalBusStateTracker, HandlerStorage handlerStorage, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, SqlServerMessageStorage messageStorage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public State(IGlobalBusStateTracker globalBusStateTracker, HandlerStorage handlerStorage, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, InterprocessTransport.ISqlServerMessageStorage messageStorage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 GlobalBusStateTracker = globalBusStateTracker;
                 HandlerStorage = handlerStorage;
@@ -36,7 +35,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly HandlerStorage HandlerStorage;
             internal NetMQPoller? Poller;
             public IUtcTimeTimeSource TimeSource { get; }
-            public SqlServerMessageStorage MessageStorage { get; }
+            public InterprocessTransport.ISqlServerMessageStorage MessageStorage { get; }
             public ITypeMapper TypeMapper { get; }
             public IRemotableMessageSerializer Serializer { get; }
             public readonly RealEndpointConfiguration Configuration;
@@ -46,7 +45,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly IThreadShared<State> _state;
         readonly ITaskRunner _taskRunner;
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, InterprocessTransport.ISqlServerMessageStorage messageStorage, ITypeMapper typeMapper, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
         {
             _taskRunner = taskRunner;
             _state = new OptimizedThreadShared<State>(new State(
@@ -54,7 +53,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                           new HandlerStorage(typeMapper),
                                                           configuration,
                                                           timeSource,
-                                                          new SqlServerMessageStorage(connectionFactory, typeMapper, serializer),
+                                                          messageStorage,
                                                           typeMapper,
                                                           serializer));
         }

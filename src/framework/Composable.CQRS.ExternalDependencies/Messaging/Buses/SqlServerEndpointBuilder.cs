@@ -100,7 +100,7 @@ namespace Composable.Messaging.Buses
                 Singleton.For<ITaskRunner>().CreatedBy(() => new TaskRunner()),
                 Singleton.For<EndpointId>().CreatedBy(() => Configuration.Id),
                 Singleton.For<EndpointConfiguration>().CreatedBy(() => Configuration),
-                Singleton.For<IInterprocessTransport>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => new InterprocessTransport(_globalStateTracker, timeSource, _endpointSqlConnection, _typeMapper, configuration, taskRunner, serializer)),
+                Singleton.For<IInterprocessTransport>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => new InterprocessTransport(_globalStateTracker, timeSource, new SqlServerInterProcessTransportMessageStorage(_endpointSqlConnection, _typeMapper, serializer), _typeMapper, configuration, taskRunner, serializer)),
                 Singleton.For<IGlobalBusStateTracker>().CreatedBy(() => _globalStateTracker),
                 Singleton.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>().CreatedBy(() => _registry),
                 Singleton.For<IEventStoreSerializer>().CreatedBy(() => new EventStoreSerializer(_typeMapper)),

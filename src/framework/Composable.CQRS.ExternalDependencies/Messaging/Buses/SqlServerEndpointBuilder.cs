@@ -17,7 +17,8 @@ using Composable.System.Threading;
 
 namespace Composable.Messaging.Buses
 {
-    class EndpointBuilder : IEndpointBuilder
+    //Refactor: This must not be SQL Server dependent.
+    class SqlServerEndpointBuilder : IEndpointBuilder
     {
         readonly IDependencyInjectionContainer _container;
         readonly TypeMapper _typeMapper;
@@ -56,7 +57,7 @@ namespace Composable.Messaging.Buses
             MessageTypes.MapTypes(TypeMapper);
         }
 
-        public EndpointBuilder(IEndpointHost host, IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointConfiguration configuration)
+        public SqlServerEndpointBuilder(IEndpointHost host, IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container, EndpointConfiguration configuration)
         {
             _host = host;
             _container = container;
@@ -113,7 +114,7 @@ namespace Composable.Messaging.Buses
             if(Configuration.HasMessageHandlers)
             {
                 _container.Register(
-                    Singleton.For<IInbox>().CreatedBy((IServiceLocator serviceLocator, RealEndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => new Inbox(serviceLocator, _globalStateTracker, _registry, endpointConfiguration, _endpointSqlConnection, _typeMapper, taskRunner, serializer)),
+                    Singleton.For<IInbox>().CreatedBy((IServiceLocator serviceLocator, RealEndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer) => new Inbox(serviceLocator, _globalStateTracker, _registry, endpointConfiguration, new SqlServerMessageStorage(_endpointSqlConnection), _typeMapper, taskRunner, serializer)),
                     Singleton.For<CommandScheduler>().CreatedBy((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource)),
                     Scoped.For<IServiceBusSession, ILocalHypermediaNavigator>().CreatedBy((IInterprocessTransport interprocessTransport, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteHypermediaNavigator remoteNavigator) => new ApiNavigatorSession(interprocessTransport, commandScheduler, messageHandlerRegistry, remoteNavigator))
                 );

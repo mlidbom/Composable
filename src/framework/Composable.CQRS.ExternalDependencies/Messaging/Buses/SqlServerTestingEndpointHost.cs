@@ -8,9 +8,10 @@ using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
-    class TestingEndpointHost : EndpointHost, ITestingEndpointHost, IEndpointRegistry
+    //Refactor: This must not be SQL Server dependent.
+    class SqlServerTestingEndpointHost : SqlServerEndpointHost, ITestingEndpointHost, IEndpointRegistry
     {
-        public TestingEndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory)
+        public SqlServerTestingEndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory)
         {
             GlobalBusStateTracker = new GlobalBusStateTracker();
         }

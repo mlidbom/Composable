@@ -8,7 +8,6 @@ using Composable.DependencyInjection;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System;
-using Composable.System.Data.SqlClient;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using NetMQ;
@@ -28,12 +27,12 @@ namespace Composable.Messaging.Buses.Implementation
             readonly CancellationTokenSource _cancellationTokenSource;
             readonly BlockingCollection<IReadOnlyList<TransportMessage.InComing>> _receivedMessageBatches = new BlockingCollection<IReadOnlyList<TransportMessage.InComing>>();
             readonly HandlerExecutionEngine _handlerExecutionEngine;
-            readonly SqlServerMessageStorage _storage;
+            readonly IMessageStorage _storage;
             readonly ITypeMapper _typeMapper;
             readonly IRemotableMessageSerializer _serializer;
             internal readonly EndPointAddress Address;
 
-            public Runner(HandlerExecutionEngine handlerExecutionEngine, SqlServerMessageStorage storage, string address, RealEndpointConfiguration configuration, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public Runner(HandlerExecutionEngine handlerExecutionEngine, IMessageStorage storage, string address, RealEndpointConfiguration configuration, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 _handlerExecutionEngine = handlerExecutionEngine;
                 _storage = storage;
@@ -166,16 +165,16 @@ namespace Composable.Messaging.Buses.Implementation
         readonly string _address;
         readonly ITypeMapper _typeMapper;
         readonly IRemotableMessageSerializer _serializer;
-        readonly SqlServerMessageStorage _storage;
+        readonly IMessageStorage _storage;
         readonly HandlerExecutionEngine _handlerExecutionEngine;
 
-        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, RealEndpointConfiguration configuration, ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
+        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, RealEndpointConfiguration configuration, IMessageStorage messageStorage, ITypeMapper typeMapper, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
         {
             _configuration = configuration;
             _typeMapper = typeMapper;
             _serializer = serializer;
             _address = configuration.Address;
-            _storage = new SqlServerMessageStorage(connectionFactory);
+            _storage = messageStorage;
             _handlerExecutionEngine = new HandlerExecutionEngine(globalStateTracker, handlerRegistry, serviceLocator, _storage, taskRunner);
         }
 

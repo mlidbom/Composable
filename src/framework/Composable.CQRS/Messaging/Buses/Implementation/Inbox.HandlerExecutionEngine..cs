@@ -24,7 +24,7 @@ namespace Composable.Messaging.Buses.Implementation
             public HandlerExecutionEngine(IGlobalBusStateTracker globalStateTracker,
                                           IMessageHandlerRegistry handlerRegistry,
                                           IServiceLocator serviceLocator,
-                                          SqlServerMessageStorage storage,
+                                          IMessageStorage storage,
                                           ITaskRunner taskRunner) =>
                 _coordinator = new Coordinator(globalStateTracker, taskRunner, storage, serviceLocator, handlerRegistry);
 

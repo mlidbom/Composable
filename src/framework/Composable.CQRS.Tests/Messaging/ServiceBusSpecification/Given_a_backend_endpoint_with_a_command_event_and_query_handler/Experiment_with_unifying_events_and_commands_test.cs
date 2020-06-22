@@ -33,7 +33,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [SetUp] public async Task Setup()
         {
-            _host = EndpointHost.Testing.Create(DependencyInjectionContainer.Create);
+            _host = SqlServerEndpointHost.Testing.Create(DependencyInjectionContainer.Create);
 
             var userManagementDomainEndpoint = _host.RegisterEndpoint(
                 "UserManagement.Domain",

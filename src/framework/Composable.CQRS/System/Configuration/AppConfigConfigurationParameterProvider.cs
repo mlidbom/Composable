@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Configuration;
 using System.IO;
-using Composable.System.Linq;
 using Microsoft.Extensions.Configuration;
 
 namespace Composable.System.Configuration
@@ -30,7 +28,7 @@ namespace Composable.System.Configuration
             {
                 return valueIfMissing;
             }
-            throw new ConfigurationErrorsException($"ApplicationSettings Parameter {parameterName} does not exists");
+            throw new Exception($"ApplicationSettings Parameter {parameterName} does not exists");
         }
     }
 }

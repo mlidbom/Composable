@@ -1,4 +1,4 @@
-﻿using System.Configuration;
+﻿using System;
 using Composable.System.Configuration;
 using FluentAssertions;
 using NUnit.Framework;
@@ -14,11 +14,11 @@ namespace Composable.Tests.System.Configuration
             Assert.AreEqual("ValueTest1", _provider.GetString("KeyTest1"));
 
         [Test] public void ParameterProvider_should_throw_ConfigurationErrorsException_when_key_does_not_exist() =>
-            Assert.Throws<ConfigurationErrorsException>(() => _provider.GetString("ErrorTest1"));
+            Assert.Throws<Exception>(() => _provider.GetString("ErrorTest1"));
 
         [Test] public void ParameterProvider_exception_should_contain_parameter_key() =>
             this.Invoking(_ => _provider.GetString("ErrorTest1"))
-                .Should().Throw<ConfigurationErrorsException>()
+                .Should().Throw<Exception>()
                 .And.Message.Should()
                 .Contain("ErrorTest1");
     }

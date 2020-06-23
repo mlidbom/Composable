@@ -1,6 +1,5 @@
 ﻿using System;
-using System.IO;
-using Microsoft.Extensions.Configuration;
+using NCrunch.Framework;
 
 namespace Composable.DependencyInjection
 {
@@ -14,13 +13,7 @@ namespace Composable.DependencyInjection
         {
             get
             {
-                IConfiguration config = new ConfigurationBuilder()
-                                       .SetBasePath(Directory.GetCurrentDirectory())
-                                       .AddJsonFile("appsettings-testing.json", false, true)
-                                       .Build();
-
-                var testingSection = config.GetSection("Testing");
-                var storageProviderName = testingSection["COMPOSABLE_TESTING_STORAGE_PROVIDER"];
+                var storageProviderName = NCrunchEnvironment.GetDuplicatedDimension();
 
                 if(!Enum.TryParse(storageProviderName, out StorageProvider provider))
                 {
@@ -38,7 +31,5 @@ namespace Composable.DependencyInjection
             TestingMode = testingMode;
             _isTesting = isTesting;
         }
-
-        
     }
 }

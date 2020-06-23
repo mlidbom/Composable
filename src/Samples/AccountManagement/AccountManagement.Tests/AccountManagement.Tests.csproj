@@ -36,6 +36,11 @@
     <ProjectReference Include="..\AccountManagement.Server\AccountManagement.Server.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="NCrunch.Framework">
+      <HintPath>..\..\..\tmp-bin-folder-removeme\NCrunch.Framework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   
   <ItemGroup>
     <None Update="appsettings.json">

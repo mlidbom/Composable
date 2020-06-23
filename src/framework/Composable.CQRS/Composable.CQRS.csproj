@@ -30,4 +30,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="NCrunch.Framework">
+      <HintPath>..\..\tmp-bin-folder-removeme\NCrunch.Framework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

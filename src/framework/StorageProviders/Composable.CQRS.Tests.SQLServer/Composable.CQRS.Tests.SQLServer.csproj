@@ -35,12 +35,12 @@
   </ItemGroup>
   
 
-  <Import Project="..\Composable.CQRS.Tests\Composable.CQRS.Tests.projitems" Label="Shared" />
+  <Import Project="..\..\Composable.CQRS.Tests\Composable.CQRS.Tests.projitems" Label="Shared" />
   
   <ItemGroup>
-    <ProjectReference Include="..\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
-    <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
-    <ProjectReference Include="..\Composable.Messaging.Hypermedia.Server\Composable.Messaging.Hypermedia.Server.csproj" />
+    <ProjectReference Include="..\..\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
+    <ProjectReference Include="..\..\Composable.CQRS\Composable.CQRS.csproj" />
+    <ProjectReference Include="..\..\Composable.Messaging.Hypermedia.Server\Composable.Messaging.Hypermedia.Server.csproj" />
   </ItemGroup>
 
 </Project>

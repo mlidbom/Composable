@@ -11,7 +11,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RootNamespace>AccountManagement</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <RootNamespace>Composable.Tests</RootNamespace>
   </PropertyGroup>
   
   <ItemGroup>
@@ -33,13 +34,13 @@
     </PackageReference>
   </ItemGroup>
   
-  <ItemGroup>
-    <ProjectReference Include="..\AccountManagement.API\AccountManagement.API.csproj" />
-    <ProjectReference Include="..\AccountManagement.Server\AccountManagement.Server.csproj" />
-    <ProjectReference Include="..\AccountManagement.UI.MVC\AccountManagement.UI.MVC.csproj" />
-  </ItemGroup>
-  
 
-  <Import Project="..\AccountManagement.Tests\AccountManagement.Tests.projitems" Label="Shared" />
+  <Import Project="..\..\Composable.CQRS.Tests\Composable.CQRS.Tests.projitems" Label="Shared" />
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
+    <ProjectReference Include="..\..\Composable.CQRS\Composable.CQRS.csproj" />
+    <ProjectReference Include="..\..\Composable.Messaging.Hypermedia.Server\Composable.Messaging.Hypermedia.Server.csproj" />
+  </ItemGroup>
 
 </Project>

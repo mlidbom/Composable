@@ -11,11 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <SignAssembly>False</SignAssembly>
-    <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
-    <DelaySign>False</DelaySign>
-    <RootNamespace>Composable.Tests</RootNamespace>
+    <RootNamespace>AccountManagement</RootNamespace>
   </PropertyGroup>
   
   <ItemGroup>

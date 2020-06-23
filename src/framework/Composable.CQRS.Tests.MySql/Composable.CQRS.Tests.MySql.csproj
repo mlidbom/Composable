@@ -1,7 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -15,7 +17,7 @@
     <DelaySign>False</DelaySign>
     <RootNamespace>Composable.Tests</RootNamespace>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
@@ -34,17 +36,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  
 
+  <Import Project="..\Composable.CQRS.Tests\Composable.CQRS.Tests.projitems" Label="Shared" />
+  
   <ItemGroup>
     <ProjectReference Include="..\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
     <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
     <ProjectReference Include="..\Composable.Messaging.Hypermedia.Server\Composable.Messaging.Hypermedia.Server.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

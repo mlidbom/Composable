@@ -30,6 +30,8 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("NSpec.NUnit")]
 [assembly: InternalsVisibleTo("Composable.CQRS.ExternalDependencies")]
 [assembly: InternalsVisibleTo("Composable.CQRS.Tests")]
+[assembly: InternalsVisibleTo("Composable.CQRS.Tests.SQLServer")]
+[assembly: InternalsVisibleTo("Composable.CQRS.Tests.MySql")]
 [assembly: InternalsVisibleTo("Composable.CQRS.ExternalDependencies.Tests")]
 
 [assembly: InternalsVisibleTo("ScratchPad")]

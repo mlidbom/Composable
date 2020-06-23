@@ -44,7 +44,7 @@ namespace Composable.Messaging.Buses
         public TException AssertThrown<TException>() where TException : Exception
         {
             WaitForEndpointsToBeAtRest();
-            var matchingException = Enumerable.OfType<TException>((IEnumerable)GetThrownExceptions()).SingleOrDefault();
+            var matchingException = GetThrownExceptions().OfType<TException>().SingleOrDefault();
             if(matchingException == null)
             {
                 throw new Exception("Matching exception not thrown.");
@@ -57,7 +57,7 @@ namespace Composable.Messaging.Buses
         {
             WaitForEndpointsToBeAtRest();
 
-            var unHandledExceptions = Enumerable.Except<Exception>(GetThrownExceptions(), _handledExceptions).ToList();
+            var unHandledExceptions = GetThrownExceptions().Except(_handledExceptions).ToList();
 
             base.InternalDispose();
 

@@ -45,7 +45,7 @@ INSERT {InterprocessTransportOutboxMessagesDatabaseSchemaStrings.TableName}
 INSERT {InterprocessTransportMessageDispatchingDatabaseSchemaNames.TableName} 
             ({InterprocessTransportMessageDispatchingDatabaseSchemaNames.MessageId},  {InterprocessTransportMessageDispatchingDatabaseSchemaNames.EndpointId},          {InterprocessTransportMessageDispatchingDatabaseSchemaNames.IsReceived}) 
     VALUES (@{InterprocessTransportMessageDispatchingDatabaseSchemaNames.MessageId}, @{InterprocessTransportMessageDispatchingDatabaseSchemaNames.EndpointId}_{index}, @{InterprocessTransportMessageDispatchingDatabaseSchemaNames.IsReceived})
-"), (string)$"{InterprocessTransportMessageDispatchingDatabaseSchemaNames.EndpointId}_{index}", (Guid)endpointId.GuidValue));
+"), (string)$"{InterprocessTransportMessageDispatchingDatabaseSchemaNames.EndpointId}_{index}", endpointId.GuidValue));
 
                     command.ExecuteNonQuery();
                 });

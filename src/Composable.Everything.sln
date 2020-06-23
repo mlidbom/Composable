@@ -49,7 +49,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.CQRS.Tests.InMem
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.CQRS.Tests.MySql", "framework\StorageProviders\Composable.CQRS.Tests.MySql\Composable.CQRS.Tests.MySql.csproj", "{73033F37-E840-4FFD-8471-49CE8AF50FB2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.CQRS.Tests.SQLServer", "framework\StorageProviders\Composable.CQRS.Tests.SQLServer\Composable.CQRS.Tests.SQLServer.csproj", "{E09E59A1-07F2-4E62-9EF0-016D5B78F90E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.CQRS.Tests.SQLServer", "framework\StorageProviders\Composable.CQRS.Tests.SqlServer\Composable.CQRS.Tests.SqlServer.csproj", "{E09E59A1-07F2-4E62-9EF0-016D5B78F90E}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "AccountManagement.Tests", "Samples\AccountManagement\AccountManagement.Tests\AccountManagement.Tests.shproj", "{7F5E7857-DEA1-441B-85B1-835E7BB53159}"
 EndProject
@@ -59,7 +59,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Tests.InM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Tests.MySql", "Samples\AccountManagement\StorageProviderTests\AccountManagement.Tests.MySql\AccountManagement.Tests.MySql.csproj", "{41AFFAFF-4C2D-46DD-B91A-F42AF4180565}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Tests.SQLServer", "Samples\AccountManagement\StorageProviderTests\AccountManagement.Tests.SQLServer\AccountManagement.Tests.SQLServer.csproj", "{95D5DA05-AE4D-4CEA-861C-1AE54B0271BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Tests.SQLServer", "Samples\AccountManagement\StorageProviderTests\AccountManagement.Tests.SqlServer\AccountManagement.Tests.SqlServer.csproj", "{95D5DA05-AE4D-4CEA-861C-1AE54B0271BD}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

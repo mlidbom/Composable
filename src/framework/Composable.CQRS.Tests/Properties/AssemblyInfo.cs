@@ -43,4 +43,4 @@ using NUnit.Framework;
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly3)]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly4)]
 
-[assembly:NCrunch.Framework.DuplicateByDimensions("SqlServer", "MySql", "InMemory")]
+//todo: //[assembly:NCrunch.Framework.DuplicateByDimensions("SqlServer", "MySql", "InMemory")]

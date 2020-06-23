@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Transactions;
 using Composable.Contracts;
-using Composable.GenericAbstractions;
 using Composable.Logging;
 using Composable.Persistence;
 using Composable.System;
@@ -14,7 +12,6 @@ using Composable.System.Data.SqlClient;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
-using ISqlConnectionProvider = Composable.System.Data.SqlClient.ISqlConnectionProvider;
 
 namespace Composable.Testing.Databases
 {

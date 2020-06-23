@@ -6,14 +6,10 @@ using Composable.Messaging.Buses;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
 using Composable.Serialization;
-using Composable.System;
-using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Reflection;
-using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
-using ISqlConnectionProvider = Composable.System.Data.SqlClient.ISqlConnectionProvider;
 
 // ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
 

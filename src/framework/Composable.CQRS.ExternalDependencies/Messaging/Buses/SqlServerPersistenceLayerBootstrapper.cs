@@ -19,20 +19,9 @@ namespace Composable.Messaging.Buses
 
             @this.Container.Register(
                       Singleton.For<ISqlConnectionProviderSource>().CreatedBy(
-                                    () =>
-                                    {
-                                        if(@this.Container.RunMode.IsTesting)
-                                        {
-                                            if(@this.Container.RunMode.TestingStorageProvider != StorageProvider.SqlServer)
-                                            {
-                                                throw new Exception("Not implemented yet.");
-                                            }
-                                        }
-
-                                        return @this.Container.RunMode.IsTesting
-                                                   ? (ISqlConnectionProviderSource)new SqlServerDatabasePoolSqlConnectionProviderSource(@this.Container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())
-                                                   : new ConfigurationSqlConnectionProviderSource(@this.Container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>());
-                                    }).DelegateToParentServiceLocatorWhenCloning(),
+                                    () => @this.Container.RunMode.IsTesting
+                                              ? (ISqlConnectionProviderSource)new SqlServerDatabasePoolSqlConnectionProviderSource(@this.Container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())
+                                              : new ConfigurationSqlConnectionProviderSource(@this.Container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())).DelegateToParentServiceLocatorWhenCloning(),
                       Singleton.For<InterprocessTransport.IMessageStorage>().CreatedBy(
                                     (ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
                                         => new SqlServerInterProcessTransportMessageStorage(endpointSqlConnection, typeMapper,  serializer)),

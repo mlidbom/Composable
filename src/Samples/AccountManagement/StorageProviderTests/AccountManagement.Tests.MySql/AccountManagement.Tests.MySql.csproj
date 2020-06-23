@@ -13,6 +13,16 @@
   <PropertyGroup>
     <RootNamespace>AccountManagement</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="appsettings-testing.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings-testing.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -11,17 +11,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RootNamespace>AccountManagement</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <RootNamespace>Composable.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="appsettings-testing.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="appsettings-testing.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   
   <ItemGroup>
@@ -44,11 +39,14 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\AccountManagement.API\AccountManagement.API.csproj" />
-    <ProjectReference Include="..\..\AccountManagement.Server\AccountManagement.Server.csproj" />
-    <ProjectReference Include="..\..\AccountManagement.UI.MVC\AccountManagement.UI.MVC.csproj" />
+    <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
+    <ProjectReference Include="..\Composable.Testing\Composable.Testing.csproj" />
   </ItemGroup>
-
-  <Import Project="..\..\AccountManagement.Tests\AccountManagement.Tests.projitems" Label="Shared" />
+  
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

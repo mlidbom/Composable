@@ -33,6 +33,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Composable.CQRS.Tests.SQLServer")]
 [assembly: InternalsVisibleTo("Composable.CQRS.Tests.MySql")]
 [assembly: InternalsVisibleTo("Composable.CQRS.Tests.InMemory")]
+[assembly: InternalsVisibleTo("Composable.CQRS.UnitTests")]
 [assembly: InternalsVisibleTo("Composable.CQRS.ExternalDependencies.Tests")]
 
 [assembly: InternalsVisibleTo("ScratchPad")]

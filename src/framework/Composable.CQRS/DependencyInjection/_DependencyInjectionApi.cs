@@ -27,6 +27,14 @@ namespace Composable.DependencyInjection
     {
         bool IsTesting { get; }
         TestingMode TestingMode { get; }
+        StorageProvider TestingStorageProvider { get; }
+    }
+
+    public enum StorageProvider
+    {
+        SqlServer,
+        InMemory,
+        MySql
     }
 
     public enum TestingMode

@@ -2,7 +2,6 @@ using System;
 using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.Testing.Databases;
-using Composable.Tests.System.Configuration;
 using FluentAssertions;
 using NUnit.Framework;
 

@@ -14,7 +14,8 @@ namespace Composable.System.Configuration
         {
             IConfiguration config = new ConfigurationBuilder()
                                    .SetBasePath(Directory.GetCurrentDirectory())
-                                   .AddJsonFile("appsettings.json", true, true)
+                                   .AddJsonFile("appsettings.json", false, true)
+                                   .AddJsonFile("appsettings-testing.json", true, true)
                                    .Build();
 
             _appSettingsSection = config.GetSection("appSettings");

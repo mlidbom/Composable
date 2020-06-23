@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -37,13 +37,12 @@
     </PackageReference>
   </ItemGroup>
   
-
-  <Import Project="..\Composable.CQRS.Tests\Composable.CQRS.Tests.projitems" Label="Shared" />
-  
   <ItemGroup>
-    <ProjectReference Include="..\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
-    <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
-    <ProjectReference Include="..\Composable.Messaging.Hypermedia.Server\Composable.Messaging.Hypermedia.Server.csproj" />
+    <ProjectReference Include="..\AccountManagement.API\AccountManagement.API.csproj" />
+    <ProjectReference Include="..\AccountManagement.Server\AccountManagement.Server.csproj" />
+    <ProjectReference Include="..\AccountManagement.UI.MVC\AccountManagement.UI.MVC.csproj" />
   </ItemGroup>
+
+  <Import Project="..\AccountManagement.Tests\AccountManagement.Tests.projitems" Label="Shared" />
 
 </Project>

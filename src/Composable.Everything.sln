@@ -25,8 +25,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AccountManagement", "Accoun
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Server", "Samples\AccountManagement\AccountManagement.Server\AccountManagement.Server.csproj", "{F40E3779-B691-44B9-A820-577C5C11035F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Tests", "Samples\AccountManagement\AccountManagement.Tests\AccountManagement.Tests.csproj", "{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.API", "Samples\AccountManagement\AccountManagement.API\AccountManagement.API.csproj", "{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F37276A7-E72D-49E1-9F74-06134C77B5FA}"
@@ -53,10 +51,24 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.CQRS.Tests.MySql
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.CQRS.Tests.SQLServer", "framework\Composable.CQRS.Tests.SQLServer\Composable.CQRS.Tests.SQLServer.csproj", "{E09E59A1-07F2-4E62-9EF0-016D5B78F90E}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "AccountManagement.Tests", "Samples\AccountManagement\AccountManagement.Tests\AccountManagement.Tests.shproj", "{7F5E7857-DEA1-441B-85B1-835E7BB53159}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StorageProviderTests", "StorageProviderTests", "{CF027A0C-49CE-40A1-BD18-BA205A175AC0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Tests.InMemory", "Samples\AccountManagement\AccountManagement.Tests.InMemory\AccountManagement.Tests.InMemory.csproj", "{9E090FC6-A639-4401-BCBB-DEC9AE080275}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Tests.MySql", "Samples\AccountManagement\AccountManagement.Tests.MySql\AccountManagement.Tests.MySql.csproj", "{41AFFAFF-4C2D-46DD-B91A-F42AF4180565}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Tests.SQLServer", "Samples\AccountManagement\AccountManagement.Tests.SQLServer\AccountManagement.Tests.SQLServer.csproj", "{95D5DA05-AE4D-4CEA-861C-1AE54B0271BD}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		framework\Composable.CQRS.Tests\Composable.CQRS.Tests.projitems*{2b408ada-dcba-49ba-9f62-3b9dbe399b47}*SharedItemsImports = 13
+		Samples\AccountManagement\AccountManagement.Tests\AccountManagement.Tests.projitems*{41affaff-4c2d-46dd-b91a-f42af4180565}*SharedItemsImports = 5
 		framework\Composable.CQRS.Tests\Composable.CQRS.Tests.projitems*{73033f37-e840-4ffd-8471-49ce8af50fb2}*SharedItemsImports = 5
+		Samples\AccountManagement\AccountManagement.Tests\AccountManagement.Tests.projitems*{7f5e7857-dea1-441b-85b1-835e7bb53159}*SharedItemsImports = 13
+		Samples\AccountManagement\AccountManagement.Tests\AccountManagement.Tests.projitems*{95d5da05-ae4d-4cea-861c-1ae54b0271bd}*SharedItemsImports = 5
+		Samples\AccountManagement\AccountManagement.Tests\AccountManagement.Tests.projitems*{9e090fc6-a639-4401-bcbb-dec9ae080275}*SharedItemsImports = 5
 		framework\Composable.CQRS.Tests\Composable.CQRS.Tests.projitems*{d8c1e1ee-442b-4f9e-bfc9-fce0bfd6330b}*SharedItemsImports = 5
 		framework\Composable.CQRS.Tests\Composable.CQRS.Tests.projitems*{e09e59a1-07f2-4e62-9ef0-016d5b78f90e}*SharedItemsImports = 5
 	EndGlobalSection
@@ -88,12 +100,6 @@ Global
 		{F40E3779-B691-44B9-A820-577C5C11035F}.docs|Any CPU.Build.0 = Debug|Any CPU
 		{F40E3779-B691-44B9-A820-577C5C11035F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F40E3779-B691-44B9-A820-577C5C11035F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}.docs|Any CPU.ActiveCfg = Debug|Any CPU
-		{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}.docs|Any CPU.Build.0 = Debug|Any CPU
-		{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.docs|Any CPU.ActiveCfg = Debug|Any CPU
@@ -142,6 +148,24 @@ Global
 		{E09E59A1-07F2-4E62-9EF0-016D5B78F90E}.docs|Any CPU.Build.0 = Debug|Any CPU
 		{E09E59A1-07F2-4E62-9EF0-016D5B78F90E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E09E59A1-07F2-4E62-9EF0-016D5B78F90E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E090FC6-A639-4401-BCBB-DEC9AE080275}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E090FC6-A639-4401-BCBB-DEC9AE080275}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E090FC6-A639-4401-BCBB-DEC9AE080275}.docs|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E090FC6-A639-4401-BCBB-DEC9AE080275}.docs|Any CPU.Build.0 = Debug|Any CPU
+		{9E090FC6-A639-4401-BCBB-DEC9AE080275}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E090FC6-A639-4401-BCBB-DEC9AE080275}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41AFFAFF-4C2D-46DD-B91A-F42AF4180565}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41AFFAFF-4C2D-46DD-B91A-F42AF4180565}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41AFFAFF-4C2D-46DD-B91A-F42AF4180565}.docs|Any CPU.ActiveCfg = Debug|Any CPU
+		{41AFFAFF-4C2D-46DD-B91A-F42AF4180565}.docs|Any CPU.Build.0 = Debug|Any CPU
+		{41AFFAFF-4C2D-46DD-B91A-F42AF4180565}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41AFFAFF-4C2D-46DD-B91A-F42AF4180565}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95D5DA05-AE4D-4CEA-861C-1AE54B0271BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95D5DA05-AE4D-4CEA-861C-1AE54B0271BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95D5DA05-AE4D-4CEA-861C-1AE54B0271BD}.docs|Any CPU.ActiveCfg = Debug|Any CPU
+		{95D5DA05-AE4D-4CEA-861C-1AE54B0271BD}.docs|Any CPU.Build.0 = Debug|Any CPU
+		{95D5DA05-AE4D-4CEA-861C-1AE54B0271BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95D5DA05-AE4D-4CEA-861C-1AE54B0271BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -149,13 +173,17 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{FE65D43F-7A41-4448-A23E-E574CC91A185} = {8C1D34C7-3F68-4179-BC52-B5527F718DF3}
 		{F40E3779-B691-44B9-A820-577C5C11035F} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
-		{15EE4C6D-8DA3-487C-B0CD-17777214D7FA} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
 		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
 		{1D6122CA-D55B-44C1-B313-0BC0D6F39A59} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
 		{151A5ECC-76FE-47C3-A0BB-54F7FDF80736} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
 		{D8C1E1EE-442B-4F9E-BFC9-FCE0BFD6330B} = {8ADC9CDE-FD93-4440-9BA4-17940E290195}
 		{73033F37-E840-4FFD-8471-49CE8AF50FB2} = {8ADC9CDE-FD93-4440-9BA4-17940E290195}
 		{E09E59A1-07F2-4E62-9EF0-016D5B78F90E} = {8ADC9CDE-FD93-4440-9BA4-17940E290195}
+		{7F5E7857-DEA1-441B-85B1-835E7BB53159} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
+		{CF027A0C-49CE-40A1-BD18-BA205A175AC0} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
+		{9E090FC6-A639-4401-BCBB-DEC9AE080275} = {CF027A0C-49CE-40A1-BD18-BA205A175AC0}
+		{41AFFAFF-4C2D-46DD-B91A-F42AF4180565} = {CF027A0C-49CE-40A1-BD18-BA205A175AC0}
+		{95D5DA05-AE4D-4CEA-861C-1AE54B0271BD} = {CF027A0C-49CE-40A1-BD18-BA205A175AC0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {275B298E-4082-4323-8E00-FB580CDC1E06}

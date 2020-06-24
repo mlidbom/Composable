@@ -84,6 +84,7 @@ namespace Composable.Persistence.Common.DependencyInjection
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TUpdater, TReader, TBulkReader>());
 
+            //urgent: remove
             if(@this.RunMode.TestingPersistenceLayer == PersistenceLayer.InMemory)
             {
                 @this.Register(Singleton.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()

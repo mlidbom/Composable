@@ -26,8 +26,6 @@ namespace Composable.DependencyInjection
     public interface IRunMode
     {
         bool IsTesting { get; }
-        //urgent: TestingMode should no longer be used. Just the current PersistenceLayerProvider
-        TestingMode TestingMode { get; }
         PersistenceLayer TestingPersistenceLayer { get; }
     }
 
@@ -36,13 +34,6 @@ namespace Composable.DependencyInjection
         SqlServer,
         InMemory,
         MySql
-    }
-
-    //urgent: IsTesting and TestingMode should no longer be used. Just the current PersistenceLayerProvider
-    public enum TestingMode
-    {
-        InMemory,
-        DatabasePool
     }
 
     enum Lifestyle

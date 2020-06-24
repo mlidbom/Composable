@@ -181,24 +181,9 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
         protected static IServiceLocator CreateServiceLocatorForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType)
         {
-            TestingMode mode;
-            if (eventStoreType == typeof(EventStore))
-            {
-                mode = TestingMode.DatabasePool;
-            }
-            else if (eventStoreType == typeof(InMemoryEventStore))
-            {
-                mode = TestingMode.InMemory;
-            }
-            else
-            {
-                throw new Exception($"Unsupported type of event store {eventStoreType}");
-            }
-
             var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
                 container =>
-                    container.RegisterSqlServerEventStoreForFlexibleTesting<ITestingEventStoreUpdater, ITestingEventStoreReader>(TestWiringHelper.EventStoreConnectionStringName, migrationsfactory),
-                mode);
+                    container.RegisterSqlServerEventStoreForFlexibleTesting<ITestingEventStoreUpdater, ITestingEventStoreReader>(TestWiringHelper.EventStoreConnectionStringName, migrationsfactory));
 
             serviceLocator.Resolve<ITypeMappingRegistar>()
                           .Map<Composable.Tests.CQRS.EventRefactoring.Migrations.TestAggregate>("dbc5cd48-bc09-4d96-804d-6712493a413d")

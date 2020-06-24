@@ -114,8 +114,8 @@ namespace Composable.Tests.Serialization
 
         [OneTimeSetUp] public void SetupTask()
         {
-            _originalHost = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
-            _renamedHost = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
+            _originalHost = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create);
+            _renamedHost = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create);
 
             _originaltypesMap = _originalHost.RegisterTestingEndpoint(
                 setup: builder =>

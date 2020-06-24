@@ -3,6 +3,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
+    //urgent: Merge into base class
     [TestFixture]
     public class EventMigrationPerformanceTest_SqlServer : EventMigrationPerformanceTest
     {

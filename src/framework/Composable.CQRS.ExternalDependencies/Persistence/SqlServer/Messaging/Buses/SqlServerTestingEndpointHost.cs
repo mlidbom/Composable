@@ -8,8 +8,8 @@ namespace Composable.Persistence.SqlServer.Messaging.Buses
 {
     public class SqlServerTestingEndpointHost : TestingEndpointHost
     {
-        public static ITestingEndpointHost Create(Func<IRunMode, IDependencyInjectionContainer> containerFactory, TestingMode mode = TestingMode.DatabasePool)
-            => new SqlServerTestingEndpointHost(new RunMode(isTesting: true, testingMode: mode), containerFactory);
+        public static ITestingEndpointHost Create(Func<IRunMode, IDependencyInjectionContainer> containerFactory)
+            => new SqlServerTestingEndpointHost(new RunMode(isTesting: true), containerFactory);
 
         public SqlServerTestingEndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory)
         {

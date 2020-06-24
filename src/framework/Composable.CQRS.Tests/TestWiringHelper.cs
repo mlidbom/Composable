@@ -61,15 +61,14 @@ namespace Composable.Tests
             @this.RegisterSqlServerEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>(EventStoreConnectionStringName);
         }
 
-        internal static IServiceLocator SetupTestingServiceLocator(TestingMode mode, [InstantHandle]Action<IDependencyInjectionContainer> configureContainer = null)
+        internal static IServiceLocator SetupTestingServiceLocator([InstantHandle]Action<IDependencyInjectionContainer> configureContainer = null)
         {
             return DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
                                                                                {
                                                                                    container.RegisterTestingDocumentDb();
                                                                                    container.RegisterTestingSqlServerEventStore();
                                                                                    configureContainer?.Invoke(container);
-                                                                               },
-                                                                               mode: mode);
+                                                                               });
         }
     }
 }

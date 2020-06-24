@@ -27,7 +27,7 @@ namespace AccountManagement
 
         [SetUp] public async Task SetupContainerAndBeginScope()
         {
-            _host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
+            _host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create);
             new AccountManagementServerDomainBootstrapper().RegisterWith(_host);
             _clientEndpoint = _host.RegisterClientEndpoint(setup: AccountApi.RegisterWithClientEndpoint);
             _scenarioApi = new AccountScenarioApi(_clientEndpoint);

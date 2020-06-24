@@ -15,7 +15,7 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
         IServiceLocator _serviceLocator;
         [SetUp] public void SetupTask()
         {
-            _serviceLocator = TestWiringHelper.SetupTestingServiceLocator(TestingMode.DatabasePool);
+            _serviceLocator = TestWiringHelper.SetupTestingServiceLocator();
             _serviceLocator.Resolve<ITypeMappingRegistar>()
                            .Map<Composable.Tests.CQRS.UserRegistered>("e965b5d4-6f1a-45fa-9660-2fec0abc4a0a");
         }

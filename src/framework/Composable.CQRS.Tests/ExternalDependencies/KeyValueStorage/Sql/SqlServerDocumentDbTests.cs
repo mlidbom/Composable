@@ -12,7 +12,7 @@ namespace Composable.Tests.ExternalDependencies.KeyValueStorage.Sql
     [TestFixture]
     class SqlServerDocumentDbTests : DocumentDbTests
     {
-        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.DatabasePool);
+        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator();
 
         void InsertUsersInOtherDocumentDb(Guid userId)
         {

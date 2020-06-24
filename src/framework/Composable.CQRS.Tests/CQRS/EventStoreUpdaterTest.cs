@@ -72,11 +72,11 @@ namespace Composable.Tests.CQRS
 
         protected void UseInTransactionalScope([InstantHandle] Action<IEventStoreUpdater> useSession)
             => ServiceLocator.ExecuteTransactionInIsolatedScope(
-                () => useSession(ServiceLocator.Resolve<ITestingEventStoreUpdater>()));
+                () => useSession(ServiceLocator.Resolve<IEventStoreUpdater>()));
 
         protected void UseInScope([InstantHandle]Action<IEventStoreUpdater> useSession)
             => ServiceLocator.ExecuteInIsolatedScope(
-                () => useSession(ServiceLocator.Resolve<ITestingEventStoreUpdater>()));
+                () => useSession(ServiceLocator.Resolve<IEventStoreUpdater>()));
 
         [Test]
         public void WhenFetchingAggregateThatDoesNotExistNoSuchAggregateExceptionIsThrown()
@@ -115,8 +115,8 @@ namespace Composable.Tests.CQRS
                                          {
                                              ServiceLocator.ExecuteInIsolatedScope(() =>
                                                                                    {
-                                                                                       updater = ServiceLocator.Resolve<ITestingEventStoreUpdater>();
-                                                                                       reader = ServiceLocator.Resolve<ITestingEventStoreReader>();
+                                                                                       updater = ServiceLocator.Resolve<IEventStoreUpdater>();
+                                                                                       reader = ServiceLocator.Resolve<IEventStoreReader>();
                                                                                    });
                                              wait.Set();
                                          });
@@ -142,7 +142,7 @@ namespace Composable.Tests.CQRS
 
             UseInScope(session =>
                        {
-                           var reader = ServiceLocator.Resolve<ITestingEventStoreReader>();
+                           var reader = ServiceLocator.Resolve<IEventStoreReader>();
                            var loadedUser = reader.GetReadonlyCopyOfVersion<User>(user.Id, 1);
                            Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                            Assert.That(loadedUser.Email, Is.EqualTo("email@email.se"));
@@ -224,7 +224,7 @@ namespace Composable.Tests.CQRS
 
             UseInTransactionalScope(session =>
                                     {
-                                        var loadedUser = ServiceLocator.Resolve<ITestingEventStoreReader>().GetReadonlyCopyOfVersion<User>(user.Id, 1);
+                                        var loadedUser = ServiceLocator.Resolve<IEventStoreReader>().GetReadonlyCopyOfVersion<User>(user.Id, 1);
                                         loadedUser.ChangeEmail("NewEmail");
                                     });
 
@@ -503,7 +503,7 @@ namespace Composable.Tests.CQRS
                 clonedServiceLocator.ExecuteTransactionInIsolatedScope(() =>
                 {
                     // ReSharper disable once AccessToDisposedClosure
-                    var session = clonedServiceLocator.Resolve<ITestingEventStoreUpdater>();
+                    var session = clonedServiceLocator.Resolve<IEventStoreUpdater>();
                     otherUser = User.Register(session,
                                               "email@email.se",
                                               "password",
@@ -656,7 +656,7 @@ namespace Composable.Tests.CQRS
         {
             using (ServiceLocator.BeginScope())
             {
-                using var updater = ServiceLocator.Resolve<ITestingEventStoreUpdater>();
+                using var updater = ServiceLocator.Resolve<IEventStoreUpdater>();
                 var user = new User();
                 user.Register("email@email.se", "password", Guid.NewGuid());
 

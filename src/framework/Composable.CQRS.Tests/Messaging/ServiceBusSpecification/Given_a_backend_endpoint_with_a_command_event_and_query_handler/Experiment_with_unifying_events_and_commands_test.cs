@@ -43,12 +43,12 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 builder =>
                 {
                     builder.RegisterCurrentTestsConfiguredPersistenceLayer();
-                    builder.Container.RegisterEventStore<IUserEventStoreUpdater, IUserEventStoreReader>(builder.Configuration.ConnectionStringName);
+                    builder.Container.RegisterEventStore(builder.Configuration.ConnectionStringName);
 
                     builder.RegisterHandlers
                            .ForEvent((UserEvent.Implementation.UserRegisteredEvent myEvent) => {})
-                           .ForQuery((GetUserQuery query, IUserEventStoreReader eventReader) => new UserResource(eventReader.GetHistory(query.UserId)))
-                           .ForCommandWithResult((UserRegistrarCommand.RegisterUserCommand command, IUserEventStoreUpdater store) =>
+                           .ForQuery((GetUserQuery query, IEventStoreReader eventReader) => new UserResource(eventReader.GetHistory(query.UserId)))
+                           .ForCommandWithResult((UserRegistrarCommand.RegisterUserCommand command, IEventStoreUpdater store) =>
                             {
                                 store.Save(UserAggregate.Register(command));
                                 return new RegisterUserResult(command.UserId);
@@ -76,7 +76,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             _userDomainServiceLocator = userManagementDomainEndpoint.ServiceLocator;
 
-            _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() => _userDomainServiceLocator.Resolve<IUserEventStoreUpdater>().Save(UserRegistrarAggregate.Create()));
+            _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() => _userDomainServiceLocator.Resolve<IEventStoreUpdater>().Save(UserRegistrarAggregate.Create()));
         }
 
         [Test] public void Can_register_user_and_fetch_user_resource()
@@ -95,10 +95,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             _taskRunner.Dispose();
             _host.Dispose();
         }
-
-        public interface IUserEventStoreUpdater : IEventStoreUpdater {}
-
-        public interface IUserEventStoreReader : IEventStoreReader {}
 
         public static class UserEvent
         {

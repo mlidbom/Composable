@@ -3,15 +3,10 @@ using Composable.DependencyInjection;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.SqlServer.DependencyInjection;
 using JetBrains.Annotations;
 
 namespace Composable.Tests
 {
-    interface ITestingEventStoreReader : IEventStoreReader { }
-
-    interface ITestingEventStoreUpdater : IEventStoreUpdater { }
-
     interface ITestingDocumentDbBulkReader : IDocumentDbBulkReader { }
 
     interface ITestingDocumentDbReader : IDocumentDbReader { }
@@ -23,10 +18,10 @@ namespace Composable.Tests
         static readonly string DocumentDbConnectionStringName = "Fake_connectionstring_for_database_testing";
         internal static string EventStoreConnectionStringName = "Fake_connectionstring_for_database_testing";
 
-        internal static IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader> EventStore(this IServiceLocator @this) =>
-            @this.Resolve<IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>>();
+        internal static IEventStore EventStore(this IServiceLocator @this) =>
+            @this.Resolve<IEventStore>();
 
-        internal static IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader> SqlEventStore(this IServiceLocator @this) =>
+        internal static IEventStore SqlEventStore(this IServiceLocator @this) =>
             @this.EventStore();//todo: Throw here if it is not the correct type of store
 
         internal static IDocumentDb DocumentDb(this IServiceLocator @this) =>
@@ -41,11 +36,11 @@ namespace Composable.Tests
         internal static ITestingDocumentDbBulkReader DocumentDbBulkReader(this IServiceLocator @this) =>
             @this.Resolve<ITestingDocumentDbBulkReader>();
 
-        internal static ITestingEventStoreUpdater EventStoreUpdater(this IServiceLocator @this) =>
-            @this.Resolve<ITestingEventStoreUpdater>();
+        internal static IEventStoreUpdater EventStoreUpdater(this IServiceLocator @this) =>
+            @this.Resolve<IEventStoreUpdater>();
 
-        internal static ITestingEventStoreReader EventStoreReader(this IServiceLocator @this) =>
-            @this.Resolve<ITestingEventStoreReader>();
+        internal static IEventStoreReader EventStoreReader(this IServiceLocator @this) =>
+            @this.Resolve<IEventStoreReader>();
 
         internal static DocumentDbRegistrar.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader> DocumentDbSession(this IServiceLocator @this)
             => @this.Resolve<DocumentDbRegistrar.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>>();
@@ -57,7 +52,7 @@ namespace Composable.Tests
 
         static void RegisterTestingEventStore(this IDependencyInjectionContainer @this)
         {
-            @this.RegisterEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>(EventStoreConnectionStringName);
+            @this.RegisterEventStore<IEventStoreUpdater, IEventStoreReader>(EventStoreConnectionStringName);
         }
 
         internal static IServiceLocator SetupTestingServiceLocator([InstantHandle]Action<IDependencyInjectionContainer> configureContainer = null)

@@ -21,38 +21,9 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.Common.DependencyInjection
 {
-    interface IEventStore<TSessionInterface, TReaderInterface> : IEventStore {}
-
     //urgent: Remove persistence layer registration from this class.
     public static class EventStoreRegistrar
     {
-        interface IEventStoreUpdater<TSessionInterface, TReaderInterface> : IEventStoreUpdater {}
-
-        class EventStore<TSessionInterface, TReaderInterface> : Persistence.EventStore.EventStore, IEventStore<TSessionInterface, TReaderInterface>
-        {
-            public EventStore(IEventStoreSerializer serializer,
-                              IEventStorePersistenceLayer persistenceLayer,
-                              EventCache<TSessionInterface> cache,
-                              IEnumerable<IEventMigration> migrations) : base(persistenceLayer, serializer, cache, migrations:migrations) {}
-        }
-
-        class InMemoryEventStore<TSessionInterface, TReaderInterface> : InMemoryEventStore, IEventStore<TSessionInterface, TReaderInterface>
-        {
-            public InMemoryEventStore(IEnumerable<IEventMigration> migrations ) : base(migrations) {}
-        }
-
-        [UsedImplicitly] class EventStoreUpdater<TSessionInterface, TReaderInterface> : EventStoreUpdater, IEventStoreUpdater<TSessionInterface, TReaderInterface>
-        {
-            public EventStoreUpdater(IEventstoreEventPublisher eventPublisher,
-                                     IEventStore<TSessionInterface, TReaderInterface> store,
-                                     IUtcTimeTimeSource timeSource,
-                                     IAggregateTypeValidator aggregateTypeValidator) : base(eventPublisher, store, timeSource, aggregateTypeValidator) {}
-        }
-
-        [UsedImplicitly] internal class EventCache<TUpdaterType> : EventCache
-        {}
-
-
         public static EventStoreRegistrationBuilder RegisterEventStore(this IEndpointBuilder @this) => @this.RegisterEventStore(new List<IEventMigration>());
         public static EventStoreRegistrationBuilder RegisterEventStore(this IEndpointBuilder @this, IReadOnlyList<IEventMigration> migrations)
             => @this.Container.RegisterEventStore(@this.Configuration.ConnectionStringName, migrations);
@@ -120,59 +91,37 @@ namespace Composable.Persistence.Common.DependencyInjection
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSessionInterface, TReaderInterface>());
 
 
-            @this.Register(Singleton.For<EventCache<TSessionInterface>>()
-                                    .CreatedBy(() => new EventCache<TSessionInterface>()));
+            @this.Register(Singleton.For<EventCache>()
+                                    .CreatedBy(() => new EventCache()));
 
             if (@this.RunMode.TestingPersistenceLayer == PersistenceLayer.InMemory)
             {
                 //Urgent: No InMemoryEventStore should exist, instead there should be an InMemoryEventStorePersistenceLayer
-                @this.Register(Singleton.For<InMemoryEventStore<TSessionInterface, TReaderInterface>>()
-                                        .CreatedBy(() => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations()))
+                @this.Register(Singleton.For<InMemoryEventStore>()
+                                        .CreatedBy(() => new InMemoryEventStore(migrations: migrations()))
                                         .DelegateToParentServiceLocatorWhenCloning());
 
-                @this.Register(Scoped.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                        .CreatedBy((InMemoryEventStore<TSessionInterface, TReaderInterface> store) =>
+                @this.Register(Scoped.For<IEventStore>()
+                                        .CreatedBy((InMemoryEventStore store) =>
                                                             {
                                                                 store.TestingOnlyReplaceMigrations(migrations());
                                                                 return store;
                                                             }));
             } else
             {
-                @this.Register(Scoped.For<IEventStore<TSessionInterface, TReaderInterface>>()
+                @this.Register(Scoped.For<IEventStore>()
                                         .CreatedBy(
-                                            (IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache<TSessionInterface> cache) =>
-                                                new EventStore<TSessionInterface, TReaderInterface>(
+                                            (IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache cache) =>
+                                                new EventStore.EventStore(
                                                     persistenceLayer: persistenceLayer,
                                                     serializer: serializer,
                                                     migrations: migrations(),
                                                     cache: cache)));
             }
 
-            @this.Register(Scoped.For<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()
-                                    .CreatedBy((IEventstoreEventPublisher eventPublisher, IEventStore<TSessionInterface, TReaderInterface> eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
-                                                            new EventStoreUpdater<TSessionInterface, TReaderInterface>(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
-
-            var sessionType = EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType;
-            var constructor = (Func<IInterceptor[], IEventStoreUpdater, TSessionInterface>)Constructor.Compile.ForReturnType(sessionType).WithArguments<IInterceptor[], IEventStoreUpdater>();
-            var emptyInterceptorArray = new IInterceptor[0];
-
-            @this.Register(Scoped.For<TSessionInterface, TReaderInterface>()
-                                    .CreatedBy(EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType, locator => constructor(emptyInterceptorArray, locator.Resolve<IEventStoreUpdater<TSessionInterface, TReaderInterface>>())));
-        }
-
-        //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.
-        static class EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>
-            where TSessionInterface : IEventStoreUpdater
-            where TReaderInterface : IEventStoreReader
-        {
-            internal static readonly Type ProxyType = new DefaultProxyBuilder().CreateInterfaceProxyTypeWithTargetInterface(
-                interfaceToProxy: typeof(IEventStoreUpdater),
-                additionalInterfacesToProxy: new[]
-                                             {
-                                                 typeof(TSessionInterface),
-                                                 typeof(TReaderInterface)
-                                             },
-                options: ProxyGenerationOptions.Default);
+            @this.Register(Scoped.For<IEventStoreUpdater, IEventStoreReader>()
+                                    .CreatedBy((IEventstoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
+                                                            new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
         }
     }
 

@@ -7,18 +7,16 @@ using Composable.GenericAbstractions.Time;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
-using Composable.Persistence.SqlServer.DependencyInjection;
 using Composable.System.Linq;
 using Composable.Testing.Performance;
 using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
-using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.System;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
-    //urgent: Merge into base class and remove this attribute once whole assembly runs all persistence layers.
+    //urgent: Remove this attribute once whole assembly runs all persistence layers.
     [DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
     [TestFixture, Performance, LongRunning, Serial]
     public class EventMigrationPerformanceTest : EventMigrationTestBase

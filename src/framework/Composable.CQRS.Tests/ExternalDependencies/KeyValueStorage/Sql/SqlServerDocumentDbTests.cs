@@ -10,7 +10,7 @@ using NUnit.Framework;
 namespace Composable.Tests.ExternalDependencies.KeyValueStorage.Sql
 {
     [TestFixture]
-    class SqlDocumentDbTests : DocumentDbTests
+    class SqlServerDocumentDbTests : DocumentDbTests
     {
         protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.DatabasePool);
 

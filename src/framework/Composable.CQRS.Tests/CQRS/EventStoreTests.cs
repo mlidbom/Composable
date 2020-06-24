@@ -146,11 +146,6 @@ namespace Composable.Tests.CQRS
         }
     }
 
-    [TestFixture] public class InMemoryEventStoreTests : EventStoreTests
-    {
-        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.InMemory);
-    }
-
     [TestFixture] public class SqlServerEventStoreTests : EventStoreTests
     {
         protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.DatabasePool);

@@ -46,10 +46,10 @@ namespace Composable.Persistence.Common.DependencyInjection
             }
         }
 
-        public static DocumentDbRegistrationBuilder RegisterSqlServerDocumentDb(this IEndpointBuilder @this)
-            => @this.Container.RegisterSqlServerDocumentDb(@this.Configuration.ConnectionStringName);
+        public static DocumentDbRegistrationBuilder RegisterDocumentDb(this IEndpointBuilder @this)
+            => @this.Container.RegisterDocumentDb(@this.Configuration.ConnectionStringName);
 
-        public static DocumentDbRegistrationBuilder RegisterSqlServerDocumentDb(this IDependencyInjectionContainer @this, string connectionName)
+        public static DocumentDbRegistrationBuilder RegisterDocumentDb(this IDependencyInjectionContainer @this, string connectionName)
         {
             Contract.Argument(connectionName, nameof(connectionName)).NotNullEmptyOrWhiteSpace();
 
@@ -73,7 +73,7 @@ namespace Composable.Persistence.Common.DependencyInjection
             return new DocumentDbRegistrationBuilder();
         }
 
-        public static void RegisterSqlServerDocumentDb<TUpdater, TReader, TBulkReader>(this IDependencyInjectionContainer @this,
+        public static void RegisterDocumentDb<TUpdater, TReader, TBulkReader>(this IDependencyInjectionContainer @this,
                                                                                                  string connectionName)
             where TUpdater : class, IDocumentDbUpdater
             where TReader : IDocumentDbReader

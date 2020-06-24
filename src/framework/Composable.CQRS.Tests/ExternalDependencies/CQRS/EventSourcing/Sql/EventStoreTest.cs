@@ -10,7 +10,7 @@ using NUnit.Framework;
 namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
 {
     [TestFixture]
-    public class SqlServerEventStoreTest
+    public class EventStoreTest
     {
         IServiceLocator _serviceLocator;
         [SetUp] public void SetupTask()

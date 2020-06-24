@@ -16,6 +16,7 @@ using Composable.System;
 
 namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
 {
+    //urgent: Merge into parent class since we only have one now.
     [TestFixture]
     class SqlServerEventStoreUpdaterTests : EventStoreUpdaterTests
     {

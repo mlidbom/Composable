@@ -32,7 +32,7 @@ namespace AccountManagement
             builder.RegisterSqlServerEventStore()
                    .HandleAggregate<Account, AccountEvent.Root>(builder.RegisterHandlers);
 
-            builder.RegisterSqlServerDocumentDb()
+            builder.RegisterDocumentDb()
                    .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(builder.RegisterHandlers)
                    .HandleDocumentType<AccountStatistics.SingletonStatisticsQuerymodel>(builder.RegisterHandlers);
         }

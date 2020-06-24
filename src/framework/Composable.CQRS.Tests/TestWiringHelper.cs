@@ -50,9 +50,9 @@ namespace Composable.Tests
         internal static DocumentDbRegistrar.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader> DocumentDbSession(this IServiceLocator @this)
             => @this.Resolve<DocumentDbRegistrar.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>>();
 
-        static void RegisterTestingSqlServerDocumentDb(this IDependencyInjectionContainer @this)
+        static void RegisterTestingDocumentDb(this IDependencyInjectionContainer @this)
         {
-            @this.RegisterSqlServerDocumentDb<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>
+            @this.RegisterDocumentDb<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>
                 (DocumentDbConnectionStringName);
         }
 
@@ -65,7 +65,7 @@ namespace Composable.Tests
         {
             return DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
                                                                                {
-                                                                                   container.RegisterTestingSqlServerDocumentDb();
+                                                                                   container.RegisterTestingDocumentDb();
                                                                                    container.RegisterTestingSqlServerEventStore();
                                                                                    configureContainer?.Invoke(container);
                                                                                },

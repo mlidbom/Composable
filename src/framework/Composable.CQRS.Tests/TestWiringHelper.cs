@@ -29,7 +29,7 @@ namespace Composable.Tests
             @this.EventStore();//todo: Throw here if it is not the correct type of store
 
         internal static IDocumentDb DocumentDb(this IServiceLocator @this) =>
-            @this.Resolve<DocumentDbRegistrationExtensions.IDocumentDb<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>>();
+            @this.Resolve<SqlServerDocumentDbRegistrationExtensions.IDocumentDb<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>>();
 
         internal static ITestingDocumentDbReader DocumentDbReader(this IServiceLocator @this) =>
             @this.Resolve<ITestingDocumentDbReader>();
@@ -46,8 +46,8 @@ namespace Composable.Tests
         internal static ITestingEventStoreReader EventStoreReader(this IServiceLocator @this) =>
             @this.Resolve<ITestingEventStoreReader>();
 
-        internal static DocumentDbRegistrationExtensions.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader> DocumentDbSession(this IServiceLocator @this)
-            => @this.Resolve<DocumentDbRegistrationExtensions.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>>();
+        internal static SqlServerDocumentDbRegistrationExtensions.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader> DocumentDbSession(this IServiceLocator @this)
+            => @this.Resolve<SqlServerDocumentDbRegistrationExtensions.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>>();
 
         static void RegisterTestingSqlServerDocumentDb(this IDependencyInjectionContainer @this)
         {

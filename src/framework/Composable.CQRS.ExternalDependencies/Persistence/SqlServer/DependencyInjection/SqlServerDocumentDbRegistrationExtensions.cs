@@ -18,7 +18,7 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.SqlServer.DependencyInjection
 {
-    public static class DocumentDbRegistrationExtensions
+    public static class SqlServerDocumentDbRegistrationExtensions
     {
         internal interface IDocumentDb<TUpdater, TReader, TBulkReader> : IDocumentDb
         {

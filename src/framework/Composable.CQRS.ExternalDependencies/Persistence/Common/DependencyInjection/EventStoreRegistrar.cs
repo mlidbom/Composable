@@ -30,10 +30,7 @@ namespace Composable.Persistence.Common.DependencyInjection
                                                                                             string connectionName,
                                                                                             IReadOnlyList<IEventMigration> migrations)
         {
-              Contract.Argument(connectionName, nameof(connectionName))
-                    .NotNullEmptyOrWhiteSpace();
-
-            migrations ??= EmptyMigrationsArray;
+            Contract.Argument(connectionName, nameof(connectionName)).NotNullEmptyOrWhiteSpace();
 
             @this.Register(Singleton.For<EventCache>().CreatedBy(() => new EventCache()));
 
@@ -60,12 +57,9 @@ namespace Composable.Persistence.Common.DependencyInjection
                                                                   string connectionName,
                                                                   Func<IReadOnlyList<IEventMigration>> migrations)
         {
-            Contract.Argument(connectionName, nameof(connectionName))
-                    .NotNullEmptyOrWhiteSpace();
-            migrations ??= (() => EmptyMigrationsArray);
+            Contract.Argument(connectionName, nameof(connectionName)).NotNullEmptyOrWhiteSpace();
 
-            @this.Register(Singleton.For<EventCache>()
-                                    .CreatedBy(() => new EventCache()));
+            @this.Register(Singleton.For<EventCache>().CreatedBy(() => new EventCache()));
 
             if (@this.RunMode.TestingPersistenceLayer == PersistenceLayer.InMemory)
             {
@@ -77,7 +71,6 @@ namespace Composable.Persistence.Common.DependencyInjection
                 @this.Register(Scoped.For<IEventStore>()
                                         .CreatedBy((InMemoryEventStore store) =>
                                                             {
-                                                                //urgent: Get rid of this frightening hack.
                                                                 store.TestingOnlyReplaceMigrations(migrations());
                                                                 return store;
                                                             }));

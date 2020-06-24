@@ -1,4 +1,5 @@
-﻿using Composable.DependencyInjection;
+﻿using System;
+using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.SqlServer.Configuration;
@@ -15,21 +16,26 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
         //urgent: Register all sql server persistence layer classes here.
         public static void RegisterSqlServerPersistenceLayer(this IEndpointBuilder @this)
         {
-            var endpointSqlConnection = new LazySqlServerConnectionProvider(
-                () => @this.Container.CreateServiceLocator()
-                           .Resolve<ISqlServerConnectionProviderSource>()
-                           .GetConnectionProvider(@this.Configuration.ConnectionStringName).ConnectionString);
+            var container = @this.Container;
+            var configurationConnectionStringName = @this.Configuration.ConnectionStringName;
 
-            @this.Container.Register(
-                      Singleton.For<ISqlServerConnectionProviderSource>().CreatedBy(
-                                    () => @this.Container.RunMode.IsTesting
-                                              ? (ISqlServerConnectionProviderSource)new SqlServerServerDatabasePoolSqlServerConnectionProviderSource(@this.Container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())
-                                              : new ConfigurationSqlServerConnectionProviderSource(@this.Container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())).DelegateToParentServiceLocatorWhenCloning(),
-                      Singleton.For<InterprocessTransport.IMessageStorage>().CreatedBy(
-                                    (ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
-                                        => new SqlServerInterProcessTransportMessageStorage(endpointSqlConnection, typeMapper,  serializer)),
-                      Singleton.For<Inbox.IMessageStorage>().CreatedBy(() => new SqlServerMessageStorage(endpointSqlConnection))
-                  );
+            RegisterSqlServerPersistenceLayer(container, configurationConnectionStringName);
+        }
+
+        public static void RegisterSqlServerPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
+        {
+            container.Register(
+                Singleton.For<ISqlServerConnectionProviderSource>()
+                         .CreatedBy(() => container.RunMode.IsTesting
+                                              ? (ISqlServerConnectionProviderSource)new SqlServerServerDatabasePoolSqlServerConnectionProviderSource(container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())
+                                              : new ConfigurationSqlServerConnectionProviderSource(container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())).DelegateToParentServiceLocatorWhenCloning(),
+                Singleton.For<ISqlConnectionProvider>()
+                         .CreatedBy((ISqlServerConnectionProviderSource providerSource) => new LazySqlServerConnectionProvider(() => providerSource.GetConnectionProvider(connectionStringName).ConnectionString)),
+                Singleton.For<InterprocessTransport.IMessageStorage>().CreatedBy(
+                              (ISqlConnectionProvider endpointSqlConnection, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+                                  => new SqlServerInterProcessTransportMessageStorage(endpointSqlConnection, typeMapper, serializer)),
+                Singleton.For<Inbox.IMessageStorage>().CreatedBy((ISqlConnectionProvider endpointSqlConnection) => new SqlServerMessageStorage(endpointSqlConnection))
+            );
         }
     }
 }

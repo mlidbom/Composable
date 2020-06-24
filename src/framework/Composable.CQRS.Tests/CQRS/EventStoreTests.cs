@@ -6,6 +6,7 @@ using Composable.Refactoring.Naming;
 using Composable.System.Linq;
 using Composable.System.Transactions;
 using FluentAssertions;
+using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.CQRS
@@ -21,10 +22,12 @@ namespace Composable.Tests.CQRS
         }
     }
 
-    [TestFixture] public abstract class EventStoreTests
+    //urgent: Merge into base class and remove this attribute once whole assembly runs all persistence layers.
+    [DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
+    [TestFixture] public class EventStoreTests
     {
         IDisposable _scope;
-        protected abstract IServiceLocator CreateServiceLocator();
+        IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator();
 
         IEventStore _eventStore;
 
@@ -144,10 +147,5 @@ namespace Composable.Tests.CQRS
                                             .ToList();
             Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count);
         }
-    }
-
-    [TestFixture] public class SqlServerEventStoreTests : EventStoreTests
-    {
-        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator();
     }
 }

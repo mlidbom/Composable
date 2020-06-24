@@ -16,9 +16,10 @@ using Composable.System;
 
 namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
 {
-    //urgent: Merge into parent class since we only have one now.
+    //urgent: Merge into base class and remove this attribute once whole assembly runs all persistence layers.
+    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
     [TestFixture]
-    class SqlServerEventStoreUpdaterTests : EventStoreUpdaterTests
+    class EventStoreUpdaterTests : EventStoreUpdaterTestsBase
     {
         protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator();
 
@@ -75,6 +76,7 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
                 });
         }
 
+        //urgent: Fix transactionality of InMemory event store and reenable this test in ncrunch.
         [Test, LongRunning]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed()
         {

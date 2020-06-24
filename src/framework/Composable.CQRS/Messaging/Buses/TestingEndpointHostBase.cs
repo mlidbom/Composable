@@ -9,10 +9,10 @@ using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
-    public class TestingEndpointHost : EndpointHost, ITestingEndpointHost, IEndpointRegistry
+    public class TestingEndpointHostBase : EndpointHost, ITestingEndpointHost, IEndpointRegistry
     {
         readonly List<Exception> _handledExceptions = new List<Exception>();
-        public TestingEndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory)
+        public TestingEndpointHostBase(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory)
         {
             GlobalBusStateTracker = new GlobalBusStateTracker();
         }

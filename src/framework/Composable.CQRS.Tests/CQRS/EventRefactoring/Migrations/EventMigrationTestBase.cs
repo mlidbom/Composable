@@ -29,15 +29,12 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
     //refactor: this test. It is too monolithic and hard to read and extend.
     public abstract class EventMigrationTestBase
     {
-        protected readonly Type EventStoreType;
-        protected EventMigrationTestBase(Type eventStoreType) => EventStoreType = eventStoreType;
-
         internal void RunMigrationTest(params MigrationScenario[] scenarios)
         {
-            SafeConsole.WriteLine($"###############$$$$$$$Running {scenarios.Length} scenario(s) with EventStoreType: {EventStoreType}");
+            SafeConsole.WriteLine($"###############$$$$$$$Running {scenarios.Length} scenario(s)");
 
             IList<IEventMigration> migrations = new List<IEventMigration>();
-            using var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations.ToArray(), EventStoreType);
+            using var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations.ToArray());
             var timeSource = serviceLocator.Resolve<TestingTimeSource>();
             timeSource.FreezeAtUtcTime(DateTime.Parse("2001-01-01 01:01:01.01"));
             var scenarioIndex = 1;
@@ -179,11 +176,11 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             });
         }
 
-        protected static IServiceLocator CreateServiceLocatorForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType)
+        protected static IServiceLocator CreateServiceLocatorForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory)
         {
             var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
                 container =>
-                    container.RegisterSqlServerEventStoreForFlexibleTesting<ITestingEventStoreUpdater, ITestingEventStoreReader>(TestWiringHelper.EventStoreConnectionStringName, migrationsfactory));
+                    container.RegisterEventStoreForFlexibleTesting<ITestingEventStoreUpdater, ITestingEventStoreReader>(TestWiringHelper.EventStoreConnectionStringName, migrationsfactory));
 
             serviceLocator.Resolve<ITypeMappingRegistar>()
                           .Map<Composable.Tests.CQRS.EventRefactoring.Migrations.TestAggregate>("dbc5cd48-bc09-4d96-804d-6712493a413d")

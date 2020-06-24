@@ -70,7 +70,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 builder =>
                 {
                     builder.RegisterSqlServerPersistenceLayer();
-                    builder.RegisterSqlServerEventStore()
+                    builder.RegisterEventStore()
                            .HandleAggregate<MyAggregate, MyAggregateEvent.IRoot>(builder.RegisterHandlers);
 
                     builder.RegisterHandlers

@@ -52,13 +52,12 @@ namespace Composable.Tests
 
         static void RegisterTestingDocumentDb(this IDependencyInjectionContainer @this)
         {
-            @this.RegisterDocumentDb<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>
-                (DocumentDbConnectionStringName);
+            @this.RegisterDocumentDb<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>(DocumentDbConnectionStringName);
         }
 
-        static void RegisterTestingSqlServerEventStore(this IDependencyInjectionContainer @this)
+        static void RegisterTestingEventStore(this IDependencyInjectionContainer @this)
         {
-            @this.RegisterSqlServerEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>(EventStoreConnectionStringName);
+            @this.RegisterEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>(EventStoreConnectionStringName);
         }
 
         internal static IServiceLocator SetupTestingServiceLocator([InstantHandle]Action<IDependencyInjectionContainer> configureContainer = null)
@@ -66,7 +65,7 @@ namespace Composable.Tests
             return DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
                                                                                {
                                                                                    container.RegisterTestingDocumentDb();
-                                                                                   container.RegisterTestingSqlServerEventStore();
+                                                                                   container.RegisterTestingEventStore();
                                                                                    configureContainer?.Invoke(container);
                                                                                });
         }

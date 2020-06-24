@@ -43,7 +43,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 builder =>
                 {
                     builder.RegisterSqlServerPersistenceLayer();
-                    builder.Container.RegisterSqlServerEventStore<IUserEventStoreUpdater, IUserEventStoreReader>(builder.Configuration.ConnectionStringName);
+                    builder.Container.RegisterEventStore<IUserEventStoreUpdater, IUserEventStoreReader>(builder.Configuration.ConnectionStringName);
 
                     builder.RegisterHandlers
                            .ForEvent((UserEvent.Implementation.UserRegisteredEvent myEvent) => {})

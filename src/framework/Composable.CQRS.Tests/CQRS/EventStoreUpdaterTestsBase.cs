@@ -24,7 +24,7 @@ using NUnit.Framework;
 namespace Composable.Tests.CQRS
 {
     [TestFixture]
-    public abstract class EventStoreUpdaterTests
+    public abstract class EventStoreUpdaterTestsBase
     {
         class EventSpy
         {

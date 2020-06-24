@@ -9,6 +9,8 @@ using NUnit.Framework;
 
 namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
 {
+    //urgent: Merge into base class and remove this attribute once whole assembly runs all persistence layers.
+    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
     [TestFixture]
     public class EventStoreTest
     {

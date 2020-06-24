@@ -18,11 +18,11 @@ using Composable.System;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
+    //urgent: Merge into base class and remove this attribute once whole assembly runs all persistence layers.
+    [DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
     [TestFixture, Performance, LongRunning, Serial]
-    public abstract class EventMigrationPerformanceTest : EventMigrationTestBase
+    public class EventMigrationPerformanceTest : EventMigrationTestBase
     {
-        public EventMigrationPerformanceTest(Type eventStoreType) : base(eventStoreType) { }
-
         List<AggregateEvent> _history;
         TestAggregate _aggregate;
         IServiceLocator _container;
@@ -42,7 +42,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             _history = _aggregate.History.Cast<AggregateEvent>().ToList();
 
             _currentMigrations = Seq.Empty<IEventMigration>().ToList();
-            _container = CreateServiceLocatorForEventStoreType(migrationsfactory: () => _currentMigrations, eventStoreType: EventStoreType);
+            _container = CreateServiceLocatorForEventStoreType(migrationsfactory: () => _currentMigrations);
 
             _container.ExecuteTransactionInIsolatedScope(()=> _container.Resolve<IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>>().SaveEvents(_history));
         }

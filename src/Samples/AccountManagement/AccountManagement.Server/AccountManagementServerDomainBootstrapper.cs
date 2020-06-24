@@ -29,7 +29,7 @@ namespace AccountManagement
         static void RegisterDomainComponents(IEndpointBuilder builder)
         {
             builder.RegisterSqlServerPersistenceLayer();
-            builder.RegisterSqlServerEventStore()
+            builder.RegisterEventStore()
                    .HandleAggregate<Account, AccountEvent.Root>(builder.RegisterHandlers);
 
             builder.RegisterDocumentDb()

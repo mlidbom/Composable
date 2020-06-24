@@ -70,13 +70,13 @@ namespace Composable.Persistence.Common.DependencyInjection
         {}
 
 
-        public static SqlServerEventStoreRegistrationBuilder RegisterSqlServerEventStore(this IEndpointBuilder @this) => @this.RegisterSqlServerEventStore(new List<IEventMigration>());
-        public static SqlServerEventStoreRegistrationBuilder RegisterSqlServerEventStore(this IEndpointBuilder @this, IReadOnlyList<IEventMigration> migrations)
-            => @this.Container.RegisterSqlServerEventStore(@this.Configuration.ConnectionStringName, migrations);
+        public static EventStoreRegistrationBuilder RegisterEventStore(this IEndpointBuilder @this) => @this.RegisterEventStore(new List<IEventMigration>());
+        public static EventStoreRegistrationBuilder RegisterEventStore(this IEndpointBuilder @this, IReadOnlyList<IEventMigration> migrations)
+            => @this.Container.RegisterEventStore(@this.Configuration.ConnectionStringName, migrations);
 
-        public static SqlServerEventStoreRegistrationBuilder RegisterSqlServerEventStore(this IDependencyInjectionContainer @this,
-                                                                                         string connectionName) => @this.RegisterSqlServerEventStore(connectionName, new List<IEventMigration>());
-        public static SqlServerEventStoreRegistrationBuilder RegisterSqlServerEventStore(this IDependencyInjectionContainer @this,
+        public static EventStoreRegistrationBuilder RegisterEventStore(this IDependencyInjectionContainer @this,
+                                                                                         string connectionName) => @this.RegisterEventStore(connectionName, new List<IEventMigration>());
+        public static EventStoreRegistrationBuilder RegisterEventStore(this IDependencyInjectionContainer @this,
                                                                                             string connectionName,
                                                                                             IReadOnlyList<IEventMigration> migrations)
         {
@@ -117,28 +117,28 @@ namespace Composable.Persistence.Common.DependencyInjection
                                     .CreatedBy((IEventstoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
                                                             new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
 
-            return new SqlServerEventStoreRegistrationBuilder();
+            return new EventStoreRegistrationBuilder();
         }
 
-        public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
+        public static void RegisterEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
                                                                                             string connectionName)
             where TSessionInterface : class, IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
-            => @this.RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(connectionName, new List<IEventMigration>());
+            => @this.RegisterEventStore<TSessionInterface, TReaderInterface>(connectionName, new List<IEventMigration>());
 
-        public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
+        public static void RegisterEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
                                                                                             string connectionName,
                                                                                             IReadOnlyList<IEventMigration> migrations)
             where TSessionInterface : class, IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
-            => @this.RegisterSqlServerEventStoreForFlexibleTesting<TSessionInterface, TReaderInterface>(
+            => @this.RegisterEventStoreForFlexibleTesting<TSessionInterface, TReaderInterface>(
                 connectionName,
                 migrations != null
                     ? (Func<IReadOnlyList<IEventMigration>>)(() => migrations)
                     : (() => EmptyMigrationsArray));
 
         static readonly IEventMigration[] EmptyMigrationsArray = new IEventMigration[0];
-        internal static void RegisterSqlServerEventStoreForFlexibleTesting<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
+        internal static void RegisterEventStoreForFlexibleTesting<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
                                                                                                                 string connectionName,
                                                                                                                 Func<IReadOnlyList<IEventMigration>> migrations)
             where TSessionInterface : class, IEventStoreUpdater
@@ -221,9 +221,9 @@ namespace Composable.Persistence.Common.DependencyInjection
         }
     }
 
-    public class SqlServerEventStoreRegistrationBuilder
+    public class EventStoreRegistrationBuilder
     {
-        public SqlServerEventStoreRegistrationBuilder HandleAggregate<TAggregate, TEvent>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
+        public EventStoreRegistrationBuilder HandleAggregate<TAggregate, TEvent>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
             where TAggregate : IEventStored<TEvent>
             where TEvent : IAggregateEvent
         {

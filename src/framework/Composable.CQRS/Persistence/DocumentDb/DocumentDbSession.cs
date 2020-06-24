@@ -17,7 +17,7 @@ namespace Composable.Persistence.DocumentDb
         [ThreadStatic]
         internal static bool UseUpdateLock;
 
-        readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
+        readonly MemoryObjectStore _idMap = new MemoryObjectStore();
 
         readonly IDocumentDb _backingStore;
         readonly ISingleContextUseGuard _usageGuard;

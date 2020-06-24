@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Persistence;
 using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
+using Composable.Persistence.SqlServer.DependencyInjection;
 using Composable.System.Linq;
 using Composable.Testing.Performance;
 using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;

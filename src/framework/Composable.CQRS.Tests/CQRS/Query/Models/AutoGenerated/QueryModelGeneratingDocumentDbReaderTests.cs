@@ -7,6 +7,7 @@ using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.Persistence.EventStore.Query.Models.Generators;
+using Composable.Persistence.InMemory.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.System.Transactions;
 using Composable.SystemExtensions.Threading;

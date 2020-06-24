@@ -1,8 +1,8 @@
 using System;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Persistence;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.SqlServer.DependencyInjection;
 using JetBrains.Annotations;
 
 namespace Composable.Tests

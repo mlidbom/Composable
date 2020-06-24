@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
+using Composable.Persistence.SqlServer.DependencyInjection;
+using Composable.Persistence.SqlServer.Messaging.Buses;
 using Composable.System.Linq;
 using Composable.Testing.Threading;
 using FluentAssertions;

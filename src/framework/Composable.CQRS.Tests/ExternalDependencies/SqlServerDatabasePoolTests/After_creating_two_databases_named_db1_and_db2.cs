@@ -1,7 +1,7 @@
 using System;
+using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.SqlServer.Testing.Databases;
 using Composable.System.Configuration;
-using Composable.System.Data.SqlClient;
-using Composable.Testing.Databases;
 using FluentAssertions;
 using NUnit.Framework;
 

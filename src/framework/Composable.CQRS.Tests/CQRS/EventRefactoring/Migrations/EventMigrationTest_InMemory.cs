@@ -1,4 +1,5 @@
 using Composable.Persistence.EventStore;
+using Composable.Persistence.InMemory.EventStore;
 using NUnit.Framework;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations

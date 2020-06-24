@@ -3,9 +3,10 @@ using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.UI;
 using AccountManagement.UI.QueryModels;
-using Composable.DependencyInjection.Persistence;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.SqlServer.DependencyInjection;
+using Composable.Persistence.SqlServer.Messaging.Buses;
 
 namespace AccountManagement
 {

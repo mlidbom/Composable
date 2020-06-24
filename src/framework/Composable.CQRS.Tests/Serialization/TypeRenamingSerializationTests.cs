@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
+using Composable.Persistence.SqlServer.Messaging.Buses;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using FluentAssertions;

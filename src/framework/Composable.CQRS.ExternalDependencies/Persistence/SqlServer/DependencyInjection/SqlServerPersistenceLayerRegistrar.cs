@@ -1,5 +1,4 @@
-﻿using System;
-using Composable.DependencyInjection;
+﻿using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.SqlServer.Configuration;
@@ -24,11 +23,20 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
 
         public static void RegisterSqlServerPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
         {
+            if(container.RunMode.IsTesting)
+            {
+                container.Register(Singleton.For<ISqlServerConnectionProviderSource>()
+                                            .CreatedBy((IConfigurationParameterProvider configurationParameterProvider)
+                                                           => (ISqlServerConnectionProviderSource)new SqlServerServerDatabasePoolSqlServerConnectionProviderSource(configurationParameterProvider)).DelegateToParentServiceLocatorWhenCloning());
+            } else
+            {
+                container.Register(Singleton.For<ISqlServerConnectionProviderSource>()
+                                            .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) 
+                                                           => new ConfigurationSqlServerConnectionProviderSource(configurationParameterProvider)).DelegateToParentServiceLocatorWhenCloning());
+            }
+
             container.Register(
-                Singleton.For<ISqlServerConnectionProviderSource>()
-                         .CreatedBy(() => container.RunMode.IsTesting
-                                              ? (ISqlServerConnectionProviderSource)new SqlServerServerDatabasePoolSqlServerConnectionProviderSource(container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())
-                                              : new ConfigurationSqlServerConnectionProviderSource(container.CreateServiceLocator().Resolve<IConfigurationParameterProvider>())).DelegateToParentServiceLocatorWhenCloning(),
+
                 Singleton.For<ISqlConnectionProvider>()
                          .CreatedBy((ISqlServerConnectionProviderSource providerSource) => new LazySqlServerConnectionProvider(() => providerSource.GetConnectionProvider(connectionStringName).ConnectionString)),
                 Singleton.For<InterprocessTransport.IMessageStorage>().CreatedBy(

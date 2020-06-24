@@ -9,18 +9,20 @@ namespace Composable.Persistence.Common.DependencyInjection
 {
     public static class TestingPersistenceLayerRegistrar
     {
-        public static void RegisterCurrentTestsConfiguredPersistenceLayer(this IEndpointBuilder @this)
+        public static void RegisterCurrentTestsConfiguredPersistenceLayer(this IEndpointBuilder @this) => RegisterCurrentTestsConfiguredPersistenceLayer(@this.Container, @this.Configuration.ConnectionStringName);
+
+        public static void RegisterCurrentTestsConfiguredPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
         {
-            switch(@this.Container.RunMode.TestingPersistenceLayer)
+            switch(container.RunMode.TestingPersistenceLayer)
             {
                 case PersistenceLayer.SqlServer:
-                    @this.RegisterSqlServerPersistenceLayer();
+                    container.RegisterSqlServerPersistenceLayer(connectionStringName);
                     break;
                 case PersistenceLayer.InMemory:
-                    @this.RegisterInMemoryPersistenceLayer();
+                    container.RegisterInMemoryPersistenceLayer(connectionStringName);
                     break;
                 case PersistenceLayer.MySql:
-                    @this.RegisterMySqlPersistenceLayer();
+                    container.RegisterMySqlPersistenceLayer(connectionStringName);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

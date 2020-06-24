@@ -4,6 +4,7 @@ using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.SqlServer.DependencyInjection;
 using Composable.Persistence.SqlServer.Messaging.Buses;
 using Composable.System;
@@ -30,7 +31,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 new EndpointId(Guid.Parse("17ED9DF9-33A8-4DF8-B6EC-6ED97AB2030B")),
                 builder =>
                 {
-                    builder.RegisterSqlServerPersistenceLayer();
+                    builder.RegisterCurrentTestsConfiguredPersistenceLayer();
                     builder.RegisterHandlers.ForCommand<ScheduledCommand>(
                         cmd => _receivedCommandGate.AwaitPassthrough());
 

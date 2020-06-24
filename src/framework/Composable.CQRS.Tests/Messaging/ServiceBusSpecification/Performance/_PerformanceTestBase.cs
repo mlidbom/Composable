@@ -4,6 +4,7 @@ using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
+using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.SqlServer.DependencyInjection;
 using Composable.Persistence.SqlServer.Messaging.Buses;
 using NCrunch.Framework;
@@ -29,7 +30,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
                 builder =>
                 {
-                    builder.RegisterSqlServerPersistenceLayer();
+                    builder.RegisterCurrentTestsConfiguredPersistenceLayer();
                     builder.RegisterHandlers
                            .ForQuery((MyRemoteQuery query) => new MyQueryResult())
                            .ForQuery((MyLocalQuery query) => new MyQueryResult());

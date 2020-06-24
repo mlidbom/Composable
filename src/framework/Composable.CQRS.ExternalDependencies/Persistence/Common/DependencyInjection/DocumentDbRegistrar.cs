@@ -53,7 +53,8 @@ namespace Composable.Persistence.Common.DependencyInjection
         {
             Contract.Argument(connectionName, nameof(connectionName)).NotNullEmptyOrWhiteSpace();
 
-            if(@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
+            //urgent: remove
+            if(@this.RunMode.TestingPersistenceLayer == PersistenceLayer.InMemory)
             {
                 @this.Register(Singleton.For<IDocumentDb>()
                                          .CreatedBy((IDocumentDbSerializer serializer) => new InMemoryDocumentDb(serializer))
@@ -83,7 +84,7 @@ namespace Composable.Persistence.Common.DependencyInjection
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TUpdater, TReader, TBulkReader>());
 
-            if(@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
+            if(@this.RunMode.TestingPersistenceLayer == PersistenceLayer.InMemory)
             {
                 @this.Register(Singleton.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .CreatedBy((IDocumentDbSerializer serializer) => new InMemoryDocumentDb<TUpdater, TReader, TBulkReader>(serializer))

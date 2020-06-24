@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using Composable.DependencyInjection;
 using NUnit.Framework;
 
 // General Information about an assembly is controlled through the following
@@ -43,4 +44,5 @@ using NUnit.Framework;
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly3)]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly4)]
 
-//todo: //[assembly:NCrunch.Framework.DuplicateByDimensions("SqlServer", "MySql", "InMemory")]
+//urgent: include at least InMemory as testing PersistenceLayerProvider [assembly:NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.InMemory))]
+[assembly:NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer))]

@@ -7,17 +7,23 @@ namespace Composable.DependencyInjection
     {
         readonly bool _isTesting;
         bool IRunMode.IsTesting => _isTesting;
+        //urgent: TestingMode should no longer be used. Just the current PersistenceLayerProvider
         public TestingMode TestingMode { get; }
 
-        public StorageProvider TestingStorageProvider
+        public PersistenceLayer TestingPersistenceLayer
         {
             get
             {
-                var storageProviderName = NCrunchEnvironment.GetDuplicatedDimension();
-
-                if(!Enum.TryParse(storageProviderName, out StorageProvider provider))
+                //urgent:remove this hack.
+                if(_isTesting && TestingMode == TestingMode.InMemory)
                 {
-                    throw new Exception("Failed to parse provider");
+                    return PersistenceLayer.InMemory;
+                }
+
+                var storageProviderName = NCrunchEnvironment.GetDuplicatedDimension();
+                if(!Enum.TryParse(storageProviderName, out PersistenceLayer provider))
+                {
+                    throw new Exception("Failed to parse PersistenceLayerProvider from test environment");
                 }
 
                 return provider;

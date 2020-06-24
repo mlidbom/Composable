@@ -87,15 +87,15 @@ namespace Composable.Persistence.Common.DependencyInjection
 
             @this.Register(Singleton.For<EventCache>().CreatedBy(() => new EventCache()));
 
-            if (@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
+            if (@this.RunMode.TestingPersistenceLayer == PersistenceLayer.InMemory)
             {
-                //Urgent:Refactor: No InMemoryEventStore should exist, instead there should be an InMemoryEventStorePersistenceLayer
+                //Urgent: No InMemoryEventStore should exist, instead there should be an InMemoryEventStorePersistenceLayer
                 @this.Register(Singleton.For<IEventStore>()
                                         .CreatedBy(() => new InMemoryEventStore(migrations: migrations))
                                         .DelegateToParentServiceLocatorWhenCloning());
             } else
             {
-                //Urgent:Refactor: This is the extension point. Everything else here is probably identical for all persistence layers. Remove this from here and do it in RegisterSqlServerPersistenceLayer instead.
+                //Urgent: Remove this from here and do it in RegisterSqlServerPersistenceLayer instead.
                 @this.Register(
                     Singleton.For<IEventStorePersistenceLayer>()
                                 .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, ITypeMapper typeIdMapper) =>
@@ -154,8 +154,9 @@ namespace Composable.Persistence.Common.DependencyInjection
             @this.Register(Singleton.For<EventCache<TSessionInterface>>()
                                     .CreatedBy(() => new EventCache<TSessionInterface>()));
 
-            if (@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
+            if (@this.RunMode.TestingPersistenceLayer == PersistenceLayer.InMemory)
             {
+                //Urgent: No InMemoryEventStore should exist, instead there should be an InMemoryEventStorePersistenceLayer
                 @this.Register(Singleton.For<InMemoryEventStore<TSessionInterface, TReaderInterface>>()
                                         .CreatedBy(() => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations()))
                                         .DelegateToParentServiceLocatorWhenCloning());
@@ -168,6 +169,7 @@ namespace Composable.Persistence.Common.DependencyInjection
                                                             }));
             } else
             {
+                //Urgent: Remove this from here and do it in RegisterSqlServerPersistenceLayer instead.
                 @this.Register(
                     Singleton.For<IEventStorePersistenceLayer<TSessionInterface>>()
                                 .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, ITypeMapper typeIdMapper) =>

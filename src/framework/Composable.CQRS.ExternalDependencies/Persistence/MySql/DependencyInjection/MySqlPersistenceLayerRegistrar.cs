@@ -1,0 +1,13 @@
+﻿using Composable.Messaging.Buses;
+
+namespace Composable.Persistence.MySql.DependencyInjection
+{
+    public static class MySqlPersistenceLayerRegistrar
+    {
+        //urgent: Register all MySql persistence layer classes here.
+        public static void RegisterMySqlPersistenceLayer(this IEndpointBuilder @this)
+        {
+           @this.Container.Register();
+        }
+    }
+}

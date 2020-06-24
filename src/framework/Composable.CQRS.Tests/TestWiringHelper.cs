@@ -52,7 +52,7 @@ namespace Composable.Tests
 
         static void RegisterTestingEventStore(this IDependencyInjectionContainer @this)
         {
-            @this.RegisterEventStore<IEventStoreUpdater, IEventStoreReader>(EventStoreConnectionStringName);
+            @this.RegisterEventStore(EventStoreConnectionStringName);
         }
 
         internal static IServiceLocator SetupTestingServiceLocator([InstantHandle]Action<IDependencyInjectionContainer> configureContainer = null)

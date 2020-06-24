@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Castle.DynamicProxy;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
@@ -9,13 +8,8 @@ using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Persistence.InMemory.EventStore;
-using Composable.Persistence.SqlServer.Configuration;
-using Composable.Persistence.SqlServer.EventStore;
-using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System.Linq;
-using Composable.System.Reflection;
-using JetBrains.Annotations;
 
 // ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
 
@@ -24,12 +18,14 @@ namespace Composable.Persistence.Common.DependencyInjection
     //urgent: Remove persistence layer registration from this class.
     public static class EventStoreRegistrar
     {
-        public static EventStoreRegistrationBuilder RegisterEventStore(this IEndpointBuilder @this) => @this.RegisterEventStore(new List<IEventMigration>());
+        static readonly IEventMigration[] EmptyMigrationsArray = new IEventMigration[0];
+
+        public static EventStoreRegistrationBuilder RegisterEventStore(this IEndpointBuilder @this) => @this.RegisterEventStore(EmptyMigrationsArray);
         public static EventStoreRegistrationBuilder RegisterEventStore(this IEndpointBuilder @this, IReadOnlyList<IEventMigration> migrations)
             => @this.Container.RegisterEventStore(@this.Configuration.ConnectionStringName, migrations);
 
         public static EventStoreRegistrationBuilder RegisterEventStore(this IDependencyInjectionContainer @this,
-                                                                                         string connectionName) => @this.RegisterEventStore(connectionName, new List<IEventMigration>());
+                                                                                         string connectionName) => @this.RegisterEventStore(connectionName, EmptyMigrationsArray);
         public static EventStoreRegistrationBuilder RegisterEventStore(this IDependencyInjectionContainer @this,
                                                                                             string connectionName,
                                                                                             IReadOnlyList<IEventMigration> migrations)
@@ -37,7 +33,7 @@ namespace Composable.Persistence.Common.DependencyInjection
               Contract.Argument(connectionName, nameof(connectionName))
                     .NotNullEmptyOrWhiteSpace();
 
-            migrations ??= new List<IEventMigration>();
+            migrations ??= EmptyMigrationsArray;
 
             @this.Register(Singleton.For<EventCache>().CreatedBy(() => new EventCache()));
 
@@ -60,36 +56,13 @@ namespace Composable.Persistence.Common.DependencyInjection
             return new EventStoreRegistrationBuilder();
         }
 
-        public static void RegisterEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
-                                                                                            string connectionName)
-            where TSessionInterface : class, IEventStoreUpdater
-            where TReaderInterface : IEventStoreReader
-            => @this.RegisterEventStore<TSessionInterface, TReaderInterface>(connectionName, new List<IEventMigration>());
-
-        public static void RegisterEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
-                                                                                            string connectionName,
-                                                                                            IReadOnlyList<IEventMigration> migrations)
-            where TSessionInterface : class, IEventStoreUpdater
-            where TReaderInterface : IEventStoreReader
-            => @this.RegisterEventStoreForFlexibleTesting<TSessionInterface, TReaderInterface>(
-                connectionName,
-                migrations != null
-                    ? (Func<IReadOnlyList<IEventMigration>>)(() => migrations)
-                    : (() => EmptyMigrationsArray));
-
-        static readonly IEventMigration[] EmptyMigrationsArray = new IEventMigration[0];
-        internal static void RegisterEventStoreForFlexibleTesting<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
-                                                                                                                string connectionName,
-                                                                                                                Func<IReadOnlyList<IEventMigration>> migrations)
-            where TSessionInterface : class, IEventStoreUpdater
-            where TReaderInterface : IEventStoreReader
+        internal static void RegisterEventStoreForFlexibleTesting(this IDependencyInjectionContainer @this,
+                                                                  string connectionName,
+                                                                  Func<IReadOnlyList<IEventMigration>> migrations)
         {
             Contract.Argument(connectionName, nameof(connectionName))
                     .NotNullEmptyOrWhiteSpace();
             migrations ??= (() => EmptyMigrationsArray);
-
-            GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSessionInterface, TReaderInterface>());
-
 
             @this.Register(Singleton.For<EventCache>()
                                     .CreatedBy(() => new EventCache()));
@@ -104,6 +77,7 @@ namespace Composable.Persistence.Common.DependencyInjection
                 @this.Register(Scoped.For<IEventStore>()
                                         .CreatedBy((InMemoryEventStore store) =>
                                                             {
+                                                                //urgent: Get rid of this frightening hack.
                                                                 store.TestingOnlyReplaceMigrations(migrations());
                                                                 return store;
                                                             }));

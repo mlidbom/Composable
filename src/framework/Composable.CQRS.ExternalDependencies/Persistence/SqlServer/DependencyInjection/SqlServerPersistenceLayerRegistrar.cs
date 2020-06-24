@@ -60,7 +60,6 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
                 Singleton.For<Inbox.IMessageStorage>().CreatedBy((ISqlConnectionProvider endpointSqlConnection) => new SqlServerMessageStorage(endpointSqlConnection))
             );
 
-            //Urgent: Remove this from here and do it in RegisterSqlServerPersistenceLayer instead.
             container.Register(
                 Singleton.For<IEventStorePersistenceLayer>()
                          .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, ITypeMapper typeIdMapper) =>

@@ -1,7 +1,9 @@
 ﻿using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.EventStore;
 using Composable.Persistence.SqlServer.Configuration;
+using Composable.Persistence.SqlServer.EventStore;
 using Composable.Persistence.SqlServer.Messaging.Buses.Implementation;
 using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.Refactoring.Naming;
@@ -12,6 +14,19 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
 {
     public static class SqlServerPersistenceLayerRegistrar
     {
+        class EventStorePersistenceLayer : IEventStorePersistenceLayer
+        {
+            public EventStorePersistenceLayer(IEventStoreSchemaManager schemaManager, IEventStoreEventReader eventReader, IEventStoreEventWriter eventWriter)
+            {
+                SchemaManager = schemaManager;
+                EventReader = eventReader;
+                EventWriter = eventWriter;
+            }
+            public IEventStoreSchemaManager SchemaManager { get; }
+            public IEventStoreEventReader EventReader { get; }
+            public IEventStoreEventWriter EventWriter { get; }
+        }
+
         //urgent: Register all sql server persistence layer classes here.
         public static void RegisterSqlServerPersistenceLayer(this IEndpointBuilder @this)
         {
@@ -44,6 +59,19 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
                                   => new SqlServerInterProcessTransportMessageStorage(endpointSqlConnection, typeMapper, serializer)),
                 Singleton.For<Inbox.IMessageStorage>().CreatedBy((ISqlConnectionProvider endpointSqlConnection) => new SqlServerMessageStorage(endpointSqlConnection))
             );
+
+            //Urgent: Remove this from here and do it in RegisterSqlServerPersistenceLayer instead.
+            container.Register(
+                Singleton.For<IEventStorePersistenceLayer>()
+                         .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, ITypeMapper typeIdMapper) =>
+                          {
+                              var connectionProvider = connectionProviderSource.GetConnectionProvider(connectionStringName);
+                              var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
+                              var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, typeIdMapper);
+                              var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
+                              var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager);
+                              return new EventStorePersistenceLayer(schemaManager, eventReader, eventWriter);
+                          }));
         }
     }
 }

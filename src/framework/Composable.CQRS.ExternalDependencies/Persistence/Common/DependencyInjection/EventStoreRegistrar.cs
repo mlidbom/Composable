@@ -49,23 +49,6 @@ namespace Composable.Persistence.Common.DependencyInjection
                                      IAggregateTypeValidator aggregateTypeValidator) : base(eventPublisher, store, timeSource, aggregateTypeValidator) {}
         }
 
-        interface IEventStorePersistenceLayer<TUpdater> : IEventStorePersistenceLayer
-        {
-        }
-
-        class EventStorePersistenceLayer<TUpdaterType> : IEventStorePersistenceLayer<TUpdaterType>
-        {
-            public EventStorePersistenceLayer(IEventStoreSchemaManager schemaManager, IEventStoreEventReader eventReader, IEventStoreEventWriter eventWriter)
-            {
-                SchemaManager = schemaManager;
-                EventReader = eventReader;
-                EventWriter = eventWriter;
-            }
-            public IEventStoreSchemaManager SchemaManager { get; }
-            public IEventStoreEventReader EventReader { get; }
-            public IEventStoreEventWriter EventWriter { get; }
-        }
-
         [UsedImplicitly] internal class EventCache<TUpdaterType> : EventCache
         {}
 
@@ -95,20 +78,6 @@ namespace Composable.Persistence.Common.DependencyInjection
                                         .DelegateToParentServiceLocatorWhenCloning());
             } else
             {
-                //Urgent: Remove this from here and do it in RegisterSqlServerPersistenceLayer instead.
-                @this.Register(
-                    Singleton.For<IEventStorePersistenceLayer>()
-                                .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, ITypeMapper typeIdMapper) =>
-                                                    {
-                                                        var connectionProvider = connectionProviderSource.GetConnectionProvider(connectionName);
-                                                        var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
-                                                        var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, typeIdMapper);
-                                                        var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
-                                                        var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager);
-                                                        return new EventStorePersistenceLayer<IEventStoreUpdater>(schemaManager, eventReader, eventWriter);
-                                                    }));
-
-
                 @this.Register(Scoped.For<IEventStore>()
                                         .CreatedBy((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache eventCache) => new Persistence.EventStore.EventStore(persistenceLayer, serializer, eventCache, migrations)));
             }
@@ -169,23 +138,9 @@ namespace Composable.Persistence.Common.DependencyInjection
                                                             }));
             } else
             {
-                //Urgent: Remove this from here and do it in RegisterSqlServerPersistenceLayer instead.
-                @this.Register(
-                    Singleton.For<IEventStorePersistenceLayer<TSessionInterface>>()
-                                .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, ITypeMapper typeIdMapper) =>
-                                                    {
-                                                        var connectionProvider = connectionProviderSource.GetConnectionProvider(connectionName);
-                                                        var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
-                                                        var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, typeIdMapper);
-                                                        var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
-                                                        var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager);
-                                                        return new EventStorePersistenceLayer<TSessionInterface>(schemaManager, eventReader, eventWriter);
-                                                    }));
-
-
                 @this.Register(Scoped.For<IEventStore<TSessionInterface, TReaderInterface>>()
                                         .CreatedBy(
-                                            (IEventStorePersistenceLayer<TSessionInterface> persistenceLayer, IEventStoreSerializer serializer, EventCache<TSessionInterface> cache) =>
+                                            (IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache<TSessionInterface> cache) =>
                                                 new EventStore<TSessionInterface, TReaderInterface>(
                                                     persistenceLayer: persistenceLayer,
                                                     serializer: serializer,

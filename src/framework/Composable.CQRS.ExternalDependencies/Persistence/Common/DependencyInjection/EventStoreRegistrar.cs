@@ -19,11 +19,12 @@ using JetBrains.Annotations;
 
 // ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
 
-namespace Composable.Persistence.SqlServer.DependencyInjection
+namespace Composable.Persistence.Common.DependencyInjection
 {
     interface IEventStore<TSessionInterface, TReaderInterface> : IEventStore {}
 
-    public static class SqlServerEventStoreRegistrationExtensions
+    //urgent: Remove persistence layer registration from this class.
+    public static class EventStoreRegistrar
     {
         interface IEventStoreUpdater<TSessionInterface, TReaderInterface> : IEventStoreUpdater {}
 
@@ -88,11 +89,13 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
 
             if (@this.RunMode.IsTesting && @this.RunMode.TestingMode == TestingMode.InMemory)
             {
+                //Urgent:Refactor: No InMemoryEventStore should exist, instead there should be an InMemoryEventStorePersistenceLayer
                 @this.Register(Singleton.For<IEventStore>()
                                         .CreatedBy(() => new InMemoryEventStore(migrations: migrations))
                                         .DelegateToParentServiceLocatorWhenCloning());
             } else
             {
+                //Urgent:Refactor: This is the extension point. Everything else here is probably identical for all persistence layers. Remove this from here and do it in RegisterSqlServerPersistenceLayer instead.
                 @this.Register(
                     Singleton.For<IEventStorePersistenceLayer>()
                                 .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, ITypeMapper typeIdMapper) =>

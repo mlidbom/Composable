@@ -1,6 +1,7 @@
 ﻿using System;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
+using Composable.Persistence.SqlServer.DependencyInjection;
 
 namespace Composable.Persistence.SqlServer.Messaging.Buses
 {
@@ -15,6 +16,7 @@ namespace Composable.Persistence.SqlServer.Messaging.Buses
 
         internal override void ExtraEndpointConfiguration(IEndpointBuilder builder)
         {
+            //urgent: Move to baseclass and use configured persistence layer name to choose.
             builder.RegisterSqlServerPersistenceLayer();
         }
     }

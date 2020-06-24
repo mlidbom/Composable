@@ -8,10 +8,11 @@ using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System.Configuration;
 
-namespace Composable.Persistence.SqlServer.Messaging.Buses
+namespace Composable.Persistence.SqlServer.DependencyInjection
 {
-    public static class SqlServerPersistenceLayerBootstrapper
+    public static class SqlServerPersistenceLayerRegistrar
     {
+        //urgent: Register all sql server persistence layer classes here.
         public static void RegisterSqlServerPersistenceLayer(this IEndpointBuilder @this)
         {
             var endpointSqlConnection = new LazySqlServerConnectionProvider(

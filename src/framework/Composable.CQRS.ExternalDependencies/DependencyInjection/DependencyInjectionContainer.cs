@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.Messaging.Buses;
+using Composable.Persistence.SqlServer.DependencyInjection;
 using Composable.Persistence.SqlServer.Messaging.Buses;
 using JetBrains.Annotations;
 

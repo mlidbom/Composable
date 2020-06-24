@@ -29,9 +29,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Persistence\InMemory\DependencyInjection\" />
-  </ItemGroup>
 
 </Project>

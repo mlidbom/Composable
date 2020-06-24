@@ -4,6 +4,7 @@ using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Persistence.SqlServer.DependencyInjection;
 using Composable.Persistence.SqlServer.Messaging.Buses;
 using Composable.System;
 using Composable.Testing.Threading;

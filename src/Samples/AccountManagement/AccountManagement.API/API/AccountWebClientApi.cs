@@ -4,6 +4,7 @@ using System;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
+using Composable.Persistence.SqlServer.DependencyInjection;
 using Composable.Persistence.SqlServer.Messaging.Buses;
 
 namespace AccountManagement.API

@@ -6,6 +6,7 @@ using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.Messaging.Buses;
+using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Persistence.InMemory.EventStore;
@@ -17,7 +18,7 @@ using Composable.System.Linq;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using ITestingEventStore = Composable.Persistence.SqlServer.DependencyInjection.IEventStore<Composable.Tests.ITestingEventStoreUpdater, Composable.Tests.ITestingEventStoreReader>;
+using ITestingEventStore = Composable.Persistence.Common.DependencyInjection.IEventStore<Composable.Tests.ITestingEventStoreUpdater, Composable.Tests.ITestingEventStoreReader>;
 using Composable.System;
 
 // ReSharper disable AccessToModifiedClosure
@@ -173,7 +174,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             {
                 if(serviceLocator.Resolve<ITestingEventStore>() is EventStore)
                 {
-                    serviceLocator.Resolve<SqlServerEventStoreRegistrationExtensions.EventCache<ITestingEventStoreUpdater>>().Clear();
+                    serviceLocator.Resolve<EventStoreRegistrar.EventCache<ITestingEventStoreUpdater>>().Clear();
                 }
             });
         }

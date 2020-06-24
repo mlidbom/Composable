@@ -8,7 +8,7 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.InMemory.EventStore
 {
-    //refactor: to use the same serialization code as the sql server event store so that tests actually tests roundtrip serialization
+    //Urgent:Refactor: No InMemoryEventStore should exist, instead there should be an InMemoryEventStorePersistenceLayer
     class InMemoryEventStore : IEventStore
     {
         IReadOnlyList<IEventMigration> _migrationFactories;

@@ -16,9 +16,10 @@ using JetBrains.Annotations;
 
 // ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
 
-namespace Composable.Persistence.SqlServer.DependencyInjection
+namespace Composable.Persistence.Common.DependencyInjection
 {
-    public static class SqlServerDocumentDbRegistrationExtensions
+    //urgent: Remove persistence layer registration from this class.
+    public static class DocumentDbRegistrar
     {
         internal interface IDocumentDb<TUpdater, TReader, TBulkReader> : IDocumentDb
         {
@@ -90,6 +91,7 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
 
             } else
             {
+                //urgent: move to SqlServerPersistenceLayerRegistrar
                 @this.Register(Singleton.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionProviderSource.GetConnectionProvider(connectionName), timeSource, serializer)));
             }

@@ -32,7 +32,7 @@ namespace Composable.Persistence.Common.DependencyInjection
             } else
             {
                 @this.Register(Singleton.For<IDocumentDb>()
-                                         .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer) 
+                                         .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
                                                         => new SqlServerDocumentDb(connectionProviderSource.GetConnectionProvider(connectionName), timeSource, serializer)));
             }
 

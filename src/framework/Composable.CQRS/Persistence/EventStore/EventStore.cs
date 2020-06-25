@@ -5,6 +5,7 @@ using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
+using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System;
 using Composable.System.Linq;
@@ -14,6 +15,7 @@ namespace Composable.Persistence.EventStore
 {
     class EventStore : IEventStore
     {
+        readonly ITypeMapper _typeMapper;
         readonly IEventStoreSerializer _serializer;
         static readonly ILogger Log = Logger.For<EventStore>();
 
@@ -25,8 +27,9 @@ namespace Composable.Persistence.EventStore
         readonly IEventStoreSchemaManager _schemaManager;
         readonly IReadOnlyList<IEventMigration> _migrationFactories;
 
-        public EventStore(IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache cache, IEnumerable<IEventMigration> migrations)
+        public EventStore(IEventStorePersistenceLayer persistenceLayer, ITypeMapper typeMapper, IEventStoreSerializer serializer, EventCache cache, IEnumerable<IEventMigration> migrations)
         {
+            _typeMapper = typeMapper;
             _serializer = serializer;
             Log.Debug("Constructor called");
 
@@ -88,7 +91,7 @@ namespace Composable.Persistence.EventStore
 
         AggregateEvent HydrateEvent(EventReadDataRow eventDataRowRow)
         {
-            var @event = (AggregateEvent)_serializer.Deserialize(eventType: _schemaManager.IdMapper.GetType(eventDataRowRow.EventType), json: eventDataRowRow.EventJson);
+            var @event = (AggregateEvent)_serializer.Deserialize(eventType: _typeMapper.GetType(new TypeId(eventDataRowRow.EventType)), json: eventDataRowRow.EventJson);
             @event.AggregateId = eventDataRowRow.AggregateId;
             @event.AggregateVersion = eventDataRowRow.AggregateVersion;
             @event.EventId = eventDataRowRow.EventId;
@@ -124,8 +127,6 @@ namespace Composable.Persistence.EventStore
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
-            _schemaManager.IdMapper.LoadTypesFromDatabase();
-
             var batches = StreamEvents(batchSize)
                 .ChopIntoSizesOf(batchSize)
                 .Select(batch => batch.ToList());
@@ -143,7 +144,7 @@ namespace Composable.Persistence.EventStore
             var updatedAggregates = events.Select(@event => @event.AggregateId).Distinct().ToList();
 
             var eventRows = events.Cast<AggregateEvent>()
-                                  .Select(@this => new EventWriteDataRow(@event: @this, eventAsJson: _serializer.Serialize(@this)))
+                                  .Select(@this => new EventWriteDataRow(@event: @this, _typeMapper.GetId(@this.GetType()), eventAsJson: _serializer.Serialize(@this)))
                                   .ToList();
             _eventWriter.Insert(eventRows);
             //todo: move this to the event store updater.
@@ -210,10 +211,14 @@ namespace Composable.Persistence.EventStore
                                     newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
                                     //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
                                     var eventRows = newEvents
-                                                   .Select(@this => new EventWriteDataRow(@event: @this, eventAsJson: _serializer.Serialize(@this)))
+                                                   .Select(@this => new EventWriteDataRow(@event: @this, _typeMapper.GetId(@this.GetType()), eventAsJson: _serializer.Serialize(@this)))
                                                    .ToList();
 
                                     _eventWriter.InsertRefactoringEvents(eventRows);
+                                    for(int index = 0; index < eventRows.Count; index++)
+                                    {
+                                        newEvents[index].InsertionOrder = eventRows[index].InsertionOrder;
+                                    }
                                     updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                     newEventCount += newEvents.Count;
                                 });

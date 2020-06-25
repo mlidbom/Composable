@@ -6,7 +6,6 @@ namespace Composable.Persistence.EventStore
 {
     interface IEventStoreSchemaManager
     {
-        IEventTypeToIdMapper IdMapper { get; }
         void SetupSchemaIfDatabaseUnInitialized();
     }
 
@@ -38,7 +37,7 @@ namespace Composable.Persistence.EventStore
 
     class EventReadDataRow
     {
-        public EventReadDataRow(int eventType, string eventJson, Guid eventId, int aggregateVersion, Guid aggregateId, DateTime utcTimeStamp, int insertedVersion, int? effectiveVersion, int? manualVersion, long insertionOrder, long? replaces, long? insertBefore, long? insertAfter)
+        public EventReadDataRow(Guid eventType, string eventJson, Guid eventId, int aggregateVersion, Guid aggregateId, DateTime utcTimeStamp, int insertedVersion, int effectiveVersion, int? manualVersion, long insertionOrder, long? replaces, long? insertBefore, long? insertAfter)
         {
             EventType = eventType;
             EventJson = eventJson;
@@ -55,7 +54,7 @@ namespace Composable.Persistence.EventStore
             InsertAfter = insertAfter;
         }
 
-        public int EventType { get; private set; }
+        public Guid EventType { get; private set; }
         public string EventJson { get; private set; }
         public Guid EventId { get; private set; }
         public int AggregateVersion { get; private set; }
@@ -64,7 +63,7 @@ namespace Composable.Persistence.EventStore
         public DateTime UtcTimeStamp { get; private set; }
 
         internal int InsertedVersion { get; private set; }
-        internal int? EffectiveVersion { get; private set; }
+        internal int EffectiveVersion { get; private set; }
         internal int? ManualVersion { get; private set; }
 
         internal long InsertionOrder { get; private set; }
@@ -76,29 +75,28 @@ namespace Composable.Persistence.EventStore
 
     class EventWriteDataRow
     {
-        public EventWriteDataRow(AggregateEvent @event, string eventAsJson):this(SqlDecimal.Null, @event, eventAsJson)
+        public EventWriteDataRow(AggregateEvent @event, TypeId eventType, string eventAsJson):this(SqlDecimal.Null, eventType, @event, eventAsJson)
         {}
 
-        public EventWriteDataRow(EventWriteDataRow source, SqlDecimal manualReadOrder) : this(manualReadOrder, source.Event, source.EventJson)
-        { }
-
-        EventWriteDataRow(SqlDecimal manualReadOrder, AggregateEvent @event, string eventAsJson)
+        EventWriteDataRow(SqlDecimal manualReadOrder, TypeId eventType, AggregateEvent @event, string eventAsJson)
         {
+            //urgent: This is sort of horrible. What should this look like? Where should the code be?
+            @event.InsertedVersion = @event.InsertedVersion > @event.AggregateVersion ? @event.InsertedVersion : @event.AggregateVersion;
+
             if(!(manualReadOrder.IsNull || (manualReadOrder.Precision == 38 && manualReadOrder.Scale == 17)))
             {
                 throw new ArgumentException($"$$$$$$$$$$$$$$$$$$$$$$$$$ Found decimal with precision: {manualReadOrder.Precision} and scale: {manualReadOrder.Scale}", nameof(manualReadOrder));
             }
 
-            Event = @event;
             ManualReadOrder = manualReadOrder;
             EventJson = eventAsJson;
+            EventType = eventType;
 
             EventId = @event.EventId;
             AggregateVersion = @event.AggregateVersion;
             AggregateId = @event.AggregateId;
             UtcTimeStamp = @event.UtcTimeStamp;
             InsertedVersion = @event.InsertedVersion;
-            EffectiveVersion = @event.EffectiveVersion;
             ManualVersion = @event.ManualVersion;
             InsertionOrder = @event.InsertionOrder;
 
@@ -107,11 +105,9 @@ namespace Composable.Persistence.EventStore
             InsertAfter = @event.InsertAfter;
         }
 
-        public SqlDecimal ManualReadOrder { get; private set; }
-        public AggregateEvent Event { get; private set; }
+        public SqlDecimal ManualReadOrder { get; internal set; }
 
-
-        public int EventType { get; set; }
+        public TypeId EventType { get; set; }
         public string EventJson { get; private set; }
 
         public Guid EventId { get; private set; }
@@ -121,7 +117,7 @@ namespace Composable.Persistence.EventStore
         public DateTime UtcTimeStamp { get; private set; }
 
         internal int InsertedVersion { get; private set; }
-        internal int? EffectiveVersion { get; set; }
+        //internal int? EffectiveVersion { get; set; } Only used for when reading.
         internal int? ManualVersion { get; private set; }
 
         internal long InsertionOrder { get; set; }
@@ -130,6 +126,21 @@ namespace Composable.Persistence.EventStore
         internal long? InsertBefore { get; private set; }
         internal long? InsertAfter { get; private set; }
 
+    }
+
+    //Urgent: Everywhere that this type of information occurs, replace with this semantically understandable type instead.
+    class EventRefactoringInformation
+    {
+        internal int InsertedVersion { get; set; }
+        internal int EffectiveVersion { get; set; }
+        internal int? ManualVersion { get; set; }
+
+        internal long InsertionOrder { get; set; }
+        internal long? Replaces { get; set; }
+
+        internal long? InsertBefore { get; set; }
+
+        internal long? InsertAfter { get; set; }
     }
 
 }

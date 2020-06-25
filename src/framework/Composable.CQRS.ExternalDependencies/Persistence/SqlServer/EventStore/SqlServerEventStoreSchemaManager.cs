@@ -4,7 +4,6 @@ using System.Transactions;
 using Composable.Logging;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.SqlServer.SystemExtensions;
-using Composable.Refactoring.Naming;
 using Composable.System.Transactions;
 
 namespace Composable.Persistence.SqlServer.EventStore
@@ -13,14 +12,8 @@ namespace Composable.Persistence.SqlServer.EventStore
     {
         bool _verifiedConnectionString;
         readonly SqlServerEventTableSchemaManager _eventTable = new SqlServerEventTableSchemaManager();
-        readonly SqlServerEventTypeTableSchemaManager _eventTypeTable = new SqlServerEventTypeTableSchemaManager();
-        public SqlServerEventStoreSchemaManager(ISqlConnectionProvider connectionString, ITypeMapper typeMapper)
-        {
-            _connectionProvider = connectionString;
-            IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionProvider, typeMapper);
-        }
-
-        public IEventTypeToIdMapper IdMapper { get; private set; }
+        public SqlServerEventStoreSchemaManager(ISqlConnectionProvider connectionString) 
+            => _connectionProvider = connectionString;
 
         readonly ISqlConnectionProvider _connectionProvider;
 
@@ -45,8 +38,6 @@ AT:
                 connection.ExecuteNonQuery($@"
 IF NOT EXISTS(SELECT NAME FROM sys.tables WHERE name = '{_eventTable.Name}')
 BEGIN
-    {_eventTypeTable.CreateTableSql}
-
     {_eventTable.CreateTableSql}
 END 
 ");

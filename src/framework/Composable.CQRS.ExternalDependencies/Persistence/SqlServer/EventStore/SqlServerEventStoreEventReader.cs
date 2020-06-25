@@ -4,14 +4,14 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using Composable.Persistence.EventStore;
+using Composable.Refactoring.Naming;
 
 namespace Composable.Persistence.SqlServer.EventStore
 {
     class SqlServerEventStoreEventReader : IEventStoreEventReader
     {
         readonly SqlServerEventStoreConnectionManager _connectionManager;
-        readonly IEventStoreSchemaManager _schemaManager;
-        IEventTypeToIdMapper EventTypeToIdMapper => _schemaManager.IdMapper;
+        ITypeMapper _typeMapper;
 
         static string GetSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
         static string SelectTopClause(int top, bool takeWriteLock) => InternalSelect(top: top, takeWriteLock: takeWriteLock);
@@ -39,14 +39,14 @@ SELECT {topClause}
 FROM {SqlServerEventTable.Name} {lockHint} ";
         }
 
-        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, IEventStoreSchemaManager schemaManager)
+        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, ITypeMapper typeMapper)
         {
             _connectionManager = connectionManager;
-            _schemaManager = schemaManager;
+            _typeMapper = typeMapper;
         }
 
         static EventReadDataRow ReadDataRow(SqlDataReader eventReader) => new EventReadDataRow(
-            eventType: eventReader.GetInt32(0),
+            eventType: eventReader.GetGuid(0),
             eventJson: eventReader.GetString(1),
             eventId: eventReader.GetGuid(4),
             aggregateVersion: eventReader[3] as int? ?? eventReader.GetInt32(10),
@@ -59,7 +59,7 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
             replaces: eventReader[9] as long?,
             insertedVersion: eventReader.GetInt32(10),
             manualVersion: eventReader[11] as int?,
-            effectiveVersion: eventReader[3] as int?
+            effectiveVersion: eventReader.GetInt32(3)
         );
 
         public IReadOnlyList<EventReadDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
@@ -140,7 +140,7 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
                 using var reader = loadCommand.ExecuteReader();
                 while (reader.Read())
                 {
-                    if(eventBaseType == null || eventBaseType.IsAssignableFrom(EventTypeToIdMapper.GetType(reader.GetInt32(1))))
+                    if(eventBaseType == null || eventBaseType.IsAssignableFrom(_typeMapper.GetType(new TypeId(reader.GetGuid(1)))))
                     {
                         ids.Add((Guid)reader[0]);
                     }

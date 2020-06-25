@@ -16,9 +16,9 @@ namespace Composable.Persistence.InMemory.DependencyInjection
         public static void RegisterInMemoryPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
         {
             container.Register(Singleton.For<IEventStorePersistenceLayer>()
-                                        .CreatedBy((IEventTypeToIdMapper typeMapper)
+                                        .CreatedBy(()
                                                        => new InMemoryEventStorePersistenceLayer(
-                                                           new InMemoryEventStoreSchemaManager(typeMapper),
+                                                           new InMemoryEventStoreSchemaManager(),
                                                            new InMemoryEventStoreEventReader(),
                                                            new InMemoryEventStoreEventWriter())));
         }

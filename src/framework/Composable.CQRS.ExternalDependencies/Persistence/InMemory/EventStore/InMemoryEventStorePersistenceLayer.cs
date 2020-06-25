@@ -6,10 +6,6 @@ namespace Composable.Persistence.InMemory.EventStore
 {
     class InMemoryEventStoreSchemaManager : IEventStoreSchemaManager
     {
-        public InMemoryEventStoreSchemaManager(IEventTypeToIdMapper idMapper) => IdMapper = idMapper;
-
-        public IEventTypeToIdMapper IdMapper { get; }
-
         //Nothing to do for an in-memory storage.
         public void SetupSchemaIfDatabaseUnInitialized() { }
     }

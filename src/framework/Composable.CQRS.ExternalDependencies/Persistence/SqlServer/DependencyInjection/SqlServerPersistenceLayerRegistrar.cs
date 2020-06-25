@@ -62,13 +62,13 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
 
             container.Register(
                 Singleton.For<IEventStorePersistenceLayer>()
-                         .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, ITypeMapper typeIdMapper) =>
+                         .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, ITypeMapper typeMapper) =>
                           {
                               var connectionProvider = connectionProviderSource.GetConnectionProvider(connectionStringName);
                               var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
-                              var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, typeIdMapper);
-                              var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
-                              var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager);
+                              var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider);
+                              var eventReader = new SqlServerEventStoreEventReader(connectionManager, typeMapper);
+                              var eventWriter = new SqlServerEventStoreEventWriter(connectionManager);
                               return new EventStorePersistenceLayer(schemaManager, eventReader, eventWriter);
                           }));
         }

@@ -229,7 +229,6 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                    config => config.RespectingRuntimeTypes()
                                                    .WithStrictOrdering()
                                                    .ComparingByMembers<AggregateEvent>()
-                                                   .Excluding(@event => @event.DeduplicationId)
                                                    .Excluding(@event => @event.EventId)
                                                    .Excluding(@event => @event.InsertionOrder)
                                                    .Excluding(@event => @event.InsertAfter)

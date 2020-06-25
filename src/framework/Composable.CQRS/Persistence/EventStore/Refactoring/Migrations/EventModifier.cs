@@ -15,12 +15,25 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
     //Performance: Consider whether using the new stackalloc and Range types might allow us to improve performance of migrations.
     class EventModifier : IEventModifier
     {
-        readonly Action<IReadOnlyList<AggregateEvent>> _eventsAddedCallback;
-        internal LinkedList<AggregateEvent>? Events;
-        AggregateEvent[]? _replacementEvents;
-        AggregateEvent[]? _insertedEvents;
+        internal class RefactoredEvent
+        {
+            public RefactoredEvent(AggregateEvent newEvent, AggregateEventRefactoringInformation refactoringInformation)
+            {
+                NewEvent = newEvent;
+                RefactoringInformation = refactoringInformation;
+            }
 
-        public EventModifier(Action<IReadOnlyList<AggregateEvent>> eventsAddedCallback) => _eventsAddedCallback = eventsAddedCallback;
+            public AggregateEvent NewEvent { get; private set; }
+            public AggregateEventRefactoringInformation RefactoringInformation { get; private set; }
+
+        }
+
+        readonly Action<IReadOnlyList<RefactoredEvent>> _eventsAddedCallback;
+        internal LinkedList<AggregateEvent>? Events;
+        RefactoredEvent[]? _replacementEvents;
+        RefactoredEvent[]? _insertedEvents;
+
+        public EventModifier(Action<IReadOnlyList<RefactoredEvent>> eventsAddedCallback) => _eventsAddedCallback = eventsAddedCallback;
 
         AggregateEvent? _inspectedEvent;
 
@@ -54,7 +67,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         }
 
-        public void Replace(params AggregateEvent[] events)
+        public void Replace(params AggregateEvent[] replacementEvents)
         {
             AssertNoPriorModificationsHaveBeenMade();
             if(_inspectedEvent is EndOfAggregateHistoryEventPlaceHolder)
@@ -63,18 +76,21 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
             }
 
-            _replacementEvents = events;
+            _replacementEvents = replacementEvents.Select(@event => new RefactoredEvent(@event, new AggregateEventRefactoringInformation())).ToArray();
 
             _replacementEvents.ForEach(
                 (e, index) =>
                 {
-                    e.StorageInformation.RefactoringInformation.ManualVersion = e.AggregateVersion = _inspectedEvent!.AggregateVersion + index;
-                    e.StorageInformation.RefactoringInformation.Replaces = _inspectedEvent.StorageInformation.InsertionOrder;
-                    e.AggregateId = _inspectedEvent.AggregateId;
-                    e.UtcTimeStamp = _inspectedEvent.UtcTimeStamp;
+                    e.NewEvent.AggregateVersion = _inspectedEvent!.AggregateVersion + index;
+
+                    e.RefactoringInformation.Replaces = _inspectedEvent.StorageInformation.InsertionOrder;
+                    e.RefactoringInformation.ManualVersion = _inspectedEvent.AggregateVersion + index;
+
+                    e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
+                    e.NewEvent.UtcTimeStamp = _inspectedEvent.UtcTimeStamp;
                 });
 
-            CurrentNode = CurrentNode.Replace(_replacementEvents);
+            CurrentNode = CurrentNode.Replace(replacementEvents);
             _eventsAddedCallback.Invoke(_replacementEvents);
         }
 
@@ -106,17 +122,20 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
         {
             AssertNoPriorModificationsHaveBeenMade();
 
-            _insertedEvents = insert;
+            _insertedEvents = insert.Select(@event => new RefactoredEvent(@event, new AggregateEventRefactoringInformation())).ToArray();
 
             if(_inspectedEvent is EndOfAggregateHistoryEventPlaceHolder)
             {
                 _insertedEvents.ForEach(
                     (e, index) =>
                     {
-                        e.StorageInformation.RefactoringInformation.InsertAfter = _lastEventInActualStream!.StorageInformation.InsertionOrder;
-                        e.StorageInformation.RefactoringInformation.ManualVersion = e.AggregateVersion = _inspectedEvent.AggregateVersion + index;
-                        e.AggregateId = _inspectedEvent.AggregateId;
-                        e.UtcTimeStamp = _lastEventInActualStream.UtcTimeStamp;
+                        e.NewEvent.AggregateVersion = _inspectedEvent.AggregateVersion + index;
+
+                        e.RefactoringInformation.InsertAfter = _lastEventInActualStream!.StorageInformation.InsertionOrder;
+                        e.RefactoringInformation.ManualVersion = _inspectedEvent.AggregateVersion + index;
+
+                        e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
+                        e.NewEvent.UtcTimeStamp = _lastEventInActualStream.UtcTimeStamp;
                     });
             }
             else
@@ -124,16 +143,19 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 _insertedEvents.ForEach(
                     (e, index) =>
                     {
-                        e.StorageInformation.RefactoringInformation.InsertBefore = _inspectedEvent!.StorageInformation.InsertionOrder;
-                        e.StorageInformation.RefactoringInformation.ManualVersion = e.AggregateVersion = _inspectedEvent.AggregateVersion + index;
-                        e.AggregateId = _inspectedEvent.AggregateId;
-                        e.UtcTimeStamp = _inspectedEvent.UtcTimeStamp;
+                        e.NewEvent.AggregateVersion = _inspectedEvent!.AggregateVersion + index;
+
+                        e.RefactoringInformation.InsertBefore = _inspectedEvent!.StorageInformation.InsertionOrder;
+                        e.RefactoringInformation.ManualVersion = _inspectedEvent.AggregateVersion + index;
+
+                        e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
+                        e.NewEvent.UtcTimeStamp = _inspectedEvent.UtcTimeStamp;
                     });
             }
 
             CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateVersion += _insertedEvents.Length);
 
-            CurrentNode.AddBefore(_insertedEvents);
+            CurrentNode.AddBefore(insert);
             _eventsAddedCallback.Invoke(_insertedEvents);
         }
 

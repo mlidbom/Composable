@@ -208,10 +208,14 @@ namespace Composable.Persistence.EventStore
                                 newEvents =>
                                 {
                                     //Make sure we don't try to insert into an occupied InsertedVersion
-                                    newEvents.ForEach(@event => @event.StorageInformation.RefactoringInformation.InsertedVersion = startInsertingWithVersion++);
+                                    newEvents.ForEach(@event =>
+                                    {
+                                        @event.NewEvent.StorageInformation.RefactoringInformation.InsertedVersion = startInsertingWithVersion++;
+                                        @event.RefactoringInformation.InsertedVersion = startInsertingWithVersion - 1;
+                                    });
                                     //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
                                     var eventRows = newEvents
-                                                   .Select(@this => new EventDataRow(@event: @this, _typeMapper.GetId(@this.GetType()), eventAsJson: _serializer.Serialize(@this)))
+                                                   .Select(@this => new EventDataRow(@event: @this.NewEvent, @this.RefactoringInformation, _typeMapper.GetId(@this.NewEvent.GetType()), eventAsJson: _serializer.Serialize(@this.NewEvent)))
                                                    .ToList();
 
                                     _eventWriter.InsertRefactoringEvents(eventRows);
@@ -219,7 +223,7 @@ namespace Composable.Persistence.EventStore
                                     for(int index = 0; index < eventRows.Count; index++)
                                     {
                                         //urgent: this looks very mysterious and hackish. Remove
-                                        newEvents[index].StorageInformation.InsertionOrder = eventRows[index].InsertionOrder;
+                                        newEvents[index].NewEvent.StorageInformation.InsertionOrder = eventRows[index].InsertionOrder;
                                     }
                                     updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                     newEventCount += newEvents.Count;

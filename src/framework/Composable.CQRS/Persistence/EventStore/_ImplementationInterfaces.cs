@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Composable.Contracts;
 
 namespace Composable.Persistence.EventStore
 {
@@ -36,6 +37,20 @@ namespace Composable.Persistence.EventStore
 
     class EventDataRow
     {
+        public EventDataRow(AggregateEvent @event, AggregateEventRefactoringInformation refactoringInformation, TypeId eventType, string eventAsJson)
+        {
+            EventJson = eventAsJson;
+            EventType = eventType;
+
+            EventId = @event.EventId;
+            AggregateVersion = @event.AggregateVersion;
+            AggregateId = @event.AggregateId;
+            UtcTimeStamp = @event.UtcTimeStamp;
+            InsertionOrder = @event.StorageInformation.InsertionOrder;
+
+            RefactoringInformation = refactoringInformation;
+        }
+
         public EventDataRow(AggregateEvent @event, TypeId eventType, string eventAsJson):this(eventType, @event, eventAsJson)
         {}
 

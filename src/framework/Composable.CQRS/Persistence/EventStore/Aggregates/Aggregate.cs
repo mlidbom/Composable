@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Composable.Contracts;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
@@ -20,8 +19,6 @@ namespace Composable.Persistence.EventStore.Aggregates
         static Aggregate() => AggregateTypeValidator<TAggregate, TAggregateEventImplementation, TAggregateEvent>.AssertStaticStructureIsValid();
 
         [Obsolete("Only for infrastructure", true)] protected Aggregate():this(DateTimeNowTimeSource.Instance){ }
-
-        int _insertedVersionToAggregateVersionOffset = 0;
 
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected Aggregate(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
@@ -66,11 +63,6 @@ namespace Composable.Persistence.EventStore.Aggregates
                     if(theEvent.AggregateId != Guid.Empty && theEvent.AggregateId != Id)
                     {
                         throw new ArgumentOutOfRangeException($"Tried to raise event for Aggregated: {theEvent.AggregateId} from Aggregate with Id: {Id}.");
-                    }
-                    if(_insertedVersionToAggregateVersionOffset != 0)
-                    {
-                        theEvent.StorageInformation.RefactoringInformation.InsertedVersion = theEvent.AggregateVersion + _insertedVersionToAggregateVersionOffset;
-                        theEvent.StorageInformation.RefactoringInformation.ManualVersion = theEvent.AggregateVersion;
                     }
                     theEvent.AggregateId = Id;
                 }
@@ -145,11 +137,6 @@ namespace Composable.Persistence.EventStore.Aggregates
         void IEventStored.LoadFromHistory(IEnumerable<IAggregateEvent> history)
         {
             history.ForEach(theEvent => ApplyEvent((TAggregateEvent)theEvent));
-            var maxInsertedVersion = history.Max(@event => ((AggregateEvent)@event).StorageInformation.RefactoringInformation.InsertedVersion);
-            if(maxInsertedVersion != Version)
-            {
-                _insertedVersionToAggregateVersionOffset = maxInsertedVersion - Version;
-            }
             AssertInvariantsAreMet();
         }
     }

@@ -44,6 +44,8 @@ namespace Composable.Persistence.InMemory.EventStore
             }
         }
 
+        public void SaveEvents(EventInsertionSpecification[] events) => SaveEvents(events.Select(@this => @this.Event));
+
         IEnumerable<IAggregateEvent> StreamEvents()
         {
             lock(_lockObject)

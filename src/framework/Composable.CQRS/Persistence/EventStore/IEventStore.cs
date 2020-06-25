@@ -15,6 +15,7 @@ namespace Composable.Persistence.EventStore
 
         ///<summary>The passed <paramref name="eventType"/> filters the aggregate Ids so that only ids of aggregates that are created by an event that inherits from <paramref name="eventType"/> are returned.</summary>
         IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventType = null);
+        void SaveEvents(EventInsertionSpecification[] events);
     }
 
     static class EventStoreExtensions

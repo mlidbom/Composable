@@ -51,24 +51,22 @@ namespace Composable.Persistence.EventStore
             RefactoringInformation = refactoringInformation;
         }
 
-        public EventDataRow(AggregateEvent @event, TypeId eventType, string eventAsJson):this(eventType, @event, eventAsJson)
-        {}
-
-        EventDataRow(TypeId eventType, AggregateEvent @event, string eventAsJson)
+        public EventDataRow(EventInsertionSpecification specification, TypeId typeId, string eventAsJson)
         {
-            //urgent: This is sort of horrible. What should this look like? Where should the code be?
-            @event.StorageInformation.RefactoringInformation.InsertedVersion = @event.StorageInformation.RefactoringInformation.InsertedVersion > @event.AggregateVersion ? @event.StorageInformation.RefactoringInformation.InsertedVersion : @event.AggregateVersion;
-
+            var @event = specification.Event;
             EventJson = eventAsJson;
-            EventType = eventType;
+            EventType = typeId;
 
             EventId = @event.EventId;
             AggregateVersion = @event.AggregateVersion;
             AggregateId = @event.AggregateId;
             UtcTimeStamp = @event.UtcTimeStamp;
-            InsertionOrder = @event.StorageInformation.InsertionOrder;
 
-            RefactoringInformation = @event.StorageInformation.RefactoringInformation;
+            RefactoringInformation = new AggregateEventRefactoringInformation()
+                                     {
+                                         InsertedVersion = specification.InsertedVersion,
+                                         ManualVersion = specification.ManualVersion
+                                     };
         }
 
         public EventDataRow(TypeId eventType, string eventJson, Guid eventId, int aggregateVersion, Guid aggregateId, DateTime utcTimeStamp, long insertionOrder, AggregateEventRefactoringInformation refactoringInformation)
@@ -115,5 +113,23 @@ namespace Composable.Persistence.EventStore
         internal AggregateEventRefactoringInformation RefactoringInformation { get; set; } = new AggregateEventRefactoringInformation();
 
         internal long InsertionOrder { get;  set; }
+    }
+
+    class EventInsertionSpecification
+    {
+        public EventInsertionSpecification(IAggregateEvent @event) : this(@event, @event.AggregateVersion, null)
+        {
+        }
+
+        public EventInsertionSpecification(IAggregateEvent @event, int insertedVersion, int? manualVersion)
+        {
+            Event = @event;
+            InsertedVersion = insertedVersion;
+            ManualVersion = manualVersion;
+        }
+
+        internal IAggregateEvent Event { get; }
+        internal int InsertedVersion { get; }
+        internal int? ManualVersion { get; }
     }
 }

@@ -19,7 +19,7 @@ namespace Composable.Persistence.SqlServer.EventStore
         public SqlServerEventStoreEventWriter
             (SqlServerEventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
 
-        public void Insert(IReadOnlyList<EventWriteDataRow> events)
+        public void Insert(IReadOnlyList<EventDataRow> events)
         {
             using var connection = _connectionManager.OpenConnection();
             foreach(var data in events)
@@ -34,14 +34,14 @@ INSERT {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK)
 VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns.InsertedVersion}, @{SqlServerEventTable.Columns.ManualVersion}, @{SqlServerEventTable.Columns.EventType}, @{SqlServerEventTable.Columns.EventId}, @{SqlServerEventTable.Columns.UtcTimeStamp}, @{SqlServerEventTable.Columns.Event})";
 
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = data.AggregateId });
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.InsertedVersion, SqlDbType.Int) { Value = data.InsertedVersion });
+                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.InsertedVersion, SqlDbType.Int) { Value = data.RefactoringInformation.InsertedVersion });
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventType,SqlDbType.UniqueIdentifier){Value = data.EventType.GuidValue });
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = data.EventId});
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.UtcTimeStamp, SqlDbType.DateTime2) {Value = data.UtcTimeStamp});
 
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.Event, SqlDbType.NVarChar, -1) {Value = data.EventJson});
 
-                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.ManualVersion, SqlDbType.Int) {Value = data.ManualVersion}));
+                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.ManualVersion, SqlDbType.Int) {Value = data.RefactoringInformation.ManualVersion}));
 
                 try
                 {
@@ -54,17 +54,18 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             }
         }
 
-        public void InsertRefactoringEvents(IReadOnlyList<EventWriteDataRow> events)
+        //urgent: Move almost all of this logic to the EventStore. Persistence layer should not implement the logic of refactoring.
+        public void InsertRefactoringEvents(IReadOnlyList<EventDataRow> events)
         {
             // ReSharper disable PossibleInvalidOperationException
-            var replacementGroup = events.Where(@event => @event.Replaces.HasValue)
-                                         .GroupBy(@event => @event.Replaces!.Value)
+            var replacementGroup = events.Where(@event => @event.RefactoringInformation.Replaces.HasValue)
+                                         .GroupBy(@event => @event.RefactoringInformation.Replaces.Value)
                                          .SingleOrDefault();
-            var insertBeforeGroup = events.Where(@event => @event.InsertBefore.HasValue)
-                                          .GroupBy(@event => @event.InsertBefore!.Value)
+            var insertBeforeGroup = events.Where(@event => @event.RefactoringInformation.InsertBefore.HasValue)
+                                          .GroupBy(@event => @event.RefactoringInformation.InsertBefore.Value)
                                           .SingleOrDefault();
-            var insertAfterGroup = events.Where(@event => @event.InsertAfter.HasValue)
-                                         .GroupBy(@event => @event.InsertAfter!.Value)
+            var insertAfterGroup = events.Where(@event => @event.RefactoringInformation.InsertAfter.HasValue)
+                                         .GroupBy(@event => @event.RefactoringInformation.InsertAfter.Value)
                                          .SingleOrDefault();
             // ReSharper restore PossibleInvalidOperationException
 
@@ -73,7 +74,7 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
 
             if (replacementGroup != null)
             {
-                Contract.Assert.That(replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0),
+                Contract.Assert.That(replacementGroup.All(@this => @this.RefactoringInformation.Replaces.HasValue && @this.RefactoringInformation.Replaces != Guid.Empty),
                                      "replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0)");
                 var eventToReplace = LoadEventOrderNeighborhood(replacementGroup.Key);
 
@@ -84,7 +85,7 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             }
             else if (insertBeforeGroup != null)
             {
-                Contract.Assert.That(insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0),
+                Contract.Assert.That(insertBeforeGroup.All(@this => @this.RefactoringInformation.InsertBefore.HasValue && @this.RefactoringInformation.InsertBefore.Value != Guid.Empty),
                                      "insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0)");
                 var eventToInsertBefore = LoadEventOrderNeighborhood(insertBeforeGroup.Key);
 
@@ -95,7 +96,7 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             }
             else if (insertAfterGroup != null)
             {
-                Contract.Assert.That(insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0),
+                Contract.Assert.That(insertAfterGroup.All(@this => @this.RefactoringInformation.InsertAfter.HasValue && @this.RefactoringInformation.InsertAfter.Value != Guid.Empty),
                                      "insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0)");
                 var eventToInsertAfter = LoadEventOrderNeighborhood(insertAfterGroup.Key);
 
@@ -108,18 +109,14 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             FixManualVersions(events.First().AggregateId);
         }
 
-        void SaveRefactoringEventsWithinReadOrderRange(EventWriteDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
+        void SaveRefactoringEventsWithinReadOrderRange(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
         {
-            var increment = (rangeEnd - rangeStart) / (newEvents.Length + 1);
-
-            for(int index = 0; index < newEvents.Length; ++index)
-            {
-                newEvents[index].ManualReadOrder = rangeStart + (index + 1) * increment;
-            }
+            var readOrderIncrement = (rangeEnd - rangeStart) / (newEvents.Length + 1);
 
             using var connection = _connectionManager.OpenConnection();
-            foreach(var data in newEvents)
+            for(int index = 0; index < newEvents.Length; ++index)
             {
+                var data = newEvents[index];
                 using var command = connection.CreateCommand();
                 command.CommandType = CommandType.Text;
 
@@ -131,18 +128,25 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
 SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = data.AggregateId });
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.InsertedVersion, SqlDbType.Int) { Value = data.InsertedVersion });
+                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.InsertedVersion, SqlDbType.Int) { Value = data.RefactoringInformation.InsertedVersion });
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventType,SqlDbType.UniqueIdentifier){Value = data.EventType.GuidValue });
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = data.EventId});
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.UtcTimeStamp, SqlDbType.DateTime2) {Value = data.UtcTimeStamp});
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.ManualReadOrder, SqlDbType.Decimal) {Value = data.ManualReadOrder});
+
+                //Urgent: Change this to another data type. SqlDecimal is not portable and way to mysterious to work with for my taste.
+                var manualReadOrder = rangeStart + (index + 1) * readOrderIncrement;
+                if(!(manualReadOrder.IsNull || (manualReadOrder.Precision == 38 && manualReadOrder.Scale == 17)))
+                {
+                    throw new ArgumentException($"$$$$$$$$$$$$$$$$$$$$$$$$$ Found decimal with precision: {manualReadOrder.Precision} and scale: {manualReadOrder.Scale}", nameof(manualReadOrder));
+                }
+                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.ManualReadOrder, SqlDbType.Decimal) {Value = manualReadOrder});
 
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.Event, SqlDbType.NVarChar, -1) {Value = data.EventJson});
 
-                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.ManualVersion, SqlDbType.Int) {Value = data.ManualVersion}));
-                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.InsertAfter, SqlDbType.BigInt) {Value = data.InsertAfter}));
-                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.InsertBefore, SqlDbType.BigInt) {Value = data.InsertBefore}));
-                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.Replaces, SqlDbType.BigInt) {Value = data.Replaces}));
+                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.ManualVersion, SqlDbType.Int) {Value = data.RefactoringInformation.ManualVersion}));
+                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.InsertAfter, SqlDbType.UniqueIdentifier) {Value = data.RefactoringInformation.InsertAfter}));
+                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.InsertBefore, SqlDbType.UniqueIdentifier) {Value = data.RefactoringInformation.InsertBefore}));
+                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.Replaces, SqlDbType.UniqueIdentifier) {Value = data.RefactoringInformation.Replaces}));
 
                 var identityParameter = new SqlParameter(SqlServerEventTable.Columns.InsertionOrder, SqlDbType.BigInt)
                                         {
@@ -164,6 +168,7 @@ SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             }
         }
 
+        //Urgent: Do this logic in C# in the EventStore class. Persistence layer should only save the data, not implement logic that can be common for all persistence layers.
         void FixManualVersions(Guid aggregateId)
         {
             _connectionManager.UseCommand(
@@ -198,7 +203,7 @@ SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             SqlDecimal UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(SqlDecimal nextReadOrder) => !nextReadOrder.IsNull ? nextReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(InsertionOrder + 1));
         }
 
-        EventOrderNeighborhood LoadEventOrderNeighborhood(long insertionOrder)
+        EventOrderNeighborhood LoadEventOrderNeighborhood(Guid insertionOrder)
         {
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
 
@@ -208,7 +213,7 @@ SELECT  {SqlServerEventTable.Columns.InsertionOrder},
         (select top 1 {SqlServerEventTable.Columns.EffectiveReadOrder} from {SqlServerEventTable.Name} e1 where e1.{SqlServerEventTable.Columns.EffectiveReadOrder} < {SqlServerEventTable.Name}.{SqlServerEventTable.Columns.EffectiveReadOrder} order by {SqlServerEventTable.Columns.EffectiveReadOrder} desc) PreviousReadOrder,
         (select top 1 {SqlServerEventTable.Columns.EffectiveReadOrder} from {SqlServerEventTable.Name} e1 where e1.{SqlServerEventTable.Columns.EffectiveReadOrder} > {SqlServerEventTable.Name}.{SqlServerEventTable.Columns.EffectiveReadOrder} order by {SqlServerEventTable.Columns.EffectiveReadOrder}) NextReadOrder
 FROM    {SqlServerEventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
-where {SqlServerEventTable.Columns.InsertionOrder} = @{SqlServerEventTable.Columns.InsertionOrder}";
+where {SqlServerEventTable.Columns.EventId} = @{SqlServerEventTable.Columns.EventId}";
 
 
 
@@ -220,7 +225,7 @@ where {SqlServerEventTable.Columns.InsertionOrder} = @{SqlServerEventTable.Colum
                 {
                     command.CommandType = CommandType.Text;
                     command.CommandText = selectStatement;
-                    command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.InsertionOrder, SqlDbType.BigInt) {Value = insertionOrder});
+                    command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = insertionOrder});
                     using var reader = command.ExecuteReader();
                     reader.Read();
 

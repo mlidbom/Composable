@@ -459,11 +459,6 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 var completeEventHistory =serviceLocator.ExecuteInIsolatedScope(() => EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateEvent>();
                 AssertStreamsAreIdentical(expected: expected, migratedHistory: completeEventHistory, descriptionOfHistory: "streamed persisted history");
 
-                SafeConsole.WriteLine("Version");
-                SafeConsole.WriteLine("Aggregate Effective Inserted Manual");
-                SafeConsole.WriteLine("A E I M");
-                completeEventHistory.ForEach(@event => SafeConsole.WriteLine($"{@event.AggregateVersion} {@event.EffectiveVersion} {@event.InsertedVersion} {@event.ManualVersion}"));
-
                 toDispose.Add(serviceLocator = serviceLocator.Clone());
 
                 completeEventHistory = serviceLocator.ExecuteInIsolatedScope(() => EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateEvent>();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Composable.Contracts;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
@@ -21,8 +20,6 @@ namespace Composable.Persistence.EventStore.Aggregates
 
         [Obsolete("Only for infrastructure", true)] protected Aggregate():this(DateTimeNowTimeSource.Instance){ }
 
-        int _insertedVersionToAggregateVersionOffset = 0;
-
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected Aggregate(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
         {
@@ -32,7 +29,7 @@ namespace Composable.Persistence.EventStore.Aggregates
             _eventHandlersEventDispatcher.Register().IgnoreUnhandled<TAggregateEvent>();
         }
 
-        readonly IList<IAggregateEvent> _unCommittedEvents = new List<IAggregateEvent>();
+        readonly List<IAggregateEvent> _unCommittedEvents = new List<IAggregateEvent>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
 
@@ -66,11 +63,6 @@ namespace Composable.Persistence.EventStore.Aggregates
                     if(theEvent.AggregateId != Guid.Empty && theEvent.AggregateId != Id)
                     {
                         throw new ArgumentOutOfRangeException($"Tried to raise event for Aggregated: {theEvent.AggregateId} from Aggregate with Id: {Id}.");
-                    }
-                    if(_insertedVersionToAggregateVersionOffset != 0)
-                    {
-                        theEvent.InsertedVersion = theEvent.AggregateVersion + _insertedVersionToAggregateVersionOffset;
-                        theEvent.ManualVersion = theEvent.AggregateVersion;
                     }
                     theEvent.AggregateId = Id;
                 }
@@ -135,7 +127,7 @@ namespace Composable.Persistence.EventStore.Aggregates
             _unCommittedEvents.Clear();
         }
 
-        IEnumerable<IAggregateEvent> IEventStored.GetChanges() => _unCommittedEvents;
+        IReadOnlyList<IAggregateEvent> IEventStored.GetChanges() => _unCommittedEvents;
 
         void IEventStored.SetTimeSource(IUtcTimeTimeSource timeSource)
         {
@@ -145,11 +137,6 @@ namespace Composable.Persistence.EventStore.Aggregates
         void IEventStored.LoadFromHistory(IEnumerable<IAggregateEvent> history)
         {
             history.ForEach(theEvent => ApplyEvent((TAggregateEvent)theEvent));
-            var maxInsertedVersion = history.Max(@event => ((AggregateEvent)@event).InsertedVersion);
-            if(maxInsertedVersion != Version)
-            {
-                _insertedVersionToAggregateVersionOffset = maxInsertedVersion - Version;
-            }
             AssertInvariantsAreMet();
         }
     }

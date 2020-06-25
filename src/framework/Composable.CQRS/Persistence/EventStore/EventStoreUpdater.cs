@@ -94,7 +94,7 @@ namespace Composable.Persistence.EventStore
             }
 
             var events = aggregate.GetChanges().ToList();
-            _store.SaveEvents(events);
+            _store.SaveSingleAggregateEvents(events);
 
             events.ForEach(_eventPublisher.Publish);
 
@@ -107,8 +107,11 @@ namespace Composable.Persistence.EventStore
         void OnAggregateEvent(IAggregateEvent @event)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            Contract.Assert.That(_idMap.ContainsKey(@event.AggregateId), "Got event from aggregate that is not tracked!");
-            _store.SaveEvents(new[] { @event });
+            if(!_idMap.ContainsKey(@event.AggregateId))
+            {
+                throw new Exception($"Got event from aggregate that is not tracked! Id: {@event.AggregateId}");
+            }
+            _store.SaveSingleAggregateEvents(new[] { @event });
             _eventPublisher.Publish(@event);
         }
 
@@ -143,9 +146,9 @@ namespace Composable.Persistence.EventStore
 
         bool DoTryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)]out TAggregate aggregate) where TAggregate : IEventStored
         {
-            if (_idMap.TryGetValue(aggregateId, out var es))
+            if (_idMap.TryGetValue(aggregateId, out var eventStored))
             {
-                aggregate = (TAggregate)es;
+                aggregate = (TAggregate)eventStored;
                 return true;
             }
 

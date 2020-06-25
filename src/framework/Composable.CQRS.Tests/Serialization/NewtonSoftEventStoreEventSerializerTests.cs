@@ -64,10 +64,6 @@ namespace Composable.Tests.Serialization
                 EventId = eventId;
                 AggregateVersion = aggregateVersion;
                 AggregateId = aggregateId;
-                InsertionOrder = insertionOrder;
-                Replaces = replaces;
-                InsertBefore = insertBefore;
-                InsertAfter = insertAfter;
                 UtcTimeStamp = utcTimeStamp;
             }
 

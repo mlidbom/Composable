@@ -230,14 +230,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                                    .WithStrictOrdering()
                                                    .ComparingByMembers<AggregateEvent>()
                                                    .Excluding(@event => @event.EventId)
-                                                   .Excluding(@event => @event.InsertionOrder)
-                                                   .Excluding(@event => @event.InsertAfter)
-                                                   .Excluding(@event => @event.InsertBefore)
-                                                   .Excluding(@event => @event.Replaces)
-                                                   .Excluding(@event => @event.InsertedVersion)
-                                                   .Excluding(@event => @event.ManualVersion)
-                                                   .Excluding(@event => @event.EffectiveVersion)
-                                                   );
+                                                   .Excluding(@event => @event.StorageInformation));
             }
             catch(Exception)
             {

@@ -69,8 +69,8 @@ namespace Composable.Persistence.EventStore.Aggregates
                     }
                     if(_insertedVersionToAggregateVersionOffset != 0)
                     {
-                        theEvent.InsertedVersion = theEvent.AggregateVersion + _insertedVersionToAggregateVersionOffset;
-                        theEvent.ManualVersion = theEvent.AggregateVersion;
+                        theEvent.StorageInformation.RefactoringInformation.InsertedVersion = theEvent.AggregateVersion + _insertedVersionToAggregateVersionOffset;
+                        theEvent.StorageInformation.RefactoringInformation.ManualVersion = theEvent.AggregateVersion;
                     }
                     theEvent.AggregateId = Id;
                 }
@@ -145,7 +145,7 @@ namespace Composable.Persistence.EventStore.Aggregates
         void IEventStored.LoadFromHistory(IEnumerable<IAggregateEvent> history)
         {
             history.ForEach(theEvent => ApplyEvent((TAggregateEvent)theEvent));
-            var maxInsertedVersion = history.Max(@event => ((AggregateEvent)@event).InsertedVersion);
+            var maxInsertedVersion = history.Max(@event => ((AggregateEvent)@event).StorageInformation.RefactoringInformation.InsertedVersion);
             if(maxInsertedVersion != Version)
             {
                 _insertedVersionToAggregateVersionOffset = maxInsertedVersion - Version;

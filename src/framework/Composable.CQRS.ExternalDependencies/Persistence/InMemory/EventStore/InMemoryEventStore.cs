@@ -40,12 +40,7 @@ namespace Composable.Persistence.InMemory.EventStore
         {
             lock(_lockObject)
             {
-                events.Cast<AggregateEvent>().ForEach(
-                    @event =>
-                    {
-                        @event.InsertionOrder = ++_insertionOrder;
-                        _events.Add(@event);
-                    });
+                events.Cast<AggregateEvent>().ForEach(@event => _events.Add(@event));
             }
         }
 

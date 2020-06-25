@@ -22,15 +22,7 @@ namespace Composable.Persistence.EventStore
         public Guid AggregateId { get; internal set; }
         public DateTime UtcTimeStamp { get; internal set; }
 
-        internal int InsertedVersion { get; set; }
-        internal int? EffectiveVersion { get; set; }
-        internal int? ManualVersion { get; set; }
-
-        internal long InsertionOrder { get; set; }
-        internal long? Replaces { get; set; }
-
-        internal long? InsertBefore { get; set; }
-
-        internal long? InsertAfter { get; set; }
+        //urgent: remove this storage information from the AggregateEvent class.
+        [JsonIgnore]internal AggregateEventStorageInformation StorageInformation { get; private set; } = new AggregateEventStorageInformation();
     }
 }

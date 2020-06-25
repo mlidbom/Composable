@@ -68,8 +68,8 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
             _replacementEvents.ForEach(
                 (e, index) =>
                 {
-                    e.ManualVersion = e.AggregateVersion = _event!.AggregateVersion + index;
-                    e.Replaces = _event.InsertionOrder;
+                    e.StorageInformation.RefactoringInformation.ManualVersion = e.AggregateVersion = _event!.AggregateVersion + index;
+                    e.StorageInformation.RefactoringInformation.Replaces = _event.StorageInformation.InsertionOrder;
                     e.AggregateId = _event.AggregateId;
                     e.UtcTimeStamp = _event.UtcTimeStamp;
                 });
@@ -113,8 +113,8 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 _insertedEvents.ForEach(
                     (e, index) =>
                     {
-                        e.InsertAfter = _lastEventInActualStream!.InsertionOrder;
-                        e.ManualVersion = e.AggregateVersion = _event.AggregateVersion + index;
+                        e.StorageInformation.RefactoringInformation.InsertAfter = _lastEventInActualStream!.StorageInformation.InsertionOrder;
+                        e.StorageInformation.RefactoringInformation.ManualVersion = e.AggregateVersion = _event.AggregateVersion + index;
                         e.AggregateId = _event.AggregateId;
                         e.UtcTimeStamp = _lastEventInActualStream.UtcTimeStamp;
                     });
@@ -124,8 +124,8 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 _insertedEvents.ForEach(
                     (e, index) =>
                     {
-                        e.InsertBefore = _event!.InsertionOrder;
-                        e.ManualVersion = e.AggregateVersion = _event.AggregateVersion + index;
+                        e.StorageInformation.RefactoringInformation.InsertBefore = _event!.StorageInformation.InsertionOrder;
+                        e.StorageInformation.RefactoringInformation.ManualVersion = e.AggregateVersion = _event.AggregateVersion + index;
                         e.AggregateId = _event.AggregateId;
                         e.UtcTimeStamp = _event.UtcTimeStamp;
                     });

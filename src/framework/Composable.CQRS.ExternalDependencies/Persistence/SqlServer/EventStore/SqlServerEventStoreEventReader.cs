@@ -45,8 +45,8 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
             _typeMapper = typeMapper;
         }
 
-        static EventReadDataRow ReadDataRow(SqlDataReader eventReader) => new EventReadDataRow(
-            eventType: eventReader.GetGuid(0),
+        static EventDataRow ReadDataRow(SqlDataReader eventReader) => new EventDataRow(
+            eventType: new TypeId(eventReader.GetGuid(0)),
             eventJson: eventReader.GetString(1),
             eventId: eventReader.GetGuid(4),
             aggregateVersion: eventReader[3] as int? ?? eventReader.GetInt32(10),
@@ -54,17 +54,20 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
             //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
             utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
             insertionOrder: eventReader.GetInt64(6),
-            insertAfter: eventReader[7] as long?,
-            insertBefore: eventReader[8] as long?,
-            replaces: eventReader[9] as long?,
-            insertedVersion: eventReader.GetInt32(10),
-            manualVersion: eventReader[11] as int?,
-            effectiveVersion: eventReader.GetInt32(3)
+            refactoringInformation: new AggregateEventRefactoringInformation()
+            {
+                InsertedVersion = eventReader.GetInt32(10),
+                EffectiveVersion = eventReader.GetInt32(3),
+                ManualVersion = eventReader[11] as int?,
+                Replaces = eventReader[9] as long?,
+                InsertBefore = eventReader[8] as long?,
+                InsertAfter = eventReader[7] as long?
+            }
         );
 
-        public IReadOnlyList<EventReadDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
+        public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
-            var historyData = new List<EventReadDataRow>();
+            var historyData = new List<EventDataRow>();
             using (var connection = _connectionManager.OpenConnection(suppressTransactionWarning: !takeWriteLock))
             {
                 using var loadCommand = connection.CreateCommand();
@@ -83,7 +86,7 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
                 while (reader.Read())
                 {
                     var eventDataRow = ReadDataRow(reader);
-                    if (eventDataRow.EffectiveVersion > 0)
+                    if (eventDataRow.RefactoringInformation.EffectiveVersion.Value > 0)
                     {
                         historyData.Add(eventDataRow);
                     }
@@ -93,14 +96,14 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
             return historyData;
         }
 
-        public IEnumerable<EventReadDataRow> StreamEvents(int batchSize)
+        public IEnumerable<EventDataRow> StreamEvents(int batchSize)
         {
             SqlDecimal lastReadEventReadOrder = 0;
             using var connection = _connectionManager.OpenConnection(suppressTransactionWarning: true);
             var done = false;
             while (!done)
             {
-                var historyData = new List<EventReadDataRow>();
+                var historyData = new List<EventDataRow>();
                 using (var loadCommand = connection.CreateCommand())
                 {
 

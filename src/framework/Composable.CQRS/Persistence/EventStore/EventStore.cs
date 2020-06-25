@@ -83,26 +83,26 @@ namespace Composable.Persistence.EventStore
                 SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, newAggregateHistory);
             }
 
-            var maxSeenInsertedVersion =  newEventsFromPersistenceLayer.Max(@event => @event.InsertedVersion);
+            var maxSeenInsertedVersion =  newEventsFromPersistenceLayer.Max(@event => @event.StorageInformation.RefactoringInformation.InsertedVersion);
             _cache.Store(aggregateId, new EventCache.Entry(events: newAggregateHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
 
             return newAggregateHistory;
         }
 
-        AggregateEvent HydrateEvent(EventReadDataRow eventDataRowRow)
+        AggregateEvent HydrateEvent(EventDataRow eventDataRowRow)
         {
-            var @event = (AggregateEvent)_serializer.Deserialize(eventType: _typeMapper.GetType(new TypeId(eventDataRowRow.EventType)), json: eventDataRowRow.EventJson);
+            var @event = (AggregateEvent)_serializer.Deserialize(eventType: _typeMapper.GetType(eventDataRowRow.EventType), json: eventDataRowRow.EventJson);
             @event.AggregateId = eventDataRowRow.AggregateId;
             @event.AggregateVersion = eventDataRowRow.AggregateVersion;
             @event.EventId = eventDataRowRow.EventId;
             @event.UtcTimeStamp = eventDataRowRow.UtcTimeStamp;
-            @event.InsertionOrder = eventDataRowRow.InsertionOrder;
-            @event.InsertAfter = eventDataRowRow.InsertAfter;
-            @event.InsertBefore = eventDataRowRow.InsertBefore;
-            @event.Replaces = eventDataRowRow.Replaces;
-            @event.InsertedVersion = eventDataRowRow.InsertedVersion;
-            @event.ManualVersion = eventDataRowRow.ManualVersion;
-            @event.EffectiveVersion = eventDataRowRow.EffectiveVersion;
+            @event.StorageInformation.InsertionOrder = eventDataRowRow.InsertionOrder;
+            @event.StorageInformation.RefactoringInformation.InsertAfter = eventDataRowRow.RefactoringInformation.InsertAfter;
+            @event.StorageInformation.RefactoringInformation.InsertBefore = eventDataRowRow.RefactoringInformation.InsertBefore;
+            @event.StorageInformation.RefactoringInformation.Replaces = eventDataRowRow.RefactoringInformation.Replaces;
+            @event.StorageInformation.RefactoringInformation.InsertedVersion = eventDataRowRow.RefactoringInformation.InsertedVersion;
+            @event.StorageInformation.RefactoringInformation.ManualVersion = eventDataRowRow.RefactoringInformation.ManualVersion;
+            @event.StorageInformation.RefactoringInformation.EffectiveVersion = eventDataRowRow.RefactoringInformation.EffectiveVersion.Value;
 
             return @event;
         }
@@ -114,7 +114,7 @@ namespace Composable.Persistence.EventStore
                            .Select(HydrateEvent)
                            .ToArray();
 
-        static bool IsRefactoringEvent(AggregateEvent @event) => @event.InsertBefore.HasValue || @event.InsertAfter.HasValue || @event.Replaces.HasValue;
+        static bool IsRefactoringEvent(AggregateEvent @event) => @event.StorageInformation.RefactoringInformation.InsertBefore.HasValue || @event.StorageInformation.RefactoringInformation.InsertAfter.HasValue || @event.StorageInformation.RefactoringInformation.Replaces.HasValue;
 
         IEnumerable<IAggregateEvent> StreamEvents(int batchSize)
         {
@@ -144,7 +144,7 @@ namespace Composable.Persistence.EventStore
             var updatedAggregates = events.Select(@event => @event.AggregateId).Distinct().ToList();
 
             var eventRows = events.Cast<AggregateEvent>()
-                                  .Select(@this => new EventWriteDataRow(@event: @this, _typeMapper.GetId(@this.GetType()), eventAsJson: _serializer.Serialize(@this)))
+                                  .Select(@this => new EventDataRow(@event: @this, _typeMapper.GetId(@this.GetType()), eventAsJson: _serializer.Serialize(@this)))
                                   .ToList();
             _eventWriter.Insert(eventRows);
             //todo: move this to the event store updater.
@@ -156,7 +156,7 @@ namespace Composable.Persistence.EventStore
                                                      .ToArray();
                 SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);
 
-                _cache.Store(aggregateId, new EventCache.Entry(completeAggregateHistory, completeAggregateHistory.Max(@event => @event.InsertedVersion)));
+                _cache.Store(aggregateId, new EventCache.Entry(completeAggregateHistory, completeAggregateHistory.Max(@event => @event.StorageInformation.RefactoringInformation.InsertedVersion)));
             }
         }
 
@@ -198,7 +198,7 @@ namespace Composable.Persistence.EventStore
                             using var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes());
                             var original = GetAggregateEventsFromPersistenceLayer(aggregateId: aggregateId, takeWriteLock: true);
 
-                            var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
+                            var startInsertingWithVersion = original.Max(@event => @event.StorageInformation.RefactoringInformation.InsertedVersion) + 1;
 
                             var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
 
@@ -208,16 +208,18 @@ namespace Composable.Persistence.EventStore
                                 newEvents =>
                                 {
                                     //Make sure we don't try to insert into an occupied InsertedVersion
-                                    newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
+                                    newEvents.ForEach(@event => @event.StorageInformation.RefactoringInformation.InsertedVersion = startInsertingWithVersion++);
                                     //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
                                     var eventRows = newEvents
-                                                   .Select(@this => new EventWriteDataRow(@event: @this, _typeMapper.GetId(@this.GetType()), eventAsJson: _serializer.Serialize(@this)))
+                                                   .Select(@this => new EventDataRow(@event: @this, _typeMapper.GetId(@this.GetType()), eventAsJson: _serializer.Serialize(@this)))
                                                    .ToList();
 
                                     _eventWriter.InsertRefactoringEvents(eventRows);
+
                                     for(int index = 0; index < eventRows.Count; index++)
                                     {
-                                        newEvents[index].InsertionOrder = eventRows[index].InsertionOrder;
+                                        //urgent: this looks very mysterious and hackish. Remove
+                                        newEvents[index].StorageInformation.InsertionOrder = eventRows[index].InsertionOrder;
                                     }
                                     updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                     newEventCount += newEvents.Count;

@@ -12,15 +12,15 @@ namespace Composable.Persistence.InMemory.EventStore
 
     class InMemoryEventStoreEventReader : IEventStoreEventReader
     {
-        public IReadOnlyList<EventReadDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) => throw new NotImplementedException();
-        public IEnumerable<EventReadDataRow> StreamEvents(int batchSize) => throw new NotImplementedException();
+        public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) => throw new NotImplementedException();
+        public IEnumerable<EventDataRow> StreamEvents(int batchSize) => throw new NotImplementedException();
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventBaseType = null) => throw new NotImplementedException();
     }
 
     class InMemoryEventStoreEventWriter : IEventStoreEventWriter
     {
-        public void Insert(IReadOnlyList<EventWriteDataRow> events) { throw new NotImplementedException(); }
-        public void InsertRefactoringEvents(IReadOnlyList<EventWriteDataRow> events) { throw new NotImplementedException(); }
+        public void Insert(IReadOnlyList<EventDataRow> events) { throw new NotImplementedException(); }
+        public void InsertRefactoringEvents(IReadOnlyList<EventDataRow> events) { throw new NotImplementedException(); }
         public void DeleteAggregate(Guid aggregateId) { throw new NotImplementedException(); }
     }
 

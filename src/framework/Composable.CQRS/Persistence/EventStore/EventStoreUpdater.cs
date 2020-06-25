@@ -17,7 +17,7 @@ namespace Composable.Persistence.EventStore
         readonly IEventstoreEventPublisher _eventPublisher;
         readonly IEventStore _store;
         readonly IAggregateTypeValidator _aggregateTypeValidator;
-        readonly IDictionary<Guid, EventStoredWithRefactoringInformation> _idMap = new Dictionary<Guid, EventStoredWithRefactoringInformation>();
+        readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         readonly ISingleContextUseGuard _usageGuard;
         readonly List<IDisposable> _disposableResources = new List<IDisposable>();
         IUtcTimeTimeSource TimeSource { get; set; }
@@ -94,12 +94,12 @@ namespace Composable.Persistence.EventStore
             }
 
             var events = aggregate.GetChanges().ToList();
-            _store.SaveEvents(events);
+            _store.SaveSingleAggregateEvents(events);
 
             events.ForEach(_eventPublisher.Publish);
 
             aggregate.AcceptChanges();
-            _idMap.Add(aggregate.Id, new EventStoredWithRefactoringInformation(aggregate, events));
+            _idMap.Add(aggregate.Id, aggregate);
 
             _disposableResources.Add(aggregate.EventStream.Subscribe(OnAggregateEvent));
         }
@@ -107,11 +107,11 @@ namespace Composable.Persistence.EventStore
         void OnAggregateEvent(IAggregateEvent @event)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            if(!_idMap.TryGetValue(@event.AggregateId, out var eventStoredWithRefactoringInformation))
+            if(!_idMap.ContainsKey(@event.AggregateId))
             {
                 throw new Exception($"Got event from aggregate that is not tracked! Id: {@event.AggregateId}");
             }
-            _store.SaveEvents(new[] { eventStoredWithRefactoringInformation.CreateInsertionSpecificationForNewEvent(@event) });
+            _store.SaveSingleAggregateEvents(new[] { @event });
             _eventPublisher.Publish(@event);
         }
 
@@ -146,9 +146,9 @@ namespace Composable.Persistence.EventStore
 
         bool DoTryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)]out TAggregate aggregate) where TAggregate : IEventStored
         {
-            if (_idMap.TryGetValue(aggregateId, out var es))
+            if (_idMap.TryGetValue(aggregateId, out var eventStored))
             {
-                aggregate = (TAggregate)es.Stored;
+                aggregate = (TAggregate)eventStored;
                 return true;
             }
 
@@ -157,7 +157,7 @@ namespace Composable.Persistence.EventStore
             {
                 aggregate = CreateInstance<TAggregate>();
                 aggregate.LoadFromHistory(history);
-                _idMap.Add(aggregateId, new EventStoredWithRefactoringInformation(aggregate, history));
+                _idMap.Add(aggregateId, aggregate);
                 _disposableResources.Add(aggregate.EventStream.Subscribe(OnAggregateEvent));
                 return true;
             }
@@ -173,36 +173,6 @@ namespace Composable.Persistence.EventStore
             var aggregate = Constructor.For<TAggregate>.DefaultConstructor.Instance();
             aggregate.SetTimeSource(TimeSource);
             return aggregate;
-        }
-
-        class EventStoredWithRefactoringInformation
-        {
-            readonly int _insertedVersionToAggregateVersionOffset;
-            public EventStoredWithRefactoringInformation(IEventStored stored, IReadOnlyList<IAggregateEvent> history)
-            {
-                Stored = stored;
-
-                var maxInsertedVersion = history.Max(@event => ((AggregateEvent)@event).StorageInformation.RefactoringInformation.InsertedVersion);
-                if(maxInsertedVersion != Stored.Version)
-                {
-                    _insertedVersionToAggregateVersionOffset = maxInsertedVersion - Stored.Version;
-                }
-            }
-
-            public EventInsertionSpecification CreateInsertionSpecificationForNewEvent(IAggregateEvent @event)
-            {
-                if(_insertedVersionToAggregateVersionOffset > 0)
-                {
-                    return new EventInsertionSpecification(@event: @event,
-                                                           insertedVersion: @event.AggregateVersion + _insertedVersionToAggregateVersionOffset,
-                                                           manualVersion:@event.AggregateVersion);
-                } else
-                {
-                    return new EventInsertionSpecification(@event:@event);
-                }
-            }
-
-            public IEventStored Stored { get; }
         }
     }
 }

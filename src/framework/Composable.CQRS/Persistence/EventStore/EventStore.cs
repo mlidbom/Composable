@@ -130,30 +130,34 @@ namespace Composable.Persistence.EventStore
             }
         }
 
-        public void SaveEvents(IEnumerable<IAggregateEvent> events)
-            => SaveEvents(events.Select(@event => new EventInsertionSpecification(@event)).ToArray());
-
-        public void SaveEvents(EventInsertionSpecification[] specifications)
+        public void SaveSingleAggregateEvents(IReadOnlyList<IAggregateEvent> aggregateEvents)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
-            var updatedAggregates = specifications.Select(@event => @event.Event.AggregateId).Distinct().ToList();
 
-            var eventRows = specifications
-                                            .Select(specification => new EventDataRow(specification: specification, _typeMapper.GetId(specification.Event.GetType()), eventAsJson: _serializer.Serialize((AggregateEvent)specification.Event)))
-                                            .ToList();
-            _eventWriter.Insert(eventRows);
-            //todo: move this to the event store updater.
-            foreach(var aggregateId in updatedAggregates)
+            var aggregateId = aggregateEvents.First().AggregateId;
+
+            if(aggregateEvents.Any(@this => @this.AggregateId != aggregateId))
             {
-                var completeAggregateHistory = _cache.Get(aggregateId)
-                                                     .Events.Concat(specifications.Select(specification => specification.Event).Where(specification => specification.AggregateId == aggregateId))
-                                                     .Cast<AggregateEvent>()
-                                                     .ToArray();
-                SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);
-
-                _cache.Store(aggregateId, new EventCache.Entry(completeAggregateHistory, specifications.Max(specification => specification.InsertedVersion)));
+                throw new ArgumentException("Got events from multiple Aggregates. This is not supported.");
             }
+
+            var cacheEntry = _cache.Get(aggregateId);
+            var specifications = aggregateEvents.Select(@event => cacheEntry.CreateInsertionSpecificationForNewEvent(@event)).ToArray();
+
+            var eventRows = aggregateEvents
+                           .Select(@event => new EventDataRow(specification: cacheEntry.CreateInsertionSpecificationForNewEvent(@event), _typeMapper.GetId(@event.GetType()), eventAsJson: _serializer.Serialize((AggregateEvent)@event)))
+                           .ToList();
+            _eventWriter.Insert(eventRows);
+
+            var completeAggregateHistory = cacheEntry
+                                          .Events.Concat(aggregateEvents)
+                                          .Cast<AggregateEvent>()
+                                          .ToArray();
+            SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);
+
+            _cache.Store(aggregateId, new EventCache.Entry(completeAggregateHistory,
+                                                           maxSeenInsertedVersion: specifications.Max(specification => specification.InsertedVersion)));
         }
 
         public void DeleteAggregate(Guid aggregateId)

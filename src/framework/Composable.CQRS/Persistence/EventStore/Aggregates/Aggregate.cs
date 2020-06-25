@@ -29,7 +29,7 @@ namespace Composable.Persistence.EventStore.Aggregates
             _eventHandlersEventDispatcher.Register().IgnoreUnhandled<TAggregateEvent>();
         }
 
-        readonly IList<IAggregateEvent> _unCommittedEvents = new List<IAggregateEvent>();
+        readonly List<IAggregateEvent> _unCommittedEvents = new List<IAggregateEvent>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
 
@@ -127,7 +127,7 @@ namespace Composable.Persistence.EventStore.Aggregates
             _unCommittedEvents.Clear();
         }
 
-        IEnumerable<IAggregateEvent> IEventStored.GetChanges() => _unCommittedEvents;
+        IReadOnlyList<IAggregateEvent> IEventStored.GetChanges() => _unCommittedEvents;
 
         void IEventStored.SetTimeSource(IUtcTimeTimeSource timeSource)
         {

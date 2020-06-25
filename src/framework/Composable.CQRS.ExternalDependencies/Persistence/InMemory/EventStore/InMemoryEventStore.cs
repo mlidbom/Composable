@@ -36,15 +36,13 @@ namespace Composable.Persistence.InMemory.EventStore
             }
         }
 
-        public void SaveEvents(IEnumerable<IAggregateEvent> events)
+        public void SaveSingleAggregateEvents(IReadOnlyList<IAggregateEvent> events)
         {
             lock(_lockObject)
             {
                 events.Cast<AggregateEvent>().ForEach(@event => _events.Add(@event));
             }
         }
-
-        public void SaveEvents(EventInsertionSpecification[] events) => SaveEvents(events.Select(@this => @this.Event));
 
         IEnumerable<IAggregateEvent> StreamEvents()
         {

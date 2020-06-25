@@ -42,7 +42,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             _currentMigrations = Seq.Empty<IEventMigration>().ToList();
             _container = CreateServiceLocatorForEventStoreType(migrationsfactory: () => _currentMigrations);
 
-            _container.ExecuteTransactionInIsolatedScope(()=> _container.Resolve<IEventStore>().SaveEvents(_history));
+            _container.ExecuteTransactionInIsolatedScope(()=> _container.Resolve<IEventStore>().SaveSingleAggregateEvents(_history));
         }
 
         [OneTimeTearDown] public void TearDownTask() { _container?.Dispose(); }

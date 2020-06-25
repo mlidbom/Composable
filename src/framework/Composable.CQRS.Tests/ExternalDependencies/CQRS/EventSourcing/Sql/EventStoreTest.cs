@@ -47,7 +47,7 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
 
                                                        using(new TransactionScope())
                                                        {
-                                                           eventStore.SaveEvents(((IEventStored)user).GetChanges());
+                                                           eventStore.SaveSingleAggregateEvents(((IEventStored)user).GetChanges());
                                                            eventStore.GetAggregateHistory(user.Id);
                                                            Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Not.Empty);
                                                        }
@@ -68,7 +68,7 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
                 var stored = (IEventStored)user;
 
                 using var tran = new TransactionScope();
-                eventStore.SaveEvents(stored.GetChanges());
+                eventStore.SaveSingleAggregateEvents(stored.GetChanges());
                 eventStore.GetAggregateHistory(user.Id);
                 Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Not.Empty);
                 tran.Complete();

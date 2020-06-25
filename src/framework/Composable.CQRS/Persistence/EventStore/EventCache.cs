@@ -66,19 +66,39 @@ namespace Composable.Persistence.EventStore
 
         internal class Entry
         {
-            public static readonly Entry Empty = new Entry(new List<AggregateEvent>(), 0);
+            public static readonly Entry Empty = new Entry();
+            Entry()
+            {
+                Events = new AggregateEvent[]{};
+                MaxSeenInsertedVersion = 0;
+            }
 
-            public IReadOnlyList<AggregateEvent> Events                 { get; private set; }
-            public int                               MaxSeenInsertedVersion { get; private set; }
+            public IReadOnlyList<AggregateEvent> Events { get; private set; }
+            public int MaxSeenInsertedVersion { get; private set; }
+            public int InsertedVersionToAggregateVersionOffset { get; }
 
             public Entry(IReadOnlyList<AggregateEvent> events, int maxSeenInsertedVersion)
             {
-                Events                 = events;
+                Events = events;
                 MaxSeenInsertedVersion = maxSeenInsertedVersion;
+                InsertedVersionToAggregateVersionOffset = MaxSeenInsertedVersion - events[^1].AggregateVersion;
+            }
+
+            public EventInsertionSpecification CreateInsertionSpecificationForNewEvent(IAggregateEvent @event)
+            {
+                if(InsertedVersionToAggregateVersionOffset > 0)
+                {
+                    return new EventInsertionSpecification(@event: @event,
+                                                           insertedVersion: @event.AggregateVersion + InsertedVersionToAggregateVersionOffset,
+                                                           manualVersion:@event.AggregateVersion);
+                } else
+                {
+                    return new EventInsertionSpecification(@event:@event);
+                }
             }
         }
 
-        TransactionalOverlay _transactionalOverlay;
+        readonly TransactionalOverlay _transactionalOverlay;
 
         public EventCache()
         {

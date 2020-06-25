@@ -1,10 +1,8 @@
 ﻿using System;
 using Composable.DDD;
-using Newtonsoft.Json;
 
 namespace Composable.Persistence.EventStore
 {
-    //Review:mlidbo: Extract refactoring information into a separate abstraction so this one can be immutable.
     //todo: make abstract
     public class AggregateEvent : ValueObject<AggregateEvent>, IAggregateEvent
     {
@@ -21,8 +19,5 @@ namespace Composable.Persistence.EventStore
 
         public Guid AggregateId { get; internal set; }
         public DateTime UtcTimeStamp { get; internal set; }
-
-        //urgent: remove this storage information from the AggregateEvent class.
-        [JsonIgnore]internal AggregateEventStorageInformation StorageInformation { get; private set; } = new AggregateEventStorageInformation();
     }
 }

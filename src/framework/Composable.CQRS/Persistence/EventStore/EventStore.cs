@@ -97,7 +97,6 @@ namespace Composable.Persistence.EventStore
             @event.AggregateVersion = eventDataRowRow.AggregateVersion;
             @event.EventId = eventDataRowRow.EventId;
             @event.UtcTimeStamp = eventDataRowRow.UtcTimeStamp;
-            @event.StorageInformation.RefactoringInformation = eventDataRowRow.RefactoringInformation;
             return @event;
         }
 

@@ -13,11 +13,6 @@ namespace Composable.Persistence.MySql.DependencyInjection
 
         public static void RegisterMySqlPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
         {
-            if(container.RunMode.IsTesting)
-            {
-            } else
-            {
-            }
         }
     }
 }

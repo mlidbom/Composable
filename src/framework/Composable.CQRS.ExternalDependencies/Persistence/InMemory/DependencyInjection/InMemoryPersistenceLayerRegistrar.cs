@@ -1,6 +1,7 @@
 ﻿using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
-using Composable.Persistence.MySql.DependencyInjection;
+using Composable.Persistence.EventStore;
+using Composable.Persistence.InMemory.EventStore;
 
 namespace Composable.Persistence.InMemory.DependencyInjection
 {
@@ -14,11 +15,12 @@ namespace Composable.Persistence.InMemory.DependencyInjection
 
         public static void RegisterInMemoryPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
         {
-            if(container.RunMode.IsTesting)
-            {
-            } else
-            {
-            }
+            container.Register(Singleton.For<IEventStorePersistenceLayer>()
+                                        .CreatedBy((IEventTypeToIdMapper typeMapper)
+                                                       => new InMemoryEventStorePersistenceLayer(
+                                                           new InMemoryEventStoreSchemaManager(typeMapper),
+                                                           new InMemoryEventStoreEventReader(),
+                                                           new InMemoryEventStoreEventWriter())));
         }
     }
 }

@@ -55,23 +55,23 @@ namespace Composable.Persistence.EventStore
             InsertAfter = insertAfter;
         }
 
-        public int EventType { get; set; }
-        public string EventJson { get; set; }
-        public Guid EventId { get; internal set; }
-        public int AggregateVersion { get; internal set; }
+        public int EventType { get; private set; }
+        public string EventJson { get; private set; }
+        public Guid EventId { get; private set; }
+        public int AggregateVersion { get; private set; }
 
-        public Guid AggregateId { get; internal set; }
-        public DateTime UtcTimeStamp { get; internal set; }
+        public Guid AggregateId { get; private set; }
+        public DateTime UtcTimeStamp { get; private set; }
 
-        internal int InsertedVersion { get; set; }
-        internal int? EffectiveVersion { get; set; }
-        internal int? ManualVersion { get; set; }
+        internal int InsertedVersion { get; private set; }
+        internal int? EffectiveVersion { get; private set; }
+        internal int? ManualVersion { get; private set; }
 
-        internal long InsertionOrder { get; set; }
+        internal long InsertionOrder { get; private set; }
 
-        internal long? Replaces { get; set; }
-        internal long? InsertBefore { get; set; }
-        internal long? InsertAfter { get; set; }
+        internal long? Replaces { get; private set; }
+        internal long? InsertBefore { get; private set; }
+        internal long? InsertAfter { get; private set; }
     }
 
     class EventWriteDataRow
@@ -112,23 +112,23 @@ namespace Composable.Persistence.EventStore
 
 
         public int EventType { get; set; }
-        public string EventJson { get; set; }
+        public string EventJson { get; private set; }
 
-        public Guid EventId { get; internal set; }
-        public int AggregateVersion { get; internal set; }
+        public Guid EventId { get; private set; }
+        public int AggregateVersion { get; private set; }
 
-        public Guid AggregateId { get; internal set; }
-        public DateTime UtcTimeStamp { get; internal set; }
+        public Guid AggregateId { get; private set; }
+        public DateTime UtcTimeStamp { get; private set; }
 
-        internal int InsertedVersion { get; set; }
+        internal int InsertedVersion { get; private set; }
         internal int? EffectiveVersion { get; set; }
-        internal int? ManualVersion { get; set; }
+        internal int? ManualVersion { get; private set; }
 
         internal long InsertionOrder { get; set; }
 
-        internal long? Replaces { get; set; }
-        internal long? InsertBefore { get; set; }
-        internal long? InsertAfter { get; set; }
+        internal long? Replaces { get; private set; }
+        internal long? InsertBefore { get; private set; }
+        internal long? InsertAfter { get; private set; }
 
     }
 

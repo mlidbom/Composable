@@ -15,7 +15,7 @@ namespace Composable.Persistence.SqlServer.EventStore
         const int PrimaryKeyViolationSqlErrorNumber = 2627;
 
         readonly SqlServerEventStoreConnectionManager _connectionManager;
-        IEventTypeToIdMapper IdMapper => _schemaManager.IdMapper;
+        IEventTypeToIdMapper EventTypeToIdMapper => _schemaManager.IdMapper;
         readonly IEventStoreSchemaManager _schemaManager;
 
         public SqlServerEventStoreEventWriter
@@ -31,7 +31,7 @@ namespace Composable.Persistence.SqlServer.EventStore
             //Pull types out here so that we do not open nested connections by calling into the IdMapper below. This will force DTC escalation of the transaction...
             var eventTypeToId = events.Select(@this => @this.Event.GetType())
                   .Distinct()
-                  .ToDictionary(keySelector: @this => @this, elementSelector: @this => IdMapper.GetId(@this));
+                  .ToDictionary(keySelector: @this => @this, elementSelector: @this => EventTypeToIdMapper.GetId(@this));
 
             using var connection = _connectionManager.OpenConnection();
             foreach(var data in events)
@@ -134,7 +134,7 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             //Pull types out here so that we do not open nested connections by calling into the IdMapper below. This will force DTC escalation of the transaction...
             var eventTypeToId = eventsToPersist.Select(@this => @this.Event.GetType())
                   .Distinct()
-                  .ToDictionary(keySelector: @this => @this, elementSelector: @this => IdMapper.GetId(@this));
+                  .ToDictionary(keySelector: @this => @this, elementSelector: @this => EventTypeToIdMapper.GetId(@this));
 
             using var connection = _connectionManager.OpenConnection();
             foreach(var data in eventsToPersist)

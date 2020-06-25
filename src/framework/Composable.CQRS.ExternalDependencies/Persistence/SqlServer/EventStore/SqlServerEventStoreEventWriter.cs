@@ -54,6 +54,7 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             }
         }
 
+        //urgent: Move almost all of this logic to the EventStore. Persistence layer should not implement the logic of refactoring.
         public void InsertRefactoringEvents(IReadOnlyList<EventDataRow> events)
         {
             // ReSharper disable PossibleInvalidOperationException
@@ -167,6 +168,7 @@ SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             }
         }
 
+        //Urgent: Do this logic in C# in the EventStore class. Persistence layer should only save the data, not implement logic that can be common for all persistence layers.
         void FixManualVersions(Guid aggregateId)
         {
             _connectionManager.UseCommand(

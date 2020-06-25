@@ -53,14 +53,14 @@ namespace Composable.Persistence.EventStore
 
             var cachedAggregateHistory = _cache.Get(aggregateId);
 
-            var newEventsFromPersistenceLayer = GetAggregateEventsFromPersistenceLayer(aggregateId, takeWriteLock, cachedAggregateHistory.MaxSeenInsertedVersion);
+            var newHistoryFromPersistenceLayer = GetAggregateEventsFromPersistenceLayer(aggregateId, takeWriteLock, cachedAggregateHistory.MaxSeenInsertedVersion);
 
-            if(newEventsFromPersistenceLayer.Length == 0)
+            if(newHistoryFromPersistenceLayer.Length == 0)
             {
                 return cachedAggregateHistory.Events;
             }
 
-            var newerMigratedEventsExist = newEventsFromPersistenceLayer.Where(IsRefactoringEvent).Any();
+            var newerMigratedEventsExist = newHistoryFromPersistenceLayer.Where(IsRefactoringEvent).Any();
 
             var cachedMigratedHistoryExists = cachedAggregateHistory.MaxSeenInsertedVersion > 0;
 
@@ -72,6 +72,7 @@ namespace Composable.Persistence.EventStore
                 return GetAggregateHistoryInternal(aggregateId, takeWriteLock);
             }
 
+            var newEventsFromPersistenceLayer = newHistoryFromPersistenceLayer.Select(@this => @this.Event).ToArray();
             var newAggregateHistory = cachedAggregateHistory.Events.Count == 0
                                         ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromPersistenceLayer)
                                         : cachedAggregateHistory.Events.Concat(newEventsFromPersistenceLayer)
@@ -83,7 +84,7 @@ namespace Composable.Persistence.EventStore
                 SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, newAggregateHistory);
             }
 
-            var maxSeenInsertedVersion =  newEventsFromPersistenceLayer.Max(@event => @event.StorageInformation.RefactoringInformation.InsertedVersion);
+            var maxSeenInsertedVersion =  newHistoryFromPersistenceLayer.Max(@event => @event.RefactoringInformation.InsertedVersion);
             _cache.Store(aggregateId, new EventCache.Entry(events: newAggregateHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
 
             return newAggregateHistory;
@@ -96,25 +97,18 @@ namespace Composable.Persistence.EventStore
             @event.AggregateVersion = eventDataRowRow.AggregateVersion;
             @event.EventId = eventDataRowRow.EventId;
             @event.UtcTimeStamp = eventDataRowRow.UtcTimeStamp;
-            @event.StorageInformation.InsertionOrder = eventDataRowRow.InsertionOrder;
-            @event.StorageInformation.RefactoringInformation.InsertAfter = eventDataRowRow.RefactoringInformation.InsertAfter;
-            @event.StorageInformation.RefactoringInformation.InsertBefore = eventDataRowRow.RefactoringInformation.InsertBefore;
-            @event.StorageInformation.RefactoringInformation.Replaces = eventDataRowRow.RefactoringInformation.Replaces;
-            @event.StorageInformation.RefactoringInformation.InsertedVersion = eventDataRowRow.RefactoringInformation.InsertedVersion;
-            @event.StorageInformation.RefactoringInformation.ManualVersion = eventDataRowRow.RefactoringInformation.ManualVersion;
-            @event.StorageInformation.RefactoringInformation.EffectiveVersion = eventDataRowRow.RefactoringInformation.EffectiveVersion.Value;
-
+            @event.StorageInformation.RefactoringInformation = eventDataRowRow.RefactoringInformation;
             return @event;
         }
 
-        AggregateEvent[] GetAggregateEventsFromPersistenceLayer(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
+        AggregateEventWithRefactoringInformation[] GetAggregateEventsFromPersistenceLayer(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
             => _eventReader.GetAggregateHistory(aggregateId: aggregateId,
                                                 startAfterInsertedVersion: startAfterInsertedVersion,
                                                 takeWriteLock: takeWriteLock)
-                           .Select(HydrateEvent)
+                           .Select(@this => new AggregateEventWithRefactoringInformation(HydrateEvent(@this), @this.RefactoringInformation) )
                            .ToArray();
 
-        static bool IsRefactoringEvent(AggregateEvent @event) => @event.StorageInformation.RefactoringInformation.InsertBefore.HasValue || @event.StorageInformation.RefactoringInformation.InsertAfter.HasValue || @event.StorageInformation.RefactoringInformation.Replaces.HasValue;
+        static bool IsRefactoringEvent(AggregateEventWithRefactoringInformation @event) => @event.RefactoringInformation.InsertBefore.HasValue || @event.RefactoringInformation.InsertAfter.HasValue || @event.RefactoringInformation.Replaces.HasValue;
 
         IEnumerable<IAggregateEvent> StreamEvents(int batchSize)
         {
@@ -200,13 +194,13 @@ namespace Composable.Persistence.EventStore
                             using var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes());
                             var original = GetAggregateEventsFromPersistenceLayer(aggregateId: aggregateId, takeWriteLock: true);
 
-                            var startInsertingWithVersion = original.Max(@event => @event.StorageInformation.RefactoringInformation.InsertedVersion) + 1;
+                            var startInsertingWithVersion = original.Max(@event => @event.RefactoringInformation.InsertedVersion) + 1;
 
                             var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
 
                             SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
                                 _migrationFactories,
-                                original,
+                                original.Select(@this => @this.Event).ToArray(),
                                 newEvents =>
                                 {
                                     //Make sure we don't try to insert into an occupied InsertedVersion
@@ -275,6 +269,18 @@ namespace Composable.Persistence.EventStore
 
         public void Dispose()
         {
+        }
+
+        class AggregateEventWithRefactoringInformation
+        {
+            public AggregateEventWithRefactoringInformation(AggregateEvent @event, AggregateEventRefactoringInformation refactoringInformation)
+            {
+                Event = @event;
+                RefactoringInformation = refactoringInformation;
+            }
+
+            internal AggregateEvent Event { get; }
+            internal AggregateEventRefactoringInformation RefactoringInformation { get; }
         }
     }
 }

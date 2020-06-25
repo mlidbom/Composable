@@ -110,8 +110,6 @@ namespace Composable.Persistence.EventStore
     class AggregateEventStorageInformation
     {
         internal AggregateEventRefactoringInformation RefactoringInformation { get; set; } = new AggregateEventRefactoringInformation();
-
-        internal long InsertionOrder { get;  set; }
     }
 
     class EventInsertionSpecification

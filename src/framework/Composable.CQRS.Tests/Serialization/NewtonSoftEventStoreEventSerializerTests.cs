@@ -51,13 +51,12 @@ namespace Composable.Tests.Serialization
                 string test2,
                 int aggregateVersion,
                 Guid aggregateId,
-                DateTime utcTimeStamp)
+                DateTime utcTimeStamp):base(aggregateId)
             {
                 Test1 = test1;
                 Test2 = test2;
 
                 AggregateVersion = aggregateVersion;
-                AggregateId = aggregateId;
                 UtcTimeStamp = utcTimeStamp;
             }
 
@@ -80,7 +79,6 @@ namespace Composable.Tests.Serialization
 
             TestEvent eventWithOnlySubclassValues = new TestEvent("Test1", "Test2")
                                               {
-                                                  EventId = Guid.Empty,
                                                   UtcTimeStamp = DateTime.MinValue
                                               };
 

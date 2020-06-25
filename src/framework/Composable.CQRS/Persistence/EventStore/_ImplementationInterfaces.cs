@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 
 namespace Composable.Persistence.EventStore
 {
@@ -37,18 +36,13 @@ namespace Composable.Persistence.EventStore
 
     class EventDataRow
     {
-        public EventDataRow(AggregateEvent @event, TypeId eventType, string eventAsJson):this(SqlDecimal.Null, eventType, @event, eventAsJson)
+        public EventDataRow(AggregateEvent @event, TypeId eventType, string eventAsJson):this(eventType, @event, eventAsJson)
         {}
 
-        EventDataRow(SqlDecimal manualReadOrder, TypeId eventType, AggregateEvent @event, string eventAsJson)
+        EventDataRow(TypeId eventType, AggregateEvent @event, string eventAsJson)
         {
             //urgent: This is sort of horrible. What should this look like? Where should the code be?
             @event.StorageInformation.RefactoringInformation.InsertedVersion = @event.StorageInformation.RefactoringInformation.InsertedVersion > @event.AggregateVersion ? @event.StorageInformation.RefactoringInformation.InsertedVersion : @event.AggregateVersion;
-
-            if(!(manualReadOrder.IsNull || (manualReadOrder.Precision == 38 && manualReadOrder.Scale == 17)))
-            {
-                throw new ArgumentException($"$$$$$$$$$$$$$$$$$$$$$$$$$ Found decimal with precision: {manualReadOrder.Precision} and scale: {manualReadOrder.Scale}", nameof(manualReadOrder));
-            }
 
             EventJson = eventAsJson;
             EventType = eventType;
@@ -89,18 +83,15 @@ namespace Composable.Persistence.EventStore
         internal AggregateEventRefactoringInformation RefactoringInformation { get; private set; }
     }
 
-    //Urgent: Everywhere that this type of information occurs, replace with this semantically understandable type instead.
     class AggregateEventRefactoringInformation
     {
-       internal int InsertedVersion { get; set; }
+        internal int InsertedVersion { get; set; }
+
         //urgent: See if this cannot be non-nullable.
         internal int? EffectiveVersion { get; set; }
         internal int? ManualVersion { get; set; }
-
         internal long? Replaces { get; set; }
-
         internal long? InsertBefore { get; set; }
-
         internal long? InsertAfter { get; set; }
     }
 

@@ -38,11 +38,5 @@ using NUnit.Framework;
 
 [assembly: AssemblyVersion("1.0.0.0")]
 
-
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly1)]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly2)]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly3)]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly4)]
-
 //urgent: include at least InMemory as testing PersistenceLayerProvider [assembly:NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.InMemory))]
 [assembly:NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer))]

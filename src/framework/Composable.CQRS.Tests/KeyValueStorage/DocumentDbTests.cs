@@ -40,12 +40,12 @@ namespace Composable.Tests.KeyValueStorage
             ServiceLocator.Dispose();
         }
 
-        void UseInTransactionalScope([InstantHandle] Action<ITestingDocumentDbReader, ITestingDocumentDbUpdater> useSession)
+        void UseInTransactionalScope([InstantHandle] Action<IDocumentDbReader, IDocumentDbUpdater> useSession)
         {
             ServiceLocator.ExecuteTransactionInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader(), ServiceLocator.DocumentDbUpdater()));
         }
 
-        internal void UseInScope([InstantHandle]Action<ITestingDocumentDbReader> useSession)
+        internal void UseInScope([InstantHandle]Action<IDocumentDbReader> useSession)
         {
             ServiceLocator.ExecuteInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader()));
         }

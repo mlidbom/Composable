@@ -7,12 +7,6 @@ using JetBrains.Annotations;
 
 namespace Composable.Tests
 {
-    interface ITestingDocumentDbBulkReader : IDocumentDbBulkReader { }
-
-    interface ITestingDocumentDbReader : IDocumentDbReader { }
-
-    interface ITestingDocumentDbUpdater : IDocumentDbUpdater { }
-
     static class TestWiringHelper
     {
         static readonly string DocumentDbConnectionStringName = "Fake_connectionstring_for_database_testing";
@@ -25,16 +19,16 @@ namespace Composable.Tests
             @this.EventStore();//todo: Throw here if it is not the correct type of store
 
         internal static IDocumentDb DocumentDb(this IServiceLocator @this) =>
-            @this.Resolve<DocumentDbRegistrar.IDocumentDb<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>>();
+            @this.Resolve<IDocumentDb>();
 
-        internal static ITestingDocumentDbReader DocumentDbReader(this IServiceLocator @this) =>
-            @this.Resolve<ITestingDocumentDbReader>();
+        internal static IDocumentDbReader DocumentDbReader(this IServiceLocator @this) =>
+            @this.Resolve<IDocumentDbReader>();
 
-        internal static ITestingDocumentDbUpdater DocumentDbUpdater(this IServiceLocator @this) =>
-            @this.Resolve<ITestingDocumentDbUpdater>();
+        internal static IDocumentDbUpdater DocumentDbUpdater(this IServiceLocator @this) =>
+            @this.Resolve<IDocumentDbUpdater>();
 
-        internal static ITestingDocumentDbBulkReader DocumentDbBulkReader(this IServiceLocator @this) =>
-            @this.Resolve<ITestingDocumentDbBulkReader>();
+        internal static IDocumentDbBulkReader DocumentDbBulkReader(this IServiceLocator @this) =>
+            @this.Resolve<IDocumentDbBulkReader>();
 
         internal static IEventStoreUpdater EventStoreUpdater(this IServiceLocator @this) =>
             @this.Resolve<IEventStoreUpdater>();
@@ -42,12 +36,12 @@ namespace Composable.Tests
         internal static IEventStoreReader EventStoreReader(this IServiceLocator @this) =>
             @this.Resolve<IEventStoreReader>();
 
-        internal static DocumentDbRegistrar.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader> DocumentDbSession(this IServiceLocator @this)
-            => @this.Resolve<DocumentDbRegistrar.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>>();
+        internal static IDocumentDbSession DocumentDbSession(this IServiceLocator @this)
+            => @this.Resolve<IDocumentDbSession>();
 
         static void RegisterTestingDocumentDb(this IDependencyInjectionContainer @this)
         {
-            @this.RegisterDocumentDb<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>(DocumentDbConnectionStringName);
+            @this.RegisterDocumentDb(DocumentDbConnectionStringName);
         }
 
         static void RegisterTestingEventStore(this IDependencyInjectionContainer @this)

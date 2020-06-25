@@ -102,9 +102,9 @@ namespace Composable.Persistence.EventStore
         //urgent: See if this cannot be non-nullable.
         internal int? EffectiveVersion { get; set; }
         internal int? ManualVersion { get; set; }
-        internal long? Replaces { get; set; }
-        internal long? InsertBefore { get; set; }
-        internal long? InsertAfter { get; set; }
+        internal Guid? Replaces { get; set; }
+        internal Guid? InsertBefore { get; set; }
+        internal Guid? InsertAfter { get; set; }
     }
 
     class AggregateEventStorageInformation

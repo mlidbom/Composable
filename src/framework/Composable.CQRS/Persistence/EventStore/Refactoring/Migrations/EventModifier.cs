@@ -83,7 +83,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 {
                     e.NewEvent.AggregateVersion = _inspectedEvent!.AggregateVersion + index;
 
-                    e.RefactoringInformation.Replaces = _inspectedEvent.StorageInformation.InsertionOrder;
+                    e.RefactoringInformation.Replaces = _inspectedEvent.EventId;
                     e.RefactoringInformation.ManualVersion = _inspectedEvent.AggregateVersion + index;
 
                     e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
@@ -131,7 +131,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                     {
                         e.NewEvent.AggregateVersion = _inspectedEvent.AggregateVersion + index;
 
-                        e.RefactoringInformation.InsertAfter = _lastEventInActualStream!.StorageInformation.InsertionOrder;
+                        e.RefactoringInformation.InsertAfter = _lastEventInActualStream!.EventId;
                         e.RefactoringInformation.ManualVersion = _inspectedEvent.AggregateVersion + index;
 
                         e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
@@ -145,7 +145,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                     {
                         e.NewEvent.AggregateVersion = _inspectedEvent!.AggregateVersion + index;
 
-                        e.RefactoringInformation.InsertBefore = _inspectedEvent!.StorageInformation.InsertionOrder;
+                        e.RefactoringInformation.InsertBefore = _inspectedEvent!.EventId;
                         e.RefactoringInformation.ManualVersion = _inspectedEvent.AggregateVersion + index;
 
                         e.NewEvent.AggregateId = _inspectedEvent.AggregateId;

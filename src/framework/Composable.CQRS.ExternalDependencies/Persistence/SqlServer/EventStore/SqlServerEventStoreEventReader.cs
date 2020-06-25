@@ -59,9 +59,9 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
                 InsertedVersion = eventReader.GetInt32(10),
                 EffectiveVersion = eventReader.GetInt32(3),
                 ManualVersion = eventReader[11] as int?,
-                Replaces = eventReader[9] as long?,
-                InsertBefore = eventReader[8] as long?,
-                InsertAfter = eventReader[7] as long?
+                Replaces = eventReader[9] as Guid?,
+                InsertBefore = eventReader[8] as Guid?,
+                InsertAfter = eventReader[7] as Guid?
             }
         );
 

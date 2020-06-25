@@ -8,7 +8,7 @@ update replaced
 set replaced.{SqlServerEventTable.Columns.ManualReadOrder} = -abs(replaced.{SqlServerEventTable.Columns.EffectiveReadOrder})
 from {SqlServerEventTable.Name} replaced
 inner join {SqlServerEventTable.Name} replaces
-	on replaces.{SqlServerEventTable.Columns.Replaces} = replaced.{SqlServerEventTable.Columns.InsertionOrder}
+	on replaces.{SqlServerEventTable.Columns.Replaces} = replaced.{SqlServerEventTable.Columns.EventId}
 where
     replaced.{SqlServerEventTable.Columns.AggregateId} = @{SqlServerEventTable.Columns.AggregateId}
 and replaces.{SqlServerEventTable.Columns.AggregateId} = @{SqlServerEventTable.Columns.AggregateId}

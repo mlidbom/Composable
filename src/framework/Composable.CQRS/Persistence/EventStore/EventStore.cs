@@ -221,11 +221,6 @@ namespace Composable.Persistence.EventStore
 
                                     _eventWriter.InsertRefactoringEvents(eventRows);
 
-                                    for(int index = 0; index < eventRows.Count; index++)
-                                    {
-                                        //urgent: this looks very mysterious and hackish. Remove
-                                        newEvents[index].NewEvent.StorageInformation.InsertionOrder = eventRows[index].InsertionOrder;
-                                    }
                                     updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                     newEventCount += newEvents.Count;
                                 });

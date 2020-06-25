@@ -3,8 +3,7 @@ using Composable.DDD;
 
 namespace Composable.Persistence.EventStore
 {
-    //todo: make abstract
-    public class AggregateEvent : ValueObject<AggregateEvent>, IAggregateEvent
+    public abstract class AggregateEvent : ValueObject<AggregateEvent>, IAggregateEvent
     {
         protected AggregateEvent()
         {

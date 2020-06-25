@@ -46,7 +46,6 @@ namespace Composable.Persistence.EventStore
             AggregateVersion = @event.AggregateVersion;
             AggregateId = @event.AggregateId;
             UtcTimeStamp = @event.UtcTimeStamp;
-            InsertionOrder = @event.StorageInformation.InsertionOrder;
 
             RefactoringInformation = refactoringInformation;
         }

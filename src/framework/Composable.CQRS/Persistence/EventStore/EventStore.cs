@@ -210,10 +210,9 @@ namespace Composable.Persistence.EventStore
                                 newEvents =>
                                 {
                                     //Make sure we don't try to insert into an occupied InsertedVersion
-                                    newEvents.ForEach(@event =>
+                                    newEvents.ForEach(refactoredEvent =>
                                     {
-                                        @event.NewEvent.StorageInformation.RefactoringInformation.InsertedVersion = startInsertingWithVersion++;
-                                        @event.RefactoringInformation.InsertedVersion = startInsertingWithVersion - 1;
+                                        refactoredEvent.RefactoringInformation.InsertedVersion = startInsertingWithVersion++;
                                     });
                                     //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
                                     var eventRows = newEvents

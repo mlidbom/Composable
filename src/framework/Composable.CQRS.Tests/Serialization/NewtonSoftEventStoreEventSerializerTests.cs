@@ -117,8 +117,7 @@ namespace Composable.Tests.Serialization
                         .ComparingByMembers<AggregateEvent>()
                         .Excluding(@event => @event.UtcTimeStamp)//Timestamp is defaulted in the constructor used by serialization.
                         .Excluding(@event => @event.EventId)
-                        .Excluding(@event => @event.DeduplicationId)
-                );
+            );
         }
 
         [Test, Performance, Serial] public void Should_roundtrip_simple_event_1000_times_in_15_milliseconds()

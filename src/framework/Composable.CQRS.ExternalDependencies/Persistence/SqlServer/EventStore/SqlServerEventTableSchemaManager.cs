@@ -14,7 +14,7 @@ CREATE TABLE dbo.{Name}(
         else null
     end,    
     {SqlServerEventTable.Columns.UtcTimeStamp} datetime2 NOT NULL,   
-    {SqlServerEventTable.Columns.EventType} int NOT NULL,    
+    {SqlServerEventTable.Columns.EventType} uniqueidentifier NOT NULL,    
     {SqlServerEventTable.Columns.Event} nvarchar(max) NOT NULL,
     {SqlServerEventTable.Columns.EffectiveReadOrder} as case 
         when {SqlServerEventTable.Columns.ManualReadOrder} is not null then {SqlServerEventTable.Columns.ManualReadOrder}
@@ -55,9 +55,6 @@ CREATE TABLE dbo.{Name}(
         or
         ({SqlServerEventTable.Columns.InsertBefore} is null and {SqlServerEventTable.Columns.Replaces} is null) 
     ),
-
-    CONSTRAINT FK_{Name}_{SqlServerEventTable.Columns.EventType} FOREIGN KEY ({SqlServerEventTable.Columns.EventType}) 
-        REFERENCES {SqlServerEventTypeTable.Name} ({SqlServerEventTypeTable.Columns.Id}),
 
     CONSTRAINT FK_{Name}_{SqlServerEventTable.Columns.Replaces} FOREIGN KEY ( {SqlServerEventTable.Columns.Replaces} ) 
         REFERENCES {Name} ({SqlServerEventTable.Columns.InsertionOrder}),

@@ -8,6 +8,7 @@ using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Persistence.InMemory.EventStore;
+using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System.Linq;
 
@@ -43,7 +44,7 @@ namespace Composable.Persistence.Common.DependencyInjection
             } else
             {
                 @this.Register(Scoped.For<IEventStore>()
-                                        .CreatedBy((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache eventCache) => new Persistence.EventStore.EventStore(persistenceLayer, serializer, eventCache, migrations)));
+                                        .CreatedBy((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, ITypeMapper typeMapper, EventCache eventCache) => new Persistence.EventStore.EventStore(persistenceLayer, typeMapper, serializer, eventCache, migrations)));
             }
 
             @this.Register(Scoped.For<IEventStoreUpdater, IEventStoreReader>()
@@ -78,9 +79,10 @@ namespace Composable.Persistence.Common.DependencyInjection
             {
                 @this.Register(Scoped.For<IEventStore>()
                                         .CreatedBy(
-                                            (IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, EventCache cache) =>
+                                            (IEventStorePersistenceLayer persistenceLayer, ITypeMapper typeMapper, IEventStoreSerializer serializer, EventCache cache) =>
                                                 new EventStore.EventStore(
                                                     persistenceLayer: persistenceLayer,
+                                                    typeMapper:typeMapper,
                                                     serializer: serializer,
                                                     migrations: migrations(),
                                                     cache: cache)));

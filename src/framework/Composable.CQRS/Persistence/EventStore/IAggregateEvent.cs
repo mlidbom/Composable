@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.Messaging;
+using Newtonsoft.Json;
 
 namespace Composable.Persistence.EventStore
 {
@@ -9,5 +10,6 @@ namespace Composable.Persistence.EventStore
         int AggregateVersion { get; }
         Guid AggregateId { get; }
         DateTime UtcTimeStamp { get; }
+        [JsonIgnore] Guid MessageTypes.Remotable.IAtMostOnceMessage.DeduplicationId => EventId;
     }
 }

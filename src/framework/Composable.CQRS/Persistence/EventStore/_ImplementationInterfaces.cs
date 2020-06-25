@@ -107,11 +107,6 @@ namespace Composable.Persistence.EventStore
         internal Guid? InsertAfter { get; set; }
     }
 
-    class AggregateEventStorageInformation
-    {
-        internal AggregateEventRefactoringInformation RefactoringInformation { get; set; } = new AggregateEventRefactoringInformation();
-    }
-
     class EventInsertionSpecification
     {
         public EventInsertionSpecification(IAggregateEvent @event) : this(@event, @event.AggregateVersion, null)

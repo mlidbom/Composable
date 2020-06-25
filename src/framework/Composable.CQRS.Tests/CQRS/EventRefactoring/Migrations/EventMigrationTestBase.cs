@@ -208,7 +208,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             return serviceLocator;
         }
 
-        protected static void AssertStreamsAreIdentical(IEnumerable<IAggregateEvent> expected, IEnumerable<IAggregateEvent> migratedHistory, string descriptionOfHistory)
+        protected static void AssertStreamsAreIdentical(IReadOnlyList<IAggregateEvent> expected, IReadOnlyList<IAggregateEvent> migratedHistory, string descriptionOfHistory)
         {
             try
             {

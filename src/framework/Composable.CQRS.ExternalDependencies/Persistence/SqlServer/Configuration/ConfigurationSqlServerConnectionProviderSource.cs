@@ -9,6 +9,6 @@ namespace Composable.Persistence.SqlServer.Configuration
         readonly IConfigurationParameterProvider _configurationParameterProvider;
         public ConfigurationSqlServerConnectionProviderSource(IConfigurationParameterProvider configurationParameterProvider) => _configurationParameterProvider = configurationParameterProvider;
         ///<summary>Returns the connection string with the given name.</summary>
-        public ISqlConnectionProvider GetConnectionProvider(string connectionStringName) => new SqlServerConnectionProvider(_configurationParameterProvider.GetString(connectionStringName));
+        public ISqlServerConnectionProvider GetConnectionProvider(string connectionStringName) => new SqlServerConnectionProvider(_configurationParameterProvider.GetString(connectionStringName));
     }
 }

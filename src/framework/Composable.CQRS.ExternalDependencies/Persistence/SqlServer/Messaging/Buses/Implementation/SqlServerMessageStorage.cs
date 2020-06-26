@@ -9,9 +9,9 @@ namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
     partial class SqlServerMessageStorage : Inbox.IMessageStorage
     {
-        readonly ISqlConnectionProvider _connectionFactory;
+        readonly ISqlServerConnectionProvider _connectionFactory;
 
-        public SqlServerMessageStorage(ISqlConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        public SqlServerMessageStorage(ISqlServerConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveIncomingMessage(TransportMessage.InComing message) =>
             _connectionFactory.UseCommand(

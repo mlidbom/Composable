@@ -10,8 +10,8 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
     [TestFixture] public class After_creating_two_databases_named_db1_and_db2
     {
         SqlServerDatabasePool _manager;
-        ISqlConnectionProvider _dB1ConnectionString;
-        ISqlConnectionProvider _dB2ConnectionString;
+        ISqlServerConnectionProvider _dB1ConnectionString;
+        ISqlServerConnectionProvider _dB2ConnectionString;
         const string Db1 = "LocalDBManagerTests_After_creating_connection_Db1";
         const string Db2 = "LocalDBManagerTests_After_creating_connection_Db2";
 

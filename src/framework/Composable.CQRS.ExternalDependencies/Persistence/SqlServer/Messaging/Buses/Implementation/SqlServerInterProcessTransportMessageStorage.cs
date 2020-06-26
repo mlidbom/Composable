@@ -12,11 +12,11 @@ namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
     partial class SqlServerInterProcessTransportMessageStorage : InterprocessTransport.IMessageStorage
     {
-        readonly ISqlConnectionProvider _connectionFactory;
+        readonly ISqlServerConnectionProvider _connectionFactory;
         readonly ITypeMapper _typeMapper;
         readonly IRemotableMessageSerializer _serializer;
 
-        public SqlServerInterProcessTransportMessageStorage(ISqlConnectionProvider connectionFactory, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+        public SqlServerInterProcessTransportMessageStorage(ISqlServerConnectionProvider connectionFactory, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
         {
             _connectionFactory = connectionFactory;
             _typeMapper = typeMapper;

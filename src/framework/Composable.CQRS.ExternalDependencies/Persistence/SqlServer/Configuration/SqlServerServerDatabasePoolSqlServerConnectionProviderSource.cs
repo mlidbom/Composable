@@ -10,7 +10,7 @@ namespace Composable.Persistence.SqlServer.Configuration
         readonly SqlServerDatabasePool _pool;
         public SqlServerServerDatabasePoolSqlServerConnectionProviderSource(IConfigurationParameterProvider configurationParameterProvider) => _pool = new SqlServerDatabasePool(configurationParameterProvider);
 
-        public ISqlConnectionProvider GetConnectionProvider(string connectionStringName) => _pool.ConnectionProviderFor(connectionStringName);
+        public ISqlServerConnectionProvider GetConnectionProvider(string connectionStringName) => _pool.ConnectionProviderFor(connectionStringName);
         public void Dispose() => _pool.Dispose();
     }
 }

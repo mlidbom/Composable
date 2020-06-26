@@ -6,6 +6,6 @@ namespace Composable.Persistence.SqlServer.Configuration
     interface ISqlServerConnectionProviderSource
     {
         ///<summary>Returns the connection string with the given name.</summary>
-        ISqlConnectionProvider GetConnectionProvider(string connectionStringName);
+        ISqlServerConnectionProvider GetConnectionProvider(string connectionStringName);
     }
 }

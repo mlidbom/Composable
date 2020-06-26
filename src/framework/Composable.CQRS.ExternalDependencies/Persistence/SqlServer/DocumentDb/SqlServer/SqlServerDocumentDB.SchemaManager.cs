@@ -9,8 +9,8 @@ namespace Composable.Persistence.SqlServer.DocumentDb.SqlServer
         {
             readonly object _lockObject = new object();
             bool _initialized = false;
-            readonly ISqlConnectionProvider _connectionProvider;
-            public SchemaManager(ISqlConnectionProvider connectionProvider) => _connectionProvider = connectionProvider;
+            readonly ISqlServerConnectionProvider _connectionProvider;
+            public SchemaManager(ISqlServerConnectionProvider connectionProvider) => _connectionProvider = connectionProvider;
 
             internal void EnsureInitialized()
             {

@@ -75,7 +75,7 @@ namespace Composable.Persistence.SqlServer.Testing.Databases
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 
-        public ISqlConnectionProvider ConnectionProviderFor(string reservationName) => new LazySqlServerConnectionProvider(() => ConnectionStringFor(reservationName));
+        public ISqlServerConnectionProvider ConnectionProviderFor(string reservationName) => new LazySqlServerConnectionProvider(() => ConnectionStringFor(reservationName));
 
         string ConnectionStringFor(string reservationName) => _guard.Update(() =>
         {

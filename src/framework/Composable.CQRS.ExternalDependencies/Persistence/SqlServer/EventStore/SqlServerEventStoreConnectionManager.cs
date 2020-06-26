@@ -7,8 +7,8 @@ namespace Composable.Persistence.SqlServer.EventStore
 {
     class SqlServerEventStoreConnectionManager
     {
-        readonly ISqlConnectionProvider _connectionProvider;
-        public SqlServerEventStoreConnectionManager(ISqlConnectionProvider connectionString) => _connectionProvider = connectionString;
+        readonly ISqlServerConnectionProvider _connectionProvider;
+        public SqlServerEventStoreConnectionManager(ISqlServerConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
 
         void UseConnection(Action<SqlConnection> action, bool suppressTransactionWarning = false)
         {

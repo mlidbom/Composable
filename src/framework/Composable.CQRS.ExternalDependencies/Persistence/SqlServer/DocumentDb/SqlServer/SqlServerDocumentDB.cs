@@ -21,7 +21,7 @@ namespace Composable.Persistence.SqlServer.DocumentDb.SqlServer
     //urgent: Extract persistence from this class to an interface called IDocumentDbPersistenceLayer
     partial class SqlServerDocumentDb : IDocumentDb
     {
-        readonly ISqlConnectionProvider _connectionProvider;
+        readonly ISqlServerConnectionProvider _connectionProvider;
         readonly IUtcTimeTimeSource _timeSource;
         readonly IDocumentDbSerializer _serializer;
 
@@ -32,7 +32,7 @@ namespace Composable.Persistence.SqlServer.DocumentDb.SqlServer
         readonly ConcurrentDictionary<Type, int> _knownTypes = new ConcurrentDictionary<Type, int>();
         readonly SchemaManager _schemaManager;
 
-        internal SqlServerDocumentDb(ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
+        internal SqlServerDocumentDb(ISqlServerConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
         {
             _schemaManager = new SqlServerDocumentDb.SchemaManager(connectionProvider);
             _connectionProvider = connectionProvider;

@@ -6,6 +6,7 @@ using Composable.Persistence.DocumentDb;
 using Composable.Persistence.InMemory.DocumentDB;
 using Composable.Persistence.SqlServer.Configuration;
 using Composable.Persistence.SqlServer.DocumentDb.SqlServer;
+using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.Serialization;
 
 // ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
@@ -32,8 +33,8 @@ namespace Composable.Persistence.Common.DependencyInjection
             } else
             {
                 @this.Register(Singleton.For<IDocumentDb>()
-                                         .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
-                                                        => new SqlServerDocumentDb(connectionProviderSource.GetConnectionProvider(connectionName), timeSource, serializer)));
+                                         .CreatedBy((ISqlServerConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
+                                                        => new SqlServerDocumentDb(connectionProvider, timeSource, serializer)));
             }
 
 

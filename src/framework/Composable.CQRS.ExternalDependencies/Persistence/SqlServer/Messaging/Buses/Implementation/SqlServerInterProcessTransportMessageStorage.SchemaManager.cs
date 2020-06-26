@@ -8,7 +8,7 @@ namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
     {
         static class SchemaManager
         {
-            public static async Task EnsureTablesExistAsync(ISqlConnectionProvider connectionFactory)
+            public static async Task EnsureTablesExistAsync(ISqlServerConnectionProvider connectionFactory)
             {
                 await using var connection = connectionFactory.OpenConnection();
                 await connection.ExecuteNonQueryAsync($@"

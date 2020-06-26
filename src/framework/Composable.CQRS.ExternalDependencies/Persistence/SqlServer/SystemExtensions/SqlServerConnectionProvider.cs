@@ -11,7 +11,7 @@ namespace Composable.Persistence.SqlServer.SystemExtensions
         public SqlServerConnectionProvider(string connectionString) : base(() => connectionString) {}
     }
 
-    class LazySqlServerConnectionProvider : ISqlConnectionProvider
+    class LazySqlServerConnectionProvider : ISqlServerConnectionProvider
     {
         readonly OptimizedLazy<string> _connectionString;
         public string ConnectionString => _connectionString.Value;
@@ -61,7 +61,7 @@ namespace Composable.Persistence.SqlServer.SystemExtensions
         static SqlCommand AddParameter(SqlCommand @this, string name, SqlDbType type, object value) => @this.AddParameter(new SqlParameter(name, type) {Value = value});
     }
 
-    interface ISqlConnectionProvider
+    interface ISqlServerConnectionProvider
     {
         SqlConnection OpenConnection();
         string ConnectionString { get; }

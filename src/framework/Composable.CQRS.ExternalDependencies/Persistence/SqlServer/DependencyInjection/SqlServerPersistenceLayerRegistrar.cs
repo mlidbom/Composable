@@ -47,31 +47,34 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
             } else
             {
                 container.Register(Singleton.For<ISqlServerConnectionProviderSource>()
-                                            .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) 
+                                            .CreatedBy((IConfigurationParameterProvider configurationParameterProvider)
                                                            => new ConfigurationSqlServerConnectionProviderSource(configurationParameterProvider)).DelegateToParentServiceLocatorWhenCloning());
             }
 
             container.Register(
-
-                Singleton.For<ISqlConnectionProvider>()
-                         .CreatedBy((ISqlServerConnectionProviderSource providerSource) => new LazySqlServerConnectionProvider(() => providerSource.GetConnectionProvider(connectionStringName).ConnectionString)),
-                Singleton.For<InterprocessTransport.IMessageStorage>().CreatedBy(
-                              (ISqlConnectionProvider endpointSqlConnection, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
-                                  => new SqlServerInterProcessTransportMessageStorage(endpointSqlConnection, typeMapper, serializer)),
-                Singleton.For<Inbox.IMessageStorage>().CreatedBy((ISqlConnectionProvider endpointSqlConnection) => new SqlServerMessageStorage(endpointSqlConnection))
+                Singleton.For<ISqlServerConnectionProvider>()
+                         .CreatedBy((ISqlServerConnectionProviderSource providerSource) => new LazySqlServerConnectionProvider(() => providerSource.GetConnectionProvider(connectionStringName).ConnectionString))
             );
 
+            //Service bus
+            container.Register(Singleton.For<InterprocessTransport.IMessageStorage>()
+                                        .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+                                                       => new SqlServerInterProcessTransportMessageStorage(endpointSqlConnection, typeMapper, serializer)),
+                               Singleton.For<Inbox.IMessageStorage>().CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerMessageStorage(endpointSqlConnection)));
+
+            //Event store
             container.Register(
+                Singleton.For<SqlServerEventStoreConnectionManager>()
+                         .CreatedBy((ISqlServerConnectionProvider sqlConnectionProvider) => new SqlServerEventStoreConnectionManager(sqlConnectionProvider)),
+                Singleton.For<IEventStorePersistenceLayer.ISchemaManager>()
+                         .CreatedBy((ISqlServerConnectionProvider sqlConnectionProvider) => new SqlServerEventStorePersistenceLayerSchemaManager(sqlConnectionProvider)),
+                Singleton.For<IEventStorePersistenceLayer.IReader>()
+                         .CreatedBy((SqlServerEventStoreConnectionManager connectionManager, ITypeMapper typeMapper) => new SqlServerEventStorePersistenceLayerReader(connectionManager, typeMapper)),
+                Singleton.For<IEventStorePersistenceLayer.IWriter>()
+                         .CreatedBy((SqlServerEventStoreConnectionManager connectionManager) => new SqlServerEventStorePersistenceLayerWriter(connectionManager)),
                 Singleton.For<IEventStorePersistenceLayer>()
-                         .CreatedBy((ISqlServerConnectionProviderSource connectionProviderSource, ITypeMapper typeMapper) =>
-                          {
-                              var connectionProvider = connectionProviderSource.GetConnectionProvider(connectionStringName);
-                              var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
-                              var schemaManager = new SqlServerEventStorePersistenceLayerSchemaManager(connectionProvider);
-                              var eventReader = new SqlServerEventStorePersistenceLayerReader(connectionManager, typeMapper);
-                              var eventWriter = new SqlServerEventStorePersistenceLayerWriter(connectionManager);
-                              return new EventStorePersistenceLayer(schemaManager, eventReader, eventWriter);
-                          }));
+                         .CreatedBy((IEventStorePersistenceLayer.ISchemaManager schemaManager, IEventStorePersistenceLayer.IReader reader, IEventStorePersistenceLayer.IWriter writer) 
+                                        => new EventStorePersistenceLayer(schemaManager, reader, writer)));
         }
     }
 }

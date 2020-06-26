@@ -21,10 +21,10 @@ namespace Composable.Persistence.EventStore
 
         readonly ISingleContextUseGuard _usageGuard;
 
-        readonly IEventStoreEventReader _eventReader;
-        readonly IEventStoreEventWriter _eventWriter;
+        readonly IEventStorePersistenceLayer.IReader _eventReader;
+        readonly IEventStorePersistenceLayer.IWriter _eventWriter;
         readonly EventCache _cache;
-        readonly IEventStoreSchemaManager _schemaManager;
+        readonly IEventStorePersistenceLayer.ISchemaManager _schemaManager;
         readonly IReadOnlyList<IEventMigration> _migrationFactories;
 
         public EventStore(IEventStorePersistenceLayer persistenceLayer, ITypeMapper typeMapper, IEventStoreSerializer serializer, EventCache cache, IEnumerable<IEventMigration> migrations)

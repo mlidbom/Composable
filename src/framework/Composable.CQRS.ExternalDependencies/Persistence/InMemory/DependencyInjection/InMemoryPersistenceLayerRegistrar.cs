@@ -7,7 +7,7 @@ namespace Composable.Persistence.InMemory.DependencyInjection
 {
     public static class InMemoryPersistenceLayerRegistrar
     {
-        //urgent: Register all MySql persistence layer classes here.
+        //urgent: Register all InMemory persistence layer classes here.
         public static void RegisterInMemoryPersistenceLayer(this IEndpointBuilder @this)
         {
             @this.Container.RegisterInMemoryPersistenceLayer(@this.Configuration.ConnectionStringName);
@@ -18,9 +18,9 @@ namespace Composable.Persistence.InMemory.DependencyInjection
             container.Register(Singleton.For<IEventStorePersistenceLayer>()
                                         .CreatedBy(()
                                                        => new InMemoryEventStorePersistenceLayer(
-                                                           new InMemoryEventStoreSchemaManager(),
-                                                           new InMemoryEventStoreEventReader(),
-                                                           new InMemoryEventStoreEventWriter())));
+                                                           new InMemoryEventStorePersistenceLayerSchemaManager(),
+                                                           new InMemoryEventStorePersistenceLayerReader(),
+                                                           new InMemoryEventStorePersistenceLayerWriter())));
         }
     }
 }

@@ -8,11 +8,11 @@ using Composable.System.Transactions;
 
 namespace Composable.Persistence.SqlServer.EventStore
 {
-    class SqlServerEventStoreSchemaManager : IEventStoreSchemaManager
+    class SqlServerEventStorePersistenceLayerSchemaManager : IEventStorePersistenceLayer.ISchemaManager
     {
         bool _verifiedConnectionString;
         readonly SqlServerEventTableSchemaManager _eventTable = new SqlServerEventTableSchemaManager();
-        public SqlServerEventStoreSchemaManager(ISqlConnectionProvider connectionString) 
+        public SqlServerEventStorePersistenceLayerSchemaManager(ISqlConnectionProvider connectionString) 
             => _connectionProvider = connectionString;
 
         readonly ISqlConnectionProvider _connectionProvider;

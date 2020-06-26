@@ -8,7 +8,7 @@ using Composable.Refactoring.Naming;
 
 namespace Composable.Persistence.SqlServer.EventStore
 {
-    class SqlServerEventStoreEventReader : IEventStoreEventReader
+    class SqlServerEventStorePersistenceLayerReader : IEventStorePersistenceLayer.IReader
     {
         readonly SqlServerEventStoreConnectionManager _connectionManager;
         ITypeMapper _typeMapper;
@@ -39,7 +39,7 @@ SELECT {topClause}
 FROM {SqlServerEventTable.Name} {lockHint} ";
         }
 
-        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, ITypeMapper typeMapper)
+        public SqlServerEventStorePersistenceLayerReader(SqlServerEventStoreConnectionManager connectionManager, ITypeMapper typeMapper)
         {
             _connectionManager = connectionManager;
             _typeMapper = typeMapper;

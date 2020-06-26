@@ -16,15 +16,15 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
     {
         class EventStorePersistenceLayer : IEventStorePersistenceLayer
         {
-            public EventStorePersistenceLayer(IEventStoreSchemaManager schemaManager, IEventStoreEventReader eventReader, IEventStoreEventWriter eventWriter)
+            public EventStorePersistenceLayer(IEventStorePersistenceLayer.ISchemaManager schemaManager, IEventStorePersistenceLayer.IReader eventReader, IEventStorePersistenceLayer.IWriter eventWriter)
             {
                 SchemaManager = schemaManager;
                 EventReader = eventReader;
                 EventWriter = eventWriter;
             }
-            public IEventStoreSchemaManager SchemaManager { get; }
-            public IEventStoreEventReader EventReader { get; }
-            public IEventStoreEventWriter EventWriter { get; }
+            public IEventStorePersistenceLayer.ISchemaManager SchemaManager { get; }
+            public IEventStorePersistenceLayer.IReader EventReader { get; }
+            public IEventStorePersistenceLayer.IWriter EventWriter { get; }
         }
 
         //urgent: Register all sql server persistence layer classes here.
@@ -36,6 +36,7 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
             RegisterSqlServerPersistenceLayer(container, configurationConnectionStringName);
         }
 
+        //todo: does the fact that we register all this stuff using a connectionStringName mean that, using named components, we could easily have multiple registrations as long as they use different connectionStrings
         public static void RegisterSqlServerPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
         {
             if(container.RunMode.IsTesting)
@@ -66,9 +67,9 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
                           {
                               var connectionProvider = connectionProviderSource.GetConnectionProvider(connectionStringName);
                               var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
-                              var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider);
-                              var eventReader = new SqlServerEventStoreEventReader(connectionManager, typeMapper);
-                              var eventWriter = new SqlServerEventStoreEventWriter(connectionManager);
+                              var schemaManager = new SqlServerEventStorePersistenceLayerSchemaManager(connectionProvider);
+                              var eventReader = new SqlServerEventStorePersistenceLayerReader(connectionManager, typeMapper);
+                              var eventWriter = new SqlServerEventStorePersistenceLayerWriter(connectionManager);
                               return new EventStorePersistenceLayer(schemaManager, eventReader, eventWriter);
                           }));
         }

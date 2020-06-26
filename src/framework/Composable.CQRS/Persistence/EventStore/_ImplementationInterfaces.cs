@@ -4,25 +4,6 @@ using Composable.Contracts;
 
 namespace Composable.Persistence.EventStore
 {
-    interface IEventStoreSchemaManager
-    {
-        void SetupSchemaIfDatabaseUnInitialized();
-    }
-
-    interface IEventStoreEventReader
-    {
-        IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0);
-        IEnumerable<EventDataRow> StreamEvents(int batchSize);
-        IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventBaseType = null);
-    }
-
-    interface IEventStoreEventWriter
-    {
-        void Insert(IReadOnlyList<EventDataRow> events);
-        void InsertRefactoringEvents(IReadOnlyList<EventDataRow> events);
-        void DeleteAggregate(Guid aggregateId);
-    }
-
     interface IAggregateTypeValidator
     {
         void AssertIsValid<TAggregate>();
@@ -30,9 +11,28 @@ namespace Composable.Persistence.EventStore
 
     interface IEventStorePersistenceLayer
     {
-        IEventStoreSchemaManager SchemaManager { get; }
-        IEventStoreEventReader EventReader { get; }
-        IEventStoreEventWriter EventWriter { get; }
+        ISchemaManager SchemaManager { get; }
+        IReader EventReader { get; }
+        IWriter EventWriter { get; }
+
+        interface ISchemaManager
+        {
+            void SetupSchemaIfDatabaseUnInitialized();
+        }
+
+        interface IReader
+        {
+            IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0);
+            IEnumerable<EventDataRow> StreamEvents(int batchSize);
+            IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventBaseType = null);
+        }
+
+        interface IWriter
+        {
+            void Insert(IReadOnlyList<EventDataRow> events);
+            void InsertRefactoringEvents(IReadOnlyList<EventDataRow> events);
+            void DeleteAggregate(Guid aggregateId);
+        }
     }
 
     class EventDataRow

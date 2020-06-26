@@ -4,20 +4,20 @@ using Composable.Persistence.EventStore;
 
 namespace Composable.Persistence.InMemory.EventStore
 {
-    class InMemoryEventStoreSchemaManager : IEventStoreSchemaManager
+    class InMemoryEventStorePersistenceLayerSchemaManager : IEventStorePersistenceLayer.ISchemaManager
     {
         //Nothing to do for an in-memory storage.
         public void SetupSchemaIfDatabaseUnInitialized() { }
     }
 
-    class InMemoryEventStoreEventReader : IEventStoreEventReader
+    class InMemoryEventStorePersistenceLayerReader : IEventStorePersistenceLayer.IReader
     {
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) => throw new NotImplementedException();
         public IEnumerable<EventDataRow> StreamEvents(int batchSize) => throw new NotImplementedException();
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventBaseType = null) => throw new NotImplementedException();
     }
 
-    class InMemoryEventStoreEventWriter : IEventStoreEventWriter
+    class InMemoryEventStorePersistenceLayerWriter : IEventStorePersistenceLayer.IWriter
     {
         public void Insert(IReadOnlyList<EventDataRow> events) { throw new NotImplementedException(); }
         public void InsertRefactoringEvents(IReadOnlyList<EventDataRow> events) { throw new NotImplementedException(); }
@@ -26,15 +26,15 @@ namespace Composable.Persistence.InMemory.EventStore
 
     class InMemoryEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
-        public InMemoryEventStorePersistenceLayer(IEventStoreSchemaManager schemaManager, IEventStoreEventReader eventReader, IEventStoreEventWriter eventWriter)
+        public InMemoryEventStorePersistenceLayer(IEventStorePersistenceLayer.ISchemaManager schemaManager, IEventStorePersistenceLayer.IReader eventReader, IEventStorePersistenceLayer.IWriter eventWriter)
         {
             SchemaManager = schemaManager;
             EventReader = eventReader;
             EventWriter = eventWriter;
         }
 
-        public IEventStoreSchemaManager SchemaManager { get; }
-        public IEventStoreEventReader EventReader { get; }
-        public IEventStoreEventWriter EventWriter { get; }
+        public IEventStorePersistenceLayer.ISchemaManager SchemaManager { get; }
+        public IEventStorePersistenceLayer.IReader EventReader { get; }
+        public IEventStorePersistenceLayer.IWriter EventWriter { get; }
     }
 }

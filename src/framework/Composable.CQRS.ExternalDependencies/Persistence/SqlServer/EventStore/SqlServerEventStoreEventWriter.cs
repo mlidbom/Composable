@@ -10,13 +10,13 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.SqlServer.EventStore
 {
-    class SqlServerEventStoreEventWriter : IEventStoreEventWriter
+    class SqlServerEventStorePersistenceLayerWriter : IEventStorePersistenceLayer.IWriter
     {
         const int PrimaryKeyViolationSqlErrorNumber = 2627;
 
         readonly SqlServerEventStoreConnectionManager _connectionManager;
 
-        public SqlServerEventStoreEventWriter
+        public SqlServerEventStorePersistenceLayerWriter
             (SqlServerEventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
 
         public void Insert(IReadOnlyList<EventDataRow> events)

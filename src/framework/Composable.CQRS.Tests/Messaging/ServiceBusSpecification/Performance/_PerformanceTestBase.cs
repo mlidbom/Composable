@@ -7,6 +7,7 @@ using Composable.Messaging.Hypermedia;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.SqlServer.DependencyInjection;
 using Composable.Persistence.SqlServer.Messaging.Buses;
+using Composable.Testing;
 using NCrunch.Framework;
 using NUnit.Framework;
 

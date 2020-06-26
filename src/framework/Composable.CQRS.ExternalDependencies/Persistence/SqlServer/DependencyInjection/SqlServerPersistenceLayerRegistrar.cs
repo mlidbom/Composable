@@ -75,7 +75,7 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
                 Singleton.For<IEventStorePersistenceLayer.IWriter>()
                          .CreatedBy((SqlServerEventStoreConnectionManager connectionManager) => new SqlServerEventStorePersistenceLayerWriter(connectionManager)),
                 Singleton.For<IEventStorePersistenceLayer>()
-                         .CreatedBy((IEventStorePersistenceLayer.ISchemaManager schemaManager, IEventStorePersistenceLayer.IReader reader, IEventStorePersistenceLayer.IWriter writer) 
+                         .CreatedBy((IEventStorePersistenceLayer.ISchemaManager schemaManager, IEventStorePersistenceLayer.IReader reader, IEventStorePersistenceLayer.IWriter writer)
                                         => new EventStorePersistenceLayer(schemaManager, reader, writer)));
         }
     }

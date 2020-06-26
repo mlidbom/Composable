@@ -27,7 +27,6 @@ namespace Composable.Tests.CQRS
     [TestFixture] public class EventStoreTests
     {
         IDisposable _scope;
-        IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator();
 
         IEventStore _eventStore;
 
@@ -35,7 +34,7 @@ namespace Composable.Tests.CQRS
 
         [SetUp] public void SetupTask()
         {
-            _serviceLocator = CreateServiceLocator();
+            _serviceLocator = TestWiringHelper.SetupTestingServiceLocator();
             _serviceLocator.Resolve<ITypeMappingRegistar>()
                            .Map<Composable.Tests.CQRS.SomeEvent>("9e71c8cb-397a-489c-8ff7-15805a7509e8");
             _scope = _serviceLocator.BeginScope();

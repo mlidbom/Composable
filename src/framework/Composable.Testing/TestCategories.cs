@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.Tests
+namespace Composable.Testing
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     class PerformanceAttribute : Attribute,

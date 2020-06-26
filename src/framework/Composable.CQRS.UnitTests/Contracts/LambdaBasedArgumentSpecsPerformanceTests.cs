@@ -4,6 +4,7 @@ using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.System;
+using Composable.Testing;
 
 namespace Composable.Tests.Contracts
 {

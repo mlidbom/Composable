@@ -86,7 +86,7 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
                 while (reader.Read())
                 {
                     var eventDataRow = ReadDataRow(reader);
-                    if (eventDataRow.RefactoringInformation.EffectiveVersion.Value > 0)
+                    if ((eventDataRow.RefactoringInformation.EffectiveVersion ?? 0) > 0)
                     {
                         historyData.Add(eventDataRow);
                     }

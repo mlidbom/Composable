@@ -2,6 +2,7 @@
 using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Reflection;
+using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;

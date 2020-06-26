@@ -12,7 +12,7 @@ namespace Composable.Persistence.SqlServer.EventStore
     {
         bool _verifiedConnectionString;
         readonly SqlServerEventTableSchemaManager _eventTable = new SqlServerEventTableSchemaManager();
-        public SqlServerEventStorePersistenceLayerSchemaManager(ISqlServerConnectionProvider sqlConnectionProvider) 
+        public SqlServerEventStorePersistenceLayerSchemaManager(ISqlServerConnectionProvider sqlConnectionProvider)
             => _connectionProvider = sqlConnectionProvider;
 
         readonly ISqlServerConnectionProvider _connectionProvider;

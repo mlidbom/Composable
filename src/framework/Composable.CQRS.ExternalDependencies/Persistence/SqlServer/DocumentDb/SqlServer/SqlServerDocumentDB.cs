@@ -66,7 +66,7 @@ WHERE Id=@Id AND ValueTypeId
                 var idString = GetIdString(key);
                 command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = idString});
 
-                AddTypeCriteria(command, typeof(TValue));
+                Storage_AddTypeCriteria(command, typeof(TValue));
 
                 using var reader = command.ExecuteReader();
                 if(!reader.Read())
@@ -153,7 +153,7 @@ WHERE Id=@Id AND ValueTypeId
             command.CommandText += "DELETE Store WHERE Id = @Id AND ValueTypeId ";
             command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = GetIdString(id)});
 
-            AddTypeCriteria(command, documentType);
+            Storage_AddTypeCriteria(command, documentType);
 
             var rowsAffected = command.ExecuteNonQuery();
             if(rowsAffected < 1)
@@ -171,31 +171,38 @@ WHERE Id=@Id AND ValueTypeId
         {
             EnsureInitialized();
             values = values.ToList();
+
+            var toUpdate = new List<(string id, string idString, string stringValue,Type type)>();
+            foreach(var item in values)
+            {
+                var stringValue = _serializer.Serialize(item.Value);
+                var idString = GetIdString(item.Key);
+                var needsUpdate = !persistentValues.GetOrAddDefault(item.Value.GetType()).TryGetValue(idString, out var oldValue) || stringValue != oldValue;
+                if(needsUpdate)
+                {
+                    toUpdate.Add((item.Key, idString, stringValue, item.Value.GetType()));
+                }
+            }
+
+            Storage_Update(persistentValues, toUpdate);
+        }
+
+        void Storage_Update(Dictionary<Type, Dictionary<string, string>> persistentValues, List<(string id, string idString, string stringValue, Type type)> toUpdate)
+        {
             using var connection = _connectionProvider.OpenConnection();
-            foreach(var (key, value) in values)
+            foreach(var (id, idString, stringValue, type) in toUpdate)
             {
                 using var command = connection.CreateCommand();
                 command.CommandType = CommandType.Text;
-                var stringValue = _serializer.Serialize(value);
+                persistentValues.GetOrAddDefault(type)[idString] = stringValue;
+                command.CommandText += "UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId \n";
+                command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = id});
+                command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) {Value = _timeSource.UtcNow});
 
-                var idString = GetIdString(key);
-                var needsUpdate = !persistentValues.GetOrAddDefault(value.GetType()).TryGetValue(idString, out var oldValue) || stringValue != oldValue;
-                if(needsUpdate)
-                {
-                    persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
-                    command.CommandText += "UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId \n";
-                    command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = key});
-                    command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) {Value = _timeSource.UtcNow});
+                Storage_AddTypeCriteria(command, type);
 
-                    AddTypeCriteria(command, value.GetType());
-
-                    command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
-                }
-
-                if(!command.CommandText.IsNullEmptyOrWhiteSpace())
-                {
-                    command.ExecuteNonQuery();
-                }
+                command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
+                command.ExecuteNonQuery();
             }
         }
 
@@ -211,7 +218,7 @@ WHERE Id=@Id AND ValueTypeId
             using var loadCommand = connection.CreateCommand();
             loadCommand.CommandText = @" SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId ";
 
-            AddTypeCriteria(loadCommand, typeof(T));
+            Storage_AddTypeCriteria(loadCommand, typeof(T));
 
             using var reader = loadCommand.ExecuteReader();
             while(reader.Read())
@@ -232,7 +239,7 @@ WHERE Id=@Id AND ValueTypeId
             using var loadCommand = connection.CreateCommand();
             loadCommand.CommandText = @"SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId ";
 
-            AddTypeCriteria(loadCommand, typeof(T));
+            Storage_AddTypeCriteria(loadCommand, typeof(T));
 
             loadCommand.CommandText += " AND Id IN('" + ids.Select(id => id.ToString()).Join("','") + "')";
 
@@ -255,7 +262,7 @@ WHERE Id=@Id AND ValueTypeId
             using var loadCommand = connection.CreateCommand();
             loadCommand.CommandText = @"SELECT Id FROM Store WHERE ValueTypeId ";
 
-            AddTypeCriteria(loadCommand, typeof(T));
+            Storage_AddTypeCriteria(loadCommand, typeof(T));
 
             using var reader = loadCommand.ExecuteReader();
             while(reader.Read())
@@ -302,7 +309,7 @@ ELSE
             return _knownTypes.ContainsKey(type);
         }
 
-        void AddTypeCriteria(SqlCommand command, Type type)
+        void Storage_AddTypeCriteria(SqlCommand command, Type type)
         {
             lock(_lockObject)
             {

@@ -14,7 +14,6 @@ namespace Composable.Persistence.InMemory.EventStore
         IReadOnlyList<IEventMigration> _migrationFactories;
 
         IList<AggregateEvent> _events = new List<AggregateEvent>();
-        int _insertionOrder;
 
         public void Dispose()
         {
@@ -79,7 +78,13 @@ namespace Composable.Persistence.InMemory.EventStore
             }
         }
 
-        public void PersistMigrations() { _events = StreamEvents().Cast<AggregateEvent>().ToList(); }
+        public void PersistMigrations()
+        {
+            lock(_lockObject)
+            {
+                _events = StreamEvents().Cast<AggregateEvent>().ToList();
+            }
+        }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventType = null)
         {

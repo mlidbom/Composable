@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Composable.Serialization;
 using Composable.System;
 using Composable.System.Diagnostics;
+using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using NCrunch.Framework;

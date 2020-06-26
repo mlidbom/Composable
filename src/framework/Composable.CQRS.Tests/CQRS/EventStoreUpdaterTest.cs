@@ -40,19 +40,18 @@ namespace Composable.Tests.CQRS
 
         EventSpy _eventSpy;
 
-        IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator();
-        internal IServiceLocator ServiceLocator { get; private set; }
+        IServiceLocator _serviceLocator;
 
         [SetUp] public void SetupBus()
         {
-            ServiceLocator = CreateServiceLocator();
+            _serviceLocator = TestWiringHelper.SetupTestingServiceLocator();
 
             _eventSpy = new EventSpy();
 
-            ServiceLocator.Resolve<IMessageHandlerRegistrar>()
+            _serviceLocator.Resolve<IMessageHandlerRegistrar>()
                           .ForEvent<MessageTypes.Remotable.ExactlyOnce.IEvent>(_eventSpy.Receive);
 
-            ServiceLocator.Resolve<ITypeMappingRegistar>()
+            _serviceLocator.Resolve<ITypeMappingRegistar>()
                           .Map<Composable.Tests.CQRS.User>("2cfabb11-5e5a-494d-898f-8bfc654544eb")
                           .Map<Composable.Tests.CQRS.IUserEvent>("0727c209-2f49-46ab-a56b-a1332415a895")
                           .Map<Composable.Tests.CQRS.MigratedAfterUserChangedEmailEvent>("9ff42a12-f28c-447a-8aa1-79e6f685fa41")
@@ -66,17 +65,17 @@ namespace Composable.Tests.CQRS
 
         [TearDown] public void TearDownTask()
         {
-            ServiceLocator.Dispose();
+            _serviceLocator.Dispose();
         }
 
 
         protected void UseInTransactionalScope([InstantHandle] Action<IEventStoreUpdater> useSession)
-            => ServiceLocator.ExecuteTransactionInIsolatedScope(
-                () => useSession(ServiceLocator.Resolve<IEventStoreUpdater>()));
+            => _serviceLocator.ExecuteTransactionInIsolatedScope(
+                () => useSession(_serviceLocator.Resolve<IEventStoreUpdater>()));
 
         protected void UseInScope([InstantHandle]Action<IEventStoreUpdater> useSession)
-            => ServiceLocator.ExecuteInIsolatedScope(
-                () => useSession(ServiceLocator.Resolve<IEventStoreUpdater>()));
+            => _serviceLocator.ExecuteInIsolatedScope(
+                () => useSession(_serviceLocator.Resolve<IEventStoreUpdater>()));
 
         [Test]
         public void WhenFetchingAggregateThatDoesNotExistNoSuchAggregateExceptionIsThrown()
@@ -113,10 +112,10 @@ namespace Composable.Tests.CQRS
             using var wait = new ManualResetEventSlim();
             ThreadPool.QueueUserWorkItem(_ =>
                                          {
-                                             ServiceLocator.ExecuteInIsolatedScope(() =>
+                                             _serviceLocator.ExecuteInIsolatedScope(() =>
                                                                                    {
-                                                                                       updater = ServiceLocator.Resolve<IEventStoreUpdater>();
-                                                                                       reader = ServiceLocator.Resolve<IEventStoreReader>();
+                                                                                       updater = _serviceLocator.Resolve<IEventStoreUpdater>();
+                                                                                       reader = _serviceLocator.Resolve<IEventStoreReader>();
                                                                                    });
                                              wait.Set();
                                          });
@@ -142,7 +141,7 @@ namespace Composable.Tests.CQRS
 
             UseInScope(session =>
                        {
-                           var reader = ServiceLocator.Resolve<IEventStoreReader>();
+                           var reader = _serviceLocator.Resolve<IEventStoreReader>();
                            var loadedUser = reader.GetReadonlyCopyOfVersion<User>(user.Id, 1);
                            Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                            Assert.That(loadedUser.Email, Is.EqualTo("email@email.se"));
@@ -224,7 +223,7 @@ namespace Composable.Tests.CQRS
 
             UseInTransactionalScope(session =>
                                     {
-                                        var loadedUser = ServiceLocator.Resolve<IEventStoreReader>().GetReadonlyCopyOfVersion<User>(user.Id, 1);
+                                        var loadedUser = _serviceLocator.Resolve<IEventStoreReader>().GetReadonlyCopyOfVersion<User>(user.Id, 1);
                                         loadedUser.ChangeEmail("NewEmail");
                                     });
 
@@ -486,7 +485,7 @@ namespace Composable.Tests.CQRS
                                     {
                                         Assert.That(_eventSpy.DispatchedMessages.Count, Is.EqualTo(18));
                                         Assert.That(_eventSpy.DispatchedMessages.OfType<IAggregateEvent>().Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
-                                        var allPersistedEvents = ServiceLocator.EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
+                                        var allPersistedEvents = _serviceLocator.EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
 
                                         _eventSpy.DispatchedMessages.OfType<IAggregateEvent>().Should().BeEquivalentTo(allPersistedEvents,options => options.WithStrictOrdering());
                                     });
@@ -499,7 +498,7 @@ namespace Composable.Tests.CQRS
             User user = null;
             void ChangeAnotherUsersEmailInOtherInstance()
             {
-                using var clonedServiceLocator = ServiceLocator.Clone();
+                using var clonedServiceLocator = _serviceLocator.Clone();
                 clonedServiceLocator.ExecuteTransactionInIsolatedScope(() =>
                 {
                     // ReSharper disable once AccessToDisposedClosure
@@ -654,9 +653,9 @@ namespace Composable.Tests.CQRS
         [Test]
         public void If_an_updater_is_used_in_two_transactions_an_exception_is_thrown()
         {
-            using (ServiceLocator.BeginScope())
+            using (_serviceLocator.BeginScope())
             {
-                using var updater = ServiceLocator.Resolve<IEventStoreUpdater>();
+                using var updater = _serviceLocator.Resolve<IEventStoreUpdater>();
                 var user = new User();
                 user.Register("email@email.se", "password", Guid.NewGuid());
 

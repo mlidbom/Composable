@@ -2,6 +2,7 @@ using System;
 using System.Data.SqlClient;
 using System.Transactions;
 using Composable.Persistence.SqlServer.SystemExtensions;
+using JetBrains.Annotations;
 
 namespace Composable.Persistence.SqlServer.EventStore
 {
@@ -10,13 +11,13 @@ namespace Composable.Persistence.SqlServer.EventStore
         readonly ISqlServerConnectionProvider _connectionProvider;
         public SqlServerEventStoreConnectionManager(ISqlServerConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
 
-        void UseConnection(Action<SqlConnection> action, bool suppressTransactionWarning = false)
+        void UseConnection([InstantHandle]Action<SqlConnection> action, bool suppressTransactionWarning = false)
         {
             using var connection = OpenConnection(suppressTransactionWarning);
             action(connection);
         }
 
-        public void UseCommand(Action<SqlCommand> action, bool suppressTransactionWarning = false)
+        public void UseCommand([InstantHandle]Action<SqlCommand> action, bool suppressTransactionWarning = false)
         {
             UseConnection(connection =>
             {

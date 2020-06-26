@@ -59,13 +59,13 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
         {
             // ReSharper disable PossibleInvalidOperationException
             var replacementGroup = events.Where(@event => @event.RefactoringInformation.Replaces.HasValue)
-                                         .GroupBy(@event => @event.RefactoringInformation.Replaces.Value)
+                                         .GroupBy(@event => @event.RefactoringInformation.Replaces!.Value)
                                          .SingleOrDefault();
             var insertBeforeGroup = events.Where(@event => @event.RefactoringInformation.InsertBefore.HasValue)
-                                          .GroupBy(@event => @event.RefactoringInformation.InsertBefore.Value)
+                                          .GroupBy(@event => @event.RefactoringInformation.InsertBefore!.Value)
                                           .SingleOrDefault();
             var insertAfterGroup = events.Where(@event => @event.RefactoringInformation.InsertAfter.HasValue)
-                                         .GroupBy(@event => @event.RefactoringInformation.InsertAfter.Value)
+                                         .GroupBy(@event => @event.RefactoringInformation.InsertAfter!.Value)
                                          .SingleOrDefault();
             // ReSharper restore PossibleInvalidOperationException
 
@@ -76,7 +76,7 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             {
                 Contract.Assert.That(replacementGroup.All(@this => @this.RefactoringInformation.Replaces.HasValue && @this.RefactoringInformation.Replaces != Guid.Empty),
                                      "replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0)");
-                var eventToReplace = LoadEventOrderNeighborhood(replacementGroup.Key);
+                var eventToReplace = LoadEventInsertedBeforeAndAfter(replacementGroup.Key);
 
                 SaveRefactoringEventsWithinReadOrderRange(
                     newEvents: replacementGroup.ToArray(),
@@ -87,7 +87,7 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             {
                 Contract.Assert.That(insertBeforeGroup.All(@this => @this.RefactoringInformation.InsertBefore.HasValue && @this.RefactoringInformation.InsertBefore.Value != Guid.Empty),
                                      "insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0)");
-                var eventToInsertBefore = LoadEventOrderNeighborhood(insertBeforeGroup.Key);
+                var eventToInsertBefore = LoadEventInsertedBeforeAndAfter(insertBeforeGroup.Key);
 
                 SaveRefactoringEventsWithinReadOrderRange(
                     newEvents: insertBeforeGroup.ToArray(),
@@ -98,7 +98,7 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             {
                 Contract.Assert.That(insertAfterGroup.All(@this => @this.RefactoringInformation.InsertAfter.HasValue && @this.RefactoringInformation.InsertAfter.Value != Guid.Empty),
                                      "insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0)");
-                var eventToInsertAfter = LoadEventOrderNeighborhood(insertAfterGroup.Key);
+                var eventToInsertAfter = LoadEventInsertedBeforeAndAfter(insertAfterGroup.Key);
 
                 SaveRefactoringEventsWithinReadOrderRange(
                     newEvents: insertAfterGroup.ToArray(),
@@ -203,7 +203,7 @@ SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             SqlDecimal UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(SqlDecimal nextReadOrder) => !nextReadOrder.IsNull ? nextReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(InsertionOrder + 1));
         }
 
-        EventOrderNeighborhood LoadEventOrderNeighborhood(Guid insertionOrder)
+        EventOrderNeighborhood LoadEventInsertedBeforeAndAfter(Guid insertionOrder)
         {
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
 

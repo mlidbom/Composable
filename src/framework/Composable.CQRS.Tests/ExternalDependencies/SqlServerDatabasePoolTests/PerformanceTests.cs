@@ -4,6 +4,7 @@ using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.Persistence.SqlServer.Testing.Databases;
 using Composable.System;
 using Composable.System.Configuration;
+using Composable.Testing;
 using Composable.Testing.Performance;
 using NCrunch.Framework;
 using NUnit.Framework;

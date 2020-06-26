@@ -39,6 +39,7 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
         //todo: does the fact that we register all this stuff using a connectionStringName mean that, using named components, we could easily have multiple registrations as long as they use different connectionStrings
         public static void RegisterSqlServerPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
         {
+            //Connection management
             if(container.RunMode.IsTesting)
             {
                 container.Register(Singleton.For<ISqlServerConnectionProviderSource>()
@@ -56,6 +57,7 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
                          .CreatedBy((ISqlServerConnectionProviderSource providerSource) => new LazySqlServerConnectionProvider(() => providerSource.GetConnectionProvider(connectionStringName).ConnectionString))
             );
 
+            //urgent: Refactor and rename interfaces into an IServiceBusPersistenceLayer interface analogous to IEventStorePersistenceLayer
             //Service bus
             container.Register(Singleton.For<InterprocessTransport.IMessageStorage>()
                                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)

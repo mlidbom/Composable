@@ -133,7 +133,7 @@ SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = data.EventId});
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.UtcTimeStamp, SqlDbType.DateTime2) {Value = data.UtcTimeStamp});
 
-                //Urgent: Change this to another data type. SqlDecimal is not portable and way to mysterious to work with for my taste.
+                //Urgent: Change this to another data type. https://github.com/mlidbom/Composable/issues/46
                 var manualReadOrder = rangeStart + (index + 1) * readOrderIncrement;
                 if(!(manualReadOrder.IsNull || (manualReadOrder.Precision == 38 && manualReadOrder.Scale == 17)))
                 {

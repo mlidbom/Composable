@@ -18,7 +18,7 @@ using Composable.System.Reflection;
 
 namespace Composable.Persistence.SqlServer.DocumentDb.SqlServer
 {
-    //urgent: Extract persistence from this class to an interface called IDocumentDbPersistenceLayer
+    //urgent: Extract persistence from this class to an interface called IDocumentDbPersistenceLayer then rename this class DocumentDb
     partial class SqlServerDocumentDb : IDocumentDb
     {
         readonly ISqlServerConnectionProvider _connectionProvider;

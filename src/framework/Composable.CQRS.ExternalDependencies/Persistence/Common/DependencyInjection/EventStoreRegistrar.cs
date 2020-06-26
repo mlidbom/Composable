@@ -48,7 +48,7 @@ namespace Composable.Persistence.Common.DependencyInjection
             }
 
             @this.Register(Scoped.For<IEventStoreUpdater, IEventStoreReader>()
-                                    .CreatedBy((IEventstoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
+                                    .CreatedBy((IEventStoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
                                                             new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
 
             return new EventStoreRegistrationBuilder();
@@ -89,7 +89,7 @@ namespace Composable.Persistence.Common.DependencyInjection
             }
 
             @this.Register(Scoped.For<IEventStoreUpdater, IEventStoreReader>()
-                                    .CreatedBy((IEventstoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
+                                    .CreatedBy((IEventStoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
                                                             new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
         }
     }

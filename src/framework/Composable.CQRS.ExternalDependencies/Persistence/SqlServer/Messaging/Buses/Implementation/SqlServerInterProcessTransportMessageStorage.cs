@@ -10,6 +10,7 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
+    //urgent: separate out persistence code from this into IServiceBusPersistenceLayer.IOutboxStorage or something similar
     partial class SqlServerInterProcessTransportMessageStorage : InterprocessTransport.IMessageStorage
     {
         readonly ISqlServerConnectionProvider _connectionFactory;

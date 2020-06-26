@@ -6,11 +6,12 @@ using Composable.Persistence.EventStore;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    interface IEventstoreEventPublisher
+    interface IEventStoreEventPublisher
     {
         void Publish(IAggregateEvent anEvent);
     }
 
+    //Urgent: is this our outbox? Is this per remote endpoint or global?
     interface IInterprocessTransport
     {
         void Stop();

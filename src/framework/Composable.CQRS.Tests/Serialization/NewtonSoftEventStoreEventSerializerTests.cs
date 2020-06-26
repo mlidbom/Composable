@@ -29,7 +29,7 @@ namespace Composable.Tests.Serialization
 
         [OneTimeSetUp] public void SetupTask()
         {
-            _host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create);
+            _host = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
             var clientEndpoint = _host.RegisterClientEndpointForRegisteredEndpoints();
             _eventSerializer = clientEndpoint.ServiceLocator.Resolve<IEventStoreSerializer>();
         }

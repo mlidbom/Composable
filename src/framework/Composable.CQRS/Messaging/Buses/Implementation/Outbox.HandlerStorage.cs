@@ -6,7 +6,7 @@ using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    partial class InterprocessTransport
+    partial class Outbox
     {
         internal class HandlerStorage
         {

@@ -24,7 +24,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
         [SetUp]public async Task Setup()
         {
-            _host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create);
+            _host = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
 
             _endpoint = _host.RegisterEndpoint(
                 "endpoint",

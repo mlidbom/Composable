@@ -25,7 +25,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 
         [SetUp] public async Task Setup()
         {
-            Host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create);
+            Host = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
             ServerEndpoint = Host.RegisterEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),

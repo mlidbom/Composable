@@ -17,7 +17,7 @@ namespace AccountManagement.UserStories
 
         [SetUp] public async Task SetupContainerAndBeginScope()
         {
-            Host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create);
+            Host = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
             new AccountManagementServerDomainBootstrapper().RegisterWith(Host);
             _clientEndpoint = Host.RegisterTestingEndpoint(setup:AccountApi.RegisterWithClientEndpoint);
             await Host.StartAsync();

@@ -7,11 +7,11 @@ using Composable.System.Reflection;
 
 namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
-    partial class SqlServerMessageStorage : Inbox.IMessageStorage
+    partial class SqlServerInboxMessageStorage : Inbox.IMessageStorage
     {
         readonly ISqlServerConnectionProvider _connectionFactory;
 
-        public SqlServerMessageStorage(ISqlServerConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        public SqlServerInboxMessageStorage(ISqlServerConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveIncomingMessage(TransportMessage.InComing message) =>
             _connectionFactory.UseCommand(

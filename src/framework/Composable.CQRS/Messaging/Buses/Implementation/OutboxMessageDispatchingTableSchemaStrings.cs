@@ -1,8 +1,8 @@
 ﻿namespace Composable.Messaging.Buses.Implementation
 {
-    static class InterprocessTransportMessageDispatchingDatabaseSchemaNames
+    static class OutboxMessageDispatchingTableSchemaStrings
     {
-        internal const string TableName = nameof(InterprocessTransportMessageDispatchingDatabaseSchemaNames);
+        internal const string TableName = nameof(OutboxMessageDispatchingTableSchemaStrings);
 
         internal const string MessageId = nameof(MessageId);
         internal const string EndpointId = nameof(EndpointId);

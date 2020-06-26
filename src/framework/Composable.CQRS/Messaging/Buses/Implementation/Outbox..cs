@@ -14,11 +14,11 @@ using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    partial class InterprocessTransport : IInterprocessTransport, IDisposable
+    partial class Outbox : IOutbox, IDisposable
     {
         class State
         {
-            public State(IGlobalBusStateTracker globalBusStateTracker, HandlerStorage handlerStorage, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, InterprocessTransport.IMessageStorage messageStorage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public State(IGlobalBusStateTracker globalBusStateTracker, HandlerStorage handlerStorage, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, Outbox.IMessageStorage messageStorage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 GlobalBusStateTracker = globalBusStateTracker;
                 HandlerStorage = handlerStorage;
@@ -31,11 +31,11 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal bool Running;
             public readonly IGlobalBusStateTracker GlobalBusStateTracker;
-            internal readonly Dictionary<EndpointId, IClientConnection> EndpointConnections = new Dictionary<EndpointId, IClientConnection>();
+            internal readonly Dictionary<EndpointId, IInboxConnection> InboxConnections = new Dictionary<EndpointId, IInboxConnection>();
             internal readonly HandlerStorage HandlerStorage;
             internal NetMQPoller? Poller;
             public IUtcTimeTimeSource TimeSource { get; }
-            public InterprocessTransport.IMessageStorage MessageStorage { get; }
+            public Outbox.IMessageStorage MessageStorage { get; }
             public ITypeMapper TypeMapper { get; }
             public IRemotableMessageSerializer Serializer { get; }
             public readonly RealEndpointConfiguration Configuration;
@@ -45,7 +45,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly IThreadShared<State> _state;
         readonly ITaskRunner _taskRunner;
 
-        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, InterprocessTransport.IMessageStorage messageStorage, ITypeMapper typeMapper, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
+        public Outbox(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, Outbox.IMessageStorage messageStorage, ITypeMapper typeMapper, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer)
         {
             _taskRunner = taskRunner;
             _state = new OptimizedThreadShared<State>(new State(
@@ -60,13 +60,13 @@ namespace Composable.Messaging.Buses.Implementation
 
         public async Task ConnectAsync(EndPointAddress remoteEndpoint)
         {
-            var clientConnection = _state.WithExclusiveAccess(@this => new ClientConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller!, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer));
+            var clientConnection = _state.WithExclusiveAccess(@this => new InboxConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller!, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer));
 
             await clientConnection.Init();
 
             _state.WithExclusiveAccess(@this =>
             {
-                @this.EndpointConnections.Add(clientConnection.EndpointInformation.Id, clientConnection);
+                @this.InboxConnections.Add(clientConnection.EndpointInformation.Id, clientConnection);
                 @this.HandlerStorage.AddRegistrations(clientConnection.EndpointInformation.Id, clientConnection.EndpointInformation.HandledMessageTypes);
             });
         }
@@ -83,7 +83,7 @@ namespace Composable.Messaging.Buses.Implementation
                                        : state.MessageStorage.StartAsync();
 
                 state.Poller = new NetMQPoller();
-                state.PollerThread = new Thread(() => state.Poller.Run()) {Name = $"{nameof(InterprocessTransport)}_{nameof(state.PollerThread)}"};
+                state.PollerThread = new Thread(() => state.Poller.Run()) {Name = $"{nameof(Outbox)}_{nameof(state.PollerThread)}"};
                 state.PollerThread.Start();
                 return storageStartTask;
             });
@@ -98,7 +98,7 @@ namespace Composable.Messaging.Buses.Implementation
             state.Poller.StopAsync();
             state.PollerThread.Join();
             state.Poller.Dispose();
-            state.EndpointConnections.Values.ForEach(socket => socket.Dispose());
+            state.InboxConnections.Values.ForEach(socket => socket.Dispose());
             state.Poller = null;
         });
 
@@ -110,7 +110,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             if(eventHandlerEndpointIds.Length != 0)//Don't waste time if there are no receivers
             {
-                var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId])
+                var connections = eventHandlerEndpointIds.Select(endpointId => state.InboxConnections[endpointId])
                                                          .ToArray();
                 state.MessageStorage.SaveMessage(exactlyOnceEvent, eventHandlerEndpointIds);
                 connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(exactlyOnceEvent));
@@ -120,17 +120,17 @@ namespace Composable.Messaging.Buses.Implementation
         public void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand) => _state.WithExclusiveAccess(state =>
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(exactlyOnceCommand);
-            var connection = state.EndpointConnections[endPointId];
+            var connection = state.InboxConnections[endPointId];
             state.MessageStorage.SaveMessage(exactlyOnceCommand, endPointId);
             connection.DispatchIfTransactionCommits(exactlyOnceCommand);
         });
 
         public async Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand)
         {
-            IClientConnection connection = _state.WithExclusiveAccess(state =>
+            IInboxConnection connection = _state.WithExclusiveAccess(state =>
             {
                 var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand);
-                return state.EndpointConnections[endPointId];
+                return state.InboxConnections[endPointId];
             });
 
             await connection.DispatchAsync(atMostOnceCommand).NoMarshalling();
@@ -138,10 +138,10 @@ namespace Composable.Messaging.Buses.Implementation
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand)
         {
-            IClientConnection connection = _state.WithExclusiveAccess(state =>
+            IInboxConnection connection = _state.WithExclusiveAccess(state =>
             {
                 var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand);
-                return state.EndpointConnections[endPointId];
+                return state.InboxConnections[endPointId];
             });
 
             return await connection.DispatchAsync(atMostOnceCommand);
@@ -152,7 +152,7 @@ namespace Composable.Messaging.Buses.Implementation
             var connection = _state.WithExclusiveAccess(state =>
             {
                 var endPointId = state.HandlerStorage.GetQueryHandlerEndpoint(query);
-                return state.EndpointConnections[endPointId];
+                return state.InboxConnections[endPointId];
             });
 
             return await connection.DispatchAsync(query);

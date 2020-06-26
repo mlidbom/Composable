@@ -39,9 +39,9 @@ namespace Composable.Messaging.Buses
         public bool IsRunning { get; private set; }
         public Endpoint(IServiceLocator serviceLocator,
                         IGlobalBusStateTracker globalStateTracker,
-                        IInterprocessTransport transport,
+                        IOutbox transport,
                         IEndpointRegistry endpointRegistry,
-                        IInterprocessTransport interProcessTransport,
+                        IOutbox interProcessTransport,
                         EndpointConfiguration configuration)
         {
             Assert.Argument.Assert(serviceLocator != null, configuration != null);
@@ -57,9 +57,9 @@ namespace Composable.Messaging.Buses
 
         public EndPointAddress? Address => _serverComponents?.Inbox.Address;
         readonly IGlobalBusStateTracker _globalStateTracker;
-        readonly IInterprocessTransport _transport;
+        readonly IOutbox _transport;
         readonly IEndpointRegistry _endpointRegistry;
-        readonly IInterprocessTransport _interProcessTransport;
+        readonly IOutbox _interProcessTransport;
 
         ServerComponents? _serverComponents;
 

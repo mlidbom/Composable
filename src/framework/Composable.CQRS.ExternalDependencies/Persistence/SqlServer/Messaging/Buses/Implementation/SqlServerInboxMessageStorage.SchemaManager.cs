@@ -4,7 +4,7 @@ using Composable.Persistence.SqlServer.SystemExtensions;
 
 namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
-    partial class SqlServerMessageStorage
+    partial class SqlServerInboxMessageStorage
     {
         static class SchemaManager
         {

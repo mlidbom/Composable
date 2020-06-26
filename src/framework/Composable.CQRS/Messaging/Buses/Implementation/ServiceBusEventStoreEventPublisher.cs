@@ -5,10 +5,10 @@ namespace Composable.Messaging.Buses.Implementation
 {
     [UsedImplicitly] class ServiceBusEventStoreEventPublisher : IEventStoreEventPublisher
     {
-        readonly IInterprocessTransport _transport;
+        readonly IOutbox _transport;
         readonly IMessageHandlerRegistry _handlerRegistry;
 
-        public ServiceBusEventStoreEventPublisher(IInterprocessTransport transport, IMessageHandlerRegistry handlerRegistry)
+        public ServiceBusEventStoreEventPublisher(IOutbox transport, IMessageHandlerRegistry handlerRegistry)
         {
             _transport = transport;
             _handlerRegistry = handlerRegistry;

@@ -11,8 +11,15 @@ namespace Composable.Messaging.Buses.Implementation
         void Publish(IAggregateEvent anEvent);
     }
 
+    interface IInbox
+    {
+        EndPointAddress Address { get; }
+        Task StartAsync();
+        void Stop();
+    }
+
     //Urgent: is this our outbox? Is this per remote endpoint or global?
-    interface IInterprocessTransport
+    interface IOutbox
     {
         void Stop();
         Task StartAsync();
@@ -27,12 +34,7 @@ namespace Composable.Messaging.Buses.Implementation
         Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
     }
 
-    interface IEndpointRegistry
-    {
-        IEnumerable<EndPointAddress> ServerEndpoints { get; }
-    }
-
-    interface IClientConnection : IDisposable
+    interface IInboxConnection : IDisposable
     {
         void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
         void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand command);
@@ -40,6 +42,11 @@ namespace Composable.Messaging.Buses.Implementation
         Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand command);
         Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
+    }
+
+    interface IEndpointRegistry
+    {
+        IEnumerable<EndPointAddress> ServerEndpoints { get; }
     }
 
     interface IMessageHandlerRegistry
@@ -61,10 +68,5 @@ namespace Composable.Messaging.Buses.Implementation
         ISet<TypeId> HandledRemoteMessageTypeIds();
     }
 
-    interface IInbox
-    {
-        EndPointAddress Address { get; }
-        Task StartAsync();
-        void Stop();
-    }
+    
 }

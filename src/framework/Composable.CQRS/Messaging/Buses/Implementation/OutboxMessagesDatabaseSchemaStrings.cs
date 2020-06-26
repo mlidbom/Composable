@@ -1,8 +1,8 @@
 ﻿namespace Composable.Messaging.Buses.Implementation
 {
-    static class InterprocessTransportOutboxMessagesDatabaseSchemaStrings
+    static class OutboxMessagesDatabaseSchemaStrings
     {
-        internal const string TableName = nameof(InterprocessTransportOutboxMessagesDatabaseSchemaStrings);
+        internal const string TableName = nameof(OutboxMessagesDatabaseSchemaStrings);
 
         internal const string Identity = nameof(Identity);
         internal const string TypeIdGuidValue = nameof(TypeIdGuidValue);

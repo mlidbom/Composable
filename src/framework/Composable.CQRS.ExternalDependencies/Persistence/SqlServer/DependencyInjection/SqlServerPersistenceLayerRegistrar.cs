@@ -59,10 +59,10 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
 
             //urgent: Refactor and rename interfaces into an IServiceBusPersistenceLayer interface analogous to IEventStorePersistenceLayer
             //Service bus
-            container.Register(Singleton.For<InterprocessTransport.IMessageStorage>()
+            container.Register(Singleton.For<Outbox.IMessageStorage>()
                                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
-                                                       => new SqlServerInterProcessTransportMessageStorage(endpointSqlConnection, typeMapper, serializer)),
-                               Singleton.For<Inbox.IMessageStorage>().CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerMessageStorage(endpointSqlConnection)));
+                                                       => new SqlServerOutboxMessageStorage(endpointSqlConnection, typeMapper, serializer)),
+                               Singleton.For<Inbox.IMessageStorage>().CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerInboxMessageStorage(endpointSqlConnection)));
 
             //Event store
             container.Register(

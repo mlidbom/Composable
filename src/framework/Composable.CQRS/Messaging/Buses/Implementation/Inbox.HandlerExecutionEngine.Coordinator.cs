@@ -14,6 +14,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         partial class HandlerExecutionEngine
         {
+            //refactor: Consider moving all message type specific responsibilities into the message class or other class. Probably create more subtypes so that no type checking is required. See also inbox.
             partial class Coordinator
             {
                 readonly ITaskRunner _taskRunner;
@@ -93,7 +94,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     internal void Failed(HandlerExecutionTask queuedMessageInformation, Exception exception) => DoneDispatching(queuedMessageInformation, exception);
 
-
+                    //Refactor: Switching should not be necessary. See also inbox.
                     void Dispatching(HandlerExecutionTask dispatchable)
                     {
                         _executingMessages++;
@@ -119,6 +120,7 @@ namespace Composable.Messaging.Buses.Implementation
                         _messagesWaitingToExecute.Remove(dispatchable);
                     }
 
+                    //Refactor: Switching should not be necessary. See also inbox.
                     void DoneDispatching(HandlerExecutionTask doneExecuting, Exception? exception = null)
                     {
                         _executingMessages--;

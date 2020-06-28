@@ -92,7 +92,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                             dispatchTask.ContinueWith(dispatchResult =>
                             {
-                                //refactor: Consider moving these responsibilities into the message class or other class. Probably create more subtypes so that no type checking is required. See also: HandlerExecutionEngine.Coordinator
+                                //refactor: Consider moving these responsibilities into the message class or other class. Probably create more subtypes so that no type checking is required. See also: HandlerExecutionEngine.Coordinator and [.HandlerExecutionTask]
                                 var message = transportMessage.DeserializeMessageAndCacheForNextCall();
                                 if(message is MessageTypes.Remotable.IRequireRemoteResponse)
                                 {

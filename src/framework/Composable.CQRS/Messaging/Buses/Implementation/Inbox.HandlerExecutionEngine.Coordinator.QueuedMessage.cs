@@ -91,6 +91,7 @@ namespace Composable.Messaging.Buses.Implementation
                         _messageTask = CreateMessageTask();
                     }
 
+                    //Refactor: Switching should not be necessary. See also inbox.
                     Func<object, object?> CreateMessageTask() =>
                         TransportMessage.MessageTypeEnum switch
                         {

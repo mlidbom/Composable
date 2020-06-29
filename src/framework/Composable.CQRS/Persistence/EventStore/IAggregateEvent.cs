@@ -10,6 +10,6 @@ namespace Composable.Persistence.EventStore
         int AggregateVersion { get; }
         Guid AggregateId { get; }
         DateTime UtcTimeStamp { get; }
-        [JsonIgnore] Guid MessageTypes.Remotable.IAtMostOnceMessage.DeduplicationId => EventId;
+        [JsonIgnore] Guid MessageTypes.Remotable.IAtMostOnceMessage.MessageId => EventId;
     }
 }

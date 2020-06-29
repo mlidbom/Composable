@@ -111,7 +111,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             public static RegisterUserCommand Create(string name) => new RegisterUserCommand
                                                                      {
                                                                          Name = name,
-                                                                         DeduplicationId = Guid.NewGuid()
+                                                                         MessageId = Guid.NewGuid()
                                                                      };
 
             public string Name { get; private set; }

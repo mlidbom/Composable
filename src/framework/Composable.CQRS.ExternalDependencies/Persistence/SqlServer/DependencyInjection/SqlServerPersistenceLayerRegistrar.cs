@@ -1,4 +1,5 @@
-﻿using Composable.DependencyInjection;
+﻿using System;
+using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.DocumentDb;
@@ -66,9 +67,11 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
             //urgent: Refactor and rename interfaces into an IServiceBusPersistenceLayer interface analogous to IEventStorePersistenceLayer
             //Service bus
             container.Register(
+                Singleton.For<IServiceBusPersistenceLayer.IOutboxPersistenceLayer>()
+                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerServiceBusPersistenceLayer(endpointSqlConnection)),
                 Singleton.For<Outbox.IMessageStorage>()
-                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
-                                        => new SqlServerOutboxMessageStorage(endpointSqlConnection, typeMapper, serializer)),
+                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection, IServiceBusPersistenceLayer.IOutboxPersistenceLayer persistenceLayer, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+                                        => new SqlServerOutboxMessageStorage(endpointSqlConnection, persistenceLayer, typeMapper, serializer)),
                 Singleton.For<Inbox.IMessageStorage>()
                          .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerInboxMessageStorage(endpointSqlConnection)));
 

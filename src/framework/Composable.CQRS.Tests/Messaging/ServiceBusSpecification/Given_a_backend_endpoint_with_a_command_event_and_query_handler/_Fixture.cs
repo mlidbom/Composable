@@ -170,7 +170,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             internal static MyCreateAggregateCommand Create() => new MyCreateAggregateCommand
                                                                  {
-                                                                     DeduplicationId = Guid.NewGuid(),
+                                                                     MessageId = Guid.NewGuid(),
                                                                      AggregateId = Guid.NewGuid()
                                                                  };
 
@@ -191,13 +191,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         protected class MyAtMostOnceCommand : MessageTypes.Remotable.AtMostOnce.Command<MyCommandResult>
         {
             protected MyAtMostOnceCommand() : base(DeduplicationIdHandling.Reuse) {}
-            internal static MyAtMostOnceCommand Create() => new MyAtMostOnceCommand {DeduplicationId = Guid.NewGuid()};
+            internal static MyAtMostOnceCommand Create() => new MyAtMostOnceCommand {MessageId = Guid.NewGuid()};
         }
 
         protected class MyAtMostOnceCommandWithResult : MessageTypes.Remotable.AtMostOnce.Command<MyCommandResult>
         {
             MyAtMostOnceCommandWithResult() : base(DeduplicationIdHandling.Reuse) {}
-            internal static MyAtMostOnceCommandWithResult Create() => new MyAtMostOnceCommandWithResult {DeduplicationId = Guid.NewGuid()};
+            internal static MyAtMostOnceCommandWithResult Create() => new MyAtMostOnceCommandWithResult {MessageId = Guid.NewGuid()};
         }
         protected class MyCommandResult {}
     }

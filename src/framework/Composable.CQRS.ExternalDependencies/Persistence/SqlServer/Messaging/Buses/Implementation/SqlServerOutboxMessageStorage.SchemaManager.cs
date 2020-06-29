@@ -20,7 +20,7 @@ BEGIN
 	    [{MessageTable.Identity}] [int] IDENTITY(1,1) NOT NULL,
         [{MessageTable.TypeIdGuidValue}] [uniqueidentifier] NOT NULL,
         [{MessageTable.MessageId}] [uniqueidentifier] NOT NULL,
-	    [{MessageTable.Body}] [nvarchar](MAX) NOT NULL,
+	    [{MessageTable.SerializedMessage}] [nvarchar](MAX) NOT NULL,
 
         CONSTRAINT [PK_{MessageTable.TableName}] PRIMARY KEY CLUSTERED 
         (

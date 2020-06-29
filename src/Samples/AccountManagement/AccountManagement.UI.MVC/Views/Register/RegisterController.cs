@@ -25,7 +25,7 @@ namespace AccountManagement.UI.MVC.Views.Register
                     return View("ValidateYourEmail", result.RegisteredAccount);
                 case RegistrationAttemptStatus.EmailAlreadyRegistered:
                     ModelState.AddModelError((AccountResource.Command.Register model) => model.Email, "Email is already registered");
-                    ModelState.Remove((AccountResource.Command.Register model) => model.DeduplicationId);
+                    ModelState.Remove((AccountResource.Command.Register model) => model.MessageId);
                     registrationCommand.ReplaceDeduplicationId();
                     return View("RegistrationForm", registrationCommand);
                 default:

@@ -1,7 +1,33 @@
-﻿namespace Composable.Messaging.Buses.Implementation
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Composable.Messaging.Buses.Implementation
 {
     interface IServiceBusPersistenceLayer
     {
+
+        interface IOutboxPersistenceLayer
+        {
+            void SaveMessage(OutboxMessageWithReceivers messageWithReceivers);
+            int MarkAsReceived(Guid messageId, Guid endpointId);
+        }
+
+        class OutboxMessageWithReceivers
+        {
+            public OutboxMessageWithReceivers(string serializedMessage, Guid typeIdGuidValue, Guid messageId, IEnumerable<Guid> receiverEndpointIds)
+            {
+                SerializedMessage = serializedMessage;
+                TypeIdGuidValue = typeIdGuidValue;
+                MessageId = messageId;
+                ReceiverEndpointIds = receiverEndpointIds.ToList();
+            }
+
+            public string SerializedMessage { get; }
+            public Guid TypeIdGuidValue { get; }
+            public Guid MessageId { get; }
+            public IEnumerable<Guid> ReceiverEndpointIds { get; }
+        }
 
         static class InboxMessageDatabaseSchemaStrings
         {
@@ -25,7 +51,7 @@
             internal const string Identity = nameof(Identity);
             internal const string TypeIdGuidValue = nameof(TypeIdGuidValue);
             internal const string MessageId = nameof(MessageId);
-            internal const string Body = nameof(Body);
+            internal const string SerializedMessage = nameof(SerializedMessage);
         }
 
         static class OutboxMessageDispatchingTableSchemaStrings

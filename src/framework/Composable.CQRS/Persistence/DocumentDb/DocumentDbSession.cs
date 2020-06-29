@@ -95,7 +95,7 @@ namespace Composable.Persistence.DocumentDb
         }
 
 
-        public IEnumerable<TValue> Get<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
+        public IEnumerable<TValue> GetAll<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             var idSet = ids.ToSet();//Avoid multiple enumerations.

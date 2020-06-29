@@ -1,8 +1,10 @@
 ﻿using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.SqlServer.Configuration;
+using Composable.Persistence.SqlServer.DocumentDb.SqlServer;
 using Composable.Persistence.SqlServer.EventStore;
 using Composable.Persistence.SqlServer.Messaging.Buses.Implementation;
 using Composable.Persistence.SqlServer.SystemExtensions;
@@ -63,6 +65,10 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
                                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
                                                        => new SqlServerOutboxMessageStorage(endpointSqlConnection, typeMapper, serializer)),
                                Singleton.For<Inbox.IMessageStorage>().CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerInboxMessageStorage(endpointSqlConnection)));
+
+            //DocumentDB
+            container.Register(Singleton.For<IDocumentDbPersistenceLayer>()
+                                        .CreatedBy((ISqlServerConnectionProvider connectionProvider) => new SqlServerDocumentDbPersistenceLayer(connectionProvider)));
 
             //Event store
             container.Register(

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Composable.System.Linq;
@@ -15,5 +16,14 @@ namespace Composable.Persistence.SqlServer.SystemExtensions
         public static async Task ExecuteNonQueryAsync(this SqlCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteNonQueryAsync();
         public static SqlCommand AppendCommandText(this SqlCommand @this, string append) => @this.Mutate(me => me.CommandText += append);
         public static SqlCommand SetCommandText(this SqlCommand @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
+        public static IReadOnlyList<T> ExecuteReaderAndSelect<T>(this SqlCommand @this, Func<SqlDataReader, T> select)
+        {
+            using(var reader = @this.ExecuteReader())
+            {
+                var result = new List<T>();
+                reader.ForEachSuccessfulRead(row => result.Add(select(row)));
+                return result;
+            }
+        }
     }
 }

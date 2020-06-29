@@ -34,8 +34,8 @@ namespace Composable.Persistence.Common.DependencyInjection
             } else
             {
                 @this.Register(Singleton.For<IDocumentDb>()
-                                         .CreatedBy((ISqlServerConnectionProvider connectionProvider, ITypeMapper typeMapper, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
-                                                        => new SqlServerDocumentDb(connectionProvider, timeSource, serializer, typeMapper)));
+                                         .CreatedBy((IDocumentDbPersistenceLayer persistenceLayer, ITypeMapper typeMapper, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
+                                                        => new DocumentDb.DocumentDb(timeSource, serializer, typeMapper, persistenceLayer)));
             }
 
 

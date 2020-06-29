@@ -3,7 +3,7 @@ using Composable.System.Transactions;
 
 namespace Composable.Persistence.SqlServer.DocumentDb.SqlServer
 {
-    partial class SqlServerDocumentDb
+    partial class SqlServerDocumentDbPersistenceLayer
     {
         class SchemaManager
         {

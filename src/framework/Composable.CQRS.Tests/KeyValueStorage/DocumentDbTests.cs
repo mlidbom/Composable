@@ -120,7 +120,7 @@ namespace Composable.Tests.KeyValueStorage
 
             UseInTransactionalScope((reader, updater) => users.ForEach(user => updater.Save(user)));
 
-            UseInScope(reader => reader.Get<User>(ids.Take(5))
+            UseInScope(reader => reader.GetAll<User>(ids.Take(5))
                                        .Select(fetched => fetched.Id)
                                        .Should()
                                        .Equal(ids.Take(5)));
@@ -138,7 +138,7 @@ namespace Composable.Tests.KeyValueStorage
             UseInTransactionalScope((reader,updater) => users.ForEach(user => updater.Save(user)));
 
             UseInScope(reader => Assert.Throws<NoSuchDocumentException>(
-                           () => reader.Get<User>(ids.Take(5)
+                           () => reader.GetAll<User>(ids.Take(5)
                                                      .Append(Guid.Parse("00000000-0000-0000-0000-000000000099"))
                                                      .ToArray())
                                        // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
@@ -159,7 +159,7 @@ namespace Composable.Tests.KeyValueStorage
                              {
                                  var fetchedIndividually = ids.Select(id => reader.Get<User>(id))
                                                               .ToArray();
-                                 var fetchedWithGetAll = reader.Get<User>(ids)
+                                 var fetchedWithGetAll = reader.GetAll<User>(ids)
                                                                .ToArray();
 
                                  fetchedIndividually.ForEach((user, index) => Assert.That(user, Is.SameAs(fetchedWithGetAll[index])));
@@ -690,7 +690,7 @@ namespace Composable.Tests.KeyValueStorage
                                         updater.Save(user1);
                                         updater.Save(user2);
 
-                                        var people = reader.Get<User>(new[] {user1.Id});
+                                        var people = reader.GetAll<User>(new[] {user1.Id});
 
                                         Assert.That(people.ToList(), Has.Count.EqualTo(1));
                                         Assert.That(people, Contains.Item(user1));
@@ -860,7 +860,7 @@ namespace Composable.Tests.KeyValueStorage
 
             InsertUsersInOtherDocumentDb(userId);
 
-            UseInScope(reader => reader.Get<User>(Seq.Create(userId))
+            UseInScope(reader => reader.GetAll<User>(Seq.Create(userId))
                                        .Count()
                                        .Should()
                                        .Be(1));

@@ -30,7 +30,6 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
             public IEventStorePersistenceLayer.IWriter EventWriter { get; }
         }
 
-        //urgent: Register all sql server persistence layer classes here.
         public static void RegisterSqlServerPersistenceLayer(this IEndpointBuilder @this)
         {
             var container = @this.Container;

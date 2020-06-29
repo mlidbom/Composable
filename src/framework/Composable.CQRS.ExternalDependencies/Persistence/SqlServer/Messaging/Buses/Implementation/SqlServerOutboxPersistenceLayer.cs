@@ -8,10 +8,10 @@ using DispatchingTable = Composable.Messaging.Buses.Implementation.IServiceBusPe
 
 namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
-    partial class SqlServerServiceBusPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
+    partial class SqlServerOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
         readonly ISqlServerConnectionProvider _connectionFactory;
-        public SqlServerServiceBusPersistenceLayer(ISqlServerConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        public SqlServerOutboxPersistenceLayer(ISqlServerConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveMessage(IServiceBusPersistenceLayer.OutboxMessageWithReceivers messageWithReceivers)
         {

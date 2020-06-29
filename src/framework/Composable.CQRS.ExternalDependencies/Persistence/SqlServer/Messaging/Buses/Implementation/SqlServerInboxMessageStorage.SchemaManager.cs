@@ -5,7 +5,7 @@ using Schema =  Composable.Messaging.Buses.Implementation.IServiceBusPersistence
 
 namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
-    partial class SqlServerInboxMessageStorage
+    partial class SqlServerInboxPersistenceLayer
     {
         static class SchemaManager
         {

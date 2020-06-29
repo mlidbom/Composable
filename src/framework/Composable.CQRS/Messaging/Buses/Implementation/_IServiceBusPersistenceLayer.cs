@@ -15,6 +15,15 @@ namespace Composable.Messaging.Buses.Implementation
             Task InitAsync();
         }
 
+        interface IInboxPersistenceLayer
+        {
+            void SaveMessage(Guid messageId, Guid typeId, string serializedMessage);
+            void MarkAsSucceeded(Guid messageId);
+            int RecordException(Guid messageId, string exceptionStackTrace, string exceptionMessage, string exceptionType);
+            int MarkAsFailed(Guid messageId);
+            Task InitAsync();
+        }
+
         class OutboxMessageWithReceivers
         {
             public OutboxMessageWithReceivers(string serializedMessage, Guid typeIdGuidValue, Guid messageId, IEnumerable<Guid> receiverEndpointIds)

@@ -64,16 +64,12 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
                          .CreatedBy((ISqlServerConnectionProviderSource providerSource) => new LazySqlServerConnectionProvider(() => providerSource.GetConnectionProvider(connectionStringName).ConnectionString))
             );
 
-            //urgent: Refactor and rename interfaces into an IServiceBusPersistenceLayer interface analogous to IEventStorePersistenceLayer
             //Service bus
             container.Register(
                 Singleton.For<IServiceBusPersistenceLayer.IOutboxPersistenceLayer>()
-                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerServiceBusPersistenceLayer(endpointSqlConnection)),
-                Singleton.For<Outbox.IMessageStorage>()
-                         .CreatedBy((IServiceBusPersistenceLayer.IOutboxPersistenceLayer persistenceLayer, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
-                                        => new Outbox.MessageStorage(persistenceLayer, typeMapper, serializer)),
-                Singleton.For<Inbox.IMessageStorage>()
-                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerInboxMessageStorage(endpointSqlConnection)));
+                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerOutboxPersistenceLayer(endpointSqlConnection)),
+                Singleton.For<IServiceBusPersistenceLayer.IInboxPersistenceLayer>()
+                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerInboxPersistenceLayer(endpointSqlConnection)));
 
             //DocumentDB
             container.Register(

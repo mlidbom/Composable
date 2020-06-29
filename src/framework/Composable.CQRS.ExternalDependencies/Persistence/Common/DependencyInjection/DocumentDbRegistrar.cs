@@ -4,9 +4,6 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.InMemory.DocumentDB;
-using Composable.Persistence.SqlServer.Configuration;
-using Composable.Persistence.SqlServer.DocumentDb.SqlServer;
-using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 
@@ -14,7 +11,6 @@ using Composable.Serialization;
 
 namespace Composable.Persistence.Common.DependencyInjection
 {
-    //urgent: Remove persistence layer registration from this class.
     public static class DocumentDbRegistrar
     {
         public static DocumentDbRegistrationBuilder RegisterDocumentDb(this IEndpointBuilder @this)

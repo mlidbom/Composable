@@ -24,6 +24,7 @@ namespace Composable.Persistence.InMemory.EventStore
         public void DeleteAggregate(Guid aggregateId) { throw new NotImplementedException(); }
     }
 
+    //urgent: implement InMemoryEventStorePersistenceLayer
     class InMemoryEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
         public InMemoryEventStorePersistenceLayer(IEventStorePersistenceLayer.ISchemaManager schemaManager, IEventStorePersistenceLayer.IReader eventReader, IEventStorePersistenceLayer.IWriter eventWriter)

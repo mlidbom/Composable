@@ -1,5 +1,4 @@
-﻿using System;
-using Composable.DependencyInjection;
+﻿using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.DocumentDb;
@@ -10,7 +9,6 @@ using Composable.Persistence.SqlServer.EventStore;
 using Composable.Persistence.SqlServer.Messaging.Buses.Implementation;
 using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.Refactoring.Naming;
-using Composable.Serialization;
 using Composable.System.Configuration;
 
 namespace Composable.Persistence.SqlServer.DependencyInjection

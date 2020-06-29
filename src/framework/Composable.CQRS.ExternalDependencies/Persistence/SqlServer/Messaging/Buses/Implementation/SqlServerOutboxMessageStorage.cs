@@ -7,7 +7,8 @@ using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System.Linq;
-
+using MessageTable = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
+using DispatchingTable = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
     //urgent: separate out persistence code from this into IServiceBusPersistenceLayer.IOutboxStorage or something similar
@@ -31,24 +32,24 @@ namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
                     command
                        .SetCommandText(
                             $@"
-INSERT {OutboxMessagesDatabaseSchemaStrings.TableName} 
-            ({OutboxMessagesDatabaseSchemaStrings.MessageId},  {OutboxMessagesDatabaseSchemaStrings.TypeIdGuidValue}, {OutboxMessagesDatabaseSchemaStrings.Body}) 
-    VALUES (@{OutboxMessagesDatabaseSchemaStrings.MessageId}, @{OutboxMessagesDatabaseSchemaStrings.TypeIdGuidValue}, @{OutboxMessagesDatabaseSchemaStrings.Body})
+INSERT {MessageTable.TableName} 
+            ({MessageTable.MessageId},  {MessageTable.TypeIdGuidValue}, {MessageTable.Body}) 
+    VALUES (@{MessageTable.MessageId}, @{MessageTable.TypeIdGuidValue}, @{MessageTable.Body})
 ")
-                       .AddParameter(OutboxMessagesDatabaseSchemaStrings.MessageId, message.DeduplicationId)
-                       .AddParameter(OutboxMessagesDatabaseSchemaStrings.TypeIdGuidValue, _typeMapper.GetId(message.GetType()).GuidValue)
+                       .AddParameter(MessageTable.MessageId, message.DeduplicationId)
+                       .AddParameter(MessageTable.TypeIdGuidValue, _typeMapper.GetId(message.GetType()).GuidValue)
                         //performance: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
-                       .AddNVarcharMaxParameter(OutboxMessagesDatabaseSchemaStrings.Body, _serializer.SerializeMessage(message))
-                       .AddParameter(OutboxMessageDispatchingTableSchemaStrings.IsReceived, 0);
+                       .AddNVarcharMaxParameter(MessageTable.Body, _serializer.SerializeMessage(message))
+                       .AddParameter(DispatchingTable.IsReceived, 0);
 
                     receiverEndpointIds.ForEach(
                         (endpointId, index)
                             => SqlCommandParameterExtensions.AddParameter(command.AppendCommandText(
                                                                               $@"
-INSERT {OutboxMessageDispatchingTableSchemaStrings.TableName} 
-            ({OutboxMessageDispatchingTableSchemaStrings.MessageId},  {OutboxMessageDispatchingTableSchemaStrings.EndpointId},          {OutboxMessageDispatchingTableSchemaStrings.IsReceived}) 
-    VALUES (@{OutboxMessageDispatchingTableSchemaStrings.MessageId}, @{OutboxMessageDispatchingTableSchemaStrings.EndpointId}_{index}, @{OutboxMessageDispatchingTableSchemaStrings.IsReceived})
-"), (string)$"{OutboxMessageDispatchingTableSchemaStrings.EndpointId}_{index}", endpointId.GuidValue));
+INSERT {DispatchingTable.TableName} 
+            ({DispatchingTable.MessageId},  {DispatchingTable.EndpointId},          {DispatchingTable.IsReceived}) 
+    VALUES (@{DispatchingTable.MessageId}, @{DispatchingTable.EndpointId}_{index}, @{DispatchingTable.IsReceived})
+"), $"{DispatchingTable.EndpointId}_{index}" as string, endpointId.GuidValue));
 
                     command.ExecuteNonQuery();
                 });
@@ -60,14 +61,14 @@ INSERT {OutboxMessageDispatchingTableSchemaStrings.TableName}
                     var affectedRows = command
                                       .SetCommandText(
                                            $@"
-UPDATE {OutboxMessageDispatchingTableSchemaStrings.TableName} 
-    SET {OutboxMessageDispatchingTableSchemaStrings.IsReceived} = 1
-WHERE {OutboxMessageDispatchingTableSchemaStrings.MessageId} = @{OutboxMessageDispatchingTableSchemaStrings.MessageId}
-    AND {OutboxMessageDispatchingTableSchemaStrings.EndpointId} = @{OutboxMessageDispatchingTableSchemaStrings.EndpointId}
-    AND {OutboxMessageDispatchingTableSchemaStrings.IsReceived} = 0
+UPDATE {DispatchingTable.TableName} 
+    SET {DispatchingTable.IsReceived} = 1
+WHERE {DispatchingTable.MessageId} = @{DispatchingTable.MessageId}
+    AND {DispatchingTable.EndpointId} = @{DispatchingTable.EndpointId}
+    AND {DispatchingTable.IsReceived} = 0
 ")
-                                      .AddParameter(OutboxMessageDispatchingTableSchemaStrings.MessageId, response.RespondingToMessageId)
-                                      .AddParameter(OutboxMessageDispatchingTableSchemaStrings.EndpointId, endpointId.GuidValue)
+                                      .AddParameter(DispatchingTable.MessageId, response.RespondingToMessageId)
+                                      .AddParameter(DispatchingTable.EndpointId, endpointId.GuidValue)
                                       .ExecuteNonQuery();
 
                     Assert.Result.Assert(affectedRows == 1);

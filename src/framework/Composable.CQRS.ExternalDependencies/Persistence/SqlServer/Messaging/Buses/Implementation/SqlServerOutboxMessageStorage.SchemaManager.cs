@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.SqlServer.SystemExtensions;
+using MessageTable = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
+using DispatchingTable = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 
 namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
@@ -12,40 +13,40 @@ namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
             {
                 await using var connection = connectionFactory.OpenConnection();
                 await connection.ExecuteNonQueryAsync($@"
-IF NOT EXISTS (select name from sys.tables where name = '{OutboxMessagesDatabaseSchemaStrings.TableName}')
+IF NOT EXISTS (select name from sys.tables where name = '{MessageTable.TableName}')
 BEGIN
-    CREATE TABLE [dbo].[{OutboxMessagesDatabaseSchemaStrings.TableName}]
+    CREATE TABLE [dbo].[{MessageTable.TableName}]
     (
-	    [{OutboxMessagesDatabaseSchemaStrings.Identity}] [int] IDENTITY(1,1) NOT NULL,
-        [{OutboxMessagesDatabaseSchemaStrings.TypeIdGuidValue}] [uniqueidentifier] NOT NULL,
-        [{OutboxMessagesDatabaseSchemaStrings.MessageId}] [uniqueidentifier] NOT NULL,
-	    [{OutboxMessagesDatabaseSchemaStrings.Body}] [nvarchar](MAX) NOT NULL,
+	    [{MessageTable.Identity}] [int] IDENTITY(1,1) NOT NULL,
+        [{MessageTable.TypeIdGuidValue}] [uniqueidentifier] NOT NULL,
+        [{MessageTable.MessageId}] [uniqueidentifier] NOT NULL,
+	    [{MessageTable.Body}] [nvarchar](MAX) NOT NULL,
 
-        CONSTRAINT [PK_{OutboxMessagesDatabaseSchemaStrings.TableName}] PRIMARY KEY CLUSTERED 
+        CONSTRAINT [PK_{MessageTable.TableName}] PRIMARY KEY CLUSTERED 
         (
-	        [{OutboxMessagesDatabaseSchemaStrings.Identity}] ASC
+	        [{MessageTable.Identity}] ASC
         ),
 
-        CONSTRAINT IX_{OutboxMessagesDatabaseSchemaStrings.TableName}_Unique_{OutboxMessagesDatabaseSchemaStrings.MessageId} UNIQUE
+        CONSTRAINT IX_{MessageTable.TableName}_Unique_{MessageTable.MessageId} UNIQUE
         (
-            {OutboxMessagesDatabaseSchemaStrings.MessageId}
+            {MessageTable.MessageId}
         )
 
     ) ON [PRIMARY]
 
-    CREATE TABLE [dbo].[{OutboxMessageDispatchingTableSchemaStrings.TableName}]
+    CREATE TABLE [dbo].[{DispatchingTable.TableName}]
     (
-	    [{OutboxMessageDispatchingTableSchemaStrings.MessageId}] [uniqueidentifier] NOT NULL,
-        [{OutboxMessageDispatchingTableSchemaStrings.EndpointId}] [uniqueidentifier] NOT NULL,
-        [{OutboxMessageDispatchingTableSchemaStrings.IsReceived}] [bit] NOT NULL,
+	    [{DispatchingTable.MessageId}] [uniqueidentifier] NOT NULL,
+        [{DispatchingTable.EndpointId}] [uniqueidentifier] NOT NULL,
+        [{DispatchingTable.IsReceived}] [bit] NOT NULL,
 
-        CONSTRAINT [PK_{OutboxMessageDispatchingTableSchemaStrings.TableName}] 
-            PRIMARY KEY CLUSTERED( {OutboxMessageDispatchingTableSchemaStrings.MessageId}, {OutboxMessageDispatchingTableSchemaStrings.EndpointId})
+        CONSTRAINT [PK_{DispatchingTable.TableName}] 
+            PRIMARY KEY CLUSTERED( {DispatchingTable.MessageId}, {DispatchingTable.EndpointId})
             WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY],
 
-        CONSTRAINT FK_{OutboxMessageDispatchingTableSchemaStrings.TableName}_{OutboxMessageDispatchingTableSchemaStrings.MessageId} 
-            FOREIGN KEY ( [{OutboxMessageDispatchingTableSchemaStrings.MessageId}] )  
-            REFERENCES {OutboxMessagesDatabaseSchemaStrings.TableName} ([{OutboxMessagesDatabaseSchemaStrings.MessageId}])
+        CONSTRAINT FK_{DispatchingTable.TableName}_{DispatchingTable.MessageId} 
+            FOREIGN KEY ( [{DispatchingTable.MessageId}] )  
+            REFERENCES {MessageTable.TableName} ([{MessageTable.MessageId}])
 
     ) ON [PRIMARY]
 END

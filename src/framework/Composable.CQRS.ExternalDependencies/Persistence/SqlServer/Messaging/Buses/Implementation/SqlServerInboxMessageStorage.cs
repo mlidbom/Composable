@@ -4,6 +4,7 @@ using Composable.Contracts;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.System.Reflection;
+using Schema =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
@@ -20,14 +21,14 @@ namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
                     command
                        .SetCommandText(
                             $@"
-INSERT {InboxMessageDatabaseSchemaStrings.TableName} 
-            ({InboxMessageDatabaseSchemaStrings.MessageId},  {InboxMessageDatabaseSchemaStrings.TypeId},  {InboxMessageDatabaseSchemaStrings.Body}, {InboxMessageDatabaseSchemaStrings.Status}) 
-    VALUES (@{InboxMessageDatabaseSchemaStrings.MessageId}, @{InboxMessageDatabaseSchemaStrings.TypeId}, @{InboxMessageDatabaseSchemaStrings.Body}, {(int)Inbox.MessageStatus.UnHandled})
+INSERT {Schema.TableName} 
+            ({Schema.MessageId},  {Schema.TypeId},  {Schema.Body}, {Schema.Status}) 
+    VALUES (@{Schema.MessageId}, @{Schema.TypeId}, @{Schema.Body}, {(int)Inbox.MessageStatus.UnHandled})
 ")
-                       .AddParameter(InboxMessageDatabaseSchemaStrings.MessageId, message.MessageId)
-                       .AddParameter(InboxMessageDatabaseSchemaStrings.TypeId, message.MessageTypeId.GuidValue)
+                       .AddParameter(Schema.MessageId, message.MessageId)
+                       .AddParameter(Schema.TypeId, message.MessageTypeId.GuidValue)
                         //performance: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
-                       .AddNVarcharMaxParameter(InboxMessageDatabaseSchemaStrings.Body, message.Body)
+                       .AddNVarcharMaxParameter(Schema.Body, message.Body)
                        .ExecuteNonQuery();
                 });
 
@@ -38,12 +39,12 @@ INSERT {InboxMessageDatabaseSchemaStrings.TableName}
                     var affectedRows = command
                                       .SetCommandText(
                                            $@"
-UPDATE {InboxMessageDatabaseSchemaStrings.TableName} 
-    SET {InboxMessageDatabaseSchemaStrings.Status} = {(int)Inbox.MessageStatus.Succeeded}
-WHERE {InboxMessageDatabaseSchemaStrings.MessageId} = @{InboxMessageDatabaseSchemaStrings.MessageId}
-    AND {InboxMessageDatabaseSchemaStrings.Status} = {(int)Inbox.MessageStatus.UnHandled}
+UPDATE {Schema.TableName} 
+    SET {Schema.Status} = {(int)Inbox.MessageStatus.Succeeded}
+WHERE {Schema.MessageId} = @{Schema.MessageId}
+    AND {Schema.Status} = {(int)Inbox.MessageStatus.UnHandled}
 ")
-                                      .AddParameter(InboxMessageDatabaseSchemaStrings.MessageId, message.MessageId)
+                                      .AddParameter(Schema.MessageId, message.MessageId)
                                       .ExecuteNonQuery();
 
                     Assert.Result.Assert(affectedRows == 1);
@@ -57,18 +58,18 @@ WHERE {InboxMessageDatabaseSchemaStrings.MessageId} = @{InboxMessageDatabaseSche
                     var affectedRows = command
                                       .SetCommandText(
                                            $@"
-UPDATE {InboxMessageDatabaseSchemaStrings.TableName} 
-    SET {InboxMessageDatabaseSchemaStrings.ExceptionCount} = {InboxMessageDatabaseSchemaStrings.ExceptionCount} + 1,
-        {InboxMessageDatabaseSchemaStrings.ExceptionType} = @{InboxMessageDatabaseSchemaStrings.ExceptionType},
-        {InboxMessageDatabaseSchemaStrings.ExceptionStackTrace} = @{InboxMessageDatabaseSchemaStrings.ExceptionStackTrace},
-        {InboxMessageDatabaseSchemaStrings.ExceptionMessage} = @{InboxMessageDatabaseSchemaStrings.ExceptionMessage}
+UPDATE {Schema.TableName} 
+    SET {Schema.ExceptionCount} = {Schema.ExceptionCount} + 1,
+        {Schema.ExceptionType} = @{Schema.ExceptionType},
+        {Schema.ExceptionStackTrace} = @{Schema.ExceptionStackTrace},
+        {Schema.ExceptionMessage} = @{Schema.ExceptionMessage}
         
-WHERE {InboxMessageDatabaseSchemaStrings.MessageId} = @{InboxMessageDatabaseSchemaStrings.MessageId}
+WHERE {Schema.MessageId} = @{Schema.MessageId}
 ")
-                                      .AddParameter(InboxMessageDatabaseSchemaStrings.MessageId, message.MessageId)
-                                      .AddNVarcharMaxParameter(InboxMessageDatabaseSchemaStrings.ExceptionStackTrace, exception.StackTrace)
-                                      .AddNVarcharMaxParameter(InboxMessageDatabaseSchemaStrings.ExceptionMessage, exception.Message)
-                                      .AddNVarcharParameter(InboxMessageDatabaseSchemaStrings.ExceptionType, 500, exception.GetType().GetFullNameCompilable())
+                                      .AddParameter(Schema.MessageId, message.MessageId)
+                                      .AddNVarcharMaxParameter(Schema.ExceptionStackTrace, exception.StackTrace)
+                                      .AddNVarcharMaxParameter(Schema.ExceptionMessage, exception.Message)
+                                      .AddNVarcharParameter(Schema.ExceptionType, 500, exception.GetType().GetFullNameCompilable())
                                       .ExecuteNonQuery();
 
                     Assert.Result.Assert(affectedRows == 1);
@@ -82,12 +83,12 @@ WHERE {InboxMessageDatabaseSchemaStrings.MessageId} = @{InboxMessageDatabaseSche
                     var affectedRows = command
                                       .SetCommandText(
                                            $@"
-UPDATE {InboxMessageDatabaseSchemaStrings.TableName} 
-    SET {InboxMessageDatabaseSchemaStrings.Status} = {(int)Inbox.MessageStatus.Failed}
-WHERE {InboxMessageDatabaseSchemaStrings.MessageId} = @{InboxMessageDatabaseSchemaStrings.MessageId}
-    AND {InboxMessageDatabaseSchemaStrings.Status} = {(int)Inbox.MessageStatus.UnHandled}
+UPDATE {Schema.TableName} 
+    SET {Schema.Status} = {(int)Inbox.MessageStatus.Failed}
+WHERE {Schema.MessageId} = @{Schema.MessageId}
+    AND {Schema.Status} = {(int)Inbox.MessageStatus.UnHandled}
 ")
-                                      .AddParameter(InboxMessageDatabaseSchemaStrings.MessageId, message.MessageId)
+                                      .AddParameter(Schema.MessageId, message.MessageId)
                                       .ExecuteNonQuery();
 
                     Assert.Result.Assert(affectedRows == 1);

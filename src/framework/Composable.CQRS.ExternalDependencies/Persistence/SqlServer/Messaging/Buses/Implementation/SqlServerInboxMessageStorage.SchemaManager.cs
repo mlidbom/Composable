@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.SqlServer.SystemExtensions;
+using Schema =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
@@ -12,29 +13,29 @@ namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
             {
                 await using var connection = connectionFactory.OpenConnection();
                 await connection.ExecuteNonQueryAsync($@"
-IF NOT EXISTS(select name from sys.tables where name = '{InboxMessageDatabaseSchemaStrings.TableName}')
+IF NOT EXISTS(select name from sys.tables where name = '{Schema.TableName}')
 BEGIN
-    CREATE TABLE [dbo].[{InboxMessageDatabaseSchemaStrings.TableName}]
+    CREATE TABLE [dbo].[{Schema.TableName}]
     (
-	    [{InboxMessageDatabaseSchemaStrings.Identity}] [int] IDENTITY(1,1) NOT NULL,
-        [{InboxMessageDatabaseSchemaStrings.TypeId}] [uniqueidentifier] NOT NULL,
-        [{InboxMessageDatabaseSchemaStrings.MessageId}] [uniqueidentifier] NOT NULL,
-	    [{InboxMessageDatabaseSchemaStrings.Status}] [smallint]NOT NULL,
-	    [{InboxMessageDatabaseSchemaStrings.Body}] [nvarchar](MAX) NOT NULL,
-        [{InboxMessageDatabaseSchemaStrings.ExceptionCount}] [int] NOT NULL DEFAULT 0,
-        [{InboxMessageDatabaseSchemaStrings.ExceptionType}] [nvarchar](500) NULL,
-        [{InboxMessageDatabaseSchemaStrings.ExceptionStackTrace}] [nvarchar](MAX) NULL,
-        [{InboxMessageDatabaseSchemaStrings.ExceptionMessage}] [nvarchar](MAX) NULL,
+	    [{Schema.Identity}] [int] IDENTITY(1,1) NOT NULL,
+        [{Schema.TypeId}] [uniqueidentifier] NOT NULL,
+        [{Schema.MessageId}] [uniqueidentifier] NOT NULL,
+	    [{Schema.Status}] [smallint]NOT NULL,
+	    [{Schema.Body}] [nvarchar](MAX) NOT NULL,
+        [{Schema.ExceptionCount}] [int] NOT NULL DEFAULT 0,
+        [{Schema.ExceptionType}] [nvarchar](500) NULL,
+        [{Schema.ExceptionStackTrace}] [nvarchar](MAX) NULL,
+        [{Schema.ExceptionMessage}] [nvarchar](MAX) NULL,
 
 
-        CONSTRAINT [PK_{InboxMessageDatabaseSchemaStrings.TableName}] PRIMARY KEY CLUSTERED 
+        CONSTRAINT [PK_{Schema.TableName}] PRIMARY KEY CLUSTERED 
         (
-	        [{InboxMessageDatabaseSchemaStrings.Identity}] ASC
+	        [{Schema.Identity}] ASC
         ),
 
-        CONSTRAINT IX_{InboxMessageDatabaseSchemaStrings.TableName}_Unique_{InboxMessageDatabaseSchemaStrings.MessageId} UNIQUE
+        CONSTRAINT IX_{Schema.TableName}_Unique_{Schema.MessageId} UNIQUE
         (
-            {InboxMessageDatabaseSchemaStrings.MessageId}
+            {Schema.MessageId}
         )
 
     ) ON [PRIMARY]

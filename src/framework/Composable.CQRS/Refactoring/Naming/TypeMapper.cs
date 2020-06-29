@@ -35,11 +35,21 @@ namespace Composable.Refactoring.Naming
             throw new Exception($"Could not find type for {nameof(TypeId)}: {typeId}");
         });
 
-        public bool TryGetType(TypeId typeId, [NotNullWhen(true)]out Type? type)
+        public bool TryGetType(TypeId typeId, [NotNullWhen(true)] out Type? type)
         {
             type = _state.WithExclusiveAccess(state => state.TypeIdToTypeMap.TryGetValue(typeId, out var innerType) ? innerType : null);
 
             return type != null;
+        }
+
+        public IEnumerable<TypeId> GetIdForTypesAssignableTo(Type type)
+        {
+            return _state.WithExclusiveAccess(state => state
+                                                      .TypeToTypeIdMap
+                                                      .Keys
+                                                      .Where(type.IsAssignableFrom)
+                                                      .Select(matchingType => state.TypeToTypeIdMap[matchingType])
+                                                      .ToArray());
         }
 
         public void AssertMappingsExistFor(IEnumerable<Type> typesThatRequireMappings) => _state.WithExclusiveAccess(state =>

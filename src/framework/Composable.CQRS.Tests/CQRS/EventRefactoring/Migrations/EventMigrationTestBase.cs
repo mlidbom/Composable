@@ -175,8 +175,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         protected static IServiceLocator CreateServiceLocatorForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory)
         {
             var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
-                container =>
-                    container.RegisterEventStoreForFlexibleTesting(TestWiringHelper.EventStoreConnectionStringName, migrationsfactory));
+                endpointBuilder =>
+                    endpointBuilder.Container.RegisterEventStoreForFlexibleTesting(TestWiringHelper.EventStoreConnectionStringName, migrationsfactory));
 
             serviceLocator.Resolve<ITypeMappingRegistar>()
                           .Map<Composable.Tests.CQRS.EventRefactoring.Migrations.TestAggregate>("dbc5cd48-bc09-4d96-804d-6712493a413d")

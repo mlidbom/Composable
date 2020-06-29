@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -10,11 +9,10 @@ using Composable.DDD;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System;
 using Composable.System.Collections.Collections;
-using Composable.System.Linq;
-using Composable.System.Reflection;
 
 namespace Composable.Persistence.SqlServer.DocumentDb.SqlServer
 {
@@ -29,28 +27,23 @@ namespace Composable.Persistence.SqlServer.DocumentDb.SqlServer
 
         readonly object _lockObject = new object();
         bool _initialized;
-        readonly ConcurrentDictionary<Type, int> _knownTypes = new ConcurrentDictionary<Type, int>();
+        readonly ITypeMapper _typeMapper;
         readonly SchemaManager _schemaManager;
 
-        internal SqlServerDocumentDb(ISqlServerConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
+        internal SqlServerDocumentDb(ISqlServerConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer, ITypeMapper typeMapper)
         {
             _schemaManager = new SqlServerDocumentDb.SchemaManager(connectionProvider);
             _connectionProvider = connectionProvider;
             _timeSource = timeSource;
             _serializer = serializer;
+            _typeMapper = typeMapper;
         }
 
-        Type GetTypeFromId(int id) { return _knownTypes.Single(pair => pair.Value == id).Key; }
+        Type GetTypeFromId(TypeId id) { return _typeMapper.GetType(id); }
 
         bool IDocumentDb.TryGet<TValue>(object key, [NotNullWhen(true)][MaybeNull]out TValue value, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
             EnsureInitialized();
-
-            if(!IsKnownType(typeof(TValue)))
-            {
-                value = default;
-                return false;
-            }
 
             value = default;
 
@@ -75,7 +68,7 @@ WHERE Id=@Id AND ValueTypeId
                 }
 
                 var stringValue = reader.GetString(0);
-                found = _serializer.Deserialize(GetTypeFromId(reader.GetInt32(1)), stringValue);
+                found = _serializer.Deserialize(GetTypeFromId(new TypeId(reader.GetGuid(1))), stringValue);
 
                 //Things such as TimeZone etc can cause roundtripping serialization to result in different values from the original so don't cache the read string. Cache the result of serializing it again.
                 //performance: Try to find a way to remove the need to do this so that we can get rid of the overhead of an extra serialization.
@@ -92,7 +85,6 @@ WHERE Id=@Id AND ValueTypeId
             EnsureInitialized();
 
             var idString = GetIdString(id);
-            EnsureTypeRegistered(value.GetType());
             using var connection = _connectionProvider.OpenConnection();
             using var command = connection.CreateCommand();
             var now = _timeSource.UtcNow;
@@ -101,7 +93,7 @@ WHERE Id=@Id AND ValueTypeId
             command.CommandText += @"INSERT INTO Store(Id, ValueTypeId, Value, Created, Updated) VALUES(@Id, @ValueTypeId, @Value, @Created, @Updated)";
 
             command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = idString});
-            command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) {Value = _knownTypes[value.GetType()]});
+            command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.UniqueIdentifier) {Value = _typeMapper.GetId(value.GetType()).GuidValue});
             command.Parameters.Add(new SqlParameter("Created", SqlDbType.DateTime2) {Value = now});
             command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) {Value = now});
 
@@ -139,7 +131,7 @@ WHERE Id=@Id AND ValueTypeId
             command.CommandType = CommandType.Text;
             command.CommandText += "DELETE Store WHERE ValueTypeId = @TypeId";
 
-            command.Parameters.Add(new SqlParameter("TypeId", SqlDbType.Int) {Value = _knownTypes[typeof(T)]});
+            command.Parameters.Add(new SqlParameter("TypeId", SqlDbType.UniqueIdentifier) {Value = _typeMapper.GetId(typeof(T)).GuidValue});
 
             return command.ExecuteNonQuery();
         }
@@ -209,10 +201,6 @@ WHERE Id=@Id AND ValueTypeId
         IEnumerable<T> IDocumentDb.GetAll<T>()
         {
             EnsureInitialized();
-            if(!IsKnownType(typeof(T)))
-            {
-                yield break;
-            }
 
             using var connection = _connectionProvider.OpenConnection();
             using var loadCommand = connection.CreateCommand();
@@ -223,17 +211,13 @@ WHERE Id=@Id AND ValueTypeId
             using var reader = loadCommand.ExecuteReader();
             while(reader.Read())
             {
-                yield return (T)_serializer.Deserialize(GetTypeFromId(reader.GetInt32(2)), reader.GetString(1));
+                yield return (T)_serializer.Deserialize(GetTypeFromId(new TypeId(reader.GetGuid(2))), reader.GetString(1));
             }
         }
 
         public IEnumerable<T> GetAll<T>(IEnumerable<Guid> ids) where T : IHasPersistentIdentity<Guid>
         {
             EnsureInitialized();
-            if(!IsKnownType(typeof(T)))
-            {
-                yield break;
-            }
 
             using var connection = _connectionProvider.OpenConnection();
             using var loadCommand = connection.CreateCommand();
@@ -246,17 +230,13 @@ WHERE Id=@Id AND ValueTypeId
             using var reader = loadCommand.ExecuteReader();
             while(reader.Read())
             {
-                yield return (T)_serializer.Deserialize(GetTypeFromId(reader.GetInt32(2)), reader.GetString(1));
+                yield return (T)_serializer.Deserialize(GetTypeFromId(new TypeId(reader.GetGuid(2))), reader.GetString(1));
             }
         }
 
         public IEnumerable<Guid> GetAllIds<T>() where T : IHasPersistentIdentity<Guid>
         {
             EnsureInitialized();
-            if(!IsKnownType(typeof(T)))
-            {
-                yield break;
-            }
 
             using var connection = _connectionProvider.OpenConnection();
             using var loadCommand = connection.CreateCommand();
@@ -271,55 +251,11 @@ WHERE Id=@Id AND ValueTypeId
             }
         }
 
-        void EnsureTypeRegistered(Type type)
-        {
-            lock(_lockObject)
-            {
-                if(!IsKnownType(type))
-                {
-                    using var connection = _connectionProvider.OpenConnection();
-                    using var command = connection.CreateCommand();
-                    command.CommandText = @"
-
-IF NOT EXISTS(SELECT Id FROM ValueType WHERE ValueType = @ValueType)
-	BEGIN
-		INSERT INTO ValueType(ValueType)Values(@ValueType)
-		SET @ValueTypeId = @@IDENTITY
-	END
-ELSE
-	BEGIN
-		SELECT @ValueTypeId = Id FROM ValueType WHERE ValueType = @ValueType
-	END
-";
-                    command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) {Direction = ParameterDirection.Output});
-                    command.Parameters.Add(new SqlParameter("ValueType", SqlDbType.VarChar, 500) {Value = type.FullName});
-                    command.ExecuteNonQuery();
-                    _knownTypes.TryAdd(type, (int)command.Parameters["ValueTypeId"].Value);
-                }
-            }
-        }
-
-        bool IsKnownType(Type type)
-        {
-            if(!_knownTypes.ContainsKey(type))
-            {
-                RefreshKnownTypes();
-            }
-
-            return _knownTypes.ContainsKey(type);
-        }
-
         void Storage_AddTypeCriteria(SqlCommand command, Type type)
         {
             lock(_lockObject)
             {
-                var acceptableTypeIds = _knownTypes.Where(x => type.IsAssignableFrom(x.Key)).Select(t => t.Value.ToString()).ToArray();
-                if(acceptableTypeIds.None())
-                {
-                    throw new Exception($"Type: {type.FullName} is not among the known types");
-                }
-
-                command.CommandText += "IN( " + acceptableTypeIds.Join(",") + ")\n";
+                command.CommandText += "IN( '" + _typeMapper.GetIdForTypesAssignableTo(type).Select(@this => @this.GuidValue.ToString()).Join("', '") + "')\n";
             }
         }
 
@@ -331,17 +267,7 @@ ELSE
                 {
                     _schemaManager.EnsureInitialized();
                     _initialized = true;
-                    RefreshKnownTypes();
                 }
-            }
-        }
-
-        void RefreshKnownTypes()
-        {
-            lock(_lockObject)
-            {
-                _connectionProvider.ExecuteReader("SELECT DISTINCT ValueType, Id FROM ValueType",
-                                         reader => _knownTypes.TryAdd(reader.GetString(0).AsType(), reader.GetInt32(1)));
             }
         }
     }

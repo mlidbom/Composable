@@ -1,5 +1,6 @@
 using System;
 using Composable.DependencyInjection;
+using Composable.Messaging.Buses;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
@@ -49,12 +50,12 @@ namespace Composable.Tests
             @this.RegisterEventStore(EventStoreConnectionStringName);
         }
 
-        internal static IServiceLocator SetupTestingServiceLocator([InstantHandle]Action<IDependencyInjectionContainer> configureContainer = null)
+        internal static IServiceLocator SetupTestingServiceLocator([InstantHandle]Action<IEndpointBuilder> configureContainer = null)
         {
             return DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
                                                                                {
-                                                                                   container.RegisterTestingDocumentDb();
-                                                                                   container.RegisterTestingEventStore();
+                                                                                   container.Container.RegisterTestingDocumentDb();
+                                                                                   container.Container.RegisterTestingEventStore();
                                                                                    configureContainer?.Invoke(container);
                                                                                });
         }

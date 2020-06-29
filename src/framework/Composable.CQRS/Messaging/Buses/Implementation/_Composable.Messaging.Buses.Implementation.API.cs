@@ -18,7 +18,6 @@ namespace Composable.Messaging.Buses.Implementation
         void Stop();
     }
 
-    //Urgent: is this our outbox? Is this per remote endpoint or global?
     interface IOutbox
     {
         void Stop();
@@ -67,6 +66,4 @@ namespace Composable.Messaging.Buses.Implementation
 
         ISet<TypeId> HandledRemoteMessageTypeIds();
     }
-
-    
 }

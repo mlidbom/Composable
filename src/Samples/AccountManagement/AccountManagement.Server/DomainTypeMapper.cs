@@ -28,7 +28,9 @@ namespace AccountManagement
                .Map<Domain.Events.AccountEvent.UserChangedEmail>("1fe10abb-25b5-4243-b148-439b435002a5")
                .Map<Domain.Events.AccountEvent.UserChangedPassword>("0f7e4685-20d6-4f3e-ab32-9d153bbdbfee")
                .Map<Domain.Events.AccountEvent.UserRegistered>("2c648c9f-4860-46e3-a672-6d81ea35cd3f")
-               .Map<Domain.Events.AccountEvent.LoginAttempted>("e6f64c0d-bd21-45d1-8737-4764912fc303");
+               .Map<Domain.Events.AccountEvent.LoginAttempted>("e6f64c0d-bd21-45d1-8737-4764912fc303")
+               .Map<Composable.Persistence.EventStore.EventStoreApi.Query.AggregateLink<AccountManagement.Domain.Account>>("bae6bbcc-e69e-40ce-8872-d2683bfe4410")
+               .Map<AccountManagement.UI.QueryModels.AccountStatistics.SingletonStatisticsQuerymodel>("2bc73c9f-df0a-4abd-b101-69e8ec7d01ec");
         }
     }
 }

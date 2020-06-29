@@ -10,7 +10,7 @@ namespace Composable.DependencyInjection
     {
         public static IServiceLocator CreateServiceLocatorForTesting() => CreateServiceLocatorForTesting(_ => {});
 
-        public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup)
+        public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IEndpointBuilder> setup)
         {
 #pragma warning disable IDE0067 //Review OK-ish: We register the host in the container to ensure that it is disposed when the container is.
             var host = TestingEndpointHost.Create(Create);
@@ -18,7 +18,7 @@ namespace Composable.DependencyInjection
             var endpoint = host.RegisterTestingEndpoint(setup: builder =>
             {
                 builder.RegisterSqlServerPersistenceLayer();
-                setup(builder.Container);
+                setup(builder);
                 //Hack to get the host to be disposed by the container when the container is disposed.
                 builder.Container.Register(Singleton.For<TestingEndpointHostDisposer>().CreatedBy(() => new TestingEndpointHostDisposer(host)).DelegateToParentServiceLocatorWhenCloning());
             });

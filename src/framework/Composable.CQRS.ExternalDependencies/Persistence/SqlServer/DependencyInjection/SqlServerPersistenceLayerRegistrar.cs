@@ -70,8 +70,8 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
                 Singleton.For<IServiceBusPersistenceLayer.IOutboxPersistenceLayer>()
                          .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerServiceBusPersistenceLayer(endpointSqlConnection)),
                 Singleton.For<Outbox.IMessageStorage>()
-                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection, IServiceBusPersistenceLayer.IOutboxPersistenceLayer persistenceLayer, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
-                                        => new SqlServerOutboxMessageStorage(endpointSqlConnection, persistenceLayer, typeMapper, serializer)),
+                         .CreatedBy((IServiceBusPersistenceLayer.IOutboxPersistenceLayer persistenceLayer, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+                                        => new Outbox.MessageStorage(persistenceLayer, typeMapper, serializer)),
                 Singleton.For<Inbox.IMessageStorage>()
                          .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerInboxMessageStorage(endpointSqlConnection)));
 

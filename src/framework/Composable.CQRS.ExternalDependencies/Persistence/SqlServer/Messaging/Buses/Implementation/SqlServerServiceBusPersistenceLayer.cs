@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.System.Linq;
@@ -7,7 +8,7 @@ using DispatchingTable = Composable.Messaging.Buses.Implementation.IServiceBusPe
 
 namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
-    class SqlServerServiceBusPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
+    partial class SqlServerServiceBusPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
         readonly ISqlServerConnectionProvider _connectionFactory;
         public SqlServerServiceBusPersistenceLayer(ISqlServerConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
@@ -58,5 +59,7 @@ WHERE {DispatchingTable.MessageId} = @{DispatchingTable.MessageId}
                           .AddParameter(DispatchingTable.EndpointId, endpointId)
                           .ExecuteNonQuery());
         }
+
+        public Task InitAsync() => SchemaManager.EnsureTablesExistAsync(_connectionFactory);
     }
 }

@@ -5,7 +5,7 @@ using DispatchingTable = Composable.Messaging.Buses.Implementation.IServiceBusPe
 
 namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
 {
-    partial class SqlServerOutboxMessageStorage
+    partial class SqlServerServiceBusPersistenceLayer
     {
         static class SchemaManager
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -11,6 +12,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             void SaveMessage(OutboxMessageWithReceivers messageWithReceivers);
             int MarkAsReceived(Guid messageId, Guid endpointId);
+            Task InitAsync();
         }
 
         class OutboxMessageWithReceivers

@@ -18,13 +18,13 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class State
         {
-            public State(IGlobalBusStateTracker globalBusStateTracker, HandlerStorage handlerStorage, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, Outbox.IMessageStorage messageStorage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public State(IGlobalBusStateTracker globalBusStateTracker, HandlerStorage handlerStorage, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, Outbox.IMessageStorage storage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 GlobalBusStateTracker = globalBusStateTracker;
                 HandlerStorage = handlerStorage;
                 Configuration = configuration;
                 TimeSource = timeSource;
-                MessageStorage = messageStorage;
+                Storage = storage;
                 TypeMapper = typeMapper;
                 Serializer = serializer;
             }
@@ -35,7 +35,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly HandlerStorage HandlerStorage;
             internal NetMQPoller? Poller;
             public IUtcTimeTimeSource TimeSource { get; }
-            public Outbox.IMessageStorage MessageStorage { get; }
+            public Outbox.IMessageStorage Storage { get; }
             public ITypeMapper TypeMapper { get; }
             public IRemotableMessageSerializer Serializer { get; }
             public readonly RealEndpointConfiguration Configuration;
@@ -60,7 +60,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public async Task ConnectAsync(EndPointAddress remoteEndpoint)
         {
-            var clientConnection = _state.WithExclusiveAccess(@this => new InboxConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller!, @this.TimeSource, @this.MessageStorage, @this.TypeMapper, _taskRunner, @this.Serializer));
+            var clientConnection = _state.WithExclusiveAccess(@this => new InboxConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller!, @this.TimeSource, @this.Storage, @this.TypeMapper, _taskRunner, @this.Serializer));
 
             await clientConnection.Init();
 
@@ -80,7 +80,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 storageStartTask = state.Configuration.IsPureClientEndpoint
                                        ? Task.CompletedTask
-                                       : state.MessageStorage.StartAsync();
+                                       : state.Storage.StartAsync();
 
                 state.Poller = new NetMQPoller();
                 state.PollerThread = new Thread(() => state.Poller.Run()) {Name = $"{nameof(Outbox)}_{nameof(state.PollerThread)}"};
@@ -112,7 +112,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 var connections = eventHandlerEndpointIds.Select(endpointId => state.InboxConnections[endpointId])
                                                          .ToArray();
-                state.MessageStorage.SaveMessage(exactlyOnceEvent, eventHandlerEndpointIds);
+                state.Storage.SaveMessage(exactlyOnceEvent, eventHandlerEndpointIds);
                 connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(exactlyOnceEvent));
             }
         });
@@ -121,7 +121,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(exactlyOnceCommand);
             var connection = state.InboxConnections[endPointId];
-            state.MessageStorage.SaveMessage(exactlyOnceCommand, endPointId);
+            state.Storage.SaveMessage(exactlyOnceCommand, endPointId);
             connection.DispatchIfTransactionCommits(exactlyOnceCommand);
         });
 

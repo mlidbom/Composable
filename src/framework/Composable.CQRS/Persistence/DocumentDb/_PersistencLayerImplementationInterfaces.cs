@@ -7,7 +7,7 @@ namespace Composable.Persistence.DocumentDb
     interface IDocumentDbPersistenceLayer
     {
         void Update(IReadOnlyList<WriteRow> toUpdate);
-        bool TryGet(string idString, IReadOnlyList<Guid> getAcceptableTypes, bool useUpdateLock, [NotNullWhen(true)] out ReadRow? document);
+        bool TryGet(string idString, IReadOnlyList<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out ReadRow? document);
         void Add(string idString, Guid typeIdGuid, DateTime now, string serializedDocument);
         int Remove(string idString, IReadOnlyList<Guid> acceptableTypeIds);
         int RemoveAll(Guid typeIdGuid);

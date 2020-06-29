@@ -25,7 +25,6 @@ namespace Composable.Persistence.SqlServer.EventStore
             foreach(var data in events)
             {
                 using var command = connection.CreateCommand();
-                command.CommandType = CommandType.Text;
 
                 command.CommandText +=
                     $@"
@@ -118,7 +117,6 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             {
                 var data = newEvents[index];
                 using var command = connection.CreateCommand();
-                command.CommandType = CommandType.Text;
 
                 command.CommandText +=
                     $@"
@@ -174,7 +172,6 @@ SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             _connectionManager.UseCommand(
                 command =>
                 {
-                    command.CommandType = CommandType.Text;
                     command.CommandText = SqlServerEventStore.SqlStatements.FixManualVersionsForAggregate;
                     command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});
                     command.ExecuteNonQuery();
@@ -223,7 +220,6 @@ where {SqlServerEventTable.Columns.EventId} = @{SqlServerEventTable.Columns.Even
             _connectionManager.UseCommand(
                 command =>
                 {
-                    command.CommandType = CommandType.Text;
                     command.CommandText = selectStatement;
                     command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = insertionOrder});
                     using var reader = command.ExecuteReader();
@@ -255,7 +251,6 @@ where {SqlServerEventTable.Columns.EventId} = @{SqlServerEventTable.Columns.Even
             _connectionManager.UseCommand(
                 command =>
                 {
-                    command.CommandType = CommandType.Text;
                     command.CommandText +=
                         $"DELETE {SqlServerEventTable.Name} With(ROWLOCK) WHERE {SqlServerEventTable.Columns.AggregateId} = @{SqlServerEventTable.Columns.AggregateId}";
                     command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});

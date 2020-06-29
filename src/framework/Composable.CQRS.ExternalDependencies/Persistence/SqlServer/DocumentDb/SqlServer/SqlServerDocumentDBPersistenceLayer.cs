@@ -30,41 +30,35 @@ namespace Composable.Persistence.SqlServer.DocumentDb.SqlServer
             using var connection = _connectionProvider.OpenConnection();
             foreach(var writeRow in toUpdate)
             {
-                using var command = connection.CreateCommand();
-                command.CommandType = CommandType.Text;
-                command.CommandText += "UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId = @TypeId";
-                command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = writeRow.IdString});
-                command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) {Value = writeRow.UpdateTime});
-                command.Parameters.Add(new SqlParameter("TypeId", SqlDbType.UniqueIdentifier) {Value = writeRow.TypeIdGuid});
-
-                command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = writeRow.SerializedDocument});
-                command.ExecuteNonQuery();
+                connection.UseCommand(
+                    command => command.SetCommandText("UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId = @TypeId")
+                                      .AddNVarcharParameter("Id", 500, writeRow.IdString)
+                                       .AddDateTime2Parameter("Updated", writeRow.UpdateTime)
+                                      .AddParameter("TypeId", writeRow.TypeIdGuid)
+                                      .AddNVarcharMaxParameter("Value", writeRow.SerializedDocument)
+                                      .ExecuteNonQuery());
             }
         }
 
-        public bool TryGet(string idString, IReadOnlyList<Guid> getAcceptableTypes, bool useUpdateLock, [NotNullWhen(true)] out IDocumentDbPersistenceLayer.ReadRow? document)
+        public bool TryGet(string idString, IReadOnlyList<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out IDocumentDbPersistenceLayer.ReadRow? document)
         {
             EnsureInitialized();
-            using var connection = _connectionProvider.OpenConnection();
-            using var command = connection.CreateCommand();
+
             var lockHint = useUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
-            command.CommandText = $@"
+
+            var documents = _connectionProvider.UseCommand(
+                command => command.SetCommandText($@"
 SELECT Value, ValueTypeId FROM Store {lockHint} 
-WHERE Id=@Id AND ValueTypeId
-";
-
-            command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = idString});
-
-            Storage(command, getAcceptableTypes);
-
-            using var reader = command.ExecuteReader();
-            if(!reader.Read())
+WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
+                                  .AddNVarcharParameter("Id", 500, idString)
+                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(1), reader.GetString(0))));
+            if(documents.Count < 1)
             {
                 document = null;
                 return false;
             }
 
-            document = new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(1), reader.GetString(0));
+            document = documents[0];
 
             return true;
         }
@@ -72,22 +66,19 @@ WHERE Id=@Id AND ValueTypeId
         public void Add(string idString, Guid typeIdGuid, DateTime now, string serializedDocument)
         {
             EnsureInitialized();
-            using var connection = _connectionProvider.OpenConnection();
-            using var command = connection.CreateCommand();
-            command.CommandType = CommandType.Text;
-
-            command.CommandText += @"INSERT INTO Store(Id, ValueTypeId, Value, Created, Updated) VALUES(@Id, @ValueTypeId, @Value, @Created, @Updated)";
-
-            command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = idString});
-            command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.UniqueIdentifier) {Value = typeIdGuid});
-            command.Parameters.Add(new SqlParameter("Created", SqlDbType.DateTime2) {Value = now});
-            command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) {Value = now});
-
-            command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = serializedDocument});
-
             try
             {
-                command.ExecuteNonQuery();
+                _connectionProvider.UseCommand(command =>
+                {
+
+                    command.SetCommandText(@"INSERT INTO Store(Id, ValueTypeId, Value, Created, Updated) VALUES(@Id, @ValueTypeId, @Value, @Created, @Updated)")
+                           .AddNVarcharParameter("Id", 500, idString)
+                           .AddParameter("ValueTypeId", typeIdGuid)
+                           .AddDateTime2Parameter("Created", now)
+                           .AddDateTime2Parameter("Updated", now)
+                           .AddNVarcharMaxParameter("Value", serializedDocument)
+                           .ExecuteNonQuery();
+                });
             }
             catch(SqlException e)
             {
@@ -103,74 +94,46 @@ WHERE Id=@Id AND ValueTypeId
         public int Remove(string idString, IReadOnlyList<Guid> acceptableTypeIds)
         {
             EnsureInitialized();
-            using var connection = _connectionProvider.OpenConnection();
-            using var command = connection.CreateCommand();
-            command.CommandType = CommandType.Text;
-            command.CommandText += "DELETE Store WHERE Id = @Id AND ValueTypeId ";
-            command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = idString});
-
-            Storage(command, acceptableTypeIds);
-
-            var rowsAffected = command.ExecuteNonQuery();
-            return rowsAffected;
+            return _connectionProvider.UseCommand(
+                command =>
+                    command.SetCommandText($"DELETE Store WHERE Id = @Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
+                           .AddNVarcharParameter("Id", 500, idString)
+                           .ExecuteNonQuery());
         }
 
         public int RemoveAll(Guid typeIdGuid)
         {
             EnsureInitialized();
-            using var connection = _connectionProvider.OpenConnection();
-            using var command = connection.CreateCommand();
-            command.CommandType = CommandType.Text;
-            command.CommandText += "DELETE Store WHERE ValueTypeId = @TypeId";
-            command.Parameters.Add(new SqlParameter("TypeId", SqlDbType.UniqueIdentifier) {Value = typeIdGuid});
-
-            return command.ExecuteNonQuery();
+            return _connectionProvider.UseCommand(command => command.SetCommandText("DELETE Store WHERE ValueTypeId = @TypeId")
+                                                                    .AddParameter("TypeId", typeIdGuid)
+                                                                    .ExecuteNonQuery());
         }
 
         public IEnumerable<Guid> GetAllIds(IReadOnlyList<Guid> acceptableTypeIds)
         {
             EnsureInitialized();
-            using var connection = _connectionProvider.OpenConnection();
-            using var loadCommand = connection.CreateCommand();
-            loadCommand.CommandText = @"SELECT Id FROM Store WHERE ValueTypeId ";
-
-            Storage(loadCommand, acceptableTypeIds);
-
-            //bug: Huh, we store string but require them to be Guid!?
-            return loadCommand.ExecuteReaderAndSelect(reader => Guid.Parse(reader.GetString(0)));
+            return _connectionProvider.UseCommand(
+                command => command.SetCommandText($@"SELECT Id FROM Store WHERE ValueTypeId  {TypeInClause(acceptableTypeIds)}")
+                                  .ExecuteReaderAndSelect(reader => Guid.Parse(reader.GetString(0)))); //bug: Huh, we store string but require them to be Guid!?
         }
 
         public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IEnumerable<Guid> ids, IReadOnlyList<Guid> getAcceptableTypes)
         {
             EnsureInitialized();
-            using var connection = _connectionProvider.OpenConnection();
-            using var loadCommand = connection.CreateCommand();
-            loadCommand.CommandText = @"SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId ";
-
-            Storage(loadCommand, getAcceptableTypes);
-
-            loadCommand.CommandText += " AND Id IN('" + ids.Select(id => id.ToString()).Join("','") + "')";
-
-            var storedList = loadCommand.ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1)));
-            return storedList;
+            return _connectionProvider.UseCommand(
+                command => command.SetCommandText($@"SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId {TypeInClause(getAcceptableTypes)} 
+                                   AND Id IN('" + ids.Select(id => id.ToString()).Join("','") + "')")
+                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
         }
 
         public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IReadOnlyList<Guid> acceptableTypeIds)
         {
-            using var connection = _connectionProvider.OpenConnection();
-            using var loadCommand = connection.CreateCommand();
-            loadCommand.CommandText = @" SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId ";
-
-            Storage(loadCommand, acceptableTypeIds);
-
-            var storedList = loadCommand.ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1)));
-            return storedList;
+            return _connectionProvider.UseCommand(
+                command => command.SetCommandText($@" SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId  {TypeInClause(acceptableTypeIds)}")
+                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
         }
 
-        static void Storage(SqlCommand command, IReadOnlyList<Guid> acceptableTypeIds)
-        {
-            command.CommandText += "IN( '" + acceptableTypeIds.Select(guid => guid.ToString()).Join("', '") + "')\n";
-        }
+        static string TypeInClause(IEnumerable<Guid> acceptableTypeIds) { return "IN( '" + acceptableTypeIds.Select(guid => guid.ToString()).Join("', '") + "')\n"; }
 
         void EnsureInitialized()
         {

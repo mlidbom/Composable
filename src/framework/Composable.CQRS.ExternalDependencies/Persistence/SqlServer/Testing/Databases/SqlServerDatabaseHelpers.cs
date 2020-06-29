@@ -43,7 +43,6 @@ exec sp_executesql @sql";
         internal static void DropAllObjects(this IDbConnection connection)
         {
             using var cmd = connection.CreateCommand();
-            cmd.CommandType = CommandType.Text;
             cmd.CommandText = DropAllObjectsStatement;
             cmd.ExecuteNonQuery();
         }
@@ -51,7 +50,6 @@ exec sp_executesql @sql";
         internal static void DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(this IDbConnection connection)
         {
             using var cmd = connection.CreateCommand();
-            cmd.CommandType = CommandType.Text;
             cmd.CommandText = DropAllObjectsStatement + SetReadCommittedSnapshotOnStatement;
             cmd.ExecuteNonQuery();
         }

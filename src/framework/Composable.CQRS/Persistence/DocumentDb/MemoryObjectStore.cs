@@ -72,22 +72,6 @@ namespace Composable.Persistence.DocumentDb
             }
         }
 
-        public void Remove<T>(object id)
-        {
-            lock(LockObject)
-            {
-                Remove(id, typeof(T));
-            }
-        }
-
-        public int RemoveAll<T>()
-        {
-            var toRemove = _db.Where(mapping => mapping.Value.Any( value => value.GetType() == typeof(T))).ToList();
-            toRemove.ForEach(
-                removeMe => _db.GetOrAddDefault(removeMe.Key).RemoveWhere(value => typeof(T) == value.GetType()));
-            return toRemove.Count;
-        }
-
         public void Remove(object id, Type documentType)
         {
             lock(LockObject)

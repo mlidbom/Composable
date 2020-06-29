@@ -177,7 +177,7 @@ namespace Composable.Persistence.DocumentDb
             var documentItem = GetDocumentItem(id, typeof(T));
             documentItem.Delete();
 
-            _idMap.Remove<T>(id);
+            _idMap.Remove(id, typeof(T));
             documentItem.CommitChangesToBackingStore();
         }
 

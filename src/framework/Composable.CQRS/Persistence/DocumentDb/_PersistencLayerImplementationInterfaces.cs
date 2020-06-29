@@ -10,7 +10,6 @@ namespace Composable.Persistence.DocumentDb
         bool TryGet(string idString, IReadOnlyList<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out ReadRow? document);
         void Add(string idString, Guid typeIdGuid, DateTime now, string serializedDocument);
         int Remove(string idString, IReadOnlyList<Guid> acceptableTypeIds);
-        int RemoveAll(Guid typeIdGuid);
         IEnumerable<Guid> GetAllIds(IReadOnlyList<Guid> acceptableTypeIds);
         IReadOnlyList<ReadRow> GetAll(IEnumerable<Guid> ids, IReadOnlyList<Guid> getAcceptableTypes);
         IReadOnlyList<ReadRow> GetAll(IReadOnlyList<Guid> acceptableTypeIds);

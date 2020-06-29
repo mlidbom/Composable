@@ -782,39 +782,9 @@ namespace Composable.Tests.KeyValueStorage
             store.GetAll<User>().Should().HaveCount(4);
             store.GetAll<Person>().Should().HaveCount(8); //User inherits person
 
-            store.RemoveAll<User>().Should().Be(4);
+            store.GetAllIds<User>().ForEach(userId => store.Remove(userId, typeof(User)));
 
             store.GetAll<User>().Should().HaveCount(0);
-
-            store.GetAll<Person>().Should().HaveCount(4);
-
-        }
-
-        [Test]
-        public void DeletingAllObjectsOfATypeLeavesObjectOfInheritingTypes()
-        {
-            var store = CreateStore();
-
-            var dictionary = new Dictionary<Type, Dictionary<string, string>>();
-
-            1.Through(4).ForEach(num =>
-            {
-                var user = new User { Id = Guid.NewGuid() };
-                store.Add(user.Id, user, dictionary);
-            });
-
-            1.Through(4).ForEach(num =>
-            {
-                var person = new Person { Id = Guid.NewGuid() };
-                store.Add(person.Id, person, dictionary);
-            });
-
-            store.GetAll<User>().Should().HaveCount(4);
-            store.GetAll<Person>().Should().HaveCount(8); //User inherits person
-
-            store.RemoveAll<Person>().Should().Be(4);
-
-            store.GetAll<User>().Should().HaveCount(4);
 
             store.GetAll<Person>().Should().HaveCount(4);
 

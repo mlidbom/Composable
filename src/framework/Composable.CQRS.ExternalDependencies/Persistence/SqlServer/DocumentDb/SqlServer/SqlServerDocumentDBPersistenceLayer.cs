@@ -99,14 +99,6 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                            .ExecuteNonQuery());
         }
 
-        public int RemoveAll(Guid typeIdGuid)
-        {
-            EnsureInitialized();
-            return _connectionProvider.UseCommand(command => command.SetCommandText("DELETE Store WHERE ValueTypeId = @TypeId")
-                                                                    .AddParameter("TypeId", typeIdGuid)
-                                                                    .ExecuteNonQuery());
-        }
-
         public IEnumerable<Guid> GetAllIds(IReadOnlyList<Guid> acceptableTypeIds)
         {
             EnsureInitialized();

@@ -59,18 +59,6 @@ namespace Composable.Persistence.DocumentDb
 
         static string GetIdString(object id) => id.ToString().ToLower().TrimEnd(' ');
 
-        public void Remove<T>(object id)
-        {
-            Remove(id, typeof(T));
-        }
-
-        public int RemoveAll<T>()
-        {
-            var typeIdGuid = _typeMapper.GetId(typeof(T)).GuidValue;
-
-            return _persistenceLayer.RemoveAll(typeIdGuid);
-        }
-
         public void Remove(object id, Type documentType)
         {
             var rowsAffected = _persistenceLayer.Remove(GetIdString(id), GetAcceptableTypeGuids(documentType));

@@ -44,11 +44,9 @@ namespace Composable.Persistence.SqlServer.DocumentDb.SqlServer
         {
             EnsureInitialized();
 
-            var lockHint = useUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
-
             var documents = _connectionProvider.UseCommand(
                 command => command.SetCommandText($@"
-SELECT Value, ValueTypeId FROM Store {lockHint} 
+SELECT Value, ValueTypeId FROM Store {UseUpdateLock(useUpdateLock)} 
 WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                                   .AddNVarcharParameter("Id", 500, idString)
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(1), reader.GetString(0))));
@@ -128,12 +126,15 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
 
         public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IReadOnlyList<Guid> acceptableTypeIds)
         {
+            EnsureInitialized();
             return _connectionProvider.UseCommand(
                 command => command.SetCommandText($@" SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
         }
 
         static string TypeInClause(IEnumerable<Guid> acceptableTypeIds) { return "IN( '" + acceptableTypeIds.Select(guid => guid.ToString()).Join("', '") + "')\n"; }
+
+        static string UseUpdateLock(bool useUpdateLock) => useUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
 
         void EnsureInitialized()
         {

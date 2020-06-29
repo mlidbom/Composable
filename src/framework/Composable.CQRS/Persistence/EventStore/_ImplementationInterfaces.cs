@@ -37,7 +37,7 @@ namespace Composable.Persistence.EventStore
 
     class EventDataRow
     {
-        public EventDataRow(AggregateEvent @event, AggregateEventRefactoringInformation refactoringInformation, TypeId eventType, string eventAsJson)
+        public EventDataRow(IAggregateEvent @event, AggregateEventRefactoringInformation refactoringInformation, TypeId eventType, string eventAsJson)
         {
             EventJson = eventAsJson;
             EventType = eventType;

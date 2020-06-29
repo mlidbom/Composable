@@ -44,14 +44,18 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
             //Connection management
             if(container.RunMode.IsTesting)
             {
-                container.Register(Singleton.For<ISqlServerConnectionProviderSource>()
-                                            .CreatedBy((IConfigurationParameterProvider configurationParameterProvider)
-                                                           => (ISqlServerConnectionProviderSource)new SqlServerServerDatabasePoolSqlServerConnectionProviderSource(configurationParameterProvider)).DelegateToParentServiceLocatorWhenCloning());
+                container.Register(
+                    Singleton.For<ISqlServerConnectionProviderSource>()
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider)
+                                            => (ISqlServerConnectionProviderSource)new SqlServerServerDatabasePoolSqlServerConnectionProviderSource(configurationParameterProvider))
+                             .DelegateToParentServiceLocatorWhenCloning());
             } else
             {
-                container.Register(Singleton.For<ISqlServerConnectionProviderSource>()
-                                            .CreatedBy((IConfigurationParameterProvider configurationParameterProvider)
-                                                           => new ConfigurationSqlServerConnectionProviderSource(configurationParameterProvider)).DelegateToParentServiceLocatorWhenCloning());
+                container.Register(
+                    Singleton.For<ISqlServerConnectionProviderSource>()
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider)
+                                            => new ConfigurationSqlServerConnectionProviderSource(configurationParameterProvider))
+                             .DelegateToParentServiceLocatorWhenCloning());
             }
 
             container.Register(
@@ -61,14 +65,17 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
 
             //urgent: Refactor and rename interfaces into an IServiceBusPersistenceLayer interface analogous to IEventStorePersistenceLayer
             //Service bus
-            container.Register(Singleton.For<Outbox.IMessageStorage>()
-                                        .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
-                                                       => new SqlServerOutboxMessageStorage(endpointSqlConnection, typeMapper, serializer)),
-                               Singleton.For<Inbox.IMessageStorage>().CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerInboxMessageStorage(endpointSqlConnection)));
+            container.Register(
+                Singleton.For<Outbox.IMessageStorage>()
+                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+                                        => new SqlServerOutboxMessageStorage(endpointSqlConnection, typeMapper, serializer)),
+                Singleton.For<Inbox.IMessageStorage>()
+                         .CreatedBy((ISqlServerConnectionProvider endpointSqlConnection) => new SqlServerInboxMessageStorage(endpointSqlConnection)));
 
             //DocumentDB
-            container.Register(Singleton.For<IDocumentDbPersistenceLayer>()
-                                        .CreatedBy((ISqlServerConnectionProvider connectionProvider) => new SqlServerDocumentDbPersistenceLayer(connectionProvider)));
+            container.Register(
+                Singleton.For<IDocumentDbPersistenceLayer>()
+                         .CreatedBy((ISqlServerConnectionProvider connectionProvider) => new SqlServerDocumentDbPersistenceLayer(connectionProvider)));
 
             //Event store
             container.Register(

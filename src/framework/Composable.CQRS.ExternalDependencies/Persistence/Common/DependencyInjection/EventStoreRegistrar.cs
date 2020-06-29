@@ -10,13 +10,9 @@ using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Persistence.InMemory.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
-using Composable.System.Linq;
-
-// ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
 
 namespace Composable.Persistence.Common.DependencyInjection
 {
-    //urgent: Remove persistence layer registration from this class.
     public static class EventStoreRegistrar
     {
         static readonly IEventMigration[] EmptyMigrationsArray = new IEventMigration[0];

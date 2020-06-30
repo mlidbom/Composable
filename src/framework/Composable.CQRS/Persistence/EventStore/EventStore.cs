@@ -19,7 +19,7 @@ namespace Composable.Persistence.EventStore
         readonly IEventStoreSerializer _serializer;
         static readonly ILogger Log = Logger.For<EventStore>();
 
-        readonly ISingleContextUseGuard _usageGuard;
+        readonly SingleThreadUseGuard _usageGuard;
 
         readonly IEventStorePersistenceLayer.IReader _eventReader;
         readonly IEventStorePersistenceLayer.IWriter _eventWriter;
@@ -147,7 +147,7 @@ namespace Composable.Persistence.EventStore
             var eventRows = aggregateEvents
                            .Select(@event => new EventDataRow(specification: cacheEntry.CreateInsertionSpecificationForNewEvent(@event), _typeMapper.GetId(@event.GetType()).GuidValue, eventAsJson: _serializer.Serialize((AggregateEvent)@event)))
                            .ToList();
-            _eventWriter.Insert(eventRows);
+            _eventWriter.InsertSingleAggregateEvents(eventRows);
 
             var completeAggregateHistory = cacheEntry
                                           .Events.Concat(aggregateEvents)
@@ -216,7 +216,7 @@ namespace Composable.Persistence.EventStore
                                                    .Select(@this => new EventDataRow(@event: @this.NewEvent, @this.RefactoringInformation, _typeMapper.GetId(@this.NewEvent.GetType()).GuidValue, eventAsJson: _serializer.Serialize(@this.NewEvent)))
                                                    .ToList();
 
-                                    _eventWriter.InsertRefactoringEvents(eventRows);
+                                    _eventWriter.InsertSingleAggregateRefactoringEvents(eventRows);
 
                                     updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                     newEventCount += newEvents.Count;

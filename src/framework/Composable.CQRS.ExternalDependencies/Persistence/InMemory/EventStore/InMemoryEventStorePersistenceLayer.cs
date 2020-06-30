@@ -19,8 +19,8 @@ namespace Composable.Persistence.InMemory.EventStore
 
     class InMemoryEventStorePersistenceLayerWriter : IEventStorePersistenceLayer.IWriter
     {
-        public void Insert(IReadOnlyList<EventDataRow> events) { throw new NotImplementedException(); }
-        public void InsertRefactoringEvents(IReadOnlyList<EventDataRow> events) { throw new NotImplementedException(); }
+        public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events) { throw new NotImplementedException(); }
+        public void InsertSingleAggregateRefactoringEvents(IReadOnlyList<EventDataRow> events) { throw new NotImplementedException(); }
         public void DeleteAggregate(Guid aggregateId) { throw new NotImplementedException(); }
     }
 

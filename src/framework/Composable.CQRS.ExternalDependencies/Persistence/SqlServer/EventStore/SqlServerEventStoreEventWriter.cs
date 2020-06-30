@@ -19,7 +19,7 @@ namespace Composable.Persistence.SqlServer.EventStore
         public SqlServerEventStorePersistenceLayerWriter
             (SqlServerEventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
 
-        public void Insert(IReadOnlyList<EventDataRow> events)
+        public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {
             using var connection = _connectionManager.OpenConnection();
             foreach(var data in events)
@@ -54,7 +54,7 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
         }
 
         //urgent: Move almost all of this logic to the EventStore. Persistence layer should not implement the logic of refactoring.
-        public void InsertRefactoringEvents(IReadOnlyList<EventDataRow> events)
+        public void InsertSingleAggregateRefactoringEvents(IReadOnlyList<EventDataRow> events)
         {
             // ReSharper disable PossibleInvalidOperationException
             var replacementGroup = events.Where(@event => @event.RefactoringInformation.Replaces.HasValue)

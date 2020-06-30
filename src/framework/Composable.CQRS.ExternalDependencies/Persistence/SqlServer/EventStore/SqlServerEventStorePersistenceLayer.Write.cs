@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Data.SqlTypes;
 using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.EventStore;
@@ -48,14 +47,11 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             }
         }
 
-        public void SaveRefactoringEventsWithinReadOrderRange(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
+        public void SaveRefactoringEvents(EventDataRow[] newEvents)
         {
-            var readOrderIncrement = (rangeEnd - rangeStart) / (newEvents.Length + 1);
-
             using var connection = _connectionManager.OpenConnection();
-            for(int index = 0; index < newEvents.Length; ++index)
+            foreach(var data in newEvents)
             {
-                var data = newEvents[index];
                 using var command = connection.CreateCommand();
 
                 command.CommandText +=
@@ -71,13 +67,7 @@ SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = data.EventId});
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.UtcTimeStamp, SqlDbType.DateTime2) {Value = data.UtcTimeStamp});
 
-                //Urgent: Change this to another data type. https://github.com/mlidbom/Composable/issues/46
-                var manualReadOrder = rangeStart + (index + 1) * readOrderIncrement;
-                if(!(manualReadOrder.IsNull || (manualReadOrder.Precision == 38 && manualReadOrder.Scale == 17)))
-                {
-                    throw new ArgumentException($"$$$$$$$$$$$$$$$$$$$$$$$$$ Found decimal with precision: {manualReadOrder.Precision} and scale: {manualReadOrder.Scale}", nameof(manualReadOrder));
-                }
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.ManualReadOrder, SqlDbType.Decimal) {Value = manualReadOrder});
+                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.ManualReadOrder, SqlDbType.Decimal) {Value = data.RefactoringInformation.ManualReadOrder});
 
                 command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.Event, SqlDbType.NVarChar, -1) {Value = data.EventJson});
 

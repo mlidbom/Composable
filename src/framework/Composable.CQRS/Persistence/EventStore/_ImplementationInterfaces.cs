@@ -44,7 +44,7 @@ namespace Composable.Persistence.EventStore
             static SqlDecimal ToCorrectPrecisionAndScale(SqlDecimal value) => SqlDecimal.ConvertToPrecScale(value, 38, 19);
         }
         IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId);
-        void SaveRefactoringEventsWithinReadOrderRange(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd);
+        void SaveRefactoringEvents(EventDataRow[] newEvents);
     }
 
     class EventDataRow
@@ -109,6 +109,7 @@ namespace Composable.Persistence.EventStore
 
     class AggregateEventRefactoringInformation
     {
+        internal SqlDecimal? ManualReadOrder { get; set; }
         internal int InsertedVersion { get; set; }
 
         //urgent: See if this cannot be non-nullable.

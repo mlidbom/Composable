@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Transactions;
 using Composable.Contracts;
@@ -293,30 +294,50 @@ namespace Composable.Persistence.EventStore
         {
             var eventToInsertAfter = _persistenceLayer.LoadEventNeighborHood(eventId);
 
-            _persistenceLayer.SaveRefactoringEventsWithinReadOrderRange(
-                newEvents: insertAfterGroup,
-                rangeStart: eventToInsertAfter.EffectiveReadOrder,
-                rangeEnd: eventToInsertAfter.NextEventReadOrder);
+            SetManualReadOrders(newEvents: insertAfterGroup,
+                                rangeStart: eventToInsertAfter.EffectiveReadOrder,
+                                rangeEnd: eventToInsertAfter.NextEventReadOrder);
+
+            _persistenceLayer.SaveRefactoringEvents(newEvents: insertAfterGroup);
         }
 
         public void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBeforeGroup)
         {
             var eventToInsertBefore = _persistenceLayer.LoadEventNeighborHood(eventId);
 
-            _persistenceLayer.SaveRefactoringEventsWithinReadOrderRange(
-                newEvents: insertBeforeGroup,
-                rangeStart: eventToInsertBefore.PreviousEventReadOrder,
-                rangeEnd: eventToInsertBefore.EffectiveReadOrder);
+            SetManualReadOrders(newEvents: insertBeforeGroup,
+                                rangeStart: eventToInsertBefore.PreviousEventReadOrder,
+                                rangeEnd: eventToInsertBefore.EffectiveReadOrder);
+
+            _persistenceLayer.SaveRefactoringEvents(
+                newEvents: insertBeforeGroup);
         }
 
         public void ReplaceEvent(Guid eventId, EventDataRow[] replacementGroup)
         {
             var eventToReplace = _persistenceLayer.LoadEventNeighborHood(eventId);
 
-            _persistenceLayer.SaveRefactoringEventsWithinReadOrderRange(
-                newEvents: replacementGroup,
-                rangeStart: eventToReplace.EffectiveReadOrder,
-                rangeEnd: eventToReplace.NextEventReadOrder);
+            SetManualReadOrders(newEvents: replacementGroup,
+                                rangeStart: eventToReplace.EffectiveReadOrder,
+                                rangeEnd: eventToReplace.NextEventReadOrder);
+
+            _persistenceLayer.SaveRefactoringEvents(
+                newEvents: replacementGroup);
+        }
+
+        static void SetManualReadOrders(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
+        {
+            var readOrderIncrement = (rangeEnd - rangeStart) / (newEvents.Length + 1);
+            for (var index = 0; index < newEvents.Length; ++index)
+            {
+                //Urgent: Change this to another data type. https://github.com/mlidbom/Composable/issues/46
+                var manualReadOrder = rangeStart + (index + 1) * readOrderIncrement;
+                if (!(manualReadOrder.IsNull || (manualReadOrder.Precision == 38 && manualReadOrder.Scale == 17)))
+                {
+                    throw new ArgumentException($"$$$$$$$$$$$$$$$$$$$$$$$$$ Found decimal with precision: {manualReadOrder.Precision} and scale: {manualReadOrder.Scale}", nameof(manualReadOrder));
+                }
+                newEvents[index].RefactoringInformation.ManualReadOrder = manualReadOrder;
+            }
         }
 
         static bool IsRecoverableSqlException(Exception exception)

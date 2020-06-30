@@ -10,7 +10,7 @@ using Composable.System.Collections.Collections;
 
 namespace Composable.Persistence.InMemory.DocumentDB
 {
-    //refactor: make transactional and use the same serialization code as the sql document db so that tests actually tests roundtrip serialization. This should be just like any other persistence provider.
+    [Obsolete("About to be removed", error:true)]
     class InMemoryDocumentDb : MemoryObjectStore, IDocumentDb
     {
         readonly IDocumentDbSerializer _serializer;

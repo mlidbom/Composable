@@ -8,7 +8,7 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.InMemory.EventStore
 {
-    //Urgent: No InMemoryEventStore should exist, instead there should be an InMemoryEventStorePersistenceLayer
+    [Obsolete("About to be removed", error: true)]
     class InMemoryEventStore : IEventStore
     {
         IReadOnlyList<IEventMigration> _migrationFactories;

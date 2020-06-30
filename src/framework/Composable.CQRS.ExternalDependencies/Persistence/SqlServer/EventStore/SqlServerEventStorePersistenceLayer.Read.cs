@@ -8,10 +8,16 @@ using Composable.Refactoring.Naming;
 
 namespace Composable.Persistence.SqlServer.EventStore
 {
-    class SqlServerEventStorePersistenceLayerReader : IEventStorePersistenceLayer.IReader
+    partial class SqlServerEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
         readonly SqlServerEventStoreConnectionManager _connectionManager;
         ITypeMapper _typeMapper;
+
+        public SqlServerEventStorePersistenceLayer(SqlServerEventStoreConnectionManager connectionManager, ITypeMapper typeMapper)
+        {
+            _connectionManager = connectionManager;
+            _typeMapper = typeMapper;
+        }
 
         static string GetSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
         static string SelectTopClause(int top, bool takeWriteLock) => InternalSelect(top: top, takeWriteLock: takeWriteLock);
@@ -39,11 +45,6 @@ SELECT {topClause}
 FROM {SqlServerEventTable.Name} {lockHint} ";
         }
 
-        public SqlServerEventStorePersistenceLayerReader(SqlServerEventStoreConnectionManager connectionManager, ITypeMapper typeMapper)
-        {
-            _connectionManager = connectionManager;
-            _typeMapper = typeMapper;
-        }
 
         static EventDataRow ReadDataRow(SqlDataReader eventReader) => new EventDataRow(
             eventType: eventReader.GetGuid(0),
@@ -132,7 +133,7 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
             }
         }
 
-        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventBaseType = null)
+        public IEnumerable<Guid> ListAggregateIdsInCreationOrder(Type? eventBaseType = null)
         {
             var ids = new List<Guid>();
             using (var connection = _connectionManager.OpenConnection(suppressTransactionWarning:true))
@@ -143,6 +144,7 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
                 using var reader = loadCommand.ExecuteReader();
                 while (reader.Read())
                 {
+                    //Urgent: Move this policy type code out of the persistence layer.
                     if(eventBaseType == null || eventBaseType.IsAssignableFrom(_typeMapper.GetType(new TypeId(reader.GetGuid(1)))))
                     {
                         ids.Add((Guid)reader[0]);

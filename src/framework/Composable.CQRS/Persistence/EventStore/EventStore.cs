@@ -21,10 +21,9 @@ namespace Composable.Persistence.EventStore
 
         readonly SingleThreadUseGuard _usageGuard;
 
-        readonly IEventStorePersistenceLayer.IReader _eventReader;
-        readonly IEventStorePersistenceLayer.IWriter _eventWriter;
+        readonly IEventStorePersistenceLayer _persistenceLayer;
+
         readonly EventCache _cache;
-        readonly IEventStorePersistenceLayer.ISchemaManager _schemaManager;
         readonly IReadOnlyList<IEventMigration> _migrationFactories;
 
         public EventStore(IEventStorePersistenceLayer persistenceLayer, ITypeMapper typeMapper, IEventStoreSerializer serializer, EventCache cache, IEnumerable<IEventMigration> migrations)
@@ -37,9 +36,7 @@ namespace Composable.Persistence.EventStore
 
             _usageGuard = new SingleThreadUseGuard();
             _cache = cache;
-            _schemaManager = persistenceLayer.SchemaManager;
-            _eventReader = persistenceLayer.EventReader;
-            _eventWriter = persistenceLayer.EventWriter;
+            _persistenceLayer = persistenceLayer;
         }
 
         public IReadOnlyList<IAggregateEvent> GetAggregateHistoryForUpdate(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: true);
@@ -49,7 +46,7 @@ namespace Composable.Persistence.EventStore
         IReadOnlyList<IAggregateEvent> GetAggregateHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
+            _persistenceLayer.SetupSchemaIfDatabaseUnInitialized();
 
             var cachedAggregateHistory = _cache.Get(aggregateId);
 
@@ -101,7 +98,7 @@ namespace Composable.Persistence.EventStore
         }
 
         AggregateEventWithRefactoringInformation[] GetAggregateEventsFromPersistenceLayer(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
-            => _eventReader.GetAggregateHistory(aggregateId: aggregateId,
+            => _persistenceLayer.GetAggregateHistory(aggregateId: aggregateId,
                                                 startAfterInsertedVersion: startAfterInsertedVersion,
                                                 takeWriteLock: takeWriteLock)
                            .Select(@this => new AggregateEventWithRefactoringInformation(HydrateEvent(@this), @this.RefactoringInformation) )
@@ -112,13 +109,13 @@ namespace Composable.Persistence.EventStore
         IEnumerable<IAggregateEvent> StreamEvents(int batchSize)
         {
             var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
-            return streamMutator.Mutate(_eventReader.StreamEvents(batchSize).Select(HydrateEvent));
+            return streamMutator.Mutate(_persistenceLayer.StreamEvents(batchSize).Select(HydrateEvent));
         }
 
         public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateEvent>> handleEvents)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
+            _persistenceLayer.SetupSchemaIfDatabaseUnInitialized();
 
             var batches = StreamEvents(batchSize)
                 .ChopIntoSizesOf(batchSize)
@@ -132,7 +129,7 @@ namespace Composable.Persistence.EventStore
         public void SaveSingleAggregateEvents(IReadOnlyList<IAggregateEvent> aggregateEvents)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
+            _persistenceLayer.SetupSchemaIfDatabaseUnInitialized();
 
             var aggregateId = aggregateEvents.First().AggregateId;
 
@@ -147,7 +144,7 @@ namespace Composable.Persistence.EventStore
             var eventRows = aggregateEvents
                            .Select(@event => new EventDataRow(specification: cacheEntry.CreateInsertionSpecificationForNewEvent(@event), _typeMapper.GetId(@event.GetType()).GuidValue, eventAsJson: _serializer.Serialize((AggregateEvent)@event)))
                            .ToList();
-            _eventWriter.InsertSingleAggregateEvents(eventRows);
+            _persistenceLayer.InsertSingleAggregateEvents(eventRows);
 
             var completeAggregateHistory = cacheEntry
                                           .Events.Concat(aggregateEvents)
@@ -162,9 +159,9 @@ namespace Composable.Persistence.EventStore
         public void DeleteAggregate(Guid aggregateId)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
+            _persistenceLayer.SetupSchemaIfDatabaseUnInitialized();
             _cache.Remove(aggregateId);
-            _eventWriter.DeleteAggregate(aggregateId);
+            _persistenceLayer.DeleteAggregate(aggregateId);
         }
 
 
@@ -216,7 +213,7 @@ namespace Composable.Persistence.EventStore
                                                    .Select(@this => new EventDataRow(@event: @this.NewEvent, @this.RefactoringInformation, _typeMapper.GetId(@this.NewEvent.GetType()).GuidValue, eventAsJson: _serializer.Serialize(@this.NewEvent)))
                                                    .ToList();
 
-                                    _eventWriter.InsertSingleAggregateRefactoringEvents(eventRows);
+                                    _persistenceLayer.InsertSingleAggregateRefactoringEvents(eventRows);
 
                                     updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                     newEventCount += newEvents.Count;
@@ -265,9 +262,9 @@ namespace Composable.Persistence.EventStore
                 "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType)");
             _usageGuard.AssertNoContextChangeOccurred(this);
 
-            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
+            _persistenceLayer.SetupSchemaIfDatabaseUnInitialized();
 
-            return _eventReader.StreamAggregateIdsInCreationOrder(eventType);
+            return _persistenceLayer.ListAggregateIdsInCreationOrder(eventType);
         }
 
         public void Dispose()

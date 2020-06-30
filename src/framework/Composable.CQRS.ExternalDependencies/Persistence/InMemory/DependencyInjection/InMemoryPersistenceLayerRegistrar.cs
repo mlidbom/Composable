@@ -27,11 +27,7 @@ namespace Composable.Persistence.InMemory.DependencyInjection
 
             //Event store
             container.Register(Singleton.For<IEventStorePersistenceLayer>()
-                                        .CreatedBy(()
-                                                       => new InMemoryEventStorePersistenceLayer(
-                                                           new InMemoryEventStorePersistenceLayerSchemaManager(),
-                                                           new InMemoryEventStorePersistenceLayerReader(),
-                                                           new InMemoryEventStorePersistenceLayerWriter()))
+                                        .CreatedBy(() => new InMemoryEventStorePersistenceLayer())
                                         .DelegateToParentServiceLocatorWhenCloning());
 
             //Service bus

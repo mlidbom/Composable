@@ -10,28 +10,15 @@ namespace Composable.Persistence.EventStore
 
     interface IEventStorePersistenceLayer
     {
-        ISchemaManager SchemaManager { get; }
-        IReader EventReader { get; }
-        IWriter EventWriter { get; }
+        void SetupSchemaIfDatabaseUnInitialized();
 
-        interface ISchemaManager
-        {
-            void SetupSchemaIfDatabaseUnInitialized();
-        }
 
-        interface IReader
-        {
-            IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0);
-            IEnumerable<EventDataRow> StreamEvents(int batchSize);
-            IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventBaseType = null);
-        }
-
-        interface IWriter
-        {
-            void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events);
-            void InsertSingleAggregateRefactoringEvents(IReadOnlyList<EventDataRow> events);
-            void DeleteAggregate(Guid aggregateId);
-        }
+        IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0);
+        IEnumerable<EventDataRow> StreamEvents(int batchSize);
+        IEnumerable<Guid> ListAggregateIdsInCreationOrder(Type? eventBaseType = null);
+        void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events);
+        void InsertSingleAggregateRefactoringEvents(IReadOnlyList<EventDataRow> events);
+        void DeleteAggregate(Guid aggregateId);
     }
 
     class EventDataRow

@@ -8,7 +8,6 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.InMemory.DocumentDB
 {
-    //urgent: implement InMemoryDocumentDbPersistenceLayer
     class InMemoryDocumentDbPersistenceLayer : IDocumentDbPersistenceLayer
     {
         readonly Dictionary<string, List<DocumentRow>> _db = new Dictionary<string, List<DocumentRow>>(StringComparer.InvariantCultureIgnoreCase);

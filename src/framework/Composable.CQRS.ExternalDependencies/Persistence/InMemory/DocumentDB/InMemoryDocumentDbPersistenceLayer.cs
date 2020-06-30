@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Persistence.DocumentDb;
 using Composable.System.Collections.Collections;
@@ -11,12 +12,12 @@ namespace Composable.Persistence.InMemory.DocumentDB
     class InMemoryDocumentDbPersistenceLayer : IDocumentDbPersistenceLayer
     {
         readonly Dictionary<string, List<DocumentRow>> _db = new Dictionary<string, List<DocumentRow>>(StringComparer.InvariantCultureIgnoreCase);
-        readonly object LockObject = new object();
+        readonly object _lockObject = new object();
 
         //Urgent: Take a WriteRow
         public void Add(string idString, Guid typeIdGuid, DateTime now, string serializedDocument)
         {
-            lock (LockObject)
+            lock (_lockObject)
             {
                 if (Contains(typeIdGuid, idString))
                 {
@@ -26,9 +27,9 @@ namespace Composable.Persistence.InMemory.DocumentDB
             }
         }
 
-        public bool TryGet(string idString, IReadOnlyList<Guid> acceptableTypeIds, bool useUpdateLock, out IDocumentDbPersistenceLayer.ReadRow? value)
+        public bool TryGet(string idString, IReadOnlyList<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out IDocumentDbPersistenceLayer.ReadRow? value)
         {
-            lock (LockObject)
+            lock (_lockObject)
             {
                 value = null;
                 if(!_db.TryGetValue(idString, out var matchesId))
@@ -51,7 +52,7 @@ namespace Composable.Persistence.InMemory.DocumentDB
 
         public void Update(IReadOnlyList<IDocumentDbPersistenceLayer.WriteRow> toUpdate)
         {
-            lock (LockObject)
+            lock (_lockObject)
             {
                 foreach(var row in toUpdate)
                 {
@@ -70,7 +71,7 @@ namespace Composable.Persistence.InMemory.DocumentDB
 
         public int Remove(string idstring, IReadOnlyList<Guid> acceptableTypes)
         {
-            lock (LockObject)
+            lock (_lockObject)
             {
                 var removed = _db.GetOrAddDefault(idstring).RemoveWhere(@this => acceptableTypes.Contains(@this.TypeId));
                 if (removed.None())
@@ -89,7 +90,7 @@ namespace Composable.Persistence.InMemory.DocumentDB
         public IEnumerable<Guid> GetAllIds(IReadOnlyList<Guid> acceptableTypes)
         {
             var typeIds = new HashSet<Guid>(acceptableTypes);
-            lock (LockObject)
+            lock (_lockObject)
             {
                 return _db
                       .SelectMany(@this => @this.Value)
@@ -108,7 +109,7 @@ namespace Composable.Persistence.InMemory.DocumentDB
         public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IEnumerable<Guid> ids, IReadOnlyList<Guid> acceptableTypes)
         {
             var typeIds = new HashSet<Guid>(acceptableTypes);
-            lock (LockObject)
+            lock (_lockObject)
             {
                 return _db
                       .SelectMany(@this => @this.Value)
@@ -121,7 +122,7 @@ namespace Composable.Persistence.InMemory.DocumentDB
         public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IReadOnlyList<Guid> acceptableTypes)
         {
             var typeIds = new HashSet<Guid>(acceptableTypes);
-            lock (LockObject)
+            lock (_lockObject)
             {
                 return _db
                       .SelectMany(@this => @this.Value)

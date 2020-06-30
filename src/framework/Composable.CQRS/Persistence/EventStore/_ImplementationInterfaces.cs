@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 
 namespace Composable.Persistence.EventStore
@@ -19,10 +20,31 @@ namespace Composable.Persistence.EventStore
         IEnumerable<Guid> ListAggregateIdsInCreationOrder(Type? eventBaseType = null);
         void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events);
         void DeleteAggregate(Guid aggregateId);
-        void InsertAfterEvent(Guid eventId, EventDataRow[] insertAfterGroup);
-        void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBeforeGroup);
-        void ReplaceEvent(Guid eventId, EventDataRow[] replacementGroup);
         void FixManualVersions(Guid aggregateId);
+
+        class EventNeighborhood
+        {
+            long InsertionOrder { get; }
+            public SqlDecimal EffectiveReadOrder { get; }
+            public SqlDecimal PreviousEventReadOrder { get; }
+            public SqlDecimal NextEventReadOrder { get; }
+
+            public EventNeighborhood(long insertionOrder, SqlDecimal effectiveReadOrder, SqlDecimal previousEventReadOrder, SqlDecimal nextEventReadOrder)
+            {
+                InsertionOrder = insertionOrder;
+                EffectiveReadOrder = effectiveReadOrder;
+                NextEventReadOrder = UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(nextEventReadOrder);
+                PreviousEventReadOrder = UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(previousEventReadOrder);
+            }
+
+            static SqlDecimal UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(SqlDecimal previousReadOrder) => previousReadOrder > 0 ? previousReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(0));
+
+            SqlDecimal UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(SqlDecimal nextReadOrder) => !nextReadOrder.IsNull ? nextReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(InsertionOrder + 1));
+
+            static SqlDecimal ToCorrectPrecisionAndScale(SqlDecimal value) => SqlDecimal.ConvertToPrecScale(value, 38, 19);
+        }
+        IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId);
+        void SaveRefactoringEventsWithinReadOrderRange(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd);
     }
 
     class EventDataRow

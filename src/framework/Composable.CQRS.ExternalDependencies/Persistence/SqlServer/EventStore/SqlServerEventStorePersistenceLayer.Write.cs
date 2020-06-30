@@ -48,37 +48,7 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             }
         }
 
-        public void InsertAfterEvent(Guid eventId, EventDataRow[] insertAfterGroup)
-        {
-            var eventToInsertAfter = LoadEventInsertedBeforeAndAfter(eventId);
-
-            SaveRefactoringEventsWithinReadOrderRange(
-                newEvents: insertAfterGroup,
-                rangeStart: eventToInsertAfter.EffectiveReadOrder,
-                rangeEnd: eventToInsertAfter.NextEventReadOrder);
-        }
-
-        public void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBeforeGroup)
-        {
-            var eventToInsertBefore = LoadEventInsertedBeforeAndAfter(eventId);
-
-            SaveRefactoringEventsWithinReadOrderRange(
-                newEvents: insertBeforeGroup,
-                rangeStart: eventToInsertBefore.PreviousEventReadOrder,
-                rangeEnd: eventToInsertBefore.EffectiveReadOrder);
-        }
-
-        public void ReplaceEvent(Guid eventId, EventDataRow[] replacementGroup)
-        {
-            var eventToReplace = LoadEventInsertedBeforeAndAfter(eventId);
-
-            SaveRefactoringEventsWithinReadOrderRange(
-                newEvents: replacementGroup,
-                rangeStart: eventToReplace.EffectiveReadOrder,
-                rangeEnd: eventToReplace.NextEventReadOrder);
-        }
-
-        void SaveRefactoringEventsWithinReadOrderRange(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
+        public void SaveRefactoringEventsWithinReadOrderRange(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
         {
             var readOrderIncrement = (rangeEnd - rangeStart) / (newEvents.Length + 1);
 
@@ -148,29 +118,7 @@ SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                 });
         }
 
-        static SqlDecimal ToCorrectPrecisionAndScale(SqlDecimal value) => SqlDecimal.ConvertToPrecScale(value, 38, 19);
-
-        class EventOrderNeighborhood
-        {
-            long InsertionOrder { get; }
-            public SqlDecimal EffectiveReadOrder { get; }
-            public SqlDecimal PreviousEventReadOrder { get; }
-            public SqlDecimal NextEventReadOrder { get; }
-
-            public EventOrderNeighborhood(long insertionOrder, SqlDecimal effectiveReadOrder, SqlDecimal previousEventReadOrder, SqlDecimal nextEventReadOrder)
-            {
-                InsertionOrder = insertionOrder;
-                EffectiveReadOrder = effectiveReadOrder;
-                NextEventReadOrder = UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(nextEventReadOrder);
-                PreviousEventReadOrder = UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(previousEventReadOrder);
-            }
-
-            static SqlDecimal UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(SqlDecimal previousReadOrder) => previousReadOrder > 0 ? previousReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(0));
-
-            SqlDecimal UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(SqlDecimal nextReadOrder) => !nextReadOrder.IsNull ? nextReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(InsertionOrder + 1));
-        }
-
-        EventOrderNeighborhood LoadEventInsertedBeforeAndAfter(Guid insertionOrder)
+        public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId)
         {
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
 
@@ -185,17 +133,17 @@ where {SqlServerEventTable.Columns.EventId} = @{SqlServerEventTable.Columns.Even
 
 
 
-            EventOrderNeighborhood? neighborhood = null;
+            IEventStorePersistenceLayer.EventNeighborhood? neighborhood = null;
 
             _connectionManager.UseCommand(
                 command =>
                 {
                     command.CommandText = selectStatement;
-                    command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = insertionOrder});
+                    command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = eventId});
                     using var reader = command.ExecuteReader();
                     reader.Read();
 
-                    neighborhood = new EventOrderNeighborhood(
+                    neighborhood = new IEventStorePersistenceLayer.EventNeighborhood(
                         insertionOrder: reader.GetInt64(0),
                         effectiveReadOrder: reader.GetSqlDecimal(1),
                         previousEventReadOrder: reader.GetSqlDecimal(2),

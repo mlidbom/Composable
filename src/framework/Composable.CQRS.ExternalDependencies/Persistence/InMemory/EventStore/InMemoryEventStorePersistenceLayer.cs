@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Threading;
 using Composable.Persistence.EventStore;
@@ -23,10 +24,9 @@ namespace Composable.Persistence.InMemory.EventStore
                 }
             });
 
-        public void InsertAfterEvent(Guid eventId, EventDataRow[] insertAfterGroup) { throw new NotImplementedException(); }
-        public void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBeforeGroup) { throw new NotImplementedException(); }
-        public void ReplaceEvent(Guid eventId, EventDataRow[] replacementGroup) { throw new NotImplementedException(); }
         public void FixManualVersions(Guid aggregateId) { throw new NotImplementedException(); }
+        public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId) => throw new NotImplementedException();
+        public void SaveRefactoringEventsWithinReadOrderRange(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd) { throw new NotImplementedException(); }
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
             _state.WithExclusiveAccess(state => state

@@ -271,22 +271,52 @@ namespace Composable.Persistence.EventStore
             {
                 Contract.Assert.That(replacementGroup.All(@this => @this.RefactoringInformation.Replaces.HasValue && @this.RefactoringInformation.Replaces != Guid.Empty),
                                  "replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0)");
-                _persistenceLayer.ReplaceEvent(replacementGroup.Key, replacementGroup.ToArray());
+                ReplaceEvent(replacementGroup.Key, replacementGroup.ToArray());
             }
             else if (insertBeforeGroup != null)
             {
                 Contract.Assert.That(insertBeforeGroup.All(@this => @this.RefactoringInformation.InsertBefore.HasValue && @this.RefactoringInformation.InsertBefore.Value != Guid.Empty),
                                  "insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0)");
-                _persistenceLayer.InsertBeforeEvent(insertBeforeGroup.Key, insertBeforeGroup.ToArray());
+                InsertBeforeEvent(insertBeforeGroup.Key, insertBeforeGroup.ToArray());
             }
             else if (insertAfterGroup != null)
             {
                 Contract.Assert.That(insertAfterGroup.All(@this => @this.RefactoringInformation.InsertAfter.HasValue && @this.RefactoringInformation.InsertAfter.Value != Guid.Empty),
                                  "insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0)");
-                _persistenceLayer.InsertAfterEvent(insertAfterGroup.Key, insertAfterGroup.ToArray());
+                InsertAfterEvent(insertAfterGroup.Key, insertAfterGroup.ToArray());
             }
 
             _persistenceLayer.FixManualVersions(events.First().AggregateId);
+        }
+
+        public void InsertAfterEvent(Guid eventId, EventDataRow[] insertAfterGroup)
+        {
+            var eventToInsertAfter = _persistenceLayer.LoadEventNeighborHood(eventId);
+
+            _persistenceLayer.SaveRefactoringEventsWithinReadOrderRange(
+                newEvents: insertAfterGroup,
+                rangeStart: eventToInsertAfter.EffectiveReadOrder,
+                rangeEnd: eventToInsertAfter.NextEventReadOrder);
+        }
+
+        public void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBeforeGroup)
+        {
+            var eventToInsertBefore = _persistenceLayer.LoadEventNeighborHood(eventId);
+
+            _persistenceLayer.SaveRefactoringEventsWithinReadOrderRange(
+                newEvents: insertBeforeGroup,
+                rangeStart: eventToInsertBefore.PreviousEventReadOrder,
+                rangeEnd: eventToInsertBefore.EffectiveReadOrder);
+        }
+
+        public void ReplaceEvent(Guid eventId, EventDataRow[] replacementGroup)
+        {
+            var eventToReplace = _persistenceLayer.LoadEventNeighborHood(eventId);
+
+            _persistenceLayer.SaveRefactoringEventsWithinReadOrderRange(
+                newEvents: replacementGroup,
+                rangeStart: eventToReplace.EffectiveReadOrder,
+                rangeEnd: eventToReplace.NextEventReadOrder);
         }
 
         static bool IsRecoverableSqlException(Exception exception)

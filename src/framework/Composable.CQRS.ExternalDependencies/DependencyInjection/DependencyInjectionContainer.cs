@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.Messaging.Buses;
+using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.SqlServer.DependencyInjection;
 using Composable.Persistence.SqlServer.Messaging.Buses;
 using JetBrains.Annotations;
@@ -17,7 +18,7 @@ namespace Composable.DependencyInjection
 #pragma warning restore IDE0067 // Dispose objects before losing scope
             var endpoint = host.RegisterTestingEndpoint(setup: builder =>
             {
-                builder.RegisterSqlServerPersistenceLayer();
+                builder.RegisterCurrentTestsConfiguredPersistenceLayer();
                 setup(builder);
                 //Hack to get the host to be disposed by the container when the container is disposed.
                 builder.Container.Register(Singleton.For<TestingEndpointHostDisposer>().CreatedBy(() => new TestingEndpointHostDisposer(host)).DelegateToParentServiceLocatorWhenCloning());

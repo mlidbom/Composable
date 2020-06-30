@@ -36,7 +36,7 @@ namespace Composable.Persistence.EventStore
 
     class EventDataRow
     {
-        public EventDataRow(IAggregateEvent @event, AggregateEventRefactoringInformation refactoringInformation, TypeId eventType, string eventAsJson)
+        public EventDataRow(IAggregateEvent @event, AggregateEventRefactoringInformation refactoringInformation, Guid eventType, string eventAsJson)
         {
             EventJson = eventAsJson;
             EventType = eventType;
@@ -49,7 +49,7 @@ namespace Composable.Persistence.EventStore
             RefactoringInformation = refactoringInformation;
         }
 
-        public EventDataRow(EventInsertionSpecification specification, TypeId typeId, string eventAsJson)
+        public EventDataRow(EventInsertionSpecification specification, Guid typeId, string eventAsJson)
         {
             var @event = specification.Event;
             EventJson = eventAsJson;
@@ -67,7 +67,7 @@ namespace Composable.Persistence.EventStore
                                      };
         }
 
-        public EventDataRow(TypeId eventType, string eventJson, Guid eventId, int aggregateVersion, Guid aggregateId, DateTime utcTimeStamp, long insertionOrder, AggregateEventRefactoringInformation refactoringInformation)
+        public EventDataRow(Guid eventType, string eventJson, Guid eventId, int aggregateVersion, Guid aggregateId, DateTime utcTimeStamp, long insertionOrder, AggregateEventRefactoringInformation refactoringInformation)
         {
             EventType = eventType;
             EventJson = eventJson;
@@ -80,7 +80,7 @@ namespace Composable.Persistence.EventStore
             RefactoringInformation = refactoringInformation;
         }
 
-        public TypeId EventType { get; private set; }
+        public Guid EventType { get; private set; }
         public string EventJson { get; private set; }
         public Guid EventId { get; private set; }
         public int AggregateVersion { get; private set; }

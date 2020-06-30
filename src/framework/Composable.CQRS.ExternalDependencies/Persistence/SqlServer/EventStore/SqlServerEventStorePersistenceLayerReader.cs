@@ -46,7 +46,7 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
         }
 
         static EventDataRow ReadDataRow(SqlDataReader eventReader) => new EventDataRow(
-            eventType: new TypeId(eventReader.GetGuid(0)),
+            eventType: eventReader.GetGuid(0),
             eventJson: eventReader.GetString(1),
             eventId: eventReader.GetGuid(4),
             aggregateVersion: eventReader[3] as int? ?? eventReader.GetInt32(10),

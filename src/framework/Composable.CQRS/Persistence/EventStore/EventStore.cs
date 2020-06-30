@@ -92,7 +92,7 @@ namespace Composable.Persistence.EventStore
 
         AggregateEvent HydrateEvent(EventDataRow eventDataRowRow)
         {
-            var @event = (AggregateEvent)_serializer.Deserialize(eventType: _typeMapper.GetType(eventDataRowRow.EventType), json: eventDataRowRow.EventJson);
+            var @event = (AggregateEvent)_serializer.Deserialize(eventType: _typeMapper.GetType(new TypeId(eventDataRowRow.EventType)), json: eventDataRowRow.EventJson);
             @event.AggregateId = eventDataRowRow.AggregateId;
             @event.AggregateVersion = eventDataRowRow.AggregateVersion;
             @event.EventId = eventDataRowRow.EventId;
@@ -145,7 +145,7 @@ namespace Composable.Persistence.EventStore
             var specifications = aggregateEvents.Select(@event => cacheEntry.CreateInsertionSpecificationForNewEvent(@event)).ToArray();
 
             var eventRows = aggregateEvents
-                           .Select(@event => new EventDataRow(specification: cacheEntry.CreateInsertionSpecificationForNewEvent(@event), _typeMapper.GetId(@event.GetType()), eventAsJson: _serializer.Serialize((AggregateEvent)@event)))
+                           .Select(@event => new EventDataRow(specification: cacheEntry.CreateInsertionSpecificationForNewEvent(@event), _typeMapper.GetId(@event.GetType()).GuidValue, eventAsJson: _serializer.Serialize((AggregateEvent)@event)))
                            .ToList();
             _eventWriter.Insert(eventRows);
 
@@ -213,7 +213,7 @@ namespace Composable.Persistence.EventStore
                                     });
                                     //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
                                     var eventRows = newEvents
-                                                   .Select(@this => new EventDataRow(@event: @this.NewEvent, @this.RefactoringInformation, _typeMapper.GetId(@this.NewEvent.GetType()), eventAsJson: _serializer.Serialize(@this.NewEvent)))
+                                                   .Select(@this => new EventDataRow(@event: @this.NewEvent, @this.RefactoringInformation, _typeMapper.GetId(@this.NewEvent.GetType()).GuidValue, eventAsJson: _serializer.Serialize(@this.NewEvent)))
                                                    .ToList();
 
                                     _eventWriter.InsertRefactoringEvents(eventRows);

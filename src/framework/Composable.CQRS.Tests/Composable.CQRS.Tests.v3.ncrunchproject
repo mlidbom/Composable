@@ -12,14 +12,6 @@
         <TestName>Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql.EventStoreUpdaterTests.Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed</TestName>
         <DuplicatedDimension>InMemory</DuplicatedDimension>
       </NamedTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql.EventStoreTest.ShouldNotCacheEventsSavedDuringFailedTransactionEvenIfReadDuringSameTransaction</TestName>
-        <DuplicatedDimension>InMemory</DuplicatedDimension>
-      </NamedTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.Tests.CQRS.EventStoreUpdaterTest.Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed</TestName>
-        <DuplicatedDimension>InMemory</DuplicatedDimension>
-      </NamedTestSelector>
     </IgnoredTests>
   </Settings>
 </ProjectConfiguration>

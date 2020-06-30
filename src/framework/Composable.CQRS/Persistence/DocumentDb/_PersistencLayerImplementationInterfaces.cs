@@ -12,7 +12,7 @@ namespace Composable.Persistence.DocumentDb
         int Remove(string idString, IReadOnlyList<Guid> acceptableTypes);
         IEnumerable<Guid> GetAllIds(IReadOnlyList<Guid> acceptableTypes);
         IReadOnlyList<ReadRow> GetAll(IEnumerable<Guid> ids, IReadOnlyList<Guid> acceptableTypes);
-        IReadOnlyList<ReadRow> GetAll(IReadOnlyList<Guid> acceptableTypeIds);
+        IReadOnlyList<ReadRow> GetAll(IReadOnlyList<Guid> acceptableTypes);
 
         class ReadRow
         {

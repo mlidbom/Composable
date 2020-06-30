@@ -3,7 +3,8 @@ namespace Composable.Persistence.SqlServer.EventStore
     class SqlServerEventTableSchemaManager : SqlServerTableSchemaManager
     {
         internal override string Name { get; } = SqlServerEventTable.Name;
-        //Review:mlidbom: Consider changing the event ordering scheme. https://github.com/mlidbom/Composable/issues/46
+        //Urgent: Consider changing the event ordering scheme. SqlDecimal is not portable and quite quirky to use. https://github.com/mlidbom/Composable/issues/46
+        //Urgent: Computed columns is not portable and are used here to implement policy level logic that we do not want in the individual persistence layers.
         internal override string CreateTableSql => $@"
 CREATE TABLE dbo.{Name}(
     {SqlServerEventTable.Columns.InsertionOrder} bigint IDENTITY(1,1) NOT NULL,

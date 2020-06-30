@@ -25,6 +25,13 @@ namespace Composable.Persistence.InMemory.DependencyInjection
                 Singleton.For<IDocumentDbPersistenceLayer>()
                          .CreatedBy(() => new InMemoryDocumentDbPersistenceLayer()));
 
+            //Event store
+            container.Register(Singleton.For<IEventStorePersistenceLayer>()
+                                        .CreatedBy(()
+                                                       => new InMemoryEventStorePersistenceLayer(
+                                                           new InMemoryEventStorePersistenceLayerSchemaManager(),
+                                                           new InMemoryEventStorePersistenceLayerReader(),
+                                                           new InMemoryEventStorePersistenceLayerWriter())));
 
             //Service bus
             container.Register(
@@ -32,13 +39,6 @@ namespace Composable.Persistence.InMemory.DependencyInjection
                          .CreatedBy(() => new InMemoryOutboxPersistenceLayer()),
                 Singleton.For<IServiceBusPersistenceLayer.IInboxPersistenceLayer>()
                          .CreatedBy(() => new InMemoryInboxPersistenceLayer()));
-
-            container.Register(Singleton.For<IEventStorePersistenceLayer>()
-                                        .CreatedBy(()
-                                                       => new InMemoryEventStorePersistenceLayer(
-                                                           new InMemoryEventStorePersistenceLayerSchemaManager(),
-                                                           new InMemoryEventStorePersistenceLayerReader(),
-                                                           new InMemoryEventStorePersistenceLayerWriter())));
         }
     }
 }

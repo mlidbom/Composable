@@ -89,29 +89,29 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             }
         }
 
-        public int Remove(string idString, IReadOnlyList<Guid> acceptableTypeIds)
+        public int Remove(string idString, IReadOnlyList<Guid> acceptableTypes)
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(
                 command =>
-                    command.SetCommandText($"DELETE Store WHERE Id = @Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
+                    command.SetCommandText($"DELETE Store WHERE Id = @Id AND ValueTypeId  {TypeInClause(acceptableTypes)}")
                            .AddNVarcharParameter("Id", 500, idString)
                            .ExecuteNonQuery());
         }
 
-        public IEnumerable<Guid> GetAllIds(IReadOnlyList<Guid> acceptableTypeIds)
+        public IEnumerable<Guid> GetAllIds(IReadOnlyList<Guid> acceptableTypes)
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(
-                command => command.SetCommandText($@"SELECT Id FROM Store WHERE ValueTypeId  {TypeInClause(acceptableTypeIds)}")
+                command => command.SetCommandText($@"SELECT Id FROM Store WHERE ValueTypeId  {TypeInClause(acceptableTypes)}")
                                   .ExecuteReaderAndSelect(reader => Guid.Parse(reader.GetString(0)))); //bug: Huh, we store string but require them to be Guid!?
         }
 
-        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IEnumerable<Guid> ids, IReadOnlyList<Guid> getAcceptableTypes)
+        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IEnumerable<Guid> ids, IReadOnlyList<Guid> acceptableTypes)
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(
-                command => command.SetCommandText($@"SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId {TypeInClause(getAcceptableTypes)} 
+                command => command.SetCommandText($@"SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId {TypeInClause(acceptableTypes)} 
                                    AND Id IN('" + ids.Select(id => id.ToString()).Join("','") + "')")
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
         }

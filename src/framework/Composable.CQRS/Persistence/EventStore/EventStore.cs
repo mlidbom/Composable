@@ -213,7 +213,7 @@ namespace Composable.Persistence.EventStore
                                                    .Select(@this => new EventDataRow(@event: @this.NewEvent, @this.RefactoringInformation, _typeMapper.GetId(@this.NewEvent.GetType()).GuidValue, eventAsJson: _serializer.Serialize(@this.NewEvent)))
                                                    .ToList();
 
-                                    _persistenceLayer.InsertSingleAggregateRefactoringEvents(eventRows);
+                                    InsertSingleAggregateRefactoringEvents(eventRows);
 
                                     updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                     newEventCount += newEvents.Count;
@@ -248,6 +248,45 @@ namespace Composable.Persistence.EventStore
             Log.Warning("Done persisting migrations.");
             Log.Info($"Inspected: {migratedAggregates} , Updated: {updatedAggregates}, New Events: {newEventCount}");
 
+        }
+
+        void InsertSingleAggregateRefactoringEvents(IReadOnlyList<EventDataRow> events)
+        {
+            // ReSharper disable PossibleInvalidOperationException
+            var replacementGroup = events.Where(@event => @event.RefactoringInformation.Replaces.HasValue)
+                                         .GroupBy(@event => @event.RefactoringInformation.Replaces!.Value)
+                                         .SingleOrDefault();
+            var insertBeforeGroup = events.Where(@event => @event.RefactoringInformation.InsertBefore.HasValue)
+                                          .GroupBy(@event => @event.RefactoringInformation.InsertBefore!.Value)
+                                          .SingleOrDefault();
+            var insertAfterGroup = events.Where(@event => @event.RefactoringInformation.InsertAfter.HasValue)
+                                         .GroupBy(@event => @event.RefactoringInformation.InsertAfter!.Value)
+                                         .SingleOrDefault();
+            // ReSharper restore PossibleInvalidOperationException
+
+            Contract.Assert.That(Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1,
+                                 "Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1");
+
+            if (replacementGroup != null)
+            {
+                Contract.Assert.That(replacementGroup.All(@this => @this.RefactoringInformation.Replaces.HasValue && @this.RefactoringInformation.Replaces != Guid.Empty),
+                                 "replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0)");
+                _persistenceLayer.ReplaceEvent(replacementGroup.Key, replacementGroup.ToArray());
+            }
+            else if (insertBeforeGroup != null)
+            {
+                Contract.Assert.That(insertBeforeGroup.All(@this => @this.RefactoringInformation.InsertBefore.HasValue && @this.RefactoringInformation.InsertBefore.Value != Guid.Empty),
+                                 "insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0)");
+                _persistenceLayer.InsertBeforeEvent(insertBeforeGroup.Key, insertBeforeGroup.ToArray());
+            }
+            else if (insertAfterGroup != null)
+            {
+                Contract.Assert.That(insertAfterGroup.All(@this => @this.RefactoringInformation.InsertAfter.HasValue && @this.RefactoringInformation.InsertAfter.Value != Guid.Empty),
+                                 "insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0)");
+                _persistenceLayer.InsertAfterEvent(insertAfterGroup.Key, insertAfterGroup.ToArray());
+            }
+
+            _persistenceLayer.FixManualVersions(events.First().AggregateId);
         }
 
         static bool IsRecoverableSqlException(Exception exception)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Composable.Persistence.EventStore
 {
@@ -17,8 +18,11 @@ namespace Composable.Persistence.EventStore
         IEnumerable<EventDataRow> StreamEvents(int batchSize);
         IEnumerable<Guid> ListAggregateIdsInCreationOrder(Type? eventBaseType = null);
         void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events);
-        void InsertSingleAggregateRefactoringEvents(IReadOnlyList<EventDataRow> events);
         void DeleteAggregate(Guid aggregateId);
+        void InsertAfterEvent(Guid eventId, EventDataRow[] insertAfterGroup);
+        void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBeforeGroup);
+        void ReplaceEvent(Guid eventId, EventDataRow[] replacementGroup);
+        void FixManualVersions(Guid aggregateId);
     }
 
     class EventDataRow

@@ -23,7 +23,10 @@ namespace Composable.Persistence.InMemory.EventStore
                 }
             });
 
-        public void InsertSingleAggregateRefactoringEvents(IReadOnlyList<EventDataRow> events) { throw new NotImplementedException(); }
+        public void InsertAfterEvent(Guid eventId, EventDataRow[] insertAfterGroup) { throw new NotImplementedException(); }
+        public void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBeforeGroup) { throw new NotImplementedException(); }
+        public void ReplaceEvent(Guid eventId, EventDataRow[] replacementGroup) { throw new NotImplementedException(); }
+        public void FixManualVersions(Guid aggregateId) { throw new NotImplementedException(); }
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
             _state.WithExclusiveAccess(state => state

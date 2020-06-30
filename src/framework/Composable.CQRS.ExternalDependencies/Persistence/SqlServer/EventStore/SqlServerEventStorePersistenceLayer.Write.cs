@@ -48,59 +48,34 @@ VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns
             }
         }
 
-        //urgent: Move almost all of this logic to the EventStore. Persistence layer should not implement the logic of refactoring.
-        public void InsertSingleAggregateRefactoringEvents(IReadOnlyList<EventDataRow> events)
+        public void InsertAfterEvent(Guid eventId, EventDataRow[] insertAfterGroup)
         {
-            // ReSharper disable PossibleInvalidOperationException
-            var replacementGroup = events.Where(@event => @event.RefactoringInformation.Replaces.HasValue)
-                                         .GroupBy(@event => @event.RefactoringInformation.Replaces!.Value)
-                                         .SingleOrDefault();
-            var insertBeforeGroup = events.Where(@event => @event.RefactoringInformation.InsertBefore.HasValue)
-                                          .GroupBy(@event => @event.RefactoringInformation.InsertBefore!.Value)
-                                          .SingleOrDefault();
-            var insertAfterGroup = events.Where(@event => @event.RefactoringInformation.InsertAfter.HasValue)
-                                         .GroupBy(@event => @event.RefactoringInformation.InsertAfter!.Value)
-                                         .SingleOrDefault();
-            // ReSharper restore PossibleInvalidOperationException
+            var eventToInsertAfter = LoadEventInsertedBeforeAndAfter(eventId);
 
-            Contract.Assert.That(Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1,
-                                 "Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1");
+            SaveRefactoringEventsWithinReadOrderRange(
+                newEvents: insertAfterGroup,
+                rangeStart: eventToInsertAfter.EffectiveReadOrder,
+                rangeEnd: eventToInsertAfter.NextEventReadOrder);
+        }
 
-            if (replacementGroup != null)
-            {
-                Contract.Assert.That(replacementGroup.All(@this => @this.RefactoringInformation.Replaces.HasValue && @this.RefactoringInformation.Replaces != Guid.Empty),
-                                     "replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0)");
-                var eventToReplace = LoadEventInsertedBeforeAndAfter(replacementGroup.Key);
+        public void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBeforeGroup)
+        {
+            var eventToInsertBefore = LoadEventInsertedBeforeAndAfter(eventId);
 
-                SaveRefactoringEventsWithinReadOrderRange(
-                    newEvents: replacementGroup.ToArray(),
-                    rangeStart: eventToReplace.EffectiveReadOrder,
-                    rangeEnd: eventToReplace.NextReadOrder);
-            }
-            else if (insertBeforeGroup != null)
-            {
-                Contract.Assert.That(insertBeforeGroup.All(@this => @this.RefactoringInformation.InsertBefore.HasValue && @this.RefactoringInformation.InsertBefore.Value != Guid.Empty),
-                                     "insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0)");
-                var eventToInsertBefore = LoadEventInsertedBeforeAndAfter(insertBeforeGroup.Key);
+            SaveRefactoringEventsWithinReadOrderRange(
+                newEvents: insertBeforeGroup,
+                rangeStart: eventToInsertBefore.PreviousEventReadOrder,
+                rangeEnd: eventToInsertBefore.EffectiveReadOrder);
+        }
 
-                SaveRefactoringEventsWithinReadOrderRange(
-                    newEvents: insertBeforeGroup.ToArray(),
-                    rangeStart: eventToInsertBefore.PreviousReadOrder,
-                    rangeEnd: eventToInsertBefore.EffectiveReadOrder);
-            }
-            else if (insertAfterGroup != null)
-            {
-                Contract.Assert.That(insertAfterGroup.All(@this => @this.RefactoringInformation.InsertAfter.HasValue && @this.RefactoringInformation.InsertAfter.Value != Guid.Empty),
-                                     "insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0)");
-                var eventToInsertAfter = LoadEventInsertedBeforeAndAfter(insertAfterGroup.Key);
+        public void ReplaceEvent(Guid eventId, EventDataRow[] replacementGroup)
+        {
+            var eventToReplace = LoadEventInsertedBeforeAndAfter(eventId);
 
-                SaveRefactoringEventsWithinReadOrderRange(
-                    newEvents: insertAfterGroup.ToArray(),
-                    rangeStart: eventToInsertAfter.EffectiveReadOrder,
-                    rangeEnd: eventToInsertAfter.NextReadOrder);
-            }
-
-            FixManualVersions(events.First().AggregateId);
+            SaveRefactoringEventsWithinReadOrderRange(
+                newEvents: replacementGroup,
+                rangeStart: eventToReplace.EffectiveReadOrder,
+                rangeEnd: eventToReplace.NextEventReadOrder);
         }
 
         void SaveRefactoringEventsWithinReadOrderRange(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
@@ -162,7 +137,7 @@ SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
         }
 
         //Urgent: Do this logic in C# in the EventStore class. Persistence layer should only save the data, not implement logic that can be common for all persistence layers.
-        void FixManualVersions(Guid aggregateId)
+        public void FixManualVersions(Guid aggregateId)
         {
             _connectionManager.UseCommand(
                 command =>
@@ -179,15 +154,15 @@ SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
         {
             long InsertionOrder { get; }
             public SqlDecimal EffectiveReadOrder { get; }
-            public SqlDecimal PreviousReadOrder { get; }
-            public SqlDecimal NextReadOrder { get; }
+            public SqlDecimal PreviousEventReadOrder { get; }
+            public SqlDecimal NextEventReadOrder { get; }
 
-            public EventOrderNeighborhood(long insertionOrder, SqlDecimal effectiveReadOrder, SqlDecimal previousReadOrder, SqlDecimal nextReadOrder)
+            public EventOrderNeighborhood(long insertionOrder, SqlDecimal effectiveReadOrder, SqlDecimal previousEventReadOrder, SqlDecimal nextEventReadOrder)
             {
                 InsertionOrder = insertionOrder;
                 EffectiveReadOrder = effectiveReadOrder;
-                NextReadOrder = UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(nextReadOrder);
-                PreviousReadOrder = UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(previousReadOrder);
+                NextEventReadOrder = UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(nextEventReadOrder);
+                PreviousEventReadOrder = UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(previousEventReadOrder);
             }
 
             static SqlDecimal UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(SqlDecimal previousReadOrder) => previousReadOrder > 0 ? previousReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(0));
@@ -223,8 +198,8 @@ where {SqlServerEventTable.Columns.EventId} = @{SqlServerEventTable.Columns.Even
                     neighborhood = new EventOrderNeighborhood(
                         insertionOrder: reader.GetInt64(0),
                         effectiveReadOrder: reader.GetSqlDecimal(1),
-                        previousReadOrder: reader.GetSqlDecimal(2),
-                        nextReadOrder: reader.GetSqlDecimal(3));
+                        previousEventReadOrder: reader.GetSqlDecimal(2),
+                        nextEventReadOrder: reader.GetSqlDecimal(3));
                 });
 
             return Assert.Result.NotNull(neighborhood);

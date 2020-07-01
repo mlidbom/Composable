@@ -19,10 +19,12 @@ namespace Composable.Persistence.InMemory.EventStore
                 {
                     row.RefactoringInformation.EffectiveVersion = row.RefactoringInformation.ManualVersion;
                     state.Events.Add(row);
+                    //row.RefactoringInformation.ManualReadOrder = state.Events.Count;
                 }
             });
 
         public void FixManualVersions(Guid aggregateId) { throw new NotImplementedException(); }
+
         public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId) => throw new NotImplementedException();
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>

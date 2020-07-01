@@ -145,6 +145,8 @@ namespace Composable.Persistence.EventStore
             var eventRows = aggregateEvents
                            .Select(@event => new EventDataRow(specification: cacheEntry.CreateInsertionSpecificationForNewEvent(@event), _typeMapper.GetId(@event.GetType()).GuidValue, eventAsJson: _serializer.Serialize((AggregateEvent)@event)))
                            .ToList();
+
+            eventRows.ForEach(@this => @this.RefactoringInformation.EffectiveVersion = @this.AggregateVersion);
             _persistenceLayer.InsertSingleAggregateEvents(eventRows);
 
             var completeAggregateHistory = cacheEntry

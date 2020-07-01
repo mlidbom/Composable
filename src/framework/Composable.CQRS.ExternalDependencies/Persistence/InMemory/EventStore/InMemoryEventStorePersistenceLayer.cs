@@ -13,14 +13,7 @@ namespace Composable.Persistence.InMemory.EventStore
         readonly AggregateTransactionLockManager _aggregateTransactionLockManager = new AggregateTransactionLockManager();
 
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events) =>
-            _state.WithExclusiveAccess(state =>
-            {
-                foreach(var row in events)
-                {
-                    state.Events.Add(row);
-                    //row.RefactoringInformation.ManualReadOrder = state.Events.Count;
-                }
-            });
+            _state.WithExclusiveAccess(state => state.Events.AddRange(events));
 
         public void UpdateEffectiveVersionAndEffectiveReadOrder(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions) { throw new NotImplementedException(); }
 
@@ -29,7 +22,9 @@ namespace Composable.Persistence.InMemory.EventStore
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
             _state.WithExclusiveAccess(state => state
                                                .Events
-                                               .Where(@this => @this.AggregateId == aggregateId && @this.RefactoringInformation.InsertedVersion > startAfterInsertedVersion)
+                                               .Where(@this => @this.AggregateId == aggregateId
+                                                            && @this.RefactoringInformation.InsertedVersion > startAfterInsertedVersion 
+                                                             && @this.RefactoringInformation.EffectiveVersion > 0)
                                                .ToArray());
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)

@@ -195,9 +195,11 @@ namespace Composable.Persistence.EventStore
                             using var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes());
                             var original = GetAggregateEventsFromPersistenceLayer(aggregateId: aggregateId, takeWriteLock: true);
 
-                            var startInsertingWithVersion = original.Max(@event => @event.RefactoringInformation.InsertedVersion) + 1;
+                            var highestSeenVersion = original.Max(@event => @event.RefactoringInformation.InsertedVersion) + 1;
 
                             var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
+
+                            var refactoringEvents = new List<List<EventDataRow>>();
 
                             SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
                                 _migrationFactories,
@@ -207,18 +209,22 @@ namespace Composable.Persistence.EventStore
                                     //Make sure we don't try to insert into an occupied InsertedVersion
                                     newEvents.ForEach(refactoredEvent =>
                                     {
-                                        refactoredEvent.RefactoringInformation.InsertedVersion = startInsertingWithVersion++;
+                                        refactoredEvent.RefactoringInformation.InsertedVersion = highestSeenVersion++;
                                     });
-                                    //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
-                                    var eventRows = newEvents
-                                                   .Select(@this => new EventDataRow(@event: @this.NewEvent, @this.RefactoringInformation, _typeMapper.GetId(@this.NewEvent.GetType()).GuidValue, eventAsJson: _serializer.Serialize(@this.NewEvent)))
-                                                   .ToList();
 
-                                    InsertSingleAggregateRefactoringEvents(eventRows);
+                                    refactoringEvents.Add(newEvents
+                                                         .Select(@this => new EventDataRow(@event: @this.NewEvent,
+                                                                                           @this.RefactoringInformation,
+                                                                                           _typeMapper.GetId(@this.NewEvent.GetType()).GuidValue,
+                                                                                           eventAsJson: _serializer.Serialize(@this.NewEvent)))
+                                                         .ToList());
 
                                     updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                     newEventCount += newEvents.Count;
                                 });
+
+                            refactoringEvents.ForEach(InsertSingleAggregateRefactoringEvents);
+                            _persistenceLayer.FixManualVersions(original.First().Event.AggregateId);
 
                             transaction.Complete();
 
@@ -286,8 +292,6 @@ namespace Composable.Persistence.EventStore
                                  "insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0)");
                 InsertAfterEvent(insertAfterGroup.Key, insertAfterGroup.ToArray());
             }
-
-            _persistenceLayer.FixManualVersions(events.First().AggregateId);
         }
 
         void InsertAfterEvent(Guid eventId, EventDataRow[] insertAfterGroup)

@@ -12,8 +12,7 @@
             public const string InsertedVersion = nameof(InsertedVersion);
             public const string EffectiveVersion = nameof(EffectiveVersion);
             public const string InsertionOrder = nameof(InsertionOrder);
-            public const string ManualReadOrder = nameof(ManualReadOrder);
-            public const string EffectiveReadOrder = nameof(EffectiveReadOrder);
+            public const string EffectiveOrder = nameof(EffectiveOrder);
             public const string InsertAfter = nameof(InsertAfter);
             public const string InsertBefore = nameof(InsertBefore);
             public const string Replaces = nameof(Replaces);

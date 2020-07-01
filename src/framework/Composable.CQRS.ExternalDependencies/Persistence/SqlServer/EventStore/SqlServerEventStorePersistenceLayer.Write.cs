@@ -24,8 +24,16 @@ namespace Composable.Persistence.SqlServer.EventStore
                                                //urgent: ensure that READCOMMITTED is really sane here and add comment.
                                                $@"
 INSERT {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK) 
-(       {Col.AggregateId},  {Col.InsertedVersion},  {Col.EffectiveVersion},  {Col.ManualReadOrder},  {Col.EventType},  {Col.EventId},  {Col.UtcTimeStamp},  {Col.Event},  {Col.InsertAfter}, {Col.InsertBefore},  {Col.Replaces}) 
-VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.EffectiveVersion}, @{Col.ManualReadOrder}, @{Col.EventType}, @{Col.EventId}, @{Col.UtcTimeStamp}, @{Col.Event}, @{Col.InsertAfter},@{Col.InsertBefore}, @{Col.Replaces})")
+(       {Col.AggregateId},  {Col.InsertedVersion},  {Col.EffectiveVersion},  {Col.EffectiveOrder},  {Col.EventType},  {Col.EventId},  {Col.UtcTimeStamp},  {Col.Event},  {Col.InsertAfter}, {Col.InsertBefore},  {Col.Replaces}) 
+VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.EffectiveVersion}, @{Col.EffectiveOrder}, @{Col.EventType}, @{Col.EventId}, @{Col.UtcTimeStamp}, @{Col.Event}, @{Col.InsertAfter},@{Col.InsertBefore}, @{Col.Replaces})
+IF(@{Col.EffectiveOrder} IS NULL)
+BEGIN
+    UPDATE {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK)
+    SET {Col.EffectiveOrder} = cast({Col.InsertionOrder} as {SqlServerEventTable.ReadOrderType})
+    WHERE {Col.EventId} = @{Col.EventId}
+END
+")
+                                           //SET @{Col.InsertionOrder} = SCOPE_IDENTITY();
                                           .AddParameter(Col.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
                                           .AddParameter(Col.InsertedVersion, data.RefactoringInformation.InsertedVersion)
                                           .AddParameter(Col.EventType, data.EventType)
@@ -33,7 +41,7 @@ VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.EffectiveVersion}, @{Co
                                           .AddDateTime2Parameter(Col.UtcTimeStamp, data.UtcTimeStamp)
                                           .AddNVarcharMaxParameter(Col.Event, data.EventJson)
 
-                                          .AddNullableParameter(Col.ManualReadOrder, SqlDbType.Decimal, data.RefactoringInformation.ManualReadOrder)
+                                          .AddNullableParameter(Col.EffectiveOrder, SqlDbType.Decimal, data.RefactoringInformation.ManualReadOrder)
                                           .AddNullableParameter(Col.EffectiveVersion, SqlDbType.Int, data.RefactoringInformation.ManualVersion ?? data.AggregateVersion)
                                           .AddNullableParameter(Col.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
                                           .AddNullableParameter(Col.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
@@ -66,9 +74,9 @@ VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.EffectiveVersion}, @{Co
 
             var selectStatement = $@"
 SELECT  {Col.InsertionOrder},
-        {Col.EffectiveReadOrder},        
-        (select top 1 {Col.EffectiveReadOrder} from {SqlServerEventTable.Name} e1 where e1.{Col.EffectiveReadOrder} < {SqlServerEventTable.Name}.{Col.EffectiveReadOrder} order by {Col.EffectiveReadOrder} desc) PreviousReadOrder,
-        (select top 1 {Col.EffectiveReadOrder} from {SqlServerEventTable.Name} e1 where e1.{Col.EffectiveReadOrder} > {SqlServerEventTable.Name}.{Col.EffectiveReadOrder} order by {Col.EffectiveReadOrder}) NextReadOrder
+        {Col.EffectiveOrder},        
+        (select top 1 {Col.EffectiveOrder} from {SqlServerEventTable.Name} e1 where e1.{Col.EffectiveOrder} < {SqlServerEventTable.Name}.{Col.EffectiveOrder} order by {Col.EffectiveOrder} desc) PreviousReadOrder,
+        (select top 1 {Col.EffectiveOrder} from {SqlServerEventTable.Name} e1 where e1.{Col.EffectiveOrder} > {SqlServerEventTable.Name}.{Col.EffectiveOrder} order by {Col.EffectiveOrder}) NextReadOrder
 FROM    {SqlServerEventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
 where {Col.EventId} = @{Col.EventId}";
 

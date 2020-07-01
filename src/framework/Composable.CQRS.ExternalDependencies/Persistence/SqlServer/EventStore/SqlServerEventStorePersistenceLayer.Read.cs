@@ -37,7 +37,7 @@ SELECT {topClause}
     {SqlServerEventTable.Columns.InsertBefore}, 
     {SqlServerEventTable.Columns.Replaces}, 
     {SqlServerEventTable.Columns.InsertedVersion},
-    {SqlServerEventTable.Columns.EffectiveReadOrder}
+    {SqlServerEventTable.Columns.EffectiveOrder}
 FROM {SqlServerEventTable.Name} {lockHint} ";
         }
 
@@ -65,7 +65,7 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
 {CreateSelectClause(takeWriteLock)} 
 WHERE {SqlServerEventTable.Columns.AggregateId} = @{SqlServerEventTable.Columns.AggregateId}
     AND {SqlServerEventTable.Columns.InsertedVersion} > @CachedVersion
-ORDER BY {SqlServerEventTable.Columns.EffectiveReadOrder} ASC")
+ORDER BY {SqlServerEventTable.Columns.EffectiveOrder} ASC")
                                                             .AddParameter(SqlServerEventTable.Columns.AggregateId, aggregateId)
                                                             .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                             .ExecuteReaderAndSelect(ReadDataRow)
@@ -81,9 +81,9 @@ ORDER BY {SqlServerEventTable.Columns.EffectiveReadOrder} ASC")
                 var historyData = _connectionManager.UseCommand(suppressTransactionWarning: true,
                                                                 command => command.SetCommandText($@"
 {CreateSelectTopClause(batchSize, takeWriteLock: false)} 
-WHERE {SqlServerEventTable.Columns.EffectiveReadOrder}  > @{SqlServerEventTable.Columns.EffectiveReadOrder}
+WHERE {SqlServerEventTable.Columns.EffectiveOrder}  > @{SqlServerEventTable.Columns.EffectiveOrder}
 {ReadSortOrder}")
-                                                                                  .AddParameter(SqlServerEventTable.Columns.EffectiveReadOrder, SqlDbType.Decimal, lastReadEventReadOrder)
+                                                                                  .AddParameter(SqlServerEventTable.Columns.EffectiveOrder, SqlDbType.Decimal, lastReadEventReadOrder)
                                                                                   .ExecuteReaderAndSelect(reader =>
                                                                                    {
                                                                                        lastReadEventReadOrder = reader.GetSqlDecimal(11);
@@ -107,10 +107,10 @@ WHERE {SqlServerEventTable.Columns.EffectiveReadOrder}  > @{SqlServerEventTable.
                                                  action: command => command.SetCommandText($@"
 SELECT {SqlServerEventTable.Columns.AggregateId}, {SqlServerEventTable.Columns.EventType} 
 FROM {SqlServerEventTable.Name} 
-WHERE {SqlServerEventTable.Columns.EffectiveVersion} = 1 AND {SqlServerEventTable.Columns.EffectiveReadOrder} > 0 {ReadSortOrder}")
+WHERE {SqlServerEventTable.Columns.EffectiveVersion} = 1 AND {SqlServerEventTable.Columns.EffectiveOrder} > 0 {ReadSortOrder}")
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuid(0), typeId: reader.GetGuid(1))));
         }
 
-        static string ReadSortOrder => $" ORDER BY {SqlServerEventTable.Columns.EffectiveReadOrder} ASC";
+        static string ReadSortOrder => $" ORDER BY {SqlServerEventTable.Columns.EffectiveOrder} ASC";
     }
 }

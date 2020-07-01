@@ -12,18 +12,13 @@ CREATE TABLE dbo.{Name}(
     {SqlServerEventTable.Columns.UtcTimeStamp} datetime2 NOT NULL,   
     {SqlServerEventTable.Columns.EventType} uniqueidentifier NOT NULL,    
     {SqlServerEventTable.Columns.Event} nvarchar(max) NOT NULL,
-    {SqlServerEventTable.Columns.EffectiveReadOrder} as case 
-        when {SqlServerEventTable.Columns.ManualReadOrder} is not null then {SqlServerEventTable.Columns.ManualReadOrder}
-        when {SqlServerEventTable.Columns.InsertAfter} is null and {SqlServerEventTable.Columns.InsertBefore} is null and {SqlServerEventTable.Columns.Replaces} is null then cast({SqlServerEventTable.Columns.InsertionOrder} as {SqlServerEventTable.ReadOrderType})
-        else null
-    end,
     {SqlServerEventTable.Columns.EventId} uniqueidentifier NOT NULL,
     {SqlServerEventTable.Columns.InsertedVersion} int NOT NULL,
     {SqlServerEventTable.Columns.SqlInsertTimeStamp} datetime2 default SYSUTCDATETIME(),
     {SqlServerEventTable.Columns.InsertAfter} uniqueidentifier null,
     {SqlServerEventTable.Columns.InsertBefore} uniqueidentifier null,
     {SqlServerEventTable.Columns.Replaces} uniqueidentifier null,
-    {SqlServerEventTable.Columns.ManualReadOrder} {SqlServerEventTable.ReadOrderType} null,    
+    {SqlServerEventTable.Columns.EffectiveOrder} {SqlServerEventTable.ReadOrderType} null,    
     {SqlServerEventTable.Columns.EffectiveVersion} int NULL,
 
     CONSTRAINT PK_{Name} PRIMARY KEY CLUSTERED 
@@ -62,8 +57,8 @@ CREATE TABLE dbo.{Name}(
         REFERENCES {Name} ({SqlServerEventTable.Columns.EventId}) 
 )
 
-    CREATE NONCLUSTERED INDEX IX_{Name}_{SqlServerEventTable.Columns.EffectiveReadOrder} ON dbo.{Name}
-        ({SqlServerEventTable.Columns.EffectiveReadOrder}, {SqlServerEventTable.Columns.EffectiveVersion})
+    CREATE NONCLUSTERED INDEX IX_{Name}_{SqlServerEventTable.Columns.EffectiveOrder} ON dbo.{Name}
+        ({SqlServerEventTable.Columns.EffectiveOrder}, {SqlServerEventTable.Columns.EffectiveVersion})
         INCLUDE ({SqlServerEventTable.Columns.EventType}, {SqlServerEventTable.Columns.InsertionOrder})
 
     CREATE NONCLUSTERED INDEX IX_{Name}_{SqlServerEventTable.Columns.Replaces}	ON dbo.{Name}

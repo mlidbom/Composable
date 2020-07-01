@@ -17,7 +17,7 @@ namespace Composable.Persistence.EventStore
 
         IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0);
         IEnumerable<EventDataRow> StreamEvents(int batchSize);
-        IEnumerable<Guid> ListAggregateIdsInCreationOrder(Type? eventBaseType = null);
+        IReadOnlyList<CreationEventRow> ListAggregateIdsInCreationOrder();
         void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events);
         void DeleteAggregate(Guid aggregateId);
         void FixManualVersions(Guid aggregateId);
@@ -45,6 +45,17 @@ namespace Composable.Persistence.EventStore
         }
         IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId);
         void SaveRefactoringEvents(EventDataRow[] newEvents);
+    }
+
+    class CreationEventRow
+    {
+        public CreationEventRow(Guid aggregateId, Guid typeId)
+        {
+            AggregateId = aggregateId;
+            TypeId = typeId;
+        }
+        public Guid AggregateId { get; }
+        public Guid TypeId { get; }
     }
 
     class EventDataRow

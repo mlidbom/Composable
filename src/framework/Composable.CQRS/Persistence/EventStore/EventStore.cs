@@ -301,16 +301,15 @@ namespace Composable.Persistence.EventStore
             _persistenceLayer.SaveRefactoringEvents(newEvents: insertAfterGroup);
         }
 
-        public void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBeforeGroup)
+        public void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBefore)
         {
             var eventToInsertBefore = _persistenceLayer.LoadEventNeighborHood(eventId);
 
-            SetManualReadOrders(newEvents: insertBeforeGroup,
+            SetManualReadOrders(newEvents: insertBefore,
                                 rangeStart: eventToInsertBefore.PreviousEventReadOrder,
                                 rangeEnd: eventToInsertBefore.EffectiveReadOrder);
 
-            _persistenceLayer.SaveRefactoringEvents(
-                newEvents: insertBeforeGroup);
+            _persistenceLayer.SaveRefactoringEvents(insertBefore);
         }
 
         public void ReplaceEvent(Guid eventId, EventDataRow[] replacementGroup)
@@ -346,15 +345,16 @@ namespace Composable.Persistence.EventStore
             return message.Contains("timeout") || message.Contains("deadlock");
         }
 
-        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventType = null)
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventBaseType = null)
         {
-            Contract.Assert.That(eventType == null || eventType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType),
-                "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType)");
+            Contract.Assert.That(eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventBaseType),
+                                 "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateEvent).IsAssignableFrom(eventType)");
             _usageGuard.AssertNoContextChangeOccurred(this);
 
             _persistenceLayer.SetupSchemaIfDatabaseUnInitialized();
-
-            return _persistenceLayer.ListAggregateIdsInCreationOrder(eventType);
+            return _persistenceLayer.ListAggregateIdsInCreationOrder()
+                                    .Where(@this => eventBaseType == null || eventBaseType.IsAssignableFrom(_typeMapper.GetType(new TypeId(@this.TypeId))))
+                                    .Select(@this => @this.AggregateId);
         }
 
         public void Dispose()

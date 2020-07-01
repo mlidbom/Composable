@@ -3,24 +3,20 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Linq;
 using Composable.Persistence.EventStore;
-using Composable.Refactoring.Naming;
+using Composable.Persistence.SqlServer.SystemExtensions;
 
 namespace Composable.Persistence.SqlServer.EventStore
 {
     partial class SqlServerEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
         readonly SqlServerEventStoreConnectionManager _connectionManager;
-        ITypeMapper _typeMapper;
 
-        public SqlServerEventStorePersistenceLayer(SqlServerEventStoreConnectionManager connectionManager, ITypeMapper typeMapper)
-        {
-            _connectionManager = connectionManager;
-            _typeMapper = typeMapper;
-        }
+        public SqlServerEventStorePersistenceLayer(SqlServerEventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
 
-        static string GetSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
-        static string SelectTopClause(int top, bool takeWriteLock) => InternalSelect(top: top, takeWriteLock: takeWriteLock);
+        static string CreateSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
+        static string CreateSelectTopClause(int top, bool takeWriteLock) => InternalSelect(top: top, takeWriteLock: takeWriteLock);
 
         static string InternalSelect(bool takeWriteLock, int? top = null)
         {
@@ -46,7 +42,6 @@ SELECT {topClause}
 FROM {SqlServerEventTable.Name} {lockHint} ";
         }
 
-
         static EventDataRow ReadDataRow(SqlDataReader eventReader) => new EventDataRow(
             eventType: eventReader.GetGuid(0),
             eventJson: eventReader.GetString(1),
@@ -57,102 +52,66 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
             utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
             insertionOrder: eventReader.GetInt64(6),
             refactoringInformation: new AggregateEventRefactoringInformation()
-            {
-                InsertedVersion = eventReader.GetInt32(10),
-                EffectiveVersion = eventReader.GetInt32(3),
-                ManualVersion = eventReader[11] as int?,
-                Replaces = eventReader[9] as Guid?,
-                InsertBefore = eventReader[8] as Guid?,
-                InsertAfter = eventReader[7] as Guid?
-            }
+                                    {
+                                        InsertedVersion = eventReader.GetInt32(10),
+                                        EffectiveVersion = eventReader.GetInt32(3),
+                                        ManualVersion = eventReader[11] as int?,
+                                        Replaces = eventReader[9] as Guid?,
+                                        InsertBefore = eventReader[8] as Guid?,
+                                        InsertAfter = eventReader[7] as Guid?
+                                    }
         );
 
-        public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
-        {
-            var historyData = new List<EventDataRow>();
-            using (var connection = _connectionManager.OpenConnection(suppressTransactionWarning: !takeWriteLock))
-            {
-                using var loadCommand = connection.CreateCommand();
-                loadCommand.CommandText = $"{GetSelectClause(takeWriteLock)} WHERE {SqlServerEventTable.Columns.AggregateId} = @{SqlServerEventTable.Columns.AggregateId}";
-                loadCommand.Parameters.Add(new SqlParameter($"{SqlServerEventTable.Columns.AggregateId}", SqlDbType.UniqueIdentifier) {Value = aggregateId});
-
-                if (startAfterInsertedVersion > 0)
-                {
-                    loadCommand.CommandText += $" AND {SqlServerEventTable.Columns.InsertedVersion} > @CachedVersion";
-                    loadCommand.Parameters.Add(new SqlParameter("CachedVersion", SqlDbType.Int) {Value = startAfterInsertedVersion});
-                }
-
-                loadCommand.CommandText += $" ORDER BY {SqlServerEventTable.Columns.EffectiveReadOrder} ASC";
-
-                using var reader = loadCommand.ExecuteReader();
-                while (reader.Read())
-                {
-                    var eventDataRow = ReadDataRow(reader);
-                    if ((eventDataRow.RefactoringInformation.EffectiveVersion ?? 0) > 0)
-                    {
-                        historyData.Add(eventDataRow);
-                    }
-                }
-            }
-
-            return historyData;
-        }
+        public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
+            _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
+                                          command => command.SetCommandText($@"
+{CreateSelectClause(takeWriteLock)} 
+WHERE {SqlServerEventTable.Columns.AggregateId} = @{SqlServerEventTable.Columns.AggregateId}
+    AND {SqlServerEventTable.Columns.InsertedVersion} > @CachedVersion
+ORDER BY {SqlServerEventTable.Columns.EffectiveReadOrder} ASC")
+                                                            .AddParameter(SqlServerEventTable.Columns.AggregateId, aggregateId)
+                                                            .AddParameter("CachedVersion", startAfterInsertedVersion)
+                                                            .ExecuteReaderAndSelect(ReadDataRow)
+                                                            .Where(@this => (@this.RefactoringInformation.EffectiveVersion ?? 0) > 0)
+                                                            .ToList());
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
         {
             SqlDecimal lastReadEventReadOrder = 0;
-            using var connection = _connectionManager.OpenConnection(suppressTransactionWarning: true);
-            var done = false;
-            while (!done)
+            int fetchedInThisBatch;
+            do
             {
-                var historyData = new List<EventDataRow>();
-                using (var loadCommand = connection.CreateCommand())
-                {
-
-                    loadCommand.CommandText = SelectTopClause(batchSize, takeWriteLock: false) + $"WHERE {SqlServerEventTable.Columns.EffectiveReadOrder} > 0 AND {SqlServerEventTable.Columns.EffectiveReadOrder}  > @{SqlServerEventTable.Columns.EffectiveReadOrder}" + ReadSortOrder;
-
-                    loadCommand.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EffectiveReadOrder, SqlDbType.Decimal) {Value = lastReadEventReadOrder});
-
-                    var fetchedInThisBatch = 0;
-                    using (var reader = loadCommand.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            historyData.Add(ReadDataRow(reader));
-                            fetchedInThisBatch++;
-                            lastReadEventReadOrder = reader.GetSqlDecimal(12);
-                        }
-                    }
-                    done = fetchedInThisBatch < batchSize;
-                }
+                var historyData = _connectionManager.UseCommand(suppressTransactionWarning: true,
+                                                                command => command.SetCommandText($@"
+{CreateSelectTopClause(batchSize, takeWriteLock: false)} 
+WHERE {SqlServerEventTable.Columns.EffectiveReadOrder}  > @{SqlServerEventTable.Columns.EffectiveReadOrder}
+{ReadSortOrder}")
+                                                                                  .AddParameter(SqlServerEventTable.Columns.EffectiveReadOrder, SqlDbType.Decimal, lastReadEventReadOrder)
+                                                                                  .ExecuteReaderAndSelect(reader =>
+                                                                                   {
+                                                                                       lastReadEventReadOrder = reader.GetSqlDecimal(12);
+                                                                                       return ReadDataRow(reader);
+                                                                                   })
+                                                                                  .ToList());
 
                 //We do not yield while reading from the reader since that may cause code to run that will cause another sql call into the same connection. Something that throws an exception unless you use an unusual and non-recommended connection string setting.
-                foreach (var eventDataRow in historyData)
+                foreach(var eventDataRow in historyData)
                 {
                     yield return eventDataRow;
                 }
-            }
+
+                fetchedInThisBatch = historyData.Count;
+            } while(!(fetchedInThisBatch < batchSize));
         }
 
-        public IEnumerable<Guid> ListAggregateIdsInCreationOrder(Type? eventBaseType = null)
+        public IReadOnlyList<CreationEventRow> ListAggregateIdsInCreationOrder()
         {
-            var ids = new List<Guid>();
-            using (var connection = _connectionManager.OpenConnection(suppressTransactionWarning:true))
-            {
-                using var loadCommand = connection.CreateCommand();
-                loadCommand.CommandText = $"SELECT {SqlServerEventTable.Columns.AggregateId}, {SqlServerEventTable.Columns.EventType} FROM {SqlServerEventTable.Name} WHERE {SqlServerEventTable.Columns.EffectiveVersion} = 1 AND {SqlServerEventTable.Columns.EffectiveReadOrder} > 0 {ReadSortOrder}";
-
-                using var reader = loadCommand.ExecuteReader();
-                while (reader.Read())
-                {
-                    //Urgent: Move this policy type code out of the persistence layer.
-                    if(eventBaseType == null || eventBaseType.IsAssignableFrom(_typeMapper.GetType(new TypeId(reader.GetGuid(1)))))
-                    {
-                        ids.Add((Guid)reader[0]);
-                    }
-                }
-            }
-            return ids;
+            return _connectionManager.UseCommand(suppressTransactionWarning: true,
+                                                 action: command => command.SetCommandText($@"
+SELECT {SqlServerEventTable.Columns.AggregateId}, {SqlServerEventTable.Columns.EventType} 
+FROM {SqlServerEventTable.Name} 
+WHERE {SqlServerEventTable.Columns.EffectiveVersion} = 1 AND {SqlServerEventTable.Columns.EffectiveReadOrder} > 0 {ReadSortOrder}")
+                                                                           .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuid(0), typeId: reader.GetGuid(1))));
         }
 
         static string ReadSortOrder => $" ORDER BY {SqlServerEventTable.Columns.EffectiveReadOrder} ASC";

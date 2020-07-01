@@ -36,17 +36,17 @@ namespace Composable.Persistence.InMemory.EventStore
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
             => _state.WithExclusiveAccess(state => state.Events.ToArray());
 
-        public IEnumerable<Guid> ListAggregateIdsInCreationOrder(Type? eventBaseType = null)
+        public IReadOnlyList<CreationEventRow> ListAggregateIdsInCreationOrder()
             => _state.WithExclusiveAccess(state =>
             {
                 var found = new HashSet<Guid>();
-                var result = new List<Guid>();
-                foreach(var row in state.Events)
+                var result = new List<CreationEventRow>();
+                foreach(var row in state.Events.Where(@event => @event.AggregateVersion == 1))
                 {
                     if(!found.Contains(row.AggregateId))
                     {
                         found.Add(row.AggregateId);
-                        result.Add(row.AggregateId);
+                        result.Add(new CreationEventRow(aggregateId:row.AggregateId, typeId: row.EventType));
                     }
                 }
 

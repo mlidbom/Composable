@@ -8,12 +8,7 @@ namespace Composable.Persistence.SqlServer.EventStore
         internal override string CreateTableSql => $@"
 CREATE TABLE dbo.{Name}(
     {SqlServerEventTable.Columns.InsertionOrder} bigint IDENTITY(1,1) NOT NULL,
-    {SqlServerEventTable.Columns.AggregateId} uniqueidentifier NOT NULL,
-    {SqlServerEventTable.Columns.EffectiveVersion} as case 
-        when {SqlServerEventTable.Columns.ManualVersion} is not null then {SqlServerEventTable.Columns.ManualVersion}
-        when {SqlServerEventTable.Columns.InsertAfter} is null and {SqlServerEventTable.Columns.InsertBefore} is null and {SqlServerEventTable.Columns.Replaces} is null then {SqlServerEventTable.Columns.InsertedVersion}
-        else null
-    end,    
+    {SqlServerEventTable.Columns.AggregateId} uniqueidentifier NOT NULL,  
     {SqlServerEventTable.Columns.UtcTimeStamp} datetime2 NOT NULL,   
     {SqlServerEventTable.Columns.EventType} uniqueidentifier NOT NULL,    
     {SqlServerEventTable.Columns.Event} nvarchar(max) NOT NULL,
@@ -29,7 +24,7 @@ CREATE TABLE dbo.{Name}(
     {SqlServerEventTable.Columns.InsertBefore} uniqueidentifier null,
     {SqlServerEventTable.Columns.Replaces} uniqueidentifier null,
     {SqlServerEventTable.Columns.ManualReadOrder} {SqlServerEventTable.ReadOrderType} null,    
-    {SqlServerEventTable.Columns.ManualVersion} int NULL,
+    {SqlServerEventTable.Columns.EffectiveVersion} int NULL,
 
     CONSTRAINT PK_{Name} PRIMARY KEY CLUSTERED 
     (

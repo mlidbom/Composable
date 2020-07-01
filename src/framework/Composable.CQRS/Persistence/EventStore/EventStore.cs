@@ -201,7 +201,7 @@ namespace Composable.Persistence.EventStore
 
                             var refactoringEvents = new List<List<EventDataRow>>();
 
-                            SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
+                            var newHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
                                 _migrationFactories,
                                 original.Select(@this => @this.Event).ToArray(),
                                 newEvents =>
@@ -224,7 +224,9 @@ namespace Composable.Persistence.EventStore
                                 });
 
                             refactoringEvents.ForEach(InsertSingleAggregateRefactoringEvents);
-                            _persistenceLayer.FixManualVersions(original.First().Event.AggregateId);
+
+
+                            _persistenceLayer.FixManualVersions(newHistory.First().AggregateId);
 
                             transaction.Complete();
 

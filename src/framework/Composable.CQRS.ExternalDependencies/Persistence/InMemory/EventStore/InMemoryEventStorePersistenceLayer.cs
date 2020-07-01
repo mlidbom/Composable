@@ -17,7 +17,6 @@ namespace Composable.Persistence.InMemory.EventStore
             {
                 foreach(var row in events)
                 {
-                    row.RefactoringInformation.EffectiveVersion = row.RefactoringInformation.ManualVersion;
                     state.Events.Add(row);
                     //row.RefactoringInformation.ManualReadOrder = state.Events.Count;
                 }

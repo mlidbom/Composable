@@ -10,7 +10,6 @@
         {
             public const string AggregateId = nameof(AggregateId);
             public const string InsertedVersion = nameof(InsertedVersion);
-            public const string ManualVersion = nameof(ManualVersion);
             public const string EffectiveVersion = nameof(EffectiveVersion);
             public const string InsertionOrder = nameof(InsertionOrder);
             public const string ManualReadOrder = nameof(ManualReadOrder);

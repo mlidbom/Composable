@@ -119,7 +119,6 @@ namespace Composable.Persistence.EventStore
         internal int InsertedVersion { get; set; }
 
         //urgent: See if this cannot be non-nullable.
-        internal int? EffectiveVersion { get; set; }
         internal int? ManualVersion { get; set; }
         internal Guid? Replaces { get; set; }
         internal Guid? InsertBefore { get; set; }

@@ -24,8 +24,8 @@ namespace Composable.Persistence.SqlServer.EventStore
                                                //urgent: ensure that READCOMMITTED is really sane here and add comment.
                                                $@"
 INSERT {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK) 
-(       {Col.AggregateId},  {Col.InsertedVersion},  {Col.ManualVersion},  {Col.ManualReadOrder},  {Col.EventType},  {Col.EventId},  {Col.UtcTimeStamp},  {Col.Event},  {Col.InsertAfter}, {Col.InsertBefore},  {Col.Replaces}) 
-VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.ManualVersion}, @{Col.ManualReadOrder}, @{Col.EventType}, @{Col.EventId}, @{Col.UtcTimeStamp}, @{Col.Event}, @{Col.InsertAfter},@{Col.InsertBefore}, @{Col.Replaces})")
+(       {Col.AggregateId},  {Col.InsertedVersion},  {Col.EffectiveVersion},  {Col.ManualReadOrder},  {Col.EventType},  {Col.EventId},  {Col.UtcTimeStamp},  {Col.Event},  {Col.InsertAfter}, {Col.InsertBefore},  {Col.Replaces}) 
+VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.EffectiveVersion}, @{Col.ManualReadOrder}, @{Col.EventType}, @{Col.EventId}, @{Col.UtcTimeStamp}, @{Col.Event}, @{Col.InsertAfter},@{Col.InsertBefore}, @{Col.Replaces})")
                                           .AddParameter(Col.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
                                           .AddParameter(Col.InsertedVersion, data.RefactoringInformation.InsertedVersion)
                                           .AddParameter(Col.EventType, data.EventType)
@@ -34,7 +34,7 @@ VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.ManualVersion}, @{Col.M
                                           .AddNVarcharMaxParameter(Col.Event, data.EventJson)
 
                                           .AddNullableParameter(Col.ManualReadOrder, SqlDbType.Decimal, data.RefactoringInformation.ManualReadOrder)
-                                          .AddNullableParameter(Col.ManualVersion, SqlDbType.Int, data.RefactoringInformation.ManualVersion)
+                                          .AddNullableParameter(Col.EffectiveVersion, SqlDbType.Int, data.RefactoringInformation.ManualVersion ?? data.AggregateVersion)
                                           .AddNullableParameter(Col.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
                                           .AddNullableParameter(Col.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
                                           .AddNullableParameter(Col.Replaces, SqlDbType.UniqueIdentifier, data.RefactoringInformation.Replaces)

@@ -36,8 +36,7 @@ SELECT {topClause}
     {SqlServerEventTable.Columns.InsertAfter}, 
     {SqlServerEventTable.Columns.InsertBefore}, 
     {SqlServerEventTable.Columns.Replaces}, 
-    {SqlServerEventTable.Columns.InsertedVersion}, 
-    {SqlServerEventTable.Columns.ManualVersion}, 
+    {SqlServerEventTable.Columns.InsertedVersion},
     {SqlServerEventTable.Columns.EffectiveReadOrder}
 FROM {SqlServerEventTable.Name} {lockHint} ";
         }
@@ -46,18 +45,17 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
             eventType: eventReader.GetGuid(0),
             eventJson: eventReader.GetString(1),
             eventId: eventReader.GetGuid(4),
-            aggregateVersion: eventReader[3] as int? ?? eventReader.GetInt32(10),
+            aggregateVersion: eventReader.GetInt32(3),
             aggregateId: eventReader.GetGuid(2),
             //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
             utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
             refactoringInformation: new AggregateEventRefactoringInformation()
                                     {
                                         InsertedVersion = eventReader.GetInt32(10),
-                                        EffectiveVersion = eventReader.GetInt32(3),
-                                        ManualVersion = eventReader[11] as int?,
-                                        Replaces = eventReader[9] as Guid?,
+                                        ManualVersion = eventReader.GetInt32(3),
+                                        InsertAfter = eventReader[7] as Guid?,
                                         InsertBefore = eventReader[8] as Guid?,
-                                        InsertAfter = eventReader[7] as Guid?
+                                        Replaces = eventReader[9] as Guid?
                                     }
         );
 
@@ -71,7 +69,7 @@ ORDER BY {SqlServerEventTable.Columns.EffectiveReadOrder} ASC")
                                                             .AddParameter(SqlServerEventTable.Columns.AggregateId, aggregateId)
                                                             .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                             .ExecuteReaderAndSelect(ReadDataRow)
-                                                            .Where(@this => (@this.RefactoringInformation.EffectiveVersion ?? 0) > 0)
+                                                            .Where(@this => (@this.RefactoringInformation.ManualVersion ?? 0) > 0)
                                                             .ToList());
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
@@ -88,7 +86,7 @@ WHERE {SqlServerEventTable.Columns.EffectiveReadOrder}  > @{SqlServerEventTable.
                                                                                   .AddParameter(SqlServerEventTable.Columns.EffectiveReadOrder, SqlDbType.Decimal, lastReadEventReadOrder)
                                                                                   .ExecuteReaderAndSelect(reader =>
                                                                                    {
-                                                                                       lastReadEventReadOrder = reader.GetSqlDecimal(12);
+                                                                                       lastReadEventReadOrder = reader.GetSqlDecimal(11);
                                                                                        return ReadDataRow(reader);
                                                                                    })
                                                                                   .ToList());

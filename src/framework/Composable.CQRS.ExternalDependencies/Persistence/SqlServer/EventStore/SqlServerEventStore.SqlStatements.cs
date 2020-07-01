@@ -16,7 +16,7 @@ and replaces.{SqlServerEventTable.Columns.Replaces} is not null
 and (replaced.{SqlServerEventTable.Columns.ManualReadOrder} > 0 or replaced.{SqlServerEventTable.Columns.ManualReadOrder} is null)
 
 update {SqlServerEventTable.Name} 
-set {SqlServerEventTable.Columns.ManualVersion} = ChangedReadOrders.NewVersion
+set {SqlServerEventTable.Columns.EffectiveVersion} = ChangedReadOrders.NewVersion
 from {SqlServerEventTable.Name} 
 	inner join 
 (
@@ -33,7 +33,7 @@ on {SqlServerEventTable.Name}.{SqlServerEventTable.Columns.AggregateId} = Change
 
 
 update {SqlServerEventTable.Name}
-set {SqlServerEventTable.Columns.ManualVersion} = -{SqlServerEventTable.Columns.InsertedVersion}
+set {SqlServerEventTable.Columns.EffectiveVersion} = -{SqlServerEventTable.Columns.InsertedVersion}
 where {SqlServerEventTable.Columns.AggregateId} = @{SqlServerEventTable.Columns.AggregateId}
     and ({SqlServerEventTable.Columns.EffectiveVersion} > 0 or {SqlServerEventTable.Columns.EffectiveVersion} is null) 
     and {SqlServerEventTable.Columns.EffectiveReadOrder} < 0

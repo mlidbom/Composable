@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.EventStore;
-using Composable.System.Linq;
+using Composable.Persistence.SqlServer.SystemExtensions;
+using Col = Composable.Persistence.SqlServer.EventStore.SqlServerEventTable.Columns;
 
 namespace Composable.Persistence.SqlServer.EventStore
 {
@@ -15,68 +15,66 @@ namespace Composable.Persistence.SqlServer.EventStore
 
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {
-            using var connection = _connectionManager.OpenConnection();
             foreach(var data in events)
             {
-                using var command = connection.CreateCommand();
-
-                command.CommandText +=
-                    $@"
-INSERT {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK) 
-(       {SqlServerEventTable.Columns.AggregateId},  {SqlServerEventTable.Columns.InsertedVersion},  {SqlServerEventTable.Columns.ManualVersion}, {SqlServerEventTable.Columns.EventType},  {SqlServerEventTable.Columns.EventId},  {SqlServerEventTable.Columns.UtcTimeStamp},  {SqlServerEventTable.Columns.Event}) 
-VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns.InsertedVersion}, @{SqlServerEventTable.Columns.ManualVersion}, @{SqlServerEventTable.Columns.EventType}, @{SqlServerEventTable.Columns.EventId}, @{SqlServerEventTable.Columns.UtcTimeStamp}, @{SqlServerEventTable.Columns.Event})";
-
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = data.AggregateId });
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.InsertedVersion, SqlDbType.Int) { Value = data.RefactoringInformation.InsertedVersion });
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventType,SqlDbType.UniqueIdentifier){Value = data.EventType });
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = data.EventId});
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.UtcTimeStamp, SqlDbType.DateTime2) {Value = data.UtcTimeStamp});
-
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.Event, SqlDbType.NVarChar, -1) {Value = data.EventJson});
-
-                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.ManualVersion, SqlDbType.Int) {Value = data.RefactoringInformation.ManualVersion}));
-
                 try
                 {
-                    command.ExecuteNonQuery();
+                    _connectionManager.UseCommand(
+                        command => command.SetCommandText(
+                                               //urgent: ensure that READCOMMITTED is really sane here and add comment.
+                                               $@"
+INSERT {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK) 
+(       {Col.AggregateId},  {Col.InsertedVersion},  {Col.ManualVersion}, {Col.EventType},  {Col.EventId},  {Col.UtcTimeStamp},  {Col.Event}) 
+VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.ManualVersion}, @{Col.EventType}, @{Col.EventId}, @{Col.UtcTimeStamp}, @{Col.Event})")
+                                          .AddParameter(Col.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
+                                          .AddParameter(Col.InsertedVersion, data.RefactoringInformation.InsertedVersion)
+                                          .AddParameter(Col.EventType, data.EventType)
+                                          .AddParameter(Col.EventId, data.EventId)
+                                          .AddDateTime2Parameter(Col.UtcTimeStamp, data.UtcTimeStamp)
+                                          .AddNVarcharMaxParameter(Col.Event, data.EventJson)
+                                          .AddParameter((Nullable(new SqlParameter(Col.ManualVersion, SqlDbType.Int) {Value = data.RefactoringInformation.ManualVersion})))
+                                          .ExecuteNonQuery());
                 }
-                catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
+                catch (SqlException e) when (e.Number == PrimaryKeyViolationSqlErrorNumber)
                 {
+                    //todo: Make sure we have test coverage for this.
                     throw new SqlServerEventStoreOptimisticConcurrencyException(e);
                 }
             }
         }
 
-        public void SaveRefactoringEvents(EventDataRow[] newEvents)
+            public void SaveRefactoringEvents(EventDataRow[] newEvents)
         {
             using var connection = _connectionManager.OpenConnection();
             foreach(var data in newEvents)
             {
                 using var command = connection.CreateCommand();
 
-                command.CommandText +=
-                    $@"
+                command.SetCommandText(
+                            //urgent: ensure that READCOMMITTED is really sane here and add comment.
+                            $@"
 INSERT {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK) 
-(       {SqlServerEventTable.Columns.AggregateId},  {SqlServerEventTable.Columns.InsertedVersion},  {SqlServerEventTable.Columns.ManualVersion},  {SqlServerEventTable.Columns.ManualReadOrder},  {SqlServerEventTable.Columns.EventType},  {SqlServerEventTable.Columns.EventId},  {SqlServerEventTable.Columns.UtcTimeStamp},  {SqlServerEventTable.Columns.Event},  {SqlServerEventTable.Columns.InsertAfter}, {SqlServerEventTable.Columns.InsertBefore},  {SqlServerEventTable.Columns.Replaces}) 
-VALUES(@{SqlServerEventTable.Columns.AggregateId}, @{SqlServerEventTable.Columns.InsertedVersion}, @{SqlServerEventTable.Columns.ManualVersion}, @{SqlServerEventTable.Columns.ManualReadOrder}, @{SqlServerEventTable.Columns.EventType}, @{SqlServerEventTable.Columns.EventId}, @{SqlServerEventTable.Columns.UtcTimeStamp}, @{SqlServerEventTable.Columns.Event}, @{SqlServerEventTable.Columns.InsertAfter},@{SqlServerEventTable.Columns.InsertBefore}, @{SqlServerEventTable.Columns.Replaces})
-SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
+(       {Col.AggregateId},  {Col.InsertedVersion},  {Col.ManualVersion},  {Col.ManualReadOrder},  {Col.EventType},  {Col.EventId},  {Col.UtcTimeStamp},  {Col.Event},  {Col.InsertAfter}, {Col.InsertBefore},  {Col.Replaces}) 
+VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.ManualVersion}, @{Col.ManualReadOrder}, @{Col.EventType}, @{Col.EventId}, @{Col.UtcTimeStamp}, @{Col.Event}, @{Col.InsertAfter},@{Col.InsertBefore}, @{Col.Replaces})
+SET @{Col.InsertionOrder} = SCOPE_IDENTITY();")
 
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = data.AggregateId });
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.InsertedVersion, SqlDbType.Int) { Value = data.RefactoringInformation.InsertedVersion });
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventType,SqlDbType.UniqueIdentifier){Value = data.EventType });
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = data.EventId});
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.UtcTimeStamp, SqlDbType.DateTime2) {Value = data.UtcTimeStamp});
+                       .AddParameter(Col.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
+                       .AddParameter(Col.InsertedVersion, SqlDbType.Int, data.RefactoringInformation.InsertedVersion)
+                       .AddParameter(Col.EventType, SqlDbType.UniqueIdentifier, data.EventType)
+                       .AddParameter(Col.EventId, SqlDbType.UniqueIdentifier, data.EventId)
+                       .AddParameter(Col.UtcTimeStamp, SqlDbType.DateTime2, data.UtcTimeStamp)
 
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.ManualReadOrder, SqlDbType.Decimal) {Value = data.RefactoringInformation.ManualReadOrder});
+                        //todo: Not happy about the null forgiving ! here.
+                       .AddParameter(Col.ManualReadOrder, SqlDbType.Decimal, data.RefactoringInformation.ManualReadOrder!)
 
-                command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.Event, SqlDbType.NVarChar, -1) {Value = data.EventJson});
+                       .AddNVarcharMaxParameter(Col.Event, data.EventJson)
 
-                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.ManualVersion, SqlDbType.Int) {Value = data.RefactoringInformation.ManualVersion}));
-                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.InsertAfter, SqlDbType.UniqueIdentifier) {Value = data.RefactoringInformation.InsertAfter}));
-                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.InsertBefore, SqlDbType.UniqueIdentifier) {Value = data.RefactoringInformation.InsertBefore}));
-                command.Parameters.Add(Nullable(new SqlParameter(SqlServerEventTable.Columns.Replaces, SqlDbType.UniqueIdentifier) {Value = data.RefactoringInformation.Replaces}));
+                       .AddNullableParameter(Col.ManualVersion, SqlDbType.Int, data.RefactoringInformation.ManualVersion)
+                       .AddNullableParameter(Col.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
+                       .AddNullableParameter(Col.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
+                       .AddNullableParameter(Col.Replaces, SqlDbType.UniqueIdentifier, data.RefactoringInformation.Replaces);
 
-                var identityParameter = new SqlParameter(SqlServerEventTable.Columns.InsertionOrder, SqlDbType.BigInt)
+                var identityParameter = new SqlParameter(Col.InsertionOrder, SqlDbType.BigInt)
                                         {
                                             Direction = ParameterDirection.Output
                                         };
@@ -103,7 +101,7 @@ SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                 command =>
                 {
                     command.CommandText = SqlServerEventStore.SqlStatements.FixManualVersionsForAggregate;
-                    command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});
+                    command.Parameters.Add(new SqlParameter(Col.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});
                     command.ExecuteNonQuery();
                 });
         }
@@ -113,12 +111,12 @@ SET @{SqlServerEventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
 
             var selectStatement = $@"
-SELECT  {SqlServerEventTable.Columns.InsertionOrder},
-        {SqlServerEventTable.Columns.EffectiveReadOrder},        
-        (select top 1 {SqlServerEventTable.Columns.EffectiveReadOrder} from {SqlServerEventTable.Name} e1 where e1.{SqlServerEventTable.Columns.EffectiveReadOrder} < {SqlServerEventTable.Name}.{SqlServerEventTable.Columns.EffectiveReadOrder} order by {SqlServerEventTable.Columns.EffectiveReadOrder} desc) PreviousReadOrder,
-        (select top 1 {SqlServerEventTable.Columns.EffectiveReadOrder} from {SqlServerEventTable.Name} e1 where e1.{SqlServerEventTable.Columns.EffectiveReadOrder} > {SqlServerEventTable.Name}.{SqlServerEventTable.Columns.EffectiveReadOrder} order by {SqlServerEventTable.Columns.EffectiveReadOrder}) NextReadOrder
+SELECT  {Col.InsertionOrder},
+        {Col.EffectiveReadOrder},        
+        (select top 1 {Col.EffectiveReadOrder} from {SqlServerEventTable.Name} e1 where e1.{Col.EffectiveReadOrder} < {SqlServerEventTable.Name}.{Col.EffectiveReadOrder} order by {Col.EffectiveReadOrder} desc) PreviousReadOrder,
+        (select top 1 {Col.EffectiveReadOrder} from {SqlServerEventTable.Name} e1 where e1.{Col.EffectiveReadOrder} > {SqlServerEventTable.Name}.{Col.EffectiveReadOrder} order by {Col.EffectiveReadOrder}) NextReadOrder
 FROM    {SqlServerEventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
-where {SqlServerEventTable.Columns.EventId} = @{SqlServerEventTable.Columns.EventId}";
+where {Col.EventId} = @{Col.EventId}";
 
 
 
@@ -129,7 +127,7 @@ where {SqlServerEventTable.Columns.EventId} = @{SqlServerEventTable.Columns.Even
                 command =>
                 {
                     command.CommandText = selectStatement;
-                    command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = eventId});
+                    command.Parameters.Add(new SqlParameter(Col.EventId, SqlDbType.UniqueIdentifier) {Value = eventId});
                     using var reader = command.ExecuteReader();
                     reader.Read();
 
@@ -160,8 +158,8 @@ where {SqlServerEventTable.Columns.EventId} = @{SqlServerEventTable.Columns.Even
                 command =>
                 {
                     command.CommandText +=
-                        $"DELETE {SqlServerEventTable.Name} With(ROWLOCK) WHERE {SqlServerEventTable.Columns.AggregateId} = @{SqlServerEventTable.Columns.AggregateId}";
-                    command.Parameters.Add(new SqlParameter(SqlServerEventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});
+                        $"DELETE {SqlServerEventTable.Name} With(ROWLOCK) WHERE {Col.AggregateId} = @{Col.AggregateId}";
+                    command.Parameters.Add(new SqlParameter(Col.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});
                     command.ExecuteNonQuery();
                 });
         }

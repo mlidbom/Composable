@@ -290,7 +290,7 @@ namespace Composable.Persistence.EventStore
             _persistenceLayer.FixManualVersions(events.First().AggregateId);
         }
 
-        public void InsertAfterEvent(Guid eventId, EventDataRow[] insertAfterGroup)
+        void InsertAfterEvent(Guid eventId, EventDataRow[] insertAfterGroup)
         {
             var eventToInsertAfter = _persistenceLayer.LoadEventNeighborHood(eventId);
 
@@ -301,7 +301,7 @@ namespace Composable.Persistence.EventStore
             _persistenceLayer.SaveRefactoringEvents(newEvents: insertAfterGroup);
         }
 
-        public void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBefore)
+        void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBefore)
         {
             var eventToInsertBefore = _persistenceLayer.LoadEventNeighborHood(eventId);
 
@@ -312,7 +312,7 @@ namespace Composable.Persistence.EventStore
             _persistenceLayer.SaveRefactoringEvents(insertBefore);
         }
 
-        public void ReplaceEvent(Guid eventId, EventDataRow[] replacementGroup)
+        void ReplaceEvent(Guid eventId, EventDataRow[] replacementGroup)
         {
             var eventToReplace = _persistenceLayer.LoadEventNeighborHood(eventId);
 

@@ -35,7 +35,7 @@ VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.ManualVersion}, @{Col.E
                                           .AddParameter((Nullable(new SqlParameter(Col.ManualVersion, SqlDbType.Int) {Value = data.RefactoringInformation.ManualVersion})))
                                           .ExecuteNonQuery());
                 }
-                catch (SqlException e) when (e.Number == PrimaryKeyViolationSqlErrorNumber)
+                catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
                 {
                     //todo: Make sure we have test coverage for this.
                     throw new SqlServerEventStoreOptimisticConcurrencyException(e);
@@ -43,7 +43,7 @@ VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.ManualVersion}, @{Col.E
             }
         }
 
-            public void SaveRefactoringEvents(EventDataRow[] newEvents)
+        public void SaveRefactoringEvents(EventDataRow[] newEvents)
         {
             using var connection = _connectionManager.OpenConnection();
             foreach(var data in newEvents)
@@ -57,7 +57,6 @@ INSERT {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK)
 (       {Col.AggregateId},  {Col.InsertedVersion},  {Col.ManualVersion},  {Col.ManualReadOrder},  {Col.EventType},  {Col.EventId},  {Col.UtcTimeStamp},  {Col.Event},  {Col.InsertAfter}, {Col.InsertBefore},  {Col.Replaces}) 
 VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.ManualVersion}, @{Col.ManualReadOrder}, @{Col.EventType}, @{Col.EventId}, @{Col.UtcTimeStamp}, @{Col.Event}, @{Col.InsertAfter},@{Col.InsertBefore}, @{Col.Replaces})
 SET @{Col.InsertionOrder} = SCOPE_IDENTITY();")
-
                        .AddParameter(Col.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
                        .AddParameter(Col.InsertedVersion, SqlDbType.Int, data.RefactoringInformation.InsertedVersion)
                        .AddParameter(Col.EventType, SqlDbType.UniqueIdentifier, data.EventType)
@@ -66,9 +65,7 @@ SET @{Col.InsertionOrder} = SCOPE_IDENTITY();")
 
                         //todo: Not happy about the null forgiving ! here.
                        .AddParameter(Col.ManualReadOrder, SqlDbType.Decimal, data.RefactoringInformation.ManualReadOrder!)
-
                        .AddNVarcharMaxParameter(Col.Event, data.EventJson)
-
                        .AddNullableParameter(Col.ManualVersion, SqlDbType.Int, data.RefactoringInformation.ManualVersion)
                        .AddNullableParameter(Col.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
                        .AddNullableParameter(Col.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
@@ -118,9 +115,6 @@ SELECT  {Col.InsertionOrder},
 FROM    {SqlServerEventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
 where {Col.EventId} = @{Col.EventId}";
 
-
-
-
             IEventStorePersistenceLayer.EventNeighborhood? neighborhood = null;
 
             _connectionManager.UseCommand(
@@ -149,6 +143,7 @@ where {Col.EventId} = @{Col.EventId}";
             {
                 @this.Value = DBNull.Value;
             }
+
             return @this;
         }
 

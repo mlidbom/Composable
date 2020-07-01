@@ -23,8 +23,8 @@ namespace Composable.Persistence.InMemory.EventStore
             _state.WithExclusiveAccess(state => state
                                                .Events
                                                .Where(@this => @this.AggregateId == aggregateId
-                                                            && @this.RefactoringInformation.InsertedVersion > startAfterInsertedVersion 
-                                                             && @this.RefactoringInformation.EffectiveVersion > 0)
+                                                            && @this.RefactoringInformation.InsertedVersion > startAfterInsertedVersion
+                                                            && @this.RefactoringInformation.EffectiveVersion > 0)
                                                .ToArray());
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)

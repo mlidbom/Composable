@@ -20,7 +20,7 @@ namespace Composable.Persistence.EventStore
         IReadOnlyList<CreationEventRow> ListAggregateIdsInCreationOrder();
         void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events);
         void DeleteAggregate(Guid aggregateId);
-        void FixManualVersions(Guid aggregateId);
+        void UpdateEffectiveVersionAndEffectiveReadOrder(IReadOnlyList<ManualVersionSpecification> versions);
 
         class EventNeighborhood
         {
@@ -44,6 +44,18 @@ namespace Composable.Persistence.EventStore
             static SqlDecimal ToCorrectPrecisionAndScale(SqlDecimal value) => SqlDecimal.ConvertToPrecScale(value, 38, 19);
         }
         IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId);
+
+        class ManualVersionSpecification
+        {
+            public ManualVersionSpecification(Guid eventId, int version)
+            {
+                EventId = eventId;
+                EffectiveVersion = version;
+            }
+
+            public Guid EventId { get; }
+            public int EffectiveVersion { get; }
+        }
     }
 
     class CreationEventRow
@@ -86,7 +98,7 @@ namespace Composable.Persistence.EventStore
             RefactoringInformation = new AggregateEventRefactoringInformation()
                                      {
                                          InsertedVersion = specification.InsertedVersion,
-                                         ManualVersion = specification.ManualVersion
+                                         EffectiveVersion = specification.ManualVersion
                                      };
         }
 
@@ -115,11 +127,11 @@ namespace Composable.Persistence.EventStore
 
     class AggregateEventRefactoringInformation
     {
-        internal SqlDecimal? ManualReadOrder { get; set; }
+        internal SqlDecimal? EffectiveOrder { get; set; }
         internal int InsertedVersion { get; set; }
 
         //urgent: See if this cannot be non-nullable.
-        internal int? ManualVersion { get; set; }
+        internal int? EffectiveVersion { get; set; }
         internal Guid? Replaces { get; set; }
         internal Guid? InsertBefore { get; set; }
         internal Guid? InsertAfter { get; set; }

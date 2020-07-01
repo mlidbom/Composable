@@ -225,13 +225,12 @@ namespace Composable.Persistence.EventStore
 
                             refactoringEvents.ForEach(InsertSingleAggregateRefactoringEvents);
 
-
-                            _persistenceLayer.FixManualVersions(newHistory.First().AggregateId);
-
-                            transaction.Complete();
+                            FixManualVersions(original, newHistory, refactoringEvents);
 
                             migratedAggregates++;
                             succeeded = true;
+                            _cache.Remove(original.First().Event.AggregateId);
+                            transaction.Complete();
                         }
                         catch(Exception e) when(IsRecoverableSqlException(e) && ++retries <= recoverableErrorRetriesToMake)
                         {
@@ -257,6 +256,20 @@ namespace Composable.Persistence.EventStore
             Log.Warning("Done persisting migrations.");
             Log.Info($"Inspected: {migratedAggregates} , Updated: {updatedAggregates}, New Events: {newEventCount}");
 
+        }
+
+        void FixManualVersions(AggregateEventWithRefactoringInformation[] originalHistory, AggregateEvent[] newHistory, List<List<EventDataRow>> refactoringEvents)
+        {
+            var versionUpdates = new List<IEventStorePersistenceLayer.ManualVersionSpecification>();
+            var replacedOrRemoved = originalHistory.Where(@this => newHistory.None(@event => @event.EventId == @this.Event.EventId)).ToList();
+            versionUpdates.AddRange(replacedOrRemoved.Select(@this => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.Event.EventId, -@this.RefactoringInformation.EffectiveVersion!.Value)));
+
+            var replacedOrRemoved2 = refactoringEvents.SelectMany(@this =>@this).Where(@this => newHistory.None(@event => @event.EventId == @this.EventId));
+            versionUpdates.AddRange(replacedOrRemoved2.Select(@this => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.EventId, -@this.RefactoringInformation.EffectiveVersion!.Value)));
+
+            versionUpdates.AddRange(newHistory.Select((@this , index) => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.EventId, index + 1)));
+
+            _persistenceLayer.UpdateEffectiveVersionAndEffectiveReadOrder(versionUpdates);
         }
 
         void InsertSingleAggregateRefactoringEvents(IReadOnlyList<EventDataRow> events)
@@ -340,7 +353,7 @@ namespace Composable.Persistence.EventStore
                 {
                     throw new ArgumentException($"$$$$$$$$$$$$$$$$$$$$$$$$$ Found decimal with precision: {manualReadOrder.Precision} and scale: {manualReadOrder.Scale}", nameof(manualReadOrder));
                 }
-                newEvents[index].RefactoringInformation.ManualReadOrder = manualReadOrder;
+                newEvents[index].RefactoringInformation.EffectiveOrder = manualReadOrder;
             }
         }
 

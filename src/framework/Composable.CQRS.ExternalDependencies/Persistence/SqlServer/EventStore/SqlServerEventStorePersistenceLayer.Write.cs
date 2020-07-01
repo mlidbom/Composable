@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.System;
 using Col = Composable.Persistence.SqlServer.EventStore.SqlServerEventTable.Columns;
 
 namespace Composable.Persistence.SqlServer.EventStore
@@ -41,8 +43,8 @@ END
                                           .AddDateTime2Parameter(Col.UtcTimeStamp, data.UtcTimeStamp)
                                           .AddNVarcharMaxParameter(Col.Event, data.EventJson)
 
-                                          .AddNullableParameter(Col.EffectiveOrder, SqlDbType.Decimal, data.RefactoringInformation.ManualReadOrder)
-                                          .AddNullableParameter(Col.EffectiveVersion, SqlDbType.Int, data.RefactoringInformation.ManualVersion ?? data.AggregateVersion)
+                                          .AddNullableParameter(Col.EffectiveOrder, SqlDbType.Decimal, data.RefactoringInformation.EffectiveOrder)
+                                          .AddNullableParameter(Col.EffectiveVersion, SqlDbType.Int, data.RefactoringInformation.EffectiveVersion ?? data.AggregateVersion)
                                           .AddNullableParameter(Col.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
                                           .AddNullableParameter(Col.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
                                           .AddNullableParameter(Col.Replaces, SqlDbType.UniqueIdentifier, data.RefactoringInformation.Replaces)
@@ -56,16 +58,13 @@ END
             }
         }
 
-        //Urgent: Do this logic in C# in the EventStore class. Persistence layer should only save the data, not implement logic that can be common for all persistence layers.
-        public void FixManualVersions(Guid aggregateId)
+        public void UpdateEffectiveVersionAndEffectiveReadOrder(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
         {
-            _connectionManager.UseCommand(
-                command =>
-                {
-                    command.CommandText = SqlServerEventStore.SqlStatements.FixManualVersionsForAggregate;
-                    command.Parameters.Add(new SqlParameter(Col.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});
-                    command.ExecuteNonQuery();
-                });
+            var commandText = versions.Select((spec, index) =>
+                                                  $@"UPDATE {SqlServerEventTable.Name} SET {Col.EffectiveVersion} = {spec.EffectiveVersion} WHERE {Col.EventId} = '{spec.EventId}'").Join(Environment.NewLine);
+
+            _connectionManager.UseCommand(command => command.SetCommandText(commandText).ExecuteNonQuery());
+
         }
 
         public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId)
@@ -98,18 +97,6 @@ where {Col.EventId} = @{Col.EventId}";
                 });
 
             return Assert.Result.NotNull(neighborhood);
-        }
-
-        static SqlParameter Nullable(SqlParameter @this)
-        {
-            @this.IsNullable = true;
-            @this.Direction = ParameterDirection.Input;
-            if(@this.Value == null)
-            {
-                @this.Value = DBNull.Value;
-            }
-
-            return @this;
         }
 
         public void DeleteAggregate(Guid aggregateId)

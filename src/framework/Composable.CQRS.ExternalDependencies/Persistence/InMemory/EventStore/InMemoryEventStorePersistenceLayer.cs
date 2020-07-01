@@ -22,7 +22,7 @@ namespace Composable.Persistence.InMemory.EventStore
                 }
             });
 
-        public void FixManualVersions(Guid aggregateId) { throw new NotImplementedException(); }
+        public void UpdateEffectiveVersionAndEffectiveReadOrder(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions) { throw new NotImplementedException(); }
 
         public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId) => throw new NotImplementedException();
 

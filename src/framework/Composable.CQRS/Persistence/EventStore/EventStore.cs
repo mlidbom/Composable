@@ -298,7 +298,7 @@ namespace Composable.Persistence.EventStore
                                 rangeStart: eventToInsertAfter.EffectiveReadOrder,
                                 rangeEnd: eventToInsertAfter.NextEventReadOrder);
 
-            _persistenceLayer.SaveRefactoringEvents(newEvents: insertAfterGroup);
+            _persistenceLayer.InsertSingleAggregateEvents(insertAfterGroup);
         }
 
         void InsertBeforeEvent(Guid eventId, EventDataRow[] insertBefore)
@@ -309,19 +309,18 @@ namespace Composable.Persistence.EventStore
                                 rangeStart: eventToInsertBefore.PreviousEventReadOrder,
                                 rangeEnd: eventToInsertBefore.EffectiveReadOrder);
 
-            _persistenceLayer.SaveRefactoringEvents(insertBefore);
+            _persistenceLayer.InsertSingleAggregateEvents(insertBefore);
         }
 
-        void ReplaceEvent(Guid eventId, EventDataRow[] replacementGroup)
+        void ReplaceEvent(Guid eventId, EventDataRow[] replacementEvents)
         {
             var eventToReplace = _persistenceLayer.LoadEventNeighborHood(eventId);
 
-            SetManualReadOrders(newEvents: replacementGroup,
+            SetManualReadOrders(newEvents: replacementEvents,
                                 rangeStart: eventToReplace.EffectiveReadOrder,
                                 rangeEnd: eventToReplace.NextEventReadOrder);
 
-            _persistenceLayer.SaveRefactoringEvents(
-                newEvents: replacementGroup);
+            _persistenceLayer.InsertSingleAggregateEvents(replacementEvents);
         }
 
         static void SetManualReadOrders(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)

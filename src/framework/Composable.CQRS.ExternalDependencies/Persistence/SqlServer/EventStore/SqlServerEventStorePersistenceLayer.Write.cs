@@ -24,15 +24,20 @@ namespace Composable.Persistence.SqlServer.EventStore
                                                //urgent: ensure that READCOMMITTED is really sane here and add comment.
                                                $@"
 INSERT {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK) 
-(       {Col.AggregateId},  {Col.InsertedVersion},  {Col.ManualVersion}, {Col.EventType},  {Col.EventId},  {Col.UtcTimeStamp},  {Col.Event}) 
-VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.ManualVersion}, @{Col.EventType}, @{Col.EventId}, @{Col.UtcTimeStamp}, @{Col.Event})")
+(       {Col.AggregateId},  {Col.InsertedVersion},  {Col.ManualVersion},  {Col.ManualReadOrder},  {Col.EventType},  {Col.EventId},  {Col.UtcTimeStamp},  {Col.Event},  {Col.InsertAfter}, {Col.InsertBefore},  {Col.Replaces}) 
+VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.ManualVersion}, @{Col.ManualReadOrder}, @{Col.EventType}, @{Col.EventId}, @{Col.UtcTimeStamp}, @{Col.Event}, @{Col.InsertAfter},@{Col.InsertBefore}, @{Col.Replaces})")
                                           .AddParameter(Col.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
                                           .AddParameter(Col.InsertedVersion, data.RefactoringInformation.InsertedVersion)
                                           .AddParameter(Col.EventType, data.EventType)
                                           .AddParameter(Col.EventId, data.EventId)
                                           .AddDateTime2Parameter(Col.UtcTimeStamp, data.UtcTimeStamp)
                                           .AddNVarcharMaxParameter(Col.Event, data.EventJson)
-                                          .AddParameter((Nullable(new SqlParameter(Col.ManualVersion, SqlDbType.Int) {Value = data.RefactoringInformation.ManualVersion})))
+
+                                          .AddNullableParameter(Col.ManualReadOrder, SqlDbType.Decimal, data.RefactoringInformation.ManualReadOrder)
+                                          .AddNullableParameter(Col.ManualVersion, SqlDbType.Int, data.RefactoringInformation.ManualVersion)
+                                          .AddNullableParameter(Col.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
+                                          .AddNullableParameter(Col.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
+                                          .AddNullableParameter(Col.Replaces, SqlDbType.UniqueIdentifier, data.RefactoringInformation.Replaces)
                                           .ExecuteNonQuery());
                 }
                 catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
@@ -40,54 +45,6 @@ VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.ManualVersion}, @{Col.E
                     //todo: Make sure we have test coverage for this.
                     throw new SqlServerEventStoreOptimisticConcurrencyException(e);
                 }
-            }
-        }
-
-        public void SaveRefactoringEvents(EventDataRow[] newEvents)
-        {
-            using var connection = _connectionManager.OpenConnection();
-            foreach(var data in newEvents)
-            {
-                using var command = connection.CreateCommand();
-
-                command.SetCommandText(
-                            //urgent: ensure that READCOMMITTED is really sane here and add comment.
-                            $@"
-INSERT {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK) 
-(       {Col.AggregateId},  {Col.InsertedVersion},  {Col.ManualVersion},  {Col.ManualReadOrder},  {Col.EventType},  {Col.EventId},  {Col.UtcTimeStamp},  {Col.Event},  {Col.InsertAfter}, {Col.InsertBefore},  {Col.Replaces}) 
-VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.ManualVersion}, @{Col.ManualReadOrder}, @{Col.EventType}, @{Col.EventId}, @{Col.UtcTimeStamp}, @{Col.Event}, @{Col.InsertAfter},@{Col.InsertBefore}, @{Col.Replaces})
-SET @{Col.InsertionOrder} = SCOPE_IDENTITY();")
-                       .AddParameter(Col.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
-                       .AddParameter(Col.InsertedVersion, SqlDbType.Int, data.RefactoringInformation.InsertedVersion)
-                       .AddParameter(Col.EventType, SqlDbType.UniqueIdentifier, data.EventType)
-                       .AddParameter(Col.EventId, SqlDbType.UniqueIdentifier, data.EventId)
-                       .AddParameter(Col.UtcTimeStamp, SqlDbType.DateTime2, data.UtcTimeStamp)
-
-                        //todo: Not happy about the null forgiving ! here.
-                       .AddParameter(Col.ManualReadOrder, SqlDbType.Decimal, data.RefactoringInformation.ManualReadOrder!)
-                       .AddNVarcharMaxParameter(Col.Event, data.EventJson)
-                       .AddNullableParameter(Col.ManualVersion, SqlDbType.Int, data.RefactoringInformation.ManualVersion)
-                       .AddNullableParameter(Col.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
-                       .AddNullableParameter(Col.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
-                       .AddNullableParameter(Col.Replaces, SqlDbType.UniqueIdentifier, data.RefactoringInformation.Replaces);
-
-                var identityParameter = new SqlParameter(Col.InsertionOrder, SqlDbType.BigInt)
-                                        {
-                                            Direction = ParameterDirection.Output
-                                        };
-
-                command.Parameters.Add(identityParameter);
-
-                try
-                {
-                    command.ExecuteNonQuery();
-                }
-                catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
-                {
-                    throw new SqlServerEventStoreOptimisticConcurrencyException(e);
-                }
-
-                data.InsertionOrder = (long)identityParameter.Value;
             }
         }
 

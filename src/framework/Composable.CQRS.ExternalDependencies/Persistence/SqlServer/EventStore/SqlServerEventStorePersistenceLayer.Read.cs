@@ -50,7 +50,6 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
             aggregateId: eventReader.GetGuid(2),
             //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
             utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
-            insertionOrder: eventReader.GetInt64(6),
             refactoringInformation: new AggregateEventRefactoringInformation()
                                     {
                                         InsertedVersion = eventReader.GetInt32(10),

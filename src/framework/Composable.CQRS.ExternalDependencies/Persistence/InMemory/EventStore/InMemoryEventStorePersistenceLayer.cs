@@ -17,7 +17,6 @@ namespace Composable.Persistence.InMemory.EventStore
             {
                 foreach(var row in events)
                 {
-                    row.InsertionOrder = ++state.InsertionOrder;
                     row.RefactoringInformation.EffectiveVersion = row.RefactoringInformation.ManualVersion;
                     state.Events.Add(row);
                 }
@@ -25,7 +24,6 @@ namespace Composable.Persistence.InMemory.EventStore
 
         public void FixManualVersions(Guid aggregateId) { throw new NotImplementedException(); }
         public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId) => throw new NotImplementedException();
-        public void SaveRefactoringEvents(EventDataRow[] newEvents) { throw new NotImplementedException(); }
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
             _state.WithExclusiveAccess(state => state

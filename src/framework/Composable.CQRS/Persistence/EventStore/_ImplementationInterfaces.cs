@@ -44,7 +44,6 @@ namespace Composable.Persistence.EventStore
             static SqlDecimal ToCorrectPrecisionAndScale(SqlDecimal value) => SqlDecimal.ConvertToPrecScale(value, 38, 19);
         }
         IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId);
-        void SaveRefactoringEvents(EventDataRow[] newEvents);
     }
 
     class CreationEventRow
@@ -91,7 +90,7 @@ namespace Composable.Persistence.EventStore
                                      };
         }
 
-        public EventDataRow(Guid eventType, string eventJson, Guid eventId, int aggregateVersion, Guid aggregateId, DateTime utcTimeStamp, long insertionOrder, AggregateEventRefactoringInformation refactoringInformation)
+        public EventDataRow(Guid eventType, string eventJson, Guid eventId, int aggregateVersion, Guid aggregateId, DateTime utcTimeStamp, AggregateEventRefactoringInformation refactoringInformation)
         {
             EventType = eventType;
             EventJson = eventJson;
@@ -99,7 +98,6 @@ namespace Composable.Persistence.EventStore
             AggregateVersion = aggregateVersion;
             AggregateId = aggregateId;
             UtcTimeStamp = utcTimeStamp;
-            InsertionOrder = insertionOrder;
 
             RefactoringInformation = refactoringInformation;
         }
@@ -111,9 +109,6 @@ namespace Composable.Persistence.EventStore
 
         public Guid AggregateId { get; private set; }
         public DateTime UtcTimeStamp { get; private set; }
-
-        //urgent: not happy about this having public setter.
-        internal long InsertionOrder { get; set; }
 
         internal AggregateEventRefactoringInformation RefactoringInformation { get; private set; }
     }

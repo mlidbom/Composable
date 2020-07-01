@@ -82,7 +82,7 @@ ORDER BY {SqlServerEventTable.Columns.EffectiveOrder} ASC")
                                                                 command => command.SetCommandText($@"
 {CreateSelectTopClause(batchSize, takeWriteLock: false)} 
 WHERE {SqlServerEventTable.Columns.EffectiveOrder}  > @{SqlServerEventTable.Columns.EffectiveOrder}
-{ReadSortOrder}")
+ORDER BY {SqlServerEventTable.Columns.EffectiveOrder} ASC")
                                                                                   .AddParameter(SqlServerEventTable.Columns.EffectiveOrder, SqlDbType.Decimal, lastReadEventReadOrder)
                                                                                   .ExecuteReaderAndSelect(reader =>
                                                                                    {
@@ -107,10 +107,9 @@ WHERE {SqlServerEventTable.Columns.EffectiveOrder}  > @{SqlServerEventTable.Colu
                                                  action: command => command.SetCommandText($@"
 SELECT {SqlServerEventTable.Columns.AggregateId}, {SqlServerEventTable.Columns.EventType} 
 FROM {SqlServerEventTable.Name} 
-WHERE {SqlServerEventTable.Columns.EffectiveVersion} = 1 AND {SqlServerEventTable.Columns.EffectiveOrder} > 0 {ReadSortOrder}")
+WHERE {SqlServerEventTable.Columns.EffectiveVersion} = 1 AND {SqlServerEventTable.Columns.EffectiveOrder} > 0 
+ORDER BY {SqlServerEventTable.Columns.EffectiveOrder} ASC")
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuid(0), typeId: reader.GetGuid(1))));
         }
-
-        static string ReadSortOrder => $" ORDER BY {SqlServerEventTable.Columns.EffectiveOrder} ASC";
     }
 }

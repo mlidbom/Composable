@@ -182,6 +182,7 @@ namespace Composable.Persistence.EventStore
             var lastLogTime = DateTime.Now;
 
             const int recoverableErrorRetriesToMake = 5;
+            var exceptions = new List<(Guid AggregateId,Exception Exception)>();
 
             var aggregateIdsInCreationOrder = StreamAggregateIdsInCreationOrder().ToList();
 
@@ -252,6 +253,7 @@ namespace Composable.Persistence.EventStore
                 catch(Exception exception)
                 {
                     Log.Error(exception, $"Failed to persist migrations for aggregate: {aggregateId}");
+                    exceptions.Add((aggregateId, exception));
                 }
 
                 if(logInterval < DateTime.Now - lastLogTime)
@@ -266,6 +268,14 @@ namespace Composable.Persistence.EventStore
 
             Log.Warning("Done persisting migrations.");
             Log.Info($"Inspected: {migratedAggregates} , Updated: {updatedAggregates}, New Events: {newEventCount}");
+            if(exceptions.Any())
+            {
+                throw new AggregateException($@"
+Failed to persist {exceptions.Count} migrations. 
+
+AggregateIds: 
+{exceptions.Select(@this => @this.AggregateId.ToString()).Join($",{Environment.NewLine}")}", exceptions.Select(@this => @this.Exception));
+            }
 
         }
 
@@ -378,7 +388,8 @@ namespace Composable.Persistence.EventStore
                 var manualReadOrder = rangeStart + (index + 1) * readOrderIncrement;
                 if (!(manualReadOrder.IsNull || (manualReadOrder.Precision == 38 && manualReadOrder.Scale == 17)))
                 {
-                    throw new ArgumentException($"$$$$$$$$$$$$$$$$$$$$$$$$$ Found decimal with precision: {manualReadOrder.Precision} and scale: {manualReadOrder.Scale}", nameof(manualReadOrder));
+                    //urgent: unless we change the datatype this must not be removed.
+                    //throw new ArgumentException($"$$$$$$$$$$$$$$$$$$$$$$$$$ Found decimal with precision: {manualReadOrder.Precision} and scale: {manualReadOrder.Scale}", nameof(manualReadOrder));
                 }
                 newEvents[index].RefactoringInformation.EffectiveOrder = manualReadOrder;
             }

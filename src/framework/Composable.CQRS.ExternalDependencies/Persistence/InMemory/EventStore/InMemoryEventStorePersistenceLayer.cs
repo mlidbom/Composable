@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Threading;
 using Composable.Persistence.EventStore;
+using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Persistence.InMemory.EventStore
@@ -13,11 +15,21 @@ namespace Composable.Persistence.InMemory.EventStore
         readonly AggregateTransactionLockManager _aggregateTransactionLockManager = new AggregateTransactionLockManager();
 
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events) =>
-            _state.WithExclusiveAccess(state => state.Events.AddRange(events));
+            _state.WithExclusiveAccess(state =>
+            {
+                events.ForEach((@event, index) =>
+                {
+                    var insertionOrder = state.Events.Count + index;
+                    @event.RefactoringInformation.EffectiveOrder ??= insertionOrder;
+                    state.InsertionOrders.Add(@event.EventId, insertionOrder);
+                });
+                state.Events.AddRange(events);
+            });
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
             _state.WithExclusiveAccess(state => state
                                                .Events
+                                               .OrderBy(@this => @this.RefactoringInformation.EffectiveOrder)
                                                .Where(@this => @this.AggregateId == aggregateId
                                                             && @this.RefactoringInformation.InsertedVersion > startAfterInsertedVersion
                                                             && @this.RefactoringInformation.EffectiveVersion > 0)
@@ -29,12 +41,32 @@ namespace Composable.Persistence.InMemory.EventStore
                 {
                     foreach(var specification in versions)
                     {
-                        state.Events.Single(@event => @event.EventId == specification.EventId).RefactoringInformation.EffectiveVersion = specification.EffectiveVersion;
+                        var @event = state.Events.Single(@this => @this.EventId == specification.EventId).RefactoringInformation;
+                        @event.EffectiveVersion = specification.EffectiveVersion;
                     }
                 }
             );
 
-        public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId) => throw new NotImplementedException();
+        public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId)
+            => _state.WithExclusiveAccess(state =>
+            {
+                var found = state.Events.Select((@event, index) => (index, @event)).Single(@this => @this.@event.EventId == eventId);
+
+                var insertionOrder = found.index -1;
+                var effectiveOrder = found.@event.RefactoringInformation.EffectiveOrder!.Value;
+                var previousEventReadOrder = state.Events[found.index -1].RefactoringInformation.EffectiveOrder!.Value;
+
+
+                var nextEventReadOrder = found.index < state.Events.Count -1
+                                             ? state.Events[found.index + 1].RefactoringInformation.EffectiveOrder!.Value
+                                             : found.index + 1;
+
+                return new IEventStorePersistenceLayer.EventNeighborhood(
+                    insertionOrder: insertionOrder,
+                    effectiveReadOrder: effectiveOrder,
+                    previousEventReadOrder: previousEventReadOrder,
+                    nextEventReadOrder: nextEventReadOrder);
+            });
 
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
@@ -66,7 +98,7 @@ namespace Composable.Persistence.InMemory.EventStore
 
         class State
         {
-            public long InsertionOrder;
+            public Dictionary<Guid, long> InsertionOrders = new Dictionary<Guid, long>();
             public List<EventDataRow> Events = new List<EventDataRow>();
         }
 

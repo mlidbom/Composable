@@ -79,7 +79,8 @@ namespace Composable.Persistence.InMemory.EventStore
                                           .Where(@this => (@this.RefactoringInformation.EffectiveOrder!.Value > effectiveOrder).Value)
                                           .OrderBy(@this => @this.RefactoringInformation.EffectiveOrder)
                                           .FirstOrDefault();
-                var nextEventReadOrder = nextEvent?.RefactoringInformation.EffectiveVersion ?? effectiveOrder + 1;
+
+                var nextEventReadOrder = nextEvent?.RefactoringInformation.EffectiveOrder ?? effectiveOrder + 1;
 
                 return new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: effectiveOrder,
                                                                          previousEventReadOrder: previousEventReadOrder,

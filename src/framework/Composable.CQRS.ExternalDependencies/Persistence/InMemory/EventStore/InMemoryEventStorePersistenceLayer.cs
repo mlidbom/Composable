@@ -15,10 +15,6 @@ namespace Composable.Persistence.InMemory.EventStore
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events) =>
             _state.WithExclusiveAccess(state => state.Events.AddRange(events));
 
-        public void UpdateEffectiveVersionAndEffectiveReadOrder(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions) { throw new NotImplementedException(); }
-
-        public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId) => throw new NotImplementedException();
-
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
             _state.WithExclusiveAccess(state => state
                                                .Events
@@ -26,6 +22,20 @@ namespace Composable.Persistence.InMemory.EventStore
                                                             && @this.RefactoringInformation.InsertedVersion > startAfterInsertedVersion
                                                             && @this.RefactoringInformation.EffectiveVersion > 0)
                                                .ToArray());
+
+        public void UpdateEffectiveVersionAndEffectiveReadOrder(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
+            => _state.WithExclusiveAccess(
+                state =>
+                {
+                    foreach(var specification in versions)
+                    {
+                        state.Events.Single(@event => @event.EventId == specification.EventId).RefactoringInformation.EffectiveVersion = specification.EffectiveVersion;
+                    }
+                }
+            );
+
+        public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId) => throw new NotImplementedException();
+
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
             => _state.WithExclusiveAccess(state => state.Events.ToArray());

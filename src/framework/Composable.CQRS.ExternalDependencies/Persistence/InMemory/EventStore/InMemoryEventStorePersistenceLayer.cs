@@ -6,6 +6,7 @@ using Composable.Persistence.EventStore;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
+using Composable.System.Transactions;
 using Composable.SystemExtensions.TransactionsCE;
 
 namespace Composable.Persistence.InMemory.EventStore
@@ -149,7 +150,7 @@ namespace Composable.Persistence.InMemory.EventStore
                 }
             }
 
-            Dictionary<string, List<EventDataRow>> _overlays = new Dictionary<string, List<EventDataRow>>();
+            readonly Dictionary<string, List<EventDataRow>> _overlays = new Dictionary<string, List<EventDataRow>>();
 
             List<EventDataRow>? TransactionalOverlay
             {
@@ -160,14 +161,19 @@ namespace Composable.Persistence.InMemory.EventStore
                         var transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
                         return _overlays.GetOrAdd(transactionId, () =>
                         {
-                            //Urgent: not thread safe, nor does it actually happen in the transaction, should implement IEnlistmentParticipant
-                            Transaction.Current.OnAbort(() => _overlays.Remove(transactionId));
-                            Transaction.Current.OnCommittedSuccessfully(() =>
+                            var transactionParticipant = new LambdaTransactionParticipant();
+                            Transaction.Current.EnlistVolatile(transactionParticipant, EnlistmentOptions.None);
+
+                            //urgent: this is not thread safe. We do not have the lock when these are called.
+                            transactionParticipant.AddCommitTasks(() =>
                             {
                                 var overlay = _overlays[transactionId];
                                 _events.AddRange(overlay);
                                 _overlays.Remove(transactionId);
                             });
+
+                            transactionParticipant.AddRollbackTasks(() => _overlays.Remove(transactionId));
+
                             return new List<EventDataRow>();
                         });
                     }

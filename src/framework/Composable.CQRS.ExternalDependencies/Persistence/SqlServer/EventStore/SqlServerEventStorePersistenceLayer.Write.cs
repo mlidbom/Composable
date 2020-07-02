@@ -72,8 +72,7 @@ END
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
 
             var selectStatement = $@"
-SELECT  {Col.InsertionOrder},
-        {Col.EffectiveOrder},        
+SELECT  {Col.EffectiveOrder},        
         (select top 1 {Col.EffectiveOrder} from {SqlServerEventTable.Name} e1 where e1.{Col.EffectiveOrder} < {SqlServerEventTable.Name}.{Col.EffectiveOrder} order by {Col.EffectiveOrder} desc) PreviousReadOrder,
         (select top 1 {Col.EffectiveOrder} from {SqlServerEventTable.Name} e1 where e1.{Col.EffectiveOrder} > {SqlServerEventTable.Name}.{Col.EffectiveOrder} order by {Col.EffectiveOrder}) NextReadOrder
 FROM    {SqlServerEventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
@@ -89,11 +88,9 @@ where {Col.EventId} = @{Col.EventId}";
                     using var reader = command.ExecuteReader();
                     reader.Read();
 
-                    neighborhood = new IEventStorePersistenceLayer.EventNeighborhood(
-                        insertionOrder: reader.GetInt64(0),
-                        effectiveReadOrder: reader.GetSqlDecimal(1),
-                        previousEventReadOrder: reader.GetSqlDecimal(2),
-                        nextEventReadOrder: reader.GetSqlDecimal(3));
+                    neighborhood = new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: reader.GetSqlDecimal(0),
+                                                                                     previousEventReadOrder: reader.GetSqlDecimal(1),
+                                                                                     nextEventReadOrder: reader.GetSqlDecimal(2));
                 });
 
             return Assert.Result.NotNull(neighborhood);

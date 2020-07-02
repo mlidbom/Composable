@@ -16,6 +16,11 @@ namespace Composable.Persistence.InMemory.EventStore
         readonly OptimizedThreadShared<State> _state = new OptimizedThreadShared<State>(new State());
         readonly TransactionLockManager _transactionLockManager = new TransactionLockManager();
 
+        public InMemoryEventStorePersistenceLayer()
+        {
+            _state.WithExclusiveAccess(state => state.Init(_state));
+        }
+
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events) =>
             _transactionLockManager.WithExclusiveAccess(
                 events.First().AggregateId,
@@ -134,6 +139,7 @@ namespace Composable.Persistence.InMemory.EventStore
         class State
         {
             List<EventDataRow> _events = new List<EventDataRow>();
+            OptimizedThreadShared<State> _lock = null!;
             public IReadOnlyList<EventDataRow> Events
             {
                 get
@@ -164,15 +170,14 @@ namespace Composable.Persistence.InMemory.EventStore
                             var transactionParticipant = new LambdaTransactionParticipant();
                             Transaction.Current.EnlistVolatile(transactionParticipant, EnlistmentOptions.None);
 
-                            //urgent: this is not thread safe. We do not have the lock when these are called.
-                            transactionParticipant.AddCommitTasks(() =>
+                            transactionParticipant.AddCommitTasks(() => _lock.WithExclusiveAccess(_ =>
                             {
                                 var overlay = _overlays[transactionId];
                                 _events.AddRange(overlay);
                                 _overlays.Remove(transactionId);
-                            });
+                            }));
 
-                            transactionParticipant.AddRollbackTasks(() => _overlays.Remove(transactionId));
+                            transactionParticipant.AddRollbackTasks(() => _lock.WithExclusiveAccess(_ => _overlays.Remove(transactionId)));
 
                             return new List<EventDataRow>();
                         });
@@ -202,6 +207,7 @@ namespace Composable.Persistence.InMemory.EventStore
             {
                 _events = _events.Where(row => row.AggregateId != aggregateId).ToList();
             }
+            public void Init(OptimizedThreadShared<State> @lock) { _lock = @lock; }
         }
     }
 }

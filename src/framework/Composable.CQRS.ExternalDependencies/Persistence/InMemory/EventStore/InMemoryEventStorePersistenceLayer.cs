@@ -41,8 +41,27 @@ namespace Composable.Persistence.InMemory.EventStore
                 {
                     foreach(var specification in versions)
                     {
-                        var @event = state.Events.Single(@this => @this.EventId == specification.EventId).RefactoringInformation;
-                        @event.EffectiveVersion = specification.EffectiveVersion;
+                        var (@event, index) = state.Events
+                                                   .Select((eventRow, innerIndex) => (eventRow, innerIndex))
+                                                   .Single(@this => @this.eventRow.EventId == specification.EventId);
+
+                        state.Events[index] = new EventDataRow(@event.EventType,
+                                                               @event.EventJson,
+                                                               @event.EventId,
+                                                               specification.EffectiveVersion,
+                                                               @event.AggregateId,
+                                                               @event.UtcTimeStamp,
+                                                               new AggregateEventRefactoringInformation()
+                                                               {
+                                                                   EffectiveVersion = specification.EffectiveVersion,
+                                                                   EffectiveOrder = @event.RefactoringInformation.EffectiveOrder,
+                                                                   InsertedVersion = @event.RefactoringInformation.InsertedVersion,
+                                                                   Replaces = @event.RefactoringInformation.Replaces,
+                                                                   InsertBefore = @event.RefactoringInformation.InsertBefore,
+                                                                   InsertAfter =  @event.RefactoringInformation.InsertAfter
+                                                               });
+                        @event.RefactoringInformation.EffectiveVersion = specification.EffectiveVersion;
+                        @event.AggregateVersion = specification.EffectiveVersion;
                     }
                 }
             );

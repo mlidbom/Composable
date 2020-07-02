@@ -20,7 +20,7 @@ namespace Composable.Persistence.EventStore
         IReadOnlyList<CreationEventRow> ListAggregateIdsInCreationOrder();
         void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events);
         void DeleteAggregate(Guid aggregateId);
-        void UpdateEffectiveVersionAndEffectiveReadOrder(IReadOnlyList<ManualVersionSpecification> versions);
+        void UpdateEffectiveVersions(IReadOnlyList<ManualVersionSpecification> versions);
 
         class EventNeighborhood
         {

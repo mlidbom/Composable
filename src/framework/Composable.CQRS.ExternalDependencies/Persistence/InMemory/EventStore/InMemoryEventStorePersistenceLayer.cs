@@ -26,16 +26,16 @@ namespace Composable.Persistence.InMemory.EventStore
                 state.Events.AddRange(events);
             });
 
-        public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
-            _state.WithExclusiveAccess(state => state
-                                               .Events
-                                               .OrderBy(@this => @this.RefactoringInformation.EffectiveOrder)
-                                               .Where(@this => @this.AggregateId == aggregateId
-                                                            && @this.RefactoringInformation.InsertedVersion > startAfterInsertedVersion
-                                                            && @this.RefactoringInformation.EffectiveVersion > 0)
-                                               .ToArray());
+        public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
+            => _state.WithExclusiveAccess(state => state
+                                                  .Events
+                                                  .OrderBy(@this => @this.RefactoringInformation.EffectiveOrder)
+                                                  .Where(@this => @this.AggregateId == aggregateId
+                                                               && @this.RefactoringInformation.InsertedVersion > startAfterInsertedVersion
+                                                               && @this.RefactoringInformation.EffectiveVersion > 0)
+                                                  .ToArray());
 
-        public void UpdateEffectiveVersionAndEffectiveReadOrder(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
+        public void UpdateEffectiveVersions(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
             => _state.WithExclusiveAccess(
                 state =>
                 {
@@ -70,7 +70,10 @@ namespace Composable.Persistence.InMemory.EventStore
 
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
-            => _state.WithExclusiveAccess(state => state.Events.ToArray());
+            => _state.WithExclusiveAccess(state => state.Events
+                                                        .OrderBy(@event => @event.RefactoringInformation.EffectiveOrder)
+                                                        .Where(@event => @event.RefactoringInformation.EffectiveVersion > 0)
+                                                        .ToArray());
 
         public IReadOnlyList<CreationEventRow> ListAggregateIdsInCreationOrder()
             => _state.WithExclusiveAccess(state =>

@@ -306,7 +306,7 @@ AggregateIds:
 
             versionUpdates.AddRange(newHistory.Select((@this , index) => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.EventId, index + 1)));
 
-            _persistenceLayer.UpdateEffectiveVersionAndEffectiveReadOrder(versionUpdates);
+            _persistenceLayer.UpdateEffectiveVersions(versionUpdates);
         }
 
         void InsertSingleAggregateRefactoringEvents(IReadOnlyList<EventDataRow> events)

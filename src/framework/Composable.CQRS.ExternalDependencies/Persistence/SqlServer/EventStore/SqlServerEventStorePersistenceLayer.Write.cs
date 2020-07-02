@@ -58,7 +58,7 @@ END
             }
         }
 
-        public void UpdateEffectiveVersionAndEffectiveReadOrder(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
+        public void UpdateEffectiveVersions(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
         {
             var commandText = versions.Select((spec, index) =>
                                                   $@"UPDATE {SqlServerEventTable.Name} SET {Col.EffectiveVersion} = {spec.EffectiveVersion} WHERE {Col.EventId} = '{spec.EventId}'").Join(Environment.NewLine);

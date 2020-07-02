@@ -219,7 +219,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                                               .GetType())
                         {
                             throw new AssertionException(
-                                $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory.ElementAt(index) .GetType()}");
+                                $"Expected event at position {index} to be of type {@event.GetType()} but it was of type: {migratedHistory.ElementAt(index) .GetType()}");
                         }
                     });
 

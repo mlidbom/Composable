@@ -141,6 +141,7 @@ namespace Composable.Persistence.InMemory.EventStore
         class AggregateTransactionLockManager
         {
             readonly Dictionary<Guid, TransactionWideLock> _aggregateGuards = new Dictionary<Guid, TransactionWideLock>();
+
             public TResult WithExclusiveAccess<TResult>(Guid aggregateId, Func<TResult> func) => WithExclusiveAccess(aggregateId, true, func);
             public TResult WithExclusiveAccess<TResult>(Guid aggregateId, bool takeWriteLock, Func<TResult> func)
             {
@@ -153,17 +154,11 @@ namespace Composable.Persistence.InMemory.EventStore
                 return func();
             }
 
-            public void WithExclusiveAccess(Guid aggregateId, Action action) => WithExclusiveAccess(aggregateId, true, action);
-            public void WithExclusiveAccess(Guid aggregateId, bool takeWriteLock, Action action)
+            public void WithExclusiveAccess(Guid aggregateId, Action action) => WithExclusiveAccess(aggregateId, true, () =>
             {
-                if(Transaction.Current != null && takeWriteLock)
-                {
-                    var @lock = _aggregateGuards.GetOrAdd(aggregateId, () => new TransactionWideLock());
-                    @lock.AwaitAccess(takeWriteLock);
-                }
-
                 action();
-            }
+                return 1;
+            });
 
             class TransactionWideLock
             {

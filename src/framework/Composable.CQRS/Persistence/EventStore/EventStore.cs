@@ -234,7 +234,6 @@ namespace Composable.Persistence.EventStore
 
                                 FixManualVersions(original, inMemoryMigratedHistory, refactoringEvents);
 
-                                _cache.Remove(original.First().Event.AggregateId);
                                 var loadedAggregateHistory = GetAggregateHistory(aggregateId);
                                 AggregateHistoryValidator.ValidateHistory(aggregateId, loadedAggregateHistory);
                                 AssertHistoriesAreIdentical(inMemoryMigratedHistory, loadedAggregateHistory);

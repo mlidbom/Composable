@@ -71,6 +71,11 @@ namespace Composable.Persistence.EventStore
             }
 
             var newEventsFromPersistenceLayer = newHistoryFromPersistenceLayer.Select(@this => @this.Event).ToArray();
+            if(cachedAggregateHistory.Events.Count == 0)
+            {
+                AggregateHistoryValidator.ValidateHistory(aggregateId, newEventsFromPersistenceLayer);
+            }
+
             var newAggregateHistory = cachedAggregateHistory.Events.Count == 0
                                         ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromPersistenceLayer)
                                         : cachedAggregateHistory.Events.Concat(newEventsFromPersistenceLayer)

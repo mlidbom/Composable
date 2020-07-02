@@ -21,7 +21,6 @@ namespace Composable.Persistence.InMemory.EventStore
                 {
                     var insertionOrder = state.Events.Count + index + 1;
                     @event.RefactoringInformation.EffectiveOrder ??= insertionOrder;
-                    state.InsertionOrders.Add(@event.EventId, insertionOrder);
                 });
                 state.Events.AddRange(events);
             });
@@ -120,7 +119,6 @@ namespace Composable.Persistence.InMemory.EventStore
 
         class State
         {
-            public Dictionary<Guid, long> InsertionOrders = new Dictionary<Guid, long>();
             public List<EventDataRow> Events = new List<EventDataRow>();
         }
 

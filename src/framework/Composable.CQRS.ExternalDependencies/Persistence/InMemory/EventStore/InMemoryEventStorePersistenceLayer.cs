@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 using Composable.Persistence.EventStore;
+using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
+using Composable.SystemExtensions.TransactionsCE;
 
 namespace Composable.Persistence.InMemory.EventStore
 {
@@ -130,16 +133,63 @@ namespace Composable.Persistence.InMemory.EventStore
         class State
         {
             List<EventDataRow> _events = new List<EventDataRow>();
-            public IReadOnlyList<EventDataRow> Events => _events;
+            public IReadOnlyList<EventDataRow> Events
+            {
+                get
+                {
+                    if(TransactionalOverlay == null)
+                    {
+                        return _events;
+                    } else
+                    {
+                        var combined = _events.ToList();
+                        combined.AddRange(TransactionalOverlay);
+                        return combined;
+                    }
+                }
+            }
+
+            Dictionary<string, List<EventDataRow>> _overlays = new Dictionary<string, List<EventDataRow>>();
+
+            List<EventDataRow>? TransactionalOverlay
+            {
+                get
+                {
+                    if(Transaction.Current != null)
+                    {
+                        var transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
+                        return _overlays.GetOrAdd(transactionId, () =>
+                        {
+                            //Urgent: not thread safe, nor does it actually happen in the transaction, should implement IEnlistmentParticipant
+                            Transaction.Current.OnAbort(() => _overlays.Remove(transactionId));
+                            Transaction.Current.OnCommittedSuccessfully(() =>
+                            {
+                                var overlay = _overlays[transactionId];
+                                _events.AddRange(overlay);
+                                _overlays.Remove(transactionId);
+                            });
+                            return new List<EventDataRow>();
+                        });
+                    }
+
+                    return null;
+                }
+            }
 
             public void ReplaceEvent(int index, EventDataRow row)
             {
-                _events[index] = row;
+                if(index < _events.Count)
+                {
+                    _events[index] = row;
+                } else
+                {
+                    TransactionalOverlay![index - _events.Count] = row;
+                }
             }
 
             public void AddRange(IEnumerable<EventDataRow> rows)
             {
-                _events.AddRange(rows);
+                TransactionalOverlay!.AddRange(rows);
             }
 
             public void DeleteAggregate(Guid aggregateId)

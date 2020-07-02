@@ -1,23 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Transactions;
 using Composable.Persistence.EventStore;
-using Composable.System;
-using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
-using Composable.SystemExtensions.TransactionsCE;
 
 namespace Composable.Persistence.InMemory.EventStore
 {
-    class InMemoryEventStorePersistenceLayer : IEventStorePersistenceLayer
+    partial class InMemoryEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
         readonly OptimizedThreadShared<State> _state = new OptimizedThreadShared<State>(new State());
-        readonly AggregateTransactionLockManager _aggregateTransactionLockManager = new AggregateTransactionLockManager();
+        readonly TransactionLockManager _transactionLockManager = new TransactionLockManager();
 
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events) =>
-            _aggregateTransactionLockManager.WithExclusiveAccess(
+            _transactionLockManager.WithExclusiveAccess(
                 events.First().AggregateId,
                 () => _state.WithExclusiveAccess(state =>
                 {
@@ -26,11 +22,11 @@ namespace Composable.Persistence.InMemory.EventStore
                         var insertionOrder = state.Events.Count + index + 1;
                         @event.RefactoringInformation.EffectiveOrder ??= insertionOrder;
                     });
-                    state.Events.AddRange(events);
+                    state.AddRange(events);
                 }));
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
-            => _aggregateTransactionLockManager.WithExclusiveAccess(
+            => _transactionLockManager.WithExclusiveAccess(
                 aggregateId,
                 takeWriteLock,
                 () => _state.WithExclusiveAccess(
@@ -43,7 +39,7 @@ namespace Composable.Persistence.InMemory.EventStore
                             .ToArray()));
 
         public void UpdateEffectiveVersions(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
-            => _aggregateTransactionLockManager.WithExclusiveAccess(
+            => _transactionLockManager.WithExclusiveAccess(
                 _state.WithExclusiveAccess(state => state.Events.Single(@event => @event.EventId == versions.First().EventId)).AggregateId,
                 () => _state.WithExclusiveAccess(
                     state =>
@@ -54,7 +50,7 @@ namespace Composable.Persistence.InMemory.EventStore
                                                        .Select((eventRow, innerIndex) => (eventRow, innerIndex))
                                                        .Single(@this => @this.eventRow.EventId == specification.EventId);
 
-                            state.Events[index] = new EventDataRow(@event.EventType,
+                            state.ReplaceEvent(index, new EventDataRow(@event.EventType,
                                                                    @event.EventJson,
                                                                    @event.EventId,
                                                                    specification.EffectiveVersion,
@@ -68,13 +64,13 @@ namespace Composable.Persistence.InMemory.EventStore
                                                                        Replaces = @event.RefactoringInformation.Replaces,
                                                                        InsertBefore = @event.RefactoringInformation.InsertBefore,
                                                                        InsertAfter = @event.RefactoringInformation.InsertAfter
-                                                                   });
+                                                                   }));
                         }
                     }
                 ));
 
         public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId)
-            => _aggregateTransactionLockManager.WithExclusiveAccess(
+            => _transactionLockManager.WithExclusiveAccess(
                 _state.WithExclusiveAccess(state => state.Events.Single(@event => @event.EventId == eventId)).AggregateId,
                 () => _state.WithExclusiveAccess(state =>
                 {
@@ -123,9 +119,9 @@ namespace Composable.Persistence.InMemory.EventStore
             });
 
         public void DeleteAggregate(Guid aggregateId)
-            => _aggregateTransactionLockManager.WithExclusiveAccess(
+            => _transactionLockManager.WithExclusiveAccess(
                 aggregateId,
-                () => _state.WithExclusiveAccess(state => state.Events = state.Events.Where(row => row.AggregateId != aggregateId).ToList()));
+                () => _state.WithExclusiveAccess(state => state.DeleteAggregate(aggregateId)));
 
         public void SetupSchemaIfDatabaseUnInitialized()
         { /*Nothing to do for an in-memory storage*/
@@ -133,59 +129,22 @@ namespace Composable.Persistence.InMemory.EventStore
 
         class State
         {
-            public List<EventDataRow> Events = new List<EventDataRow>();
-        }
+            List<EventDataRow> _events = new List<EventDataRow>();
+            public IReadOnlyList<EventDataRow> Events => _events;
 
-        class AggregateTransactionLockManager
-        {
-            readonly Dictionary<Guid, TransactionWideLock> _aggregateGuards = new Dictionary<Guid, TransactionWideLock>();
-
-            public TResult WithExclusiveAccess<TResult>(Guid aggregateId, Func<TResult> func) => WithExclusiveAccess(aggregateId, true, func);
-            public TResult WithExclusiveAccess<TResult>(Guid aggregateId, bool takeWriteLock, Func<TResult> func)
+            public void ReplaceEvent(int index, EventDataRow row)
             {
-                if(Transaction.Current != null)
-                {
-                    var @lock = _aggregateGuards.GetOrAdd(aggregateId, () => new TransactionWideLock());
-                    @lock.AwaitAccess(takeWriteLock);
-                }
-
-                return func();
+                _events[index] = row;
             }
 
-            public void WithExclusiveAccess(Guid aggregateId, Action action) => WithExclusiveAccess(aggregateId, true, () =>
+            public void AddRange(IEnumerable<EventDataRow> rows)
             {
-                action();
-                return 1;
-            });
+                _events.AddRange(rows);
+            }
 
-            class TransactionWideLock
+            public void DeleteAggregate(Guid aggregateId)
             {
-                public TransactionWideLock() => Guard = ResourceGuard.WithTimeout(1.Minutes());
-
-                public void AwaitAccess(bool takeWriteLock)
-                {
-                    if(OwningTransactionLocalId == string.Empty && !takeWriteLock)
-                    {
-                        return;
-                    }
-
-                    var currentTransactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
-                    if(currentTransactionId != OwningTransactionLocalId)
-                    {
-                        var @lock = Guard.AwaitUpdateLock();
-                        Transaction.Current.OnCompleted(() =>
-                        {
-                            HasWriteLock = false;
-                            OwningTransactionLocalId = string.Empty;
-                            @lock.Dispose();
-                        });
-                        OwningTransactionLocalId = currentTransactionId;
-                    }
-                }
-
-                bool HasWriteLock { get; set; }
-                string OwningTransactionLocalId { get; set; } = string.Empty;
-                IResourceGuard Guard { get; }
+                _events = _events.Where(row => row.AggregateId != aggregateId).ToList();
             }
         }
     }

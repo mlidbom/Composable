@@ -125,6 +125,7 @@ namespace Composable.Persistence.EventStore
         internal AggregateEventRefactoringInformation RefactoringInformation { get; private set; }
     }
 
+    //Urgent: Refactor into enum Replace,InsertBefore,InsertAfter + RefactoredEventId + make all properties non-nullable instead make the whole instance on the event nullable + move data that is on all events elsewhere + split that elsewhere between read and write so that effective order is not nullable when reading and not present when writing. 
     class AggregateEventRefactoringInformation
     {
         internal SqlDecimal? EffectiveOrder { get; set; }

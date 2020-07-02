@@ -60,8 +60,6 @@ namespace Composable.Persistence.InMemory.EventStore
                                                                    InsertBefore = @event.RefactoringInformation.InsertBefore,
                                                                    InsertAfter =  @event.RefactoringInformation.InsertAfter
                                                                });
-                        @event.RefactoringInformation.EffectiveVersion = specification.EffectiveVersion;
-                        @event.AggregateVersion = specification.EffectiveVersion;
                     }
                 }
             );

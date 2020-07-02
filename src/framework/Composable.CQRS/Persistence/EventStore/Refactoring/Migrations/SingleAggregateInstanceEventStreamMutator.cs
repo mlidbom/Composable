@@ -100,6 +100,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 .ToArray();
 
             AssertMigrationsAreIdempotent(eventMigrations, result);
+            AggregateHistoryValidator.ValidateHistory(result.First().AggregateId, result);
 
             return result;
         }

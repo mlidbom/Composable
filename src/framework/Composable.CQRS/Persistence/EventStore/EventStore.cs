@@ -83,6 +83,7 @@ namespace Composable.Persistence.EventStore
             }
 
             var maxSeenInsertedVersion =  newHistoryFromPersistenceLayer.Max(@event => @event.RefactoringInformation.InsertedVersion);
+            AggregateHistoryValidator.ValidateHistory(aggregateId, newAggregateHistory);
             _cache.Store(aggregateId, new EventCache.Entry(events: newAggregateHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
 
             return newAggregateHistory;
@@ -154,6 +155,7 @@ namespace Composable.Persistence.EventStore
                                           .Cast<AggregateEvent>()
                                           .ToArray();
             SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);
+            AggregateHistoryValidator.ValidateHistory(aggregateId, completeAggregateHistory);
 
             _cache.Store(aggregateId, new EventCache.Entry(completeAggregateHistory,
                                                            maxSeenInsertedVersion: specifications.Max(specification => specification.InsertedVersion)));
@@ -203,7 +205,7 @@ namespace Composable.Persistence.EventStore
 
                             var refactoringEvents = new List<List<EventDataRow>>();
 
-                            var newHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
+                            var inMemoryMigratedHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
                                 _migrationFactories,
                                 original.Select(@this => @this.Event).ToArray(),
                                 newEvents =>
@@ -225,13 +227,20 @@ namespace Composable.Persistence.EventStore
                                     newEventCount += newEvents.Count;
                                 });
 
-                            refactoringEvents.ForEach(InsertSingleAggregateRefactoringEvents);
+                            if(refactoringEvents.Count > 0)
+                            {
+                                refactoringEvents.ForEach(InsertSingleAggregateRefactoringEvents);
 
-                            FixManualVersions(original, newHistory, refactoringEvents);
+                                FixManualVersions(original, inMemoryMigratedHistory, refactoringEvents);
+
+                                _cache.Remove(original.First().Event.AggregateId);
+                                var loadedAggregateHistory = GetAggregateHistory(aggregateId);
+                                AggregateHistoryValidator.ValidateHistory(aggregateId, loadedAggregateHistory);
+                                AssertHistoriesAreIdentical(inMemoryMigratedHistory, loadedAggregateHistory);
+                            }
 
                             migratedAggregates++;
                             succeeded = true;
-                            _cache.Remove(original.First().Event.AggregateId);
                             transaction.Complete();
                         }
                         catch(Exception e) when(IsRecoverableSqlException(e) && ++retries <= recoverableErrorRetriesToMake)
@@ -258,6 +267,22 @@ namespace Composable.Persistence.EventStore
             Log.Warning("Done persisting migrations.");
             Log.Info($"Inspected: {migratedAggregates} , Updated: {updatedAggregates}, New Events: {newEventCount}");
 
+        }
+
+        void AssertHistoriesAreIdentical(AggregateEvent[] inMemoryMigratedHistory, IReadOnlyList<IAggregateEvent> loadedAggregateHistory)
+        {
+            Assert.Result.Assert(inMemoryMigratedHistory.Length == loadedAggregateHistory.Count);
+            for(int index = 0; index < inMemoryMigratedHistory.Length; ++index)
+            {
+                var inMemory = inMemoryMigratedHistory[index];
+                var loaded = loadedAggregateHistory[index];
+                Assert.Result.Assert(inMemory.AggregateId == loaded.AggregateId);
+                Assert.Result.Assert(inMemory.EventId == loaded.EventId);
+                Assert.Result.Assert(inMemory.AggregateVersion == loaded.AggregateVersion);
+                Assert.Result.Assert(inMemory.UtcTimeStamp == loaded.UtcTimeStamp);
+                Assert.Result.Assert(inMemory.GetType() == loaded.GetType());
+                Assert.Result.Assert(_serializer.Serialize(inMemory) == _serializer.Serialize((AggregateEvent)loaded));
+            }
         }
 
         void FixManualVersions(AggregateEventWithRefactoringInformation[] originalHistory, AggregateEvent[] newHistory, List<List<EventDataRow>> refactoringEvents)

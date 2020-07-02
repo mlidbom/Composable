@@ -19,7 +19,7 @@ namespace Composable.Persistence.InMemory.EventStore
             {
                 events.ForEach((@event, index) =>
                 {
-                    var insertionOrder = state.Events.Count + index;
+                    var insertionOrder = state.Events.Count + index + 1;
                     @event.RefactoringInformation.EffectiveOrder ??= insertionOrder;
                     state.InsertionOrders.Add(@event.EventId, insertionOrder);
                 });
@@ -67,22 +67,24 @@ namespace Composable.Persistence.InMemory.EventStore
         public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId)
             => _state.WithExclusiveAccess(state =>
             {
-                var found = state.Events.Select((@event, index) => (index, @event)).Single(@this => @this.@event.EventId == eventId);
+                var found = state.Events.Single(@this => @this.EventId == eventId);
 
-                var insertionOrder = found.index -1;
-                var effectiveOrder = found.@event.RefactoringInformation.EffectiveOrder!.Value;
-                var previousEventReadOrder = state.Events[found.index -1].RefactoringInformation.EffectiveOrder!.Value;
+                var effectiveOrder = found.RefactoringInformation.EffectiveOrder!.Value;
+                var previousEventReadOrder = state.Events
+                                                  .Where(@this => (@this.RefactoringInformation.EffectiveOrder!.Value < effectiveOrder).Value)
+                                                  .OrderByDescending(@this => @this.RefactoringInformation.EffectiveOrder)
+                                                  .First()
+                                                  .RefactoringInformation.EffectiveOrder!.Value;
 
+                var nextEvent = state.Events
+                                          .Where(@this => (@this.RefactoringInformation.EffectiveOrder!.Value > effectiveOrder).Value)
+                                          .OrderBy(@this => @this.RefactoringInformation.EffectiveOrder)
+                                          .FirstOrDefault();
+                var nextEventReadOrder = nextEvent?.RefactoringInformation.EffectiveVersion ?? effectiveOrder + 1;
 
-                var nextEventReadOrder = found.index < state.Events.Count -1
-                                             ? state.Events[found.index + 1].RefactoringInformation.EffectiveOrder!.Value
-                                             : found.index + 1;
-
-                return new IEventStorePersistenceLayer.EventNeighborhood(
-                    insertionOrder: insertionOrder,
-                    effectiveReadOrder: effectiveOrder,
-                    previousEventReadOrder: previousEventReadOrder,
-                    nextEventReadOrder: nextEventReadOrder);
+                return new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: effectiveOrder,
+                                                                         previousEventReadOrder: previousEventReadOrder,
+                                                                         nextEventReadOrder: nextEventReadOrder);
             });
 
 

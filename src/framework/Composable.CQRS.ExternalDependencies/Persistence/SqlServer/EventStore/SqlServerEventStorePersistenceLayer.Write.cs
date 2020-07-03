@@ -90,9 +90,12 @@ where {Col.EventId} = @{Col.EventId}";
                     using var reader = command.ExecuteReader();
                     reader.Read();
 
-                    neighborhood = new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: reader.GetSqlDecimal(0),
-                                                                                     previousEventReadOrder: reader.GetSqlDecimal(1),
-                                                                                     nextEventReadOrder: reader.GetSqlDecimal(2));
+                    var effectiveReadOrder = reader.GetSqlDecimal(0);
+                    var previousEventReadOrder = reader.GetSqlDecimal(1);
+                    var nextEventReadOrder = reader.GetSqlDecimal(2);
+                    neighborhood = new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: ReadOrder.FromSqlDecimal(effectiveReadOrder),
+                                                                                     previousEventReadOrder: previousEventReadOrder.IsNull ? null : new ReadOrder?(ReadOrder.FromSqlDecimal(previousEventReadOrder)),
+                                                                                     nextEventReadOrder: nextEventReadOrder.IsNull ? null : new ReadOrder?(ReadOrder.FromSqlDecimal(nextEventReadOrder)));
                 });
 
             return Assert.Result.NotNull(neighborhood);

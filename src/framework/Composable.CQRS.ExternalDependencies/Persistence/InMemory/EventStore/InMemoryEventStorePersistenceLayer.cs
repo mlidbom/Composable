@@ -99,9 +99,9 @@ namespace Composable.Persistence.InMemory.EventStore
 
                     var nextEventReadOrder = nextEvent?.RefactoringInformation.EffectiveOrder ?? effectiveOrder + 1;
 
-                    return new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: effectiveOrder,
-                                                                             previousEventReadOrder: previousEventReadOrder,
-                                                                             nextEventReadOrder: nextEventReadOrder);
+                    return new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: ReadOrder.FromSqlDecimal(effectiveOrder),
+                                                                             previousEventReadOrder: previousEventReadOrder.IsNull ? null : new ReadOrder?(ReadOrder.FromSqlDecimal(previousEventReadOrder)),
+                                                                             nextEventReadOrder: nextEventReadOrder.IsNull ? null : new ReadOrder?(ReadOrder.FromSqlDecimal(nextEventReadOrder)));
                 }));
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)

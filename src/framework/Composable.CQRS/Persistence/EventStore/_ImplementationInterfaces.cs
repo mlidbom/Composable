@@ -29,6 +29,7 @@ namespace Composable.Persistence.EventStore
 
             public static readonly ReadOrder Zero = new ReadOrder(0, 0);
 
+
             public ReadOrder(long order, long offSet)
             {
                 Order = order;
@@ -68,6 +69,15 @@ namespace Composable.Persistence.EventStore
             public SqlDecimal PreviousEventReadOrderOld => PreviousEventReadOrder.ToSqlDecimal();
             public SqlDecimal NextEventReadOrderOld => NextEventReadOrder.ToSqlDecimal();
 
+
+            public EventNeighborhood(ReadOrder effectiveReadOrder, ReadOrder? previousEventReadOrder, ReadOrder? nextEventReadOrder)
+            {
+                EffectiveReadOrder = effectiveReadOrder;
+                NextEventReadOrder = nextEventReadOrder ?? new ReadOrder(EffectiveReadOrder.Order + 1, 0);
+                PreviousEventReadOrder = previousEventReadOrder ?? ReadOrder.Zero;
+            }
+
+            [Obsolete]
             public EventNeighborhood(SqlDecimal effectiveReadOrder, SqlDecimal previousEventReadOrder, SqlDecimal nextEventReadOrder)
             {
                 EffectiveReadOrder = ReadOrder.FromSqlDecimal(effectiveReadOrder);

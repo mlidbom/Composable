@@ -4,6 +4,7 @@ namespace Composable.Persistence.SqlServer.EventStore
     {
         internal override string Name { get; } = SqlServerEventTable.Name;
         //Urgent: Consider changing the event ordering scheme. SqlDecimal is not portable and quite quirky to use. https://github.com/mlidbom/Composable/issues/46
+        //Urgent: Review indexes. Quite a few are likely leftovers from when much more logic was in the SQL code.
         internal override string CreateTableSql => $@"
 CREATE TABLE dbo.{Name}(
     {SqlServerEventTable.Columns.InsertionOrder} bigint IDENTITY(1,1) NOT NULL,

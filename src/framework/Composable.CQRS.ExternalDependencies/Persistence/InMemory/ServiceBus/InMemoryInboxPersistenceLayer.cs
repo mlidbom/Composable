@@ -2,32 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using Composable.Messaging.Buses.Implementation;
 using Composable.System.Threading.ResourceAccess;
+using Composable.System.Transactions;
 
 namespace Composable.Persistence.InMemory.ServiceBus
 {
-    //urgent: Handle transactions correctly
     class InMemoryInboxPersistenceLayer : IServiceBusPersistenceLayer.IInboxPersistenceLayer
     {
         readonly OptimizedThreadShared<Implementation> _implementation = new OptimizedThreadShared<Implementation>(new Implementation());
 
         public void SaveMessage(Guid messageId, Guid typeId, string serializedMessage) => _implementation.WithExclusiveAccess(@this => @this.SaveMessage(messageId, typeId, serializedMessage));
 
-        public void MarkAsSucceeded(Guid messageId) => _implementation.WithExclusiveAccess(@this => @this.MarkAsSucceeded(messageId));
+        public void MarkAsSucceeded(Guid messageId)
+            => Transaction.Current.AddCommitTasks(() => _implementation.WithExclusiveAccess(@this => @this.MarkAsSucceeded(messageId)));
 
         public int RecordException(Guid messageId, string exceptionStackTrace, string exceptionMessage, string exceptionType) 
             => _implementation.WithExclusiveAccess(@this => @this.RecordException(messageId, exceptionStackTrace, exceptionMessage, exceptionType));
 
         public int MarkAsFailed(Guid messageId) => _implementation.WithExclusiveAccess(@this => @this.MarkAsFailed(messageId));
+
         public Task InitAsync() => _implementation.WithExclusiveAccess(@this => @this.InitAsync());
 
         class Implementation : IServiceBusPersistenceLayer.IInboxPersistenceLayer
         {
-            List<Row> _rows = new List<Row>();
+            readonly List<Row> _rows = new List<Row>();
 
             public void SaveMessage(Guid messageId, Guid typeId, string serializedMessage) => _rows.Add(new Row(messageId, typeId, serializedMessage));
+
             public void MarkAsSucceeded(Guid messageId) => _rows.Single(@this => @this.MessageId == messageId).Status = Inbox.MessageStatus.Succeeded;
+
             public int RecordException(Guid messageId, string exceptionStackTrace, string exceptionMessage, string exceptionType)
             {
                 var message = _rows.Single(@this => @this.MessageId == messageId);

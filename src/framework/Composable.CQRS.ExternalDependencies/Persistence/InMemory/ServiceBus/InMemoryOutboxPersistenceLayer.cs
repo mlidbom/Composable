@@ -1,20 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Transactions;
 using Composable.Messaging.Buses.Implementation;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
+using Composable.System.Transactions;
 using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageWithReceivers;
 
 namespace Composable.Persistence.InMemory.ServiceBus
 {
-    //urgent: Handle transactions correctly. Consider using SqlLite in-memory instead: https://www.sqlite.org/inmemorydb.html
+    //Refactor: Consider using SqlLite in-memory instead for our in-memory testing needs: https://www.sqlite.org/inmemorydb.html
     class InMemoryOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
         readonly OptimizedThreadShared<Implementation> _implementation = new OptimizedThreadShared<Implementation>(new Implementation());
 
-        public void SaveMessage(Message messageWithReceivers) => _implementation.WithExclusiveAccess(@this => @this.SaveMessage(messageWithReceivers));
+        public void SaveMessage(Message messageWithReceivers) 
+            => Transaction.Current.AddCommitTasks(() => _implementation.WithExclusiveAccess(@this => @this.SaveMessage(messageWithReceivers)));
         public int MarkAsReceived(Guid messageId, Guid endpointId) => _implementation.WithExclusiveAccess(@this => @this.MarkAsReceived(messageId, endpointId));
         public Task InitAsync() => _implementation.WithExclusiveAccess(@this => @this.InitAsync());
 

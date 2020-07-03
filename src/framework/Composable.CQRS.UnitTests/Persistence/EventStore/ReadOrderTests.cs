@@ -15,12 +15,12 @@ namespace Composable.Tests.Persistence.EventStore
             var maxValue = $"{long.MaxValue}.{long.MaxValue}";
 
             ReadOrder.Parse(maxValue).ToString().Should().Be(maxValue);
-            ReadOrder.Parse(Create(1, 1)).ToString().Should().Be(Create(1, 1));
+            ReadOrder.Parse(CreateString(1, 1)).ToString().Should().Be(CreateString(1, 1));
         }
 
         [Test] public void Parse_throws_on_negative_numbers()
         {
-            Assert.Throws<ArgumentException>(() => ReadOrder.Parse(Create(0, -1)))
+            Assert.Throws<ArgumentException>(() => ReadOrder.Parse(CreateString(0, -1)))
                   .Message.Should().Contain("negative");
         }
 
@@ -62,10 +62,21 @@ namespace Composable.Tests.Persistence.EventStore
                 ReadOrder.FromSqlDecimal(sql).ToString().Should().Be(value);
             }
 
-            TestValue(Create(1, 2));
+            TestValue(CreateString(1, 2));
         }
 
-        static string Create(int order, int value) => $"{order}.{DecimalPlaces(value)}";
+        [Test] public void InsertionIntervals()
+        {
+            ReadOrder.CreateOrdersForEventsBetween(2, Create(1, 0), Create(2, 0))
+                                     .ForEach(@this => Console.WriteLine(@this));
+
+
+             ReadOrder.CreateOrdersForEventsBetween(2, Create(1, 10), Create(1, 3000))
+                .ForEach(@this => Console.WriteLine(@this));
+        }
+
+        static ReadOrder Create(long order, long offset) => new ReadOrder(order, offset);
+        static string CreateString(int order, int value) => $"{order}.{DecimalPlaces(value)}";
         static string DecimalPlaces(int number) => new string(number.ToString()[0], 19);
     }
 }

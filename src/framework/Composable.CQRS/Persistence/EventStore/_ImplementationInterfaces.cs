@@ -4,6 +4,7 @@ using System.Data.SqlTypes;
 using System.Globalization;
 using System.Linq;
 using Composable.Contracts;
+using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore
 {
@@ -23,7 +24,7 @@ namespace Composable.Persistence.EventStore
         void DeleteAggregate(Guid aggregateId);
         void UpdateEffectiveVersions(IReadOnlyList<ManualVersionSpecification> versions);
 
-        struct ReadOrder
+        struct ReadOrder : IComparable<ReadOrder>, IEquatable<ReadOrder>
         {
             public override string ToString() => $"{Order}.{OffSet}";
 
@@ -32,6 +33,8 @@ namespace Composable.Persistence.EventStore
 
             public ReadOrder(long order, long offSet)
             {
+                if(order < 0) throw new ArgumentException("Must be >= 0");
+                if(offSet < 0) throw new ArgumentException("Must be >= 0");
                 Order = order;
                 OffSet = offSet;
             }
@@ -57,6 +60,44 @@ namespace Composable.Persistence.EventStore
             }
 
             public static ReadOrder FromSqlDecimal(SqlDecimal value) => Parse(value.ToString());
+
+            public static ReadOrder[] CreateOrdersForEventsBetween(int numberOfEvents, ReadOrder rangeStart, ReadOrder rangeEnd)
+            {
+                if(rangeEnd.Order - rangeStart.Order > 1)  throw new ArgumentException("We should only ever insert between two adjacent events.");
+
+                long rangeSize;
+                if(rangeEnd.Order > rangeStart.Order)
+                {
+                    rangeSize = long.MaxValue - rangeStart.OffSet;
+                } else
+                {
+                    rangeSize = rangeEnd.OffSet - rangeStart.OffSet;
+                }
+
+                var increment = rangeSize / (numberOfEvents + 10);
+                if(increment < 1)
+                    throw new InvalidOperationException("Unable to fit events");
+
+                var result = 1.Through(numberOfEvents).Select(index => new ReadOrder(rangeStart.Order, rangeStart.OffSet + index * increment)).ToArray();
+
+                Assert.Result.Assert(result[0] > rangeStart);
+                Assert.Result.Assert(result[^1] < rangeEnd);
+                return result;
+            }
+
+            public int CompareTo(ReadOrder other)
+            {
+                var orderComparison = Order.CompareTo(other.Order);
+                if(orderComparison != 0) return orderComparison;
+                return OffSet.CompareTo(other.OffSet);
+            }
+
+            public bool Equals(ReadOrder other) => Order == other.Order && OffSet == other.OffSet;
+            public override bool Equals(object? obj) => obj is ReadOrder other && Equals(other);
+            public override int GetHashCode() => HashCode.Combine(Order, OffSet);
+
+            public static bool operator <(ReadOrder left, ReadOrder right) => left.CompareTo(right) < 0;
+            public static bool operator >(ReadOrder left, ReadOrder right) => left.CompareTo(right) > 0;
         }
 
         class EventNeighborhood

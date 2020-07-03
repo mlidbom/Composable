@@ -11,6 +11,7 @@ using Composable.Serialization;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
+using ReadOrder = Composable.Persistence.EventStore.IEventStorePersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.EventStore
 {
@@ -385,6 +386,15 @@ AggregateIds:
 
         static void SetManualReadOrders(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
         {
+            //var readOrders = ReadOrder.CreateOrdersForEventsBetween(newEvents.Length, ReadOrder.FromSqlDecimal(rangeStart), ReadOrder.FromSqlDecimal(rangeEnd));
+            //Console.WriteLine($"###################!!!!!!!!!!!!!!!!!!!!!!!!!!!!####################{rangeStart}");
+            //Console.WriteLine($"###################!!!!!!!!!!!!!!!!!!!!!!!!!!!!####################{rangeEnd}");
+            //for (int index = 0; index < newEvents.Length; index++)
+            //{
+            //    Console.WriteLine($"###################!!!!!!!!!!!!!!!!!!!!!!!!!!!!####################{readOrders[index]}");
+            //    newEvents[index].RefactoringInformation.EffectiveOrder = readOrders[index].ToSqlDecimal();
+            //    Console.WriteLine($"###################!!!!!!!!!!!!!!!!!!!!!!!!!!!!####################{newEvents[index].RefactoringInformation.EffectiveOrder}");
+            //}
             var readOrderIncrement = (rangeEnd - rangeStart) / (newEvents.Length + 1);
             for (var index = 0; index < newEvents.Length; ++index)
             {

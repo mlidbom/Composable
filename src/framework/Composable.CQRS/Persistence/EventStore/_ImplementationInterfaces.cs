@@ -74,7 +74,7 @@ namespace Composable.Persistence.EventStore
                     rangeSize = rangeEnd.OffSet - rangeStart.OffSet;
                 }
 
-                var increment = rangeSize / (numberOfEvents + 10);
+                var increment = rangeSize / (numberOfEvents + 1);
                 if(increment < 1)
                     throw new InvalidOperationException("Unable to fit events");
 

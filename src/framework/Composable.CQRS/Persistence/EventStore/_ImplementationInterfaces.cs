@@ -48,7 +48,9 @@ namespace Composable.Persistence.EventStore
                 var offset = parts[1];
                 if(order[0] == '-') throw new ArgumentException("We do not use negative numbers");
                 if(offset[0] == '-') throw new ArgumentException("We do not use negative numbers");
-                if(offset.Length != 19) throw new ArgumentException($"Got number with {offset.Length} decimal numbers. It must be exactly 19", nameof(value));
+
+                //Urgent: Restore assert
+                //if(offset.Length != 19) throw new ArgumentException($"Got number with {offset.Length} decimal numbers. It must be exactly 19", nameof(value));
 
                 return new ReadOrder(long.Parse(order, CultureInfo.InvariantCulture), long.Parse(offset, CultureInfo.InvariantCulture));
             }

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using Composable.Contracts;
 using Composable.System.Linq;
+using Microsoft.Extensions.Options;
 
 namespace Composable.Persistence.EventStore
 {
@@ -206,6 +207,8 @@ namespace Composable.Persistence.EventStore
         public DateTime UtcTimeStamp { get; private set; }
 
         internal AggregateEventRefactoringInformation RefactoringInformation { get; private set; }
+
+        public override string ToString() => $"{nameof(RefactoringInformation.InsertedVersion)}{RefactoringInformation.InsertedVersion},{nameof(RefactoringInformation.EffectiveVersion)}{RefactoringInformation.EffectiveVersion}, {nameof(RefactoringInformation.EffectiveOrder)}{RefactoringInformation.EffectiveOrder}";
     }
 
     //Urgent: Refactor into enum Replace,InsertBefore,InsertAfter + RefactoredEventId + make all properties non-nullable instead make the whole instance on the event nullable + move data that is on all events elsewhere + split that elsewhere between read and write so that effective order is not nullable when reading and not present when writing. 

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using Composable.DependencyInjection;
 using NUnit.Framework;
 
 // General Information about an assembly is controlled through the following
@@ -37,10 +38,5 @@ using NUnit.Framework;
 
 [assembly: AssemblyVersion("1.0.0.0")]
 
-[assembly: Parallelizable(ParallelScope.Fixtures)]
-
-
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly1)]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly2)]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly3)]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.InternalsRequiredToBeVisibleTo.Assembly4)]
+//urgent: include at least MySql as testing PersistenceLayerProvider [assembly:NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.InMemory))]
+[assembly:NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]

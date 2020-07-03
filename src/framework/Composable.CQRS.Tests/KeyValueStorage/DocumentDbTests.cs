@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Composable.DDD;
 using Composable.DependencyInjection;
+using Composable.DependencyInjection.Testing;
 using Composable.Persistence.DocumentDb;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
@@ -16,14 +17,23 @@ using Composable.System;
 
 namespace Composable.Tests.KeyValueStorage
 {
+    //urgent: Remove this attribute once whole assembly runs all persistence layers.
+    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
     [TestFixture]
-    public abstract class DocumentDbTests
+    public class DocumentDbTests
     {
         IDocumentDb CreateStore() => ServiceLocator.DocumentDb();
 
         protected IServiceLocator ServiceLocator { get; private set; }
 
-        protected abstract IServiceLocator CreateServiceLocator();
+        protected IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(
+            builder
+                => builder.TypeMapper
+                          .Map<Composable.Tests.KeyValueStorage.User>("96f37428-04ca-4f60-858a-785d26ee7576")
+                          .Map<Composable.Tests.KeyValueStorage.Email>("648191d9-bfae-45c0-b824-d322d01fa64c")
+                          .Map<Composable.Tests.KeyValueStorage.Dog>("ca527ca3-d352-4674-9133-2747756f45b3")
+                          .Map<Composable.Tests.KeyValueStorage.Person>("64133a9b-1279-4029-9469-2d63d4f9ceaa")
+                          .Map<global::System.Collections.Generic.HashSet<Composable.Tests.KeyValueStorage.User>>("df57e323-d4b0-44c1-a69c-5ea100af9ebf"));
 
         [SetUp]
         public void Setup()
@@ -37,12 +47,12 @@ namespace Composable.Tests.KeyValueStorage
             ServiceLocator.Dispose();
         }
 
-        void UseInTransactionalScope([InstantHandle] Action<ITestingDocumentDbReader, ITestingDocumentDbUpdater> useSession)
+        void UseInTransactionalScope([InstantHandle] Action<IDocumentDbReader, IDocumentDbUpdater> useSession)
         {
             ServiceLocator.ExecuteTransactionInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader(), ServiceLocator.DocumentDbUpdater()));
         }
 
-        internal void UseInScope([InstantHandle]Action<ITestingDocumentDbReader> useSession)
+        internal void UseInScope([InstantHandle]Action<IDocumentDbReader> useSession)
         {
             ServiceLocator.ExecuteInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader()));
         }
@@ -110,7 +120,7 @@ namespace Composable.Tests.KeyValueStorage
 
             UseInTransactionalScope((reader, updater) => users.ForEach(user => updater.Save(user)));
 
-            UseInScope(reader => reader.Get<User>(ids.Take(5))
+            UseInScope(reader => reader.GetAll<User>(ids.Take(5))
                                        .Select(fetched => fetched.Id)
                                        .Should()
                                        .Equal(ids.Take(5)));
@@ -128,7 +138,7 @@ namespace Composable.Tests.KeyValueStorage
             UseInTransactionalScope((reader,updater) => users.ForEach(user => updater.Save(user)));
 
             UseInScope(reader => Assert.Throws<NoSuchDocumentException>(
-                           () => reader.Get<User>(ids.Take(5)
+                           () => reader.GetAll<User>(ids.Take(5)
                                                      .Append(Guid.Parse("00000000-0000-0000-0000-000000000099"))
                                                      .ToArray())
                                        // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
@@ -149,7 +159,7 @@ namespace Composable.Tests.KeyValueStorage
                              {
                                  var fetchedIndividually = ids.Select(id => reader.Get<User>(id))
                                                               .ToArray();
-                                 var fetchedWithGetAll = reader.Get<User>(ids)
+                                 var fetchedWithGetAll = reader.GetAll<User>(ids)
                                                                .ToArray();
 
                                  fetchedIndividually.ForEach((user, index) => Assert.That(user, Is.SameAs(fetchedWithGetAll[index])));
@@ -680,7 +690,7 @@ namespace Composable.Tests.KeyValueStorage
                                         updater.Save(user1);
                                         updater.Save(user2);
 
-                                        var people = reader.Get<User>(new[] {user1.Id});
+                                        var people = reader.GetAll<User>(new[] {user1.Id});
 
                                         Assert.That(people.ToList(), Has.Count.EqualTo(1));
                                         Assert.That(people, Contains.Item(user1));
@@ -772,7 +782,7 @@ namespace Composable.Tests.KeyValueStorage
             store.GetAll<User>().Should().HaveCount(4);
             store.GetAll<Person>().Should().HaveCount(8); //User inherits person
 
-            store.RemoveAll<User>().Should().Be(4);
+            store.GetAllIds<User>().ForEach(userId => store.Remove(userId, typeof(User)));
 
             store.GetAll<User>().Should().HaveCount(0);
 
@@ -780,34 +790,50 @@ namespace Composable.Tests.KeyValueStorage
 
         }
 
-        [Test]
-        public void DeletingAllObjectsOfATypeLeavesObjectOfInheritingTypes()
+        void InsertUsersInOtherDocumentDb(Guid userId)
         {
-            var store = CreateStore();
+            using var cloneServiceLocator = ServiceLocator.Clone();
+            cloneServiceLocator.ExecuteTransactionInIsolatedScope(() => cloneServiceLocator.DocumentDbUpdater()
+                                                                                           .Save(new User {Id = userId}));
+        }
 
-            var dictionary = new Dictionary<Type, Dictionary<string, string>>();
+        [Test]
+        public void Can_get_document_of_previously_unknown_class_added_by_onother_documentDb_instance()
+        {
+            var userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-            1.Through(4).ForEach(num =>
+            InsertUsersInOtherDocumentDb(userId);
+
+            using(ServiceLocator.BeginScope())
             {
-                var user = new User { Id = Guid.NewGuid() };
-                store.Add(user.Id, user, dictionary);
-            });
+                ServiceLocator.DocumentDbSession().Get<User>(userId);
+            }
+        }
 
-            1.Through(4).ForEach(num =>
+        [Test]
+        public void Can_get_all_documents_of_previously_unknown_class_added_by_onother_documentDb_instance()
+        {
+            var userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+            InsertUsersInOtherDocumentDb(userId);
+
+            using (ServiceLocator.BeginScope())
             {
-                var person = new Person { Id = Guid.NewGuid() };
-                store.Add(person.Id, person, dictionary);
-            });
+                ServiceLocator.DocumentDbSession().GetAll<User>().Count().Should().Be(1);
+            }
+        }
 
-            store.GetAll<User>().Should().HaveCount(4);
-            store.GetAll<Person>().Should().HaveCount(8); //User inherits person
+        [Test]
+        public void Can_get_all_documents_of_previously_unknown_class_added_by_onother_documentDb_instance_byId()
+        {
+            var userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-            store.RemoveAll<Person>().Should().Be(4);
+            InsertUsersInOtherDocumentDb(userId);
 
-            store.GetAll<User>().Should().HaveCount(4);
-
-            store.GetAll<Person>().Should().HaveCount(4);
-
+            UseInScope(reader => reader.GetAll<User>(Seq.Create(userId))
+                                       .Count()
+                                       .Should()
+                                       .Be(1));
         }
     }
 }

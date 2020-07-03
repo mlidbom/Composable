@@ -8,6 +8,6 @@ namespace Composable.Persistence.DocumentDb
     {
         TValue Get<TValue>(object key);
         bool TryGet<TValue>(object key, out TValue document);
-        IEnumerable<T> Get<T>(IEnumerable<Guid> ids ) where T : IHasPersistentIdentity<Guid>;
+        IEnumerable<T> GetAll<T>(IEnumerable<Guid> ids ) where T : IHasPersistentIdentity<Guid>;
     }
 }

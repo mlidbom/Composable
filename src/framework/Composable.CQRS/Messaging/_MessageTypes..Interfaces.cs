@@ -46,12 +46,12 @@ namespace Composable.Messaging
 
         public static partial class Remotable
         {
-            ///<summary>A message that is guaranteed not to be delivered more than once. The <see cref="DeduplicationId"/> is used by infrastructure to maintain this guarantee.
-            /// The <see cref="DeduplicationId"/> must be maintained when binding a command to a UI or the guarantee will be lost.</summary>
+            ///<summary>A message that is guaranteed not to be delivered more than once. The <see cref="MessageId"/> is used by infrastructure to maintain this guarantee.
+            /// The <see cref="MessageId"/> must be maintained when binding a command to a UI or the guarantee will be lost.</summary>
             public interface IAtMostOnceMessage
             {
                 ///<summary>Used by the infrastructure to guarantee that the same message is never delivered more than once. Must be generated when the message is created and then NEVER modified. Must be maintained when binding a command in a UI etc.</summary>
-                Guid DeduplicationId { get; }
+                Guid MessageId { get; }
             }
 
             public interface IMessage : MessageTypes.IMessage {}

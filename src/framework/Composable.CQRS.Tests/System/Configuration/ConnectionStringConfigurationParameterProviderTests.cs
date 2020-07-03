@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.Persistence.SqlServer.Configuration;
 using Composable.System.Configuration;
 using FluentAssertions;
 using NUnit.Framework;
@@ -7,8 +8,8 @@ namespace Composable.Tests.System.Configuration
 {
     [TestFixture] public class ConnectionStringConfigurationParameterProviderTests
     {
-        ConfigurationSqlConnectionProviderSource _providerSource;
-        [SetUp] public void SetupTask() { _providerSource = new ConfigurationSqlConnectionProviderSource(new AppSettingsJsonConfigurationParameterProvider()); }
+        ConfigurationSqlServerConnectionProviderSource _providerSource;
+        [SetUp] public void SetupTask() { _providerSource = new ConfigurationSqlServerConnectionProviderSource(new AppSettingsJsonConfigurationParameterProvider()); }
 
         [Test] public void ConnectionStringProvider_should_return_connection_string_specified_in_the_configuration_file() =>
             Assert.AreEqual("CSvalue1",

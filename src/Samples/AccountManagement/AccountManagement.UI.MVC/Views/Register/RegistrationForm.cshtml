@@ -8,7 +8,7 @@
 <form method="post" asp-action="Register">
 
 	@Html.HiddenFor(@this => @this.AccountId)
-	@Html.HiddenFor(@this => @this.DeduplicationId)
+	@Html.HiddenFor(@this => @this.MessageId)
 
 	@Html.LabelFor(@this => @this.Email)
 	@Html.TextBoxFor(@this => @this.Email)

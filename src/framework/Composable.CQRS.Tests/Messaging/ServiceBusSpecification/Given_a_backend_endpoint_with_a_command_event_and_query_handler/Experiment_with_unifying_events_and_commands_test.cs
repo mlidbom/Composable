@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
+using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
+using Composable.Persistence.SqlServer.DependencyInjection;
+using Composable.Persistence.SqlServer.Messaging.Buses;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;
@@ -33,20 +35,20 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [SetUp] public async Task Setup()
         {
-            _host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
+            _host = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
 
             var userManagementDomainEndpoint = _host.RegisterEndpoint(
                 "UserManagement.Domain",
                 new EndpointId(Guid.Parse("A4A2BA96-8D82-47AC-8A1B-38476C7B5D5D")),
                 builder =>
                 {
-                    builder.RegisterSqlServerPersistenceLayer();
-                    builder.Container.RegisterSqlServerEventStore<IUserEventStoreUpdater, IUserEventStoreReader>(builder.Configuration.ConnectionStringName);
+                    builder.RegisterCurrentTestsConfiguredPersistenceLayer();
+                    builder.Container.RegisterEventStore(builder.Configuration.ConnectionStringName);
 
                     builder.RegisterHandlers
                            .ForEvent((UserEvent.Implementation.UserRegisteredEvent myEvent) => {})
-                           .ForQuery((GetUserQuery query, IUserEventStoreReader eventReader) => new UserResource(eventReader.GetHistory(query.UserId)))
-                           .ForCommandWithResult((UserRegistrarCommand.RegisterUserCommand command, IUserEventStoreUpdater store) =>
+                           .ForQuery((GetUserQuery query, IEventStoreReader eventReader) => new UserResource(eventReader.GetHistory(query.UserId)))
+                           .ForCommandWithResult((UserRegistrarCommand.RegisterUserCommand command, IEventStoreUpdater store) =>
                             {
                                 store.Save(UserAggregate.Register(command));
                                 return new RegisterUserResult(command.UserId);
@@ -74,7 +76,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             _userDomainServiceLocator = userManagementDomainEndpoint.ServiceLocator;
 
-            _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() => _userDomainServiceLocator.Resolve<IUserEventStoreUpdater>().Save(UserRegistrarAggregate.Create()));
+            _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() => _userDomainServiceLocator.Resolve<IEventStoreUpdater>().Save(UserRegistrarAggregate.Create()));
         }
 
         [Test] public void Can_register_user_and_fetch_user_resource()
@@ -93,10 +95,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             _taskRunner.Dispose();
             _host.Dispose();
         }
-
-        public interface IUserEventStoreUpdater : IEventStoreUpdater {}
-
-        public interface IUserEventStoreReader : IEventStoreReader {}
 
         public static class UserEvent
         {
@@ -127,7 +125,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
                 RegisterUserCommand() : base(DeduplicationIdHandling.Reuse) {}
 
-                internal static RegisterUserCommand Create() => new RegisterUserCommand { DeduplicationId =  Guid.NewGuid()};
+                internal static RegisterUserCommand Create() => new RegisterUserCommand { MessageId =  Guid.NewGuid()};
             }
         }
 

@@ -23,7 +23,7 @@ namespace AccountManagement.UI.MVC.Views.Login
             }
 
             ModelState.AddModelError("Something", "Login Failed");
-            ModelState.Remove((AccountResource.Command.LogIn model) => model.DeduplicationId);
+            ModelState.Remove((AccountResource.Command.LogIn model) => model.MessageId);
             loginCommand.ReplaceDeduplicationId();
             return View("LoginForm", loginCommand);
         }

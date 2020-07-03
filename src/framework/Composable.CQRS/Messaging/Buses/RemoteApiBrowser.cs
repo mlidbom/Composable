@@ -9,9 +9,9 @@ namespace Composable.Messaging.Buses
     //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
     [UsedImplicitly] class RemoteApiBrowserSession : IRemoteHypermediaNavigator
     {
-        readonly IInterprocessTransport _transport;
+        readonly IOutbox _transport;
 
-        public RemoteApiBrowserSession(IInterprocessTransport transport) => _transport = transport;
+        public RemoteApiBrowserSession(IOutbox transport) => _transport = transport;
 
         void IRemoteHypermediaNavigator.Post(MessageTypes.Remotable.AtMostOnce.ICommand command) => ((IRemoteHypermediaNavigator)this).PostAsync(command).WaitUnwrappingException();
 

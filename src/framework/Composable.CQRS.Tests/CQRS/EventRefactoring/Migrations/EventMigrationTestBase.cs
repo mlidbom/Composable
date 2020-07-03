@@ -2,21 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Persistence;
 using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
-using Composable.Messaging.Buses;
+using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
+using Composable.Persistence.SqlServer.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using ITestingEventStore = Composable.DependencyInjection.Persistence.IEventStore<Composable.Tests.ITestingEventStoreUpdater, Composable.Tests.ITestingEventStoreReader>;
 using Composable.System;
 
 // ReSharper disable AccessToModifiedClosure
@@ -27,15 +25,12 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
     //refactor: this test. It is too monolithic and hard to read and extend.
     public abstract class EventMigrationTestBase
     {
-        protected readonly Type EventStoreType;
-        protected EventMigrationTestBase(Type eventStoreType) => EventStoreType = eventStoreType;
-
         internal void RunMigrationTest(params MigrationScenario[] scenarios)
         {
-            SafeConsole.WriteLine($"###############$$$$$$$Running {scenarios.Length} scenario(s) with EventStoreType: {EventStoreType}");
+            SafeConsole.WriteLine($"###############$$$$$$$Running {scenarios.Length} scenario(s)");
 
             IList<IEventMigration> migrations = new List<IEventMigration>();
-            using var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations.ToArray(), EventStoreType);
+            using var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations.ToArray());
             var timeSource = serviceLocator.Resolve<TestingTimeSource>();
             timeSource.FreezeAtUtcTime(DateTime.Parse("2001-01-01 01:01:01.01"));
             var scenarioIndex = 1;
@@ -57,7 +52,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             IReadOnlyList<IAggregateEvent> eventsInStoreAtStart;
             using(serviceLocator.BeginScope()) //Why is this needed? It fails without it but I do not understand why...
             {
-                var eventStore = serviceLocator.Resolve<ITestingEventStore>();
+                var eventStore = serviceLocator.Resolve<IEventStore>();
                 eventsInStoreAtStart = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
             }
 
@@ -81,24 +76,24 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             timeSource.FreezeAtUtcTime(timeSource.UtcNow + 1.Hours()); //Bump clock to ensure that times will be be wrong unless the time from the original events are used..
 
-            serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventStoreUpdater>()
+            serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
                                                                                 .Save(initialAggregate));
             migrations.AddRange(startingMigrations);
             ClearCache(serviceLocator);
 
-            var migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventStoreUpdater>()
+            var migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
                                                                                                       .Get<TestAggregate>(initialAggregate.Id))
                                                 .History;
 
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded un-cached aggregate");
 
-            var migratedCachedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventStoreUpdater>()
+            var migratedCachedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
                                                                                                             .Get<TestAggregate>(initialAggregate.Id))
                                                       .History;
             AssertStreamsAreIdentical(expected, migratedCachedHistory, "Loaded cached aggregate");
 
             SafeConsole.WriteLine("  Streaming all events in store");
-            var streamedEvents = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventStore>()
+            var streamedEvents = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
                                                                                                      .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
                                                                                                      .ToList());
 
@@ -108,7 +103,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             //Make sure that other processes that might be using the same aggregate also keep working as we persist the migrations.
             using(var clonedServiceLocator = serviceLocator.Clone())
             {
-                migratedHistory = clonedServiceLocator.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator.Resolve<ITestingEventStoreUpdater>()
+                migratedHistory = clonedServiceLocator.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator.Resolve<IEventStoreUpdater>()
                                                                                                                   .Get<TestAggregate>(initialAggregate.Id))
                                                       .History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
@@ -116,16 +111,16 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 SafeConsole.WriteLine("  Persisting migrations");
                 using(serviceLocator.BeginScope())
                 {
-                    serviceLocator.Resolve<ITestingEventStore>()
+                    serviceLocator.Resolve<IEventStore>()
                                   .PersistMigrations();
                 }
 
-                migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventStoreUpdater>()
+                migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
                                                                                                       .Get<TestAggregate>(initialAggregate.Id))
                                                 .History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
-                migratedHistory = clonedServiceLocator.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator.Resolve<ITestingEventStoreUpdater>()
+                migratedHistory = clonedServiceLocator.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator.Resolve<IEventStoreUpdater>()
                                                                                                                   .Get<TestAggregate>(initialAggregate.Id))
 
                                                       .History;
@@ -133,7 +128,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
             SafeConsole.WriteLine("Streaming all events in store");
-            streamedEvents = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventStore>()
+            streamedEvents = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
                                                                                                  .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
                                                                                                  .ToList());
             AssertStreamsAreIdentical(expectedCompleteEventStoreStream, streamedEvents, "Streaming all events in store");
@@ -141,13 +136,13 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             SafeConsole.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
             migrations.Clear();
 
-            migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventStoreUpdater>()
+            migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
                                                                                                   .Get<TestAggregate>(initialAggregate.Id))
                                             .History;
             AssertStreamsAreIdentical(expected, migratedHistory, "loaded aggregate");
 
             SafeConsole.WriteLine("Streaming all events in store");
-            streamedEvents = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventStore>()
+            streamedEvents = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
                                                                                                  .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
                                                                                                  .ToList());
             AssertStreamsAreIdentical(expectedCompleteEventStoreStream, streamedEvents, "Streaming all events in store");
@@ -155,13 +150,13 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             SafeConsole.WriteLine("Cloning service locator / starting new instance of application");
             using var clonedServiceLocator2 = serviceLocator.Clone();
-            migratedHistory = clonedServiceLocator2.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<ITestingEventStoreUpdater>()
+            migratedHistory = clonedServiceLocator2.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<IEventStoreUpdater>()
                                                                                                                  .Get<TestAggregate>(initialAggregate.Id))
                                                    .History;
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
             SafeConsole.WriteLine("Streaming all events in store");
-            streamedEvents = clonedServiceLocator2.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<ITestingEventStore>()
+            streamedEvents = clonedServiceLocator2.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<IEventStore>()
                                                                                                                 .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
                                                                                                                 .ToList());
             AssertStreamsAreIdentical(expectedCompleteEventStoreStream, streamedEvents, "Streaming all events in store");
@@ -170,33 +165,18 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         {
             serviceLocator.ExecuteInIsolatedScope(() =>
             {
-                if(serviceLocator.Resolve<ITestingEventStore>() is EventStore)
+                if(serviceLocator.Resolve<IEventStore>() is EventStore)
                 {
-                    serviceLocator.Resolve<SqlServerEventStoreRegistrationExtensions.EventCache<ITestingEventStoreUpdater>>().Clear();
+                    serviceLocator.Resolve<EventCache>().Clear();
                 }
             });
         }
 
-        protected static IServiceLocator CreateServiceLocatorForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType)
+        protected static IServiceLocator CreateServiceLocatorForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory)
         {
-            TestingMode mode;
-            if (eventStoreType == typeof(EventStore))
-            {
-                mode = TestingMode.DatabasePool;
-            }
-            else if (eventStoreType == typeof(InMemoryEventStore))
-            {
-                mode = TestingMode.InMemory;
-            }
-            else
-            {
-                throw new Exception($"Unsupported type of event store {eventStoreType}");
-            }
-
             var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
-                container =>
-                    container.RegisterSqlServerEventStoreForFlexibleTesting<ITestingEventStoreUpdater, ITestingEventStoreReader>(TestWiringHelper.EventStoreConnectionStringName, migrationsfactory),
-                mode);
+                endpointBuilder =>
+                    endpointBuilder.Container.RegisterEventStoreForFlexibleTesting(TestWiringHelper.EventStoreConnectionStringName, migrationsfactory));
 
             serviceLocator.Resolve<ITypeMappingRegistar>()
                           .Map<Composable.Tests.CQRS.EventRefactoring.Migrations.TestAggregate>("dbc5cd48-bc09-4d96-804d-6712493a413d")
@@ -228,7 +208,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             return serviceLocator;
         }
 
-        protected static void AssertStreamsAreIdentical(IEnumerable<IAggregateEvent> expected, IEnumerable<IAggregateEvent> migratedHistory, string descriptionOfHistory)
+        protected static void AssertStreamsAreIdentical(IReadOnlyList<IAggregateEvent> expected, IReadOnlyList<IAggregateEvent> migratedHistory, string descriptionOfHistory)
         {
             try
             {
@@ -239,7 +219,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                                               .GetType())
                         {
                             throw new AssertionException(
-                                $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory.ElementAt(index) .GetType()}");
+                                $"Expected event at position {index} to be of type {@event.GetType()} but it was of type: {migratedHistory.ElementAt(index) .GetType()}");
                         }
                     });
 
@@ -249,16 +229,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                    config => config.RespectingRuntimeTypes()
                                                    .WithStrictOrdering()
                                                    .ComparingByMembers<AggregateEvent>()
-                                                   .Excluding(@event => @event.DeduplicationId)
-                                                   .Excluding(@event => @event.EventId)
-                                                   .Excluding(@event => @event.InsertionOrder)
-                                                   .Excluding(@event => @event.InsertAfter)
-                                                   .Excluding(@event => @event.InsertBefore)
-                                                   .Excluding(@event => @event.Replaces)
-                                                   .Excluding(@event => @event.InsertedVersion)
-                                                   .Excluding(@event => @event.ManualVersion)
-                                                   .Excluding(@event => @event.EffectiveVersion)
-                                                   );
+                                                   .Excluding(@event => @event.EventId));
             }
             catch(Exception)
             {

@@ -4,10 +4,12 @@ using Composable.DependencyInjection;
 using Composable.Logging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.SqlServer.Messaging.Buses;
 using Composable.Serialization;
 using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
+using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;
@@ -27,7 +29,7 @@ namespace Composable.Tests.Serialization
 
         [OneTimeSetUp] public void SetupTask()
         {
-            _host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
+            _host = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
             var clientEndpoint = _host.RegisterClientEndpointForRegisteredEndpoints();
             _eventSerializer = clientEndpoint.ServiceLocator.Resolve<IEventStoreSerializer>();
         }
@@ -48,25 +50,14 @@ namespace Composable.Tests.Serialization
             public TestEvent(
                 string test1,
                 string test2,
-                Guid eventId,
                 int aggregateVersion,
                 Guid aggregateId,
-                long insertionOrder,
-                long? replaces,
-                long? insertBefore,
-                long? insertAfter,
-                DateTime utcTimeStamp)
+                DateTime utcTimeStamp):base(aggregateId)
             {
                 Test1 = test1;
                 Test2 = test2;
 
-                EventId = eventId;
                 AggregateVersion = aggregateVersion;
-                AggregateId = aggregateId;
-                InsertionOrder = insertionOrder;
-                Replaces = replaces;
-                InsertBefore = insertBefore;
-                InsertAfter = insertAfter;
                 UtcTimeStamp = utcTimeStamp;
             }
 
@@ -85,16 +76,10 @@ namespace Composable.Tests.Serialization
                                             test2: "Test2",
                                             aggregateId:  Guid.NewGuid(),
                                             aggregateVersion:  2,
-                                            eventId: Guid.NewGuid(),
-                                            insertAfter:  10,
-                                            insertBefore:  20,
-                                            replaces: 30,
-                                            insertionOrder: 40,
                                             utcTimeStamp: DateTime.Now + 1.Minutes());
 
             TestEvent eventWithOnlySubclassValues = new TestEvent("Test1", "Test2")
                                               {
-                                                  EventId = Guid.Empty,
                                                   UtcTimeStamp = DateTime.MinValue
                                               };
 
@@ -116,8 +101,7 @@ namespace Composable.Tests.Serialization
                         .ComparingByMembers<AggregateEvent>()
                         .Excluding(@event => @event.UtcTimeStamp)//Timestamp is defaulted in the constructor used by serialization.
                         .Excluding(@event => @event.EventId)
-                        .Excluding(@event => @event.DeduplicationId)
-                );
+            );
         }
 
         [Test, Performance, Serial] public void Should_roundtrip_simple_event_1000_times_in_15_milliseconds()
@@ -127,11 +111,6 @@ namespace Composable.Tests.Serialization
                                             test2: "Test2",
                                             aggregateId: Guid.NewGuid(),
                                             aggregateVersion: 2,
-                                            eventId: Guid.NewGuid(),
-                                            insertAfter: 10,
-                                            insertBefore: 20,
-                                            replaces: 30,
-                                            insertionOrder: 40,
                                             utcTimeStamp: DateTime.Now + 1.Minutes());
 
             //Warmup
@@ -158,11 +137,6 @@ namespace Composable.Tests.Serialization
                                             test2: "Test2",
                                             aggregateId: Guid.NewGuid(),
                                             aggregateVersion: 2,
-                                            eventId: Guid.NewGuid(),
-                                            insertAfter: 10,
-                                            insertBefore: 20,
-                                            replaces: 30,
-                                            insertionOrder: 40,
                                             utcTimeStamp: DateTime.Now + 1.Minutes())).ToList();
 
             var settings = EventStoreSerializer.JsonSettings;

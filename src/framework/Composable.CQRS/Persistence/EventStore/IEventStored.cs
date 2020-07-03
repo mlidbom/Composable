@@ -9,7 +9,7 @@ namespace Composable.Persistence.EventStore
     {
         Guid Id { get; }
         int Version { get; }
-        IEnumerable<IAggregateEvent> GetChanges();
+        IReadOnlyList<IAggregateEvent> GetChanges();
         void AcceptChanges();
         void LoadFromHistory(IEnumerable<IAggregateEvent> history);
         void SetTimeSource(IUtcTimeTimeSource timeSource);

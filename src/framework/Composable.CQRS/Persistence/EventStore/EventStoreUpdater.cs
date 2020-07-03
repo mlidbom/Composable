@@ -14,7 +14,7 @@ namespace Composable.Persistence.EventStore
 {
     class EventStoreUpdater : IEventStoreReader, IEventStoreUpdater
     {
-        readonly IEventstoreEventPublisher _eventPublisher;
+        readonly IEventStoreEventPublisher _eventStoreEventPublisher;
         readonly IEventStore _store;
         readonly IAggregateTypeValidator _aggregateTypeValidator;
         readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
@@ -22,13 +22,13 @@ namespace Composable.Persistence.EventStore
         readonly List<IDisposable> _disposableResources = new List<IDisposable>();
         IUtcTimeTimeSource TimeSource { get; set; }
 
-        public EventStoreUpdater(IEventstoreEventPublisher eventPublisher, IEventStore store, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator)
+        public EventStoreUpdater(IEventStoreEventPublisher eventStoreEventPublisher, IEventStore store, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator)
         {
-            Contract.Argument(() => eventPublisher, () => store, () => timeSource)
+            Contract.Argument(() => eventStoreEventPublisher, () => store, () => timeSource)
                         .NotNull();
 
             _usageGuard = new CombinationUsageGuard(new SingleThreadUseGuard(), new SingleTransactionUsageGuard());
-            _eventPublisher = eventPublisher;
+            _eventStoreEventPublisher = eventStoreEventPublisher;
             _store = store;
             _aggregateTypeValidator = aggregateTypeValidator;
             TimeSource = timeSource ?? DateTimeNowTimeSource.Instance;
@@ -94,9 +94,9 @@ namespace Composable.Persistence.EventStore
             }
 
             var events = aggregate.GetChanges().ToList();
-            _store.SaveEvents(events);
+            _store.SaveSingleAggregateEvents(events);
 
-            events.ForEach(_eventPublisher.Publish);
+            events.ForEach(_eventStoreEventPublisher.Publish);
 
             aggregate.AcceptChanges();
             _idMap.Add(aggregate.Id, aggregate);
@@ -107,9 +107,12 @@ namespace Composable.Persistence.EventStore
         void OnAggregateEvent(IAggregateEvent @event)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            Contract.Assert.That(_idMap.ContainsKey(@event.AggregateId), "Got event from aggregate that is not tracked!");
-            _store.SaveEvents(new[] { @event });
-            _eventPublisher.Publish(@event);
+            if(!_idMap.ContainsKey(@event.AggregateId))
+            {
+                throw new Exception($"Got event from aggregate that is not tracked! Id: {@event.AggregateId}");
+            }
+            _store.SaveSingleAggregateEvents(new[] { @event });
+            _eventStoreEventPublisher.Publish(@event);
         }
 
         public void Delete(Guid aggregateId)
@@ -131,21 +134,16 @@ namespace Composable.Persistence.EventStore
 
         public IReadOnlyList<IAggregateEvent> GetHistory(Guid aggregateId) => GetHistoryInternal(aggregateId, takeWriteLock:false);
 
-        IReadOnlyList<IAggregateEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
-        {
-            var history = takeWriteLock
-                              ? _store.GetAggregateHistoryForUpdate(aggregateId)
-                              : _store.GetAggregateHistory(aggregateId);
-
-            AggregateHistoryValidator.ValidateHistory(aggregateId, history);
-            return history;
-        }
+        IReadOnlyList<IAggregateEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock) =>
+            takeWriteLock
+                ? _store.GetAggregateHistoryForUpdate(aggregateId)
+                : _store.GetAggregateHistory(aggregateId);
 
         bool DoTryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)]out TAggregate aggregate) where TAggregate : IEventStored
         {
-            if (_idMap.TryGetValue(aggregateId, out var es))
+            if (_idMap.TryGetValue(aggregateId, out var eventStored))
             {
-                aggregate = (TAggregate)es;
+                aggregate = (TAggregate)eventStored;
                 return true;
             }
 

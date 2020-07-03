@@ -6,6 +6,9 @@ using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
+using Composable.Persistence.Common.DependencyInjection;
+using Composable.Persistence.SqlServer.DependencyInjection;
+using Composable.Persistence.SqlServer.Messaging.Buses;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -23,14 +26,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var queryResults = new List<UserResource>();
 
-            _host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
+            _host = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
 
             _host.RegisterEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("3A1B6A8C-D232-476C-A15A-9C8295413210")),
                 builder =>
                 {
-                    builder.RegisterSqlServerPersistenceLayer();
+                    builder.RegisterCurrentTestsConfiguredPersistenceLayer();
                     builder.RegisterHandlers
                            .ForQuery((GetUserQuery query) => queryResults.Single(result => result.Name == query.Name))
                            .ForQuery((UserApiStartPageQuery query) => new UserApiStartPage())
@@ -108,7 +111,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             public static RegisterUserCommand Create(string name) => new RegisterUserCommand
                                                                      {
                                                                          Name = name,
-                                                                         DeduplicationId = Guid.NewGuid()
+                                                                         MessageId = Guid.NewGuid()
                                                                      };
 
             public string Name { get; private set; }

@@ -19,7 +19,7 @@ namespace AccountManagement.API
                 public static Register Create() => new Register
                                                    {
                                                        AccountId = Guid.NewGuid(),
-                                                       DeduplicationId = Guid.NewGuid()
+                                                       MessageId = Guid.NewGuid()
                                                    };
 
                 //Note the use of a custom validation attributes.
@@ -38,7 +38,7 @@ namespace AccountManagement.API
 
                 internal Register WithValues(Guid accountId, string email, string password) => new Register
                                                                                                {
-                                                                                                   DeduplicationId = Guid.NewGuid(),
+                                                                                                   MessageId = Guid.NewGuid(),
                                                                                                    AccountId = accountId,
                                                                                                    Email = email,
                                                                                                    Password = password

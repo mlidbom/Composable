@@ -2,7 +2,6 @@
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
-using Composable.Tests.CQRS.EventRefactoring.Migrations;
 using JetBrains.Annotations;
 
 namespace Composable.Tests.CQRS
@@ -52,7 +51,7 @@ namespace Composable.Tests.CQRS
         }
     }
 
-    interface IUserEvent : IAggregateEvent, IRootEvent
+    interface IUserEvent : IAggregateEvent
     { }
 
     abstract class UserEvent : AggregateEvent, IUserEvent

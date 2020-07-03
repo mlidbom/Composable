@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
+using Composable.Persistence.Common.DependencyInjection;
+using Composable.Persistence.SqlServer.DependencyInjection;
+using Composable.Persistence.SqlServer.Messaging.Buses;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using FluentAssertions;
@@ -112,13 +115,13 @@ namespace Composable.Tests.Serialization
 
         [OneTimeSetUp] public void SetupTask()
         {
-            _originalHost = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
-            _renamedHost = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
+            _originalHost = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
+            _renamedHost = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
 
             _originaltypesMap = _originalHost.RegisterTestingEndpoint(
                 setup: builder =>
                 {
-                    builder.RegisterSqlServerPersistenceLayer();
+                    builder.RegisterCurrentTestsConfiguredPersistenceLayer();
                     builder.TypeMapper
                            .Map<OriginalTypes.TypeA>(Ids.TypeA)
                            .Map<OriginalTypes.TypeB>(Ids.TypeB)
@@ -129,7 +132,7 @@ namespace Composable.Tests.Serialization
             _renamedTypesMap = _originalHost.RegisterTestingEndpoint(
                 setup: builder =>
                 {
-                    builder.RegisterSqlServerPersistenceLayer();
+                    builder.RegisterCurrentTestsConfiguredPersistenceLayer();
                     builder.TypeMapper
                            .Map<RenamedTypes.TypeA>(Ids.TypeA)
                            .Map<RenamedTypes.TypeB>(Ids.TypeB)

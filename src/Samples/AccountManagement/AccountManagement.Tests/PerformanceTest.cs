@@ -9,6 +9,7 @@ using AccountManagement.UserStories.Scenarios;
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
+using Composable.Persistence.SqlServer.Messaging.Buses;
 using Composable.System.Diagnostics;
 using Composable.Testing.Performance;
 using FluentAssertions.Extensions;
@@ -26,7 +27,7 @@ namespace AccountManagement
 
         [SetUp] public async Task SetupContainerAndBeginScope()
         {
-            _host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
+            _host = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
             new AccountManagementServerDomainBootstrapper().RegisterWith(_host);
             _clientEndpoint = _host.RegisterClientEndpoint(setup: AccountApi.RegisterWithClientEndpoint);
             _scenarioApi = new AccountScenarioApi(_clientEndpoint);

@@ -1,4 +1,5 @@
 ﻿using Composable.System;
+using Composable.Testing;
 using Composable.Testing.Performance;
 using NCrunch.Framework;
 using NUnit.Framework;

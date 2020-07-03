@@ -3,9 +3,11 @@ using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.UI;
 using AccountManagement.UI.QueryModels;
-using Composable.DependencyInjection.Persistence;
 using Composable.Messaging.Buses;
+using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.SqlServer.DependencyInjection;
+using Composable.Persistence.SqlServer.Messaging.Buses;
 
 namespace AccountManagement
 {
@@ -27,10 +29,10 @@ namespace AccountManagement
         static void RegisterDomainComponents(IEndpointBuilder builder)
         {
             builder.RegisterSqlServerPersistenceLayer();
-            builder.RegisterSqlServerEventStore()
+            builder.RegisterEventStore()
                    .HandleAggregate<Account, AccountEvent.Root>(builder.RegisterHandlers);
 
-            builder.RegisterSqlServerDocumentDb()
+            builder.RegisterDocumentDb()
                    .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(builder.RegisterHandlers)
                    .HandleDocumentType<AccountStatistics.SingletonStatisticsQuerymodel>(builder.RegisterHandlers);
         }

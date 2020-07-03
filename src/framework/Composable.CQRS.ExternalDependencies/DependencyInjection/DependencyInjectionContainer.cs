@@ -1,27 +1,25 @@
 ﻿using System;
-using Composable.DependencyInjection.Persistence;
 using Composable.Messaging.Buses;
+using Composable.Persistence.Common.DependencyInjection;
+using Composable.Persistence.SqlServer.DependencyInjection;
+using Composable.Persistence.SqlServer.Messaging.Buses;
 using JetBrains.Annotations;
 
 namespace Composable.DependencyInjection
 {
     public static class DependencyInjectionContainer
     {
-        public static IServiceLocator CreateServiceLocatorForTesting() => CreateServiceLocatorForTesting(_ => {}, TestingMode.DatabasePool);
+        public static IServiceLocator CreateServiceLocatorForTesting() => CreateServiceLocatorForTesting(_ => {});
 
-        public static IServiceLocator CreateServiceLocatorForTesting(TestingMode mode) => CreateServiceLocatorForTesting(_ => {}, mode);
-
-        public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle] Action<IDependencyInjectionContainer> setup) => CreateServiceLocatorForTesting(setup, TestingMode.DatabasePool);
-
-        public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup, TestingMode mode)
+        public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IEndpointBuilder> setup)
         {
 #pragma warning disable IDE0067 //Review OK-ish: We register the host in the container to ensure that it is disposed when the container is.
-            var host = SqlServerTestingEndpointHost.Create(Create, mode);
+            var host = TestingEndpointHost.Create(Create);
 #pragma warning restore IDE0067 // Dispose objects before losing scope
             var endpoint = host.RegisterTestingEndpoint(setup: builder =>
             {
-                builder.RegisterSqlServerPersistenceLayer();
-                setup(builder.Container);
+                builder.RegisterCurrentTestsConfiguredPersistenceLayer();
+                setup(builder);
                 //Hack to get the host to be disposed by the container when the container is disposed.
                 builder.Container.Register(Singleton.For<TestingEndpointHostDisposer>().CreatedBy(() => new TestingEndpointHostDisposer(host)).DelegateToParentServiceLocatorWhenCloning());
             });

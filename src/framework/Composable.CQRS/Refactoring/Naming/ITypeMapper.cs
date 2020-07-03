@@ -10,6 +10,7 @@ namespace Composable.Refactoring.Naming
         TypeId GetId(Type type);
         Type GetType(TypeId eventTypeId);
         bool TryGetType(TypeId typeId, [NotNullWhen(true)]out Type? type);
+        IEnumerable<TypeId> GetIdForTypesAssignableTo(Type type);
         void AssertMappingsExistFor(IEnumerable<Type> typesThatRequireMappings);
     }
 

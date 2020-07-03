@@ -2,26 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Persistence;
 using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
+using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
 using Composable.Testing.Performance;
 using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
-using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.System;
+using Composable.Testing;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
+    //urgent: Remove this attribute once whole assembly runs all persistence layers.
+    [DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
     [TestFixture, Performance, LongRunning, Serial]
-    public abstract class EventMigrationPerformanceTest : EventMigrationTestBase
+    public class EventMigrationPerformanceTest : EventMigrationTestBase
     {
-        public EventMigrationPerformanceTest(Type eventStoreType) : base(eventStoreType) { }
-
         List<AggregateEvent> _history;
         TestAggregate _aggregate;
         IServiceLocator _container;
@@ -41,9 +41,9 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             _history = _aggregate.History.Cast<AggregateEvent>().ToList();
 
             _currentMigrations = Seq.Empty<IEventMigration>().ToList();
-            _container = CreateServiceLocatorForEventStoreType(migrationsfactory: () => _currentMigrations, eventStoreType: EventStoreType);
+            _container = CreateServiceLocatorForEventStoreType(migrationsfactory: () => _currentMigrations);
 
-            _container.ExecuteTransactionInIsolatedScope(()=> _container.Resolve<IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>>().SaveEvents(_history));
+            _container.ExecuteTransactionInIsolatedScope(()=> _container.Resolve<IEventStore>().SaveSingleAggregateEvents(_history));
         }
 
         [OneTimeTearDown] public void TearDownTask() { _container?.Dispose(); }
@@ -54,7 +54,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 _currentMigrations = migrations;
 
 
-            void LoadWithCloneLocator(IServiceLocator locator) => locator.ExecuteTransactionInIsolatedScope(() => locator.Resolve<ITestingEventStoreUpdater>()
+            void LoadWithCloneLocator(IServiceLocator locator) => locator.ExecuteTransactionInIsolatedScope(() => locator.Resolve<IEventStoreUpdater>()
                                                                                                                          .Get<TestAggregate>(_aggregate.Id));
 
             IServiceLocator clonedLocator = null;

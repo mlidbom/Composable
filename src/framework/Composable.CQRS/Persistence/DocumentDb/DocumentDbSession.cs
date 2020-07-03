@@ -17,7 +17,7 @@ namespace Composable.Persistence.DocumentDb
         [ThreadStatic]
         internal static bool UseUpdateLock;
 
-        readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
+        readonly MemoryObjectStore _idMap = new MemoryObjectStore();
 
         readonly IDocumentDb _backingStore;
         readonly ISingleContextUseGuard _usageGuard;
@@ -95,7 +95,7 @@ namespace Composable.Persistence.DocumentDb
         }
 
 
-        public IEnumerable<TValue> Get<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
+        public IEnumerable<TValue> GetAll<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             var idSet = ids.ToSet();//Avoid multiple enumerations.
@@ -177,7 +177,7 @@ namespace Composable.Persistence.DocumentDb
             var documentItem = GetDocumentItem(id, typeof(T));
             documentItem.Delete();
 
-            _idMap.Remove<T>(id);
+            _idMap.Remove(id, typeof(T));
             documentItem.CommitChangesToBackingStore();
         }
 

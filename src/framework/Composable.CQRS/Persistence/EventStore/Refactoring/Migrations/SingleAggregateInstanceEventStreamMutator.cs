@@ -21,10 +21,11 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         int _aggregateVersion = 1;
 
-        public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateEvent>>? eventsAddedCallback = null) => new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
+        public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<EventModifier.RefactoredEvent>>? eventsAddedCallback = null)
+            => new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
 
         SingleAggregateInstanceEventStreamMutator
-            (IAggregateEvent creationEvent, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateEvent>>? eventsAddedCallback)
+            (IAggregateEvent creationEvent, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<EventModifier.RefactoredEvent>>? eventsAddedCallback)
         {
             _eventModifier = new EventModifier(eventsAddedCallback ?? (_ => { }));
             _aggregateId = creationEvent.AggregateId;
@@ -79,7 +80,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
         public static AggregateEvent[] MutateCompleteAggregateHistory
             (IReadOnlyList<IEventMigration> eventMigrations,
              AggregateEvent[] events,
-             Action<IReadOnlyList<AggregateEvent>>? eventsAddedCallback = null)
+             Action<IReadOnlyList<EventModifier.RefactoredEvent>>? eventsAddedCallback = null)
         {
             if (eventMigrations.None())
             {
@@ -99,6 +100,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 .ToArray();
 
             AssertMigrationsAreIdempotent(eventMigrations, result);
+            AggregateHistoryValidator.ValidateHistory(result.First().AggregateId, result);
 
             return result;
         }

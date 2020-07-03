@@ -10,13 +10,13 @@ namespace Composable.Messaging.Buses
     //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
     [UsedImplicitly] class ApiNavigatorSession : IServiceBusSession, ILocalHypermediaNavigator
     {
-        readonly IInterprocessTransport _transport;
+        readonly IOutbox _transport;
         readonly CommandScheduler _commandScheduler;
         readonly IMessageHandlerRegistry _handlerRegistry;
         readonly IRemoteHypermediaNavigator _remoteNavigator;
         readonly ISingleContextUseGuard _contextGuard;
 
-        public ApiNavigatorSession(IInterprocessTransport transport, CommandScheduler commandScheduler, IMessageHandlerRegistry handlerRegistry, IRemoteHypermediaNavigator remoteNavigator)
+        public ApiNavigatorSession(IOutbox transport, CommandScheduler commandScheduler, IMessageHandlerRegistry handlerRegistry, IRemoteHypermediaNavigator remoteNavigator)
         {
             _contextGuard = new CombinationUsageGuard(new SingleTransactionUsageGuard());
             _transport = transport;

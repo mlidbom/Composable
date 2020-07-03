@@ -13,13 +13,13 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class CommandScheduler : IDisposable
     {
-        readonly IInterprocessTransport _transport;
+        readonly IOutbox _transport;
         readonly IUtcTimeTimeSource _timeSource;
         Timer? _scheduledMessagesTimer;
         readonly List<ScheduledCommand> _scheduledMessages = new List<ScheduledCommand>();
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(1.Seconds());
 
-        public CommandScheduler(IInterprocessTransport transport, IUtcTimeTimeSource timeSource)
+        public CommandScheduler(IOutbox transport, IUtcTimeTimeSource timeSource)
         {
             _transport = transport;
             _timeSource = timeSource;

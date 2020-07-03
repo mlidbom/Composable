@@ -6,6 +6,7 @@ using Composable.Refactoring.Naming;
 using Composable.System.Linq;
 using Composable.System.Transactions;
 using FluentAssertions;
+using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.CQRS
@@ -21,10 +22,11 @@ namespace Composable.Tests.CQRS
         }
     }
 
-    [TestFixture] public abstract class EventStoreTests
+    //urgent: Remove this attribute once whole assembly runs all persistence layers.
+    [DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
+    [TestFixture] public class EventStoreTests
     {
         IDisposable _scope;
-        protected abstract IServiceLocator CreateServiceLocator();
 
         IEventStore _eventStore;
 
@@ -32,7 +34,7 @@ namespace Composable.Tests.CQRS
 
         [SetUp] public void SetupTask()
         {
-            _serviceLocator = CreateServiceLocator();
+            _serviceLocator = TestWiringHelper.SetupTestingServiceLocator();
             _serviceLocator.Resolve<ITypeMappingRegistar>()
                            .Map<Composable.Tests.CQRS.SomeEvent>("9e71c8cb-397a-489c-8ff7-15805a7509e8");
             _scope = _serviceLocator.BeginScope();
@@ -48,8 +50,8 @@ namespace Composable.Tests.CQRS
         [Test] public void StreamEventsSinceReturnsWholeEventLogWhenFromEventIdIsNull()
         {
             var aggregateId = Guid.NewGuid();
-            TransactionScopeCe.Execute(() =>_eventStore.SaveEvents(1.Through(10)
-                                   .Select(i => new SomeEvent(aggregateId, i))));
+            TransactionScopeCe.Execute(() =>_eventStore.SaveSingleAggregateEvents(1.Through(10)
+                                   .Select(i => new SomeEvent(aggregateId, i)).ToList()));
             var stream = _eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
 
             stream.Should()
@@ -62,8 +64,8 @@ namespace Composable.Tests.CQRS
             const int moreEventsThanTheBatchSizeForStreamingEvents = batchSize + 10;
             var aggregateId = Guid.NewGuid();
 
-            TransactionScopeCe.Execute(() => _eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents)
-                                   .Select(i => new SomeEvent(aggregateId, i))));
+            TransactionScopeCe.Execute(() => _eventStore.SaveSingleAggregateEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents)
+                                   .Select(i => new SomeEvent(aggregateId, i)).ToList()));
 
             var stream = _eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize(batchSize: batchSize)
                                    .ToList();
@@ -90,7 +92,7 @@ namespace Composable.Tests.CQRS
                                                                   .ToList();
                                                       });
 
-            TransactionScopeCe.Execute(()=> _eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value)));
+            TransactionScopeCe.Execute(() => aggregatesWithEvents.ForEach(@this => _eventStore.SaveSingleAggregateEvents(@this.Value)));
             var toRemove = aggregatesWithEvents[2][0]
                 .AggregateId;
             aggregatesWithEvents.Remove(2);
@@ -121,7 +123,8 @@ namespace Composable.Tests.CQRS
                                                                   .ToList();
                                                       });
 
-            TransactionScopeCe.Execute(() =>_eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value)));
+            TransactionScopeCe.Execute(() => aggregatesWithEvents.ForEach(@this => _eventStore.SaveSingleAggregateEvents(@this.Value)));
+
             var allAggregateIds = _eventStore.StreamAggregateIdsInCreationOrder()
                                             .ToList();
             Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count);
@@ -139,20 +142,10 @@ namespace Composable.Tests.CQRS
                                                                   .ToList();
                                                       });
 
-            TransactionScopeCe.Execute(() =>_eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value)));
+            TransactionScopeCe.Execute(() => aggregatesWithEvents.ForEach(@this => _eventStore.SaveSingleAggregateEvents(@this.Value)));
             var allAggregateIds = _eventStore.StreamAggregateIdsInCreationOrder<ISomeEvent>()
                                             .ToList();
             Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count);
         }
-    }
-
-    [TestFixture] public class InMemoryEventStoreTests : EventStoreTests
-    {
-        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.InMemory);
-    }
-
-    [TestFixture] public class SqlServerEventStoreTests : EventStoreTests
-    {
-        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.DatabasePool);
     }
 }

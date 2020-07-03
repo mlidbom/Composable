@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
+using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
+using Composable.Persistence.SqlServer.DependencyInjection;
+using Composable.Persistence.SqlServer.Messaging.Buses;
 using Composable.System.Linq;
 using Composable.Testing.Threading;
 using FluentAssertions;
@@ -60,15 +62,15 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                        .Map<MyCommandResult>("4b2f17d2-2997-4532-9296-689495ed6958")
                        .Map<MyQueryResult>("9f3c69f0-0886-483c-a726-b79fb1c56120");
 
-            Host = SqlServerTestingEndpointHost.Create(DependencyInjectionContainer.Create, TestingMode.DatabasePool);
+            Host = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
 
             Host.RegisterEndpoint(
                 "Backend",
                 new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
                 builder =>
                 {
-                    builder.RegisterSqlServerPersistenceLayer();
-                    builder.RegisterSqlServerEventStore()
+                    builder.RegisterCurrentTestsConfiguredPersistenceLayer();
+                    builder.RegisterEventStore()
                            .HandleAggregate<MyAggregate, MyAggregateEvent.IRoot>(builder.RegisterHandlers);
 
                     builder.RegisterHandlers
@@ -87,7 +89,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                   new EndpointId(Guid.Parse("E72924D3-5279-44B5-B20D-D682E537672B")),
                                   builder =>
                                   {
-                                      builder.RegisterSqlServerPersistenceLayer();
+                                      builder.RegisterCurrentTestsConfiguredPersistenceLayer();
                                       builder.RegisterHandlers.ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyRemoteAggregateEventHandlerThreadGate.AwaitPassthrough());
                                       MapBackendEndpointTypes(builder);
                                   });
@@ -168,7 +170,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             internal static MyCreateAggregateCommand Create() => new MyCreateAggregateCommand
                                                                  {
-                                                                     DeduplicationId = Guid.NewGuid(),
+                                                                     MessageId = Guid.NewGuid(),
                                                                      AggregateId = Guid.NewGuid()
                                                                  };
 
@@ -189,13 +191,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         protected class MyAtMostOnceCommand : MessageTypes.Remotable.AtMostOnce.Command<MyCommandResult>
         {
             protected MyAtMostOnceCommand() : base(DeduplicationIdHandling.Reuse) {}
-            internal static MyAtMostOnceCommand Create() => new MyAtMostOnceCommand {DeduplicationId = Guid.NewGuid()};
+            internal static MyAtMostOnceCommand Create() => new MyAtMostOnceCommand {MessageId = Guid.NewGuid()};
         }
 
         protected class MyAtMostOnceCommandWithResult : MessageTypes.Remotable.AtMostOnce.Command<MyCommandResult>
         {
             MyAtMostOnceCommandWithResult() : base(DeduplicationIdHandling.Reuse) {}
-            internal static MyAtMostOnceCommandWithResult Create() => new MyAtMostOnceCommandWithResult {DeduplicationId = Guid.NewGuid()};
+            internal static MyAtMostOnceCommandWithResult Create() => new MyAtMostOnceCommandWithResult {MessageId = Guid.NewGuid()};
         }
         protected class MyCommandResult {}
     }

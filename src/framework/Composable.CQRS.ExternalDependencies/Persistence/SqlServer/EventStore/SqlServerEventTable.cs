@@ -13,6 +13,10 @@
             public const string EffectiveVersion = nameof(EffectiveVersion);
             public const string InsertionOrder = nameof(InsertionOrder);
             public const string EffectiveOrder = nameof(EffectiveOrder);
+
+            public const string ReadOrder = nameof(ReadOrder);
+            public const string ReadOrderOrderOffset = nameof(ReadOrderOrderOffset);
+
             public const string InsertAfter = nameof(InsertAfter);
             public const string InsertBefore = nameof(InsertBefore);
             public const string Replaces = nameof(Replaces);

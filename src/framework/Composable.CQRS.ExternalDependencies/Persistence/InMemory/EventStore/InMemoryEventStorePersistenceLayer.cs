@@ -7,7 +7,7 @@ using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
-using Composable.SystemExtensions.TransactionsCE;
+using ReadOrder = Composable.Persistence.EventStore.IEventStorePersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.InMemory.EventStore
 {
@@ -28,8 +28,8 @@ namespace Composable.Persistence.InMemory.EventStore
                 {
                     events.ForEach((@event, index) =>
                     {
-                        var insertionOrder = state.Events.Count + index + 1;
-                        @event.RefactoringInformation.EffectiveOrder ??= insertionOrder;
+                        var insertionOrder = new ReadOrder(state.Events.Count + index + 1, 0);
+                        @event.RefactoringInformation.EffectiveOrder ??= insertionOrder.ToSqlDecimal();
                     });
                     state.AddRange(events);
                 }));

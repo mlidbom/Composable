@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.Globalization;
 using System.Linq;
+using Composable.Contracts;
 
 namespace Composable.Persistence.EventStore
 {
@@ -14,7 +16,6 @@ namespace Composable.Persistence.EventStore
     {
         void SetupSchemaIfDatabaseUnInitialized();
 
-
         IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0);
         IEnumerable<EventDataRow> StreamEvents(int batchSize);
         IReadOnlyList<CreationEventRow> ListAggregateIdsInCreationOrder();
@@ -22,26 +23,57 @@ namespace Composable.Persistence.EventStore
         void DeleteAggregate(Guid aggregateId);
         void UpdateEffectiveVersions(IReadOnlyList<ManualVersionSpecification> versions);
 
+        struct ReadOrder
+        {
+            public override string ToString() => $"{Order}.{OffSet}";
+
+            public static readonly ReadOrder Zero = new ReadOrder(0, 0);
+
+            public ReadOrder(long order, long offSet)
+            {
+                Order = order;
+                OffSet = offSet;
+            }
+
+            public long Order { get; }
+            public long OffSet { get; }
+
+            public SqlDecimal ToSqlDecimal() => SqlDecimal.ConvertToPrecScale(SqlDecimal.Parse(ToString()), 38, 19);
+
+            public static ReadOrder Parse(string value)
+            {
+                var parts = value.Split(".");
+                Assert.Argument.Assert(parts.Length == 2);
+                var order = parts[0];
+                var offset = parts[1];
+                if(order[0] == '-') throw new ArgumentException("We do not use negative numbers");
+                if(offset[0] == '-') throw new ArgumentException("We do not use negative numbers");
+                if(offset.Length != 19) throw new ArgumentException($"Got number with {offset.Length} decimal numbers. It must be exactly 19", nameof(value));
+
+                return new ReadOrder(long.Parse(order, CultureInfo.InvariantCulture), long.Parse(offset, CultureInfo.InvariantCulture));
+            }
+
+            public static ReadOrder FromSqlDecimal(SqlDecimal value) => Parse(value.ToString());
+        }
+
         class EventNeighborhood
         {
-            public SqlDecimal EffectiveReadOrder { get; }
-            public SqlDecimal PreviousEventReadOrder { get; }
-            public SqlDecimal NextEventReadOrder { get; }
+            public ReadOrder EffectiveReadOrder { get; }
+            public ReadOrder PreviousEventReadOrder { get; }
+            public ReadOrder NextEventReadOrder { get; }
+
+            public SqlDecimal EffectiveReadOrderOld => EffectiveReadOrder.ToSqlDecimal();
+            public SqlDecimal PreviousEventReadOrderOld => PreviousEventReadOrder.ToSqlDecimal();
+            public SqlDecimal NextEventReadOrderOld => NextEventReadOrder.ToSqlDecimal();
 
             public EventNeighborhood(SqlDecimal effectiveReadOrder, SqlDecimal previousEventReadOrder, SqlDecimal nextEventReadOrder)
             {
-                EffectiveReadOrder = effectiveReadOrder;
-                NextEventReadOrder = UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(nextEventReadOrder);
-                PreviousEventReadOrder = UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(previousEventReadOrder);
+                EffectiveReadOrder = ReadOrder.FromSqlDecimal(effectiveReadOrder);
+                NextEventReadOrder = nextEventReadOrder.IsNull ? new ReadOrder(EffectiveReadOrder.Order + 1, 0) : ReadOrder.FromSqlDecimal(nextEventReadOrder);
+                PreviousEventReadOrder = previousEventReadOrder.IsNull ? new ReadOrder(0, 0) : ReadOrder.FromSqlDecimal(previousEventReadOrder);
             }
-
-            static SqlDecimal UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(SqlDecimal previousReadOrder) => previousReadOrder > 0 ? previousReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(0));
-
-            SqlDecimal UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(SqlDecimal nextReadOrder) => !nextReadOrder.IsNull ? nextReadOrder : EffectiveReadOrder + 1;
-
-            static SqlDecimal ToCorrectPrecisionAndScale(SqlDecimal value) => SqlDecimal.ConvertToPrecScale(value, 38, 19);
         }
-        IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId);
+        EventNeighborhood LoadEventNeighborHood(Guid eventId);
 
         class ManualVersionSpecification
         {
@@ -138,9 +170,7 @@ namespace Composable.Persistence.EventStore
 
     class EventInsertionSpecification
     {
-        public EventInsertionSpecification(IAggregateEvent @event) : this(@event, @event.AggregateVersion, null)
-        {
-        }
+        public EventInsertionSpecification(IAggregateEvent @event) : this(@event, @event.AggregateVersion, null) {}
 
         public EventInsertionSpecification(IAggregateEvent @event, int insertedVersion, int? manualVersion)
         {

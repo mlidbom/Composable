@@ -18,6 +18,8 @@ CREATE TABLE dbo.{Name}(
     {SqlServerEventTable.Columns.InsertAfter} uniqueidentifier null,
     {SqlServerEventTable.Columns.InsertBefore} uniqueidentifier null,
     {SqlServerEventTable.Columns.Replaces} uniqueidentifier null,
+    {SqlServerEventTable.Columns.ReadOrder} bigint null,
+    {SqlServerEventTable.Columns.ReadOrderOrderOffset} bigint null,
     {SqlServerEventTable.Columns.EffectiveOrder} {SqlServerEventTable.ReadOrderType} null,    
     {SqlServerEventTable.Columns.EffectiveVersion} int NULL,
 

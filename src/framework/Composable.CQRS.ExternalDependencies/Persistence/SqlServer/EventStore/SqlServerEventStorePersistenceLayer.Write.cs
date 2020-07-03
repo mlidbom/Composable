@@ -8,6 +8,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.System;
 using Col = Composable.Persistence.SqlServer.EventStore.SqlServerEventTable.Columns;
+using ReadOrder = Composable.Persistence.EventStore.IEventStorePersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.SqlServer.EventStore
 {
@@ -31,7 +32,8 @@ VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.EffectiveVersion}, @{Co
 IF(@{Col.EffectiveOrder} IS NULL)
 BEGIN
     UPDATE {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK)
-    SET {Col.EffectiveOrder} = cast({Col.InsertionOrder} as {SqlServerEventTable.ReadOrderType})
+    SET {Col.EffectiveOrder} = cast({Col.InsertionOrder} as {SqlServerEventTable.ReadOrderType}),
+        {Col.ReadOrder} = {Col.InsertionOrder}
     WHERE {Col.EventId} = @{Col.EventId}
 END
 ")

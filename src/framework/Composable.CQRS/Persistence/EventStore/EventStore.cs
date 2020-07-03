@@ -355,8 +355,8 @@ AggregateIds:
             var eventToInsertAfter = _persistenceLayer.LoadEventNeighborHood(eventId);
 
             SetManualReadOrders(newEvents: insertAfterGroup,
-                                rangeStart: eventToInsertAfter.EffectiveReadOrder,
-                                rangeEnd: eventToInsertAfter.NextEventReadOrder);
+                                rangeStart: eventToInsertAfter.EffectiveReadOrderOld,
+                                rangeEnd: eventToInsertAfter.NextEventReadOrderOld);
 
             _persistenceLayer.InsertSingleAggregateEvents(insertAfterGroup);
         }
@@ -366,8 +366,8 @@ AggregateIds:
             var eventToInsertBefore = _persistenceLayer.LoadEventNeighborHood(eventId);
 
             SetManualReadOrders(newEvents: insertBefore,
-                                rangeStart: eventToInsertBefore.PreviousEventReadOrder,
-                                rangeEnd: eventToInsertBefore.EffectiveReadOrder);
+                                rangeStart: eventToInsertBefore.PreviousEventReadOrderOld,
+                                rangeEnd: eventToInsertBefore.EffectiveReadOrderOld);
 
             _persistenceLayer.InsertSingleAggregateEvents(insertBefore);
         }
@@ -377,8 +377,8 @@ AggregateIds:
             var eventToReplace = _persistenceLayer.LoadEventNeighborHood(eventId);
 
             SetManualReadOrders(newEvents: replacementEvents,
-                                rangeStart: eventToReplace.EffectiveReadOrder,
-                                rangeEnd: eventToReplace.NextEventReadOrder);
+                                rangeStart: eventToReplace.EffectiveReadOrderOld,
+                                rangeEnd: eventToReplace.NextEventReadOrderOld);
 
             _persistenceLayer.InsertSingleAggregateEvents(replacementEvents);
         }

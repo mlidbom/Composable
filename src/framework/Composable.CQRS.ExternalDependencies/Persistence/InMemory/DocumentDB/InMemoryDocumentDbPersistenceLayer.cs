@@ -55,10 +55,7 @@ namespace Composable.Persistence.InMemory.DocumentDB
             {
                 foreach(var row in toUpdate)
                 {
-                    if (!TryGet(row.IdString, new []{ row.TypeIdGuid }, useUpdateLock: false, out var existing))
-                    {
-                        throw new NoSuchDocumentException(row.IdString, row.TypeIdGuid);
-                    }
+                    if (!TryGet(row.IdString, new []{ row.TypeIdGuid }, useUpdateLock: false, out var existing)) throw new NoSuchDocumentException(row.IdString, row.TypeIdGuid);
                     if (existing.SerializedValue != row.SerializedDocument)
                     {
                         Remove(row.IdString, new []{ row.TypeIdGuid });
@@ -73,14 +70,8 @@ namespace Composable.Persistence.InMemory.DocumentDB
             lock (_lockObject)
             {
                 var removed = _db.GetOrAddDefault(idstring).RemoveWhere(@this => acceptableTypes.Contains(@this.TypeId));
-                if (removed.None())
-                {
-                    throw new NoSuchDocumentException(idstring, acceptableTypes.First());
-                }
-                if (removed.Count > 1)
-                {
-                    throw new Exception("It really should be impossible to hit multiple documents with one Id, but apparently you just did it!");
-                }
+                if (removed.None()) throw new NoSuchDocumentException(idstring, acceptableTypes.First());
+                if (removed.Count > 1) throw new Exception("It really should be impossible to hit multiple documents with one Id, but apparently you just did it!");
 
                 return 1;
             }

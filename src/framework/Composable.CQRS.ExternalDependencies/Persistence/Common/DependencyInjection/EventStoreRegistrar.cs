@@ -31,21 +31,12 @@ namespace Composable.Persistence.Common.DependencyInjection
 
             @this.Register(Singleton.For<EventCache>().CreatedBy(() => new EventCache()));
 
-            if (@this.RunMode.TestingPersistenceLayer == PersistenceLayer.InMemory)
-            {
-                //Urgent: No InMemoryEventStore should exist, instead there should be an InMemoryEventStorePersistenceLayer
-                @this.Register(Singleton.For<IEventStore>()
-                                        .CreatedBy(() => new InMemoryEventStore(migrations: migrations))
-                                        .DelegateToParentServiceLocatorWhenCloning());
-            } else
-            {
-                @this.Register(Scoped.For<IEventStore>()
-                                        .CreatedBy((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, ITypeMapper typeMapper, EventCache eventCache) => new Persistence.EventStore.EventStore(persistenceLayer, typeMapper, serializer, eventCache, migrations)));
-            }
+            @this.Register(Scoped.For<IEventStore>()
+                                    .CreatedBy((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, ITypeMapper typeMapper, EventCache eventCache) => new Persistence.EventStore.EventStore(persistenceLayer, typeMapper, serializer, eventCache, migrations)));
 
             @this.Register(Scoped.For<IEventStoreUpdater, IEventStoreReader>()
-                                    .CreatedBy((IEventStoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
-                                                            new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
+                                 .CreatedBy((IEventStoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
+                                                new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
 
             return new EventStoreRegistrationBuilder();
         }
@@ -58,35 +49,19 @@ namespace Composable.Persistence.Common.DependencyInjection
 
             @this.Register(Singleton.For<EventCache>().CreatedBy(() => new EventCache()));
 
-            if (@this.RunMode.TestingPersistenceLayer == PersistenceLayer.InMemory)
-            {
-                //Urgent: No InMemoryEventStore should exist, instead there should be an InMemoryEventStorePersistenceLayer
-                @this.Register(Singleton.For<InMemoryEventStore>()
-                                        .CreatedBy(() => new InMemoryEventStore(migrations: migrations()))
-                                        .DelegateToParentServiceLocatorWhenCloning());
+            @this.Register(Scoped.For<IEventStore>()
+                                 .CreatedBy(
+                                      (IEventStorePersistenceLayer persistenceLayer, ITypeMapper typeMapper, IEventStoreSerializer serializer, EventCache cache) =>
+                                          new EventStore.EventStore(
+                                              persistenceLayer: persistenceLayer,
+                                              typeMapper: typeMapper,
+                                              serializer: serializer,
+                                              migrations: migrations(),
+                                              cache: cache)));
 
-                @this.Register(Scoped.For<IEventStore>()
-                                        .CreatedBy((InMemoryEventStore store) =>
-                                                            {
-                                                                store.TestingOnlyReplaceMigrations(migrations());
-                                                                return store;
-                                                            }));
-            } else
-            {
-                @this.Register(Scoped.For<IEventStore>()
-                                        .CreatedBy(
-                                            (IEventStorePersistenceLayer persistenceLayer, ITypeMapper typeMapper, IEventStoreSerializer serializer, EventCache cache) =>
-                                                new EventStore.EventStore(
-                                                    persistenceLayer: persistenceLayer,
-                                                    typeMapper:typeMapper,
-                                                    serializer: serializer,
-                                                    migrations: migrations(),
-                                                    cache: cache)));
-            }
-
-            @this.Register(Scoped.For<IEventStoreUpdater, IEventStoreReader>()
-                                    .CreatedBy((IEventStoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
-                                                            new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
+             @this.Register(Scoped.For<IEventStoreUpdater, IEventStoreReader>()
+                                  .CreatedBy((IEventStoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
+                                                 new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
         }
     }
 

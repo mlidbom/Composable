@@ -3,32 +3,25 @@ namespace Composable.Persistence.SqlServer.EventStore
     class SqlServerEventTableSchemaManager : SqlServerTableSchemaManager
     {
         internal override string Name { get; } = SqlServerEventTable.Name;
-        //Review:mlidbom: Consider changing the event ordering scheme. https://github.com/mlidbom/Composable/issues/46
+        //Urgent: Consider changing the event ordering scheme. SqlDecimal is not portable and quite quirky to use. https://github.com/mlidbom/Composable/issues/46
+        //Urgent: Review indexes. Quite a few are likely leftovers from when much more logic was in the SQL code.
         internal override string CreateTableSql => $@"
 CREATE TABLE dbo.{Name}(
     {SqlServerEventTable.Columns.InsertionOrder} bigint IDENTITY(1,1) NOT NULL,
-    {SqlServerEventTable.Columns.AggregateId} uniqueidentifier NOT NULL,
-    {SqlServerEventTable.Columns.EffectiveVersion} as case 
-        when {SqlServerEventTable.Columns.ManualVersion} is not null then {SqlServerEventTable.Columns.ManualVersion}
-        when {SqlServerEventTable.Columns.InsertAfter} is null and {SqlServerEventTable.Columns.InsertBefore} is null and {SqlServerEventTable.Columns.Replaces} is null then {SqlServerEventTable.Columns.InsertedVersion}
-        else null
-    end,    
+    {SqlServerEventTable.Columns.AggregateId} uniqueidentifier NOT NULL,  
     {SqlServerEventTable.Columns.UtcTimeStamp} datetime2 NOT NULL,   
     {SqlServerEventTable.Columns.EventType} uniqueidentifier NOT NULL,    
     {SqlServerEventTable.Columns.Event} nvarchar(max) NOT NULL,
-    {SqlServerEventTable.Columns.EffectiveReadOrder} as case 
-        when {SqlServerEventTable.Columns.ManualReadOrder} is not null then {SqlServerEventTable.Columns.ManualReadOrder}
-        when {SqlServerEventTable.Columns.InsertAfter} is null and {SqlServerEventTable.Columns.InsertBefore} is null and {SqlServerEventTable.Columns.Replaces} is null then cast({SqlServerEventTable.Columns.InsertionOrder} as {SqlServerEventTable.ReadOrderType})
-        else null
-    end,
     {SqlServerEventTable.Columns.EventId} uniqueidentifier NOT NULL,
     {SqlServerEventTable.Columns.InsertedVersion} int NOT NULL,
     {SqlServerEventTable.Columns.SqlInsertTimeStamp} datetime2 default SYSUTCDATETIME(),
     {SqlServerEventTable.Columns.InsertAfter} uniqueidentifier null,
     {SqlServerEventTable.Columns.InsertBefore} uniqueidentifier null,
     {SqlServerEventTable.Columns.Replaces} uniqueidentifier null,
-    {SqlServerEventTable.Columns.ManualReadOrder} {SqlServerEventTable.ReadOrderType} null,    
-    {SqlServerEventTable.Columns.ManualVersion} int NULL,
+    {SqlServerEventTable.Columns.ReadOrder} bigint null,
+    {SqlServerEventTable.Columns.ReadOrderOrderOffset} bigint null,
+    {SqlServerEventTable.Columns.EffectiveOrder} {SqlServerEventTable.ReadOrderType} null,    
+    {SqlServerEventTable.Columns.EffectiveVersion} int NULL,
 
     CONSTRAINT PK_{Name} PRIMARY KEY CLUSTERED 
     (
@@ -66,8 +59,8 @@ CREATE TABLE dbo.{Name}(
         REFERENCES {Name} ({SqlServerEventTable.Columns.EventId}) 
 )
 
-    CREATE NONCLUSTERED INDEX IX_{Name}_{SqlServerEventTable.Columns.EffectiveReadOrder} ON dbo.{Name}
-        ({SqlServerEventTable.Columns.EffectiveReadOrder}, {SqlServerEventTable.Columns.EffectiveVersion})
+    CREATE NONCLUSTERED INDEX IX_{Name}_{SqlServerEventTable.Columns.EffectiveOrder} ON dbo.{Name}
+        ({SqlServerEventTable.Columns.EffectiveOrder}, {SqlServerEventTable.Columns.EffectiveVersion})
         INCLUDE ({SqlServerEventTable.Columns.EventType}, {SqlServerEventTable.Columns.InsertionOrder})
 
     CREATE NONCLUSTERED INDEX IX_{Name}_{SqlServerEventTable.Columns.Replaces}	ON dbo.{Name}

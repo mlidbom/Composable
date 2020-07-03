@@ -8,14 +8,10 @@ using Composable.System.Transactions;
 
 namespace Composable.Persistence.SqlServer.EventStore
 {
-    class SqlServerEventStorePersistenceLayerSchemaManager : IEventStorePersistenceLayer.ISchemaManager
+    partial class SqlServerEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
         bool _verifiedConnectionString;
         readonly SqlServerEventTableSchemaManager _eventTable = new SqlServerEventTableSchemaManager();
-        public SqlServerEventStorePersistenceLayerSchemaManager(ISqlServerConnectionProvider sqlConnectionProvider)
-            => _connectionProvider = sqlConnectionProvider;
-
-        readonly ISqlServerConnectionProvider _connectionProvider;
 
         SqlConnection OpenConnection()
         {
@@ -26,7 +22,7 @@ AT:
 
 {Environment.StackTrace}");
             }
-            return _connectionProvider.OpenConnection();
+            return _connectionManager.OpenConnection();
         }
 
         public void SetupSchemaIfDatabaseUnInitialized() => TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>

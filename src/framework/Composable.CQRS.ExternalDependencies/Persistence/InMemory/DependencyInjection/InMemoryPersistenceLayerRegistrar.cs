@@ -6,7 +6,6 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.InMemory.DocumentDB;
 using Composable.Persistence.InMemory.EventStore;
 using Composable.Persistence.InMemory.ServiceBus;
-using Composable.Persistence.SqlServer.Messaging.Buses.Implementation;
 
 namespace Composable.Persistence.InMemory.DependencyInjection
 {
@@ -23,22 +22,22 @@ namespace Composable.Persistence.InMemory.DependencyInjection
             //DocumentDB
             container.Register(
                 Singleton.For<IDocumentDbPersistenceLayer>()
-                         .CreatedBy(() => new InMemoryDocumentDbPersistenceLayer()));
+                         .CreatedBy(() => new InMemoryDocumentDbPersistenceLayer())
+                         .DelegateToParentServiceLocatorWhenCloning());
 
+            //Event store
+            container.Register(Singleton.For<IEventStorePersistenceLayer>()
+                                        .CreatedBy(() => new InMemoryEventStorePersistenceLayer())
+                                        .DelegateToParentServiceLocatorWhenCloning());
 
             //Service bus
             container.Register(
                 Singleton.For<IServiceBusPersistenceLayer.IOutboxPersistenceLayer>()
-                         .CreatedBy(() => new InMemoryOutboxPersistenceLayer()),
+                         .CreatedBy(() => new InMemoryOutboxPersistenceLayer())
+                         .DelegateToParentServiceLocatorWhenCloning(),
                 Singleton.For<IServiceBusPersistenceLayer.IInboxPersistenceLayer>()
-                         .CreatedBy(() => new InMemoryInboxPersistenceLayer()));
-
-            container.Register(Singleton.For<IEventStorePersistenceLayer>()
-                                        .CreatedBy(()
-                                                       => new InMemoryEventStorePersistenceLayer(
-                                                           new InMemoryEventStorePersistenceLayerSchemaManager(),
-                                                           new InMemoryEventStorePersistenceLayerReader(),
-                                                           new InMemoryEventStorePersistenceLayerWriter())));
+                         .CreatedBy(() => new InMemoryInboxPersistenceLayer())
+                         .DelegateToParentServiceLocatorWhenCloning());
         }
     }
 }

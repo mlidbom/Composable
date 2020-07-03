@@ -84,7 +84,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                     e.NewEvent.AggregateVersion = _inspectedEvent!.AggregateVersion + index;
 
                     e.RefactoringInformation.Replaces = _inspectedEvent.EventId;
-                    e.RefactoringInformation.ManualVersion = _inspectedEvent.AggregateVersion + index;
+                    e.RefactoringInformation.EffectiveVersion = _inspectedEvent.AggregateVersion + index;
 
                     e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
                     e.NewEvent.UtcTimeStamp = _inspectedEvent.UtcTimeStamp;
@@ -132,7 +132,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                         e.NewEvent.AggregateVersion = _inspectedEvent.AggregateVersion + index;
 
                         e.RefactoringInformation.InsertAfter = _lastEventInActualStream!.EventId;
-                        e.RefactoringInformation.ManualVersion = _inspectedEvent.AggregateVersion + index;
+                        e.RefactoringInformation.EffectiveVersion = _inspectedEvent.AggregateVersion + index;
 
                         e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
                         e.NewEvent.UtcTimeStamp = _lastEventInActualStream.UtcTimeStamp;
@@ -146,7 +146,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                         e.NewEvent.AggregateVersion = _inspectedEvent!.AggregateVersion + index;
 
                         e.RefactoringInformation.InsertBefore = _inspectedEvent!.EventId;
-                        e.RefactoringInformation.ManualVersion = _inspectedEvent.AggregateVersion + index;
+                        e.RefactoringInformation.EffectiveVersion = _inspectedEvent.AggregateVersion + index;
 
                         e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
                         e.NewEvent.UtcTimeStamp = _inspectedEvent.UtcTimeStamp;

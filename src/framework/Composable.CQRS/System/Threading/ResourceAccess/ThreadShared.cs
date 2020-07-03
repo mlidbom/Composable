@@ -34,10 +34,6 @@ namespace Composable.System.Threading.ResourceAccess
         readonly object _lock = new object();
         public OptimizedThreadShared(TResource resource) => _resource = resource;
 
-        public TResult ByPass<TResult>(Func<TResource, TResult> func) => func(_resource);
-
-        public void ByPass(Action<TResource> func) => func(_resource);
-
         public TResult WithExclusiveAccess<TResult>(Func<TResource, TResult> func) => ResourceGuard.WithExclusiveLock(_lock, () => func(_resource));
 
         public void WithExclusiveAccess(Action<TResource> func) => ResourceGuard.WithExclusiveLock(_lock, () => func(_resource));

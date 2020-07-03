@@ -62,6 +62,19 @@ namespace Composable.Persistence.SqlServer.SystemExtensions
         static SqlCommand AddParameter(SqlCommand @this, string name, SqlDbType type, object value, int length) => @this.AddParameter(new SqlParameter(name, type, length) {Value = value});
 
         public static SqlCommand AddParameter(this SqlCommand @this, string name, SqlDbType type, object value) => @this.AddParameter(new SqlParameter(name, type) {Value = value});
+
+        public static SqlCommand AddNullableParameter(this SqlCommand @this, string name, SqlDbType type, object? value) => @this.AddParameter(Nullable(new SqlParameter(name, type) {Value = value}));
+
+        static SqlParameter Nullable(SqlParameter @this)
+        {
+            @this.IsNullable = true;
+            @this.Direction = ParameterDirection.Input;
+            if(@this.Value == null)
+            {
+                @this.Value = DBNull.Value;
+            }
+            return @this;
+        }
     }
 
     interface ISqlServerConnectionProvider

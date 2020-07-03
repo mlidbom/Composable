@@ -15,20 +15,7 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
 {
     public static class SqlServerPersistenceLayerRegistrar
     {
-        class EventStorePersistenceLayer : IEventStorePersistenceLayer
-        {
-            public EventStorePersistenceLayer(IEventStorePersistenceLayer.ISchemaManager schemaManager, IEventStorePersistenceLayer.IReader eventReader, IEventStorePersistenceLayer.IWriter eventWriter)
-            {
-                SchemaManager = schemaManager;
-                EventReader = eventReader;
-                EventWriter = eventWriter;
-            }
-            public IEventStorePersistenceLayer.ISchemaManager SchemaManager { get; }
-            public IEventStorePersistenceLayer.IReader EventReader { get; }
-            public IEventStorePersistenceLayer.IWriter EventWriter { get; }
-        }
-
-        public static void RegisterSqlServerPersistenceLayer(this IEndpointBuilder @this)
+       public static void RegisterSqlServerPersistenceLayer(this IEndpointBuilder @this)
         {
             var container = @this.Container;
             var configurationConnectionStringName = @this.Configuration.ConnectionStringName;
@@ -77,15 +64,8 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
             container.Register(
                 Singleton.For<SqlServerEventStoreConnectionManager>()
                          .CreatedBy((ISqlServerConnectionProvider sqlConnectionProvider) => new SqlServerEventStoreConnectionManager(sqlConnectionProvider)),
-                Singleton.For<IEventStorePersistenceLayer.ISchemaManager>()
-                         .CreatedBy((ISqlServerConnectionProvider sqlConnectionProvider) => new SqlServerEventStorePersistenceLayerSchemaManager(sqlConnectionProvider)),
-                Singleton.For<IEventStorePersistenceLayer.IReader>()
-                         .CreatedBy((SqlServerEventStoreConnectionManager connectionManager, ITypeMapper typeMapper) => new SqlServerEventStorePersistenceLayerReader(connectionManager, typeMapper)),
-                Singleton.For<IEventStorePersistenceLayer.IWriter>()
-                         .CreatedBy((SqlServerEventStoreConnectionManager connectionManager) => new SqlServerEventStorePersistenceLayerWriter(connectionManager)),
                 Singleton.For<IEventStorePersistenceLayer>()
-                         .CreatedBy((IEventStorePersistenceLayer.ISchemaManager schemaManager, IEventStorePersistenceLayer.IReader reader, IEventStorePersistenceLayer.IWriter writer)
-                                        => new EventStorePersistenceLayer(schemaManager, reader, writer)));
+                         .CreatedBy((SqlServerEventStoreConnectionManager connectionManager, ITypeMapper typeMapper) => new SqlServerEventStorePersistenceLayer(connectionManager)));
         }
     }
 }

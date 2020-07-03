@@ -8,6 +8,7 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.InMemory.DocumentDB
 {
+    //Urgent: Transactional locks and transactional overlay
     class InMemoryDocumentDbPersistenceLayer : IDocumentDbPersistenceLayer
     {
         readonly Dictionary<string, List<DocumentRow>> _db = new Dictionary<string, List<DocumentRow>>(StringComparer.InvariantCultureIgnoreCase);

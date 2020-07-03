@@ -284,6 +284,20 @@ AggregateIds:
 
         }
 
+        void FixManualVersions(AggregateEventWithRefactoringInformation[] originalHistory, AggregateEvent[] newHistory, IReadOnlyList<List<EventDataRow>> refactoringEvents)
+        {
+            var versionUpdates = new List<IEventStorePersistenceLayer.ManualVersionSpecification>();
+            var replacedOrRemoved = originalHistory.Where(@this => newHistory.None(@event => @event.EventId == @this.Event.EventId)).ToList();
+            versionUpdates.AddRange(replacedOrRemoved.Select(@this => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.Event.EventId, -@this.RefactoringInformation.EffectiveVersion!.Value)));
+
+            var replacedOrRemoved2 = refactoringEvents.SelectMany(@this =>@this).Where(@this => newHistory.None(@event => @event.EventId == @this.EventId));
+            versionUpdates.AddRange(replacedOrRemoved2.Select(@this => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.EventId, -@this.RefactoringInformation.EffectiveVersion!.Value)));
+
+            versionUpdates.AddRange(newHistory.Select((@this , index) => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.EventId, index + 1)));
+
+            _persistenceLayer.UpdateEffectiveVersions(versionUpdates);
+        }
+
         void AssertHistoriesAreIdentical(AggregateEvent[] inMemoryMigratedHistory, IReadOnlyList<IAggregateEvent> loadedAggregateHistory)
         {
             Assert.Result.Assert(inMemoryMigratedHistory.Length == loadedAggregateHistory.Count);
@@ -298,20 +312,6 @@ AggregateIds:
                 Assert.Result.Assert(inMemory.GetType() == loaded.GetType());
                 Assert.Result.Assert(_serializer.Serialize(inMemory) == _serializer.Serialize((AggregateEvent)loaded));
             }
-        }
-
-        void FixManualVersions(AggregateEventWithRefactoringInformation[] originalHistory, AggregateEvent[] newHistory, List<List<EventDataRow>> refactoringEvents)
-        {
-            var versionUpdates = new List<IEventStorePersistenceLayer.ManualVersionSpecification>();
-            var replacedOrRemoved = originalHistory.Where(@this => newHistory.None(@event => @event.EventId == @this.Event.EventId)).ToList();
-            versionUpdates.AddRange(replacedOrRemoved.Select(@this => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.Event.EventId, -@this.RefactoringInformation.EffectiveVersion!.Value)));
-
-            var replacedOrRemoved2 = refactoringEvents.SelectMany(@this =>@this).Where(@this => newHistory.None(@event => @event.EventId == @this.EventId));
-            versionUpdates.AddRange(replacedOrRemoved2.Select(@this => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.EventId, -@this.RefactoringInformation.EffectiveVersion!.Value)));
-
-            versionUpdates.AddRange(newHistory.Select((@this , index) => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.EventId, index + 1)));
-
-            _persistenceLayer.UpdateEffectiveVersions(versionUpdates);
         }
 
         void InsertSingleAggregateRefactoringEvents(IReadOnlyList<EventDataRow> events)
@@ -384,7 +384,7 @@ AggregateIds:
             _persistenceLayer.InsertSingleAggregateEvents(replacementEvents);
         }
 
-        static void SetManualReadOrders(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
+        void SetManualReadOrders(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
         {
             //var readOrders = ReadOrder.CreateOrdersForEventsBetween(newEvents.Length, ReadOrder.FromSqlDecimal(rangeStart), ReadOrder.FromSqlDecimal(rangeEnd));
             //Console.WriteLine($"###################!!!!!!!!!!!!!!!!!!!!!!!!!!!!####################{rangeStart}");
@@ -395,7 +395,7 @@ AggregateIds:
             //    newEvents[index].RefactoringInformation.EffectiveOrder = readOrders[index].ToSqlDecimal();
             //    Console.WriteLine($"###################!!!!!!!!!!!!!!!!!!!!!!!!!!!!####################{newEvents[index].RefactoringInformation.EffectiveOrder}");
             //}
-            var readOrderIncrement = (rangeEnd - rangeStart) / (newEvents.Length + 1);
+            var readOrderIncrement = (rangeEnd - rangeStart) / (newEvents.Length + 2);
             for (var index = 0; index < newEvents.Length; ++index)
             {
                 //Urgent: Change this to another data type. https://github.com/mlidbom/Composable/issues/46

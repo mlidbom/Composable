@@ -29,7 +29,7 @@ namespace Composable.Persistence.InMemory.EventStore
                     events.ForEach((@event, index) =>
                     {
                         var insertionOrder = new ReadOrder(state.Events.Count + index + 1, 0);
-                        @event.RefactoringInformation.EffectiveOrder ??= insertionOrder.ToSqlDecimal();
+                        @event.RefactoringInformation.EffectiveOrder ??= insertionOrder;
                     });
                     state.AddRange(events);
                 }));
@@ -86,22 +86,19 @@ namespace Composable.Persistence.InMemory.EventStore
                     var found = state.Events.Single(@this => @this.EventId == eventId);
 
                     var effectiveOrder = found.RefactoringInformation.EffectiveOrder!.Value;
-                    var previousEventReadOrder = state.Events
-                                                      .Where(@this => (@this.RefactoringInformation.EffectiveOrder!.Value < effectiveOrder).Value)
-                                                      .OrderByDescending(@this => @this.RefactoringInformation.EffectiveOrder)
-                                                      .First()
-                                                      .RefactoringInformation.EffectiveOrder!.Value;
+                    var previousEvent = state.Events
+                                             .Where(@this => @this.RefactoringInformation.EffectiveOrder!.Value < effectiveOrder)
+                                             .OrderByDescending(@this => @this.RefactoringInformation.EffectiveOrder)
+                                             .FirstOrDefault();
 
                     var nextEvent = state.Events
-                                         .Where(@this => (@this.RefactoringInformation.EffectiveOrder!.Value > effectiveOrder).Value)
+                                         .Where(@this => @this.RefactoringInformation.EffectiveOrder!.Value > effectiveOrder)
                                          .OrderBy(@this => @this.RefactoringInformation.EffectiveOrder)
                                          .FirstOrDefault();
 
-                    var nextEventReadOrder = nextEvent?.RefactoringInformation.EffectiveOrder ?? effectiveOrder + 1;
-
-                    return new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: ReadOrder.FromSqlDecimal(effectiveOrder),
-                                                                             previousEventReadOrder: previousEventReadOrder.IsNull ? null : new ReadOrder?(ReadOrder.FromSqlDecimal(previousEventReadOrder)),
-                                                                             nextEventReadOrder: nextEventReadOrder.IsNull ? null : new ReadOrder?(ReadOrder.FromSqlDecimal(nextEventReadOrder)));
+                    return new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: effectiveOrder,
+                                                                             previousEventReadOrder: previousEvent?.RefactoringInformation.EffectiveOrder,
+                                                                             nextEventReadOrder: nextEvent?.RefactoringInformation.EffectiveOrder);
                 }));
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)

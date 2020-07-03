@@ -45,7 +45,7 @@ END
                                           .AddDateTime2Parameter(Col.UtcTimeStamp, data.UtcTimeStamp)
                                           .AddNVarcharMaxParameter(Col.Event, data.EventJson)
 
-                                          .AddNullableParameter(Col.EffectiveOrder, SqlDbType.Decimal, data.RefactoringInformation.EffectiveOrder)
+                                          .AddNullableParameter(Col.EffectiveOrder, SqlDbType.Decimal, data.RefactoringInformation.EffectiveOrder?.ToSqlDecimal())
                                           .AddNullableParameter(Col.EffectiveVersion, SqlDbType.Int, data.RefactoringInformation.EffectiveVersion)
                                           .AddNullableParameter(Col.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
                                           .AddNullableParameter(Col.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)

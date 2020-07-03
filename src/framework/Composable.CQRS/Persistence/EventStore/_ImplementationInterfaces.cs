@@ -25,7 +25,7 @@ namespace Composable.Persistence.EventStore
         void DeleteAggregate(Guid aggregateId);
         void UpdateEffectiveVersions(IReadOnlyList<ManualVersionSpecification> versions);
 
-        struct ReadOrder : IComparable<ReadOrder>, IEquatable<ReadOrder>
+        readonly struct ReadOrder : IComparable<ReadOrder>
         {
             public override string ToString() => $"{Order}.{OffSet:D19}";
 
@@ -54,7 +54,6 @@ namespace Composable.Persistence.EventStore
                 if(order[0] == '-') throw new ArgumentException("We do not use negative numbers");
                 if(offset[0] == '-') throw new ArgumentException("We do not use negative numbers");
 
-                //Urgent: Restore assert
                 if(offset.Length != 19) throw new ArgumentException($"Got number with {offset.Length} decimal numbers. It must be exactly 19", nameof(value));
 
                 return new ReadOrder(long.Parse(order, CultureInfo.InvariantCulture), long.Parse(offset, CultureInfo.InvariantCulture));
@@ -93,10 +92,6 @@ namespace Composable.Persistence.EventStore
                 return OffSet.CompareTo(other.OffSet);
             }
 
-            public bool Equals(ReadOrder other) => Order == other.Order && OffSet == other.OffSet;
-            public override bool Equals(object? obj) => obj is ReadOrder other && Equals(other);
-            public override int GetHashCode() => HashCode.Combine(Order, OffSet);
-
             public static bool operator <(ReadOrder left, ReadOrder right) => left.CompareTo(right) < 0;
             public static bool operator >(ReadOrder left, ReadOrder right) => left.CompareTo(right) > 0;
         }
@@ -107,26 +102,14 @@ namespace Composable.Persistence.EventStore
             public ReadOrder PreviousEventReadOrder { get; }
             public ReadOrder NextEventReadOrder { get; }
 
-            public SqlDecimal EffectiveReadOrderOld => EffectiveReadOrder.ToSqlDecimal();
-            public SqlDecimal PreviousEventReadOrderOld => PreviousEventReadOrder.ToSqlDecimal();
-            public SqlDecimal NextEventReadOrderOld => NextEventReadOrder.ToSqlDecimal();
-
-
             public EventNeighborhood(ReadOrder effectiveReadOrder, ReadOrder? previousEventReadOrder, ReadOrder? nextEventReadOrder)
             {
                 EffectiveReadOrder = effectiveReadOrder;
                 NextEventReadOrder = nextEventReadOrder ?? new ReadOrder(EffectiveReadOrder.Order + 1, 0);
                 PreviousEventReadOrder = previousEventReadOrder ?? ReadOrder.Zero;
             }
-
-            [Obsolete]
-            public EventNeighborhood(SqlDecimal effectiveReadOrder, SqlDecimal previousEventReadOrder, SqlDecimal nextEventReadOrder)
-            {
-                EffectiveReadOrder = ReadOrder.FromSqlDecimal(effectiveReadOrder);
-                NextEventReadOrder = nextEventReadOrder.IsNull ? new ReadOrder(EffectiveReadOrder.Order + 1, 0) : ReadOrder.FromSqlDecimal(nextEventReadOrder);
-                PreviousEventReadOrder = previousEventReadOrder.IsNull ? new ReadOrder(0, 0) : ReadOrder.FromSqlDecimal(previousEventReadOrder);
-            }
         }
+
         EventNeighborhood LoadEventNeighborHood(Guid eventId);
 
         class ManualVersionSpecification
@@ -214,7 +197,7 @@ namespace Composable.Persistence.EventStore
     //Urgent: Refactor into enum Replace,InsertBefore,InsertAfter + RefactoredEventId + make all properties non-nullable instead make the whole instance on the event nullable + move data that is on all events elsewhere + split that elsewhere between read and write so that effective order is not nullable when reading and not present when writing. 
     class AggregateEventRefactoringInformation
     {
-        internal SqlDecimal? EffectiveOrder { get; set; }
+        internal IEventStorePersistenceLayer.ReadOrder? EffectiveOrder { get; set; }
         internal int InsertedVersion { get; set; }
 
         //urgent: See if this cannot be non-nullable.

@@ -52,7 +52,7 @@ FROM {SqlServerEventTable.Name} {lockHint} ";
             utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
             refactoringInformation: new AggregateEventRefactoringInformation()
                                     {
-                                        EffectiveOrder = eventReader.GetSqlDecimal(11),
+                                        EffectiveOrder = IEventStorePersistenceLayer.ReadOrder.FromSqlDecimal(eventReader.GetSqlDecimal(11)),
                                         InsertedVersion = eventReader.GetInt32(10),
                                         EffectiveVersion = eventReader.GetInt32(3),
                                         InsertAfter = eventReader[7] as Guid?,
@@ -91,7 +91,7 @@ ORDER BY {SqlServerEventTable.Columns.EffectiveOrder} ASC")
                                                                                   .ToList());
                 if(historyData.Any())
                 {
-                    lastReadEventReadOrder = historyData[^1].RefactoringInformation.EffectiveOrder!.Value;
+                    lastReadEventReadOrder = historyData[^1].RefactoringInformation.EffectiveOrder!.Value.ToSqlDecimal();
                 }
 
                 //We do not yield while reading from the reader since that may cause code to run that will cause another sql call into the same connection. Something that throws an exception unless you use an unusual and non-recommended connection string setting.

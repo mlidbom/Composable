@@ -356,8 +356,8 @@ AggregateIds:
             var eventToInsertAfter = _persistenceLayer.LoadEventNeighborHood(eventId);
 
             SetManualReadOrders(newEvents: insertAfterGroup,
-                                rangeStart: eventToInsertAfter.EffectiveReadOrderOld,
-                                rangeEnd: eventToInsertAfter.NextEventReadOrderOld);
+                                rangeStart: eventToInsertAfter.EffectiveReadOrder,
+                                rangeEnd: eventToInsertAfter.NextEventReadOrder);
 
             _persistenceLayer.InsertSingleAggregateEvents(insertAfterGroup);
         }
@@ -367,8 +367,8 @@ AggregateIds:
             var eventToInsertBefore = _persistenceLayer.LoadEventNeighborHood(eventId);
 
             SetManualReadOrders(newEvents: insertBefore,
-                                rangeStart: eventToInsertBefore.PreviousEventReadOrderOld,
-                                rangeEnd: eventToInsertBefore.EffectiveReadOrderOld);
+                                rangeStart: eventToInsertBefore.PreviousEventReadOrder,
+                                rangeEnd: eventToInsertBefore.EffectiveReadOrder);
 
             _persistenceLayer.InsertSingleAggregateEvents(insertBefore);
         }
@@ -378,18 +378,18 @@ AggregateIds:
             var eventToReplace = _persistenceLayer.LoadEventNeighborHood(eventId);
 
             SetManualReadOrders(newEvents: replacementEvents,
-                                rangeStart: eventToReplace.EffectiveReadOrderOld,
-                                rangeEnd: eventToReplace.NextEventReadOrderOld);
+                                rangeStart: eventToReplace.EffectiveReadOrder,
+                                rangeEnd: eventToReplace.NextEventReadOrder);
 
             _persistenceLayer.InsertSingleAggregateEvents(replacementEvents);
         }
 
-        static void SetManualReadOrders(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
+        static void SetManualReadOrders(EventDataRow[] newEvents, ReadOrder rangeStart, ReadOrder rangeEnd)
         {
-            var readOrders = ReadOrder.CreateOrdersForEventsBetween(newEvents.Length, ReadOrder.FromSqlDecimal(rangeStart), ReadOrder.FromSqlDecimal(rangeEnd));
+            var readOrders = ReadOrder.CreateOrdersForEventsBetween(newEvents.Length, rangeStart, rangeEnd);
             for (int index = 0; index < newEvents.Length; index++)
             {
-                newEvents[index].RefactoringInformation.EffectiveOrder = readOrders[index].ToSqlDecimal();
+                newEvents[index].RefactoringInformation.EffectiveOrder = readOrders[index];
             }
         }
 

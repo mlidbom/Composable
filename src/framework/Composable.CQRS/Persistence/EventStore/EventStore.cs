@@ -384,28 +384,12 @@ AggregateIds:
             _persistenceLayer.InsertSingleAggregateEvents(replacementEvents);
         }
 
-        void SetManualReadOrders(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
+        static void SetManualReadOrders(EventDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
         {
-            //var readOrders = ReadOrder.CreateOrdersForEventsBetween(newEvents.Length, ReadOrder.FromSqlDecimal(rangeStart), ReadOrder.FromSqlDecimal(rangeEnd));
-            //Console.WriteLine($"###################!!!!!!!!!!!!!!!!!!!!!!!!!!!!####################{rangeStart}");
-            //Console.WriteLine($"###################!!!!!!!!!!!!!!!!!!!!!!!!!!!!####################{rangeEnd}");
-            //for (int index = 0; index < newEvents.Length; index++)
-            //{
-            //    Console.WriteLine($"###################!!!!!!!!!!!!!!!!!!!!!!!!!!!!####################{readOrders[index]}");
-            //    newEvents[index].RefactoringInformation.EffectiveOrder = readOrders[index].ToSqlDecimal();
-            //    Console.WriteLine($"###################!!!!!!!!!!!!!!!!!!!!!!!!!!!!####################{newEvents[index].RefactoringInformation.EffectiveOrder}");
-            //}
-            var readOrderIncrement = (rangeEnd - rangeStart) / (newEvents.Length + 2);
-            for (var index = 0; index < newEvents.Length; ++index)
+            var readOrders = ReadOrder.CreateOrdersForEventsBetween(newEvents.Length, ReadOrder.FromSqlDecimal(rangeStart), ReadOrder.FromSqlDecimal(rangeEnd));
+            for (int index = 0; index < newEvents.Length; index++)
             {
-                //Urgent: Change this to another data type. https://github.com/mlidbom/Composable/issues/46
-                var manualReadOrder = rangeStart + (index + 1) * readOrderIncrement;
-                if (!(manualReadOrder.IsNull || (manualReadOrder.Precision == 38 && manualReadOrder.Scale == 17)))
-                {
-                    //urgent: unless we change the datatype this must not be removed.
-                    //throw new ArgumentException($"$$$$$$$$$$$$$$$$$$$$$$$$$ Found decimal with precision: {manualReadOrder.Precision} and scale: {manualReadOrder.Scale}", nameof(manualReadOrder));
-                }
-                newEvents[index].RefactoringInformation.EffectiveOrder = manualReadOrder;
+                newEvents[index].RefactoringInformation.EffectiveOrder = readOrders[index].ToSqlDecimal();
             }
         }
 

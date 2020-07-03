@@ -27,7 +27,7 @@ namespace Composable.Persistence.EventStore
 
         struct ReadOrder : IComparable<ReadOrder>, IEquatable<ReadOrder>
         {
-            public override string ToString() => $"{Order}.{OffSet}";
+            public override string ToString() => $"{Order}.{OffSet:D19}";
 
             public static readonly ReadOrder Zero = new ReadOrder(0, 0);
 
@@ -55,7 +55,7 @@ namespace Composable.Persistence.EventStore
                 if(offset[0] == '-') throw new ArgumentException("We do not use negative numbers");
 
                 //Urgent: Restore assert
-                //if(offset.Length != 19) throw new ArgumentException($"Got number with {offset.Length} decimal numbers. It must be exactly 19", nameof(value));
+                if(offset.Length != 19) throw new ArgumentException($"Got number with {offset.Length} decimal numbers. It must be exactly 19", nameof(value));
 
                 return new ReadOrder(long.Parse(order, CultureInfo.InvariantCulture), long.Parse(offset, CultureInfo.InvariantCulture));
             }

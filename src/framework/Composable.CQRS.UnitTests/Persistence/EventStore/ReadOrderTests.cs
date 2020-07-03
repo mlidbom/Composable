@@ -49,20 +49,22 @@ namespace Composable.Tests.Persistence.EventStore
 
         [Test] public void RoundTripping_SqlDecimal_results_in_same_value()
         {
-            void TestValue(string value)
+            void TestValue(ReadOrder value)
             {
-                var sql = SqlDecimal.Parse(value);
-                var order = ReadOrder.Parse(value);
+                var stringValue = value.ToString();
+                var sql = value.ToSqlDecimal();
+                var order = value;
+                ReadOrder.FromSqlDecimal(sql).Should().Be(value);
 
-                sql.ToString().Should().Be(value);
-                order.ToString().Should().Be(value);
+                sql.ToString().Should().Be(stringValue);
+                order.ToString().Should().Be(stringValue);
 
                 order.ToSqlDecimal().Should().Be(sql);
 
-                ReadOrder.FromSqlDecimal(sql).ToString().Should().Be(value);
+                ReadOrder.FromSqlDecimal(sql).ToString().Should().Be(stringValue);
             }
 
-            TestValue(CreateString(1, 2));
+            TestValue(Create(1, 2));
         }
 
         [Test] public void InsertionIntervals()

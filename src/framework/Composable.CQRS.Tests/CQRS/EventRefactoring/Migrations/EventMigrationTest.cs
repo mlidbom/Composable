@@ -169,14 +169,14 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         }
 
         [Test]
-        public void Given_Ec1_E1_Inserting_E3_E2_before_E1_then_E4_before_E3()
+        public void Given_Ec1_E1_Inserting_E3_E2_before_E1_then_E4_before_E3_then_E5_before_E4()
         {
             RunMigrationTest(new MigrationScenario(
             Seq.OfTypes<Ec1, E1>(),
             Seq.OfTypes<Ec1, E5, E4, E3, E2, E1>(),
             Before<E1>.Insert<E3, E2>(), //Ec1, E3, E2, E1
-            Before<E3>.Insert<E4>(),
-            Before<E4>.Insert<E5>())); //Ec1, E4, E3, E2, E1
+            Before<E3>.Insert<E4>(), //Ec1, E4, E3, E2, E1
+            Before<E4>.Insert<E5>())); //Ec1, E5, E4, E3, E2, E1
         }
 
         [Test]

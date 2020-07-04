@@ -1,7 +1,6 @@
 using System;
 using System.Data.SqlClient;
 using System.Transactions;
-using Composable.Contracts;
 using Composable.Persistence.SqlServer.SystemExtensions;
 using JetBrains.Annotations;
 

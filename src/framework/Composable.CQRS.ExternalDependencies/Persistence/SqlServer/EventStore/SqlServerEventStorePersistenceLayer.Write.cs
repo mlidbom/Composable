@@ -7,7 +7,7 @@ using Composable.Contracts;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.System;
-using Col = Composable.Persistence.SqlServer.EventStore.SqlServerEventTable.Columns;
+using C = Composable.Persistence.SqlServer.EventStore.EventTable.Columns;
 using ReadOrder = Composable.Persistence.EventStore.IEventStorePersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.SqlServer.EventStore
@@ -26,36 +26,36 @@ namespace Composable.Persistence.SqlServer.EventStore
                         command => command.SetCommandText(
                                                //urgent: ensure that READCOMMITTED is really sane here and add comment.
                                                $@"
-INSERT {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK) 
-(       {Col.AggregateId},  {Col.InsertedVersion},  {Col.EffectiveVersion},  {Col.EffectiveOrder},  {Col.EventType},  {Col.EventId},  {Col.UtcTimeStamp},  {Col.Event},  {Col.InsertAfter}, {Col.InsertBefore},  {Col.Replaces}) 
-VALUES(@{Col.AggregateId}, @{Col.InsertedVersion}, @{Col.EffectiveVersion}, @{Col.EffectiveOrder}, @{Col.EventType}, @{Col.EventId}, @{Col.UtcTimeStamp}, @{Col.Event}, @{Col.InsertAfter},@{Col.InsertBefore}, @{Col.Replaces})
-IF(@{Col.EffectiveOrder} IS NULL)
+INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
+(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.InsertAfter}, {C.InsertBefore},  {C.Replaces}) 
+VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.EffectiveOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.InsertAfter},@{C.InsertBefore}, @{C.Replaces})
+IF(@{C.EffectiveOrder} IS NULL)
 BEGIN
-    UPDATE {SqlServerEventTable.Name} With(READCOMMITTED, ROWLOCK)
-    SET {Col.EffectiveOrder} = cast({Col.InsertionOrder} as {SqlServerEventTable.ReadOrderType}),
-        {Col.ReadOrder} = {Col.InsertionOrder}
-    WHERE {Col.EventId} = @{Col.EventId}
+    UPDATE {EventTable.Name} With(READCOMMITTED, ROWLOCK)
+    SET {C.EffectiveOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType}),
+        {C.ReadOrder} = {C.InsertionOrder}
+    WHERE {C.EventId} = @{C.EventId}
 END
 ")
                                            //SET @{Col.InsertionOrder} = SCOPE_IDENTITY();
-                                          .AddParameter(Col.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
-                                          .AddParameter(Col.InsertedVersion, data.RefactoringInformation.InsertedVersion)
-                                          .AddParameter(Col.EventType, data.EventType)
-                                          .AddParameter(Col.EventId, data.EventId)
-                                          .AddDateTime2Parameter(Col.UtcTimeStamp, data.UtcTimeStamp)
-                                          .AddNVarcharMaxParameter(Col.Event, data.EventJson)
+                                          .AddParameter(C.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
+                                          .AddParameter(C.InsertedVersion, data.RefactoringInformation.InsertedVersion)
+                                          .AddParameter(C.EventType, data.EventType)
+                                          .AddParameter(C.EventId, data.EventId)
+                                          .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
+                                          .AddNVarcharMaxParameter(C.Event, data.EventJson)
 
-                                          .AddNullableParameter(Col.EffectiveOrder, SqlDbType.Decimal, data.RefactoringInformation.EffectiveOrder?.ToSqlDecimal())
-                                          .AddNullableParameter(Col.EffectiveVersion, SqlDbType.Int, data.RefactoringInformation.EffectiveVersion)
-                                          .AddNullableParameter(Col.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
-                                          .AddNullableParameter(Col.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
-                                          .AddNullableParameter(Col.Replaces, SqlDbType.UniqueIdentifier, data.RefactoringInformation.Replaces)
+                                          .AddNullableParameter(C.EffectiveOrder, SqlDbType.Decimal, data.RefactoringInformation.EffectiveOrder?.ToSqlDecimal())
+                                          .AddNullableParameter(C.EffectiveVersion, SqlDbType.Int, data.RefactoringInformation.EffectiveVersion)
+                                          .AddNullableParameter(C.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
+                                          .AddNullableParameter(C.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
+                                          .AddNullableParameter(C.Replaces, SqlDbType.UniqueIdentifier, data.RefactoringInformation.Replaces)
                                           .ExecuteNonQuery());
                 }
                 catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
                 {
                     //todo: Make sure we have test coverage for this.
-                    throw new SqlServerEventStoreOptimisticConcurrencyException(e);
+                    throw new EventStoreOptimisticConcurrencyException(e);
                 }
             }
         }
@@ -63,7 +63,7 @@ END
         public void UpdateEffectiveVersions(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
         {
             var commandText = versions.Select((spec, index) =>
-                                                  $@"UPDATE {SqlServerEventTable.Name} SET {Col.EffectiveVersion} = {spec.EffectiveVersion} WHERE {Col.EventId} = '{spec.EventId}'").Join(Environment.NewLine);
+                                                  $@"UPDATE {EventTable.Name} SET {C.EffectiveVersion} = {spec.EffectiveVersion} WHERE {C.EventId} = '{spec.EventId}'").Join(Environment.NewLine);
 
             _connectionManager.UseCommand(command => command.SetCommandText(commandText).ExecuteNonQuery());
 
@@ -74,11 +74,11 @@ END
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
 
             var selectStatement = $@"
-SELECT  {Col.EffectiveOrder},        
-        (select top 1 {Col.EffectiveOrder} from {SqlServerEventTable.Name} e1 where e1.{Col.EffectiveOrder} < {SqlServerEventTable.Name}.{Col.EffectiveOrder} order by {Col.EffectiveOrder} desc) PreviousReadOrder,
-        (select top 1 {Col.EffectiveOrder} from {SqlServerEventTable.Name} e1 where e1.{Col.EffectiveOrder} > {SqlServerEventTable.Name}.{Col.EffectiveOrder} order by {Col.EffectiveOrder}) NextReadOrder
-FROM    {SqlServerEventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
-where {Col.EventId} = @{Col.EventId}";
+SELECT  {C.EffectiveOrder},        
+        (select top 1 {C.EffectiveOrder} from {EventTable.Name} e1 where e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} desc) PreviousReadOrder,
+        (select top 1 {C.EffectiveOrder} from {EventTable.Name} e1 where e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder}) NextReadOrder
+FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
+where {C.EventId} = @{C.EventId}";
 
             IEventStorePersistenceLayer.EventNeighborhood? neighborhood = null;
 
@@ -86,7 +86,7 @@ where {Col.EventId} = @{Col.EventId}";
                 command =>
                 {
                     command.CommandText = selectStatement;
-                    command.Parameters.Add(new SqlParameter(Col.EventId, SqlDbType.UniqueIdentifier) {Value = eventId});
+                    command.Parameters.Add(new SqlParameter(C.EventId, SqlDbType.UniqueIdentifier) {Value = eventId});
                     using var reader = command.ExecuteReader();
                     reader.Read();
 
@@ -107,8 +107,8 @@ where {Col.EventId} = @{Col.EventId}";
                 command =>
                 {
                     command.CommandText +=
-                        $"DELETE {SqlServerEventTable.Name} With(ROWLOCK) WHERE {Col.AggregateId} = @{Col.AggregateId}";
-                    command.Parameters.Add(new SqlParameter(Col.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});
+                        $"DELETE {EventTable.Name} With(ROWLOCK) WHERE {C.AggregateId} = @{C.AggregateId}";
+                    command.Parameters.Add(new SqlParameter(C.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});
                     command.ExecuteNonQuery();
                 });
         }

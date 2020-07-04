@@ -1,6 +1,6 @@
 ﻿namespace Composable.Persistence.SqlServer.EventStore
 {
-    static class SqlServerEventTable
+    static class EventTable
     {
         public static string Name { get; } = "Event";
 

@@ -52,7 +52,7 @@ namespace Composable.Persistence.Common.DependencyInjection
             @this.Register(Scoped.For<IEventStore>()
                                  .CreatedBy(
                                       (IEventStorePersistenceLayer persistenceLayer, ITypeMapper typeMapper, IEventStoreSerializer serializer, EventCache cache) =>
-                                          new EventStore.EventStore(
+                                          new Persistence.EventStore.EventStore(
                                               persistenceLayer: persistenceLayer,
                                               typeMapper: typeMapper,
                                               serializer: serializer,

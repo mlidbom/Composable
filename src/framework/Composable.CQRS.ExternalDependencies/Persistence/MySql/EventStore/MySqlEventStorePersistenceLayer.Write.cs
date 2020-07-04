@@ -6,19 +6,23 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.MySql.SystemExtensions;
+using Composable.Persistence.SqlServer.EventStore;
 using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.System;
+using MySql.Data.MySqlClient;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
 using ReadOrder = Composable.Persistence.EventStore.IEventStorePersistenceLayer.ReadOrder;
 
-namespace Composable.Persistence.SqlServer.EventStore
+namespace Composable.Persistence.MySql.EventStore
 {
-    partial class SqlServerEventStorePersistenceLayer
+    partial class MySqlEventStorePersistenceLayer
     {
         const int PrimaryKeyViolationSqlErrorNumber = 2627;
 
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {
+            throw new NotImplementedException();
             _connectionManager.UseConnection(connection =>
             {
                 foreach(var data in events)
@@ -40,19 +44,19 @@ BEGIN
     WHERE {C.EventId} = @{C.EventId}
 END
 ")
-                                               //SET @{Col.InsertionOrder} = SCOPE_IDENTITY();
-                                              .AddParameter(C.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
-                                              .AddParameter(C.InsertedVersion, data.RefactoringInformation.InsertedVersion)
-                                              .AddParameter(C.EventType, data.EventType)
-                                              .AddParameter(C.EventId, data.EventId)
-                                              .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
-                                              .AddNVarcharMaxParameter(C.Event, data.EventJson)
+                                               //Urgent: implement
+                                              //.AddParameter(C.AggregateId, MySqlDbType.UniqueIdentifier, data.AggregateId)
+                                              //.AddParameter(C.InsertedVersion, data.RefactoringInformation.InsertedVersion)
+                                              //.AddParameter(C.EventType, data.EventType)
+                                              //.AddParameter(C.EventId, data.EventId)
+                                              //.AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
+                                              //.AddMediumTextParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.EffectiveOrder, SqlDbType.Decimal, data.RefactoringInformation.EffectiveOrder?.ToSqlDecimal())
-                                              .AddNullableParameter(C.EffectiveVersion, SqlDbType.Int, data.RefactoringInformation.EffectiveVersion)
-                                              .AddNullableParameter(C.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
-                                              .AddNullableParameter(C.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
-                                              .AddNullableParameter(C.Replaces, SqlDbType.UniqueIdentifier, data.RefactoringInformation.Replaces)
+                                              //.AddNullableParameter(C.EffectiveOrder, MySqlDbType.Decimal, data.RefactoringInformation.EffectiveOrder?.ToSqlDecimal())
+                                              //.AddNullableParameter(C.EffectiveVersion, MySqlDbType.Int, data.RefactoringInformation.EffectiveVersion)
+                                              //.AddNullableParameter(C.InsertAfter, MySqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
+                                              //.AddNullableParameter(C.InsertBefore, MySqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
+                                              //.AddNullableParameter(C.Replaces, MySqlDbType.UniqueIdentifier, data.RefactoringInformation.Replaces)
                                               .ExecuteNonQuery());
                     }
                     catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
@@ -86,35 +90,40 @@ where {C.EventId} = @{C.EventId}";
 
             IEventStorePersistenceLayer.EventNeighborhood? neighborhood = null;
 
-            _connectionManager.UseCommand(
-                command =>
-                {
-                    command.CommandText = selectStatement;
-                    command.Parameters.Add(new SqlParameter(C.EventId, SqlDbType.UniqueIdentifier) {Value = eventId});
-                    using var reader = command.ExecuteReader();
-                    reader.Read();
+            //urgent:implement
+            throw new NotImplementedException();
+            //_connectionManager.UseCommand(
+            //    command =>
+            //    {
+            //        command.CommandText = selectStatement;
+                    
+            //        command.Parameters.Add(new SqlParameter(C.EventId, MySqlDbType.UniqueIdentifier) {Value = eventId});
+            //        using var reader = command.ExecuteReader();
+            //        reader.Read();
 
-                    var effectiveReadOrder = reader.GetSqlDecimal(0);
-                    var previousEventReadOrder = reader.GetSqlDecimal(1);
-                    var nextEventReadOrder = reader.GetSqlDecimal(2);
-                    neighborhood = new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: ReadOrder.FromSqlDecimal(effectiveReadOrder),
-                                                                                     previousEventReadOrder: previousEventReadOrder.IsNull ? null : new ReadOrder?(ReadOrder.FromSqlDecimal(previousEventReadOrder)),
-                                                                                     nextEventReadOrder: nextEventReadOrder.IsNull ? null : new ReadOrder?(ReadOrder.FromSqlDecimal(nextEventReadOrder)));
-                });
+            //        var effectiveReadOrder = reader.GetMySqlDecimal(0);
+            //        var previousEventReadOrder = reader.GetMySqlDecimal(1);
+            //        var nextEventReadOrder = reader.GetMySqlDecimal(2);
+            //        neighborhood = new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: ReadOrder.FromSqlDecimal(effectiveReadOrder),
+            //                                                                         previousEventReadOrder: previousEventReadOrder.IsNull ? null : new ReadOrder?(ReadOrder.FromSqlDecimal(previousEventReadOrder)),
+            //                                                                         nextEventReadOrder: nextEventReadOrder.IsNull ? null : new ReadOrder?(ReadOrder.FromSqlDecimal(nextEventReadOrder)));
+            //    });
 
             return Assert.Result.NotNull(neighborhood);
         }
 
         public void DeleteAggregate(Guid aggregateId)
         {
-            _connectionManager.UseCommand(
-                command =>
-                {
-                    command.CommandText +=
-                        $"DELETE {EventTable.Name} With(ROWLOCK) WHERE {C.AggregateId} = @{C.AggregateId}";
-                    command.Parameters.Add(new SqlParameter(C.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});
-                    command.ExecuteNonQuery();
-                });
+            //urgent:implement
+            throw new NotImplementedException();
+            //_connectionManager.UseCommand(
+            //    command =>
+            //    {
+            //        command.CommandText +=
+            //            $"DELETE {EventTable.Name} With(ROWLOCK) WHERE {C.AggregateId} = @{C.AggregateId}";
+            //        command.Parameters.Add(new SqlParameter(C.AggregateId, MySqlDbType.UniqueIdentifier) {Value = aggregateId});
+            //        command.ExecuteNonQuery();
+            //    });
         }
     }
 }

@@ -1,5 +1,13 @@
 ﻿using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
+using Composable.Persistence.DocumentDb;
+using Composable.Persistence.EventStore;
+using Composable.Persistence.MySql.DocumentDb;
+using Composable.Persistence.MySql.EventStore;
+using Composable.Persistence.MySql.SystemExtensions;
+using Composable.Persistence.MySql.Testing.Databases;
+using Composable.Refactoring.Naming;
+using Composable.System.Configuration;
 
 namespace Composable.Persistence.MySql.DependencyInjection
 {
@@ -13,6 +21,37 @@ namespace Composable.Persistence.MySql.DependencyInjection
 
         public static void RegisterMySqlPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
         {
+            //Connection management
+            if(container.RunMode.IsTesting)
+            {
+                container.Register(Singleton.For<MySqlDatabasePool>()
+                                            .CreatedBy(((IConfigurationParameterProvider configurationParameterProvider) => new MySqlDatabasePool(configurationParameterProvider)))
+                                            .DelegateToParentServiceLocatorWhenCloning());
+
+                container.Register(
+                    Singleton.For<IMySqlConnectionProvider>()
+                             .CreatedBy((MySqlDatabasePool pool) => new MySqlConnectionProvider(pool.ConnectionStringFor(connectionStringName)))
+                );
+            } else
+            {
+                container.Register(
+                    Singleton.For<IMySqlConnectionProvider>()
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => new MySqlConnectionProvider(configurationParameterProvider.GetString(connectionStringName)))
+                             .DelegateToParentServiceLocatorWhenCloning());
+            }
+
+            //DocumentDB
+            container.Register(
+                Singleton.For<IDocumentDbPersistenceLayer>()
+                         .CreatedBy((IMySqlConnectionProvider connectionProvider) => new MySqlDocumentDbPersistenceLayer(connectionProvider)));
+
+
+            //Event store
+            container.Register(
+                Singleton.For<MySqlEventStoreConnectionManager>()
+                         .CreatedBy((IMySqlConnectionProvider sqlConnectionProvider) => new MySqlEventStoreConnectionManager(sqlConnectionProvider)),
+                Singleton.For<IEventStorePersistenceLayer>()
+                         .CreatedBy((MySqlEventStoreConnectionManager connectionManager, ITypeMapper typeMapper) => new MySqlEventStorePersistenceLayer(connectionManager)));
         }
     }
 }

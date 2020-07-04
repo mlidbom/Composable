@@ -2,20 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Data.SqlTypes;
 using System.Linq;
 using Composable.Persistence.Common.EventStore;
-using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.MySql.SystemExtensions;
+using MySql.Data.MySqlClient;
+using MySql.Data.Types;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
 
-namespace Composable.Persistence.SqlServer.EventStore
+namespace Composable.Persistence.MySql.EventStore
 {
-    partial class SqlServerEventStorePersistenceLayer : IEventStorePersistenceLayer
+    partial class MySqlEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
-        readonly SqlServerEventStoreConnectionManager _connectionManager;
+        readonly MySqlEventStoreConnectionManager _connectionManager;
 
-        public SqlServerEventStorePersistenceLayer(SqlServerEventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
+        public MySqlEventStorePersistenceLayer(MySqlEventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
 
         static string CreateSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
         static string CreateSelectTopClause(int top, bool takeWriteLock) => InternalSelect(top: top, takeWriteLock: takeWriteLock);
@@ -32,24 +33,29 @@ SELECT {topClause}
 FROM {EventTable.Name} {lockHint} ";
         }
 
-        static EventDataRow ReadDataRow(SqlDataReader eventReader) => new EventDataRow(
-            eventType: eventReader.GetGuid(0),
-            eventJson: eventReader.GetString(1),
-            eventId: eventReader.GetGuid(4),
-            aggregateVersion: eventReader.GetInt32(3),
-            aggregateId: eventReader.GetGuid(2),
-            //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
-            utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
-            refactoringInformation: new AggregateEventRefactoringInformation()
-                                    {
-                                        EffectiveOrder = IEventStorePersistenceLayer.ReadOrder.FromSqlDecimal(eventReader.GetSqlDecimal(11)),
-                                        InsertedVersion = eventReader.GetInt32(10),
-                                        EffectiveVersion = eventReader.GetInt32(3),
-                                        InsertAfter = eventReader[7] as Guid?,
-                                        InsertBefore = eventReader[8] as Guid?,
-                                        Replaces = eventReader[9] as Guid?
-                                    }
-        );
+        static EventDataRow ReadDataRow(MySqlDataReader eventReader)
+        {
+            throw new NotImplementedException();
+            return new EventDataRow(
+                eventType: eventReader.GetGuid(0),
+                eventJson: eventReader.GetString(1),
+                eventId: eventReader.GetGuid(4),
+                aggregateVersion: eventReader.GetInt32(3),
+                aggregateId: eventReader.GetGuid(2),
+                //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
+                utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
+                refactoringInformation: new AggregateEventRefactoringInformation()
+                                        {
+                                            //urgent:implement
+                                            //EffectiveOrder = IEventStorePersistenceLayer.ReadOrder.FromSqlDecimal(eventReader.GetMySqlDecimal(11)),
+                                            InsertedVersion = eventReader.GetInt32(10),
+                                            EffectiveVersion = eventReader.GetInt32(3),
+                                            InsertAfter = eventReader[7] as Guid?,
+                                            InsertBefore = eventReader[8] as Guid?,
+                                            Replaces = eventReader[9] as Guid?
+                                        }
+            );
+        }
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
             _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
@@ -66,7 +72,7 @@ ORDER BY {C.EffectiveOrder} ASC")
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
         {
-            SqlDecimal lastReadEventReadOrder = 0;
+            MySqlDecimal lastReadEventReadOrder = default;
             int fetchedInThisBatch;
             do
             {
@@ -76,12 +82,14 @@ ORDER BY {C.EffectiveOrder} ASC")
 WHERE {C.EffectiveOrder}  > @{C.EffectiveOrder}
     AND {C.EffectiveVersion} > 0
 ORDER BY {C.EffectiveOrder} ASC")
-                                                                                  .AddParameter(C.EffectiveOrder, SqlDbType.Decimal, lastReadEventReadOrder)
+                                                                                  .AddParameter(C.EffectiveOrder, MySqlDbType.Decimal, lastReadEventReadOrder)
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList());
                 if(historyData.Any())
                 {
-                    lastReadEventReadOrder = historyData[^1].RefactoringInformation.EffectiveOrder!.Value.ToSqlDecimal();
+                    //urgent:implement
+                    throw new NotImplementedException();
+                    //lastReadEventReadOrder = historyData[^1].RefactoringInformation.EffectiveOrder!.Value.ToSqlDecimal();
                 }
 
                 //We do not yield while reading from the reader since that may cause code to run that will cause another sql call into the same connection. Something that throws an exception unless you use an unusual and non-recommended connection string setting.

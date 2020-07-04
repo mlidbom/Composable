@@ -1,4 +1,4 @@
-﻿namespace Composable.Persistence.SqlServer.EventStore
+﻿namespace Composable.Persistence.Common.EventStore
 {
     static class EventTable
     {

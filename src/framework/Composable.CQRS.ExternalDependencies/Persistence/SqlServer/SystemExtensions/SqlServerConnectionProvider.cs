@@ -8,22 +8,16 @@ using Composable.System;
 
 namespace Composable.Persistence.SqlServer.SystemExtensions
 {
-    class SqlServerConnectionProvider : LazySqlServerConnectionProvider
+    class SqlServerConnectionProvider : ISqlServerConnectionProvider
     {
-        public SqlServerConnectionProvider(string connectionString) : base(() => connectionString) {}
-    }
-
-    class LazySqlServerConnectionProvider : ISqlServerConnectionProvider
-    {
-        readonly OptimizedLazy<string> _connectionString;
-        public string ConnectionString => _connectionString.Value;
-
-        public LazySqlServerConnectionProvider(Func<string> connectionStringFactory) => _connectionString = new OptimizedLazy<string>(connectionStringFactory);
+        public string ConnectionString { get; }
+        public SqlServerConnectionProvider(string connectionString) => ConnectionString = connectionString;
 
         public SqlConnection OpenConnection()
         {
             var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier;
-            var connection = new SqlConnection(ConnectionString);
+            var connectionString = ConnectionString;
+            var connection = new SqlConnection(connectionString);
             connection.Open();
             if(transactionInformationDistributedIdentifierBefore != null && transactionInformationDistributedIdentifierBefore.Value == Guid.Empty)
             {
@@ -32,9 +26,18 @@ namespace Composable.Persistence.SqlServer.SystemExtensions
                     throw new Exception("Opening connection escalated transaction to distributed. For now this is disallowed");
                 }
             }
-
             return connection;
         }
+    }
+
+    class LazySqlServerConnectionProvider : ISqlServerConnectionProvider
+    {
+        readonly OptimizedLazy<ISqlServerConnectionProvider> _connectionProvider;
+
+        public LazySqlServerConnectionProvider(Func<string> connectionStringFactory) => _connectionProvider = new OptimizedLazy<ISqlServerConnectionProvider>(() => new SqlServerConnectionProvider(connectionStringFactory()));
+
+        public SqlConnection OpenConnection() => _connectionProvider.Value.OpenConnection();
+        public string ConnectionString => _connectionProvider.Value.ConnectionString;
     }
 
     static class SqlDataReaderExtensions

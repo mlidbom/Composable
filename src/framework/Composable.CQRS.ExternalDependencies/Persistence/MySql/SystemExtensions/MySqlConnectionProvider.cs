@@ -8,17 +8,10 @@ using Composable.System;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {
-    class MySqlConnectionProvider : LazyMySqlConnectionProvider
+    class MySqlConnectionProvider : IMySqlConnectionProvider
     {
-        public MySqlConnectionProvider(string connectionString) : base(() => connectionString) {}
-    }
-
-    class LazyMySqlConnectionProvider : IMySqlConnectionProvider
-    {
-        readonly OptimizedLazy<string> _connectionString;
-        public string ConnectionString => _connectionString.Value;
-
-        public LazyMySqlConnectionProvider(Func<string> connectionStringFactory) => _connectionString = new OptimizedLazy<string>(connectionStringFactory);
+        public string ConnectionString { get; }
+        public MySqlConnectionProvider(string connectionString) => ConnectionString = connectionString;
 
         public MySqlConnection OpenConnection()
         {
@@ -35,6 +28,16 @@ namespace Composable.Persistence.MySql.SystemExtensions
             }
             return connection;
         }
+    }
+
+    class LazyMySqlConnectionProvider : IMySqlConnectionProvider
+    {
+        readonly OptimizedLazy<IMySqlConnectionProvider> _connectionProvider;
+
+        public LazyMySqlConnectionProvider(Func<string> connectionStringFactory) => _connectionProvider = new OptimizedLazy<IMySqlConnectionProvider>(() => new MySqlConnectionProvider(connectionStringFactory()));
+
+        public MySqlConnection OpenConnection() => _connectionProvider.Value.OpenConnection();
+        public string ConnectionString => _connectionProvider.Value.ConnectionString;
     }
 
     static class MySqlDataReaderExtensions

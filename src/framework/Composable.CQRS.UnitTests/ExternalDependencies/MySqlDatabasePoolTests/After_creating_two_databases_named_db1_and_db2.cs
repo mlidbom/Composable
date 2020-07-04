@@ -20,13 +20,13 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
         [SetUp] public void SetupTask()
         {
             _manager = new MySqlDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
-            _dB1ConnectionString = _manager.ConnectionProviderFor(Db1);
-            _dB2ConnectionString = _manager.ConnectionProviderFor(Db2);
+            _dB1ConnectionString = ConnectionProviderFor(Db1);
+            _dB2ConnectionString = ConnectionProviderFor(Db2);
         }
 
         [Test] public void Connection_to_Db1_can_be_opened_and_used()
         {
-            _manager.ConnectionProviderFor(Db1)
+            ConnectionProviderFor(Db1)
                     .ExecuteScalar("select 1")
                     .Should()
                     .Be(1);
@@ -41,7 +41,7 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
 
         [Test] public void The_same_connection_string_is_returned_by_each_call_to_CreateOrGetLocalDb_Db1()
         {
-            _manager.ConnectionProviderFor(Db1)
+            ConnectionProviderFor(Db1)
                     .ConnectionString
                     .Should()
                     .Be(_dB1ConnectionString.ConnectionString);
@@ -49,7 +49,7 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
 
         [Test] public void The_same_connection_string_is_returned_by_each_call_to_CreateOrGetLocalDb_Db2()
         {
-            _manager.ConnectionProviderFor(Db2)
+            ConnectionProviderFor(Db2)
                     .ConnectionString
                     .Should()
                     .Be(_dB2ConnectionString.ConnectionString);
@@ -66,10 +66,12 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
             _manager.Dispose();
 
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-            _manager.Invoking(man => man.ConnectionProviderFor(Db1).ConnectionString.ToString())
+            _manager.Invoking(man => ConnectionProviderFor(Db1).ConnectionString)
                     .Should().Throw<Exception>()
                     .Where(exception => exception.Message.ToLower()
                                                  .Contains("disposed"));
         }
+
+        IMySqlConnectionProvider ConnectionProviderFor(string dbName) => new MySqlConnectionProvider(_manager.ConnectionStringFor(dbName));
     }
 }

@@ -76,7 +76,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
 
         public IMySqlConnectionProvider ConnectionProviderFor(string reservationName) => new LazyMySqlConnectionProvider(() => ConnectionStringFor(reservationName));
 
-        string ConnectionStringFor(string reservationName) => _guard.Update(() =>
+        public string ConnectionStringFor(string reservationName) => _guard.Update(() =>
         {
             Contract.Assert.That(!_disposed, "!_disposed");
             EnsureInitialized();

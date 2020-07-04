@@ -5,7 +5,6 @@ using System.Threading;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
-using Composable.Persistence.SqlServer.Configuration;
 using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.System;
 using Composable.System.Configuration;
@@ -47,7 +46,7 @@ namespace Composable.Persistence.SqlServer.Testing.Databases
 
                 var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_SQL_SERVER_DATABASE_POOL_MASTER_CONNECTIONSTRING";
                 var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
-                _masterConnectionString = masterConnectionString ?? new ConfigurationSqlServerConnectionProviderSource(_configurationParameterProvider).GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
+                _masterConnectionString = masterConnectionString ?? _configurationParameterProvider.GetString(composableDatabasePoolMasterConnectionstringName);
 
                 _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
@@ -77,7 +76,7 @@ namespace Composable.Persistence.SqlServer.Testing.Databases
 
         public ISqlServerConnectionProvider ConnectionProviderFor(string reservationName) => new LazySqlServerConnectionProvider(() => ConnectionStringFor(reservationName));
 
-        string ConnectionStringFor(string reservationName) => _guard.Update(() =>
+        public string ConnectionStringFor(string reservationName) => _guard.Update(() =>
         {
             Contract.Assert.That(!_disposed, "!_disposed");
             EnsureInitialized();

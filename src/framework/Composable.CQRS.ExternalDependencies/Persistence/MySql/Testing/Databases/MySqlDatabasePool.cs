@@ -5,7 +5,6 @@ using System.Threading;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
-using Composable.Persistence.MySql.Configuration;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.System;
 using Composable.System.Configuration;
@@ -47,7 +46,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
 
                 var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
                 var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
-                _masterConnectionString = masterConnectionString ?? new ConfigurationMyMySqlConnectionProviderSource(_configurationParameterProvider).GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
+                _masterConnectionString = masterConnectionString ?? _configurationParameterProvider.GetString(composableDatabasePoolMasterConnectionstringName);
 
                 _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 

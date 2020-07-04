@@ -3,11 +3,11 @@ using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.SqlServer.Configuration;
 using Composable.Persistence.SqlServer.DocumentDb.SqlServer;
 using Composable.Persistence.SqlServer.EventStore;
 using Composable.Persistence.SqlServer.Messaging.Buses.Implementation;
 using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.SqlServer.Testing.Databases;
 using Composable.Refactoring.Naming;
 using Composable.System.Configuration;
 
@@ -29,24 +29,22 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
             //Connection management
             if(container.RunMode.IsTesting)
             {
+                container.Register(Singleton.For<SqlServerDatabasePool>()
+                                            .CreatedBy(((IConfigurationParameterProvider configurationParameterProvider) => new SqlServerDatabasePool(configurationParameterProvider)))
+                                            .DelegateToParentServiceLocatorWhenCloning());
+
                 container.Register(
-                    Singleton.For<ISqlServerConnectionProviderSource>()
-                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider)
-                                            => (ISqlServerConnectionProviderSource)new SqlServerServerDatabasePoolSqlServerConnectionProviderSource(configurationParameterProvider))
-                             .DelegateToParentServiceLocatorWhenCloning());
+                    Singleton.For<ISqlServerConnectionProvider>()
+                             .CreatedBy((SqlServerDatabasePool pool) => new SqlServerConnectionProvider(pool.ConnectionStringFor(connectionStringName)))
+                );
             } else
             {
                 container.Register(
-                    Singleton.For<ISqlServerConnectionProviderSource>()
-                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider)
-                                            => new ConfigurationSqlServerConnectionProviderSource(configurationParameterProvider))
+                    Singleton.For<ISqlServerConnectionProvider>()
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => new SqlServerConnectionProvider(configurationParameterProvider.GetString(connectionStringName)))
                              .DelegateToParentServiceLocatorWhenCloning());
             }
 
-            container.Register(
-                Singleton.For<ISqlServerConnectionProvider>()
-                         .CreatedBy((ISqlServerConnectionProviderSource providerSource) => new LazySqlServerConnectionProvider(() => providerSource.GetConnectionProvider(connectionStringName).ConnectionString))
-            );
 
             //Service bus
             //Bug: Urgent: Registering these as Scoped does not cause a failure even though the endpoint builder wires singletons to use them.

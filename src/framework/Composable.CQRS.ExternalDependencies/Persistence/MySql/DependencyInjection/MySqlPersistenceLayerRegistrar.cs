@@ -1,9 +1,11 @@
 ﻿using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.MySql.DocumentDb;
 using Composable.Persistence.MySql.EventStore;
+using Composable.Persistence.MySql.Messaging.Buses.Implementation;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MySql.Testing.Databases;
 using Composable.Refactoring.Naming;
@@ -39,6 +41,13 @@ namespace Composable.Persistence.MySql.DependencyInjection
                              .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => new MySqlConnectionProvider(configurationParameterProvider.GetString(connectionStringName)))
                              .DelegateToParentServiceLocatorWhenCloning());
             }
+
+            //Service bus
+            container.Register(
+                Singleton.For<IServiceBusPersistenceLayer.IOutboxPersistenceLayer>()
+                         .CreatedBy((IMySqlConnectionProvider endpointSqlConnection) => new MySqlOutboxPersistenceLayer(endpointSqlConnection)),
+                Singleton.For<IServiceBusPersistenceLayer.IInboxPersistenceLayer>()
+                         .CreatedBy((IMySqlConnectionProvider endpointSqlConnection) => new MySqlInboxPersistenceLayer(endpointSqlConnection)));
 
             //DocumentDB
             container.Register(

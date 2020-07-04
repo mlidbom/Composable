@@ -13,7 +13,7 @@ namespace Composable.Persistence.MySql.SystemExtensions
         public static object ExecuteScalar(this MySqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteScalar();
         public static async Task<object> ExecuteScalarAsync(this MySqlCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteScalarAsync();
         public static void ExecuteNonQuery(this MySqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteNonQuery();
-        public static async Task ExecuteNonQueryAsync(this MySqlCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteNonQueryAsync();
+        public static async Task<int> ExecuteNonQueryAsync(this MySqlCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteNonQueryAsync();
         public static MySqlCommand AppendCommandText(this MySqlCommand @this, string append) => @this.Mutate(me => me.CommandText += append);
         public static MySqlCommand SetCommandText(this MySqlCommand @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
         public static IReadOnlyList<T> ExecuteReaderAndSelect<T>(this MySqlCommand @this, Func<MySqlDataReader, T> select)

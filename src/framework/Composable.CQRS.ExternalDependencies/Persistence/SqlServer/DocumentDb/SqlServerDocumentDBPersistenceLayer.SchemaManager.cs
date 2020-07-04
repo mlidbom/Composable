@@ -1,7 +1,7 @@
 ﻿using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.System.Transactions;
 
-namespace Composable.Persistence.SqlServer.DocumentDb.SqlServer
+namespace Composable.Persistence.SqlServer.DocumentDb
 {
     partial class SqlServerDocumentDbPersistenceLayer
     {

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -8,7 +7,7 @@ using Composable.Persistence.DocumentDb;
 using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.System;
 
-namespace Composable.Persistence.SqlServer.DocumentDb.SqlServer
+namespace Composable.Persistence.SqlServer.DocumentDb
 {
     partial class SqlServerDocumentDbPersistenceLayer : IDocumentDbPersistenceLayer
     {

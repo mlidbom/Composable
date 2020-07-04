@@ -18,14 +18,16 @@ namespace Composable.Persistence.SqlServer.EventStore
 
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {
-            foreach(var data in events)
+            _connectionManager.UseConnection(connection =>
             {
-                try
+                foreach(var data in events)
                 {
-                    _connectionManager.UseCommand(
-                        command => command.SetCommandText(
-                                               //urgent: ensure that READCOMMITTED is really sane here and add comment.
-                                               $@"
+                    try
+                    {
+                        connection.UseCommand(
+                            command => command.SetCommandText(
+                                                   //urgent: ensure that READCOMMITTED is really sane here and add comment.
+                                                   $@"
 INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
 (       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.InsertAfter}, {C.InsertBefore},  {C.Replaces}) 
 VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.EffectiveOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.InsertAfter},@{C.InsertBefore}, @{C.Replaces})
@@ -37,27 +39,28 @@ BEGIN
     WHERE {C.EventId} = @{C.EventId}
 END
 ")
-                                           //SET @{Col.InsertionOrder} = SCOPE_IDENTITY();
-                                          .AddParameter(C.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
-                                          .AddParameter(C.InsertedVersion, data.RefactoringInformation.InsertedVersion)
-                                          .AddParameter(C.EventType, data.EventType)
-                                          .AddParameter(C.EventId, data.EventId)
-                                          .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
-                                          .AddNVarcharMaxParameter(C.Event, data.EventJson)
+                                               //SET @{Col.InsertionOrder} = SCOPE_IDENTITY();
+                                              .AddParameter(C.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
+                                              .AddParameter(C.InsertedVersion, data.RefactoringInformation.InsertedVersion)
+                                              .AddParameter(C.EventType, data.EventType)
+                                              .AddParameter(C.EventId, data.EventId)
+                                              .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
+                                              .AddNVarcharMaxParameter(C.Event, data.EventJson)
 
-                                          .AddNullableParameter(C.EffectiveOrder, SqlDbType.Decimal, data.RefactoringInformation.EffectiveOrder?.ToSqlDecimal())
-                                          .AddNullableParameter(C.EffectiveVersion, SqlDbType.Int, data.RefactoringInformation.EffectiveVersion)
-                                          .AddNullableParameter(C.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
-                                          .AddNullableParameter(C.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
-                                          .AddNullableParameter(C.Replaces, SqlDbType.UniqueIdentifier, data.RefactoringInformation.Replaces)
-                                          .ExecuteNonQuery());
+                                              .AddNullableParameter(C.EffectiveOrder, SqlDbType.Decimal, data.RefactoringInformation.EffectiveOrder?.ToSqlDecimal())
+                                              .AddNullableParameter(C.EffectiveVersion, SqlDbType.Int, data.RefactoringInformation.EffectiveVersion)
+                                              .AddNullableParameter(C.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
+                                              .AddNullableParameter(C.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
+                                              .AddNullableParameter(C.Replaces, SqlDbType.UniqueIdentifier, data.RefactoringInformation.Replaces)
+                                              .ExecuteNonQuery());
+                    }
+                    catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
+                    {
+                        //todo: Make sure we have test coverage for this.
+                        throw new EventStoreOptimisticConcurrencyException(e);
+                    }
                 }
-                catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
-                {
-                    //todo: Make sure we have test coverage for this.
-                    throw new EventStoreOptimisticConcurrencyException(e);
-                }
-            }
+            });
         }
 
         public void UpdateEffectiveVersions(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
@@ -65,7 +68,7 @@ END
             var commandText = versions.Select((spec, index) =>
                                                   $@"UPDATE {EventTable.Name} SET {C.EffectiveVersion} = {spec.EffectiveVersion} WHERE {C.EventId} = '{spec.EventId}'").Join(Environment.NewLine);
 
-            _connectionManager.UseCommand(command => command.SetCommandText(commandText).ExecuteNonQuery());
+            _connectionManager.UseConnection(connection => connection.ExecuteNonQuery(commandText));
 
         }
 

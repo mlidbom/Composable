@@ -11,6 +11,12 @@ namespace Composable.Persistence.SqlServer.EventStore
         readonly ISqlServerConnectionProvider _connectionProvider;
         public SqlServerEventStoreConnectionManager(ISqlServerConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
 
+        public void UseConnection([InstantHandle] Action<SqlConnection> action)
+        {
+            AssertTransactionPolicy(false);
+            _connectionProvider.UseConnection(action);
+        }
+
         public void UseCommand([InstantHandle]Action<SqlCommand> action) => UseCommand(false, action);
         public void UseCommand(bool suppressTransactionWarning, [InstantHandle] Action<SqlCommand> action)
         {

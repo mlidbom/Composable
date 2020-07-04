@@ -27,18 +27,7 @@ namespace Composable.Persistence.SqlServer.EventStore
 
             return $@"
 SELECT {topClause} 
-    {C.EventType}, 
-    {C.Event}, 
-    {C.AggregateId}, 
-    {C.EffectiveVersion}, 
-    {C.EventId}, 
-    {C.UtcTimeStamp}, 
-    {C.InsertionOrder}, 
-    {C.InsertAfter}, 
-    {C.InsertBefore}, 
-    {C.Replaces}, 
-    {C.InsertedVersion},
-    {C.EffectiveOrder}
+{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.InsertAfter}, {C.InsertBefore}, {C.Replaces}, {C.InsertedVersion}, {C.EffectiveOrder}
 FROM {EventTable.Name} {lockHint} ";
         }
 

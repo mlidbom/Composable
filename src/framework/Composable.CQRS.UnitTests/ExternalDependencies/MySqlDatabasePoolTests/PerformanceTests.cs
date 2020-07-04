@@ -104,7 +104,7 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
 
             TimeAsserter.Execute(
                 action: () => manager.ConnectionProviderFor(dbName).UseConnection(_ => { }),
-                iterations: 200,
+                iterations: 20,
                 maxTotal: 10.Milliseconds()
             );
         }

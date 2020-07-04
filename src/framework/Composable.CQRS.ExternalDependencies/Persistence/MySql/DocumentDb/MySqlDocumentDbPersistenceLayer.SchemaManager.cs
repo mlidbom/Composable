@@ -21,21 +21,15 @@ namespace Composable.Persistence.MySql.DocumentDb
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
                             _connectionProvider.ExecuteNonQuery(@"
-IF NOT EXISTS(select name from sys.tables where name = 'Store')
-BEGIN 
-    CREATE TABLE [dbo].[Store](
-	    [Id] [nvarchar](500) NOT NULL,
-	    [ValueTypeId] uniqueidentifier NOT NULL,
-        [Created] [datetime2] NOT NULL,
-        [Updated] [datetime2] NOT NULL,
-	    [Value] [nvarchar](max) NOT NULL,
-     CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
-    (
-	    [Id] ASC,
-	    [ValueTypeId] ASC
-    )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY]
-    ) ON [PRIMARY]
-END
+CREATE TABLE IF NOT EXISTS store (
+  Id VARCHAR(500) NOT NULL,
+  ValueTypeId CHAR(38) NOT NULL,
+  Created DATETIME NOT NULL,
+  Updated DATETIME NOT NULL,
+  Value MEDIUMTEXT NOT NULL,
+  PRIMARY KEY (Id, ValueTypeId))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
 ");
                         });
                     }

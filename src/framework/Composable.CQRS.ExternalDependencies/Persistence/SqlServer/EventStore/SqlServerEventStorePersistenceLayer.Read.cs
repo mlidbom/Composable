@@ -6,6 +6,7 @@ using System.Data.SqlTypes;
 using System.Linq;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.SqlServer.SystemExtensions;
+using C = Composable.Persistence.SqlServer.EventStore.EventTable.Columns;
 
 namespace Composable.Persistence.SqlServer.EventStore
 {
@@ -26,18 +27,18 @@ namespace Composable.Persistence.SqlServer.EventStore
 
             return $@"
 SELECT {topClause} 
-    {EventTable.Columns.EventType}, 
-    {EventTable.Columns.Event}, 
-    {EventTable.Columns.AggregateId}, 
-    {EventTable.Columns.EffectiveVersion}, 
-    {EventTable.Columns.EventId}, 
-    {EventTable.Columns.UtcTimeStamp}, 
-    {EventTable.Columns.InsertionOrder}, 
-    {EventTable.Columns.InsertAfter}, 
-    {EventTable.Columns.InsertBefore}, 
-    {EventTable.Columns.Replaces}, 
-    {EventTable.Columns.InsertedVersion},
-    {EventTable.Columns.EffectiveOrder}
+    {C.EventType}, 
+    {C.Event}, 
+    {C.AggregateId}, 
+    {C.EffectiveVersion}, 
+    {C.EventId}, 
+    {C.UtcTimeStamp}, 
+    {C.InsertionOrder}, 
+    {C.InsertAfter}, 
+    {C.InsertBefore}, 
+    {C.Replaces}, 
+    {C.InsertedVersion},
+    {C.EffectiveOrder}
 FROM {EventTable.Name} {lockHint} ";
         }
 
@@ -64,11 +65,11 @@ FROM {EventTable.Name} {lockHint} ";
             _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
                                           command => command.SetCommandText($@"
 {CreateSelectClause(takeWriteLock)} 
-WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}
-    AND {EventTable.Columns.InsertedVersion} > @CachedVersion
-    AND {EventTable.Columns.EffectiveVersion} > 0
-ORDER BY {EventTable.Columns.EffectiveOrder} ASC")
-                                                            .AddParameter(EventTable.Columns.AggregateId, aggregateId)
+WHERE {C.AggregateId} = @{C.AggregateId}
+    AND {C.InsertedVersion} > @CachedVersion
+    AND {C.EffectiveVersion} > 0
+ORDER BY {C.EffectiveOrder} ASC")
+                                                            .AddParameter(C.AggregateId, aggregateId)
                                                             .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                             .ExecuteReaderAndSelect(ReadDataRow)
                                                             .ToList());
@@ -82,10 +83,10 @@ ORDER BY {EventTable.Columns.EffectiveOrder} ASC")
                 var historyData = _connectionManager.UseCommand(suppressTransactionWarning: true,
                                                                 command => command.SetCommandText($@"
 {CreateSelectTopClause(batchSize, takeWriteLock: false)} 
-WHERE {EventTable.Columns.EffectiveOrder}  > @{EventTable.Columns.EffectiveOrder}
-    AND {EventTable.Columns.EffectiveVersion} > 0
-ORDER BY {EventTable.Columns.EffectiveOrder} ASC")
-                                                                                  .AddParameter(EventTable.Columns.EffectiveOrder, SqlDbType.Decimal, lastReadEventReadOrder)
+WHERE {C.EffectiveOrder}  > @{C.EffectiveOrder}
+    AND {C.EffectiveVersion} > 0
+ORDER BY {C.EffectiveOrder} ASC")
+                                                                                  .AddParameter(C.EffectiveOrder, SqlDbType.Decimal, lastReadEventReadOrder)
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList());
                 if(historyData.Any())
@@ -107,10 +108,10 @@ ORDER BY {EventTable.Columns.EffectiveOrder} ASC")
         {
             return _connectionManager.UseCommand(suppressTransactionWarning: true,
                                                  action: command => command.SetCommandText($@"
-SELECT {EventTable.Columns.AggregateId}, {EventTable.Columns.EventType} 
+SELECT {C.AggregateId}, {C.EventType} 
 FROM {EventTable.Name} 
-WHERE {EventTable.Columns.EffectiveVersion} = 1 
-ORDER BY {EventTable.Columns.EffectiveOrder} ASC")
+WHERE {C.EffectiveVersion} = 1 
+ORDER BY {C.EffectiveOrder} ASC")
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuid(0), typeId: reader.GetGuid(1))));
         }
     }

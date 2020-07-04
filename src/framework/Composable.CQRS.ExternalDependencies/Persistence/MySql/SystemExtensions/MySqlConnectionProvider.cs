@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data;
 using MySql.Data.MySqlClient;
 using System.Transactions;
-using Composable.System;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {
@@ -16,9 +13,8 @@ namespace Composable.Persistence.MySql.SystemExtensions
         public MySqlConnection OpenConnection()
         {
             var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier;
-            var connectionString = ConnectionString;
-            var connection = new MySqlConnection(connectionString);
-            connection.Open();
+            var connection = GetConnectionFromPool();
+
             if(transactionInformationDistributedIdentifierBefore != null && transactionInformationDistributedIdentifierBefore.Value == Guid.Empty)
             {
                 if(Transaction.Current!.TransactionInformation.DistributedIdentifier != Guid.Empty)
@@ -26,6 +22,14 @@ namespace Composable.Persistence.MySql.SystemExtensions
                     throw new Exception("Opening connection escalated transaction to distributed. For now this is disallowed");
                 }
             }
+            return connection;
+        }
+
+        //Urgent: Since the MySql connection pooling is way slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
+        MySqlConnection GetConnectionFromPool()
+        {
+            var connection = new MySqlConnection(ConnectionString);
+            connection.Open();
             return connection;
         }
     }

@@ -74,8 +74,6 @@ namespace Composable.Persistence.MySql.Testing.Databases
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 
-        public IMySqlConnectionProvider ConnectionProviderFor(string reservationName) => new LazyMySqlConnectionProvider(() => ConnectionStringFor(reservationName));
-
         public string ConnectionStringFor(string reservationName) => _guard.Update(() =>
         {
             Contract.Assert.That(!_disposed, "!_disposed");

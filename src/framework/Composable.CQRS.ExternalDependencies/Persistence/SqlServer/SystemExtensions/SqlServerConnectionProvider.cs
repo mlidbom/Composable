@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Transactions;
-using Composable.System;
 
 namespace Composable.Persistence.SqlServer.SystemExtensions
 {
@@ -28,16 +25,6 @@ namespace Composable.Persistence.SqlServer.SystemExtensions
             }
             return connection;
         }
-    }
-
-    class LazySqlServerConnectionProvider : ISqlServerConnectionProvider
-    {
-        readonly OptimizedLazy<ISqlServerConnectionProvider> _connectionProvider;
-
-        public LazySqlServerConnectionProvider(Func<string> connectionStringFactory) => _connectionProvider = new OptimizedLazy<ISqlServerConnectionProvider>(() => new SqlServerConnectionProvider(connectionStringFactory()));
-
-        public SqlConnection OpenConnection() => _connectionProvider.Value.OpenConnection();
-        public string ConnectionString => _connectionProvider.Value.ConnectionString;
     }
 
     static class SqlDataReaderExtensions

@@ -30,16 +30,6 @@ namespace Composable.Persistence.MySql.SystemExtensions
         }
     }
 
-    class LazyMySqlConnectionProvider : IMySqlConnectionProvider
-    {
-        readonly OptimizedLazy<IMySqlConnectionProvider> _connectionProvider;
-
-        public LazyMySqlConnectionProvider(Func<string> connectionStringFactory) => _connectionProvider = new OptimizedLazy<IMySqlConnectionProvider>(() => new MySqlConnectionProvider(connectionStringFactory()));
-
-        public MySqlConnection OpenConnection() => _connectionProvider.Value.OpenConnection();
-        public string ConnectionString => _connectionProvider.Value.ConnectionString;
-    }
-
     static class MySqlDataReaderExtensions
     {
         public static void ForEachSuccessfulRead(this MySqlDataReader @this, Action<MySqlDataReader> forEach)

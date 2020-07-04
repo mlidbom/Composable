@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.MySql.SystemExtensions;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Transactions;

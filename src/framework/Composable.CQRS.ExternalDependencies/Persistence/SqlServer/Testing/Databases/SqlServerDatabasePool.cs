@@ -45,7 +45,7 @@ namespace Composable.Persistence.SqlServer.Testing.Databases
                     _databaseRootFolderOverride = ComposableTempFolder.EnsureFolderExists("DatabasePoolData");
                 }
 
-                var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+                var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_SQL_SERVER_DATABASE_POOL_MASTER_CONNECTIONSTRING";
                 var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
                 _masterConnectionString = masterConnectionString ?? new ConfigurationSqlServerConnectionProviderSource(_configurationParameterProvider).GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
 

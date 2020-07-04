@@ -6,7 +6,7 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {
-    static class SqlServerCommandExtensions
+    static class MySqlCommandExtensions
     {
         public static void ExecuteReader(this SqlCommand @this, string commandText, Action<SqlDataReader> forEach) => @this.ExecuteReader(commandText).ForEachSuccessfulRead(forEach);
         public static SqlDataReader ExecuteReader(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteReader();

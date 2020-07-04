@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {
-    static class SqlServerConnectionExtensions
+    static class MySqlConnectionExtensions
     {
         public static void UseCommand(this SqlConnection @this, Action<SqlCommand> action)
         {

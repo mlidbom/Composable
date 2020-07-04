@@ -8,17 +8,17 @@ using Composable.System;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {
-    class SqlServerConnectionProvider : LazySqlServerConnectionProvider
+    class MySqlConnectionProvider : LazyMySqlConnectionProvider
     {
-        public SqlServerConnectionProvider(string connectionString) : base(() => connectionString) {}
+        public MySqlConnectionProvider(string connectionString) : base(() => connectionString) {}
     }
 
-    class LazySqlServerConnectionProvider : ISqlServerConnectionProvider
+    class LazyMySqlConnectionProvider : IMySqlConnectionProvider
     {
         readonly OptimizedLazy<string> _connectionString;
         public string ConnectionString => _connectionString.Value;
 
-        public LazySqlServerConnectionProvider(Func<string> connectionStringFactory) => _connectionString = new OptimizedLazy<string>(connectionStringFactory);
+        public LazyMySqlConnectionProvider(Func<string> connectionStringFactory) => _connectionString = new OptimizedLazy<string>(connectionStringFactory);
 
         public SqlConnection OpenConnection()
         {
@@ -77,7 +77,7 @@ namespace Composable.Persistence.MySql.SystemExtensions
         }
     }
 
-    interface ISqlServerConnectionProvider
+    interface IMySqlConnectionProvider
     {
         SqlConnection OpenConnection();
         string ConnectionString { get; }

@@ -1,23 +1,25 @@
 using System;
-using Composable.Persistence.SqlServer.SystemExtensions;
-using Composable.Persistence.SqlServer.Testing.Databases;
+using Composable.DependencyInjection;
+using Composable.Persistence.MySql.SystemExtensions;
+using Composable.Persistence.MySql.Testing.Databases;
 using Composable.System.Configuration;
 using FluentAssertions;
+using NCrunch.Framework;
 using NUnit.Framework;
 
-namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
+namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
 {
     [TestFixture] public class After_creating_two_databases_named_db1_and_db2
     {
-        SqlServerDatabasePool _manager;
-        ISqlServerConnectionProvider _dB1ConnectionString;
-        ISqlServerConnectionProvider _dB2ConnectionString;
+        MySqlDatabasePool _manager;
+        IMySqlConnectionProvider _dB1ConnectionString;
+        IMySqlConnectionProvider _dB2ConnectionString;
         const string Db1 = "LocalDBManagerTests_After_creating_connection_Db1";
         const string Db2 = "LocalDBManagerTests_After_creating_connection_Db2";
 
         [SetUp] public void SetupTask()
         {
-            _manager = new SqlServerDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+            _manager = new MySqlDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
             _dB1ConnectionString = _manager.ConnectionProviderFor(Db1);
             _dB2ConnectionString = _manager.ConnectionProviderFor(Db2);
         }

@@ -5,8 +5,8 @@ using System.Threading;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
-using Composable.Persistence.SqlServer.Configuration;
-using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.MySql.Configuration;
+using Composable.Persistence.MySql.SystemExtensions;
 using Composable.System;
 using Composable.System.Configuration;
 using Composable.System.Threading;
@@ -21,7 +21,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
         const string InitialCatalogMaster = ";Initial Catalog=master;";
 
         string? _masterConnectionString;
-        static SqlServerConnectionProvider? _masterConnectionProvider;
+        static MySqlConnectionProvider? _masterConnectionProvider;
 
         MachineWideSharedObject<SharedState>? _machineWideState;
 
@@ -45,15 +45,15 @@ namespace Composable.Persistence.MySql.Testing.Databases
                     _databaseRootFolderOverride = ComposableTempFolder.EnsureFolderExists("DatabasePoolData");
                 }
 
-                var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+                var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
                 var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
-                _masterConnectionString = masterConnectionString ?? new ConfigurationSqlServerConnectionProviderSource(_configurationParameterProvider).GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
+                _masterConnectionString = masterConnectionString ?? new ConfigurationMySqlConnectionProviderSource(_configurationParameterProvider).GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
 
                 _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
                 _machineWideState = MachineWideSharedObject<SharedState>.For(_masterConnectionString, usePersistentFile: true);
 
-                _masterConnectionProvider = new SqlServerConnectionProvider(_masterConnectionString);
+                _masterConnectionProvider = new MySqlConnectionProvider(_masterConnectionString);
 
                 Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
                                      $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
@@ -62,7 +62,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
             }
         }
 
-        internal static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(MySqlDatabasePool)}_";
+        internal static readonly string PoolDatabaseNamePrefix = $"Composable_MySql_{nameof(MySqlDatabasePool)}_";
 
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
         readonly Guid _poolId = Guid.NewGuid();
@@ -75,7 +75,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 
-        public ISqlServerConnectionProvider ConnectionProviderFor(string reservationName) => new LazySqlServerConnectionProvider(() => ConnectionStringFor(reservationName));
+        public IMySqlConnectionProvider ConnectionProviderFor(string reservationName) => new LazyMySqlConnectionProvider(() => ConnectionStringFor(reservationName));
 
         string ConnectionStringFor(string reservationName) => _guard.Update(() =>
         {
@@ -158,7 +158,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
         void ResetDatabase(Database db)
         {
             TransactionScopeCe.SuppressAmbient(
-                () => new SqlServerConnectionProvider(db.ConnectionString(this))
+                () => new MySqlConnectionProvider(db.ConnectionString(this))
                     .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel()));
         }
 

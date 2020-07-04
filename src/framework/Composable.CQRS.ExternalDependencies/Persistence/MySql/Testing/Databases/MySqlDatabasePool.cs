@@ -18,7 +18,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
     sealed partial class MySqlDatabasePool : StrictlyManagedResourceBase<MySqlDatabasePool>
     {
         readonly IConfigurationParameterProvider _configurationParameterProvider;
-        const string InitialCatalogMaster = ";Initial Catalog=master;";
+        const string InitialCatalogMaster = ";Database=mysql;";
 
         string? _masterConnectionString;
         static MySqlConnectionProvider? _masterConnectionProvider;
@@ -62,7 +62,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
             }
         }
 
-        internal static readonly string PoolDatabaseNamePrefix = $"Composable_MySql_{nameof(MySqlDatabasePool)}_";
+        internal static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(MySqlDatabasePool)}_";
 
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
         readonly Guid _poolId = Guid.NewGuid();
@@ -159,11 +159,11 @@ namespace Composable.Persistence.MySql.Testing.Databases
         {
             TransactionScopeCe.SuppressAmbient(
                 () => new MySqlConnectionProvider(db.ConnectionString(this))
-                    .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel()));
+                    .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(db.Name())));
         }
 
         internal string ConnectionStringForDbNamed(string dbName)
-            => _masterConnectionString!.Replace(InitialCatalogMaster, $";Initial Catalog={dbName};");
+            => _masterConnectionString!.Replace(InitialCatalogMaster, $";Database={dbName};");
 
         Database InsertDatabase(SharedState machineWide)
         {

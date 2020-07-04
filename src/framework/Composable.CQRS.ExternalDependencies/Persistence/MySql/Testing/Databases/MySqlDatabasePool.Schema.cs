@@ -18,19 +18,21 @@ namespace Composable.Persistence.MySql.Testing.Databases
     {
         static void CreateDatabase(string databaseName)
         {
-            var createDatabaseCommand = $@"CREATE DATABASE [{databaseName}]";
-            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
-            {
-                createDatabaseCommand += $@"
-ON      ( NAME = {databaseName}_data, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.mdf') 
-LOG ON  ( NAME = {databaseName}_log, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.ldf');";
-            }
+            var createDatabaseCommand = $@"CREATE DATABASE {databaseName}";
 
-            createDatabaseCommand += $@"
-ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;
-ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
+            //Urgent: Figure out MySql equivalents and if they need to be specified
+//            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
+//            {
+//                createDatabaseCommand += $@"
+//ON      ( NAME = {databaseName}_data, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.mdf') 
+//LOG ON  ( NAME = {databaseName}_log, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.ldf');";
+//            }
 
-            _masterConnectionProvider?.ExecuteNonQuery(createDatabaseCommand);
+//            createDatabaseCommand += $@"
+//ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;
+//ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
+
+           _masterConnectionProvider?.ExecuteNonQuery(createDatabaseCommand);
 
             //SafeConsole.WriteLine($"Created: {databaseName}");
         }
@@ -79,7 +81,7 @@ drop database [{db.Name()}]";
             _masterConnectionProvider?.UseCommand(
                 action: command =>
                         {
-                            command.CommandText = "select name from sysdatabases";
+                            command.CommandText = "SHOW DATABASES";
                             using var reader = command.ExecuteReader();
                             while(reader.Read())
                             {

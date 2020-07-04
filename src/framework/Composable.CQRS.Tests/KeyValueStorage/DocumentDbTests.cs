@@ -18,7 +18,7 @@ using Composable.System;
 namespace Composable.Tests.KeyValueStorage
 {
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
+    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql))]
     [TestFixture]
     public class DocumentDbTests
     {
@@ -87,7 +87,7 @@ namespace Composable.Tests.KeyValueStorage
                               });
         }
 
-
+        //Urgent: Fix the MySql opening connection slowness problem and restore this test
         [Test] public void Saves100NewDocumentsIn150Milliseconds()
         {
             ServiceLocator.ExecuteInIsolatedScope(() =>

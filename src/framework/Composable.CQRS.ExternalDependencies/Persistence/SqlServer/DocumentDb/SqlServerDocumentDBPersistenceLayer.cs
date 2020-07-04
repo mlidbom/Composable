@@ -95,7 +95,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             EnsureInitialized();
             return _connectionProvider.UseCommand(
                 command =>
-                    command.SetCommandText($"DELETE Store WHERE Id = @Id AND ValueTypeId  {TypeInClause(acceptableTypes)}")
+                    command.SetCommandText($"DELETE FROM Store WHERE Id = @Id AND ValueTypeId  {TypeInClause(acceptableTypes)}")
                            .AddNVarcharParameter("Id", 500, idString)
                            .ExecuteNonQuery());
         }

@@ -95,7 +95,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             EnsureInitialized();
             return _connectionProvider.UseCommand(
                 command =>
-                    command.SetCommandText($"DELETE Store WHERE Id = @Id AND ValueTypeId  {TypeInClause(acceptableTypes)}")
+                    command.SetCommandText($@"DELETE FROM Store WHERE Id = @Id AND ValueTypeId  {TypeInClause(acceptableTypes)}")
                            .AddVarcharParameter("Id", 500, idString)
                            .ExecuteNonQuery());
         }
@@ -127,7 +127,8 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
 
         static string TypeInClause(IEnumerable<Guid> acceptableTypeIds) { return "IN( '" + acceptableTypeIds.Select(guid => guid.ToString()).Join("', '") + "')\n"; }
 
-        static string UseUpdateLock(bool useUpdateLock) => useUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
+        //Urgent: Figure out mysql equivalent.
+        static string UseUpdateLock(bool useUpdateLock) => "";// useUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
 
         void EnsureInitialized()
         {

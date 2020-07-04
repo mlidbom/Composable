@@ -107,5 +107,19 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
                 maxTotal: 10.Milliseconds()
             );
         }
+
+        [Test] public void Once_DB_Fetched_Can_use_400_connections_in_10_milliseconds()
+        {
+            using var manager = new SqlServerDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+            manager.SetLogLevel(LogLevel.Warning);
+            var connectionProvider = manager.ConnectionProviderFor("4669B59A-E0AC-4E76-891C-7A2369AE0F2F");
+            connectionProvider.UseConnection(_ => { });
+
+            TimeAsserter.Execute(
+                action: () => connectionProvider.UseConnection(_ => { }),
+                iterations: 400,
+                maxTotal: 10.Milliseconds()
+            );
+        }
     }
 }

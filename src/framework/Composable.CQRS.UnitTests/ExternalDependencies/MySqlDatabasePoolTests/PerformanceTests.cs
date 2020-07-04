@@ -6,6 +6,7 @@ using Composable.System;
 using Composable.System.Configuration;
 using Composable.Testing;
 using Composable.Testing.Performance;
+using MySql.Data.MySqlClient;
 using NCrunch.Framework;
 using NUnit.Framework;
 
@@ -93,7 +94,6 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
             );
         }
 
-        //Urgent: Find out why opening a connection is 10 times slower than for Sql Server...
         [Test]
         public void Repeated_fetching_of_same_connection_runs_20_times_in_ten_milliseconds()
         {
@@ -104,6 +104,21 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
 
             TimeAsserter.Execute(
                 action: () => manager.ConnectionProviderFor(dbName).UseConnection(_ => { }),
+                iterations: 20,
+                maxTotal: 10.Milliseconds()
+            );
+        }
+
+        //Urgent: Find out why opening a connection is 20 times slower than for Sql Server...
+        [Test] public void Once_DB_Fetched_Can_use_20_connections_in_10_milliseconds()
+        {
+            using var manager = new MySqlDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+            manager.SetLogLevel(LogLevel.Warning);
+            var connectionProvider = manager.ConnectionProviderFor("4669B59A-E0AC-4E76-891C-7A2369AE0F2F");
+            connectionProvider.UseConnection(_ => { });
+
+            TimeAsserter.Execute(
+                action: () => connectionProvider.UseConnection(_ => { }),
                 iterations: 20,
                 maxTotal: 10.Milliseconds()
             );

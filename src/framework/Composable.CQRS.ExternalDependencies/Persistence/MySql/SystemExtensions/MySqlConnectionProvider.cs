@@ -23,7 +23,8 @@ namespace Composable.Persistence.MySql.SystemExtensions
         public MySqlConnection OpenConnection()
         {
             var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier;
-            var connection = new MySqlConnection(ConnectionString);
+            var connectionString = ConnectionString;
+            var connection = new MySqlConnection(connectionString);
             connection.Open();
             if(transactionInformationDistributedIdentifierBefore != null && transactionInformationDistributedIdentifierBefore.Value == Guid.Empty)
             {

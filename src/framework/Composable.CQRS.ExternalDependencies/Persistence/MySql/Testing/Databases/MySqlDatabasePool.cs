@@ -47,7 +47,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
 
                 var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
                 var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
-                _masterConnectionString = masterConnectionString ?? new ConfigurationMySqlConnectionProviderSource(_configurationParameterProvider).GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
+                _masterConnectionString = masterConnectionString ?? new ConfigurationMyMySqlConnectionProviderSource(_configurationParameterProvider).GetConnectionProvider(composableDatabasePoolMasterConnectionstringName).ConnectionString;
 
                 _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 

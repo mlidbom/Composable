@@ -1,27 +1,27 @@
 using System;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using System.Threading.Tasks;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {
-    static class MySqlConnectionExtensions
+    static class MyMySqlConnectionExtensions
     {
-        public static void UseCommand(this SqlConnection @this, Action<SqlCommand> action)
+        public static void UseCommand(this MySqlConnection @this, Action<MySqlCommand> action)
         {
             using var command = @this.CreateCommand();
             action(command);
         }
 
-        public static TResult UseCommand<TResult>(this SqlConnection @this, Func<SqlCommand, TResult> action)
+        public static TResult UseCommand<TResult>(this MySqlConnection @this, Func<MySqlCommand, TResult> action)
         {
             using var command = @this.CreateCommand();
             return action(command);
         }
 
-        public static void ExecuteNonQuery(this SqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteNonQuery(commandText));
-        public static async Task ExecuteNonQueryAsync(this SqlConnection @this, string commandText) => await @this.UseCommand(command => command.ExecuteNonQueryAsync(commandText));
-        public static object ExecuteScalar(this SqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteScalar(commandText));
-        public static Task<object> ExecuteScalarAsync(this SqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteScalarAsync(commandText));
-        public static void ExecuteReader(this SqlConnection @this, string commandText, Action<SqlDataReader> forEach) => @this.UseCommand(command => command.ExecuteReader(commandText, forEach));
+        public static void ExecuteNonQuery(this MySqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteNonQuery(commandText));
+        public static async Task ExecuteNonQueryAsync(this MySqlConnection @this, string commandText) => await @this.UseCommand(command => command.ExecuteNonQueryAsync(commandText));
+        public static object ExecuteScalar(this MySqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteScalar(commandText));
+        public static Task<object> ExecuteScalarAsync(this MySqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteScalarAsync(commandText));
+        public static void ExecuteReader(this MySqlConnection @this, string commandText, Action<MySqlDataReader> forEach) => @this.UseCommand(command => command.ExecuteReader(commandText, forEach));
     }
 }

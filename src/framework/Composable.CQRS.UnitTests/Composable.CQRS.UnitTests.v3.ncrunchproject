@@ -1,3 +1,36 @@
 ﻿<ProjectConfiguration>
-  <Settings />
+  <Settings>
+    <IgnoredTests>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests.After_creating_two_databases_named_db1_and_db2.Connection_to_Db2_can_be_opened_and_used</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests.After_creating_two_databases_named_db1_and_db2.The_Db1_connectionstring_is_different_from_the_Db2_connection_string</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests.After_creating_two_databases_named_db1_and_db2.The_same_connection_string_is_returned_by_each_call_to_CreateOrGetLocalDb_Db1</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests.After_creating_two_databases_named_db1_and_db2.The_same_connection_string_is_returned_by_each_call_to_CreateOrGetLocalDb_Db2</TestName>
+      </NamedTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests.PerformanceTests</FixtureName>
+      </FixtureTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests.PerformanceTests.Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests.PerformanceTests.Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_70_milliseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests.PerformanceTests.Repeated_fetching_of_same_connection_runs_200_times_in_ten_milliseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests.PerformanceTests.Single_thread_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests.PerformanceTests.Single_thread_can_reserve_and_release_10_identically_named_databases_in_300_milliseconds</TestName>
+      </NamedTestSelector>
+    </IgnoredTests>
+  </Settings>
 </ProjectConfiguration>

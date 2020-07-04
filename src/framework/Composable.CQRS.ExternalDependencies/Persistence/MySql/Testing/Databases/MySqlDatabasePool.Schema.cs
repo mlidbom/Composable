@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using System.Linq;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.System;
@@ -51,9 +51,9 @@ ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
             foreach(var db in dbsToDrop)
             {
                 //Clear connection pool
-                using(var connection = new SqlConnection(db.ConnectionString(this)))
+                using(var connection = new MySqlConnection(db.ConnectionString(this)))
                 {
-                    SqlConnection.ClearPool(connection);
+                    MySqlConnection.ClearPool(connection);
                 }
 
                 var dropCommand = $@"

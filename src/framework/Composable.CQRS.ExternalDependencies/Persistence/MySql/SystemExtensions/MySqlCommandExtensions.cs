@@ -1,22 +1,22 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using System.Threading.Tasks;
 using Composable.System.Linq;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {
-    static class MySqlCommandExtensions
+    static class MyMySqlCommandExtensions
     {
-        public static void ExecuteReader(this SqlCommand @this, string commandText, Action<SqlDataReader> forEach) => @this.ExecuteReader(commandText).ForEachSuccessfulRead(forEach);
-        public static SqlDataReader ExecuteReader(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteReader();
-        public static object ExecuteScalar(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteScalar();
-        public static async Task<object> ExecuteScalarAsync(this SqlCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteScalarAsync();
-        public static void ExecuteNonQuery(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteNonQuery();
-        public static async Task ExecuteNonQueryAsync(this SqlCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteNonQueryAsync();
-        public static SqlCommand AppendCommandText(this SqlCommand @this, string append) => @this.Mutate(me => me.CommandText += append);
-        public static SqlCommand SetCommandText(this SqlCommand @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
-        public static IReadOnlyList<T> ExecuteReaderAndSelect<T>(this SqlCommand @this, Func<SqlDataReader, T> select)
+        public static void ExecuteReader(this MySqlCommand @this, string commandText, Action<MySqlDataReader> forEach) => @this.ExecuteReader(commandText).ForEachSuccessfulRead(forEach);
+        public static MySqlDataReader ExecuteReader(this MySqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteReader();
+        public static object ExecuteScalar(this MySqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteScalar();
+        public static async Task<object> ExecuteScalarAsync(this MySqlCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteScalarAsync();
+        public static void ExecuteNonQuery(this MySqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteNonQuery();
+        public static async Task ExecuteNonQueryAsync(this MySqlCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteNonQueryAsync();
+        public static MySqlCommand AppendCommandText(this MySqlCommand @this, string append) => @this.Mutate(me => me.CommandText += append);
+        public static MySqlCommand SetCommandText(this MySqlCommand @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
+        public static IReadOnlyList<T> ExecuteReaderAndSelect<T>(this MySqlCommand @this, Func<MySqlDataReader, T> select)
         {
             using(var reader = @this.ExecuteReader())
             {

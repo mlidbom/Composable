@@ -11,8 +11,7 @@ namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
         {
             public static async Task EnsureTablesExistAsync(ISqlServerConnectionProvider connectionFactory)
             {
-                await using var connection = connectionFactory.OpenConnection();
-                await connection.ExecuteNonQueryAsync($@"
+                await  connectionFactory.ExecuteNonQueryAsync($@"
 IF NOT EXISTS(select name from sys.tables where name = '{Schema.TableName}')
 BEGIN
     CREATE TABLE [dbo].[{Schema.TableName}]

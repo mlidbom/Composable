@@ -13,9 +13,7 @@ namespace Composable.Persistence.SqlServer.EventStore
         {
             if(!_initialized)
             {
-                using var connection = _connectionManager.OpenConnection();
-
-                connection.ExecuteNonQuery($@"
+                _connectionManager.UseCommand(command=> command.ExecuteNonQuery($@"
 IF NOT EXISTS(SELECT NAME FROM sys.tables WHERE name = '{EventTable.Name}')
 BEGIN
     CREATE TABLE dbo.{EventTable.Name}(
@@ -90,7 +88,7 @@ BEGIN
         CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{C.EffectiveVersion}	ON dbo.{EventTable.Name} 
             ({C.EffectiveVersion})
 END 
-");
+"));
 
                 _initialized = true;
             }

@@ -20,8 +20,7 @@ namespace Composable.Persistence.SqlServer.DocumentDb
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            using var connection = _connectionProvider.OpenConnection();
-                            connection.ExecuteNonQuery(@"
+                            _connectionProvider.ExecuteNonQuery(@"
 IF NOT EXISTS(select name from sys.tables where name = 'Store')
 BEGIN 
     CREATE TABLE [dbo].[Store](

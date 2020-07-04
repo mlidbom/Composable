@@ -26,17 +26,19 @@ namespace Composable.Persistence.SqlServer.DocumentDb
         public void Update(IReadOnlyList<IDocumentDbPersistenceLayer.WriteRow> toUpdate)
         {
             EnsureInitialized();
-            using var connection = _connectionProvider.OpenConnection();
-            foreach(var writeRow in toUpdate)
+            _connectionProvider.UseConnection(connection =>
             {
-                connection.UseCommand(
-                    command => command.SetCommandText("UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId = @TypeId")
-                                      .AddNVarcharParameter("Id", 500, writeRow.IdString)
-                                       .AddDateTime2Parameter("Updated", writeRow.UpdateTime)
-                                      .AddParameter("TypeId", writeRow.TypeIdGuid)
-                                      .AddNVarcharMaxParameter("Value", writeRow.SerializedDocument)
-                                      .ExecuteNonQuery());
-            }
+                foreach(var writeRow in toUpdate)
+                {
+                    connection.UseCommand(
+                        command => command.SetCommandText("UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId = @TypeId")
+                                          .AddNVarcharParameter("Id", 500, writeRow.IdString)
+                                          .AddDateTime2Parameter("Updated", writeRow.UpdateTime)
+                                          .AddParameter("TypeId", writeRow.TypeIdGuid)
+                                          .AddNVarcharMaxParameter("Value", writeRow.SerializedDocument)
+                                          .ExecuteNonQuery());
+                }
+            });
         }
 
         public bool TryGet(string idString, IReadOnlyList<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out IDocumentDbPersistenceLayer.ReadRow? document)

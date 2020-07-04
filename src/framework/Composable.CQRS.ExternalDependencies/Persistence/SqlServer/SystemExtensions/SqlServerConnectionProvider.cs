@@ -1,15 +1,16 @@
 using System;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 using System.Transactions;
 
 namespace Composable.Persistence.SqlServer.SystemExtensions
 {
     class SqlServerConnectionProvider : ISqlServerConnectionProvider
     {
-        public string ConnectionString { get; }
+        string ConnectionString { get; }
         public SqlServerConnectionProvider(string connectionString) => ConnectionString = connectionString;
 
-        public SqlConnection OpenConnection()
+        SqlConnection OpenConnection()
         {
             var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier;
             var connectionString = ConnectionString;
@@ -22,7 +23,33 @@ namespace Composable.Persistence.SqlServer.SystemExtensions
                     throw new Exception("Opening connection escalated transaction to distributed. For now this is disallowed");
                 }
             }
+
             return connection;
+        }
+
+        public TResult UseConnection<TResult>(Func<SqlConnection, TResult> func)
+        {
+            using var connection = OpenConnection();
+            return func(connection);
+        }
+
+        public void UseConnection(Action<SqlConnection> action) => UseConnection(connection =>
+        {
+            action(connection);
+            return 1;
+        });
+
+        public async Task<TResult> UseConnectionAsync<TResult>(Func<SqlConnection, Task<TResult>> func)
+        {
+            await using var connection = OpenConnection();
+            return await func(connection);
+        }
+
+
+        public async Task UseConnectionAsync(Func<SqlConnection, Task> action)
+        {
+            await using var connection = OpenConnection();
+            await action(connection);
         }
     }
 }

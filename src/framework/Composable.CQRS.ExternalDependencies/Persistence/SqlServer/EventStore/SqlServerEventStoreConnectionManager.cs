@@ -25,12 +25,6 @@ namespace Composable.Persistence.SqlServer.EventStore
             return _connectionProvider.UseCommand(action);
         }
 
-        public SqlConnection OpenConnection(bool suppressTransactionWarning = false)
-        {
-            AssertTransactionPolicy(suppressTransactionWarning);
-            return _connectionProvider.OpenConnection();
-        }
-
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         static void AssertTransactionPolicy(bool suppressTransactionWarning)
         {

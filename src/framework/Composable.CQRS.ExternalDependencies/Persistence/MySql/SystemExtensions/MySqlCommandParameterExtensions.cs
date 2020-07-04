@@ -10,6 +10,7 @@ namespace Composable.Persistence.MySql.SystemExtensions
         public static MySqlCommand AddParameter(this MySqlCommand @this, string name, Guid value) => AddParameter(@this, name, MySqlDbType.Guid, value);
         public static MySqlCommand AddDateTime2Parameter(this MySqlCommand @this, string name, DateTime value) => AddParameter(@this, name, MySqlDbType.DateTime, value);
         public static MySqlCommand AddVarcharParameter(this MySqlCommand @this, string name, int length, string value) => AddParameter(@this, name, MySqlDbType.VarString, value, length);
+        public static MySqlCommand AddMediumTextParameter(this MySqlCommand @this, string name, string value) => AddParameter(@this, name, MySqlDbType.MediumText, value, -1);
 
         public static MySqlCommand AddParameter(this MySqlCommand @this, MySqlParameter parameter)
         {

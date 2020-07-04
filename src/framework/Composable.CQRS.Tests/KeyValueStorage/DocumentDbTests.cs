@@ -763,30 +763,37 @@ namespace Composable.Tests.KeyValueStorage
         [Test]
         public void DeletingAllObjectsOfATypeLeavesNoSuchObjectsInTheDbButLeavesOtherObjectsInPlaceAndReturnsTheNumberOfDeletedObjects()
         {
-            var store = CreateStore();
-
-            var dictionary = new Dictionary<Type, Dictionary<string, string>>();
-
-            1.Through(4).ForEach(num =>
+            using(ServiceLocator.BeginScope())
             {
-                var user = new User { Id = Guid.NewGuid()};
-                store.Add(user.Id, user, dictionary);
-            });
+                var store = CreateStore();
 
-            1.Through(4).ForEach(num =>
+                var dictionary = new Dictionary<Type, Dictionary<string, string>>();
+
+                1.Through(4).ForEach(num =>
+                {
+                    var user = new User {Id = Guid.NewGuid()};
+                    store.Add(user.Id, user, dictionary);
+                });
+
+                1.Through(4).ForEach(num =>
+                {
+                    var person = new Person {Id = Guid.NewGuid()};
+                    store.Add(person.Id, person, dictionary);
+                });
+            }
+
+            using(ServiceLocator.BeginScope())
             {
-                var person = new Person { Id = Guid.NewGuid() };
-                store.Add(person.Id, person, dictionary);
-            });
+                var store = CreateStore();
+                store.GetAll<User>().Should().HaveCount(4);
+                store.GetAll<Person>().Should().HaveCount(8); //User inherits person
 
-            store.GetAll<User>().Should().HaveCount(4);
-            store.GetAll<Person>().Should().HaveCount(8); //User inherits person
+                store.GetAllIds<User>().ForEach(userId => store.Remove(userId, typeof(User)));
 
-            store.GetAllIds<User>().ForEach(userId => store.Remove(userId, typeof(User)));
+                store.GetAll<User>().Should().HaveCount(0);
 
-            store.GetAll<User>().Should().HaveCount(0);
-
-            store.GetAll<Person>().Should().HaveCount(4);
+                store.GetAll<Person>().Should().HaveCount(4);
+            }
 
         }
 

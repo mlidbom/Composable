@@ -5,11 +5,11 @@ using Composable.Serialization;
 using Composable.System.Linq;
 using JetBrains.Annotations;
 
-namespace Composable.Persistence.SqlServer.Testing.Databases
+namespace Composable.Testing.Databases
 {
     partial class DatabasePool
     {
-        [UsedImplicitly] class SharedState : BinarySerialized<SharedState>
+        [UsedImplicitly] protected class SharedState : BinarySerialized<SharedState>
         {
             protected override IEnumerable<MemberGetterSetter> CreateGetterSetters() => new[] {GetterSetter.ForBinarySerializableList(@this => @this._databases, (@this, value) => @this._databases = value)};
 

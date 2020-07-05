@@ -5,54 +5,34 @@ using System.Threading;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
-using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence;
 using Composable.System;
 using Composable.System.Reflection;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
-using Composable.System.Transactions;
 
-namespace Composable.Persistence.SqlServer.Testing.Databases
+namespace Composable.Testing.Databases
 {
     abstract partial class DatabasePool : StrictlyManagedResourceBase<DatabasePool>
     {
-        const string InitialCatalogMaster = ";Initial Catalog=master;";
+        readonly MachineWideSharedObject<SharedState>? _machineWideState;
 
-        string? _masterConnectionString;
-        static SqlServerConnectionProvider? _masterConnectionProvider;
-
-        MachineWideSharedObject<SharedState>? _machineWideState;
-
-        static string? _databaseRootFolderOverride;
-        static readonly HashSet<string> RebootedMasterConnections = new HashSet<string>();
+        protected static string? DatabaseRootFolderOverride;
 
         static TimeSpan _reservationLength;
 
-        public DatabasePool()
+        protected DatabasePool()
         {
             _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 30.Seconds();
 
             if(ComposableTempFolder.IsOverridden)
             {
-                _databaseRootFolderOverride = ComposableTempFolder.EnsureFolderExists("DatabasePoolData");
+                DatabaseRootFolderOverride = ComposableTempFolder.EnsureFolderExists("DatabasePoolData");
             }
-
-            var composableDatabasePoolMasterConnectionstringName = ConnectionStringConfigurationParameterName;
-            var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
-            _masterConnectionString = masterConnectionString ?? $"Data Source=localhost{InitialCatalogMaster}Integrated Security=True;";
-
-            _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
             _machineWideState = MachineWideSharedObject<SharedState>.For(GetType().GetFullNameCompilable().Replace(".", "_"), usePersistentFile: true);
 
-            _masterConnectionProvider = new SqlServerConnectionProvider(_masterConnectionString);
-
-            Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
-                                 $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
-
         }
-
-        protected abstract string ConnectionStringConfigurationParameterName { get; }
 
         internal static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(DatabasePool)}_";
 
@@ -60,7 +40,7 @@ namespace Composable.Persistence.SqlServer.Testing.Databases
         readonly Guid _poolId = Guid.NewGuid();
         IReadOnlyList<Database> _transientCache = new List<Database>();
 
-        ILogger _log = Logger.For<DatabasePool>();
+        protected ILogger _log = Logger.For<DatabasePool>();
         bool _disposed;
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
@@ -146,15 +126,9 @@ namespace Composable.Persistence.SqlServer.Testing.Databases
             throw new Exception("Exception should have been thrown by now.");
         }
 
-        void ResetDatabase(Database db)
-        {
-            TransactionScopeCe.SuppressAmbient(
-                () => new SqlServerConnectionProvider(db.ConnectionString(this))
-                    .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel()));
-        }
+        protected abstract void ResetDatabase(Database db);
 
-        internal string ConnectionStringForDbNamed(string dbName)
-            => _masterConnectionString!.Replace(InitialCatalogMaster, $";Initial Catalog={dbName};");
+        protected internal abstract string ConnectionStringForDbNamed(string dbName);
 
         Database InsertDatabase(SharedState machineWide)
         {

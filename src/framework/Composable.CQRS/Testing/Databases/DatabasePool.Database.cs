@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.Serialization;
 
-namespace Composable.Persistence.SqlServer.Testing.Databases
+namespace Composable.Testing.Databases
 {
     partial class DatabasePool
     {

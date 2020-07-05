@@ -141,7 +141,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     var connectionProvider = new MySqlConnectionProvider(manager.ConnectionStringFor(reservationName));
                     connectionProvider.UseConnection(_ => {});
 
-                    //Urgent: do something about the performance of opening MySql connections.
+                    //Performance: do something about the performance of opening MySql connections.
                     TimeAsserter.Execute(
                         action: () => connectionProvider.UseConnection(_ => {}),
                         iterations: 40,

@@ -26,9 +26,7 @@ namespace Composable.Testing.Databases
             _log.Warning("Dropping databases");
             foreach(var db in dbsToDrop)
             {
-                //Clear connection pool
                 ResetConnectionPool(db);
-
                 DropDatabase(db);
             }
 

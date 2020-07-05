@@ -53,43 +53,30 @@ ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
             _masterConnectionProvider!.ExecuteNonQuery(createDatabaseCommand);
         }
 
+
+
         protected override void DropDatabase(Database db) =>
             _masterConnectionProvider?.ExecuteNonQuery($@"
 alter database [{db.Name()}] set single_user with rollback immediate
 drop database [{db.Name()}]");
 
         protected override IReadOnlyList<Database> ListPoolDatabases()
-        {
-            var databases = new List<string>();
-            _masterConnectionProvider?.UseCommand(
-                action: command =>
-                {
-                    command.CommandText = "select name from sysdatabases";
-                    using var reader = command.ExecuteReader();
-                    while(reader.Read())
-                    {
-                        var dbName = reader.GetString(i: 0);
-                        if(dbName.StartsWith(PoolDatabaseNamePrefix))
-                            databases.Add(dbName);
-                    }
-                });
+            => _masterConnectionProvider
+               .UseCommand(command => command.SetCommandText("select name from sysdatabases")
+                                             .ExecuteReaderAndSelect(reader => reader.GetString(0))
+                                             .Where(dbName => dbName.StartsWith(PoolDatabaseNamePrefix))
+                                             .Select(dbName => new Database(dbName))
+                                             .ToList());
 
-            return databases.Select(name => new Database(name))
-                            .ToList();
-        }
-
-        protected override void ResetDatabase(Database db)
-        {
+        protected override void ResetDatabase(Database db) =>
             TransactionScopeCe.SuppressAmbient(
                 () => new SqlServerConnectionProvider(db.ConnectionString(this))
                    .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel()));
-        }
+
         protected override void ResetConnectionPool(Database db)
         {
-            using(var connection = new SqlConnection(db.ConnectionString(this)))
-            {
-                SqlConnection.ClearPool(connection);
-            }
+            using var connection = new SqlConnection(db.ConnectionString(this));
+            SqlConnection.ClearPool(connection);
         }
     }
 }

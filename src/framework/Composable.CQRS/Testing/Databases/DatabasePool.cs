@@ -7,19 +7,20 @@ using Composable.Contracts;
 using Composable.Logging;
 using Composable.Persistence;
 using Composable.System;
+using Composable.System.Linq;
 using Composable.System.Reflection;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
+using Composable.System.Transactions;
 
 namespace Composable.Testing.Databases
 {
     abstract partial class DatabasePool : StrictlyManagedResourceBase<DatabasePool>
     {
         readonly MachineWideSharedObject<SharedState>? _machineWideState;
-
         protected static string? DatabaseRootFolderOverride;
-
         static TimeSpan _reservationLength;
+        static readonly int NumberOfDatabases = 30;
 
         protected DatabasePool()
         {
@@ -40,10 +41,11 @@ namespace Composable.Testing.Databases
         readonly Guid _poolId = Guid.NewGuid();
         IReadOnlyList<Database> _transientCache = new List<Database>();
 
-        protected ILogger _log = Logger.For<DatabasePool>();
+        static ILogger Log = Logger.For<DatabasePool>();
         bool _disposed;
+        static readonly string RebootedDatabaseExceptionMessage = "Something went wrong with the database pool and it was rebooted. You may see other test failures due to this. If this is the first time you use the pool everything is fine. If this error pops up at other times something is amiss.";
 
-        public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
+        public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => Log = Log.WithLogLevel(logLevel));
 
         public string ConnectionStringFor(string reservationName) => _guard.Update(() =>
         {
@@ -53,7 +55,7 @@ namespace Composable.Testing.Databases
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if(reservedDatabase != null)
             {
-                _log.Debug($"Retrieved reserved pool database: {reservedDatabase.Id}");
+                Log.Debug($"Retrieved reserved pool database: {reservedDatabase.Id}");
                 return reservedDatabase.ConnectionString(this);
             }
 
@@ -77,7 +79,7 @@ namespace Composable.Testing.Databases
 
                             if(machineWide.TryReserve(out reservedDatabase, reservationName, _poolId, _reservationLength))
                             {
-                                _log.Info($"Reserved pool database: {reservedDatabase.Id}");
+                                Log.Info($"Reserved pool database: {reservedDatabase.Id}");
                                 _transientCache = machineWide.DatabasesReservedBy(_poolId);
                             }
                         }
@@ -90,7 +92,7 @@ namespace Composable.Testing.Databases
 
                 if(thrownException != null)
                 {
-                    throw new Exception("Something went wrong with the database pool and it was rebooted. You may see other test failures due to this", thrownException);
+                    throw new Exception(RebootedDatabaseExceptionMessage, thrownException);
                 }
 
                 if(reservedDatabase == null)
@@ -105,9 +107,8 @@ namespace Composable.Testing.Databases
             }
             catch(Exception exception)
             {
-                _log.Error(exception, "Something went wrong with the database pool and it will be rebooted.");
                 RebootPool();
-                throw new Exception("Something went wrong with the database pool and it was rebooted. You may see other test failures due to this", exception);
+                throw new Exception(RebootedDatabaseExceptionMessage, exception);
             }
 
             return reservedDatabase.ConnectionString(this);
@@ -134,10 +135,9 @@ namespace Composable.Testing.Databases
         {
             var database = machineWide.Insert();
 
-            _log.Warning($"Creating database: {database.Id}");
             using(new TransactionScope(TransactionScopeOption.Suppress))
             {
-                CreateDatabase(database.Name());
+                EnsureDatabaseExistsAndIsEmpty(database);
             }
             return database;
         }
@@ -149,5 +149,21 @@ namespace Composable.Testing.Databases
             _machineWideState!.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
             _machineWideState.Dispose();
         }
+
+        void RebootPool() => _machineWideState?.Update(RebootPool);
+
+        void RebootPool(SharedState machineWide) => TransactionScopeCe.SuppressAmbient(() =>
+        {
+            Log.Warning("Rebooting database pool");
+
+            machineWide.Reset();
+            _transientCache = new List<Database>();
+
+            1.Through(NumberOfDatabases)
+             .Select(index => new Database(index))
+             .ForEach(db => InsertDatabase(machineWide));
+        });
+
+        protected abstract void EnsureDatabaseExistsAndIsEmpty(Database db);
     }
 }

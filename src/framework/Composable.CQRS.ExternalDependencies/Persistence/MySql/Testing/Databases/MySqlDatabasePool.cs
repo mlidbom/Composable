@@ -5,7 +5,6 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.System;
-using Composable.System.Transactions;
 using Composable.Testing.Databases;
 
 namespace Composable.Persistence.MySql.Testing.Databases
@@ -36,8 +35,9 @@ namespace Composable.Persistence.MySql.Testing.Databases
         protected internal override string ConnectionStringForDbNamed(string dbName)
             => _masterConnectionString!.Replace(DatabaseMySql, $";Database={dbName};");
 
-        protected override void CreateDatabase(string databaseName)
+        protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
+            var databaseName = db.Name();
             //Urgent: Figure out MySql equivalents and if they need to be specified
             //            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
             //            {
@@ -50,30 +50,18 @@ namespace Composable.Persistence.MySql.Testing.Databases
             //ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;
             //ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
+            ResetConnectionPool(db);
             _masterConnectionProvider?.ExecuteNonQuery($@"
 DROP DATABASE IF EXISTS {databaseName};
 CREATE DATABASE {databaseName};");
         }
 
-        protected override void DropDatabase(Database db) =>
-            _masterConnectionProvider?.ExecuteNonQuery($@"
-
-DROP DATABASE IF EXISTS {db.Name()};");
-
-        protected override IReadOnlyList<Database> ListPoolDatabases()
-            => _masterConnectionProvider
-               .UseCommand(command => command.SetCommandText("SHOW DATABASES;")
-                                             .ExecuteReaderAndSelect(reader => reader.GetString(0))
-                                             .Where(dbName => dbName.StartsWith(PoolDatabaseNamePrefix))
-                                             .Select(dbName => new Database(dbName))
-                                             .ToList());
-
         protected override void ResetDatabase(Database db) =>
-            TransactionScopeCe.SuppressAmbient(
-                () => new MySqlConnectionProvider(db.ConnectionString(this))
-                   .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(db.Name())));
+            new MySqlConnectionProvider(db.ConnectionString(this)).ExecuteNonQuery($@"
+DROP DATABASE {db.Name()};
+CREATE DATABASE {db.Name()};");
 
-        protected override void ResetConnectionPool(Database db)
+        void ResetConnectionPool(Database db)
         {
             using var connection = new MySqlConnection(db.ConnectionString(this));
             MySqlConnection.ClearPool(connection);

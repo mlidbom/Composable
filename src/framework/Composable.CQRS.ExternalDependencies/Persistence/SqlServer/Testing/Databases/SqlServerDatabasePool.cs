@@ -5,7 +5,6 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.System;
-using Composable.System.Transactions;
 using Composable.Testing.Databases;
 
 namespace Composable.Persistence.SqlServer.Testing.Databases
@@ -25,7 +24,7 @@ namespace Composable.Persistence.SqlServer.Testing.Databases
 
             _masterConnectionString = masterConnectionString ?? $"Data Source=localhost{InitialCatalogMaster}Integrated Security=True;";
 
-            _masterConnectionString = _masterConnectionString.Replace("\\", "_");
+            _masterConnectionString = _masterConnectionString.Replace(oldValue: "\\", newValue: "_");
 
             _masterConnectionProvider = new SqlServerConnectionProvider(_masterConnectionString);
 
@@ -36,44 +35,35 @@ namespace Composable.Persistence.SqlServer.Testing.Databases
         protected internal override string ConnectionStringForDbNamed(string dbName)
             => _masterConnectionString!.Replace(InitialCatalogMaster, $";Initial Catalog={dbName};");
 
-        protected override void CreateDatabase(string databaseName)
+        protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
-            var createDatabaseCommand = $@"CREATE DATABASE [{databaseName}]";
-            if(!DatabaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
+            var databaseName = db.Name();
+            var exists = (string)_masterConnectionProvider.ExecuteScalar($"select name from sysdatabases where name = '{databaseName}'") == databaseName;
+            if(exists)
             {
-                createDatabaseCommand += $@"
+                ResetDatabase(db);
+            } else
+            {
+                ResetConnectionPool(db);
+                var createDatabaseCommand = $@"CREATE DATABASE [{databaseName}]";
+                if(!DatabaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
+                    createDatabaseCommand += $@"
 ON      ( NAME = {databaseName}_data, FILENAME = '{DatabaseRootFolderOverride}\{databaseName}.mdf') 
 LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{databaseName}.ldf');";
-            }
 
-            createDatabaseCommand += $@"
+                createDatabaseCommand += $@"
 ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;
-ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
+ALTER DATABASE[{databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
-            _masterConnectionProvider!.ExecuteNonQuery(createDatabaseCommand);
+                _masterConnectionProvider!.ExecuteNonQuery(createDatabaseCommand);
+            }
         }
 
-
-
-        protected override void DropDatabase(Database db) =>
-            _masterConnectionProvider?.ExecuteNonQuery($@"
-alter database [{db.Name()}] set single_user with rollback immediate
-drop database [{db.Name()}]");
-
-        protected override IReadOnlyList<Database> ListPoolDatabases()
-            => _masterConnectionProvider
-               .UseCommand(command => command.SetCommandText("select name from sysdatabases")
-                                             .ExecuteReaderAndSelect(reader => reader.GetString(0))
-                                             .Where(dbName => dbName.StartsWith(PoolDatabaseNamePrefix))
-                                             .Select(dbName => new Database(dbName))
-                                             .ToList());
-
         protected override void ResetDatabase(Database db) =>
-            TransactionScopeCe.SuppressAmbient(
-                () => new SqlServerConnectionProvider(db.ConnectionString(this))
-                   .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel()));
+            new SqlServerConnectionProvider(db.ConnectionString(this))
+               .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel());
 
-        protected override void ResetConnectionPool(Database db)
+        protected void ResetConnectionPool(Database db)
         {
             using var connection = new SqlConnection(db.ConnectionString(this));
             SqlConnection.ClearPool(connection);

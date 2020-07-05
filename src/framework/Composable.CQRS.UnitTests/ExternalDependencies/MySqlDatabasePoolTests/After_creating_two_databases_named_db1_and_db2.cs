@@ -7,6 +7,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
 {
+    //Urgent: Merge with tests of SqlServerDatabasePool using DistributeByCapabilityAttribute
     [TestFixture] public class After_creating_two_databases_named_db1_and_db2
     {
         MySqlDatabasePool _manager;

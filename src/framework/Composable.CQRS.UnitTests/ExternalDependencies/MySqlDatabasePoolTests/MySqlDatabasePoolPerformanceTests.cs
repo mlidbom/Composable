@@ -11,6 +11,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
 {
+    //Urgent: Merge with tests of SqlServerDatabasePool using DistributeByCapabilityAttribute
     [TestFixture, Performance, Serial]
     public class MySqlDatabasePoolPerformanceTests
     {

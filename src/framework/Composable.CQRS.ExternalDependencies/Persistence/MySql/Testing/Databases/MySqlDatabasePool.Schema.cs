@@ -16,9 +16,12 @@ namespace Composable.Persistence.MySql.Testing.Databases
 
     sealed partial class MySqlDatabasePool
     {
+        static readonly int MaxDatabases = 30;
         static void CreateDatabase(string databaseName)
         {
-            var createDatabaseCommand = $@"CREATE DATABASE {databaseName}";
+            var createDatabaseCommand = $@"
+DROP DATABASE IF EXISTS {databaseName};
+CREATE DATABASE {databaseName};";
 
             //Urgent: Figure out MySql equivalents and if they need to be specified
 //            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
@@ -47,24 +50,6 @@ namespace Composable.Persistence.MySql.Testing.Databases
             machineWide.Reset();
             _transientCache = new List<Database>();
 
-            var dbsToDrop = ListPoolDatabases();
-
-            _log.Warning("Dropping databases");
-            foreach(var db in dbsToDrop)
-            {
-                //Clear connection pool
-                using(var connection = new MySqlConnection(db.ConnectionString(this)))
-                {
-                    MySqlConnection.ClearPool(connection);
-                }
-
-                var dropCommand = $@"
-alter database [{db.Name()}] set single_user with rollback immediate
-drop database [{db.Name()}]";
-                _log.Info(dropCommand);
-                _masterConnectionProvider?.ExecuteNonQuery(dropCommand);
-            }
-
             _log.Warning("Creating new databases");
 
             InitializePool(machineWide);
@@ -72,27 +57,7 @@ drop database [{db.Name()}]";
 
         void InitializePool(SharedState machineWide)
         {
-            1.Through(30).ForEach(_ => InsertDatabase(machineWide));
-        }
-
-        static IReadOnlyList<Database> ListPoolDatabases()
-        {
-            var databases = new List<string>();
-            _masterConnectionProvider?.UseCommand(
-                action: command =>
-                        {
-                            command.CommandText = "SHOW DATABASES";
-                            using var reader = command.ExecuteReader();
-                            while(reader.Read())
-                            {
-                                var dbName = reader.GetString(i: 0);
-                                if(dbName.StartsWith(PoolDatabaseNamePrefix))
-                                    databases.Add(dbName);
-                            }
-                        });
-
-            return databases.Select(name => new Database(name))
-                            .ToList();
+            1.Through(MaxDatabases).ForEach(_ => InsertDatabase(machineWide));
         }
     }
 }

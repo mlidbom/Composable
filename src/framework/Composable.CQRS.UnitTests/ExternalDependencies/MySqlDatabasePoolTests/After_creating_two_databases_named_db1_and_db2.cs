@@ -17,7 +17,7 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
 
         [SetUp] public void SetupTask()
         {
-            _manager = new MySqlDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+            _manager = new MySqlDatabasePool();
             _dB1ConnectionProvider = ConnectionProviderFor(Db1);
             _dB2ConnectionProvider = ConnectionProviderFor(Db2);
         }

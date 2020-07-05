@@ -30,7 +30,7 @@ namespace Composable.Persistence.SqlServer.DependencyInjection
             if(container.RunMode.IsTesting)
             {
                 container.Register(Singleton.For<SqlServerDatabasePool>()
-                                            .CreatedBy(((IConfigurationParameterProvider configurationParameterProvider) => new SqlServerDatabasePool(configurationParameterProvider)))
+                                            .CreatedBy(((IConfigurationParameterProvider configurationParameterProvider) => new SqlServerDatabasePool()))
                                             .DelegateToParentServiceLocatorWhenCloning());
 
                 container.Register(

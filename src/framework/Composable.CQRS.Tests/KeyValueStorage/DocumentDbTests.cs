@@ -44,7 +44,7 @@ namespace Composable.Tests.KeyValueStorage
         [TearDown]
         public void TearDownTask()
         {
-            ServiceLocator.Dispose();
+            ServiceLocator?.Dispose();
         }
 
         void UseInTransactionalScope([InstantHandle] Action<IDocumentDbReader, IDocumentDbUpdater> useSession)

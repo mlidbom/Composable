@@ -27,7 +27,7 @@ namespace Composable.Persistence.MySql.DependencyInjection
             if(container.RunMode.IsTesting)
             {
                 container.Register(Singleton.For<MySqlDatabasePool>()
-                                            .CreatedBy(((IConfigurationParameterProvider configurationParameterProvider) => new MySqlDatabasePool(configurationParameterProvider)))
+                                            .CreatedBy(((IConfigurationParameterProvider configurationParameterProvider) => new MySqlDatabasePool()))
                                             .DelegateToParentServiceLocatorWhenCloning());
 
                 container.Register(

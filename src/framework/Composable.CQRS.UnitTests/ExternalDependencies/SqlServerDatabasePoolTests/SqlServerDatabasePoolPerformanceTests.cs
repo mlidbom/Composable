@@ -3,7 +3,6 @@ using Composable.Logging;
 using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.Persistence.SqlServer.Testing.Databases;
 using Composable.System;
-using Composable.System.Configuration;
 using Composable.Testing;
 using Composable.Testing.Performance;
 using NCrunch.Framework;
@@ -16,7 +15,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
     {
         [OneTimeSetUp]public void WarmUpCache()
         {
-            using var pool = new SqlServerDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+            using var pool = new SqlServerDatabasePool();
             pool.ConnectionStringFor("3A0051EF-392B-46E2-AAB3-564C27138C94");
         }
 
@@ -29,7 +28,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
                 action:
                 () =>
                 {
-                    using var manager = new SqlServerDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+                    using var manager = new SqlServerDatabasePool();
                     manager.SetLogLevel(LogLevel.Warning);
                     manager.ConnectionStringFor(dbName);
                 },
@@ -46,7 +45,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
                 action:
                 () =>
                 {
-                    using var manager = new SqlServerDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+                    using var manager = new SqlServerDatabasePool();
                     manager.SetLogLevel(LogLevel.Warning);
                     manager.ConnectionStringFor(dbName);
                 },
@@ -63,7 +62,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
             TimeAsserter.ExecuteThreaded(
                 setup: () =>
                        {
-                           manager = new SqlServerDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+                           manager = new SqlServerDatabasePool();
                            manager.SetLogLevel(LogLevel.Warning);
                            manager.ConnectionStringFor("fake_to_force_creation_of_manager_database");
                        },
@@ -82,7 +81,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
             TimeAsserter.Execute(
                 setup: () =>
                        {
-                           manager = new SqlServerDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+                           manager = new SqlServerDatabasePool();
                            manager.SetLogLevel(LogLevel.Warning);
                            manager.ConnectionStringFor("fake_to_force_creation_of_manager_database");
                        },
@@ -97,7 +96,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
         public void Repeated_fetching_of_same_connection_runs_200_times_in_ten_milliseconds()
         {
             var dbName = "4669B59A-E0AC-4E76-891C-7A2369AE0F2F";
-            using var manager = new SqlServerDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+            using var manager = new SqlServerDatabasePool();
             manager.SetLogLevel(LogLevel.Warning);
             manager.ConnectionStringFor(dbName);
 
@@ -110,7 +109,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
 
         [Test] public void Once_DB_Fetched_Can_use_400_connections_in_10_milliseconds()
         {
-            using var manager = new SqlServerDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+            using var manager = new SqlServerDatabasePool();
             manager.SetLogLevel(LogLevel.Warning);
             var connectionProvider = new SqlServerConnectionProvider(manager.ConnectionStringFor("4669B59A-E0AC-4E76-891C-7A2369AE0F2F"));
             connectionProvider.UseConnection(_ => { });

@@ -19,7 +19,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
 
         [SetUp] public void SetupTask()
         {
-            _manager = new SqlServerDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+            _manager = new SqlServerDatabasePool();
             _dB1ConnectionProvider = ConnectionProviderFor(Db1);
             _dB2ConnectionProvider = ConnectionProviderFor(Db2);
         }

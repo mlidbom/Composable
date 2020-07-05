@@ -7,7 +7,7 @@ using Composable.Contracts;
 using Composable.Logging;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.System;
-using Composable.System.Configuration;
+using Composable.System.Reflection;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
@@ -16,7 +16,6 @@ namespace Composable.Persistence.MySql.Testing.Databases
 {
     sealed partial class MySqlDatabasePool : StrictlyManagedResourceBase<MySqlDatabasePool>
     {
-        readonly IConfigurationParameterProvider _configurationParameterProvider;
         const string InitialCatalogMaster = ";Database=mysql;";
 
         string? _masterConnectionString;
@@ -46,11 +45,11 @@ namespace Composable.Persistence.MySql.Testing.Databases
 
                 var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
                 var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
-                _masterConnectionString = masterConnectionString ?? _configurationParameterProvider.GetString(composableDatabasePoolMasterConnectionstringName);
+                _masterConnectionString = masterConnectionString ?? $"Server=localhost{InitialCatalogMaster}Uid=root;Pwd=;";
 
-                _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
-                _machineWideState = MachineWideSharedObject<SharedState>.For(_masterConnectionString, usePersistentFile: true);
+
+                _machineWideState = MachineWideSharedObject<SharedState>.For(GetType().GetFullNameCompilable().Replace(".","_"), usePersistentFile: true);
 
                 _masterConnectionProvider = new MySqlConnectionProvider(_masterConnectionString);
 
@@ -68,9 +67,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
         IReadOnlyList<Database> _transientCache = new List<Database>();
 
         ILogger _log = Logger.For<MySqlDatabasePool>();
-        bool _disposed;
-
-        public MySqlDatabasePool(IConfigurationParameterProvider configurationParameterProvider) => _configurationParameterProvider = configurationParameterProvider;
+        bool _disposed;     
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 
@@ -102,17 +99,8 @@ namespace Composable.Persistence.MySql.Testing.Databases
                     {
                         try
                         {
-                            if(machineWide.IsEmpty)
-                            {
-                                RebootPool(machineWide);
-                            }
-
-                            if(!machineWide.IsValid)
-                            {
-                                thrownException = new Exception("Detected corrupt database pool.Rebooting pool");
-                                _log.Error(thrownException, "Detected corrupt database pool. Rebooting pool");
-                                RebootPool(machineWide);
-                            }
+                            if(machineWide.IsEmpty) throw new Exception("MachineWide was empty.");
+                            if(!machineWide.IsValid) throw new Exception("Detected corrupt database pool.");
 
                             if(machineWide.TryReserve(out reservedDatabase, reservationName, _poolId, _reservationLength))
                             {
@@ -122,8 +110,8 @@ namespace Composable.Persistence.MySql.Testing.Databases
                         }
                         catch(Exception exception)
                         {
+                            thrownException = Catch(() => throw new Exception("Encountered exception reserving database. Rebooting pool", exception));
                             RebootPool(machineWide);
-                            thrownException = exception;
                         }
                     });
 
@@ -151,6 +139,19 @@ namespace Composable.Persistence.MySql.Testing.Databases
 
             return reservedDatabase.ConnectionString(this);
         });
+
+        static Exception Catch(Action generateException)
+        {
+            try
+            {
+                generateException();
+            }
+            catch(Exception e)
+            {
+                return e;
+            }
+            throw new Exception("Exception should have been thrown by now.");
+        }
 
         void ResetDatabase(Database db)
         {

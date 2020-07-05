@@ -3,7 +3,6 @@ using Composable.Logging;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MySql.Testing.Databases;
 using Composable.System;
-using Composable.System.Configuration;
 using Composable.Testing;
 using Composable.Testing.Performance;
 using MySql.Data.MySqlClient;
@@ -17,7 +16,7 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
     {
         [OneTimeSetUp]public void WarmUpCache()
         {
-            using var pool = new MySqlDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+            using var pool = new MySqlDatabasePool();
             pool.ConnectionStringFor("3A0051EF-392B-46E2-AAB3-564C27138C94");
         }
 
@@ -30,7 +29,7 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
                 action:
                 () =>
                 {
-                    using var manager = new MySqlDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+                    using var manager = new MySqlDatabasePool();
                     manager.SetLogLevel(LogLevel.Warning);
                     manager.ConnectionStringFor(dbName);
                 },
@@ -47,7 +46,7 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
                 action:
                 () =>
                 {
-                    using var manager = new MySqlDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+                    using var manager = new MySqlDatabasePool();
                     manager.SetLogLevel(LogLevel.Warning);
                     manager.ConnectionStringFor(dbName);
                 },
@@ -64,7 +63,7 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
             TimeAsserter.ExecuteThreaded(
                 setup: () =>
                        {
-                           manager = new MySqlDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+                           manager = new MySqlDatabasePool();
                            manager.SetLogLevel(LogLevel.Warning);
                            manager.ConnectionStringFor("fake_to_force_creation_of_manager_database");
                        },
@@ -83,7 +82,7 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
             TimeAsserter.Execute(
                 setup: () =>
                        {
-                           manager = new MySqlDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+                           manager = new MySqlDatabasePool();
                            manager.SetLogLevel(LogLevel.Warning);
                            manager.ConnectionStringFor("fake_to_force_creation_of_manager_database");
                        },
@@ -98,7 +97,7 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
         public void Repeated_fetching_of_same_connection_runs_20_times_in_ten_milliseconds()
         {
             var dbName = "4669B59A-E0AC-4E76-891C-7A2369AE0F2F";
-            using var manager = new MySqlDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+            using var manager = new MySqlDatabasePool();
             manager.SetLogLevel(LogLevel.Warning);
             manager.ConnectionStringFor(dbName);
 
@@ -112,7 +111,7 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
         //Urgent: Find out why opening a connection is 20 times slower than for Sql Server...
         [Test] public void Once_DB_Fetched_Can_use_20_connections_in_10_milliseconds()
         {
-            using var manager = new MySqlDatabasePool(new AppSettingsJsonConfigurationParameterProvider());
+            using var manager = new MySqlDatabasePool();
             manager.SetLogLevel(LogLevel.Warning);
             var connectionProvider = new MySqlConnectionProvider(manager.ConnectionStringFor("4669B59A-E0AC-4E76-891C-7A2369AE0F2F"));
             connectionProvider.UseConnection(_ => { });

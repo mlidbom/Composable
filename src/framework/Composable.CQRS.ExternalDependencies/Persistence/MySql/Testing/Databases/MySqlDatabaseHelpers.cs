@@ -13,7 +13,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
 
 //select @statements = COALESCE(@statements + '
 //', '') + statement
-//FROM (SELECT CASE                                             
+//FROM (SELECT CASE
 //        WHEN type = 'AF'                           THEN 'DROP AGGREGATE ' + QUOTENAME(schema_name(schema_id)) + '.' + QUOTENAME(name)
 //        WHEN type = 'R'                            THEN 'DROP RULE ' + QUOTENAME(schema_name(schema_id)) + '.' + QUOTENAME(name)
 //        WHEN type = 'SN'                           THEN 'DROP SYNONYM ' + QUOTENAME(schema_name(schema_id)) + '.' + QUOTENAME(name)
@@ -26,12 +26,12 @@ namespace Composable.Persistence.MySql.Testing.Databases
 //    END statement,
 //    type FROM sys.objects) as dropStatements
 //    WHERE statement IS NOT NULL
-//    ORDER BY CASE 
-//			WHEN type IN('F') THEN 1
-//			WHEN type IN('C', 'TA', 'TR') THEN 2 
-//			WHEN type IN('UQ') THEN 3
-//			ELSE 4
-//		END
+//    ORDER BY CASE
+//          WHEN type IN('F') THEN 1
+//          WHEN type IN('C', 'TA', 'TR') THEN 2
+//          WHEN type IN('UQ') THEN 3
+//          ELSE 4
+//      END
 
 //execute sp_executesql @statements
 //";

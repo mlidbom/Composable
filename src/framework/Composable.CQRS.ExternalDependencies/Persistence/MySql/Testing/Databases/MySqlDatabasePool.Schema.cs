@@ -27,7 +27,7 @@ CREATE DATABASE {databaseName};";
 //            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
 //            {
 //                createDatabaseCommand += $@"
-//ON      ( NAME = {databaseName}_data, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.mdf') 
+//ON      ( NAME = {databaseName}_data, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.mdf')
 //LOG ON  ( NAME = {databaseName}_log, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.ldf');";
 //            }
 

@@ -24,7 +24,7 @@ namespace Composable.Persistence.MySql.EventStore
             _connectionProvider.UseCommand(action);
         }
 
-        public TResult UseCommand<TResult>([InstantHandle]Func<MySqlCommand, TResult> action) => UseCommand<TResult>(false, action);
+        public TResult UseCommand<TResult>([InstantHandle]Func<MySqlCommand, TResult> action) => UseCommand(false, action);
         public TResult UseCommand<TResult>(bool suppressTransactionWarning, [InstantHandle] Func<MySqlCommand, TResult> action)
         {
             AssertTransactionPolicy(suppressTransactionWarning);

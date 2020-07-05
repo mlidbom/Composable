@@ -24,7 +24,7 @@ namespace Composable.Persistence.SqlServer.EventStore
             _connectionProvider.UseCommand(action);
         }
 
-        public TResult UseCommand<TResult>([InstantHandle]Func<SqlCommand, TResult> action) => UseCommand<TResult>(false, action);
+        public TResult UseCommand<TResult>([InstantHandle]Func<SqlCommand, TResult> action) => UseCommand(false, action);
         public TResult UseCommand<TResult>(bool suppressTransactionWarning, [InstantHandle] Func<SqlCommand, TResult> action)
         {
             AssertTransactionPolicy(suppressTransactionWarning);

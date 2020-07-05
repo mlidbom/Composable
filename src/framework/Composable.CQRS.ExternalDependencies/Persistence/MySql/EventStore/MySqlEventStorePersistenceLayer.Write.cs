@@ -96,7 +96,7 @@ where {C.EventId} = @{C.EventId}";
             //    command =>
             //    {
             //        command.CommandText = selectStatement;
-                    
+
             //        command.Parameters.Add(new SqlParameter(C.EventId, MySqlDbType.UniqueIdentifier) {Value = eventId});
             //        using var reader = command.ExecuteReader();
             //        reader.Read();

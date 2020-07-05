@@ -16,7 +16,7 @@ namespace Composable.Persistence.InMemory.ServiceBus
     {
         readonly OptimizedThreadShared<Implementation> _implementation = new OptimizedThreadShared<Implementation>(new Implementation());
 
-        public void SaveMessage(Message messageWithReceivers) 
+        public void SaveMessage(Message messageWithReceivers)
             => Transaction.Current.AddCommitTasks(() => _implementation.WithExclusiveAccess(@this => @this.SaveMessage(messageWithReceivers)));
         public int MarkAsReceived(Guid messageId, Guid endpointId) => _implementation.WithExclusiveAccess(@this => @this.MarkAsReceived(messageId, endpointId));
         public Task InitAsync() => _implementation.WithExclusiveAccess(@this => @this.InitAsync());

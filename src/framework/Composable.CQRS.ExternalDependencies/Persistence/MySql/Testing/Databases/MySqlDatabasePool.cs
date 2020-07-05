@@ -67,7 +67,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
         IReadOnlyList<Database> _transientCache = new List<Database>();
 
         ILogger _log = Logger.For<MySqlDatabasePool>();
-        bool _disposed;     
+        bool _disposed;
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 

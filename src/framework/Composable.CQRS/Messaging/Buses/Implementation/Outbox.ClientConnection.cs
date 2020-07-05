@@ -154,13 +154,13 @@ namespace Composable.Messaging.Buses.Implementation
                 internal readonly DealerSocket Socket;
                 internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
                 internal IUtcTimeTimeSource TimeSource { get; private set; }
-                internal Outbox.IMessageStorage MessageStorage { get; private set; }
+                internal Outbox.IMessageStorage Storage { get; private set; }
 
-                public State(IUtcTimeTimeSource timeSource, Outbox.IMessageStorage messageStorage, DealerSocket socket, IGlobalBusStateTracker globalBusStateTracker)
+                public State(IUtcTimeTimeSource timeSource, Outbox.IMessageStorage storage, DealerSocket socket, IGlobalBusStateTracker globalBusStateTracker)
                 {
                     Socket = socket;
                     TimeSource = timeSource;
-                    MessageStorage = messageStorage;
+                    Storage = storage;
                     GlobalBusStateTracker = globalBusStateTracker;
                 }
             }
@@ -220,7 +220,7 @@ namespace Composable.Messaging.Buses.Implementation
                                 break;
                             case TransportMessage.Response.ResponseType.Received:
                                 Assert.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
-                                _taskRunner.RunAndCrashProcessIfTaskThrows(() => state.MessageStorage.MarkAsReceived(response, EndpointInformation.Id));
+                                _taskRunner.RunAndCrashProcessIfTaskThrows(() => state.Storage.MarkAsReceived(response, EndpointInformation.Id));
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();

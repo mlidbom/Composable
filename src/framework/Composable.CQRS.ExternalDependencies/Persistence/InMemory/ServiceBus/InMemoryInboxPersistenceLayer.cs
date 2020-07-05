@@ -18,7 +18,7 @@ namespace Composable.Persistence.InMemory.ServiceBus
         public void MarkAsSucceeded(Guid messageId)
             => Transaction.Current.AddCommitTasks(() => _implementation.WithExclusiveAccess(@this => @this.MarkAsSucceeded(messageId)));
 
-        public int RecordException(Guid messageId, string exceptionStackTrace, string exceptionMessage, string exceptionType) 
+        public int RecordException(Guid messageId, string exceptionStackTrace, string exceptionMessage, string exceptionType)
             => _implementation.WithExclusiveAccess(@this => @this.RecordException(messageId, exceptionStackTrace, exceptionMessage, exceptionType));
 
         public int MarkAsFailed(Guid messageId) => _implementation.WithExclusiveAccess(@this => @this.MarkAsFailed(messageId));

@@ -194,7 +194,7 @@ namespace Composable.Persistence.EventStore
         public override string ToString() => $"{nameof(RefactoringInformation.InsertedVersion)}{RefactoringInformation.InsertedVersion},{nameof(RefactoringInformation.EffectiveVersion)}{RefactoringInformation.EffectiveVersion}, {nameof(RefactoringInformation.EffectiveOrder)}{RefactoringInformation.EffectiveOrder}";
     }
 
-    //Urgent: Refactor into enum Replace,InsertBefore,InsertAfter + RefactoredEventId + make all properties non-nullable instead make the whole instance on the event nullable + move data that is on all events elsewhere + split that elsewhere between read and write so that effective order is not nullable when reading and not present when writing. 
+    //Urgent: Refactor into enum Replace,InsertBefore,InsertAfter + RefactoredEventId + make all properties non-nullable instead make the whole instance on the event nullable + move data that is on all events elsewhere + split that elsewhere between read and write so that effective order is not nullable when reading and not present when writing.
     class AggregateEventRefactoringInformation
     {
         internal IEventStorePersistenceLayer.ReadOrder? EffectiveOrder { get; set; }

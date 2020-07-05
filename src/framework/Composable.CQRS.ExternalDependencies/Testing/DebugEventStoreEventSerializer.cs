@@ -5,7 +5,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Composable.Testing 
+namespace Composable.Testing
 {
     static class DebugEventStoreEventSerializer
     {

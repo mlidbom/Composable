@@ -1,7 +1,7 @@
 using System;
 using Composable.Persistence.EventStore;
 
-namespace Composable.Persistence.SqlServer.EventStore
+namespace Composable.Persistence.Common.EventStore
 {
     class EventStoreOptimisticConcurrencyException : Exception
     {

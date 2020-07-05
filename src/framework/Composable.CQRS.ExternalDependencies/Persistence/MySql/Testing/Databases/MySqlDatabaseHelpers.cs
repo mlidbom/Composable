@@ -49,6 +49,7 @@ USE {dbName};";
 //set @sql = 'ALTER DATABASE [' + @databaseName +  '] SET READ_COMMITTED_SNAPSHOT ON'
 //exec sp_executesql @sql";
 
-        internal static void DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(this MySqlConnection connection, string name) => connection.ExecuteNonQuery(DropAllObjectsStatement(name));
+        internal static void DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(this MySqlConnection connection, string name) 
+            => connection.ExecuteNonQuery(DropAllObjectsStatement(name));
     }
 }

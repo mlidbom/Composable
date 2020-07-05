@@ -53,14 +53,10 @@ ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
             _masterConnectionProvider!.ExecuteNonQuery(createDatabaseCommand);
         }
 
-        protected override void DropDatabase(Database db)
-        {
-            var dropCommand = $@"
+        protected override void DropDatabase(Database db) =>
+            _masterConnectionProvider?.ExecuteNonQuery($@"
 alter database [{db.Name()}] set single_user with rollback immediate
-drop database [{db.Name()}]";
-            _log.Info(dropCommand);
-            _masterConnectionProvider?.ExecuteNonQuery(dropCommand);
-        }
+drop database [{db.Name()}]");
 
         protected override IReadOnlyList<Database> ListPoolDatabases()
         {

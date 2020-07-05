@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Transactions;
@@ -11,176 +12,90 @@ using Composable.System.Reflection;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
+using Composable.Testing.Databases;
+using MySql.Data.MySqlClient;
 
 namespace Composable.Persistence.MySql.Testing.Databases
 {
-    sealed partial class MySqlDatabasePool : StrictlyManagedResourceBase<MySqlDatabasePool>
+    sealed class MySqlDatabasePool : DatabasePool
     {
-        const string InitialCatalogMaster = ";Database=mysql;";
+        readonly string _masterConnectionString;
+        readonly MySqlConnectionProvider _masterConnectionProvider;
 
-        string? _masterConnectionString;
-        static MySqlConnectionProvider? _masterConnectionProvider;
+        const string DatabaseMySql = ";Database=mysql;";
 
-        MachineWideSharedObject<SharedState>? _machineWideState;
+        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
-        static string? _databaseRootFolderOverride;
-        static readonly HashSet<string> RebootedMasterConnections = new HashSet<string>();
-
-        static TimeSpan _reservationLength;
-
-        bool _initialized;
-        readonly object _lockObject = new object();
-        void EnsureInitialized()
+        public MySqlDatabasePool()
         {
-            lock(_lockObject)
-            {
-                if(_initialized) return;
+            var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName);
 
-                _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 30.Seconds();
+            _masterConnectionString = masterConnectionString ?? $"Server=localhost{DatabaseMySql}Uid=root;Pwd=;";
 
-                if(ComposableTempFolder.IsOverridden)
-                {
-                    _databaseRootFolderOverride = ComposableTempFolder.EnsureFolderExists("DatabasePoolData");
-                }
+            _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
-                var composableDatabasePoolMasterConnectionstringName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
-                var masterConnectionString = Environment.GetEnvironmentVariable(composableDatabasePoolMasterConnectionstringName);
-                _masterConnectionString = masterConnectionString ?? $"Server=localhost{InitialCatalogMaster}Uid=root;Pwd=;";
+            _masterConnectionProvider = new MySqlConnectionProvider(_masterConnectionString);
 
-
-
-                _machineWideState = MachineWideSharedObject<SharedState>.For(GetType().GetFullNameCompilable().Replace(".","_"), usePersistentFile: true);
-
-                _masterConnectionProvider = new MySqlConnectionProvider(_masterConnectionString);
-
-                Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
-                                     $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
-
-                _initialized = true;
-            }
+            Contract.Assert.That(_masterConnectionString.Contains(DatabaseMySql),
+                                 $"Environment variable: {ConnectionStringConfigurationParameterName} connection string must contain the exact string: '{DatabaseMySql}' for technical optimization reasons");
         }
 
-        internal static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(MySqlDatabasePool)}_";
+        protected internal override string ConnectionStringForDbNamed(string dbName)
+            => _masterConnectionString!.Replace(DatabaseMySql, $";Database={dbName};");
 
-        readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
-        readonly Guid _poolId = Guid.NewGuid();
-        IReadOnlyList<Database> _transientCache = new List<Database>();
-
-        ILogger _log = Logger.For<MySqlDatabasePool>();
-        bool _disposed;
-
-        public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
-
-        public string ConnectionStringFor(string reservationName) => _guard.Update(() =>
+        protected override void CreateDatabase(string databaseName)
         {
-            Contract.Assert.That(!_disposed, "!_disposed");
-            EnsureInitialized();
+            //Urgent: Figure out MySql equivalents and if they need to be specified
+            //            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
+            //            {
+            //                createDatabaseCommand += $@"
+            //ON      ( NAME = {databaseName}_data, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.mdf')
+            //LOG ON  ( NAME = {databaseName}_log, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.ldf');";
+            //            }
 
-            var reservedDatabase = _transientCache.SingleOrDefault(db => db.IsReserved && db.ReservedByPoolId == _poolId && db.ReservationName == reservationName);
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-            if(reservedDatabase != null)
-            {
-                _log.Debug($"Retrieved reserved pool database: {reservedDatabase.Id}");
-                return reservedDatabase.ConnectionString(this);
-            }
+            //            createDatabaseCommand += $@"
+            //ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;
+            //ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
-            var startTime = DateTime.Now;
-            var timeoutAt = startTime + 45.Seconds();
-            while(reservedDatabase == null)
-            {
-                if(DateTime.Now > timeoutAt)
+            _masterConnectionProvider?.ExecuteNonQuery($@"
+DROP DATABASE IF EXISTS {databaseName};
+CREATE DATABASE {databaseName};");
+        }
+
+        protected override void DropDatabase(Database db) =>
+            _masterConnectionProvider?.ExecuteNonQuery($@"DROP DATABASE IF EXISTS {db.Name()};");
+
+        protected override IReadOnlyList<Database> ListPoolDatabases()
+        {
+            var databases = new List<string>();
+            _masterConnectionProvider?.UseCommand(
+                action: command =>
                 {
-                    throw new Exception("Timed out waiting for database. Have you missed disposing a database pool? Please check your logs for errors about non-disposed pools.");
-                }
-
-                Exception? thrownException = null;
-                _machineWideState!.Update(
-                    machineWide =>
+                    command.CommandText = "select name from sysdatabases";
+                    using var reader = command.ExecuteReader();
+                    while(reader.Read())
                     {
-                        try
-                        {
-                            if(machineWide.IsEmpty) throw new Exception("MachineWide was empty.");
-                            if(!machineWide.IsValid) throw new Exception("Detected corrupt database pool.");
+                        var dbName = reader.GetString(i: 0);
+                        if(dbName.StartsWith(PoolDatabaseNamePrefix))
+                            databases.Add(dbName);
+                    }
+                });
 
-                            if(machineWide.TryReserve(out reservedDatabase, reservationName, _poolId, _reservationLength))
-                            {
-                                _log.Info($"Reserved pool database: {reservedDatabase.Id}");
-                                _transientCache = machineWide.DatabasesReservedBy(_poolId);
-                            }
-                        }
-                        catch(Exception exception)
-                        {
-                            thrownException = Catch(() => throw new Exception("Encountered exception reserving database. Rebooting pool", exception));
-                            RebootPool(machineWide);
-                        }
-                    });
-
-                if(thrownException != null)
-                {
-                    throw new Exception("Something went wrong with the database pool and it was rebooted. You may see other test failures due to this", thrownException);
-                }
-
-                if(reservedDatabase == null)
-                {
-                    Thread.Sleep(10);
-                }
-            }
-
-            try
-            {
-                ResetDatabase(reservedDatabase);
-            }
-            catch(Exception exception)
-            {
-                _log.Error(exception, "Something went wrong with the database pool and it will be rebooted.");
-                RebootPool();
-                throw new Exception("Something went wrong with the database pool and it was rebooted. You may see other test failures due to this", exception);
-            }
-
-            return reservedDatabase.ConnectionString(this);
-        });
-
-        static Exception Catch(Action generateException)
-        {
-            try
-            {
-                generateException();
-            }
-            catch(Exception e)
-            {
-                return e;
-            }
-            throw new Exception("Exception should have been thrown by now.");
+            return databases.Select(name => new Database(name))
+                            .ToList();
         }
 
-        void ResetDatabase(Database db)
+        protected override void ResetDatabase(Database db)
         {
             TransactionScopeCe.SuppressAmbient(
                 () => new MySqlConnectionProvider(db.ConnectionString(this))
-                    .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(db.Name())));
+                   .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(db.Name())));
         }
 
-        internal string ConnectionStringForDbNamed(string dbName)
-            => _masterConnectionString!.Replace(InitialCatalogMaster, $";Database={dbName};");
-
-        Database InsertDatabase(SharedState machineWide)
+        protected override void ResetConnectionPool(Database db)
         {
-            var database = machineWide.Insert();
-
-            _log.Warning($"Creating database: {database.Id}");
-            using(new TransactionScope(TransactionScopeOption.Suppress))
-            {
-                CreateDatabase(database.Name());
-            }
-            return database;
-        }
-
-        protected override void InternalDispose()
-        {
-            if(_disposed || !_initialized) return;
-            _disposed = true;
-            _machineWideState!.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
-            _machineWideState.Dispose();
+            using var connection = new MySqlConnection(db.ConnectionString(this));
+            MySqlConnection.ClearPool(connection);
         }
     }
 }

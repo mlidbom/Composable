@@ -10,11 +10,11 @@ namespace Composable.Persistence.SqlServer.Testing.Databases
 {
     static class DatabaseExtensions
     {
-        internal static string Name(this SqlServerDatabasePool.Database @this) => $"{SqlServerDatabasePool.PoolDatabaseNamePrefix}{@this.Id:0000}";
-        internal static string ConnectionString(this SqlServerDatabasePool.Database @this, SqlServerDatabasePool pool) => pool.ConnectionStringForDbNamed(@this.Name());
+        internal static string Name(this DatabasePool.Database @this) => $"{DatabasePool.PoolDatabaseNamePrefix}{@this.Id:0000}";
+        internal static string ConnectionString(this DatabasePool.Database @this, DatabasePool pool) => pool.ConnectionStringForDbNamed(@this.Name());
     }
 
-    sealed partial class SqlServerDatabasePool
+    partial class DatabasePool
     {
         static void CreateDatabase(string databaseName)
         {
@@ -30,7 +30,7 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{_databaseRootFolderOverride}\{
 ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;
 ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
-            _masterConnectionProvider?.ExecuteNonQuery(createDatabaseCommand);
+            _masterConnectionProvider!.ExecuteNonQuery(createDatabaseCommand);
 
             //SafeConsole.WriteLine($"Created: {databaseName}");
         }
@@ -56,17 +56,22 @@ ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
                     SqlConnection.ClearPool(connection);
                 }
 
-                var dropCommand = $@"
-alter database [{db.Name()}] set single_user with rollback immediate
-drop database [{db.Name()}]";
-                _log.Info(dropCommand);
-                _masterConnectionProvider?.ExecuteNonQuery(dropCommand);
+                DropDatabase(db);
             }
 
             _log.Warning("Creating new databases");
 
             InitializePool(machineWide);
         });
+
+        void DropDatabase(Database db)
+        {
+            var dropCommand = $@"
+alter database [{db.Name()}] set single_user with rollback immediate
+drop database [{db.Name()}]";
+            _log.Info(dropCommand);
+            _masterConnectionProvider?.ExecuteNonQuery(dropCommand);
+        }
 
         void InitializePool(SharedState machineWide)
         {

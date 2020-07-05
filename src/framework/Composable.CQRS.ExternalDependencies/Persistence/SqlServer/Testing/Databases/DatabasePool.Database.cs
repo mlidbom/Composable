@@ -5,7 +5,7 @@ using Composable.Serialization;
 
 namespace Composable.Persistence.SqlServer.Testing.Databases
 {
-    sealed partial class SqlServerDatabasePool
+    partial class DatabasePool
     {
         internal class Database : BinarySerialized<Database>
         {

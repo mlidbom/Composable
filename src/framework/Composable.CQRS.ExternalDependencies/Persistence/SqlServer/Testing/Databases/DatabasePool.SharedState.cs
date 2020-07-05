@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.SqlServer.Testing.Databases
 {
-    sealed partial class SqlServerDatabasePool
+    partial class DatabasePool
     {
         [UsedImplicitly] class SharedState : BinarySerialized<SharedState>
         {

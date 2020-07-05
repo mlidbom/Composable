@@ -1,36 +1,36 @@
 ﻿using System;
+using Composable.DependencyInjection;
 using Composable.Logging;
 using Composable.Persistence.MySql.SystemExtensions;
-using Composable.Persistence.MySql.Testing.Databases;
+using Composable.Persistence.SqlServer.SystemExtensions;
 using Composable.System;
 using Composable.Testing;
+using Composable.Testing.Databases;
 using Composable.Testing.Performance;
-using MySql.Data.MySqlClient;
 using NCrunch.Framework;
 using NUnit.Framework;
 
-namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
+namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
-    //Urgent: Merge with tests of SqlServerDatabasePool using DistributeByCapabilityAttribute
     [TestFixture, Performance, Serial]
-    public class MySqlDatabasePoolPerformanceTests
+    public class DatabasePoolPerformanceTests : DatabasePoolTest
     {
         [OneTimeSetUp]public void WarmUpCache()
         {
-            using var pool = new MySqlDatabasePool();
-            pool.ConnectionStringFor("3A0051EF-392B-46E2-AAB3-564C27138C94");
+            using var pool = CreatePool();
+            pool.ConnectionStringFor(Guid.NewGuid().ToString());
         }
 
         [Test]
         public void Single_thread_can_reserve_and_release_10_identically_named_databases_in_300_milliseconds()
         {
-            var dbName = "74EA37DF-03CE-49C4-BDEC-EAD40FAFB3A1";
+            var dbName = Guid.NewGuid().ToString();
 
             TimeAsserter.Execute(
                 action:
                 () =>
                 {
-                    using var manager = new MySqlDatabasePool();
+                    using var manager = CreatePool();
                     manager.SetLogLevel(LogLevel.Warning);
                     manager.ConnectionStringFor(dbName);
                 },
@@ -41,13 +41,13 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
         [Test]
         public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_70_milliseconds()
         {
-            var dbName = "EB82270F-E0BA-49F7-BC09-79AE95BA109F";
+            var dbName = Guid.NewGuid().ToString();
 
             TimeAsserter.ExecuteThreaded(
                 action:
                 () =>
                 {
-                    using var manager = new MySqlDatabasePool();
+                    using var manager = CreatePool();
                     manager.SetLogLevel(LogLevel.Warning);
                     manager.ConnectionStringFor(dbName);
                 },
@@ -59,12 +59,12 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
         [Test]
         public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds()
         {
-            MySqlDatabasePool manager = null;
+            DatabasePool manager = null;
 
             TimeAsserter.ExecuteThreaded(
                 setup: () =>
                        {
-                           manager = new MySqlDatabasePool();
+                           manager = CreatePool();
                            manager.SetLogLevel(LogLevel.Warning);
                            manager.ConnectionStringFor("fake_to_force_creation_of_manager_database");
                        },
@@ -78,12 +78,12 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
         [Test]
         public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds()
         {
-            MySqlDatabasePool manager = null;
+            DatabasePool manager = null;
 
             TimeAsserter.Execute(
                 setup: () =>
                        {
-                           manager = new MySqlDatabasePool();
+                           manager = CreatePool();
                            manager.SetLogLevel(LogLevel.Warning);
                            manager.ConnectionStringFor("fake_to_force_creation_of_manager_database");
                        },
@@ -95,33 +95,63 @@ namespace Composable.Tests.ExternalDependencies.MySqlDatabasePoolTests
         }
 
         [Test]
-        public void Repeated_fetching_of_same_connection_runs_20_times_in_ten_milliseconds()
+        public void Repeated_fetching_of_same_connection_runs_200_times_in_ten_milliseconds()
         {
-            var dbName = "4669B59A-E0AC-4E76-891C-7A2369AE0F2F";
-            using var manager = new MySqlDatabasePool();
+            var dbName = Guid.NewGuid().ToString();
+            using var manager = CreatePool();
             manager.SetLogLevel(LogLevel.Warning);
             manager.ConnectionStringFor(dbName);
 
             TimeAsserter.Execute(
                 action: () => manager.ConnectionStringFor(dbName),
-                iterations: 20,
+                iterations: 200,
                 maxTotal: 10.Milliseconds()
             );
         }
 
-        //Urgent: Find out why opening a connection is 20 times slower than for Sql Server...
-        [Test] public void Once_DB_Fetched_Can_use_20_connections_in_10_milliseconds()
+        [Test]
+        public void Once_DB_Fetched_SqlServer_Can_use_400_connections_in_10_milliseconds_MySql_40()
         {
-            using var manager = new MySqlDatabasePool();
+            using var manager = CreatePool();
             manager.SetLogLevel(LogLevel.Warning);
-            var connectionProvider = new MySqlConnectionProvider(manager.ConnectionStringFor("4669B59A-E0AC-4E76-891C-7A2369AE0F2F"));
-            connectionProvider.UseConnection(_ => { });
+            var reservationName = Guid.NewGuid().ToString();
+            TestConnectionUsage(manager, reservationName);
+        }
 
-            TimeAsserter.Execute(
-                action: () => connectionProvider.UseConnection(_ => { }),
-                iterations: 2000,
-                maxTotal: 1000.Milliseconds()
-            );
+        static void TestConnectionUsage(DatabasePool manager, string reservationName)
+        {
+            switch(TestEnvironment.TestingPersistenceLayer)
+            {
+                case PersistenceLayer.SqlServer:
+                {
+                    var connectionProvider = new SqlServerConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    connectionProvider.UseConnection(_ => {});
+
+                    TimeAsserter.Execute(
+                        action: () => connectionProvider.UseConnection(_ => {}),
+                        iterations: 400,
+                        maxTotal: 10.Milliseconds()
+                    );
+                }
+                    break;
+                case PersistenceLayer.InMemory:
+                    break;
+                case PersistenceLayer.MySql:
+                {
+                    var connectionProvider = new MySqlConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    connectionProvider.UseConnection(_ => {});
+
+                    //Urgent: do something about the performance of opening MySql connections.
+                    TimeAsserter.Execute(
+                        action: () => connectionProvider.UseConnection(_ => {}),
+                        iterations: 40,
+                        maxTotal: 10.Milliseconds()
+                    );
+                }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

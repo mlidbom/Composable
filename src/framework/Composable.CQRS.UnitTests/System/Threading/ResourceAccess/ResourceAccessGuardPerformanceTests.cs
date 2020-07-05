@@ -2,6 +2,7 @@ using Composable.System.Threading.ResourceAccess;
 using Composable.Testing.Performance;
 using Xunit;
 using Composable.System;
+using Composable.Testing;
 
 namespace Composable.Tests.System.Threading.ResourceAccess
 {

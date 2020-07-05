@@ -26,7 +26,6 @@ namespace Composable.DependencyInjection
     public interface IRunMode
     {
         bool IsTesting { get; }
-        PersistenceLayer TestingPersistenceLayer { get; }
     }
 
     public enum PersistenceLayer

@@ -1,8 +1,10 @@
 ﻿using System;
+using Composable.DependencyInjection;
 using Composable.System;
 using Composable.System.Diagnostics;
+using NCrunch.Framework;
 
-namespace Composable.Testing.Performance
+namespace Composable.Testing
 {
     static class TestEnvironment
     {
@@ -56,6 +58,20 @@ namespace Composable.Testing.Performance
 #else
     return false;
 #endif
+            }
+        }
+
+        public static PersistenceLayer TestingPersistenceLayer
+        {
+            get
+            {
+                var storageProviderName = NCrunchEnvironment.GetDuplicatedDimension();
+                if(!Enum.TryParse(storageProviderName, out PersistenceLayer provider))
+                {
+                    throw new Exception("Failed to parse PersistenceLayerProvider from test environment");
+                }
+
+                return provider;
             }
         }
     }

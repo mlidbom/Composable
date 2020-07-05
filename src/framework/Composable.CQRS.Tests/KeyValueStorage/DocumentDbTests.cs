@@ -13,6 +13,8 @@ using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 using Composable.System;
+using Composable.Testing;
+
 // ReSharper disable AccessToDisposedClosure
 
 namespace Composable.Tests.KeyValueStorage
@@ -87,8 +89,7 @@ namespace Composable.Tests.KeyValueStorage
                               });
         }
 
-        //Urgent: Fix the MySql opening connection slowness problem and restore this test
-        [Test] public void Saves100NewDocumentsIn150Milliseconds()
+        [Test] public void In150Milliseconds_SqlServer_saves_200_MySql_60_InMemory_2000()
         {
             ServiceLocator.ExecuteInIsolatedScope(() =>
                                                   {
@@ -103,9 +104,18 @@ namespace Composable.Tests.KeyValueStorage
                                                       //Warm up caches etc
                                                       SaveOneNewUserInTransaction();
 
+                                                      //Urgent: Fix the MySql opening connection slowness problem and up the number for MySql this test
+                                                      var iterations = TestEnvironment.TestingPersistenceLayer switch
+                                                      {
+                                                          PersistenceLayer.SqlServer => 200,
+                                                          PersistenceLayer.InMemory => 2000,
+                                                          PersistenceLayer.MySql => 60,
+                                                          _ => throw new ArgumentOutOfRangeException()
+                                                      };
+
                                                       TimeAsserter.Execute(
                                                           action: SaveOneNewUserInTransaction,
-                                                          iterations: 200,
+                                                          iterations: iterations,
                                                           maxTotal: 150.Milliseconds()
                                                       );
                                                   });

@@ -74,5 +74,19 @@ namespace Composable.Testing
                 return provider;
             }
         }
+
+
+        public static int ValueForPersistenceProvider(int? msSql = null, int? mySql = null, int? inMem = null)
+            => ValueForPersistenceProvider<int>(msSql: msSql, mySql: mySql, inMem: inMem);
+
+        public static TValue ValueForPersistenceProvider<TValue>(TValue? msSql= null, TValue? mySql = null, TValue? inMem = null)
+        where TValue : struct
+        => TestEnvironment.TestingPersistenceLayer switch
+            {
+                PersistenceLayer.SqlServer => msSql ?? throw new Exception($"Value missing for {nameof(msSql)}"),
+                PersistenceLayer.InMemory => inMem ?? throw new Exception($"Value missing for {nameof(inMem)}"),
+                PersistenceLayer.MySql => mySql?? throw new Exception($"Value missing for {nameof(mySql)}"),
+                _ => throw new ArgumentOutOfRangeException()
+            };
     }
 }

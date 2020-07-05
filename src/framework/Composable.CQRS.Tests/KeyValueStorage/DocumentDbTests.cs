@@ -10,7 +10,6 @@ using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing.Performance;
 using FluentAssertions;
-using JetBrains.Annotations;
 using NUnit.Framework;
 using Composable.System;
 using Composable.Testing;
@@ -19,46 +18,9 @@ using Composable.Testing;
 
 namespace Composable.Tests.KeyValueStorage
 {
-    //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql))]
     [TestFixture]
-    public class DocumentDbTests
+    class DocumentDbTests : DocumentDbTestsBase
     {
-        IDocumentDb CreateStore() => ServiceLocator.DocumentDb();
-
-        protected IServiceLocator ServiceLocator { get; private set; }
-
-        protected IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(
-            builder
-                => builder.TypeMapper
-                          .Map<Composable.Tests.KeyValueStorage.User>("96f37428-04ca-4f60-858a-785d26ee7576")
-                          .Map<Composable.Tests.KeyValueStorage.Email>("648191d9-bfae-45c0-b824-d322d01fa64c")
-                          .Map<Composable.Tests.KeyValueStorage.Dog>("ca527ca3-d352-4674-9133-2747756f45b3")
-                          .Map<Composable.Tests.KeyValueStorage.Person>("64133a9b-1279-4029-9469-2d63d4f9ceaa")
-                          .Map<global::System.Collections.Generic.HashSet<Composable.Tests.KeyValueStorage.User>>("df57e323-d4b0-44c1-a69c-5ea100af9ebf"));
-
-        [SetUp]
-        public void Setup()
-        {
-            ServiceLocator = CreateServiceLocator();
-        }
-
-        [TearDown]
-        public void TearDownTask()
-        {
-            ServiceLocator?.Dispose();
-        }
-
-        void UseInTransactionalScope([InstantHandle] Action<IDocumentDbReader, IDocumentDbUpdater> useSession)
-        {
-            ServiceLocator.ExecuteTransactionInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader(), ServiceLocator.DocumentDbUpdater()));
-        }
-
-        internal void UseInScope([InstantHandle]Action<IDocumentDbReader> useSession)
-        {
-            ServiceLocator.ExecuteInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader()));
-        }
-
         [Test]
         public void CanSaveAndLoadAggregate()
         {
@@ -87,38 +49,6 @@ namespace Composable.Tests.KeyValueStorage
 
                                   Assert.That(loadedUser.Address, Is.EqualTo(user.Address));
                               });
-        }
-
-        [Test] public void In150Milliseconds_SqlServer_saves_200_MySql_60_InMemory_2000()
-        {
-            ServiceLocator.ExecuteInIsolatedScope(() =>
-                                                  {
-                                                      var updater = ServiceLocator.DocumentDbUpdater();
-
-                                                      void SaveOneNewUserInTransaction()
-                                                      {
-                                                          var user = new User();
-                                                          updater.Save(user);
-                                                      }
-
-                                                      //Warm up caches etc
-                                                      SaveOneNewUserInTransaction();
-
-                                                      //Urgent: Fix the MySql opening connection slowness problem and up the number for MySql this test
-                                                      var iterations = TestEnvironment.TestingPersistenceLayer switch
-                                                      {
-                                                          PersistenceLayer.SqlServer => 200,
-                                                          PersistenceLayer.InMemory => 2000,
-                                                          PersistenceLayer.MySql => 60,
-                                                          _ => throw new ArgumentOutOfRangeException()
-                                                      };
-
-                                                      TimeAsserter.Execute(
-                                                          action: SaveOneNewUserInTransaction,
-                                                          iterations: iterations,
-                                                          maxTotal: 150.Milliseconds()
-                                                      );
-                                                  });
         }
 
         [Test]

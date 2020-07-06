@@ -56,7 +56,7 @@ namespace Composable.Testing.Databases
             if(reservedDatabase != null)
             {
                 Log.Debug($"Retrieved reserved pool database: {reservedDatabase.Id}");
-                return reservedDatabase.ConnectionString(this);
+                return this.ConnectionStringFor(reservedDatabase);
             }
 
             var startTime = DateTime.Now;
@@ -111,7 +111,7 @@ namespace Composable.Testing.Databases
                 throw new Exception(RebootedDatabaseExceptionMessage, exception);
             }
 
-            return reservedDatabase.ConnectionString(this);
+            return this.ConnectionStringFor(reservedDatabase);
         });
 
         static Exception Catch(Action generateException)
@@ -129,7 +129,7 @@ namespace Composable.Testing.Databases
 
         protected abstract void ResetDatabase(Database db);
 
-        protected internal abstract string ConnectionStringForDbNamed(string dbName);
+        protected abstract string ConnectionStringFor(Database db);
 
         Database InsertDatabase(SharedState machineWide)
         {

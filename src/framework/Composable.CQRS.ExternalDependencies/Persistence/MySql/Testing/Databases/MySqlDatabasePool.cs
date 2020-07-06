@@ -32,8 +32,8 @@ namespace Composable.Persistence.MySql.Testing.Databases
                                  $"Environment variable: {ConnectionStringConfigurationParameterName} connection string must contain the exact string: '{DatabaseMySql}' for technical optimization reasons");
         }
 
-        protected internal override string ConnectionStringForDbNamed(string dbName)
-            => _masterConnectionString!.Replace(DatabaseMySql, $";Database={dbName};");
+        protected override string ConnectionStringFor(Database db)
+            => _masterConnectionString!.Replace(DatabaseMySql, $";Database={db.Name()};");
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
@@ -57,13 +57,13 @@ CREATE DATABASE {databaseName};");
         }
 
         protected override void ResetDatabase(Database db) =>
-            new MySqlConnectionProvider(db.ConnectionString(this)).ExecuteNonQuery($@"
+            new MySqlConnectionProvider(this.ConnectionStringFor(db)).ExecuteNonQuery($@"
 DROP DATABASE {db.Name()};
 CREATE DATABASE {db.Name()};");
 
         void ResetConnectionPool(Database db)
         {
-            using var connection = new MySqlConnection(db.ConnectionString(this));
+            using var connection = new MySqlConnection(this.ConnectionStringFor(db));
             MySqlConnection.ClearPool(connection);
         }
     }

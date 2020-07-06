@@ -32,8 +32,8 @@ namespace Composable.Persistence.SqlServer.Testing.Databases
                                  $"Environment variable: {ConnectionStringConfigurationParameterName} connection string must contain the exact string: '{InitialCatalogMaster}' for technical optimization reasons");
         }
 
-        protected internal override string ConnectionStringForDbNamed(string dbName)
-            => _masterConnectionString!.Replace(InitialCatalogMaster, $";Initial Catalog={dbName};");
+        protected override string ConnectionStringFor(Database db)
+            => _masterConnectionString!.Replace(InitialCatalogMaster, $";Initial Catalog={db.Name()};");
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
@@ -60,12 +60,12 @@ ALTER DATABASE[{databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
         }
 
         protected override void ResetDatabase(Database db) =>
-            new SqlServerConnectionProvider(db.ConnectionString(this))
+            new SqlServerConnectionProvider(this.ConnectionStringFor(db))
                .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel());
 
         protected void ResetConnectionPool(Database db)
         {
-            using var connection = new SqlConnection(db.ConnectionString(this));
+            using var connection = new SqlConnection(this.ConnectionStringFor(db));
             SqlConnection.ClearPool(connection);
         }
     }

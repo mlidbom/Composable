@@ -51,7 +51,7 @@ END IF;
                                               .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddMediumTextParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.EffectiveOrder, MySqlDbType.Decimal, data.RefactoringInformation.EffectiveOrder?.ToSqlDecimal())
+                                              .AddNullableParameter(C.EffectiveOrder, MySqlDbType.VarChar, data.RefactoringInformation.EffectiveOrder?.ToString())
                                               .AddNullableParameter(C.EffectiveVersion, MySqlDbType.Int32, data.RefactoringInformation.EffectiveVersion)
                                               .AddNullableParameter(C.InsertAfter, MySqlDbType.Guid, data.RefactoringInformation.InsertAfter)
                                               .AddNullableParameter(C.InsertBefore, MySqlDbType.Guid, data.RefactoringInformation.InsertBefore)
@@ -70,7 +70,7 @@ END IF;
         public void UpdateEffectiveVersions(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
         {
             var commandText = versions.Select((spec, index) =>
-                                                  $@"UPDATE {EventTable.Name} SET {C.EffectiveVersion} = {spec.EffectiveVersion} WHERE {C.EventId} = '{spec.EventId}'").Join(Environment.NewLine);
+                                                  $@"UPDATE {EventTable.Name} SET {C.EffectiveVersion} = {spec.EffectiveVersion} WHERE {C.EventId} = '{spec.EventId}';").Join(Environment.NewLine);
 
             _connectionManager.UseConnection(connection => connection.ExecuteNonQuery(commandText));
 
@@ -78,12 +78,14 @@ END IF;
 
         public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId)
         {
-            var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
+            //urgent: Find MySql equivalent
+            //var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
+            var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "";
 
             var selectStatement = $@"
 SELECT  {C.EffectiveOrder},        
-        (select top 1 cast({C.EffectiveOrder} as char(39)) from {EventTable.Name} e1 where e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} desc) PreviousReadOrder,
-        (select top 1 cast({C.EffectiveOrder} as char(39)) from {EventTable.Name} e1 where e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder}) NextReadOrder
+        (select cast({C.EffectiveOrder} as char(39)) from {EventTable.Name} e1 where e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} desc limit 1) PreviousReadOrder,
+        (select cast({C.EffectiveOrder} as char(39)) from {EventTable.Name} e1 where e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} limit 1) NextReadOrder
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
 where {C.EventId} = @{C.EventId}";
 
@@ -94,13 +96,13 @@ where {C.EventId} = @{C.EventId}";
                 {
                     command.CommandText = selectStatement;
 
-                    command.Parameters.Add(new SqlParameter(C.EventId, MySqlDbType.Guid) { Value = eventId });
+                    command.Parameters.Add(new MySqlParameter(C.EventId, MySqlDbType.Guid) { Value = eventId });
                     using var reader = command.ExecuteReader();
                     reader.Read();
 
-                    var effectiveReadOrder = reader.GetString(0);
-                    var previousEventReadOrder = reader.GetString(1);
-                    var nextEventReadOrder = reader.GetString(2);
+                    var effectiveReadOrder = reader.GetString(0).Replace(",", ".");
+                    var previousEventReadOrder = (reader[1] as string)?.Replace(",", ".");
+                    var nextEventReadOrder = (reader[2] as string)?.Replace(",", ".");
                     neighborhood = new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: ReadOrder.Parse(effectiveReadOrder),
                                                                                      previousEventReadOrder: previousEventReadOrder == null ? null : new ReadOrder?(ReadOrder.Parse(previousEventReadOrder)),
                                                                                      nextEventReadOrder: nextEventReadOrder == null ? null : new ReadOrder?(ReadOrder.Parse(nextEventReadOrder)));

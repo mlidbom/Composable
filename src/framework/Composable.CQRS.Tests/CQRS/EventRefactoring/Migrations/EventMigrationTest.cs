@@ -20,7 +20,7 @@ using NUnit.Framework;
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
+    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql))]
     [TestFixture]
     public class EventMigrationTest : EventMigrationTestBase
     {
@@ -609,6 +609,9 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             var firstProcessHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => PersistingEventStore().GetAggregateHistory(id));
             var secondProcessHistory = otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => otherProcessServiceLocator.Resolve<IEventStore>().GetAggregateHistory(id));
+
+            EventStorageTestHelper.StripSeventhDecimalPointFromSecondFractionOnUtcUpdateTime(firstProcessHistory);
+            EventStorageTestHelper.StripSeventhDecimalPointFromSecondFractionOnUtcUpdateTime(secondProcessHistory);
 
             EventMigrationTestBase.AssertStreamsAreIdentical(firstProcessHistory, secondProcessHistory, "Both process histories should be identical");
         }

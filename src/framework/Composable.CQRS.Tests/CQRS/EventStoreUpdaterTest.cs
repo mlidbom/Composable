@@ -490,16 +490,12 @@ namespace Composable.Tests.CQRS
                                         Assert.That(dispatchedEvents.Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
 
                                         var allPersistedEvents = _serviceLocator.EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
-                                        StripSeventhDecimalPointFromSecondFractionOnUtcUpdateTime(dispatchedEvents);
-                                        StripSeventhDecimalPointFromSecondFractionOnUtcUpdateTime(allPersistedEvents);
+                                        EventStorageTestHelper.StripSeventhDecimalPointFromSecondFractionOnUtcUpdateTime(dispatchedEvents);
+                                        EventStorageTestHelper.StripSeventhDecimalPointFromSecondFractionOnUtcUpdateTime(allPersistedEvents);
 
                                         allPersistedEvents.Should().BeEquivalentTo(dispatchedEvents, options => options.WithStrictOrdering());
                                     });
         }
-
-        //Not all storage providers stores with more than 6 decimal points precision
-        static void StripSeventhDecimalPointFromSecondFractionOnUtcUpdateTime(IReadOnlyList<IAggregateEvent> events)
-            => events.Cast<AggregateEvent>().ForEach(@event => @event.UtcTimeStamp = @event.UtcTimeStamp.AddTicks(-(@event.UtcTimeStamp.Ticks % (10))));
 
         [Test]
         public void InsertNewEventType_should_not_throw_exception_if_the_event_type_has_been_inserted_by_something_else()

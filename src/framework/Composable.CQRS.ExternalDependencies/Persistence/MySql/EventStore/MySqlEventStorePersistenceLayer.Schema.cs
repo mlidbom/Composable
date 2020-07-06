@@ -8,6 +8,7 @@ namespace Composable.Persistence.MySql.EventStore
 {
     partial class MySqlEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
+        const string MySqlGuidType = "CHAR(36)";
         bool _initialized;
 
         public void SetupSchemaIfDatabaseUnInitialized() => TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
@@ -19,16 +20,16 @@ namespace Composable.Persistence.MySql.EventStore
 
     CREATE TABLE IF NOT EXISTS {EventTable.Name}(
         {C.InsertionOrder} bigint NOT NULL AUTO_INCREMENT,
-        {C.AggregateId} CHAR(36) NOT NULL,  
+        {C.AggregateId} {MySqlGuidType} NOT NULL,  
         {C.UtcTimeStamp} datetime(6) NOT NULL,   
-        {C.EventType} CHAR(36) NOT NULL,    
+        {C.EventType} {MySqlGuidType} NOT NULL,    
         {C.Event} MEDIUMTEXT NOT NULL,
-        {C.EventId} CHAR(36) NOT NULL,
+        {C.EventId} {MySqlGuidType} NOT NULL,
         {C.InsertedVersion} int NOT NULL,
         {C.SqlInsertTimeStamp} datetime(6) default CURRENT_TIMESTAMP,
-        {C.InsertAfter} CHAR(36) null,
-        {C.InsertBefore} CHAR(36) null,
-        {C.Replaces} CHAR(36) null,
+        {C.InsertAfter} {MySqlGuidType} null,
+        {C.InsertBefore} {MySqlGuidType} null,
+        {C.Replaces} {MySqlGuidType} null,
         {C.ReadOrder} bigint null,
         {C.ReadOrderOrderOffset} bigint null,
         {C.EffectiveOrder} {EventTable.ReadOrderType} null,    
@@ -73,28 +74,5 @@ namespace Composable.Persistence.MySql.EventStore
                 _initialized = true;
             }
         });
-
-        static readonly string blah = @"
-CREATE TABLE `test`.`events` (
-  `InsertionOrder` BIGINT NOT NULL AUTO_INCREMENT,
-  `AggregateId` CHAR(36) NOT NULL,
-  `UtcTimeStamp` DATETIME NOT NULL,
-  `EventType` CHAR(36) NOT NULL,
-  `Event` MEDIUMTEXT NOT NULL,
-  `EventId` CHAR(36) NOT NULL,
-  `InsertedVersion` INT NOT NULL,
-  `SqlInsertTimeStamp` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `InsertAfter` CHAR(36) NULL,
-  `InsertBefore` CHAR(36) NULL,
-  `Replaces` CHAR(36) NULL,
-  `ReadOrder` BIGINT NULL,
-  `ReadOrderOrderOffset` BIGINT NULL,
-  `EffectiveOrder` DECIMAL(38,19) NULL,
-  `EffectiveVersion` INT NULL,
-  UNIQUE INDEX `InsertionOrder_UNIQUE` (`InsertionOrder` ASC) INVISIBLE,
-  PRIMARY KEY (`AggregateId`, `InsertedVersion`),
-  UNIQUE INDEX `EventId_UNIQUE` (`EventId` ASC) VISIBLE,
-  INDEX `IX_EVENTS_EFFECTIVEORDER` (`EffectiveOrder` ASC, `EffectiveVersion` ASC) VISIBLE);
-";
     }
 }

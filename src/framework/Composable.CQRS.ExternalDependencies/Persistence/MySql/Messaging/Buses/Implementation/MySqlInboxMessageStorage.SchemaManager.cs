@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.MySql.SystemExtensions;
-using Schema =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
+using T =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.MySql.Messaging.Buses.Implementation
 {
@@ -12,33 +12,27 @@ namespace Composable.Persistence.MySql.Messaging.Buses.Implementation
             public static async Task EnsureTablesExistAsync(IMySqlConnectionProvider connectionFactory)
             {
                 await  connectionFactory.ExecuteNonQueryAsync($@"
-IF NOT EXISTS(select name from sys.tables where name = '{Schema.TableName}')
-BEGIN
-    CREATE TABLE [dbo].[{Schema.TableName}]
+
+
+    CREATE TABLE IF NOT EXISTS {T.TableName}
     (
-	    [{Schema.Identity}] [bigint] IDENTITY(1,1) NOT NULL,
-        [{Schema.TypeId}] [uniqueidentifier] NOT NULL,
-        [{Schema.MessageId}] [uniqueidentifier] NOT NULL,
-	    [{Schema.Status}] [smallint]NOT NULL,
-	    [{Schema.Body}] [nvarchar](MAX) NOT NULL,
-        [{Schema.ExceptionCount}] [int] NOT NULL DEFAULT 0,
-        [{Schema.ExceptionType}] [nvarchar](500) NULL,
-        [{Schema.ExceptionStackTrace}] [nvarchar](MAX) NULL,
-        [{Schema.ExceptionMessage}] [nvarchar](MAX) NULL,
+	    {T.Identity} bigint NOT NULL AUTO_INCREMENT,
+        {T.TypeId} uniqueidentifier NOT NULL,
+        {T.MessageId} uniqueidentifier NOT NULL,
+	    {T.Status} smallintNOT NULL,
+	    {T.Body} nvarchar(MAX) NOT NULL,
+        {T.ExceptionCount} int NOT NULL DEFAULT 0,
+        {T.ExceptionType} nvarchar(500) NULL,
+        {T.ExceptionStackTrace} nvarchar(MAX) NULL,
+        {T.ExceptionMessage} nvarchar(MAX) NULL,
 
 
-        CONSTRAINT [PK_{Schema.TableName}] PRIMARY KEY CLUSTERED 
-        (
-	        [{Schema.Identity}] ASC
-        ),
+        PRIMARY KEY ( {T.Identity} ),
 
-        CONSTRAINT IX_{Schema.TableName}_Unique_{Schema.MessageId} UNIQUE
-        (
-            {Schema.MessageId}
-        )
+        UNIQUE INDEX IX_{T.TableName}_Unique_{T.MessageId} ( {T.MessageId} )
 
-    ) ON [PRIMARY]
-END
+    )
+
 ");
             }
         }

@@ -16,7 +16,7 @@ IF NOT EXISTS(select name from sys.tables where name = '{Schema.TableName}')
 BEGIN
     CREATE TABLE [dbo].[{Schema.TableName}]
     (
-	    [{Schema.Identity}] [int] IDENTITY(1,1) NOT NULL,
+	    [{Schema.Identity}] [bigint] IDENTITY(1,1) NOT NULL,
         [{Schema.TypeId}] [uniqueidentifier] NOT NULL,
         [{Schema.MessageId}] [uniqueidentifier] NOT NULL,
 	    [{Schema.Status}] [smallint]NOT NULL,

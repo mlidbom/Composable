@@ -16,7 +16,7 @@ IF NOT EXISTS (select name from sys.tables where name = '{MessageTable.TableName
 BEGIN
     CREATE TABLE [dbo].[{MessageTable.TableName}]
     (
-	    [{MessageTable.Identity}] [int] IDENTITY(1,1) NOT NULL,
+	    [{MessageTable.Identity}] [bigint] IDENTITY(1,1) NOT NULL,
         [{MessageTable.TypeIdGuidValue}] [uniqueidentifier] NOT NULL,
         [{MessageTable.MessageId}] [uniqueidentifier] NOT NULL,
 	    [{MessageTable.SerializedMessage}] [nvarchar](MAX) NOT NULL,

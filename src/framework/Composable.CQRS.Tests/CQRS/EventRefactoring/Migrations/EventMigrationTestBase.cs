@@ -8,7 +8,7 @@ using Composable.Logging;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
-using Composable.Persistence.SqlServer.EventStore;
+using Composable.Persistence.MsSql.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;

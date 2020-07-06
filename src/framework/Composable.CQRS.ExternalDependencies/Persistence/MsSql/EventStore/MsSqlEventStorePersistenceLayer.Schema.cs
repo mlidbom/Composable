@@ -1,12 +1,12 @@
 ﻿using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System.Transactions;
 using C=Composable.Persistence.Common.EventStore.EventTable.Columns;
 
-namespace Composable.Persistence.SqlServer.EventStore
+namespace Composable.Persistence.MsSql.EventStore
 {
-    partial class SqlServerEventStorePersistenceLayer : IEventStorePersistenceLayer
+    partial class MsSqlEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
         bool _initialized;
 

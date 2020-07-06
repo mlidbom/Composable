@@ -6,14 +6,14 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
 using ReadOrder = Composable.Persistence.EventStore.IEventStorePersistenceLayer.ReadOrder;
 
-namespace Composable.Persistence.SqlServer.EventStore
+namespace Composable.Persistence.MsSql.EventStore
 {
-    partial class SqlServerEventStorePersistenceLayer
+    partial class MsSqlEventStorePersistenceLayer
     {
         const int PrimaryKeyViolationSqlErrorNumber = 2627;
 

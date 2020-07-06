@@ -4,8 +4,8 @@ using System.Linq;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MySql.Testing.Databases;
-using Composable.Persistence.SqlServer.SystemExtensions;
-using Composable.Persistence.SqlServer.Testing.Databases;
+using Composable.Persistence.MsSql.SystemExtensions;
+using Composable.Persistence.MsSql.Testing.Databases;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 
@@ -14,9 +14,9 @@ namespace Composable.Tests.ExternalDependencies
     //Urgent: Remove this once mysql support is working.
     [TestFixture] public class ExploreMySqlDecimalSupport
     {
-        SqlServerDatabasePool _msSqlPool;
+        MsSqlDatabasePool _msSqlPool;
         MySqlDatabasePool _mySqlPool;
-        SqlServerConnectionProvider _msSqlConnection;
+        MsSqlConnectionProvider _msSqlConnection;
         MySqlConnectionProvider _mySqlConnection;
 
         [Test] public void MsSqlRoundtrip()
@@ -43,8 +43,8 @@ namespace Composable.Tests.ExternalDependencies
 
         [SetUp] public void SetupTask()
         {
-            _msSqlPool = new SqlServerDatabasePool();
-            _msSqlConnection = new SqlServerConnectionProvider(_msSqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
+            _msSqlPool = new MsSqlDatabasePool();
+            _msSqlConnection = new MsSqlConnectionProvider(_msSqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
 
             _mySqlPool = new MySqlDatabasePool();
             _mySqlConnection = new MySqlConnectionProvider(_mySqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));

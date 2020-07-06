@@ -4,7 +4,7 @@ using Composable.DependencyInjection;
 using Composable.Logging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.SqlServer.Messaging.Buses;
+using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.Serialization;
 using Composable.System;
 using Composable.System.Diagnostics;

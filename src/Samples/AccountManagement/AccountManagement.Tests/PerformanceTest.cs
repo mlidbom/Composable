@@ -9,7 +9,7 @@ using AccountManagement.UserStories.Scenarios;
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Persistence.SqlServer.Messaging.Buses;
+using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.System.Diagnostics;
 using Composable.Testing.Performance;
 using FluentAssertions.Extensions;

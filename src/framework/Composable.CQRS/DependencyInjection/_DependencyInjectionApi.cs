@@ -30,7 +30,7 @@ namespace Composable.DependencyInjection
 
     public enum PersistenceLayer
     {
-        SqlServer,
+        MsSql,
         InMemory,
         MySql
     }

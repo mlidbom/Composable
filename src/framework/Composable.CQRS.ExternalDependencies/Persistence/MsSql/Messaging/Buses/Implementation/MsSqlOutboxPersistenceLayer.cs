@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System.Linq;
 using MessageTable = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
 using DispatchingTable = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 
-namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
+namespace Composable.Persistence.MsSql.Messaging.Buses.Implementation
 {
-    partial class SqlServerOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
+    partial class MsSqlOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
-        readonly ISqlServerConnectionProvider _connectionFactory;
-        public SqlServerOutboxPersistenceLayer(ISqlServerConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        readonly IMsSqlConnectionProvider _connectionFactory;
+        public MsSqlOutboxPersistenceLayer(IMsSqlConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveMessage(IServiceBusPersistenceLayer.OutboxMessageWithReceivers messageWithReceivers)
         {

@@ -83,7 +83,7 @@ namespace Composable.Testing
         where TValue : struct
         => TestEnvironment.TestingPersistenceLayer switch
             {
-                PersistenceLayer.SqlServer => msSql ?? throw new Exception($"Value missing for {nameof(msSql)}"),
+                PersistenceLayer.MsSql => msSql ?? throw new Exception($"Value missing for {nameof(msSql)}"),
                 PersistenceLayer.InMemory => inMem ?? throw new Exception($"Value missing for {nameof(inMem)}"),
                 PersistenceLayer.MySql => mySql?? throw new Exception($"Value missing for {nameof(mySql)}"),
                 _ => throw new ArgumentOutOfRangeException()

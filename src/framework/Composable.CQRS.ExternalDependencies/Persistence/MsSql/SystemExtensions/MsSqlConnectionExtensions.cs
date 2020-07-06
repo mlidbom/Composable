@@ -2,9 +2,9 @@ using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 
-namespace Composable.Persistence.SqlServer.SystemExtensions
+namespace Composable.Persistence.MsSql.SystemExtensions
 {
-    static class SqlServerConnectionExtensions
+    static class MsSqlConnectionExtensions
     {
         public static void UseCommand(this SqlConnection @this, Action<SqlCommand> action)
         {

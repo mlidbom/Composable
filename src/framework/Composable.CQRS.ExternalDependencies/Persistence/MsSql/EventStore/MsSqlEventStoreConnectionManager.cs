@@ -1,15 +1,15 @@
 using System;
 using System.Data.SqlClient;
 using System.Transactions;
-using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.MsSql.SystemExtensions;
 using JetBrains.Annotations;
 
-namespace Composable.Persistence.SqlServer.EventStore
+namespace Composable.Persistence.MsSql.EventStore
 {
-    class SqlServerEventStoreConnectionManager
+    class MsSqlEventStoreConnectionManager
     {
-        readonly ISqlServerConnectionProvider _connectionProvider;
-        public SqlServerEventStoreConnectionManager(ISqlServerConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
+        readonly IMsSqlConnectionProvider _connectionProvider;
+        public MsSqlEventStoreConnectionManager(IMsSqlConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
 
         public void UseConnection([InstantHandle] Action<SqlConnection> action)
         {

@@ -3,12 +3,12 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Transactions;
 
-namespace Composable.Persistence.SqlServer.SystemExtensions
+namespace Composable.Persistence.MsSql.SystemExtensions
 {
-    class SqlServerConnectionProvider : ISqlServerConnectionProvider
+    class MsSqlConnectionProvider : IMsSqlConnectionProvider
     {
         string ConnectionString { get; }
-        public SqlServerConnectionProvider(string connectionString) => ConnectionString = connectionString;
+        public MsSqlConnectionProvider(string connectionString) => ConnectionString = connectionString;
 
         SqlConnection OpenConnection()
         {

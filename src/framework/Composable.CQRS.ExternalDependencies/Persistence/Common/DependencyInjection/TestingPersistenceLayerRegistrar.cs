@@ -3,7 +3,7 @@ using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Persistence.InMemory.DependencyInjection;
 using Composable.Persistence.MySql.DependencyInjection;
-using Composable.Persistence.SqlServer.DependencyInjection;
+using Composable.Persistence.MsSql.DependencyInjection;
 using Composable.Testing;
 using Composable.Testing.Performance;
 
@@ -17,8 +17,8 @@ namespace Composable.Persistence.Common.DependencyInjection
         {
             switch(TestEnvironment.TestingPersistenceLayer)
             {
-                case PersistenceLayer.SqlServer:
-                    container.RegisterSqlServerPersistenceLayer(connectionStringName);
+                case PersistenceLayer.MsSql:
+                    container.RegisterMsSqlPersistenceLayer(connectionStringName);
                     break;
                 case PersistenceLayer.InMemory:
                     container.RegisterInMemoryPersistenceLayer(connectionStringName);

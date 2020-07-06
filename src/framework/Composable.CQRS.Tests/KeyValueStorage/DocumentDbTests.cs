@@ -200,7 +200,7 @@ namespace Composable.Tests.KeyValueStorage
         }
 
         [Test]
-        public void ObjectsWhoseKeysDifferOnlyByCaseAreConsideredTheSameObjectForCompatibilityWithSqlServer()
+        public void ObjectsWhoseKeysDifferOnlyByCaseAreConsideredTheSameObjectForCompatibilityWithMsSql()
         {
             var lowerCase = new Email("theemail");
             var upperCase = new Email(lowerCase.TheEmail.ToUpper());
@@ -233,7 +233,7 @@ namespace Composable.Tests.KeyValueStorage
         }
 
         [Test]
-        public void ObjectsWhoseKeysDifferOnlyByTrailingSpacesTrailingWhiteSpaceCaseAreConsideredTheSameObjectForCompatibilityWithSqlServer()
+        public void ObjectsWhoseKeysDifferOnlyByTrailingSpacesTrailingWhiteSpaceCaseAreConsideredTheSameObjectForCompatibilityWithMsSql()
         {
             var noWhitespace = new Email("theemail");
             var withWhitespace = new Email(noWhitespace.TheEmail + "  ");

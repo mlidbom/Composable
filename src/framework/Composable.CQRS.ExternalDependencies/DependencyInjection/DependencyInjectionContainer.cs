@@ -1,8 +1,8 @@
 ﻿using System;
 using Composable.Messaging.Buses;
 using Composable.Persistence.Common.DependencyInjection;
-using Composable.Persistence.SqlServer.DependencyInjection;
-using Composable.Persistence.SqlServer.Messaging.Buses;
+using Composable.Persistence.MsSql.DependencyInjection;
+using Composable.Persistence.MsSql.Messaging.Buses;
 using JetBrains.Annotations;
 
 namespace Composable.DependencyInjection

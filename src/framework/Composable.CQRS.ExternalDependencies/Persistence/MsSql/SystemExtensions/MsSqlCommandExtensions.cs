@@ -4,9 +4,9 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Composable.System.Linq;
 
-namespace Composable.Persistence.SqlServer.SystemExtensions
+namespace Composable.Persistence.MsSql.SystemExtensions
 {
-    static class SqlServerCommandExtensions
+    static class MsSqlCommandExtensions
     {
         public static void ExecuteReader(this SqlCommand @this, string commandText, Action<SqlDataReader> forEach) => @this.ExecuteReader(commandText).ForEachSuccessfulRead(forEach);
         public static SqlDataReader ExecuteReader(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteReader();

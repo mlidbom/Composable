@@ -2,9 +2,9 @@ using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 
-namespace Composable.Persistence.SqlServer.SystemExtensions
+namespace Composable.Persistence.MsSql.SystemExtensions
 {
-    interface ISqlServerConnectionProvider
+    interface IMsSqlConnectionProvider
     {
         TResult UseConnection<TResult>(Func<SqlConnection, TResult> func);
         Task<TResult> UseConnectionAsync<TResult>(Func<SqlConnection,Task<TResult>> func);

@@ -1,8 +1,8 @@
 ﻿using System.Data;
 
-namespace Composable.Persistence.SqlServer.Testing.Databases
+namespace Composable.Persistence.MsSql.Testing.Databases
 {
-    static class SqlServerDatabaseHelpers
+    static class MsSqlDatabaseHelpers
     {
         static readonly string DropAllObjectsStatement = @"
 

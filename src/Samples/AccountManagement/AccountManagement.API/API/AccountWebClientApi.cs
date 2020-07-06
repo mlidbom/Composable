@@ -4,8 +4,8 @@ using System;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
-using Composable.Persistence.SqlServer.DependencyInjection;
-using Composable.Persistence.SqlServer.Messaging.Buses;
+using Composable.Persistence.MsSql.DependencyInjection;
+using Composable.Persistence.MsSql.Messaging.Buses;
 
 namespace AccountManagement.API
 {
@@ -54,7 +54,7 @@ namespace AccountManagement.API
         ///<summary>This method ensures that the client endpoints has everything it needs to use the services in this API. Type mappings etc. Eventually we will probably be setting up pipeline components such as custom caches etc here.</summary>
         public static void RegisterWithClientEndpoint(IEndpointBuilder builder)
         {
-            builder.RegisterSqlServerPersistenceLayer();
+            builder.RegisterMsSqlPersistenceLayer();
 
             AccountManagementApiTypeMapper.MapTypes(builder.TypeMapper);
         }

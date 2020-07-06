@@ -1,15 +1,15 @@
 ﻿using System.Threading.Tasks;
-using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.MsSql.SystemExtensions;
 using M = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
 using D = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 
-namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
+namespace Composable.Persistence.MsSql.Messaging.Buses.Implementation
 {
-    partial class SqlServerOutboxPersistenceLayer
+    partial class MsSqlOutboxPersistenceLayer
     {
         static class SchemaManager
         {
-            public static async Task EnsureTablesExistAsync(ISqlServerConnectionProvider connectionFactory)
+            public static async Task EnsureTablesExistAsync(IMsSqlConnectionProvider connectionFactory)
             {
                 await connectionFactory.ExecuteNonQueryAsync($@"
 IF NOT EXISTS (select name from sys.tables where name = '{M.TableName}')

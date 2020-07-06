@@ -1,7 +1,7 @@
 using System;
 using System.Data.SqlClient;
 
-namespace Composable.Persistence.SqlServer.SystemExtensions
+namespace Composable.Persistence.MsSql.SystemExtensions
 {
     static class SqlDataReaderExtensions
     {

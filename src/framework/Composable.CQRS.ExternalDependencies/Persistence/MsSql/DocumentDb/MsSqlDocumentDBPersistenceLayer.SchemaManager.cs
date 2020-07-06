@@ -1,16 +1,16 @@
-﻿using Composable.Persistence.SqlServer.SystemExtensions;
+﻿using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System.Transactions;
 
-namespace Composable.Persistence.SqlServer.DocumentDb
+namespace Composable.Persistence.MsSql.DocumentDb
 {
-    partial class SqlServerDocumentDbPersistenceLayer
+    partial class MsSqlDocumentDbPersistenceLayer
     {
         class SchemaManager
         {
             readonly object _lockObject = new object();
             bool _initialized = false;
-            readonly ISqlServerConnectionProvider _connectionProvider;
-            public SchemaManager(ISqlServerConnectionProvider connectionProvider) => _connectionProvider = connectionProvider;
+            readonly IMsSqlConnectionProvider _connectionProvider;
+            public SchemaManager(IMsSqlConnectionProvider connectionProvider) => _connectionProvider = connectionProvider;
 
             internal void EnsureInitialized()
             {

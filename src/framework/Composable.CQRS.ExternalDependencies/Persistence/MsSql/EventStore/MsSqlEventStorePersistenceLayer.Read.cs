@@ -5,17 +5,17 @@ using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
 using Composable.Persistence.Common.EventStore;
-using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.Persistence.EventStore;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
 
-namespace Composable.Persistence.SqlServer.EventStore
+namespace Composable.Persistence.MsSql.EventStore
 {
-    partial class SqlServerEventStorePersistenceLayer : IEventStorePersistenceLayer
+    partial class MsSqlEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
-        readonly SqlServerEventStoreConnectionManager _connectionManager;
+        readonly MsSqlEventStoreConnectionManager _connectionManager;
 
-        public SqlServerEventStorePersistenceLayer(SqlServerEventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
+        public MsSqlEventStorePersistenceLayer(MsSqlEventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
 
         static string CreateSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
         static string CreateSelectTopClause(int top, bool takeWriteLock) => InternalSelect(top: top, takeWriteLock: takeWriteLock);

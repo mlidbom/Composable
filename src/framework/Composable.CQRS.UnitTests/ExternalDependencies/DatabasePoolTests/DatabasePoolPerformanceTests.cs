@@ -2,7 +2,7 @@
 using Composable.DependencyInjection;
 using Composable.Logging;
 using Composable.Persistence.MySql.SystemExtensions;
-using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System;
 using Composable.Testing;
 using Composable.Testing.Databases;
@@ -110,7 +110,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         [Test]
-        public void Once_DB_Fetched_SqlServer_Can_use_400_connections_in_10_milliseconds_MySql_40()
+        public void Once_DB_Fetched_MsSql_Can_use_400_connections_in_10_milliseconds_MySql_40()
         {
             using var manager = CreatePool();
             manager.SetLogLevel(LogLevel.Warning);
@@ -122,9 +122,9 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         {
             switch(TestEnvironment.TestingPersistenceLayer)
             {
-                case PersistenceLayer.SqlServer:
+                case PersistenceLayer.MsSql:
                 {
-                    var connectionProvider = new SqlServerConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    var connectionProvider = new MsSqlConnectionProvider(manager.ConnectionStringFor(reservationName));
                     connectionProvider.UseConnection(_ => {});
 
                     TimeAsserter.Execute(

@@ -4,20 +4,20 @@ using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Persistence.DocumentDb;
-using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System;
 
-namespace Composable.Persistence.SqlServer.DocumentDb
+namespace Composable.Persistence.MsSql.DocumentDb
 {
-    partial class SqlServerDocumentDbPersistenceLayer : IDocumentDbPersistenceLayer
+    partial class MsSqlDocumentDbPersistenceLayer : IDocumentDbPersistenceLayer
     {
-        readonly ISqlServerConnectionProvider _connectionProvider;
+        readonly IMsSqlConnectionProvider _connectionProvider;
         readonly SchemaManager _schemaManager;
         bool _initialized;
         readonly object _lockObject = new object();
         const int UniqueConstraintViolationErrorNumber = 2627;
 
-        internal SqlServerDocumentDbPersistenceLayer(ISqlServerConnectionProvider connectionProvider)
+        internal MsSqlDocumentDbPersistenceLayer(IMsSqlConnectionProvider connectionProvider)
         {
             _schemaManager = new SchemaManager(connectionProvider);
             _connectionProvider = connectionProvider;

@@ -3,22 +3,22 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using Composable.Contracts;
-using Composable.Persistence.SqlServer.SystemExtensions;
+using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System;
 using Composable.Testing.Databases;
 
-namespace Composable.Persistence.SqlServer.Testing.Databases
+namespace Composable.Persistence.MsSql.Testing.Databases
 {
-    class SqlServerDatabasePool : DatabasePool
+    class MsSqlDatabasePool : DatabasePool
     {
         readonly string _masterConnectionString;
-        readonly SqlServerConnectionProvider _masterConnectionProvider;
+        readonly MsSqlConnectionProvider _masterConnectionProvider;
 
         const string InitialCatalogMaster = ";Initial Catalog=master;";
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_SQL_SERVER_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
-        public SqlServerDatabasePool()
+        public MsSqlDatabasePool()
         {
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName);
 
@@ -26,7 +26,7 @@ namespace Composable.Persistence.SqlServer.Testing.Databases
 
             _masterConnectionString = _masterConnectionString.Replace(oldValue: "\\", newValue: "_");
 
-            _masterConnectionProvider = new SqlServerConnectionProvider(_masterConnectionString);
+            _masterConnectionProvider = new MsSqlConnectionProvider(_masterConnectionString);
 
             Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
                                  $"Environment variable: {ConnectionStringConfigurationParameterName} connection string must contain the exact string: '{InitialCatalogMaster}' for technical optimization reasons");
@@ -60,7 +60,7 @@ ALTER DATABASE[{databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
         }
 
         protected override void ResetDatabase(Database db) =>
-            new SqlServerConnectionProvider(this.ConnectionStringFor(db))
+            new MsSqlConnectionProvider(this.ConnectionStringFor(db))
                .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel());
 
         protected void ResetConnectionPool(Database db)

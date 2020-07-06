@@ -18,7 +18,7 @@
 
 ### Environment varibles you should know about when running the tests
 
-**COMPOSABLE_DATABASE_POOL_MASTER_CONNECTIONSTRING**: Let's you override the connection string to use for the database pool.
+**COMPOSABLE_SQL_SERVER_DATABASE_POOL_MASTER_CONNECTIONSTRING**: Let's you override the connection string to use for the database pool.
 
 **COMPOSABLE_MACHINE_SLOWNESS**: 
 Lets you adjust the expectations for the performance tests.  

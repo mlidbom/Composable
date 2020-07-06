@@ -34,6 +34,7 @@ namespace Composable.DependencyInjection
                     {
                         if(_unInitialized)
                         {
+                            //refactor: We should have no type checking in here. Why would this be used for other kernels?
                             if(kernel is ComposableDependencyInjectionContainer container)
                             {
                                 var registration = container.GetRegistrationFor<TService>();
@@ -57,7 +58,8 @@ namespace Composable.DependencyInjection
                     }
                 }
 
-                if(_composableState is null) return kernel.Resolve<TService>();
+                if(_composableState is null)
+                    return kernel.Resolve<TService>();
 
                 switch(_composableState.Lifestyle)
                 {

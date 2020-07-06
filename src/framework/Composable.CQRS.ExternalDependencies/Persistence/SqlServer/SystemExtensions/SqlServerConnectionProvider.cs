@@ -1,29 +1,20 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 using System.Transactions;
-using Composable.System;
 
 namespace Composable.Persistence.SqlServer.SystemExtensions
 {
-    class SqlServerConnectionProvider : LazySqlServerConnectionProvider
+    class SqlServerConnectionProvider : ISqlServerConnectionProvider
     {
-        public SqlServerConnectionProvider(string connectionString) : base(() => connectionString) {}
-    }
+        string ConnectionString { get; }
+        public SqlServerConnectionProvider(string connectionString) => ConnectionString = connectionString;
 
-    class LazySqlServerConnectionProvider : ISqlServerConnectionProvider
-    {
-        readonly OptimizedLazy<string> _connectionString;
-        public string ConnectionString => _connectionString.Value;
-
-        public LazySqlServerConnectionProvider(Func<string> connectionStringFactory) => _connectionString = new OptimizedLazy<string>(connectionStringFactory);
-
-        public SqlConnection OpenConnection()
+        SqlConnection OpenConnection()
         {
             var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier;
-            var connection = new SqlConnection(ConnectionString);
+            var connectionString = ConnectionString;
+            var connection = new SqlConnection(connectionString);
             connection.Open();
             if(transactionInformationDistributedIdentifierBefore != null && transactionInformationDistributedIdentifierBefore.Value == Guid.Empty)
             {
@@ -35,51 +26,30 @@ namespace Composable.Persistence.SqlServer.SystemExtensions
 
             return connection;
         }
-    }
 
-    static class SqlDataReaderExtensions
-    {
-        public static void ForEachSuccessfulRead(this SqlDataReader @this, Action<SqlDataReader> forEach)
+        public TResult UseConnection<TResult>(Func<SqlConnection, TResult> func)
         {
-            while(@this.Read()) forEach(@this);
-        }
-    }
-
-    static class SqlCommandParameterExtensions
-    {
-        public static SqlCommand AddParameter(this SqlCommand @this, string name, int value) => AddParameter(@this, name, SqlDbType.Int, value);
-        public static SqlCommand AddParameter(this SqlCommand @this, string name, Guid value) => AddParameter(@this, name, SqlDbType.UniqueIdentifier, value);
-        public static SqlCommand AddDateTime2Parameter(this SqlCommand @this, string name, DateTime value) => AddParameter(@this, name, SqlDbType.DateTime2, value);
-        public static SqlCommand AddNVarcharParameter(this SqlCommand @this, string name, int length, string value) => AddParameter(@this, name, SqlDbType.NVarChar, value, length);
-        public static SqlCommand AddNVarcharMaxParameter(this SqlCommand @this, string name, string value) => AddParameter(@this, name, SqlDbType.NVarChar, value, -1);
-
-        public static SqlCommand AddParameter(this SqlCommand @this, SqlParameter parameter)
-        {
-            @this.Parameters.Add(parameter);
-            return @this;
+            using var connection = OpenConnection();
+            return func(connection);
         }
 
-        static SqlCommand AddParameter(SqlCommand @this, string name, SqlDbType type, object value, int length) => @this.AddParameter(new SqlParameter(name, type, length) {Value = value});
-
-        public static SqlCommand AddParameter(this SqlCommand @this, string name, SqlDbType type, object value) => @this.AddParameter(new SqlParameter(name, type) {Value = value});
-
-        public static SqlCommand AddNullableParameter(this SqlCommand @this, string name, SqlDbType type, object? value) => @this.AddParameter(Nullable(new SqlParameter(name, type) {Value = value}));
-
-        static SqlParameter Nullable(SqlParameter @this)
+        public void UseConnection(Action<SqlConnection> action) => UseConnection(connection =>
         {
-            @this.IsNullable = true;
-            @this.Direction = ParameterDirection.Input;
-            if(@this.Value == null)
-            {
-                @this.Value = DBNull.Value;
-            }
-            return @this;
-        }
-    }
+            action(connection);
+            return 1;
+        });
 
-    interface ISqlServerConnectionProvider
-    {
-        SqlConnection OpenConnection();
-        string ConnectionString { get; }
+        public async Task<TResult> UseConnectionAsync<TResult>(Func<SqlConnection, Task<TResult>> func)
+        {
+            await using var connection = OpenConnection();
+            return await func(connection);
+        }
+
+
+        public async Task UseConnectionAsync(Func<SqlConnection, Task> action)
+        {
+            await using var connection = OpenConnection();
+            await action(connection);
+        }
     }
 }

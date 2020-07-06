@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Contracts;
-using Composable.Messaging.Buses.Implementation;
 using Composable.System.Reflection;
 
-namespace Composable.Persistence.SqlServer.Messaging.Buses.Implementation
+namespace Composable.Messaging.Buses.Implementation
 {
     class InboxMessageStorage : Inbox.IMessageStorage
     {

@@ -21,13 +21,14 @@ using Composable.Testing.Threading;
 using Composable.Testing.Transactions;
 using FluentAssertions;
 using JetBrains.Annotations;
+using NCrunch.Framework;
 using NUnit.Framework;
 // ReSharper disable AccessToDisposedClosure
 
 namespace Composable.Tests.CQRS
 {
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
+    [DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql))]
     [TestFixture]
     public class EventStoreUpdaterTest
     {
@@ -484,10 +485,15 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session =>
                                     {
                                         Assert.That(_eventSpy.DispatchedMessages.Count, Is.EqualTo(18));
-                                        Assert.That(_eventSpy.DispatchedMessages.OfType<IAggregateEvent>().Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
-                                        var allPersistedEvents = _serviceLocator.EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
 
-                                        _eventSpy.DispatchedMessages.OfType<IAggregateEvent>().Should().BeEquivalentTo(allPersistedEvents,options => options.WithStrictOrdering());
+                                        var dispatchedEvents = _eventSpy.DispatchedMessages.OfType<IAggregateEvent>().ToList();
+                                        Assert.That(dispatchedEvents.Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
+
+                                        var allPersistedEvents = _serviceLocator.EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
+                                        EventStorageTestHelper.StripSeventhDecimalPointFromSecondFractionOnUtcUpdateTime(dispatchedEvents);
+                                        EventStorageTestHelper.StripSeventhDecimalPointFromSecondFractionOnUtcUpdateTime(allPersistedEvents);
+
+                                        allPersistedEvents.Should().BeEquivalentTo(dispatchedEvents, options => options.WithStrictOrdering());
                                     });
         }
 

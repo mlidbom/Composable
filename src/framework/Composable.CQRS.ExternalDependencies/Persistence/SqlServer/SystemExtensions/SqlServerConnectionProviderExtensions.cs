@@ -1,5 +1,6 @@
 using System;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace Composable.Persistence.SqlServer.SystemExtensions
 {
@@ -7,21 +8,12 @@ namespace Composable.Persistence.SqlServer.SystemExtensions
     {
         public static int ExecuteNonQuery(this ISqlServerConnectionProvider @this, string commandText) => @this.UseCommand(command => command.SetCommandText(commandText).ExecuteNonQuery());
 
+        public static async Task<int> ExecuteNonQueryAsync(this ISqlServerConnectionProvider @this, string commandText)
+            => await @this.UseConnectionAsync(async connection => await connection.ExecuteNonQueryAsync(commandText));
+
         public static object ExecuteScalar(this ISqlServerConnectionProvider @this, string commandText) => @this.UseCommand(command => command.SetCommandText(commandText).ExecuteScalar());
 
         public static void ExecuteReader(this ISqlServerConnectionProvider @this, string commandText, Action<SqlDataReader> forEach) => @this.UseCommand(command => command.ExecuteReader(commandText, forEach));
-
-        public static void UseConnection(this ISqlServerConnectionProvider @this, Action<SqlConnection> action)
-        {
-            using var connection = @this.OpenConnection();
-            action(connection);
-        }
-
-        static TResult UseConnection<TResult>(this ISqlServerConnectionProvider @this, Func<SqlConnection, TResult> action)
-        {
-            using var connection = @this.OpenConnection();
-            return action(connection);
-        }
 
         public static void UseCommand(this ISqlServerConnectionProvider @this, Action<SqlCommand> action) => @this.UseConnection(connection => connection.UseCommand(action));
 

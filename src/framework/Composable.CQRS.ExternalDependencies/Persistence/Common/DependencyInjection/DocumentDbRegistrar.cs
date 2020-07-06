@@ -20,7 +20,7 @@ namespace Composable.Persistence.Common.DependencyInjection
         {
             Contract.Argument(connectionName, nameof(connectionName)).NotNullEmptyOrWhiteSpace();
 
-            @this.Register(Singleton.For<IDocumentDb>()
+            @this.Register(Scoped.For<IDocumentDb>()
                                      .CreatedBy((IDocumentDbPersistenceLayer persistenceLayer, ITypeMapper typeMapper, IUtcTimeTimeSource timeSource, IDocumentDbSerializer serializer)
                                                     => new DocumentDb.DocumentDb(timeSource, serializer, typeMapper, persistenceLayer)));
 

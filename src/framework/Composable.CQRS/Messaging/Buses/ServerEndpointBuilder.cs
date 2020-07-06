@@ -6,7 +6,6 @@ using Composable.Messaging.Buses.Implementation;
 using Composable.Messaging.Hypermedia;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
-using Composable.Persistence.SqlServer.Messaging.Buses.Implementation;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System;
@@ -95,7 +94,7 @@ namespace Composable.Messaging.Buses
                 Singleton.For<Outbox.IMessageStorage>()
                          .CreatedBy((IServiceBusPersistenceLayer.IOutboxPersistenceLayer persistenceLayer, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
                                         => new Outbox.MessageStorage(persistenceLayer, typeMapper, serializer)),
-                Singleton.For<IOutbox>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, Outbox.IMessageStorage messageStorage) 
+                Singleton.For<IOutbox>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, Outbox.IMessageStorage messageStorage)
                                                        => new Outbox(_globalStateTracker, timeSource, messageStorage, _typeMapper, configuration, taskRunner, serializer)),
                 Singleton.For<IGlobalBusStateTracker>().CreatedBy(() => _globalStateTracker),
                 Singleton.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>().CreatedBy(() => _registry),

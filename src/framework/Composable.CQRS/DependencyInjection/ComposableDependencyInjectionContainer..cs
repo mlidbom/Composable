@@ -156,15 +156,14 @@ namespace Composable.DependencyInjection
                     }
                     case Lifestyle.Scoped:
                     {
-                        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                         if(scopeCache == null)
                         {
                             throw new Exception("Attempted to resolve scoped component without a scope");
                         }
-                        // ReSharper disable HeuristicUnreachableCode
+
                         var newInstance = currentComponent.CreateInstance(this);
                         scopeCache.Set(newInstance, currentComponent);
-                        // ReSharper restore HeuristicUnreachableCode
+
                         return (TService)newInstance;
                     }
                     default:
@@ -211,19 +210,20 @@ namespace Composable.DependencyInjection
 
             if(scopeCache == null)
             {
-                throw new Exception("Attempted to resolve scoped component without a scope");
+                throw new Exception("Attempted to resolve scoped component without a scope"); //Todo: Write test
+            }
+
+            //todo: We have all this information while registering the components don't we? Do the validation there so that the line that makes un invalid registration fails immediately and so that the validation applies to all DI containers.
+            if(_parentComponent?.Lifestyle == Lifestyle.Singleton)
+            {
+                //Todo: Write test
+                throw new Exception($"{Lifestyle.Singleton} service: {_parentComponent.ServiceTypes.First().FullName} depends on {currentComponent.Lifestyle} service: {currentComponent.ServiceTypes.First().FullName} ");
             }
 
             // ReSharper disable once PatternAlwaysOfType Silly ReSharper is wrong again
             if (scopeCache.TryGet<TService>() is TService scoped)
             {
                 return scoped;
-            }
-
-            // ReSharper disable HeuristicUnreachableCode
-            if(_parentComponent?.Lifestyle == Lifestyle.Singleton)
-            {
-                throw new Exception($"{Lifestyle.Singleton} service: {_parentComponent.ServiceTypes.First().FullName} depends on {currentComponent.Lifestyle} service: {currentComponent.ServiceTypes.First().FullName} ");
             }
 
             var previousResolvingComponent = _parentComponent;
@@ -238,7 +238,6 @@ namespace Composable.DependencyInjection
             {
                 _parentComponent = previousResolvingComponent;
             }
-            // ReSharper restore HeuristicUnreachableCode
         }
 
         bool _disposed;

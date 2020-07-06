@@ -10,53 +10,17 @@ using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing.Performance;
 using FluentAssertions;
-using JetBrains.Annotations;
 using NUnit.Framework;
 using Composable.System;
+using Composable.Testing;
+
 // ReSharper disable AccessToDisposedClosure
 
 namespace Composable.Tests.KeyValueStorage
 {
-    //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
     [TestFixture]
-    public class DocumentDbTests
+    class DocumentDbTests : DocumentDbTestsBase
     {
-        IDocumentDb CreateStore() => ServiceLocator.DocumentDb();
-
-        protected IServiceLocator ServiceLocator { get; private set; }
-
-        protected IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(
-            builder
-                => builder.TypeMapper
-                          .Map<Composable.Tests.KeyValueStorage.User>("96f37428-04ca-4f60-858a-785d26ee7576")
-                          .Map<Composable.Tests.KeyValueStorage.Email>("648191d9-bfae-45c0-b824-d322d01fa64c")
-                          .Map<Composable.Tests.KeyValueStorage.Dog>("ca527ca3-d352-4674-9133-2747756f45b3")
-                          .Map<Composable.Tests.KeyValueStorage.Person>("64133a9b-1279-4029-9469-2d63d4f9ceaa")
-                          .Map<global::System.Collections.Generic.HashSet<Composable.Tests.KeyValueStorage.User>>("df57e323-d4b0-44c1-a69c-5ea100af9ebf"));
-
-        [SetUp]
-        public void Setup()
-        {
-            ServiceLocator = CreateServiceLocator();
-        }
-
-        [TearDown]
-        public void TearDownTask()
-        {
-            ServiceLocator.Dispose();
-        }
-
-        void UseInTransactionalScope([InstantHandle] Action<IDocumentDbReader, IDocumentDbUpdater> useSession)
-        {
-            ServiceLocator.ExecuteTransactionInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader(), ServiceLocator.DocumentDbUpdater()));
-        }
-
-        internal void UseInScope([InstantHandle]Action<IDocumentDbReader> useSession)
-        {
-            ServiceLocator.ExecuteInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader()));
-        }
-
         [Test]
         public void CanSaveAndLoadAggregate()
         {
@@ -85,30 +49,6 @@ namespace Composable.Tests.KeyValueStorage
 
                                   Assert.That(loadedUser.Address, Is.EqualTo(user.Address));
                               });
-        }
-
-
-        [Test] public void Saves100NewDocumentsIn150Milliseconds()
-        {
-            ServiceLocator.ExecuteInIsolatedScope(() =>
-                                                  {
-                                                      var updater = ServiceLocator.DocumentDbUpdater();
-
-                                                      void SaveOneNewUserInTransaction()
-                                                      {
-                                                          var user = new User();
-                                                          updater.Save(user);
-                                                      }
-
-                                                      //Warm up caches etc
-                                                      SaveOneNewUserInTransaction();
-
-                                                      TimeAsserter.Execute(
-                                                          action: SaveOneNewUserInTransaction,
-                                                          iterations: 200,
-                                                          maxTotal: 150.Milliseconds()
-                                                      );
-                                                  });
         }
 
         [Test]
@@ -763,30 +703,37 @@ namespace Composable.Tests.KeyValueStorage
         [Test]
         public void DeletingAllObjectsOfATypeLeavesNoSuchObjectsInTheDbButLeavesOtherObjectsInPlaceAndReturnsTheNumberOfDeletedObjects()
         {
-            var store = CreateStore();
-
-            var dictionary = new Dictionary<Type, Dictionary<string, string>>();
-
-            1.Through(4).ForEach(num =>
+            using(ServiceLocator.BeginScope())
             {
-                var user = new User { Id = Guid.NewGuid()};
-                store.Add(user.Id, user, dictionary);
-            });
+                var store = CreateStore();
 
-            1.Through(4).ForEach(num =>
+                var dictionary = new Dictionary<Type, Dictionary<string, string>>();
+
+                1.Through(4).ForEach(num =>
+                {
+                    var user = new User {Id = Guid.NewGuid()};
+                    store.Add(user.Id, user, dictionary);
+                });
+
+                1.Through(4).ForEach(num =>
+                {
+                    var person = new Person {Id = Guid.NewGuid()};
+                    store.Add(person.Id, person, dictionary);
+                });
+            }
+
+            using(ServiceLocator.BeginScope())
             {
-                var person = new Person { Id = Guid.NewGuid() };
-                store.Add(person.Id, person, dictionary);
-            });
+                var store = CreateStore();
+                store.GetAll<User>().Should().HaveCount(4);
+                store.GetAll<Person>().Should().HaveCount(8); //User inherits person
 
-            store.GetAll<User>().Should().HaveCount(4);
-            store.GetAll<Person>().Should().HaveCount(8); //User inherits person
+                store.GetAllIds<User>().ForEach(userId => store.Remove(userId, typeof(User)));
 
-            store.GetAllIds<User>().ForEach(userId => store.Remove(userId, typeof(User)));
+                store.GetAll<User>().Should().HaveCount(0);
 
-            store.GetAll<User>().Should().HaveCount(0);
-
-            store.GetAll<Person>().Should().HaveCount(4);
+                store.GetAll<Person>().Should().HaveCount(4);
+            }
 
         }
 

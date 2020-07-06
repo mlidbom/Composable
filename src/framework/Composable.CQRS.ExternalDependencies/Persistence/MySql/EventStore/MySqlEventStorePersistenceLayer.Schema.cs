@@ -69,6 +69,8 @@ namespace Composable.Persistence.MySql.EventStore
             /*INCLUDE ({C.EventType}, {C.InsertionOrder})*/
 
     )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
 "));
 
                 _initialized = true;

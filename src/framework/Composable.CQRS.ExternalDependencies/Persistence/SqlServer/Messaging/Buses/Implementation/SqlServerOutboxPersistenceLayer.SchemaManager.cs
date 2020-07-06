@@ -16,12 +16,12 @@ IF NOT EXISTS (select name from sys.tables where name = '{M.TableName}')
 BEGIN
     CREATE TABLE {M.TableName}
     (
-	    [{M.Identity}] bigint IDENTITY(1,1) NOT NULL,
+	    [{M.GeneratedId}] bigint IDENTITY(1,1) NOT NULL,
         {M.TypeIdGuidValue} uniqueidentifier NOT NULL,
         {M.MessageId} uniqueidentifier NOT NULL,
 	    {M.SerializedMessage} nvarchar(MAX) NOT NULL,
 
-        CONSTRAINT PK_{M.TableName} PRIMARY KEY CLUSTERED ( [{M.Identity}] ASC ),
+        CONSTRAINT PK_{M.TableName} PRIMARY KEY CLUSTERED ( [{M.GeneratedId}] ASC ),
 
         CONSTRAINT IX_{M.TableName}_Unique_{M.MessageId} UNIQUE ( {M.MessageId} )
 

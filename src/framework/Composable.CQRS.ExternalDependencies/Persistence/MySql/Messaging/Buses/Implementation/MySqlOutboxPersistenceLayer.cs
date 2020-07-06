@@ -23,7 +23,7 @@ namespace Composable.Persistence.MySql.Messaging.Buses.Implementation
                             $@"
 INSERT {MessageTable.TableName} 
             ({MessageTable.MessageId},  {MessageTable.TypeIdGuidValue}, {MessageTable.SerializedMessage}) 
-    VALUES (@{MessageTable.MessageId}, @{MessageTable.TypeIdGuidValue}, @{MessageTable.SerializedMessage})
+    VALUES (@{MessageTable.MessageId}, @{MessageTable.TypeIdGuidValue}, @{MessageTable.SerializedMessage});
 ")
                        .AddParameter(MessageTable.MessageId, messageWithReceivers.MessageId)
                        .AddParameter(MessageTable.TypeIdGuidValue, messageWithReceivers.TypeIdGuidValue)
@@ -36,7 +36,7 @@ INSERT {MessageTable.TableName}
                             => command.AppendCommandText($@"
 INSERT {DispatchingTable.TableName} 
             ({DispatchingTable.MessageId},  {DispatchingTable.EndpointId},          {DispatchingTable.IsReceived}) 
-    VALUES (@{DispatchingTable.MessageId}, @{DispatchingTable.EndpointId}_{index}, @{DispatchingTable.IsReceived})
+    VALUES (@{DispatchingTable.MessageId}, @{DispatchingTable.EndpointId}_{index}, @{DispatchingTable.IsReceived});
 ").AddParameter($"{DispatchingTable.EndpointId}_{index}", endpointId));
 
                     command.ExecuteNonQuery();

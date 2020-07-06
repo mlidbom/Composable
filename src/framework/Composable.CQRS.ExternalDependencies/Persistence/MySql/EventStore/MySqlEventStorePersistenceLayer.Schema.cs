@@ -53,16 +53,16 @@ namespace Composable.Persistence.MySql.EventStore
             or
             ({C.InsertBefore} is null and {C.Replaces} is null) 
         ),
-
-        CONSTRAINT FK_{EventTable.Name}_{C.Replaces} FOREIGN KEY ( {C.Replaces} ) 
-            REFERENCES {EventTable.Name} ({C.EventId}),
-
-        CONSTRAINT FK_{EventTable.Name}_{C.InsertBefore} FOREIGN KEY ( {C.InsertBefore} )
-            REFERENCES {EventTable.Name} ({C.EventId}),
-
-        CONSTRAINT FK_{EventTable.Name}_{C.InsertAfter} FOREIGN KEY ( {C.InsertAfter} ) 
-            REFERENCES {EventTable.Name} ({C.EventId}) 
 */
+        FOREIGN KEY ( {C.Replaces} ) 
+            REFERENCES {EventTable.Name} ({C.EventId}),
+
+        FOREIGN KEY ( {C.InsertBefore} )
+            REFERENCES {EventTable.Name} ({C.EventId}),
+
+        FOREIGN KEY ( {C.InsertAfter} ) 
+            REFERENCES {EventTable.Name} ({C.EventId}),
+
 
         INDEX IX_{EventTable.Name}_{C.EffectiveOrder} 
             ({C.EffectiveOrder} ASC, {C.EffectiveVersion} ASC)

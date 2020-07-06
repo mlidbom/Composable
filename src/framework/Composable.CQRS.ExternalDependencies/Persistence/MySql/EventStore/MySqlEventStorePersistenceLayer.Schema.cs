@@ -14,42 +14,35 @@ namespace Composable.Persistence.MySql.EventStore
         {
             if(!_initialized)
             {
+                //Urgent: Figure out the syntax for the commented out parts.
                 _connectionManager.UseCommand(command=> command.ExecuteNonQuery($@"
-IF NOT EXISTS(SELECT NAME FROM sys.tables WHERE name = '{EventTable.Name}')
-BEGIN
-    CREATE TABLE dbo.{EventTable.Name}(
-        {C.InsertionOrder} bigint IDENTITY(1,1) NOT NULL,
-        {C.AggregateId} uniqueidentifier NOT NULL,  
-        {C.UtcTimeStamp} datetime2 NOT NULL,   
-        {C.EventType} uniqueidentifier NOT NULL,    
-        {C.Event} nvarchar(max) NOT NULL,
-        {C.EventId} uniqueidentifier NOT NULL,
+
+    CREATE TABLE IF NOT EXISTS {EventTable.Name}(
+        {C.InsertionOrder} bigint NOT NULL AUTO_INCREMENT,
+        {C.AggregateId} CHAR(36) NOT NULL,  
+        {C.UtcTimeStamp} datetime NOT NULL,   
+        {C.EventType} CHAR(36) NOT NULL,    
+        {C.Event} MEDIUMTEXT NOT NULL,
+        {C.EventId} CHAR(36) NOT NULL,
         {C.InsertedVersion} int NOT NULL,
-        {C.SqlInsertTimeStamp} datetime2 default SYSUTCDATETIME(),
-        {C.InsertAfter} uniqueidentifier null,
-        {C.InsertBefore} uniqueidentifier null,
-        {C.Replaces} uniqueidentifier null,
+        {C.SqlInsertTimeStamp} datetime default CURRENT_TIMESTAMP,
+        {C.InsertAfter} CHAR(36) null,
+        {C.InsertBefore} CHAR(36) null,
+        {C.Replaces} CHAR(36) null,
         {C.ReadOrder} bigint null,
         {C.ReadOrderOrderOffset} bigint null,
         {C.EffectiveOrder} {EventTable.ReadOrderType} null,    
         {C.EffectiveVersion} int NULL,
 
-        CONSTRAINT PK_{EventTable.Name} PRIMARY KEY CLUSTERED 
-        (
-            {C.AggregateId} ASC,
-            {C.InsertedVersion} ASC
-        )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF),
+        PRIMARY KEY ({C.AggregateId}, {C.InsertedVersion}),
 
-        CONSTRAINT IX_{EventTable.Name}_Unique_{C.EventId} UNIQUE
-        (
-            {C.EventId}
-        ),
 
-        CONSTRAINT IX_{EventTable.Name}_Unique_{C.InsertionOrder} UNIQUE
-        (
-            {C.InsertionOrder}
-        ),
 
+
+
+        UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.EventId} ( {C.EventId} ASC ),
+        UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.InsertionOrder} ( {C.InsertionOrder} ASC ),
+/*
         CONSTRAINT CK_{EventTable.Name}_Only_one_reordering_column_allowed_for_use
         CHECK 
         (
@@ -68,31 +61,40 @@ BEGIN
 
         CONSTRAINT FK_{EventTable.Name}_{C.InsertAfter} FOREIGN KEY ( {C.InsertAfter} ) 
             REFERENCES {EventTable.Name} ({C.EventId}) 
+*/
+
+        INDEX IX_{EventTable.Name}_{C.EffectiveOrder} 
+            ({C.EffectiveOrder} ASC, {C.EffectiveVersion} ASC)
+            /*INCLUDE ({C.EventType}, {C.InsertionOrder})*/
+
     )
-
-        CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{C.EffectiveOrder} ON dbo.{EventTable.Name}
-            ({C.EffectiveOrder}, {C.EffectiveVersion})
-            INCLUDE ({C.EventType}, {C.InsertionOrder})
-
-        CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{C.Replaces}	ON dbo.{EventTable.Name}
-            ({C.Replaces})
-            INCLUDE ({C.EventId})
-
-        CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{C.InsertAfter}	ON dbo.{EventTable.Name}
-            ({C.InsertAfter})
-            INCLUDE ({C.EventId})
-
-        CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{C.InsertBefore}	ON dbo.{EventTable.Name} 
-            ({C.InsertBefore})
-            INCLUDE ({C.EventId})
-
-        CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{C.EffectiveVersion}	ON dbo.{EventTable.Name} 
-            ({C.EffectiveVersion})
-END 
 "));
 
                 _initialized = true;
             }
         });
+
+        static readonly string blah = @"
+CREATE TABLE `test`.`events` (
+  `InsertionOrder` BIGINT NOT NULL AUTO_INCREMENT,
+  `AggregateId` CHAR(36) NOT NULL,
+  `UtcTimeStamp` DATETIME NOT NULL,
+  `EventType` CHAR(36) NOT NULL,
+  `Event` MEDIUMTEXT NOT NULL,
+  `EventId` CHAR(36) NOT NULL,
+  `InsertedVersion` INT NOT NULL,
+  `SqlInsertTimeStamp` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `InsertAfter` CHAR(36) NULL,
+  `InsertBefore` CHAR(36) NULL,
+  `Replaces` CHAR(36) NULL,
+  `ReadOrder` BIGINT NULL,
+  `ReadOrderOrderOffset` BIGINT NULL,
+  `EffectiveOrder` DECIMAL(38,19) NULL,
+  `EffectiveVersion` INT NULL,
+  UNIQUE INDEX `InsertionOrder_UNIQUE` (`InsertionOrder` ASC) INVISIBLE,
+  PRIMARY KEY (`AggregateId`, `InsertedVersion`),
+  UNIQUE INDEX `EventId_UNIQUE` (`EventId` ASC) VISIBLE,
+  INDEX `IX_EVENTS_EFFECTIVEORDER` (`EffectiveOrder` ASC, `EffectiveVersion` ASC) VISIBLE);
+";
     }
 }

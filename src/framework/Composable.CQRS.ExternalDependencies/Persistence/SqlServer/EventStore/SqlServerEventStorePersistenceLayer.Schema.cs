@@ -38,17 +38,10 @@ BEGIN
         (
             {C.AggregateId} ASC,
             {C.InsertedVersion} ASC
-        )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF),
+        )WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF),
 
-        CONSTRAINT IX_{EventTable.Name}_Unique_{C.EventId} UNIQUE
-        (
-            {C.EventId}
-        ),
-
-        CONSTRAINT IX_{EventTable.Name}_Unique_{C.InsertionOrder} UNIQUE
-        (
-            {C.InsertionOrder}
-        ),
+        CONSTRAINT IX_{EventTable.Name}_Unique_{C.EventId} UNIQUE ( {C.EventId} ),
+        CONSTRAINT IX_{EventTable.Name}_Unique_{C.InsertionOrder} UNIQUE ( {C.InsertionOrder} ),
 
         CONSTRAINT CK_{EventTable.Name}_Only_one_reordering_column_allowed_for_use
         CHECK 
@@ -73,21 +66,6 @@ BEGIN
         CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{C.EffectiveOrder} ON dbo.{EventTable.Name}
             ({C.EffectiveOrder}, {C.EffectiveVersion})
             INCLUDE ({C.EventType}, {C.InsertionOrder})
-
-        CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{C.Replaces}	ON dbo.{EventTable.Name}
-            ({C.Replaces})
-            INCLUDE ({C.EventId})
-
-        CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{C.InsertAfter}	ON dbo.{EventTable.Name}
-            ({C.InsertAfter})
-            INCLUDE ({C.EventId})
-
-        CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{C.InsertBefore}	ON dbo.{EventTable.Name} 
-            ({C.InsertBefore})
-            INCLUDE ({C.EventId})
-
-        CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{C.EffectiveVersion}	ON dbo.{EventTable.Name} 
-            ({C.EffectiveVersion})
 END 
 "));
 

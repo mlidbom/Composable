@@ -23,7 +23,7 @@ namespace Composable.Tests.CQRS
     }
 
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
+    [DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql))]
     [TestFixture] public class EventStoreTests
     {
         IDisposable _scope;

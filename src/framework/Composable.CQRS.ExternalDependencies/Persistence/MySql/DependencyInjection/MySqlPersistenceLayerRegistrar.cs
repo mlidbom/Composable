@@ -16,10 +16,8 @@ namespace Composable.Persistence.MySql.DependencyInjection
 {
     public static class MySqlPersistenceLayerRegistrar
     {
-        public static void RegisterMySqlPersistenceLayer(this IEndpointBuilder @this)
-        {
-           @this.Container.RegisterMySqlPersistenceLayer(@this.Configuration.ConnectionStringName);
-        }
+        public static void RegisterMySqlPersistenceLayer(this IEndpointBuilder @this) =>
+            @this.Container.RegisterMySqlPersistenceLayer(@this.Configuration.ConnectionStringName);
 
         public static void RegisterMySqlPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
         {

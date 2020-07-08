@@ -16,15 +16,10 @@ namespace Composable.Persistence.MsSql.DependencyInjection
 {
     public static class MsSqlPersistenceLayerRegistrar
     {
-       public static void RegisterMsSqlPersistenceLayer(this IEndpointBuilder @this)
-        {
-            var container = @this.Container;
-            var configurationConnectionStringName = @this.Configuration.ConnectionStringName;
+       public static void RegisterMsSqlPersistenceLayer(this IEndpointBuilder @this) =>
+           @this.Container.RegisterMsSqlPersistenceLayer(@this.Configuration.ConnectionStringName);
 
-            RegisterMsSqlPersistenceLayer(container, configurationConnectionStringName);
-        }
-
-        //todo: does the fact that we register all this stuff using a connectionStringName mean that, using named components, we could easily have multiple registrations as long as they use different connectionStrings
+       //todo: does the fact that we register all this stuff using a connectionStringName mean that, using named components, we could easily have multiple registrations as long as they use different connectionStrings
         public static void RegisterMsSqlPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
         {
             //Connection management

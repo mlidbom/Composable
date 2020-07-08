@@ -11,8 +11,8 @@ using NUnit.Framework;
 
 namespace Composable.Tests.ExternalDependencies
 {
-    //Urgent: Remove this once mysql support is working.
-    [TestFixture] public class ExploreMySqlDecimalSupport
+    //Urgent: Remove this once we have all the persistence layers working.
+    [TestFixture] public class ExplorePersistenceLayerAdoImplementations
     {
         MsSqlDatabasePool _msSqlPool;
         MySqlDatabasePool _mySqlPool;

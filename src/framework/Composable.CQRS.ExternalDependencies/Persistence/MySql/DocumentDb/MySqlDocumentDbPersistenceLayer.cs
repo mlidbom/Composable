@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace Composable.Persistence.MySql.DocumentDb
             });
         }
 
-        public bool TryGet(string idString, IReadOnlyList<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out IDocumentDbPersistenceLayer.ReadRow? document)
+        public bool TryGet(string idString, IImmutableSet<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out IDocumentDbPersistenceLayer.ReadRow? document)
         {
             EnsureInitialized();
 
@@ -90,7 +91,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             }
         }
 
-        public int Remove(string idString, IReadOnlyList<Guid> acceptableTypes)
+        public int Remove(string idString, IImmutableSet<Guid> acceptableTypes)
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(
@@ -100,7 +101,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                            .ExecuteNonQuery());
         }
 
-        public IEnumerable<Guid> GetAllIds(IReadOnlyList<Guid> acceptableTypes)
+        public IEnumerable<Guid> GetAllIds(IImmutableSet<Guid> acceptableTypes)
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(
@@ -108,7 +109,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                                   .ExecuteReaderAndSelect(reader => Guid.Parse(reader.GetString(0)))); //bug: Huh, we store string but require them to be Guid!?
         }
 
-        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IEnumerable<Guid> ids, IReadOnlyList<Guid> acceptableTypes)
+        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IEnumerable<Guid> ids, IImmutableSet<Guid> acceptableTypes)
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(
@@ -117,7 +118,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
         }
 
-        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IReadOnlyList<Guid> acceptableTypes)
+        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IImmutableSet<Guid> acceptableTypes)
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(

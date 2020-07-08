@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Composable.Persistence.DocumentDb
@@ -7,13 +8,13 @@ namespace Composable.Persistence.DocumentDb
     interface IDocumentDbPersistenceLayer
     {
         void Update(IReadOnlyList<WriteRow> toUpdate);
-        bool TryGet(string idString, IReadOnlyList<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out ReadRow? document);
+        bool TryGet(string idString, IImmutableSet<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out ReadRow? document);
         void Add(string idString, Guid typeIdGuid, DateTime now, string serializedDocument);
-        int Remove(string idString, IReadOnlyList<Guid> acceptableTypes);
+        int Remove(string idString, IImmutableSet<Guid> acceptableTypes);
         //Urgent: This whole Guid vs string thing must be removed.
-        IEnumerable<Guid> GetAllIds(IReadOnlyList<Guid> acceptableTypes);
-        IReadOnlyList<ReadRow> GetAll(IEnumerable<Guid> ids, IReadOnlyList<Guid> acceptableTypes);
-        IReadOnlyList<ReadRow> GetAll(IReadOnlyList<Guid> acceptableTypes);
+        IEnumerable<Guid> GetAllIds(IImmutableSet<Guid> acceptableTypes);
+        IReadOnlyList<ReadRow> GetAll(IEnumerable<Guid> ids, IImmutableSet<Guid> acceptableTypes);
+        IReadOnlyList<ReadRow> GetAll(IImmutableSet<Guid> acceptableTypes);
 
         class ReadRow
         {

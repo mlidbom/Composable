@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Contracts;
@@ -114,8 +115,8 @@ namespace Composable.Persistence.DocumentDb
 
         public IEnumerable<Guid> GetAllIds<T>() where T : IHasPersistentIdentity<Guid> => _persistenceLayer.GetAllIds(GetAcceptableTypeGuids(typeof(T)));
 
-        IReadOnlyList<Guid> GetAcceptableTypeGuids<T>() => GetAcceptableTypeGuids(typeof(T));
-        IReadOnlyList<Guid> GetAcceptableTypeGuids(Type type) => _typeMapper.GetIdForTypesAssignableTo(type).Select(typeId => typeId.GuidValue).ToList();
+        IImmutableSet<Guid> GetAcceptableTypeGuids<T>() => GetAcceptableTypeGuids(typeof(T));
+        IImmutableSet<Guid> GetAcceptableTypeGuids(Type type) => _typeMapper.GetIdForTypesAssignableTo(type).Select(typeId => typeId.GuidValue).ToImmutableHashSet();
         Type GetTypeFromId(TypeId id) => _typeMapper.GetType(id);
     }
 }

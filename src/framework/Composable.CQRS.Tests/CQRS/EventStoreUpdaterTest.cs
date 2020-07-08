@@ -638,7 +638,7 @@ namespace Composable.Tests.CQRS
             changeEmailSection.EntranceGate.AwaitPassedThroughCountEqualTo(2);
             changeEmailSection.ExitGate.AwaitQueueLengthEqualTo(1);
 
-            Thread.Sleep(10.Milliseconds());
+            Thread.Sleep(100.Milliseconds());
 
             changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction.");
 

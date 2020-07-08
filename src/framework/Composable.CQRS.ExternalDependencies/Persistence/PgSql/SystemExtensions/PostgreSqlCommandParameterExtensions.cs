@@ -8,7 +8,7 @@ namespace Composable.Persistence.PgSql.SystemExtensions
     static class NpgsqlCommandParameterExtensions
     {
         public static NpgsqlCommand AddParameter(this NpgsqlCommand @this, string name, int value) => AddParameter(@this, name, NpgsqlDbType.Integer, value);
-        public static NpgsqlCommand AddParameter(this NpgsqlCommand @this, string name, Guid value) => AddParameter(@this, name, NpgsqlDbType.Char, value, 39);
+        public static NpgsqlCommand AddParameter(this NpgsqlCommand @this, string name, Guid value) => AddParameter(@this, name, NpgsqlDbType.Char, value.ToString(), 39);
         public static NpgsqlCommand AddDateTime2Parameter(this NpgsqlCommand @this, string name, DateTime value) => AddParameter(@this, name, NpgsqlDbType.Date, value);
         //urgent:The way I understand postgres the length here is useless and thus this method is useless. See: https://www.postgresql.org/docs/current/datatype-character.html, https://www.postgresqltutorial.com/postgresql-char-varchar-text/
         public static NpgsqlCommand AddVarcharParameter(this NpgsqlCommand @this, string name, int length, string value) => AddParameter(@this, name, NpgsqlDbType.Varchar, value, length);

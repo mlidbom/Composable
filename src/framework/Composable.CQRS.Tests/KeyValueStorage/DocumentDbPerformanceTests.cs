@@ -28,7 +28,7 @@ namespace Composable.Tests.KeyValueStorage
                 //Urgent: Fix the MySql opening connection slowness problem and up the number for MySql in this test
                 TimeAsserter.Execute(
                     action: SaveOneNewUserInTransaction,
-                    iterations: TestEnvironment.ValueForPersistenceProvider(msSql:200, mySql:55, inMem:2000),
+                    iterations: TestEnvironment.ValueForPersistenceProvider(msSql:200, mySql:55, inMem:2000, pgSql: 200),
                     maxTotal: 150.Milliseconds()
                 );
             });

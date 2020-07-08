@@ -51,7 +51,8 @@ namespace Composable.Persistence.PgSql.DocumentDb
 SELECT Value, ValueTypeId FROM Store {UseUpdateLock(useUpdateLock)} 
 WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                                   .AddVarcharParameter("Id", 500, idString)
-                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(1), reader.GetString(0))));
+                                   //Urgent: There is a GetGuid method. But it cannot read the text value. How do I use it?
+                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(Guid.Parse(reader.GetString(1)), reader.GetString(0))));
             if(documents.Count < 1)
             {
                 document = null;
@@ -116,7 +117,8 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             return _connectionProvider.UseCommand(
                 command => command.SetCommandText($@"SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId {TypeInClause(acceptableTypes)} 
                                    AND Id IN('" + ids.Select(id => id.ToString()).Join("','") + "')")
-                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
+                                   //Urgent: There is a GetGuid method. But it cannot read the text value. How do I use it?
+                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(Guid.Parse(reader.GetString(2)), reader.GetString(1))));
         }
 
         public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IImmutableSet<Guid> acceptableTypes)
@@ -124,7 +126,8 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             EnsureInitialized();
             return _connectionProvider.UseCommand(
                 command => command.SetCommandText($@" SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId  {TypeInClause(acceptableTypes)}")
-                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
+                                   //Urgent: There is a GetGuid method. But it cannot read the text value. How do I use it?
+                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(Guid.Parse(reader.GetString(2)), reader.GetString(1))));
         }
 
         static string TypeInClause(IEnumerable<Guid> acceptableTypeIds) { return "IN( '" + acceptableTypeIds.Select(guid => guid.ToString()).Join("', '") + "')\n"; }

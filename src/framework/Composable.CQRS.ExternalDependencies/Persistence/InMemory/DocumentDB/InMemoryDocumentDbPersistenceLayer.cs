@@ -57,7 +57,7 @@ namespace Composable.Persistence.InMemory.DocumentDB
                 foreach(var row in toUpdate)
                 {
                     if (!TryGet(row.Id, new []{ row.TypeId }.ToImmutableHashSet(), useUpdateLock: false, out var existing)) throw new NoSuchDocumentException(row.Id, row.TypeId);
-                    if (existing.SerializedValue != row.SerializedDocument)
+                    if (existing.SerializedDocument != row.SerializedDocument)
                     {
                         Remove(row.Id, new []{ row.TypeId }.ToImmutableHashSet());
                         Add(row);

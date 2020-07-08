@@ -7,13 +7,13 @@ namespace Composable.Persistence.DocumentDb
 {
     interface IDocumentDb
     {
-        bool TryGet<T>(object id, [NotNullWhen(true)]out T value, Dictionary<Type,Dictionary<string,string>> persistentValues);
-        void Add<T>(object id, T value, Dictionary<Type, Dictionary<string, string>> persistentValues);
+        bool TryGet<TDocument>(object id, [NotNullWhen(true)]out TDocument value, Dictionary<Type,Dictionary<string,string>> persistentValues);
+        void Add<TDocument>(object id, TDocument value, Dictionary<Type, Dictionary<string, string>> persistentValues);
         void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> persistentValues);
 
         void Remove(object id, Type documentType);
-        IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>;
-        IEnumerable<T> GetAll<T>(IEnumerable<Guid> ids) where T : IHasPersistentIdentity<Guid>;
-        IEnumerable<Guid> GetAllIds<T>() where T : IHasPersistentIdentity<Guid>;
+        IEnumerable<TDocument> GetAll<TDocument>() where TDocument : IHasPersistentIdentity<Guid>;
+        IEnumerable<TDocument> GetAll<TDocument>(IEnumerable<Guid> ids) where TDocument : IHasPersistentIdentity<Guid>;
+        IEnumerable<Guid> GetAllIds<TDocument>() where TDocument : IHasPersistentIdentity<Guid>;
     }
 }

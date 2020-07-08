@@ -18,15 +18,15 @@ namespace Composable.Persistence.DocumentDb
 
         class ReadRow
         {
-            public ReadRow(Guid typeGuid, string serializedValue)
+            public ReadRow(Guid typeId, string serializedDocument)
             {
-                TypeGuid = typeGuid;
-                SerializedValue = serializedValue;
+                TypeId = typeId;
+                SerializedDocument = serializedDocument;
             }
 
-            public Guid TypeGuid { get; }
+            public Guid TypeId { get; }
 
-            public string SerializedValue { get; }
+            public string SerializedDocument { get; }
         }
 
         class WriteRow

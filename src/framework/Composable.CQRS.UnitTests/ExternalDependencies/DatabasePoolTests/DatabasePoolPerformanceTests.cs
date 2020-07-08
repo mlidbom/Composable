@@ -154,7 +154,6 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     var connectionProvider = new PgSqlConnectionProvider(manager.ConnectionStringFor(reservationName));
                     connectionProvider.UseConnection(_ => {});
 
-                    //Performance: do something about the performance of opening MySql connections.
                     TimeAsserter.Execute(
                         action: () => connectionProvider.UseConnection(_ => {}),
                         iterations: 2500,

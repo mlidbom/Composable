@@ -34,11 +34,11 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _masterConnectionString!.Replace(DatabasePgSql, $";Database={db.Name().ToLower()};");
+            => _masterConnectionString!.Replace(DatabasePgSql, $";Database={db.Name.ToLower()};");
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
-            var databaseName = db.Name();
+            var databaseName = db.Name.ToLower();
             //Urgent: Figure out PgSql equivalents and if they need to be specified
             //            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
             //            {

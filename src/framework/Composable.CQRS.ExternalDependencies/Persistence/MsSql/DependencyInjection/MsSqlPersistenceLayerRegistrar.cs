@@ -47,7 +47,6 @@ namespace Composable.Persistence.MsSql.DependencyInjection
 
 
             //Service bus
-            //Bug: Urgent: Registering these as Scoped does not cause a failure even though the endpoint builder wires singletons to use them. Strangely, doing the same with the in-memory version does cause a failure!
             container.Register(
                 Singleton.For<IServiceBusPersistenceLayer.IOutboxPersistenceLayer>()
                          .CreatedBy((IMsSqlConnectionProvider endpointSqlConnection) => new MsSqlOutboxPersistenceLayer(endpointSqlConnection)),

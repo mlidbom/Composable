@@ -14,8 +14,8 @@ namespace Composable.Persistence.InMemory.EventStore
         {
             readonly Dictionary<Guid, TransactionWideLock> _aggregateGuards = new Dictionary<Guid, TransactionWideLock>();
 
-            public TResult WithExclusiveAccess<TResult>(Guid aggregateId, Func<TResult> func) => WithExclusiveAccess(aggregateId, true, func);
-            public TResult WithExclusiveAccess<TResult>(Guid aggregateId, bool takeWriteLock, Func<TResult> func)
+            public TResult WithTransactionWideLock<TResult>(Guid aggregateId, Func<TResult> func) => WithTransactionWideLock(aggregateId, true, func);
+            public TResult WithTransactionWideLock<TResult>(Guid aggregateId, bool takeWriteLock, Func<TResult> func)
             {
                 if(Transaction.Current != null)
                 {
@@ -26,7 +26,7 @@ namespace Composable.Persistence.InMemory.EventStore
                 return func();
             }
 
-            public void WithExclusiveAccess(Guid aggregateId, Action action) => WithExclusiveAccess(aggregateId, true, () =>
+            public void WithTransactionWideLock(Guid aggregateId, Action action) => WithTransactionWideLock(aggregateId, true, () =>
             {
                 action();
                 return 1;

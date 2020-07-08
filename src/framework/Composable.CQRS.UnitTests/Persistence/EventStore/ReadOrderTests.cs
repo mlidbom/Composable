@@ -4,7 +4,7 @@ using Composable.Persistence.EventStore;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
-using ReadOrder = Composable.Persistence.EventStore.IEventStorePersistenceLayer.ReadOrder;
+using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.IEventStorePersistenceLayer.ReadOrder;
 
 namespace Composable.Tests.Persistence.EventStore
 {
@@ -77,7 +77,7 @@ namespace Composable.Tests.Persistence.EventStore
                 .ForEach(@this => Console.WriteLine(@this));
         }
 
-        static ReadOrder Create(long order, long offset) => new ReadOrder(order, offset);
+        static ReadOrder Create(long order, long offset) => ReadOrder.Parse($"{order}.{offset:D19}");
         static string CreateString(int order, int value) => $"{order}.{DecimalPlaces(value)}";
         static string DecimalPlaces(int number) => new string(number.ToString()[0], 19);
     }

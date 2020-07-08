@@ -6,10 +6,11 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
-using ReadOrder = Composable.Persistence.EventStore.IEventStorePersistenceLayer.ReadOrder;
+using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.IEventStorePersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.MsSql.EventStore
 {
@@ -48,7 +49,7 @@ END
                                               .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddNVarcharMaxParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.EffectiveOrder, SqlDbType.Decimal, data.StorageInformation.EffectiveOrder?.ToSqlDecimal())
+                                              .AddNullableParameter(C.EffectiveOrder, SqlDbType.Decimal, data.StorageInformation.ReadOrder?.ToSqlDecimal())
                                               .AddNullableParameter(C.EffectiveVersion, SqlDbType.Int, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(C.InsertAfter, SqlDbType.UniqueIdentifier, data.StorageInformation.InsertAfter)
                                               .AddNullableParameter(C.InsertBefore, SqlDbType.UniqueIdentifier, data.StorageInformation.InsertBefore)

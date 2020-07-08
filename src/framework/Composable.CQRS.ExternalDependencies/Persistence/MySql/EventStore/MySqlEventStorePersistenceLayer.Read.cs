@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
 using MySql.Data.MySqlClient;
 using MySql.Data.Types;
@@ -44,7 +45,7 @@ FROM {EventTable.Name} {lockHint} ";
                 utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
                 storageInformation: new AggregateEventStorageInformation()
                                         {
-                                            EffectiveOrder = IEventStorePersistenceLayer.ReadOrder.Parse(eventReader.GetString(11)),
+                                            ReadOrder = IEventStorePersistenceLayer.ReadOrder.Parse(eventReader.GetString(11)),
                                             InsertedVersion = eventReader.GetInt32(10),
                                             EffectiveVersion = eventReader.GetInt32(3),
                                             InsertAfter = eventReader[7] as Guid?,
@@ -89,7 +90,7 @@ LIMIT {batchSize}";
                                                                 });
                 if(historyData.Any())
                 {
-                    lastReadEventReadOrder = historyData[^1].StorageInformation.EffectiveOrder!.Value;
+                    lastReadEventReadOrder = historyData[^1].StorageInformation.ReadOrder!.Value;
                 }
 
                 //We do not yield while reading from the reader since that may cause code to run that will cause another sql call into the same connection. Something that throws an exception unless you use an unusual and non-recommended connection string setting.

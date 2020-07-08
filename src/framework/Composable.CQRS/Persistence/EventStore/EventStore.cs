@@ -5,13 +5,14 @@ using System.Linq;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
+using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using ReadOrder = Composable.Persistence.EventStore.IEventStorePersistenceLayer.ReadOrder;
+using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.IEventStorePersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.EventStore
 {
@@ -389,7 +390,7 @@ AggregateIds:
             var readOrders = ReadOrder.CreateOrdersForEventsBetween(newEvents.Length, rangeStart, rangeEnd);
             for (int index = 0; index < newEvents.Length; index++)
             {
-                newEvents[index].StorageInformation.EffectiveOrder = readOrders[index];
+                newEvents[index].StorageInformation.ReadOrder = readOrders[index];
             }
         }
 

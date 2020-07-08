@@ -7,6 +7,7 @@ using System.Linq;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.PersistenceLayer;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
 
 namespace Composable.Persistence.MsSql.EventStore
@@ -42,7 +43,7 @@ FROM {EventTable.Name} {lockHint} ";
             utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
             storageInformation: new AggregateEventStorageInformation()
                                     {
-                                        EffectiveOrder = IEventStorePersistenceLayer.ReadOrder.FromSqlDecimal(eventReader.GetSqlDecimal(11)),
+                                        ReadOrder = IEventStorePersistenceLayer.ReadOrder.FromSqlDecimal(eventReader.GetSqlDecimal(11)),
                                         InsertedVersion = eventReader.GetInt32(10),
                                         EffectiveVersion = eventReader.GetInt32(3),
                                         InsertAfter = eventReader[7] as Guid?,
@@ -81,7 +82,7 @@ ORDER BY {C.EffectiveOrder} ASC")
                                                                                   .ToList());
                 if(historyData.Any())
                 {
-                    lastReadEventReadOrder = historyData[^1].StorageInformation.EffectiveOrder!.Value.ToSqlDecimal();
+                    lastReadEventReadOrder = historyData[^1].StorageInformation.ReadOrder!.Value.ToSqlDecimal();
                 }
 
                 //We do not yield while reading from the reader since that may cause code to run that will cause another sql call into the same connection. Something that throws an exception unless you use an unusual and non-recommended connection string setting.

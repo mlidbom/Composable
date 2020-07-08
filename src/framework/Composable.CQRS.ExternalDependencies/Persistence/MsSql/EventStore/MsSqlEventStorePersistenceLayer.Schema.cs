@@ -1,5 +1,6 @@
 ﻿using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System.Transactions;
 using C=Composable.Persistence.Common.EventStore.EventTable.Columns;

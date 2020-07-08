@@ -3,6 +3,7 @@ using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MsSql.DocumentDb;
 using Composable.Persistence.MsSql.EventStore;
 using Composable.Persistence.MsSql.Messaging.Buses.Implementation;

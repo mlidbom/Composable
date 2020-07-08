@@ -6,13 +6,14 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MsSql.EventStore;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System;
 using MySql.Data.MySqlClient;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
-using ReadOrder = Composable.Persistence.EventStore.IEventStorePersistenceLayer.ReadOrder;
+using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.IEventStorePersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.MySql.EventStore
 {
@@ -51,7 +52,7 @@ END IF;
                                               .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddMediumTextParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.EffectiveOrder, MySqlDbType.VarChar, data.StorageInformation.EffectiveOrder?.ToString())
+                                              .AddNullableParameter(C.EffectiveOrder, MySqlDbType.VarChar, data.StorageInformation.ReadOrder?.ToString())
                                               .AddNullableParameter(C.EffectiveVersion, MySqlDbType.Int32, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(C.InsertAfter, MySqlDbType.Guid, data.StorageInformation.InsertAfter)
                                               .AddNullableParameter(C.InsertBefore, MySqlDbType.Guid, data.StorageInformation.InsertBefore)

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
-using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
-using ReadOrder = Composable.Persistence.EventStore.IEventStorePersistenceLayer.ReadOrder;
+using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.IEventStorePersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.InMemory.EventStore
 {
@@ -22,33 +22,29 @@ namespace Composable.Persistence.InMemory.EventStore
         }
 
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events) =>
-            _transactionLockManager.WithExclusiveAccess(
+            _transactionLockManager.WithTransactionWideLock(
                 events.First().AggregateId,
                 () => _state.WithExclusiveAccess(state =>
                 {
-                    events.ForEach((@event, index) =>
-                    {
-                        var insertionOrder = new ReadOrder(state.Events.Count + index + 1, 0);
-                        @event.StorageInformation.EffectiveOrder ??= insertionOrder;
-                    });
+                    events.ForEach((@event, index) => @event.StorageInformation.ReadOrder ??= new ReadOrder(state.Events.Count + index + 1, offSet: 0));
                     state.AddRange(events);
                 }));
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
-            => _transactionLockManager.WithExclusiveAccess(
+            => _transactionLockManager.WithTransactionWideLock(
                 aggregateId,
                 takeWriteLock,
                 () => _state.WithExclusiveAccess(
                     state => state
                             .Events
-                            .OrderBy(@this => @this.StorageInformation.EffectiveOrder)
+                            .OrderBy(@this => @this.StorageInformation.ReadOrder)
                             .Where(@this => @this.AggregateId == aggregateId
                                          && @this.StorageInformation.InsertedVersion > startAfterInsertedVersion
                                          && @this.StorageInformation.EffectiveVersion > 0)
                             .ToArray()));
 
         public void UpdateEffectiveVersions(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
-            => _transactionLockManager.WithExclusiveAccess(
+            => _transactionLockManager.WithTransactionWideLock(
                 _state.WithExclusiveAccess(state => state.Events.Single(@event => @event.EventId == versions.First().EventId)).AggregateId,
                 () => _state.WithExclusiveAccess(
                     state =>
@@ -68,7 +64,7 @@ namespace Composable.Persistence.InMemory.EventStore
                                                                    new AggregateEventStorageInformation()
                                                                    {
                                                                        EffectiveVersion = specification.EffectiveVersion,
-                                                                       EffectiveOrder = @event.StorageInformation.EffectiveOrder,
+                                                                       ReadOrder = @event.StorageInformation.ReadOrder,
                                                                        InsertedVersion = @event.StorageInformation.InsertedVersion,
                                                                        Replaces = @event.StorageInformation.Replaces,
                                                                        InsertBefore = @event.StorageInformation.InsertBefore,
@@ -79,31 +75,31 @@ namespace Composable.Persistence.InMemory.EventStore
                 ));
 
         public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId)
-            => _transactionLockManager.WithExclusiveAccess(
+            => _transactionLockManager.WithTransactionWideLock(
                 _state.WithExclusiveAccess(state => state.Events.Single(@event => @event.EventId == eventId)).AggregateId,
                 () => _state.WithExclusiveAccess(state =>
                 {
                     var found = state.Events.Single(@this => @this.EventId == eventId);
 
-                    var effectiveOrder = found.StorageInformation.EffectiveOrder!.Value;
+                    var effectiveOrder = found.StorageInformation.ReadOrder!.Value;
                     var previousEvent = state.Events
-                                             .Where(@this => @this.StorageInformation.EffectiveOrder!.Value < effectiveOrder)
-                                             .OrderByDescending(@this => @this.StorageInformation.EffectiveOrder)
+                                             .Where(@this => @this.StorageInformation.ReadOrder!.Value < effectiveOrder)
+                                             .OrderByDescending(@this => @this.StorageInformation.ReadOrder)
                                              .FirstOrDefault();
 
                     var nextEvent = state.Events
-                                         .Where(@this => @this.StorageInformation.EffectiveOrder!.Value > effectiveOrder)
-                                         .OrderBy(@this => @this.StorageInformation.EffectiveOrder)
+                                         .Where(@this => @this.StorageInformation.ReadOrder!.Value > effectiveOrder)
+                                         .OrderBy(@this => @this.StorageInformation.ReadOrder)
                                          .FirstOrDefault();
 
                     return new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: effectiveOrder,
-                                                                             previousEventReadOrder: previousEvent?.StorageInformation.EffectiveOrder,
-                                                                             nextEventReadOrder: nextEvent?.StorageInformation.EffectiveOrder);
+                                                                             previousEventReadOrder: previousEvent?.StorageInformation.ReadOrder,
+                                                                             nextEventReadOrder: nextEvent?.StorageInformation.ReadOrder);
                 }));
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
             => _state.WithExclusiveAccess(state => state.Events
-                                                        .OrderBy(@event => @event.StorageInformation.EffectiveOrder)
+                                                        .OrderBy(@event => @event.StorageInformation.ReadOrder)
                                                         .Where(@event => @event.StorageInformation.EffectiveVersion > 0)
                                                         .ToArray());
 
@@ -125,7 +121,7 @@ namespace Composable.Persistence.InMemory.EventStore
             });
 
         public void DeleteAggregate(Guid aggregateId)
-            => _transactionLockManager.WithExclusiveAccess(
+            => _transactionLockManager.WithTransactionWideLock(
                 aggregateId,
                 () => _state.WithExclusiveAccess(state => state.DeleteAggregate(aggregateId)));
 

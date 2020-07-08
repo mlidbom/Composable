@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MySql.Testing.Databases;
 using Composable.Persistence.MsSql.SystemExtensions;

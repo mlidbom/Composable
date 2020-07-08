@@ -138,7 +138,7 @@ namespace Composable.Persistence.EventStore
 
     class EventDataRow
     {
-        public EventDataRow(IAggregateEvent @event, AggregateEventRefactoringInformation refactoringInformation, Guid eventType, string eventAsJson)
+        public EventDataRow(IAggregateEvent @event, AggregateEventStorageInformation storageInformation, Guid eventType, string eventAsJson)
         {
             EventJson = eventAsJson;
             EventType = eventType;
@@ -148,7 +148,7 @@ namespace Composable.Persistence.EventStore
             AggregateId = @event.AggregateId;
             UtcTimeStamp = @event.UtcTimeStamp;
 
-            RefactoringInformation = refactoringInformation;
+            StorageInformation = storageInformation;
         }
 
         public EventDataRow(EventInsertionSpecification specification, Guid typeId, string eventAsJson)
@@ -162,14 +162,14 @@ namespace Composable.Persistence.EventStore
             AggregateId = @event.AggregateId;
             UtcTimeStamp = @event.UtcTimeStamp;
 
-            RefactoringInformation = new AggregateEventRefactoringInformation()
+            StorageInformation = new AggregateEventStorageInformation()
                                      {
                                          InsertedVersion = specification.InsertedVersion,
                                          EffectiveVersion = specification.EffectiveVersion
                                      };
         }
 
-        public EventDataRow(Guid eventType, string eventJson, Guid eventId, int aggregateVersion, Guid aggregateId, DateTime utcTimeStamp, AggregateEventRefactoringInformation refactoringInformation)
+        public EventDataRow(Guid eventType, string eventJson, Guid eventId, int aggregateVersion, Guid aggregateId, DateTime utcTimeStamp, AggregateEventStorageInformation storageInformation)
         {
             EventType = eventType;
             EventJson = eventJson;
@@ -178,7 +178,7 @@ namespace Composable.Persistence.EventStore
             AggregateId = aggregateId;
             UtcTimeStamp = utcTimeStamp;
 
-            RefactoringInformation = refactoringInformation;
+            StorageInformation = storageInformation;
         }
 
         public Guid EventType { get; private set; }
@@ -189,13 +189,13 @@ namespace Composable.Persistence.EventStore
         public Guid AggregateId { get; private set; }
         public DateTime UtcTimeStamp { get; private set; }
 
-        internal AggregateEventRefactoringInformation RefactoringInformation { get; private set; }
+        internal AggregateEventStorageInformation StorageInformation { get; private set; }
 
-        public override string ToString() => $"{nameof(RefactoringInformation.InsertedVersion)}{RefactoringInformation.InsertedVersion},{nameof(RefactoringInformation.EffectiveVersion)}{RefactoringInformation.EffectiveVersion}, {nameof(RefactoringInformation.EffectiveOrder)}{RefactoringInformation.EffectiveOrder}";
+        public override string ToString() => $"{nameof(StorageInformation.InsertedVersion)}{StorageInformation.InsertedVersion},{nameof(StorageInformation.EffectiveVersion)}{StorageInformation.EffectiveVersion}, {nameof(StorageInformation.EffectiveOrder)}{StorageInformation.EffectiveOrder}";
     }
 
     //Urgent: Refactor into enum Replace,InsertBefore,InsertAfter + RefactoredEventId + make all properties non-nullable instead make the whole instance on the event nullable + move data that is on all events elsewhere + split that elsewhere between read and write so that effective order is not nullable when reading and not present when writing.
-    class AggregateEventRefactoringInformation
+    class AggregateEventStorageInformation
     {
         internal IEventStorePersistenceLayer.ReadOrder? EffectiveOrder { get; set; }
         internal int InsertedVersion { get; set; }

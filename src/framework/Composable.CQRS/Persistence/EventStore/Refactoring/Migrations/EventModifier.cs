@@ -17,14 +17,14 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
     {
         internal class RefactoredEvent
         {
-            public RefactoredEvent(AggregateEvent newEvent, AggregateEventRefactoringInformation refactoringInformation)
+            public RefactoredEvent(AggregateEvent newEvent, AggregateEventStorageInformation storageInformation)
             {
                 NewEvent = newEvent;
-                RefactoringInformation = refactoringInformation;
+                StorageInformation = storageInformation;
             }
 
             public AggregateEvent NewEvent { get; private set; }
-            public AggregateEventRefactoringInformation RefactoringInformation { get; private set; }
+            public AggregateEventStorageInformation StorageInformation { get; private set; }
 
         }
 
@@ -76,15 +76,15 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
             }
 
-            _replacementEvents = replacementEvents.Select(@event => new RefactoredEvent(@event, new AggregateEventRefactoringInformation())).ToArray();
+            _replacementEvents = replacementEvents.Select(@event => new RefactoredEvent(@event, new AggregateEventStorageInformation())).ToArray();
 
             _replacementEvents.ForEach(
                 (e, index) =>
                 {
                     e.NewEvent.AggregateVersion = _inspectedEvent!.AggregateVersion + index;
 
-                    e.RefactoringInformation.Replaces = _inspectedEvent.EventId;
-                    e.RefactoringInformation.EffectiveVersion = _inspectedEvent.AggregateVersion + index;
+                    e.StorageInformation.Replaces = _inspectedEvent.EventId;
+                    e.StorageInformation.EffectiveVersion = _inspectedEvent.AggregateVersion + index;
 
                     e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
                     e.NewEvent.UtcTimeStamp = _inspectedEvent.UtcTimeStamp;
@@ -122,7 +122,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
         {
             AssertNoPriorModificationsHaveBeenMade();
 
-            _insertedEvents = insert.Select(@event => new RefactoredEvent(@event, new AggregateEventRefactoringInformation())).ToArray();
+            _insertedEvents = insert.Select(@event => new RefactoredEvent(@event, new AggregateEventStorageInformation())).ToArray();
 
             if(_inspectedEvent is EndOfAggregateHistoryEventPlaceHolder)
             {
@@ -131,8 +131,8 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                     {
                         e.NewEvent.AggregateVersion = _inspectedEvent.AggregateVersion + index;
 
-                        e.RefactoringInformation.InsertAfter = _lastEventInActualStream!.EventId;
-                        e.RefactoringInformation.EffectiveVersion = _inspectedEvent.AggregateVersion + index;
+                        e.StorageInformation.InsertAfter = _lastEventInActualStream!.EventId;
+                        e.StorageInformation.EffectiveVersion = _inspectedEvent.AggregateVersion + index;
 
                         e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
                         e.NewEvent.UtcTimeStamp = _lastEventInActualStream.UtcTimeStamp;
@@ -145,8 +145,8 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                     {
                         e.NewEvent.AggregateVersion = _inspectedEvent!.AggregateVersion + index;
 
-                        e.RefactoringInformation.InsertBefore = _inspectedEvent!.EventId;
-                        e.RefactoringInformation.EffectiveVersion = _inspectedEvent.AggregateVersion + index;
+                        e.StorageInformation.InsertBefore = _inspectedEvent!.EventId;
+                        e.StorageInformation.EffectiveVersion = _inspectedEvent.AggregateVersion + index;
 
                         e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
                         e.NewEvent.UtcTimeStamp = _inspectedEvent.UtcTimeStamp;

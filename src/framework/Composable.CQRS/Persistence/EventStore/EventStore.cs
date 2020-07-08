@@ -88,7 +88,7 @@ namespace Composable.Persistence.EventStore
                 SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, newAggregateHistory);
             }
 
-            var maxSeenInsertedVersion =  newHistoryFromPersistenceLayer.Max(@event => @event.RefactoringInformation.InsertedVersion);
+            var maxSeenInsertedVersion =  newHistoryFromPersistenceLayer.Max(@event => @event.StorageInformation.InsertedVersion);
             AggregateHistoryValidator.ValidateHistory(aggregateId, newAggregateHistory);
             _cache.Store(aggregateId, new EventCache.Entry(events: newAggregateHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
 
@@ -109,10 +109,10 @@ namespace Composable.Persistence.EventStore
             => _persistenceLayer.GetAggregateHistory(aggregateId: aggregateId,
                                                 startAfterInsertedVersion: startAfterInsertedVersion,
                                                 takeWriteLock: takeWriteLock)
-                           .Select(@this => new AggregateEventWithRefactoringInformation(HydrateEvent(@this), @this.RefactoringInformation) )
+                           .Select(@this => new AggregateEventWithRefactoringInformation(HydrateEvent(@this), @this.StorageInformation) )
                            .ToArray();
 
-        static bool IsRefactoringEvent(AggregateEventWithRefactoringInformation @event) => @event.RefactoringInformation.InsertBefore.HasValue || @event.RefactoringInformation.InsertAfter.HasValue || @event.RefactoringInformation.Replaces.HasValue;
+        static bool IsRefactoringEvent(AggregateEventWithRefactoringInformation @event) => @event.StorageInformation.InsertBefore.HasValue || @event.StorageInformation.InsertAfter.HasValue || @event.StorageInformation.Replaces.HasValue;
 
         IEnumerable<IAggregateEvent> StreamEvents(int batchSize)
         {
@@ -153,7 +153,7 @@ namespace Composable.Persistence.EventStore
                            .Select(@event => new EventDataRow(specification: cacheEntry.CreateInsertionSpecificationForNewEvent(@event), _typeMapper.GetId(@event.GetType()).GuidValue, eventAsJson: _serializer.Serialize((AggregateEvent)@event)))
                            .ToList();
 
-            eventRows.ForEach(@this => @this.RefactoringInformation.EffectiveVersion = @this.AggregateVersion);
+            eventRows.ForEach(@this => @this.StorageInformation.EffectiveVersion = @this.AggregateVersion);
             _persistenceLayer.InsertSingleAggregateEvents(eventRows);
 
             var completeAggregateHistory = cacheEntry
@@ -206,7 +206,7 @@ namespace Composable.Persistence.EventStore
                             using var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes());
                             var original = GetAggregateEventsFromPersistenceLayer(aggregateId: aggregateId, takeWriteLock: true);
 
-                            var highestSeenVersion = original.Max(@event => @event.RefactoringInformation.InsertedVersion) + 1;
+                            var highestSeenVersion = original.Max(@event => @event.StorageInformation.InsertedVersion) + 1;
 
                             var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
 
@@ -220,12 +220,12 @@ namespace Composable.Persistence.EventStore
                                     //Make sure we don't try to insert into an occupied InsertedVersion
                                     newEvents.ForEach(refactoredEvent =>
                                     {
-                                        refactoredEvent.RefactoringInformation.InsertedVersion = highestSeenVersion++;
+                                        refactoredEvent.StorageInformation.InsertedVersion = highestSeenVersion++;
                                     });
 
                                     refactoringEvents.Add(newEvents
                                                          .Select(@this => new EventDataRow(@event: @this.NewEvent,
-                                                                                           @this.RefactoringInformation,
+                                                                                           @this.StorageInformation,
                                                                                            _typeMapper.GetId(@this.NewEvent.GetType()).GuidValue,
                                                                                            eventAsJson: _serializer.Serialize(@this.NewEvent)))
                                                          .ToList());
@@ -288,10 +288,10 @@ AggregateIds:
         {
             var versionUpdates = new List<IEventStorePersistenceLayer.ManualVersionSpecification>();
             var replacedOrRemoved = originalHistory.Where(@this => newHistory.None(@event => @event.EventId == @this.Event.EventId)).ToList();
-            versionUpdates.AddRange(replacedOrRemoved.Select(@this => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.Event.EventId, -@this.RefactoringInformation.EffectiveVersion)));
+            versionUpdates.AddRange(replacedOrRemoved.Select(@this => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.Event.EventId, -@this.StorageInformation.EffectiveVersion)));
 
             var replacedOrRemoved2 = refactoringEvents.SelectMany(@this =>@this).Where(@this => newHistory.None(@event => @event.EventId == @this.EventId));
-            versionUpdates.AddRange(replacedOrRemoved2.Select(@this => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.EventId, -@this.RefactoringInformation.EffectiveVersion)));
+            versionUpdates.AddRange(replacedOrRemoved2.Select(@this => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.EventId, -@this.StorageInformation.EffectiveVersion)));
 
             versionUpdates.AddRange(newHistory.Select((@this , index) => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.EventId, index + 1)));
 
@@ -317,14 +317,14 @@ AggregateIds:
         void InsertSingleAggregateRefactoringEvents(IReadOnlyList<EventDataRow> events)
         {
             // ReSharper disable PossibleInvalidOperationException
-            var replacementGroup = events.Where(@event => @event.RefactoringInformation.Replaces.HasValue)
-                                         .GroupBy(@event => @event.RefactoringInformation.Replaces!.Value)
+            var replacementGroup = events.Where(@event => @event.StorageInformation.Replaces.HasValue)
+                                         .GroupBy(@event => @event.StorageInformation.Replaces!.Value)
                                          .SingleOrDefault();
-            var insertBeforeGroup = events.Where(@event => @event.RefactoringInformation.InsertBefore.HasValue)
-                                          .GroupBy(@event => @event.RefactoringInformation.InsertBefore!.Value)
+            var insertBeforeGroup = events.Where(@event => @event.StorageInformation.InsertBefore.HasValue)
+                                          .GroupBy(@event => @event.StorageInformation.InsertBefore!.Value)
                                           .SingleOrDefault();
-            var insertAfterGroup = events.Where(@event => @event.RefactoringInformation.InsertAfter.HasValue)
-                                         .GroupBy(@event => @event.RefactoringInformation.InsertAfter!.Value)
+            var insertAfterGroup = events.Where(@event => @event.StorageInformation.InsertAfter.HasValue)
+                                         .GroupBy(@event => @event.StorageInformation.InsertAfter!.Value)
                                          .SingleOrDefault();
             // ReSharper restore PossibleInvalidOperationException
 
@@ -333,19 +333,19 @@ AggregateIds:
 
             if (replacementGroup != null)
             {
-                Contract.Assert.That(replacementGroup.All(@this => @this.RefactoringInformation.Replaces.HasValue && @this.RefactoringInformation.Replaces != Guid.Empty),
+                Contract.Assert.That(replacementGroup.All(@this => @this.StorageInformation.Replaces.HasValue && @this.StorageInformation.Replaces != Guid.Empty),
                                  "replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0)");
                 ReplaceEvent(replacementGroup.Key, replacementGroup.ToArray());
             }
             else if (insertBeforeGroup != null)
             {
-                Contract.Assert.That(insertBeforeGroup.All(@this => @this.RefactoringInformation.InsertBefore.HasValue && @this.RefactoringInformation.InsertBefore.Value != Guid.Empty),
+                Contract.Assert.That(insertBeforeGroup.All(@this => @this.StorageInformation.InsertBefore.HasValue && @this.StorageInformation.InsertBefore.Value != Guid.Empty),
                                  "insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0)");
                 InsertBeforeEvent(insertBeforeGroup.Key, insertBeforeGroup.ToArray());
             }
             else if (insertAfterGroup != null)
             {
-                Contract.Assert.That(insertAfterGroup.All(@this => @this.RefactoringInformation.InsertAfter.HasValue && @this.RefactoringInformation.InsertAfter.Value != Guid.Empty),
+                Contract.Assert.That(insertAfterGroup.All(@this => @this.StorageInformation.InsertAfter.HasValue && @this.StorageInformation.InsertAfter.Value != Guid.Empty),
                                  "insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0)");
                 InsertAfterEvent(insertAfterGroup.Key, insertAfterGroup.ToArray());
             }
@@ -389,7 +389,7 @@ AggregateIds:
             var readOrders = ReadOrder.CreateOrdersForEventsBetween(newEvents.Length, rangeStart, rangeEnd);
             for (int index = 0; index < newEvents.Length; index++)
             {
-                newEvents[index].RefactoringInformation.EffectiveOrder = readOrders[index];
+                newEvents[index].StorageInformation.EffectiveOrder = readOrders[index];
             }
         }
 
@@ -417,14 +417,14 @@ AggregateIds:
 
         class AggregateEventWithRefactoringInformation
         {
-            public AggregateEventWithRefactoringInformation(AggregateEvent @event, AggregateEventRefactoringInformation refactoringInformation)
+            public AggregateEventWithRefactoringInformation(AggregateEvent @event, AggregateEventStorageInformation storageInformation)
             {
                 Event = @event;
-                RefactoringInformation = refactoringInformation;
+                StorageInformation = storageInformation;
             }
 
             internal AggregateEvent Event { get; }
-            internal AggregateEventRefactoringInformation RefactoringInformation { get; }
+            internal AggregateEventStorageInformation StorageInformation { get; }
         }
     }
 }

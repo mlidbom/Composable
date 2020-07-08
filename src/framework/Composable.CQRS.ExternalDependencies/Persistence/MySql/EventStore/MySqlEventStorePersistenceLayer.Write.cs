@@ -45,17 +45,17 @@ IF @{C.EffectiveOrder} IS NULL THEN
 END IF;
 ")
                                               .AddParameter(C.AggregateId, data.AggregateId)
-                                              .AddParameter(C.InsertedVersion, data.RefactoringInformation.InsertedVersion)
+                                              .AddParameter(C.InsertedVersion, data.StorageInformation.InsertedVersion)
                                               .AddParameter(C.EventType, data.EventType)
                                               .AddParameter(C.EventId, data.EventId)
                                               .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddMediumTextParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.EffectiveOrder, MySqlDbType.VarChar, data.RefactoringInformation.EffectiveOrder?.ToString())
-                                              .AddNullableParameter(C.EffectiveVersion, MySqlDbType.Int32, data.RefactoringInformation.EffectiveVersion)
-                                              .AddNullableParameter(C.InsertAfter, MySqlDbType.Guid, data.RefactoringInformation.InsertAfter)
-                                              .AddNullableParameter(C.InsertBefore, MySqlDbType.Guid, data.RefactoringInformation.InsertBefore)
-                                              .AddNullableParameter(C.Replaces, MySqlDbType.Guid, data.RefactoringInformation.Replaces)
+                                              .AddNullableParameter(C.EffectiveOrder, MySqlDbType.VarChar, data.StorageInformation.EffectiveOrder?.ToString())
+                                              .AddNullableParameter(C.EffectiveVersion, MySqlDbType.Int32, data.StorageInformation.EffectiveVersion)
+                                              .AddNullableParameter(C.InsertAfter, MySqlDbType.Guid, data.StorageInformation.InsertAfter)
+                                              .AddNullableParameter(C.InsertBefore, MySqlDbType.Guid, data.StorageInformation.InsertBefore)
+                                              .AddNullableParameter(C.Replaces, MySqlDbType.Guid, data.StorageInformation.Replaces)
                                               .ExecuteNonQuery());
                     }
                     catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)

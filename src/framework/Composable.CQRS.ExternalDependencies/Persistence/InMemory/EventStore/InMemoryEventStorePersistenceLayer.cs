@@ -29,7 +29,7 @@ namespace Composable.Persistence.InMemory.EventStore
                     events.ForEach((@event, index) =>
                     {
                         var insertionOrder = new ReadOrder(state.Events.Count + index + 1, 0);
-                        @event.RefactoringInformation.EffectiveOrder ??= insertionOrder;
+                        @event.StorageInformation.EffectiveOrder ??= insertionOrder;
                     });
                     state.AddRange(events);
                 }));
@@ -41,10 +41,10 @@ namespace Composable.Persistence.InMemory.EventStore
                 () => _state.WithExclusiveAccess(
                     state => state
                             .Events
-                            .OrderBy(@this => @this.RefactoringInformation.EffectiveOrder)
+                            .OrderBy(@this => @this.StorageInformation.EffectiveOrder)
                             .Where(@this => @this.AggregateId == aggregateId
-                                         && @this.RefactoringInformation.InsertedVersion > startAfterInsertedVersion
-                                         && @this.RefactoringInformation.EffectiveVersion > 0)
+                                         && @this.StorageInformation.InsertedVersion > startAfterInsertedVersion
+                                         && @this.StorageInformation.EffectiveVersion > 0)
                             .ToArray()));
 
         public void UpdateEffectiveVersions(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
@@ -65,14 +65,14 @@ namespace Composable.Persistence.InMemory.EventStore
                                                                    specification.EffectiveVersion,
                                                                    @event.AggregateId,
                                                                    @event.UtcTimeStamp,
-                                                                   new AggregateEventRefactoringInformation()
+                                                                   new AggregateEventStorageInformation()
                                                                    {
                                                                        EffectiveVersion = specification.EffectiveVersion,
-                                                                       EffectiveOrder = @event.RefactoringInformation.EffectiveOrder,
-                                                                       InsertedVersion = @event.RefactoringInformation.InsertedVersion,
-                                                                       Replaces = @event.RefactoringInformation.Replaces,
-                                                                       InsertBefore = @event.RefactoringInformation.InsertBefore,
-                                                                       InsertAfter = @event.RefactoringInformation.InsertAfter
+                                                                       EffectiveOrder = @event.StorageInformation.EffectiveOrder,
+                                                                       InsertedVersion = @event.StorageInformation.InsertedVersion,
+                                                                       Replaces = @event.StorageInformation.Replaces,
+                                                                       InsertBefore = @event.StorageInformation.InsertBefore,
+                                                                       InsertAfter = @event.StorageInformation.InsertAfter
                                                                    }));
                         }
                     }
@@ -85,26 +85,26 @@ namespace Composable.Persistence.InMemory.EventStore
                 {
                     var found = state.Events.Single(@this => @this.EventId == eventId);
 
-                    var effectiveOrder = found.RefactoringInformation.EffectiveOrder!.Value;
+                    var effectiveOrder = found.StorageInformation.EffectiveOrder!.Value;
                     var previousEvent = state.Events
-                                             .Where(@this => @this.RefactoringInformation.EffectiveOrder!.Value < effectiveOrder)
-                                             .OrderByDescending(@this => @this.RefactoringInformation.EffectiveOrder)
+                                             .Where(@this => @this.StorageInformation.EffectiveOrder!.Value < effectiveOrder)
+                                             .OrderByDescending(@this => @this.StorageInformation.EffectiveOrder)
                                              .FirstOrDefault();
 
                     var nextEvent = state.Events
-                                         .Where(@this => @this.RefactoringInformation.EffectiveOrder!.Value > effectiveOrder)
-                                         .OrderBy(@this => @this.RefactoringInformation.EffectiveOrder)
+                                         .Where(@this => @this.StorageInformation.EffectiveOrder!.Value > effectiveOrder)
+                                         .OrderBy(@this => @this.StorageInformation.EffectiveOrder)
                                          .FirstOrDefault();
 
                     return new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: effectiveOrder,
-                                                                             previousEventReadOrder: previousEvent?.RefactoringInformation.EffectiveOrder,
-                                                                             nextEventReadOrder: nextEvent?.RefactoringInformation.EffectiveOrder);
+                                                                             previousEventReadOrder: previousEvent?.StorageInformation.EffectiveOrder,
+                                                                             nextEventReadOrder: nextEvent?.StorageInformation.EffectiveOrder);
                 }));
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
             => _state.WithExclusiveAccess(state => state.Events
-                                                        .OrderBy(@event => @event.RefactoringInformation.EffectiveOrder)
-                                                        .Where(@event => @event.RefactoringInformation.EffectiveVersion > 0)
+                                                        .OrderBy(@event => @event.StorageInformation.EffectiveOrder)
+                                                        .Where(@event => @event.StorageInformation.EffectiveVersion > 0)
                                                         .ToArray());
 
         public IReadOnlyList<CreationEventRow> ListAggregateIdsInCreationOrder()

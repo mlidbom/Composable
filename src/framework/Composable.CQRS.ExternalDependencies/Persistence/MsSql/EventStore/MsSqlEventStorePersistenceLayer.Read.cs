@@ -40,7 +40,7 @@ FROM {EventTable.Name} {lockHint} ";
             aggregateId: eventReader.GetGuid(2),
             //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
             utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
-            refactoringInformation: new AggregateEventRefactoringInformation()
+            storageInformation: new AggregateEventStorageInformation()
                                     {
                                         EffectiveOrder = IEventStorePersistenceLayer.ReadOrder.FromSqlDecimal(eventReader.GetSqlDecimal(11)),
                                         InsertedVersion = eventReader.GetInt32(10),
@@ -81,7 +81,7 @@ ORDER BY {C.EffectiveOrder} ASC")
                                                                                   .ToList());
                 if(historyData.Any())
                 {
-                    lastReadEventReadOrder = historyData[^1].RefactoringInformation.EffectiveOrder!.Value.ToSqlDecimal();
+                    lastReadEventReadOrder = historyData[^1].StorageInformation.EffectiveOrder!.Value.ToSqlDecimal();
                 }
 
                 //We do not yield while reading from the reader since that may cause code to run that will cause another sql call into the same connection. Something that throws an exception unless you use an unusual and non-recommended connection string setting.

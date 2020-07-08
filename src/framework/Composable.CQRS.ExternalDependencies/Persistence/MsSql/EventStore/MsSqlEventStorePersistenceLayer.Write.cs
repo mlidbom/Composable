@@ -42,17 +42,17 @@ END
 ")
                                                //SET @{Col.InsertionOrder} = SCOPE_IDENTITY();
                                               .AddParameter(C.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
-                                              .AddParameter(C.InsertedVersion, data.RefactoringInformation.InsertedVersion)
+                                              .AddParameter(C.InsertedVersion, data.StorageInformation.InsertedVersion)
                                               .AddParameter(C.EventType, data.EventType)
                                               .AddParameter(C.EventId, data.EventId)
                                               .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddNVarcharMaxParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.EffectiveOrder, SqlDbType.Decimal, data.RefactoringInformation.EffectiveOrder?.ToSqlDecimal())
-                                              .AddNullableParameter(C.EffectiveVersion, SqlDbType.Int, data.RefactoringInformation.EffectiveVersion)
-                                              .AddNullableParameter(C.InsertAfter, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertAfter)
-                                              .AddNullableParameter(C.InsertBefore, SqlDbType.UniqueIdentifier, data.RefactoringInformation.InsertBefore)
-                                              .AddNullableParameter(C.Replaces, SqlDbType.UniqueIdentifier, data.RefactoringInformation.Replaces)
+                                              .AddNullableParameter(C.EffectiveOrder, SqlDbType.Decimal, data.StorageInformation.EffectiveOrder?.ToSqlDecimal())
+                                              .AddNullableParameter(C.EffectiveVersion, SqlDbType.Int, data.StorageInformation.EffectiveVersion)
+                                              .AddNullableParameter(C.InsertAfter, SqlDbType.UniqueIdentifier, data.StorageInformation.InsertAfter)
+                                              .AddNullableParameter(C.InsertBefore, SqlDbType.UniqueIdentifier, data.StorageInformation.InsertBefore)
+                                              .AddNullableParameter(C.Replaces, SqlDbType.UniqueIdentifier, data.StorageInformation.Replaces)
                                               .ExecuteNonQuery());
                     }
                     catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)

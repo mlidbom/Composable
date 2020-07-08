@@ -46,9 +46,14 @@ FROM {EventTable.Name} {lockHint} ";
                                         ReadOrder = IEventStorePersistenceLayer.ReadOrder.FromSqlDecimal(eventReader.GetSqlDecimal(11)),
                                         InsertedVersion = eventReader.GetInt32(10),
                                         EffectiveVersion = eventReader.GetInt32(3),
-                                        InsertAfter = eventReader[7] as Guid?,
-                                        InsertBefore = eventReader[8] as Guid?,
-                                        Replaces = eventReader[9] as Guid?
+                                        RefactoringInformation = (eventReader[7] as Guid?, eventReader[8] as Guid?, eventReader[9] as Guid?)switch
+                                        {
+                                            (null, null, null) => null,
+                                            (var insertAfter, null, null) when insertAfter != null => AggregateEventRefactoringInformation.InsertAfter(insertAfter.Value),
+                                            (null, var insertBefore, null) when insertBefore != null => AggregateEventRefactoringInformation.InsertAfter(insertBefore.Value),
+                                            (null, null, var replace) when replace != null => AggregateEventRefactoringInformation.InsertAfter(replace.Value),
+                                            _ => throw new Exception("Should not be possible to get here")
+                                        }
                                     }
         );
 

@@ -66,9 +66,7 @@ namespace Composable.Persistence.InMemory.EventStore
                                                                        EffectiveVersion = specification.EffectiveVersion,
                                                                        ReadOrder = @event.StorageInformation.ReadOrder,
                                                                        InsertedVersion = @event.StorageInformation.InsertedVersion,
-                                                                       Replaces = @event.StorageInformation.Replaces,
-                                                                       InsertBefore = @event.StorageInformation.InsertBefore,
-                                                                       InsertAfter = @event.StorageInformation.InsertAfter
+                                                                       RefactoringInformation = @event.StorageInformation.RefactoringInformation
                                                                    }));
                         }
                     }

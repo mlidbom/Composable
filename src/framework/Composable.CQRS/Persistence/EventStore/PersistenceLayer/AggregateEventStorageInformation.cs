@@ -13,38 +13,21 @@ namespace Composable.Persistence.EventStore.PersistenceLayer
 
         internal IEventStorePersistenceLayer.ReadOrder? ReadOrder { get; set; }
 
-        internal Guid? Replaces
-        {
-            get => RefactoringInformation?.RefactoringType == EventRefactoringType.Replace ? RefactoringInformation.TargetEvent : (Guid?)null;
-            set
-            {
-                if(value.HasValue) RefactoringInformation = new AggregateEventRefactoringInformation(value.Value, EventRefactoringType.Replace);
-            }
-        }
+        internal Guid? Replaces => RefactoringInformation?.RefactoringType == EventRefactoringType.Replace ? RefactoringInformation.TargetEvent : (Guid?)null;
 
-        internal Guid? InsertBefore
-        {
-            get => RefactoringInformation?.RefactoringType == EventRefactoringType.InsertBefore ? RefactoringInformation.TargetEvent : (Guid?)null;
-            set
-            {
-                if(value.HasValue) RefactoringInformation = new AggregateEventRefactoringInformation(value.Value, EventRefactoringType.InsertBefore);
-            }
-        }
+        internal Guid? InsertBefore => RefactoringInformation?.RefactoringType == EventRefactoringType.InsertBefore ? RefactoringInformation.TargetEvent : (Guid?)null;
 
-        internal Guid? InsertAfter
-        {
-            get => RefactoringInformation?.RefactoringType == EventRefactoringType.InsertAfter ? RefactoringInformation.TargetEvent : (Guid?)null;
-            set
-            {
-                if(value.HasValue) RefactoringInformation = new AggregateEventRefactoringInformation(value.Value, EventRefactoringType.InsertAfter);
-            }
-        }
+        internal Guid? InsertAfter => RefactoringInformation?.RefactoringType == EventRefactoringType.InsertAfter ? RefactoringInformation.TargetEvent : (Guid?)null;
 
-        internal AggregateEventRefactoringInformation? RefactoringInformation { get; private set; }
+        internal AggregateEventRefactoringInformation? RefactoringInformation { get; set; }
     }
 
     class AggregateEventRefactoringInformation
     {
+        internal static AggregateEventRefactoringInformation Replaces(Guid eventId) => new AggregateEventRefactoringInformation(eventId, EventRefactoringType.Replace);
+        internal static AggregateEventRefactoringInformation InsertBefore(Guid eventId) => new AggregateEventRefactoringInformation(eventId, EventRefactoringType.InsertBefore);
+        internal static AggregateEventRefactoringInformation InsertAfter(Guid eventId) => new AggregateEventRefactoringInformation(eventId, EventRefactoringType.InsertAfter);
+
         public AggregateEventRefactoringInformation(Guid targetEvent, EventRefactoringType refactoringType)
         {
             TargetEvent = targetEvent;

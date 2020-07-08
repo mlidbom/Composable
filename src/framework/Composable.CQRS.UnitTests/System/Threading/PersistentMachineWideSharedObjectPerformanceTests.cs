@@ -1,13 +1,15 @@
 ﻿using System;
 using Composable.System;
 using Composable.System.Threading;
+using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
+using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.System.Threading
 {
-    [TestFixture] public class PersistentMachineWideSharedObjectPerformanceTests
+    [TestFixture, Performance, Serial] public class PersistentMachineWideSharedObjectPerformanceTests
     {
         MachineWideSharedObject<SharedObject> _shared;
         [SetUp] public void SetupTask()

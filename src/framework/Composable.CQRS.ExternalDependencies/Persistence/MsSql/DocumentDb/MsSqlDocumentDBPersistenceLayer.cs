@@ -33,9 +33,9 @@ namespace Composable.Persistence.MsSql.DocumentDb
                 {
                     connection.UseCommand(
                         command => command.SetCommandText("UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId = @TypeId")
-                                          .AddNVarcharParameter("Id", 500, writeRow.IdString)
+                                          .AddNVarcharParameter("Id", 500, writeRow.Id)
                                           .AddDateTime2Parameter("Updated", writeRow.UpdateTime)
-                                          .AddParameter("TypeId", writeRow.TypeIdGuid)
+                                          .AddParameter("TypeId", writeRow.TypeId)
                                           .AddNVarcharMaxParameter("Value", writeRow.SerializedDocument)
                                           .ExecuteNonQuery());
                 }
@@ -63,7 +63,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             return true;
         }
 
-        public void Add(string idString, Guid typeIdGuid, DateTime now, string serializedDocument)
+        public void Add(IDocumentDbPersistenceLayer.WriteRow row)
         {
             EnsureInitialized();
             try
@@ -72,11 +72,11 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                 {
 
                     command.SetCommandText(@"INSERT INTO Store(Id, ValueTypeId, Value, Created, Updated) VALUES(@Id, @ValueTypeId, @Value, @Created, @Updated)")
-                           .AddNVarcharParameter("Id", 500, idString)
-                           .AddParameter("ValueTypeId", typeIdGuid)
-                           .AddDateTime2Parameter("Created", now)
-                           .AddDateTime2Parameter("Updated", now)
-                           .AddNVarcharMaxParameter("Value", serializedDocument)
+                           .AddNVarcharParameter("Id", 500, row.Id)
+                           .AddParameter("ValueTypeId", row.TypeId)
+                           .AddDateTime2Parameter("Created", row.UpdateTime)
+                           .AddDateTime2Parameter("Updated", row.UpdateTime)
+                           .AddNVarcharMaxParameter("Value", row.SerializedDocument)
                            .ExecuteNonQuery();
                 });
             }
@@ -84,7 +84,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             {
                 if(e.Number == UniqueConstraintViolationErrorNumber)
                 {
-                    throw new AttemptToSaveAlreadyPersistedValueException(idString, serializedDocument);
+                    throw new AttemptToSaveAlreadyPersistedValueException(row.Id, row.SerializedDocument);
                 }
 
                 throw;

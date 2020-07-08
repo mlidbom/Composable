@@ -52,7 +52,7 @@ namespace Composable.Persistence.DocumentDb
             var idString = GetIdString(id);
             var serializedDocument = _serializer.Serialize(value);
 
-            _persistenceLayer.Add(idString, _typeMapper.GetId(value.GetType()).GuidValue, _timeSource.UtcNow, serializedDocument);
+            _persistenceLayer.Add(new IDocumentDbPersistenceLayer.WriteRow(id: idString, serializedDocument:  serializedDocument, updateTime: _timeSource.UtcNow, typeId: _typeMapper.GetId(value.GetType()).GuidValue));
 
             persistentValues.GetOrAddDefault(value.GetType())[idString] = serializedDocument;
         }

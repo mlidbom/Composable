@@ -9,7 +9,7 @@ namespace Composable.Persistence.DocumentDb
     {
         void Update(IReadOnlyList<WriteRow> toUpdate);
         bool TryGet(string idString, IImmutableSet<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out ReadRow? document);
-        void Add(string idString, Guid typeIdGuid, DateTime now, string serializedDocument);
+        void Add(WriteRow row);
         int Remove(string idString, IImmutableSet<Guid> acceptableTypes);
         //Urgent: This whole Guid vs string thing must be removed.
         IEnumerable<Guid> GetAllIds(IImmutableSet<Guid> acceptableTypes);
@@ -31,18 +31,18 @@ namespace Composable.Persistence.DocumentDb
 
         class WriteRow
         {
-            public WriteRow(string idString, string serializedDocument, DateTime updateTime, Guid typeIdGuid)
+            public WriteRow(string id, string serializedDocument, DateTime updateTime, Guid typeId)
             {
-                IdString = idString;
+                Id = id;
                 SerializedDocument = serializedDocument;
                 UpdateTime = updateTime;
-                TypeIdGuid = typeIdGuid;
+                TypeId = typeId;
             }
 
-            public string IdString { get; }
+            public string Id { get; }
             public string SerializedDocument { get; }
             public DateTime UpdateTime { get; }
-            public Guid TypeIdGuid { get; }
+            public Guid TypeId { get; }
         }
     }
 }

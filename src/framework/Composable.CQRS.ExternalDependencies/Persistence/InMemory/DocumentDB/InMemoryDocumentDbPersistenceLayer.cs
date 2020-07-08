@@ -6,7 +6,7 @@ using System.Linq;
 using Composable.Persistence.DocumentDb;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
-
+using DocumentRow = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.WriteRow;
 namespace Composable.Persistence.InMemory.DocumentDB
 {
     //Urgent: Transactional locks and transactional overlay
@@ -15,16 +15,15 @@ namespace Composable.Persistence.InMemory.DocumentDB
         readonly Dictionary<string, List<DocumentRow>> _db = new Dictionary<string, List<DocumentRow>>(StringComparer.InvariantCultureIgnoreCase);
         readonly object _lockObject = new object();
 
-        //Urgent: Take a WriteRow
-        public void Add(string idString, Guid typeIdGuid, DateTime now, string serializedDocument)
+        public void Add(IDocumentDbPersistenceLayer.WriteRow row)
         {
             lock (_lockObject)
             {
-                if (Contains(typeIdGuid, idString))
+                if (Contains(row.TypeId, row.Id))
                 {
-                    throw new AttemptToSaveAlreadyPersistedValueException(idString, serializedDocument);
+                    throw new AttemptToSaveAlreadyPersistedValueException(row.Id, row.SerializedDocument);
                 }
-                _db.GetOrAddDefault(idString).Add(new DocumentRow(idString, typeIdGuid, now, serializedDocument));
+                _db.GetOrAddDefault(row.Id).Add(row);
             }
         }
 
@@ -51,17 +50,17 @@ namespace Composable.Persistence.InMemory.DocumentDB
             }
         }
 
-        public void Update(IReadOnlyList<IDocumentDbPersistenceLayer.WriteRow> toUpdate)
+        public void Update(IReadOnlyList<DocumentRow> toUpdate)
         {
             lock (_lockObject)
             {
                 foreach(var row in toUpdate)
                 {
-                    if (!TryGet(row.IdString, new []{ row.TypeIdGuid }.ToImmutableHashSet(), useUpdateLock: false, out var existing)) throw new NoSuchDocumentException(row.IdString, row.TypeIdGuid);
+                    if (!TryGet(row.Id, new []{ row.TypeId }.ToImmutableHashSet(), useUpdateLock: false, out var existing)) throw new NoSuchDocumentException(row.Id, row.TypeId);
                     if (existing.SerializedValue != row.SerializedDocument)
                     {
-                        Remove(row.IdString, new []{ row.TypeIdGuid }.ToImmutableHashSet());
-                        Add(row.IdString,row.TypeIdGuid, row.UpdateTime, row.SerializedDocument);
+                        Remove(row.Id, new []{ row.TypeId }.ToImmutableHashSet());
+                        Add(row);
                     }
                 }
             }
@@ -123,21 +122,5 @@ namespace Composable.Persistence.InMemory.DocumentDB
         }
 
         bool Contains(Guid type, string id) => TryGet(id, new[]{ type }.ToImmutableHashSet(), false, out _);
-
-        class DocumentRow
-        {
-            public DocumentRow(string id, Guid typeId, DateTime updateTime, string serializedDocument)
-            {
-                Id = id;
-                TypeId = typeId;
-                UpdateTime = updateTime;
-                SerializedDocument = serializedDocument;
-            }
-
-            public string Id { get; }
-            public Guid TypeId { get; }
-            public DateTime UpdateTime { get; }
-            public string SerializedDocument { get; }
-        }
     }
 }

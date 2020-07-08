@@ -7,7 +7,7 @@ using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
-using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.IEventStorePersistenceLayer.ReadOrder;
+using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.InMemory.EventStore
 {
@@ -43,7 +43,7 @@ namespace Composable.Persistence.InMemory.EventStore
                                          && @this.StorageInformation.EffectiveVersion > 0)
                             .ToArray()));
 
-        public void UpdateEffectiveVersions(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
+        public void UpdateEffectiveVersions(IReadOnlyList<VersionSpecification> versions)
             => _transactionLockManager.WithTransactionWideLock(
                 _state.WithExclusiveAccess(state => state.Events.Single(@event => @event.EventId == versions.First().EventId)).AggregateId,
                 () => _state.WithExclusiveAccess(
@@ -72,7 +72,7 @@ namespace Composable.Persistence.InMemory.EventStore
                     }
                 ));
 
-        public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId)
+        public EventNeighborhood LoadEventNeighborHood(Guid eventId)
             => _transactionLockManager.WithTransactionWideLock(
                 _state.WithExclusiveAccess(state => state.Events.Single(@event => @event.EventId == eventId)).AggregateId,
                 () => _state.WithExclusiveAccess(state =>
@@ -90,9 +90,9 @@ namespace Composable.Persistence.InMemory.EventStore
                                          .OrderBy(@this => @this.StorageInformation.ReadOrder)
                                          .FirstOrDefault();
 
-                    return new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: effectiveOrder,
-                                                                             previousEventReadOrder: previousEvent?.StorageInformation.ReadOrder,
-                                                                             nextEventReadOrder: nextEvent?.StorageInformation.ReadOrder);
+                    return new EventNeighborhood(effectiveReadOrder: effectiveOrder,
+                                                 previousEventReadOrder: previousEvent?.StorageInformation.ReadOrder,
+                                                 nextEventReadOrder: nextEvent?.StorageInformation.ReadOrder);
                 }));
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)

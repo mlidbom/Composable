@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Composable.Persistence.EventStore.PersistenceLayer
 {
-    partial interface IEventStorePersistenceLayer
+    interface IEventStorePersistenceLayer
     {
         void SetupSchemaIfDatabaseUnInitialized();
 
@@ -12,7 +12,7 @@ namespace Composable.Persistence.EventStore.PersistenceLayer
         IReadOnlyList<CreationEventRow> ListAggregateIdsInCreationOrder();
         void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events);
         void DeleteAggregate(Guid aggregateId);
-        void UpdateEffectiveVersions(IReadOnlyList<ManualVersionSpecification> versions);
+        void UpdateEffectiveVersions(IReadOnlyList<VersionSpecification> versions);
 
         EventNeighborhood LoadEventNeighborHood(Guid eventId);
     }

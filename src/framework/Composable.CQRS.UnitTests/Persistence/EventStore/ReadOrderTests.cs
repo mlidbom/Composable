@@ -4,7 +4,7 @@ using Composable.Persistence.EventStore;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
-using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.IEventStorePersistenceLayer.ReadOrder;
+using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
 
 namespace Composable.Tests.Persistence.EventStore
 {

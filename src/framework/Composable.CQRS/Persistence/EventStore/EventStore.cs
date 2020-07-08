@@ -12,7 +12,7 @@ using Composable.Serialization;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.IEventStorePersistenceLayer.ReadOrder;
+using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.EventStore
 {
@@ -287,14 +287,14 @@ AggregateIds:
 
         void FixManualVersions(AggregateEventWithRefactoringInformation[] originalHistory, AggregateEvent[] newHistory, IReadOnlyList<List<EventDataRow>> refactorings)
         {
-            var versionUpdates = new List<IEventStorePersistenceLayer.ManualVersionSpecification>();
+            var versionUpdates = new List<VersionSpecification>();
             var replacedOrRemoved = originalHistory.Where(@this => newHistory.None(@event => @event.EventId == @this.Event.EventId)).ToList();
-            versionUpdates.AddRange(replacedOrRemoved.Select(@this => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.Event.EventId, -@this.StorageInformation.EffectiveVersion)));
+            versionUpdates.AddRange(replacedOrRemoved.Select(@this => new VersionSpecification(@this.Event.EventId, -@this.StorageInformation.EffectiveVersion)));
 
             var replacedOrRemoved2 = refactorings.SelectMany(@this =>@this).Where(@this => newHistory.None(@event => @event.EventId == @this.EventId));
-            versionUpdates.AddRange(replacedOrRemoved2.Select(@this => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.EventId, -@this.StorageInformation.EffectiveVersion)));
+            versionUpdates.AddRange(replacedOrRemoved2.Select(@this => new VersionSpecification(@this.EventId, -@this.StorageInformation.EffectiveVersion)));
 
-            versionUpdates.AddRange(newHistory.Select((@this , index) => new IEventStorePersistenceLayer.ManualVersionSpecification(@this.EventId, index + 1)));
+            versionUpdates.AddRange(newHistory.Select((@this , index) => new VersionSpecification(@this.EventId, index + 1)));
 
             _persistenceLayer.UpdateEffectiveVersions(versionUpdates);
         }
@@ -321,13 +321,13 @@ AggregateIds:
 
             switch(refactoring.RefactoringType)
             {
-                case EventRefactoringType.Replace:
+                case AggregateEventRefactoringType.Replace:
                     ReplaceEvent(refactoring.TargetEvent, events.ToArray());
                     break;
-                case EventRefactoringType.InsertBefore:
+                case AggregateEventRefactoringType.InsertBefore:
                     InsertBeforeEvent(refactoring.TargetEvent, events.ToArray());
                     break;
-                case EventRefactoringType.InsertAfter:
+                case AggregateEventRefactoringType.InsertAfter:
                     InsertAfterEvent(refactoring.TargetEvent, events.ToArray());
                     break;
                 default:

@@ -43,13 +43,13 @@ FROM {EventTable.Name} {lockHint} ";
             utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
             storageInformation: new AggregateEventStorageInformation()
                                     {
-                                        ReadOrder = IEventStorePersistenceLayer.ReadOrder.FromSqlDecimal(eventReader.GetSqlDecimal(10)),
+                                        ReadOrder = ReadOrder.FromSqlDecimal(eventReader.GetSqlDecimal(10)),
                                         InsertedVersion = eventReader.GetInt32(9),
                                         EffectiveVersion = eventReader.GetInt32(3),
                                         RefactoringInformation = (eventReader[7] as Guid?, eventReader[8] as byte?)switch
                                         {
                                             (null, null) => null,
-                                            (Guid targetEvent, byte type) => new AggregateEventRefactoringInformation(targetEvent, (EventRefactoringType)type),
+                                            (Guid targetEvent, byte type) => new AggregateEventRefactoringInformation(targetEvent, (AggregateEventRefactoringType)type),
                                             _ => throw new Exception("Should not be possible to get here")
                                         }
                                     }

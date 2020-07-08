@@ -9,7 +9,7 @@ using Composable.Persistence.MySql.SystemExtensions;
 using Composable.System;
 using MySql.Data.MySqlClient;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
-using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.IEventStorePersistenceLayer.ReadOrder;
+using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.MySql.EventStore
 {
@@ -64,7 +64,7 @@ END IF;
             });
         }
 
-        public void UpdateEffectiveVersions(IReadOnlyList<IEventStorePersistenceLayer.ManualVersionSpecification> versions)
+        public void UpdateEffectiveVersions(IReadOnlyList<VersionSpecification> versions)
         {
             var commandText = versions.Select((spec, index) =>
                                                   $@"UPDATE {EventTable.Name} SET {C.EffectiveVersion} = {spec.EffectiveVersion} WHERE {C.EventId} = '{spec.EventId}';").Join(Environment.NewLine);
@@ -73,7 +73,7 @@ END IF;
 
         }
 
-        public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId)
+        public EventNeighborhood LoadEventNeighborHood(Guid eventId)
         {
             //urgent: Find MySql equivalent
             //var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
@@ -86,7 +86,7 @@ SELECT  {C.EffectiveOrder},
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
 where {C.EventId} = @{C.EventId}";
 
-            IEventStorePersistenceLayer.EventNeighborhood? neighborhood = null;
+            EventNeighborhood? neighborhood = null;
 
             _connectionManager.UseCommand(
                 command =>
@@ -100,9 +100,9 @@ where {C.EventId} = @{C.EventId}";
                     var effectiveReadOrder = reader.GetString(0).Replace(",", ".");
                     var previousEventReadOrder = (reader[1] as string)?.Replace(",", ".");
                     var nextEventReadOrder = (reader[2] as string)?.Replace(",", ".");
-                    neighborhood = new IEventStorePersistenceLayer.EventNeighborhood(effectiveReadOrder: ReadOrder.Parse(effectiveReadOrder),
-                                                                                     previousEventReadOrder: previousEventReadOrder == null ? null : new ReadOrder?(ReadOrder.Parse(previousEventReadOrder)),
-                                                                                     nextEventReadOrder: nextEventReadOrder == null ? null : new ReadOrder?(ReadOrder.Parse(nextEventReadOrder)));
+                    neighborhood = new EventNeighborhood(effectiveReadOrder: ReadOrder.Parse(effectiveReadOrder),
+                                                         previousEventReadOrder: previousEventReadOrder == null ? null : new ReadOrder?(ReadOrder.Parse(previousEventReadOrder)),
+                                                         nextEventReadOrder: nextEventReadOrder == null ? null : new ReadOrder?(ReadOrder.Parse(nextEventReadOrder)));
                 });
 
             return Assert.Result.NotNull(neighborhood);

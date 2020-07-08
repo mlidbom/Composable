@@ -45,13 +45,13 @@ FROM {EventTable.Name} {lockHint} ";
                 utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
                 storageInformation: new AggregateEventStorageInformation()
                                         {
-                                            ReadOrder = IEventStorePersistenceLayer.ReadOrder.Parse(eventReader.GetString(10)),
+                                            ReadOrder = ReadOrder.Parse(eventReader.GetString(10)),
                                             InsertedVersion = eventReader.GetInt32(9),
                                             EffectiveVersion = eventReader.GetInt32(3),
                                             RefactoringInformation = (eventReader[7] as Guid?, eventReader[8] as sbyte?)switch
                                             {
                                                 (null, null) => null,
-                                                (Guid targetEvent, sbyte type) => new AggregateEventRefactoringInformation(targetEvent, (EventRefactoringType)type),
+                                                (Guid targetEvent, sbyte type) => new AggregateEventRefactoringInformation(targetEvent, (AggregateEventRefactoringType)type),
                                                 _ => throw new Exception("Should not be possible to get here")
                                             }
                                         }
@@ -73,7 +73,7 @@ ORDER BY {C.EffectiveOrder} ASC")
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
         {
-            IEventStorePersistenceLayer.ReadOrder lastReadEventReadOrder = default;
+            ReadOrder lastReadEventReadOrder = default;
             int fetchedInThisBatch;
             do
             {

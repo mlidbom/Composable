@@ -24,7 +24,7 @@ namespace Composable.Tests.ExternalDependencies
         {
             var result = _msSqlConnection.UseCommand(
                 command => command.SetCommandText("select @parm")
-                                  .AddNullableParameter("parm", SqlDbType.Decimal, IEventStorePersistenceLayer.ReadOrder.Parse($"{long.MaxValue.ToString()}.{long.MaxValue.ToString()}").ToSqlDecimal())
+                                  .AddNullableParameter("parm", SqlDbType.Decimal, ReadOrder.Parse($"{long.MaxValue.ToString()}.{long.MaxValue.ToString()}").ToSqlDecimal())
                                   .ExecuteReaderAndSelect(@this => @this.GetSqlDecimal(0))
                                   .Single());
 
@@ -35,7 +35,7 @@ namespace Composable.Tests.ExternalDependencies
         {
             var result = _mySqlConnection.UseCommand(
                 command => command.SetCommandText("select cast(cast(@parm as decimal(38,19)) as char(39))")
-                                  .AddNullableParameter("parm", MySqlDbType.VarChar, IEventStorePersistenceLayer.ReadOrder.Parse($"{long.MaxValue.ToString()}.{long.MaxValue.ToString()}").ToSqlDecimal())
+                                  .AddNullableParameter("parm", MySqlDbType.VarChar, ReadOrder.Parse($"{long.MaxValue.ToString()}.{long.MaxValue.ToString()}").ToSqlDecimal())
                                   .ExecuteReaderAndSelect(@this => @this.GetString(0))
                                   .Single());
 

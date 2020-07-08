@@ -10,8 +10,7 @@ namespace Composable.Testing.Performance
 {
     public static class TimeAsserter
     {
-        const string DefaultTimeFormat = "ss\\.fff";
-        const string ShortTimeFormat = "ss\\.ffffff";
+        const string DefaultTimeFormat = @"ss\.ffffff";
         const string MachineSlowdownFactorEnvironmentVariable = "COMPOSABLE_MACHINE_SLOWNESS";
 
         static readonly double MachineSlowdownFactor = DetectEnvironmentPerformanceAdjustment();
@@ -59,16 +58,7 @@ namespace Composable.Testing.Performance
             maxTotal = AdjustTime(maxTotal);
             LogTimeAdjustment();
 
-            if(timeFormat == null)
-            {
-                if(maxTotal.HasValue && maxTotal.Value.TotalMilliseconds < 10 || maxAverage.HasValue && maxAverage.Value.TotalMilliseconds < 10)
-                {
-                    timeFormat = ShortTimeFormat;
-                } else
-                {
-                    timeFormat = DefaultTimeFormat;
-                }
-            }
+            timeFormat ??= DefaultTimeFormat;
 
             string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
 
@@ -122,16 +112,7 @@ namespace Composable.Testing.Performance
             maxTotal = AdjustTime(maxTotal);
             LogTimeAdjustment();
 
-            if(timeFormat == null)
-            {
-                if(maxTotal.HasValue && maxTotal.Value.TotalMilliseconds < 10 || maxAverage.HasValue && maxAverage.Value.TotalMilliseconds < 10)
-                {
-                    timeFormat = ShortTimeFormat;
-                } else
-                {
-                    timeFormat = DefaultTimeFormat;
-                }
-            }
+            timeFormat ??= DefaultTimeFormat;
 
 
             // ReSharper disable AccessToModifiedClosure
@@ -143,11 +124,12 @@ namespace Composable.Testing.Performance
                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
 
                 SafeConsole.WriteLine($@"  
-Individual execution times    
-Average: {Format(executionSummary.IndividualExecutionTimes.Average())}
-Min:     {Format(executionSummary.IndividualExecutionTimes.Min())}
-Max:     {Format(executionSummary.IndividualExecutionTimes.Max())}
-Sum:     {Format(executionSummary.IndividualExecutionTimes.Sum())}");
+    Individual execution times    
+    Average: {Format(executionSummary.IndividualExecutionTimes.Average())}
+    Min:     {Format(executionSummary.IndividualExecutionTimes.Min())}
+    Max:     {Format(executionSummary.IndividualExecutionTimes.Max())}
+    Sum:     {Format(executionSummary.IndividualExecutionTimes.Sum())}
+");
             }
             // ReSharper restore AccessToModifiedClosure
 

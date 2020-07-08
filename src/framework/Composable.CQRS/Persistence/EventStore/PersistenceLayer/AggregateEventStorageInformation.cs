@@ -12,8 +12,53 @@ namespace Composable.Persistence.EventStore.PersistenceLayer
         internal int EffectiveVersion { get; set; }
 
         internal IEventStorePersistenceLayer.ReadOrder? ReadOrder { get; set; }
-        internal Guid? Replaces { get; set; }
-        internal Guid? InsertBefore { get; set; }
-        internal Guid? InsertAfter { get; set; }
+
+        internal Guid? Replaces
+        {
+            get => RefactoringInformation?.RefactoringType == EventRefactoringType.Replace ? RefactoringInformation.TargetEvent : (Guid?)null;
+            set
+            {
+                if(value.HasValue) RefactoringInformation = new AggregateEventRefactoringInformation(value.Value, EventRefactoringType.Replace);
+            }
+        }
+
+        internal Guid? InsertBefore
+        {
+            get => RefactoringInformation?.RefactoringType == EventRefactoringType.InsertBefore ? RefactoringInformation.TargetEvent : (Guid?)null;
+            set
+            {
+                if(value.HasValue) RefactoringInformation = new AggregateEventRefactoringInformation(value.Value, EventRefactoringType.InsertBefore);
+            }
+        }
+
+        internal Guid? InsertAfter
+        {
+            get => RefactoringInformation?.RefactoringType == EventRefactoringType.InsertAfter ? RefactoringInformation.TargetEvent : (Guid?)null;
+            set
+            {
+                if(value.HasValue) RefactoringInformation = new AggregateEventRefactoringInformation(value.Value, EventRefactoringType.InsertAfter);
+            }
+        }
+
+        internal AggregateEventRefactoringInformation? RefactoringInformation { get; private set; }
+    }
+
+    class AggregateEventRefactoringInformation
+    {
+        public AggregateEventRefactoringInformation(Guid targetEvent, EventRefactoringType refactoringType)
+        {
+            TargetEvent = targetEvent;
+            RefactoringType = refactoringType;
+        }
+
+        public Guid TargetEvent { get; }
+        public EventRefactoringType RefactoringType { get; }
+    }
+
+    enum EventRefactoringType
+    {
+        Replace = 1,
+        InsertBefore = 2,
+        InsertAfter = 3
     }
 }

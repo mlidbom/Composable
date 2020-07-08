@@ -13,12 +13,6 @@ namespace Composable.Persistence.EventStore.PersistenceLayer
 
         internal IEventStorePersistenceLayer.ReadOrder? ReadOrder { get; set; }
 
-        internal Guid? Replaces => RefactoringInformation?.RefactoringType == EventRefactoringType.Replace ? RefactoringInformation.TargetEvent : (Guid?)null;
-
-        internal Guid? InsertBefore => RefactoringInformation?.RefactoringType == EventRefactoringType.InsertBefore ? RefactoringInformation.TargetEvent : (Guid?)null;
-
-        internal Guid? InsertAfter => RefactoringInformation?.RefactoringType == EventRefactoringType.InsertAfter ? RefactoringInformation.TargetEvent : (Guid?)null;
-
         internal AggregateEventRefactoringInformation? RefactoringInformation { get; set; }
     }
 

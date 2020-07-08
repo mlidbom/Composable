@@ -9,6 +9,7 @@ namespace Composable.Persistence.MsSql.EventStore
 {
     partial class MsSqlEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
+
         bool _initialized;
 
         public void SetupSchemaIfDatabaseUnInitialized() => TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
@@ -27,9 +28,8 @@ BEGIN
         {C.EventId} uniqueidentifier NOT NULL,
         {C.InsertedVersion} int NOT NULL,
         {C.SqlInsertTimeStamp} datetime2 default SYSUTCDATETIME(),
-        {C.InsertAfter} uniqueidentifier null,
-        {C.InsertBefore} uniqueidentifier null,
-        {C.Replaces} uniqueidentifier null,
+        {C.TargetEvent} uniqueidentifier null,
+        {C.RefactoringType} tinyint null,
         {C.ReadOrder} bigint null,
         {C.ReadOrderOrderOffset} bigint null,
         {C.EffectiveOrder} {EventTable.ReadOrderType} null,    
@@ -44,23 +44,7 @@ BEGIN
         CONSTRAINT IX_{EventTable.Name}_Unique_{C.EventId} UNIQUE ( {C.EventId} ),
         CONSTRAINT IX_{EventTable.Name}_Unique_{C.InsertionOrder} UNIQUE ( {C.InsertionOrder} ),
 
-        CONSTRAINT CK_{EventTable.Name}_Only_one_reordering_column_allowed_for_use
-        CHECK 
-        (
-            ({C.InsertAfter} is null and {C.InsertBefore} is null)
-            or
-            ({C.InsertAfter} is null and {C.Replaces} is null)
-            or
-            ({C.InsertBefore} is null and {C.Replaces} is null) 
-        ),
-
-        CONSTRAINT FK_{EventTable.Name}_{C.Replaces} FOREIGN KEY ( {C.Replaces} ) 
-            REFERENCES {EventTable.Name} ({C.EventId}),
-
-        CONSTRAINT FK_{EventTable.Name}_{C.InsertBefore} FOREIGN KEY ( {C.InsertBefore} )
-            REFERENCES {EventTable.Name} ({C.EventId}),
-
-        CONSTRAINT FK_{EventTable.Name}_{C.InsertAfter} FOREIGN KEY ( {C.InsertAfter} ) 
+        CONSTRAINT FK_{EventTable.Name}_{C.TargetEvent} FOREIGN KEY ( {C.TargetEvent} ) 
             REFERENCES {EventTable.Name} ({C.EventId}) 
     )
 

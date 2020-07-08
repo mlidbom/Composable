@@ -29,7 +29,7 @@ namespace Composable.Persistence.MsSql.EventStore
 
             return $@"
 SELECT {topClause} 
-{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.InsertAfter}, {C.InsertBefore}, {C.Replaces}, {C.InsertedVersion}, {C.EffectiveOrder}
+{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, {C.EffectiveOrder}
 FROM {EventTable.Name} {lockHint} ";
         }
 
@@ -43,15 +43,13 @@ FROM {EventTable.Name} {lockHint} ";
             utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
             storageInformation: new AggregateEventStorageInformation()
                                     {
-                                        ReadOrder = IEventStorePersistenceLayer.ReadOrder.FromSqlDecimal(eventReader.GetSqlDecimal(11)),
-                                        InsertedVersion = eventReader.GetInt32(10),
+                                        ReadOrder = IEventStorePersistenceLayer.ReadOrder.FromSqlDecimal(eventReader.GetSqlDecimal(10)),
+                                        InsertedVersion = eventReader.GetInt32(9),
                                         EffectiveVersion = eventReader.GetInt32(3),
-                                        RefactoringInformation = (eventReader[7] as Guid?, eventReader[8] as Guid?, eventReader[9] as Guid?)switch
+                                        RefactoringInformation = (eventReader[7] as Guid?, eventReader[8] as byte?)switch
                                         {
-                                            (null, null, null) => null,
-                                            (var insertAfter, null, null) when insertAfter != null => AggregateEventRefactoringInformation.InsertAfter(insertAfter.Value),
-                                            (null, var insertBefore, null) when insertBefore != null => AggregateEventRefactoringInformation.InsertAfter(insertBefore.Value),
-                                            (null, null, var replace) when replace != null => AggregateEventRefactoringInformation.InsertAfter(replace.Value),
+                                            (null, null) => null,
+                                            (Guid targetEvent, byte type) => new AggregateEventRefactoringInformation(targetEvent, (EventRefactoringType)type),
                                             _ => throw new Exception("Should not be possible to get here")
                                         }
                                     }

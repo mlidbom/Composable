@@ -16,8 +16,8 @@ namespace Composable.Persistence.MySql.EventStore
         {
             if(!_initialized)
             {
-                //Urgent: Figure out the syntax for the commented out parts.
                 _connectionManager.UseCommand(command=> command.ExecuteNonQuery($@"
+
 
     CREATE TABLE IF NOT EXISTS {EventTable.Name}(
         {C.InsertionOrder} bigint NOT NULL AUTO_INCREMENT,
@@ -28,9 +28,8 @@ namespace Composable.Persistence.MySql.EventStore
         {C.EventId} {MySqlGuidType} NOT NULL,
         {C.InsertedVersion} int NOT NULL,
         {C.SqlInsertTimeStamp} datetime(6) default CURRENT_TIMESTAMP,
-        {C.InsertAfter} {MySqlGuidType} null,
-        {C.InsertBefore} {MySqlGuidType} null,
-        {C.Replaces} {MySqlGuidType} null,
+        {C.TargetEvent} {MySqlGuidType} null,
+        {C.RefactoringType} tinyint null,
         {C.ReadOrder} bigint null,
         {C.ReadOrderOrderOffset} bigint null,
         {C.EffectiveOrder} {EventTable.ReadOrderType} null,    
@@ -44,24 +43,8 @@ namespace Composable.Persistence.MySql.EventStore
 
         UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.EventId} ( {C.EventId} ASC ),
         UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.InsertionOrder} ( {C.InsertionOrder} ASC ),
-/*
-        CONSTRAINT CK_{EventTable.Name}_Only_one_reordering_column_allowed_for_use
-        CHECK 
-        (
-            ({C.InsertAfter} is null and {C.InsertBefore} is null)
-            or
-            ({C.InsertAfter} is null and {C.Replaces} is null)
-            or
-            ({C.InsertBefore} is null and {C.Replaces} is null) 
-        ),
-*/
-        FOREIGN KEY ( {C.Replaces} ) 
-            REFERENCES {EventTable.Name} ({C.EventId}),
 
-        FOREIGN KEY ( {C.InsertBefore} )
-            REFERENCES {EventTable.Name} ({C.EventId}),
-
-        FOREIGN KEY ( {C.InsertAfter} ) 
+        FOREIGN KEY ( {C.TargetEvent} ) 
             REFERENCES {EventTable.Name} ({C.EventId}),
 
 

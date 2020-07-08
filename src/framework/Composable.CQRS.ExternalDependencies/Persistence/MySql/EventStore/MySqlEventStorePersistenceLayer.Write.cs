@@ -1,15 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
-using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
-using Composable.Persistence.MsSql.EventStore;
-using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System;
 using MySql.Data.MySqlClient;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
@@ -34,11 +30,12 @@ namespace Composable.Persistence.MySql.EventStore
                                                    //urgent: explore mysql alternatives to commented out hints .
                                                    $@"
 INSERT {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.InsertAfter}, {C.InsertBefore},  {C.Replaces}) 
-VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.EffectiveOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.InsertAfter},@{C.InsertBefore}, @{C.Replaces});
+(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
+VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.EffectiveOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType});
 
 
 IF @{C.EffectiveOrder} IS NULL THEN
+
     UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
     SET {C.EffectiveOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType}),
         {C.ReadOrder} = {C.InsertionOrder}
@@ -54,9 +51,8 @@ END IF;
 
                                               .AddNullableParameter(C.EffectiveOrder, MySqlDbType.VarChar, data.StorageInformation.ReadOrder?.ToString())
                                               .AddNullableParameter(C.EffectiveVersion, MySqlDbType.Int32, data.StorageInformation.EffectiveVersion)
-                                              .AddNullableParameter(C.InsertAfter, MySqlDbType.Guid, data.StorageInformation.InsertAfter)
-                                              .AddNullableParameter(C.InsertBefore, MySqlDbType.Guid, data.StorageInformation.InsertBefore)
-                                              .AddNullableParameter(C.Replaces, MySqlDbType.Guid, data.StorageInformation.Replaces)
+                                              .AddNullableParameter(C.TargetEvent, MySqlDbType.VarChar, data.StorageInformation.RefactoringInformation?.TargetEvent)
+                                              .AddNullableParameter(C.RefactoringType, MySqlDbType.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
                     catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)

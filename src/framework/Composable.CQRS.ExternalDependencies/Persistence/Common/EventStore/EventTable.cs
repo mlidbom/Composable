@@ -17,9 +17,8 @@
             public const string ReadOrder = nameof(ReadOrder);
             public const string ReadOrderOrderOffset = nameof(ReadOrderOrderOffset);
 
-            public const string InsertAfter = nameof(InsertAfter);
-            public const string InsertBefore = nameof(InsertBefore);
-            public const string Replaces = nameof(Replaces);
+            public const string TargetEvent = nameof(TargetEvent);
+            public const string RefactoringType = nameof(RefactoringType);
             public const string UtcTimeStamp = nameof(UtcTimeStamp);
             public const string SqlInsertTimeStamp = nameof(SqlInsertTimeStamp);
             public const string EventType = nameof(EventType);

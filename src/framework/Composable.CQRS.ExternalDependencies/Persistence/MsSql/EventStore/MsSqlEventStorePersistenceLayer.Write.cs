@@ -5,7 +5,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
-using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System;
@@ -31,8 +30,10 @@ namespace Composable.Persistence.MsSql.EventStore
                                                    //urgent: ensure that READCOMMITTED is really sane here and add comment.
                                                    $@"
 INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
-(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.InsertAfter}, {C.InsertBefore},  {C.Replaces}) 
-VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.EffectiveOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.InsertAfter},@{C.InsertBefore}, @{C.Replaces})
+(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
+VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.EffectiveOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType})
+
+
 IF(@{C.EffectiveOrder} IS NULL)
 BEGIN
     UPDATE {EventTable.Name} With(READCOMMITTED, ROWLOCK)
@@ -41,7 +42,6 @@ BEGIN
     WHERE {C.EventId} = @{C.EventId}
 END
 ")
-                                               //SET @{Col.InsertionOrder} = SCOPE_IDENTITY();
                                               .AddParameter(C.AggregateId, SqlDbType.UniqueIdentifier, data.AggregateId)
                                               .AddParameter(C.InsertedVersion, data.StorageInformation.InsertedVersion)
                                               .AddParameter(C.EventType, data.EventType)
@@ -51,9 +51,8 @@ END
 
                                               .AddNullableParameter(C.EffectiveOrder, SqlDbType.Decimal, data.StorageInformation.ReadOrder?.ToSqlDecimal())
                                               .AddNullableParameter(C.EffectiveVersion, SqlDbType.Int, data.StorageInformation.EffectiveVersion)
-                                              .AddNullableParameter(C.InsertAfter, SqlDbType.UniqueIdentifier, data.StorageInformation.InsertAfter)
-                                              .AddNullableParameter(C.InsertBefore, SqlDbType.UniqueIdentifier, data.StorageInformation.InsertBefore)
-                                              .AddNullableParameter(C.Replaces, SqlDbType.UniqueIdentifier, data.StorageInformation.Replaces)
+                                              .AddNullableParameter(C.TargetEvent, SqlDbType.UniqueIdentifier, data.StorageInformation.RefactoringInformation?.TargetEvent)
+                                              .AddNullableParameter(C.RefactoringType, SqlDbType.TinyInt, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
                     catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
@@ -76,6 +75,8 @@ END
 
         public IEventStorePersistenceLayer.EventNeighborhood LoadEventNeighborHood(Guid eventId)
         {
+
+
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
 
             var selectStatement = $@"

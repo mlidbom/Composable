@@ -5,10 +5,10 @@ using System.Transactions;
 
 namespace Composable.Persistence.PgSql.SystemExtensions
 {
-    class NpgsqlConnectionProvider : INpgsqlConnectionProvider
+    class PgSqlConnectionProvider : INpgsqlConnectionProvider
     {
         string ConnectionString { get; }
-        public NpgsqlConnectionProvider(string connectionString) => ConnectionString = connectionString;
+        public PgSqlConnectionProvider(string connectionString) => ConnectionString = connectionString;
 
         NpgsqlConnection OpenConnection()
         {

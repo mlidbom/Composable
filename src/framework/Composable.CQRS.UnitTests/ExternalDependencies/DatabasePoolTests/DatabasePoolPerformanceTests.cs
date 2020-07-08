@@ -3,6 +3,7 @@ using Composable.DependencyInjection;
 using Composable.Logging;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MsSql.SystemExtensions;
+using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.System;
 using Composable.Testing;
 using Composable.Testing.Databases;
@@ -109,7 +110,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         [Test]
-        public void Once_DB_Fetched_MsSql_Can_use_400_connections_in_10_milliseconds_MySql_40()
+        public void Once_DB_Fetched_MsSql_Can_use_400_connections_in_10_milliseconds_MySql_40_PgSql_2500()
         {
             using var manager = CreatePool();
             manager.SetLogLevel(LogLevel.Warning);
@@ -144,6 +145,19 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     TimeAsserter.Execute(
                         action: () => connectionProvider.UseConnection(_ => {}),
                         iterations: 40,
+                        maxTotal: 10.Milliseconds()
+                    );
+                }
+                    break;
+                case PersistenceLayer.PgSql:
+                {
+                    var connectionProvider = new PgSqlConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    connectionProvider.UseConnection(_ => {});
+
+                    //Performance: do something about the performance of opening MySql connections.
+                    TimeAsserter.Execute(
+                        action: () => connectionProvider.UseConnection(_ => {}),
+                        iterations: 2500,
                         maxTotal: 10.Milliseconds()
                     );
                 }

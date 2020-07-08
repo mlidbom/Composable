@@ -30,13 +30,13 @@ namespace Composable.Persistence.PgSql.DependencyInjection
 
                 container.Register(
                     Singleton.For<INpgsqlConnectionProvider>()
-                             .CreatedBy((PgSqlDatabasePool pool) => new NpgsqlConnectionProvider(pool.ConnectionStringFor(connectionStringName)))
+                             .CreatedBy((PgSqlDatabasePool pool) => new PgSqlConnectionProvider(pool.ConnectionStringFor(connectionStringName)))
                 );
             } else
             {
                 container.Register(
                     Singleton.For<INpgsqlConnectionProvider>()
-                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => new NpgsqlConnectionProvider(configurationParameterProvider.GetString(connectionStringName)))
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => new PgSqlConnectionProvider(configurationParameterProvider.GetString(connectionStringName)))
                              .DelegateToParentServiceLocatorWhenCloning());
             }
 

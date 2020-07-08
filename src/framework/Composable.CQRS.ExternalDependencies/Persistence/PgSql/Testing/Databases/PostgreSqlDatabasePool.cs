@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Npgsql;
 using System.Linq;
+using Castle.Core.Internal;
 using Composable.Contracts;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.System;
@@ -12,9 +13,9 @@ namespace Composable.Persistence.PgSql.Testing.Databases
     sealed class PgSqlDatabasePool : DatabasePool
     {
         readonly string _masterConnectionString;
-        readonly NpgsqlConnectionProvider _masterConnectionProvider;
+        readonly PgSqlConnectionProvider _masterConnectionProvider;
 
-        const string DatabasePgSql = ";Database=PgSql;";
+        const string DatabasePgSql = ";Database=postgres;";
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_PgSql_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
@@ -22,11 +23,11 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         {
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName);
 
-            _masterConnectionString = masterConnectionString ?? $"Server=localhost{DatabasePgSql}Uid=root;Pwd=;";
+            _masterConnectionString = masterConnectionString ?? $"Host=localhost{DatabasePgSql}Username=postgres;Password=Development!1;";
 
             _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
-            _masterConnectionProvider = new NpgsqlConnectionProvider(_masterConnectionString);
+            _masterConnectionProvider = new PgSqlConnectionProvider(_masterConnectionString);
 
             Contract.Assert.That(_masterConnectionString.Contains(DatabasePgSql),
                                  $"Environment variable: {ConnectionStringConfigurationParameterName} connection string must contain the exact string: '{DatabasePgSql}' for technical optimization reasons");
@@ -51,15 +52,36 @@ namespace Composable.Persistence.PgSql.Testing.Databases
             //ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
             ResetConnectionPool(db);
-            _masterConnectionProvider?.ExecuteNonQuery($@"
-DROP DATABASE IF EXISTS {databaseName};
-CREATE DATABASE {databaseName};");
+            var exists = (string)_masterConnectionProvider.ExecuteScalar($"SELECT datname FROM pg_database WHERE datname = '{databaseName.ToLower()}'");
+            if(!exists.IsNullOrEmpty())
+            {
+                ResetDatabase(db);
+            } else
+            {
+                _masterConnectionProvider?.ExecuteNonQuery($@"CREATE DATABASE {databaseName};");
+            }
         }
 
         protected override void ResetDatabase(Database db) =>
-            new NpgsqlConnectionProvider(this.ConnectionStringFor(db)).ExecuteNonQuery($@"
-DROP DATABASE {db.Name()};
-CREATE DATABASE {db.Name()};");
+            new PgSqlConnectionProvider(this.ConnectionStringFor(db)).ExecuteNonQuery($@"
+DO $$
+DECLARE
+        q TEXT;
+        r RECORD;
+BEGIN
+	FOR r IN (SELECT nspname
+			FROM pg_catalog.pg_namespace
+			WHERE nspname NOT IN ('information_schema', 'pg_catalog', 'pg_toast')) 
+	LOOP
+			EXECUTE format('DROP SCHEMA %I CASCADE;', r.nspname);
+	END LOOP;
+
+	CREATE SCHEMA public AUTHORIZATION postgres;
+	COMMENT ON SCHEMA public IS 'standard public schema';
+	GRANT ALL ON SCHEMA public TO PUBLIC;
+	GRANT ALL ON SCHEMA public TO postgres;
+
+END; $$;");
 
         void ResetConnectionPool(Database db)
         {

@@ -165,7 +165,7 @@ namespace Composable.Persistence.EventStore
             RefactoringInformation = new AggregateEventRefactoringInformation()
                                      {
                                          InsertedVersion = specification.InsertedVersion,
-                                         EffectiveVersion = specification.ManualVersion
+                                         EffectiveVersion = specification.EffectiveVersion
                                      };
         }
 
@@ -199,9 +199,8 @@ namespace Composable.Persistence.EventStore
     {
         internal IEventStorePersistenceLayer.ReadOrder? EffectiveOrder { get; set; }
         internal int InsertedVersion { get; set; }
+        internal int EffectiveVersion { get; set; }
 
-        //urgent: See if this cannot be non-nullable.
-        internal int? EffectiveVersion { get; set; }
         internal Guid? Replaces { get; set; }
         internal Guid? InsertBefore { get; set; }
         internal Guid? InsertAfter { get; set; }
@@ -209,17 +208,17 @@ namespace Composable.Persistence.EventStore
 
     class EventInsertionSpecification
     {
-        public EventInsertionSpecification(IAggregateEvent @event) : this(@event, @event.AggregateVersion, null) {}
+        public EventInsertionSpecification(IAggregateEvent @event) : this(@event, @event.AggregateVersion, @event.AggregateVersion) {}
 
-        public EventInsertionSpecification(IAggregateEvent @event, int insertedVersion, int? manualVersion)
+        public EventInsertionSpecification(IAggregateEvent @event, int insertedVersion, int effectiveVersion)
         {
             Event = @event;
             InsertedVersion = insertedVersion;
-            ManualVersion = manualVersion;
+            EffectiveVersion = effectiveVersion;
         }
 
         internal IAggregateEvent Event { get; }
         internal int InsertedVersion { get; }
-        internal int? ManualVersion { get; }
+        internal int EffectiveVersion { get; }
     }
 }

@@ -90,7 +90,7 @@ namespace Composable.Persistence.EventStore
                 {
                     return new EventInsertionSpecification(@event: @event,
                                                            insertedVersion: @event.AggregateVersion + InsertedVersionToAggregateVersionOffset,
-                                                           manualVersion:@event.AggregateVersion);
+                                                           effectiveVersion:@event.AggregateVersion);
                 } else
                 {
                     return new EventInsertionSpecification(@event:@event);

@@ -34,7 +34,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _masterConnectionString!.Replace(DatabasePgSql, $";Database={db.Name()};");
+            => _masterConnectionString!.Replace(DatabasePgSql, $";Database={db.Name().ToLower()};");
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
@@ -63,7 +63,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         }
 
         protected override void ResetDatabase(Database db) =>
-            new PgSqlConnectionProvider(this.ConnectionStringFor(db)).ExecuteNonQuery($@"
+            new PgSqlConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery($@"
 DO $$
 DECLARE
         q TEXT;

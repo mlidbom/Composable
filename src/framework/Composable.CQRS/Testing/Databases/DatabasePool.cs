@@ -35,7 +35,7 @@ namespace Composable.Testing.Databases
 
         }
 
-        internal static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(DatabasePool)}_".ToLower();//Postgres apparently automatically changes db names to lower case but cares about case, so we do the same.
+        internal static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(DatabasePool)}_";
 
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
         readonly Guid _poolId = Guid.NewGuid();

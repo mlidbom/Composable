@@ -111,7 +111,6 @@ namespace Composable.Testing.Performance
              int iterations = 1,
              TimeSpan? maxAverage = null,
              TimeSpan? maxTotal = null,
-             bool timeIndividualExecutions = false,
              string description = "",
              string? timeFormat = null,
              [InstantHandle]Action? setup = null,
@@ -143,15 +142,12 @@ namespace Composable.Testing.Performance
             {
                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
 
-                if (timeIndividualExecutions)
-                {
-                    SafeConsole.WriteLine($@"  
-    Individual execution times    
-    Average: {Format(executionSummary.IndividualExecutionTimes.Average())}
-    Min:     {Format(executionSummary.IndividualExecutionTimes.Min())}
-    Max:     {Format(executionSummary.IndividualExecutionTimes.Max())}
-    Sum:     {Format(executionSummary.IndividualExecutionTimes.Sum())}");
-                }
+                SafeConsole.WriteLine($@"  
+Individual execution times    
+Average: {Format(executionSummary.IndividualExecutionTimes.Average())}
+Min:     {Format(executionSummary.IndividualExecutionTimes.Min())}
+Max:     {Format(executionSummary.IndividualExecutionTimes.Max())}
+Sum:     {Format(executionSummary.IndividualExecutionTimes.Sum())}");
             }
             // ReSharper restore AccessToModifiedClosure
 
@@ -162,7 +158,7 @@ namespace Composable.Testing.Performance
                 StopwatchExtensions.TimedThreadedExecutionSummary executionSummary;
                 try
                 {
-                    executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions, maxDegreeOfParallelism: maxDegreeOfParallelism);
+                    executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, maxDegreeOfParallelism: maxDegreeOfParallelism);
                 }
                 finally
                 {

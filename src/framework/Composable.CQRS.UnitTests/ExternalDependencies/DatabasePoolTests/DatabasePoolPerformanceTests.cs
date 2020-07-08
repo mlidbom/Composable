@@ -52,7 +52,6 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     manager.ConnectionStringFor(dbName);
                 },
                 iterations: 10,
-                timeIndividualExecutions: true,
                 maxTotal: 70.Milliseconds());
         }
 

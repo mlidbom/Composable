@@ -448,7 +448,6 @@ namespace Composable.Tests.CQRS
             var timingsSummary = TimeAsserter.ExecuteThreaded(
                 action: ReadUserHistory,
                 iterations: threadedIterations,
-                timeIndividualExecutions:true,
                 maxTotal: (approximateSinglethreadedExecutionTimeInMilliseconds / 2).Milliseconds(),
                 description: $"If access is serialized the time will be approximately {approximateSinglethreadedExecutionTimeInMilliseconds} milliseconds. If parallelized it should be far below this value.");
 

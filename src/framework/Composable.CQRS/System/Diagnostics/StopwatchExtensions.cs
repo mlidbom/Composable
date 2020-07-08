@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -42,37 +43,25 @@ namespace Composable.System.Diagnostics
             return new TimedExecutionSummary(iterations, total);
         });
 
-        public static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle] Action action, int iterations = 1, bool timeIndividualExecutions = false, int maxDegreeOfParallelism = -1) => MachineWideSingleThreaded.Execute(() =>
+        public static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle] Action action, int iterations = 1, int maxDegreeOfParallelism = -1) => MachineWideSingleThreaded.Execute(() =>
         {
             maxDegreeOfParallelism = maxDegreeOfParallelism == -1
                                          ? Math.Max(Environment.ProcessorCount, 8) / 2
                                          : maxDegreeOfParallelism;
 
-            var executionTimes = new List<TimeSpan>();
             TimeSpan TimedAction() => TimeExecution(action);
+            var individual = new ConcurrentStack<TimeSpan>();
 
             var total = TimeExecution(
-                () =>
-                {
-                    if(timeIndividualExecutions)
-                    {
-                        var tasks = 1.Through(iterations).Select(_ => Task.Factory.StartNew(TimedAction, TaskCreationOptions.LongRunning)).ToArray();
-                        // ReSharper disable once CoVariantArrayConversion
-                        Task.WaitAll(tasks);
-                        executionTimes = tasks.Select(@this => @this.Result).ToList();
-                    } else
-                    {
-                        Parallel.For(fromInclusive: 0,
-                                     toExclusive: iterations,
-                                     body: index => action(),
-                                     parallelOptions: new ParallelOptions
-                                                      {
-                                                          MaxDegreeOfParallelism = maxDegreeOfParallelism
-                                                      });
-                    }
-                });
+                () => Parallel.For(fromInclusive: 0,
+                                   toExclusive: iterations,
+                                   body: index => individual.Push(TimedAction()),
+                                   parallelOptions: new ParallelOptions
+                                                    {
+                                                        MaxDegreeOfParallelism = maxDegreeOfParallelism
+                                                    }));
 
-            return new TimedThreadedExecutionSummary(iterations, executionTimes, total);
+            return new TimedThreadedExecutionSummary(iterations, individual.ToList(), total);
         });
 
         public class TimedExecutionSummary

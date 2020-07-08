@@ -66,14 +66,13 @@ namespace Composable.Persistence.PgSql.Testing.Databases
             new PgSqlConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery($@"
 DO $$
 DECLARE
-        q TEXT;
-        r RECORD;
+        dbRecord RECORD;
 BEGIN
-	FOR r IN (SELECT nspname
+	FOR dbRecord IN (SELECT nspname
 			FROM pg_catalog.pg_namespace
 			WHERE nspname NOT IN ('information_schema', 'pg_catalog', 'pg_toast')) 
 	LOOP
-			EXECUTE format('DROP SCHEMA %I CASCADE;', r.nspname);
+			EXECUTE format('DROP SCHEMA %I CASCADE;', dbRecord.nspname);
 	END LOOP;
 
 	CREATE SCHEMA public AUTHORIZATION postgres;

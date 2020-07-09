@@ -67,7 +67,7 @@ WHERE {C.AggregateId} = @{C.AggregateId}
     AND {C.InsertedVersion} > @CachedVersion
     AND {C.EffectiveVersion} > 0
 ORDER BY {C.EffectiveOrder} ASC
-{CreateLockHint(takeWriteLock)};
+FOR UPDATE;
 ")
                                                                    .AddParameter(C.AggregateId, aggregateId)
                                                                    .AddParameter("CachedVersion", startAfterInsertedVersion)

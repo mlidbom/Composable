@@ -10,6 +10,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System;
 using Composable.System.Linq;
+using Composable.System.Transactions;
 using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
 using FluentAssertions;
 using NUnit.Framework;
@@ -20,7 +21,7 @@ using NUnit.Framework;
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql))]
+    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql))]
     [TestFixture]
     public class EventMigrationTest : EventMigrationTestBase
     {
@@ -296,11 +297,11 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                     TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E2, E3, E4>()).History;
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: migratedHistory, descriptionOfHistory: "migrated history");
 
-                var historyAfterPersistingButBeforeReload = serviceLocator.ExecuteTransactionInIsolatedScope(
+                var historyAfterPersistingButBeforeReload = serviceLocator.ExecuteInIsolatedScope(
                     () =>
                     {
                         EventStore().PersistMigrations();
-                        return Session().Get<TestAggregate>(id).History;
+                        return TransactionScopeCe.Execute(() => Session().Get<TestAggregate>(id).History);
                     });
 
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: historyAfterPersistingButBeforeReload, descriptionOfHistory: "migrated, persisted");
@@ -316,11 +317,11 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 var expectedAfterReplacingE2WithE6 = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E6, E3, E4>()).History;
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: migratedHistory, descriptionOfHistory: "migrated history");
 
-                historyAfterPersistingButBeforeReload = serviceLocator.ExecuteTransactionInIsolatedScope(
+                historyAfterPersistingButBeforeReload = serviceLocator.ExecuteInIsolatedScope(
                     () =>
                     {
                         EventStore().PersistMigrations();
-                        return Session().Get<TestAggregate>(id).History;
+                        return TransactionScopeCe.Execute(() => Session().Get<TestAggregate>(id).History);
                     });
 
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: historyAfterPersistingButBeforeReload, descriptionOfHistory: "migrated, persisted");
@@ -374,11 +375,11 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                     TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E2, E3, E4>()).History;
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: migratedHistory, descriptionOfHistory: "migrated history");
 
-                var historyAfterPersistingButBeforeReload = serviceLocator.ExecuteTransactionInIsolatedScope(
+                var historyAfterPersistingButBeforeReload = serviceLocator.ExecuteInIsolatedScope(
                     () =>
                     {
                         EventStore().PersistMigrations();
-                        return Session().Get<TestAggregate>(id).History;
+                        return TransactionScopeCe.Execute(() => Session().Get<TestAggregate>(id).History);
                     });
 
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: historyAfterPersistingButBeforeReload, descriptionOfHistory: "migrated, persisted");
@@ -395,11 +396,11 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 var expectedAfterReplacingE2WithE6 = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E6, E3, E4, E6, E7>()).History;
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: migratedHistory, descriptionOfHistory: "migrated history");
 
-                historyAfterPersistingButBeforeReload = serviceLocator.ExecuteTransactionInIsolatedScope(
+                historyAfterPersistingButBeforeReload = serviceLocator.ExecuteInIsolatedScope(
                     () =>
                     {
                         EventStore().PersistMigrations();
-                        return Session().Get<TestAggregate>(id).History;
+                        return TransactionScopeCe.Execute(() => Session().Get<TestAggregate>(id).History);
                     });
 
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: historyAfterPersistingButBeforeReload, descriptionOfHistory: "migrated, persisted");
@@ -445,7 +446,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 migrations = Seq.Create(Replace<E1>.With<E5>()).ToList();
 
-                serviceLocator.ExecuteTransactionInIsolatedScope(() => EventStore().PersistMigrations());
+                serviceLocator.ExecuteInIsolatedScope(() => EventStore().PersistMigrations());
 
                 migrations = Seq.Create<IEventMigration>().ToList();
 
@@ -497,7 +498,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 ClearCache(serviceLocator);
                 var historyWithFirstMigrationUnPersisted = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
 
-                serviceLocator.ExecuteTransactionInIsolatedScope(() => EventStore().PersistMigrations());
+                serviceLocator.ExecuteInIsolatedScope(() => EventStore().PersistMigrations());
                 var historyAfterPersistingFirstMigration = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 AssertStreamsAreIdentical(expectedHistoryAfterFirstMigration, historyWithFirstMigrationUnPersisted, nameof(historyWithFirstMigrationUnPersisted));
                 AssertStreamsAreIdentical(expectedHistoryAfterFirstMigration, historyAfterPersistingFirstMigration, nameof(historyAfterPersistingFirstMigration));
@@ -506,7 +507,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 toDispose.Add(serviceLocator = serviceLocator.Clone());
                 var historyWithSecondMigrationUnPersisted = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
 
-                serviceLocator.ExecuteTransactionInIsolatedScope(() => EventStore().PersistMigrations());
+                serviceLocator.ExecuteInIsolatedScope(() => EventStore().PersistMigrations());
                 var historyAfterPersistingSecondMigration = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 AssertStreamsAreIdentical(expectedHistoryAfterSecondMigration, historyWithSecondMigrationUnPersisted, nameof(historyWithSecondMigrationUnPersisted));
                 AssertStreamsAreIdentical(expectedHistoryAfterSecondMigration, historyAfterPersistingSecondMigration, nameof(historyAfterPersistingSecondMigration));
@@ -544,7 +545,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 ClearCache(serviceLocator);
                 var historyWithFirstMigrationUnPersisted = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
 
-                serviceLocator.ExecuteTransactionInIsolatedScope(() => EventStore().PersistMigrations());
+                serviceLocator.ExecuteInIsolatedScope(() => EventStore().PersistMigrations());
                 var historyAfterPersistingFirstMigration = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 AssertStreamsAreIdentical(expectedHistoryAfterFirstMigration, historyWithFirstMigrationUnPersisted, nameof(historyWithFirstMigrationUnPersisted));
                 AssertStreamsAreIdentical(expectedHistoryAfterFirstMigration, historyAfterPersistingFirstMigration, nameof(historyAfterPersistingFirstMigration));
@@ -553,7 +554,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 toDispose.Add(serviceLocator = serviceLocator.Clone());
                 var historyWithSecondMigrationUnPersisted = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
 
-                serviceLocator.ExecuteTransactionInIsolatedScope(() => EventStore().PersistMigrations());
+                serviceLocator.ExecuteInIsolatedScope(() => EventStore().PersistMigrations());
                 var historyAfterPersistingSecondMigration = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 AssertStreamsAreIdentical(expectedHistoryAfterSecondMigration, historyWithSecondMigrationUnPersisted, nameof(historyWithSecondMigrationUnPersisted));
                 AssertStreamsAreIdentical(expectedHistoryAfterSecondMigration, historyAfterPersistingSecondMigration, nameof(historyAfterPersistingSecondMigration));

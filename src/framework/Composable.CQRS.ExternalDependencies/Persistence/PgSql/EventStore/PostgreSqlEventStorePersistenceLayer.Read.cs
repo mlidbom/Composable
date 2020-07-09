@@ -64,6 +64,7 @@ FROM {EventTable.Name}";
         {
             if(takeWriteLock)
             {
+                //Urgent: Find a way of doing this ServerSide so that we don't have to make two roundtrips to the server.
                 _connectionManager.UseCommand(command => command.SetCommandText($"select {C.AggregateId} from aggregatelock where aggregateid = @{C.AggregateId} for update")
                                                                                         .AddParameter(C.AggregateId, aggregateId)
                                                                                         .ExecuteNonQuery());
@@ -75,8 +76,7 @@ FROM {EventTable.Name}";
 WHERE {C.AggregateId} = @{C.AggregateId}
     AND {C.InsertedVersion} >= @CachedVersion
     AND {C.EffectiveVersion} > 0
-ORDER BY {C.EffectiveOrder} ASC
-FOR UPDATE;
+ORDER BY {C.EffectiveOrder} ASC;
 ")
                                                                        .AddParameter(C.AggregateId, aggregateId)
                                                                        .AddParameter("CachedVersion", startAfterInsertedVersion)
@@ -91,8 +91,7 @@ FOR UPDATE;
 WHERE {C.AggregateId} = @{C.AggregateId}
     AND {C.InsertedVersion} >= @CachedVersion
     AND {C.EffectiveVersion} > 0
-ORDER BY {C.EffectiveOrder} ASC
-FOR UPDATE;
+ORDER BY {C.EffectiveOrder} ASC;
 ")
                                                                    .AddParameter(C.AggregateId, aggregateId)
                                                                    .AddParameter("CachedVersion", startAfterInsertedVersion)

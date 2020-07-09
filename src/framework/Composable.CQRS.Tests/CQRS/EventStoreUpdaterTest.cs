@@ -288,13 +288,13 @@ namespace Composable.Tests.CQRS
                                     {
                                         session.Delete(user1.Id);
 
-                                        Assert.IsFalse(session.TryGet(user1.Id, out User _));
-
                                         var loadedUser2 = session.Get<User>(user2.Id);
                                         Assert.That(loadedUser2.Id, Is.EqualTo(user2.Id));
                                         Assert.That(loadedUser2.Email, Is.EqualTo(user2.Email));
                                         Assert.That(loadedUser2.Password, Is.EqualTo(user2.Password));
                                     });
+
+            UseInTransactionalScope(session => Assert.IsFalse(session.TryGet(user1.Id, out User _)));
         }
 
         [Test]

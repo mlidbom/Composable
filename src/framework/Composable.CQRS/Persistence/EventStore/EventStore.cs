@@ -243,7 +243,7 @@ namespace Composable.Persistence.EventStore
 
                                     FixManualVersions(original, inMemoryMigratedHistory, refactorings);
 
-                                    var loadedAggregateHistory = GetAggregateHistory(aggregateId);
+                                    var loadedAggregateHistory = GetAggregateHistoryInternal(aggregateId, takeWriteLock:false);
                                     AggregateHistoryValidator.ValidateHistory(aggregateId, loadedAggregateHistory);
                                     AssertHistoriesAreIdentical(inMemoryMigratedHistory, loadedAggregateHistory);
                                 }

@@ -48,6 +48,11 @@ namespace Composable.Persistence.PgSql.EventStore
             REFERENCES {EventTable.Name} ({C.EventId})
     );
 
+CREATE TABLE IF NOT EXISTS AggregateLock(
+    {C.AggregateId} {PgSqlGuidType} NOT NULL,
+    PRIMARY KEY ( {C.AggregateId} )
+);
+
     CREATE INDEX IF NOT EXISTS IX_{EventTable.Name}_{C.EffectiveOrder} ON {EventTable.Name} 
             ({C.EffectiveOrder} , {C.EffectiveVersion} );
             /*INCLUDE ({C.EventType}, {C.InsertionOrder})*/

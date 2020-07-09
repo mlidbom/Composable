@@ -31,6 +31,7 @@ namespace Composable.Persistence.PgSql.EventStore
                             command => command.SetCommandText(
                                                    //urgent: explore PgSql alternatives to commented out hints .
                                                    $@"
+{(data.AggregateVersion > 1 ? "" :$@"insert into AggregateLock(AggregateId) values('{data.AggregateId}');")}
 
 INSERT INTO {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
 (       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},                                      {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 

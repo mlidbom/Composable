@@ -3,11 +3,12 @@ using Composable.DependencyInjection;
 using Composable.Persistence.DocumentDb;
 using JetBrains.Annotations;
 using NUnit.Framework;
+using NCrunch.Framework;
 
 namespace Composable.Tests.KeyValueStorage
 {
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql))]
+    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql))]
     class DocumentDbTestsBase
     {
         protected IDocumentDb CreateStore() => TestWiringHelper.DocumentDb(ServiceLocator);

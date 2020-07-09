@@ -31,7 +31,7 @@ namespace Composable.Persistence.PgSql.SystemExtensions
             return connection;
         }
 
-        OptimizedThreadShared<Dictionary<string, NpgsqlConnection>> _transactionConnections = new OptimizedThreadShared<Dictionary<string, NpgsqlConnection>>(new Dictionary<string, NpgsqlConnection>());
+        readonly OptimizedThreadShared<Dictionary<string, NpgsqlConnection>> _transactionConnections = new OptimizedThreadShared<Dictionary<string, NpgsqlConnection>>(new Dictionary<string, NpgsqlConnection>());
         NpgsqlConnection GetConnectionFromPool()
         {
             var connection = new NpgsqlConnection(ConnectionString);

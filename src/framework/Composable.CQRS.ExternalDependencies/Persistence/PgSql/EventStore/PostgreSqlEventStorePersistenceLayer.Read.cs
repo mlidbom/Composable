@@ -17,20 +17,20 @@ namespace Composable.Persistence.PgSql.EventStore
 
         public PgSqlEventStorePersistenceLayer(PgSqlEventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
 
-        static string CreateSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
+        static string CreateSelectClause() => InternalSelect();
 
-        static string InternalSelect(bool takeWriteLock, int? top = null)
+        //Urgent: Find PgSql equivalents
+        //var lockHint = takeWriteLock ? "With(UPDLOCK, READCOMMITTED, ROWLOCK)" : "With(READCOMMITTED, ROWLOCK)";
+        static string CreateLockHint(bool takeWriteLock) => takeWriteLock ? "FOR UPDATE" : "";
+
+        static string InternalSelect(int? top = null)
         {
             var topClause = top.HasValue ? $"TOP {top.Value} " : "";
-            //todo: Ensure that READCOMMITTED is truly sane here. If so add a comment describing why and why using it is a good idea.
-            //Urgent: Find PgSql equivalents
-            //var lockHint = takeWriteLock ? "With(UPDLOCK, READCOMMITTED, ROWLOCK)" : "With(READCOMMITTED, ROWLOCK)";
-            var lockHint = "";
 
             return $@"
 SELECT {topClause} 
 {C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, cast({C.EffectiveOrder} as varchar) as CharEffectiveOrder --The as is required, or Postgre sorts by this column when we ask it to sort by EffectiveOrder.
-FROM {EventTable.Name} {lockHint} ";
+FROM {EventTable.Name}";
         }
 
         static EventDataRow ReadDataRow(NpgsqlDataReader eventReader)
@@ -52,24 +52,28 @@ FROM {EventTable.Name} {lockHint} ";
                                             {
                                                 (null, null) => null,
                                                 (string targetEvent, short type) => new AggregateEventRefactoringInformation(Guid.Parse(targetEvent), (AggregateEventRefactoringType)type),
-                                                (_, _) => throw new Exception($"Should not be possible to get here")
+                                                (_, _) => throw new Exception("Should not be possible to get here")
                                             }
                                         }
             );
         }
 
-        public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
-            _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
-                                          command => command.SetCommandText($@"
-{CreateSelectClause(takeWriteLock)} 
+        public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
+        {
+            return _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
+                                                 command => command.SetCommandText($@"
+{CreateSelectClause()} 
 WHERE {C.AggregateId} = @{C.AggregateId}
     AND {C.InsertedVersion} > @CachedVersion
     AND {C.EffectiveVersion} > 0
-ORDER BY {C.EffectiveOrder} ASC")
-                                                            .AddParameter(C.AggregateId, aggregateId)
-                                                            .AddParameter("CachedVersion", startAfterInsertedVersion)
-                                                            .ExecuteReaderAndSelect(ReadDataRow)
-                                                            .ToList());
+ORDER BY {C.EffectiveOrder} ASC
+{CreateLockHint(takeWriteLock)};
+")
+                                                                   .AddParameter(C.AggregateId, aggregateId)
+                                                                   .AddParameter("CachedVersion", startAfterInsertedVersion)
+                                                                   .ExecuteReaderAndSelect(ReadDataRow)
+                                                                   .ToList());
+        }
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
         {
@@ -81,7 +85,7 @@ ORDER BY {C.EffectiveOrder} ASC")
                                                                 command =>
                                                                 {
                                                                     var commandText = $@"
-{CreateSelectClause(takeWriteLock: false)} 
+{CreateSelectClause()} 
 WHERE {C.EffectiveOrder}  > CAST(@{C.EffectiveOrder} AS {EventTable.ReadOrderType})
     AND {C.EffectiveVersion} > 0
 ORDER BY {C.EffectiveOrder} ASC

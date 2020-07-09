@@ -14,6 +14,7 @@ using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.System.Transactions;
+using Composable.SystemExtensions;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;
 using Composable.Testing.Performance;
@@ -629,7 +630,7 @@ namespace Composable.Tests.CQRS
                                         });
             }
 
-               var threads = 2;
+            var threads = 2;
 
             var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(UpdateEmail)).ToArray();
 
@@ -639,12 +640,15 @@ namespace Composable.Tests.CQRS
 
             Thread.Sleep(100.Milliseconds());
 
-            //Urgent: This fails intermittently with MySql with two threads waiting at the exit gate. We don't get correct locking with MySql.
-            changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction.");
+            //Urgent: This fails intermittently with MySql with two threads waiting at the exit gate. We don't seem to get correct locking with MySql.
+            var assertionException = ExceptionExtensions.TryCatch(() => changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction."));
 
             changeEmailSection.Open();
 
-            Task.WaitAll(tasks);//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized. Or a deadlock will be thrown if the locking is not done correctly.
+            //Urgent: Figure out if there is some trick that can be used so that postgres does not die even though it did correctly block the second transaction as evidenced by getting here in the test. Perhaps if we do a for update lock on something that we don't actually update? So that the other transaction never sees data that is updated? An aggregateLock table?
+            var taskException = ExceptionExtensions.TryCatch(() => Task.WaitAll(tasks)) as AggregateException;//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized. Or a deadlock will be thrown if the locking is not done correctly.
+
+            if(assertionException != null || taskException != null)throw new AggregateException(Seq.Create(assertionException).Concat(taskException.InnerExceptions).Where(@this => @this != null));
 
             UseInScope(
                 session =>

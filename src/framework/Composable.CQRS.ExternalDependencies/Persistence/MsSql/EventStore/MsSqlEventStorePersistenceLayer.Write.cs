@@ -58,7 +58,7 @@ END
                     catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
                     {
                         //todo: Make sure we have test coverage for this.
-                        throw new EventStoreOptimisticConcurrencyException(e);
+                        throw new EventDuplicateKeyException(e);
                     }
                 }
             });

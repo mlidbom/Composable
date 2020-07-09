@@ -17,7 +17,7 @@ namespace Composable.Persistence.PgSql.EventStore
 {
     partial class PgSqlEventStorePersistenceLayer
     {
-        const int PrimaryKeyViolationSqlErrorNumber = 2627;
+        const int PrimaryKeyViolationSqlErrorNumber = 23505;
 
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {
@@ -57,10 +57,10 @@ UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
                                               .AddNullableParameter(C.RefactoringType, NpgsqlDbType.Smallint, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
-                    catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
+                    catch(PostgresException e) when(e.SqlState == PrimaryKeyViolationSqlErrorNumber.ToString())
                     {
                         //todo: Make sure we have test coverage for this.
-                        throw new EventStoreOptimisticConcurrencyException(e);
+                        throw new EventDuplicateKeyException(e);
                     }
                 }
             });
@@ -77,8 +77,6 @@ UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
 
         public EventNeighborhood LoadEventNeighborHood(Guid eventId)
         {
-            //urgent: Find PgSql equivalent
-            //var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "";
 
             var selectStatement = $@"
@@ -86,7 +84,8 @@ SELECT  cast({C.EffectiveOrder} as varchar) as CharEffectiveOrder,
         (select cast({C.EffectiveOrder} as varchar) as CharEffectiveOrder from {EventTable.Name} e1 where e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} desc limit 1) PreviousReadOrder,
         (select cast({C.EffectiveOrder} as varchar) as CharEffectiveOrder from {EventTable.Name} e1 where e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} limit 1) NextReadOrder
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
-where {C.EventId} = @{C.EventId}";
+where {C.EventId} = @{C.EventId}
+{CreateLockHint(takeWriteLock:true)}";
 
             EventNeighborhood? neighborhood = null;
 

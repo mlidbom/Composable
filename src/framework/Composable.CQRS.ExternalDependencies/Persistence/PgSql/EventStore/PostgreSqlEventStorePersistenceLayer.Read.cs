@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.PgSql.SystemExtensions;
+using Composable.System;
 using Npgsql;
 using NpgsqlTypes;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
@@ -60,11 +62,34 @@ FROM {EventTable.Name}";
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
+            if(takeWriteLock)
+            {
+                _connectionManager.UseCommand(command => command.SetCommandText($"select {C.AggregateId} from aggregatelock where aggregateid = @{C.AggregateId} for update")
+                                                                                        .AddParameter(C.AggregateId, aggregateId)
+                                                                                        .ExecuteNonQuery());
+
+                using var ignore = new TransactionScope(TransactionScopeOption.Suppress);
+                return _connectionManager.UseCommand(suppressTransactionWarning: true,
+                                                     command => command.SetCommandText($@"
+{CreateSelectClause()} 
+WHERE {C.AggregateId} = @{C.AggregateId}
+    AND {C.InsertedVersion} >= @CachedVersion
+    AND {C.EffectiveVersion} > 0
+ORDER BY {C.EffectiveOrder} ASC
+FOR UPDATE;
+")
+                                                                       .AddParameter(C.AggregateId, aggregateId)
+                                                                       .AddParameter("CachedVersion", startAfterInsertedVersion)
+                                                                       .ExecuteReaderAndSelect(ReadDataRow)
+                                                                       .SkipWhile(@this => @this.StorageInformation.InsertedVersion <= startAfterInsertedVersion)
+                                                                       .ToList());
+            }
+
             return _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
                                                  command => command.SetCommandText($@"
 {CreateSelectClause()} 
 WHERE {C.AggregateId} = @{C.AggregateId}
-    AND {C.InsertedVersion} > @CachedVersion
+    AND {C.InsertedVersion} >= @CachedVersion
     AND {C.EffectiveVersion} > 0
 ORDER BY {C.EffectiveOrder} ASC
 FOR UPDATE;
@@ -72,6 +97,7 @@ FOR UPDATE;
                                                                    .AddParameter(C.AggregateId, aggregateId)
                                                                    .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                                    .ExecuteReaderAndSelect(ReadDataRow)
+                                                                   .SkipWhile(@this => @this.StorageInformation.InsertedVersion <= startAfterInsertedVersion)
                                                                    .ToList());
         }
 

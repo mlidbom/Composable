@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Composable.Contracts;
@@ -30,18 +31,18 @@ namespace Composable.Persistence.PgSql.EventStore
                             command => command.SetCommandText(
                                                    //urgent: explore PgSql alternatives to commented out hints .
                                                    $@"
-INSERT {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
-VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.EffectiveOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType});
 
+INSERT INTO {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
+(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},                          {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
+VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, cast(@{C.EffectiveOrder} as {EventTable.ReadOrderType}), @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType});
 
-IF @{C.EffectiveOrder} IS NULL THEN
+{(data.StorageInformation.ReadOrder != null ? "":$@"
+UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
+        SET {C.EffectiveOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType}),
+            {C.ReadOrder} = {C.InsertionOrder}
+        WHERE {C.EventId} = @{C.EventId};
+")}
 
-    UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-    SET {C.EffectiveOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType}),
-        {C.ReadOrder} = {C.InsertionOrder}
-    WHERE {C.EventId} = @{C.EventId};
-END IF;
 ")
                                               .AddParameter(C.AggregateId, data.AggregateId)
                                               .AddParameter(C.InsertedVersion, data.StorageInformation.InsertedVersion)

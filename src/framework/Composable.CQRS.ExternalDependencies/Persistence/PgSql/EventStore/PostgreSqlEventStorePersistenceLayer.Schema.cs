@@ -20,16 +20,16 @@ namespace Composable.Persistence.PgSql.EventStore
 
 
     CREATE TABLE IF NOT EXISTS {EventTable.Name}(
-        {C.InsertionOrder} bigint NOT NULL AUTO_INCREMENT,
+        {C.InsertionOrder} bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
         {C.AggregateId} {PgSqlGuidType} NOT NULL,  
-        {C.UtcTimeStamp} datetime(6) NOT NULL,   
+        {C.UtcTimeStamp} timestamp NOT NULL,   
         {C.EventType} {PgSqlGuidType} NOT NULL,    
-        {C.Event} MEDIUMTEXT NOT NULL,
+        {C.Event} TEXT NOT NULL,
         {C.EventId} {PgSqlGuidType} NOT NULL,
         {C.InsertedVersion} int NOT NULL,
-        {C.SqlInsertTimeStamp} datetime(6) default CURRENT_TIMESTAMP,
+        {C.SqlInsertTimeStamp} timestamp default CURRENT_TIMESTAMP,
         {C.TargetEvent} {PgSqlGuidType} null,
-        {C.RefactoringType} tinyint null,
+        {C.RefactoringType} smallint null,
         {C.ReadOrder} bigint null,
         {C.ReadOrderOrderOffset} bigint null,
         {C.EffectiveOrder} {EventTable.ReadOrderType} null,    
@@ -41,20 +41,16 @@ namespace Composable.Persistence.PgSql.EventStore
 
 
 
-        UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.EventId} ( {C.EventId} ASC ),
-        UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.InsertionOrder} ( {C.InsertionOrder} ASC ),
+        CONSTRAINT IX_{EventTable.Name}_Unique_{C.EventId} UNIQUE ( {C.EventId} ),
+        CONSTRAINT IX_{EventTable.Name}_Unique_{C.InsertionOrder} UNIQUE ( {C.InsertionOrder} ),
 
         FOREIGN KEY ( {C.TargetEvent} ) 
-            REFERENCES {EventTable.Name} ({C.EventId}),
+            REFERENCES {EventTable.Name} ({C.EventId})
+    );
 
-
-        INDEX IX_{EventTable.Name}_{C.EffectiveOrder} 
-            ({C.EffectiveOrder} ASC, {C.EffectiveVersion} ASC)
+    CREATE INDEX IX_{EventTable.Name}_{C.EffectiveOrder} ON {EventTable.Name} 
+            ({C.EffectiveOrder} , {C.EffectiveVersion} );
             /*INCLUDE ({C.EventType}, {C.InsertionOrder})*/
-
-    )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
 "));
 
                 _initialized = true;

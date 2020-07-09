@@ -24,7 +24,7 @@ namespace Composable.Tests.CQRS
     }
 
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql))] [TestFixture]
+    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql))] [TestFixture]
     public class EventStoreTests
     {
         IEventStore EventStore => _serviceLocator.EventStore();

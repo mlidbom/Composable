@@ -29,18 +29,18 @@ namespace Composable.Persistence.PgSql.EventStore
 
             return $@"
 SELECT {topClause} 
-{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, cast({C.EffectiveOrder} as char(39))
+{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, cast({C.EffectiveOrder} as varchar) as CharEffectiveOrder --The as is required, or Postgre sorts by this column when we ask it to sort by EffectiveOrder.
 FROM {EventTable.Name} {lockHint} ";
         }
 
         static EventDataRow ReadDataRow(NpgsqlDataReader eventReader)
         {
             return new EventDataRow(
-                eventType: eventReader.GetGuid(0),
+                eventType: Guid.Parse(eventReader.GetString(0)),
                 eventJson: eventReader.GetString(1),
-                eventId: eventReader.GetGuid(4),
+                eventId: Guid.Parse(eventReader.GetString(4)),
                 aggregateVersion: eventReader.GetInt32(3),
-                aggregateId: eventReader.GetGuid(2),
+                aggregateId: Guid.Parse(eventReader.GetString(2)),
                 //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
                 utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
                 storageInformation: new AggregateEventStorageInformation()
@@ -48,10 +48,10 @@ FROM {EventTable.Name} {lockHint} ";
                                             ReadOrder = ReadOrder.Parse(eventReader.GetString(10)),
                                             InsertedVersion = eventReader.GetInt32(9),
                                             EffectiveVersion = eventReader.GetInt32(3),
-                                            RefactoringInformation = (eventReader[7] as Guid?, eventReader[8] as sbyte?)switch
+                                            RefactoringInformation = (eventReader[7] as string, eventReader[8] as sbyte?)switch
                                             {
                                                 (null, null) => null,
-                                                (Guid targetEvent, sbyte type) => new AggregateEventRefactoringInformation(targetEvent, (AggregateEventRefactoringType)type),
+                                                (string targetEvent, sbyte type) => new AggregateEventRefactoringInformation(Guid.Parse(targetEvent), (AggregateEventRefactoringType)type),
                                                 _ => throw new Exception("Should not be possible to get here")
                                             }
                                         }
@@ -82,10 +82,12 @@ ORDER BY {C.EffectiveOrder} ASC")
                                                                 {
                                                                     var commandText = $@"
 {CreateSelectClause(takeWriteLock: false)} 
-WHERE {C.EffectiveOrder}  > CAST(@{C.EffectiveOrder} AS DECIMAL(38,19))
+WHERE {C.EffectiveOrder}  > CAST(@{C.EffectiveOrder} AS {EventTable.ReadOrderType})
     AND {C.EffectiveVersion} > 0
 ORDER BY {C.EffectiveOrder} ASC
 LIMIT {batchSize}";
+                                                                    Console.WriteLine(lastReadEventReadOrder.ToString());
+                                                                    Console.WriteLine(commandText);
                                                                     return command.SetCommandText(commandText)
                                                                                   .AddParameter(C.EffectiveOrder, NpgsqlDbType.Varchar, lastReadEventReadOrder.ToString())
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
@@ -114,7 +116,8 @@ SELECT {C.AggregateId}, {C.EventType}
 FROM {EventTable.Name} 
 WHERE {C.EffectiveVersion} = 1 
 ORDER BY {C.EffectiveOrder} ASC")
-                                                                           .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuid(0), typeId: reader.GetGuid(1))));
+                                                                            //Urgent: C
+                                                                           .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: Guid.Parse(reader.GetString(0)), typeId: Guid.Parse(reader.GetString(1)))));
         }
     }
 }

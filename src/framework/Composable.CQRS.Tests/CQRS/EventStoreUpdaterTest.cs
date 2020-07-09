@@ -639,6 +639,7 @@ namespace Composable.Tests.CQRS
 
             Thread.Sleep(100.Milliseconds());
 
+            //Urgent: This fails intermittently with MySql with two threads waiting at the exit gate. We don't get correct locking with MySql.
             changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction.");
 
             changeEmailSection.Open();

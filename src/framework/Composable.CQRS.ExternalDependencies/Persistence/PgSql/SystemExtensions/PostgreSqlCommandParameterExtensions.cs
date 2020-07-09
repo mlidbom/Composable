@@ -26,7 +26,7 @@ namespace Composable.Persistence.PgSql.SystemExtensions
 
         public static NpgsqlCommand AddNullableParameter(this NpgsqlCommand @this, string name, NpgsqlDbType type, object? value) => @this.AddParameter(Nullable(new NpgsqlParameter(name, type) {Value = value}));
 
-        static NpgsqlParameter Nullable(NpgsqlParameter @this)
+        internal static NpgsqlParameter Nullable(NpgsqlParameter @this)
         {
             @this.IsNullable = true;
             @this.Direction = ParameterDirection.Input;

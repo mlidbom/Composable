@@ -26,8 +26,8 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
         UNIQUE INDEX IX_{M.TableName}_Unique_{M.MessageId} ( {M.MessageId} )
 
     )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
+
+
 
     CREATE TABLE  IF NOT EXISTS {D.TableName}
     (
@@ -42,8 +42,8 @@ DEFAULT CHARACTER SET = utf8mb4;
         FOREIGN KEY ({D.MessageId}) REFERENCES {M.TableName} ({M.MessageId})
 
     )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
+
+
 
 ");
             }

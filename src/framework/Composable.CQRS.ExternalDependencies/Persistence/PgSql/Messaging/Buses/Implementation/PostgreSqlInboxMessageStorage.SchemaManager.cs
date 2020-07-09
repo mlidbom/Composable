@@ -32,8 +32,8 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
 
         UNIQUE INDEX IX_{T.TableName}_Unique_{T.MessageId} ( {T.MessageId} )
     )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
+
+
 
 ");
             }

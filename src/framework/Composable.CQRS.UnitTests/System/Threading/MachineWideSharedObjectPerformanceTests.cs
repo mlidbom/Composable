@@ -1,13 +1,15 @@
 ﻿using System;
 using Composable.System;
 using Composable.System.Threading;
+using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
+using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.System.Threading
 {
-    [TestFixture] public class MachineWideSharedObjectPerformanceTests
+    [TestFixture, Performance, Serial] public class MachineWideSharedObjectPerformanceTests
     {
         [Test] public void Get_copy_runs_single_threaded_1000_times_in_60_milliseconds()
         {

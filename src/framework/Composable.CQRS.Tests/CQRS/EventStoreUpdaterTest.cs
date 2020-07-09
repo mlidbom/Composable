@@ -641,18 +641,16 @@ namespace Composable.Tests.CQRS
 
             Thread.Sleep(100.Milliseconds());
 
-            hasFetchedUser.Passed.Should().Be(1, "Only one thread should have been able to fetch the aggregate");
+            var bothTasksReadUserException = ExceptionExtensions.TryCatch(() => hasFetchedUser.Passed.Should().Be(1, "Only one thread should have been able to fetch the aggregate"));
 
-            //Urgent: This fails intermittently with MySql with two threads waiting at the exit gate. We don't seem to get correct locking with MySql.
-            var assertionException = ExceptionExtensions.TryCatch(() => changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction."));
+            //Urgent: This fails intermittently with MySql with two threads waiting at the exit gate. We don't seem to get consistently correct locking with MySql. It does work the great majority of the runs though...
+            var bothTasksCompletedException = ExceptionExtensions.TryCatch(() => changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction."));
 
             changeEmailSection.Open();
 
-            //Urgent: Figure out if there is some trick that can be used so that postgres does not die even though it did correctly block the second transaction as evidenced by getting here in the test. Perhaps if we do a for update lock on something that we don't actually update? So that the other transaction never sees data that is updated? (An aggregateLock table?: Nope, tried that)
-            //urgent: There may be hope for postgres locking: https://stackoverflow.com/questions/42288808/why-does-postgresql-serializable-transaction-think-this-as-conflict, https://www.google.com/search?q=Canceled+on+identification+as+a+pivot%2C+during+write&oq=Canceled+on+identification+as+a+pivot%2C+during+write&aqs=chrome..69i57j0j69i61l2j0l3.1167j0j9&sourceid=chrome&ie=UTF-8, https://stackoverflow.com/questions/59479611/why-does-postgresql-think-there-is-a-conflict-between-the-two-serializable-trans?noredirect=1&lq=1
             var taskException = ExceptionExtensions.TryCatch(() => Task.WaitAll(tasks)) as AggregateException;//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized. Or a deadlock will be thrown if the locking is not done correctly.
 
-            if(assertionException != null || taskException != null)throw new AggregateException(Seq.Create(assertionException).Concat(taskException.InnerExceptions).Where(@this => @this != null));
+            if(bothTasksCompletedException != null || taskException != null || bothTasksReadUserException != null)throw new AggregateException(Seq.Create(bothTasksCompletedException).Append(bothTasksReadUserException).Concat(taskException.InnerExceptions).Where(@this => @this != null));
 
             UseInScope(
                 session =>

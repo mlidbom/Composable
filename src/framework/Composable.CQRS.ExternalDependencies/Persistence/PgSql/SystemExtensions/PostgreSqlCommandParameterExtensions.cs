@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using Composable.System.Linq;
 using Npgsql;
 using NpgsqlTypes;
 
@@ -25,6 +26,8 @@ namespace Composable.Persistence.PgSql.SystemExtensions
         public static NpgsqlCommand AddParameter(this NpgsqlCommand @this, string name, NpgsqlDbType type, object value) => @this.AddParameter(new NpgsqlParameter(name, type) {Value = value});
 
         public static NpgsqlCommand AddNullableParameter(this NpgsqlCommand @this, string name, NpgsqlDbType type, object? value) => @this.AddParameter(Nullable(new NpgsqlParameter(name, type) {Value = value}));
+
+        [Obsolete]public static NpgsqlCommand DebugPrintCommandText(this NpgsqlCommand @this) => @this.Mutate(_ => Console.WriteLine(@this.CommandText));
 
         internal static NpgsqlParameter Nullable(NpgsqlParameter @this)
         {

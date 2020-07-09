@@ -604,7 +604,6 @@ namespace Composable.Tests.CQRS
                 });
         }
 
-        //urgent: Fix transactionality of InMemory event store and reenable this test in ncrunch.
         [Test, LongRunning]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed()
         {
@@ -645,7 +644,8 @@ namespace Composable.Tests.CQRS
 
             changeEmailSection.Open();
 
-            //Urgent: Figure out if there is some trick that can be used so that postgres does not die even though it did correctly block the second transaction as evidenced by getting here in the test. Perhaps if we do a for update lock on something that we don't actually update? So that the other transaction never sees data that is updated? An aggregateLock table?
+            //Urgent: Figure out if there is some trick that can be used so that postgres does not die even though it did correctly block the second transaction as evidenced by getting here in the test. Perhaps if we do a for update lock on something that we don't actually update? So that the other transaction never sees data that is updated? (An aggregateLock table?: Nope, tried that)
+            //urgent: There may be hope for postgres locking: https://stackoverflow.com/questions/42288808/why-does-postgresql-serializable-transaction-think-this-as-conflict, https://www.google.com/search?q=Canceled+on+identification+as+a+pivot%2C+during+write&oq=Canceled+on+identification+as+a+pivot%2C+during+write&aqs=chrome..69i57j0j69i61l2j0l3.1167j0j9&sourceid=chrome&ie=UTF-8
             var taskException = ExceptionExtensions.TryCatch(() => Task.WaitAll(tasks)) as AggregateException;//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized. Or a deadlock will be thrown if the locking is not done correctly.
 
             if(assertionException != null || taskException != null)throw new AggregateException(Seq.Create(assertionException).Concat(taskException.InnerExceptions).Where(@this => @this != null));

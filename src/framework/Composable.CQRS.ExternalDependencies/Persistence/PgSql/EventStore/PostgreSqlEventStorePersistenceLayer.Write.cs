@@ -33,7 +33,7 @@ namespace Composable.Persistence.PgSql.EventStore
                                                    $@"
 
 INSERT INTO {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},                          {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
+(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},                                      {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
 VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, cast(@{C.EffectiveOrder} as {EventTable.ReadOrderType}), @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType});
 
 {(data.StorageInformation.ReadOrder != null ? "":$@"
@@ -53,7 +53,7 @@ UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
 
                                               .AddNullableParameter(C.EffectiveOrder, NpgsqlDbType.Varchar, data.StorageInformation.ReadOrder?.ToString())
                                               .AddNullableParameter(C.EffectiveVersion, NpgsqlDbType.Integer, data.StorageInformation.EffectiveVersion)
-                                              .AddNullableParameter(C.TargetEvent, NpgsqlDbType.Varchar, data.StorageInformation.RefactoringInformation?.TargetEvent)
+                                              .AddNullableParameter(C.TargetEvent, NpgsqlDbType.Varchar, data.StorageInformation.RefactoringInformation?.TargetEvent.ToString())
                                               .AddNullableParameter(C.RefactoringType, NpgsqlDbType.Smallint, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
@@ -82,9 +82,9 @@ UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "";
 
             var selectStatement = $@"
-SELECT  {C.EffectiveOrder},        
-        (select cast({C.EffectiveOrder} as char(39)) from {EventTable.Name} e1 where e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} desc limit 1) PreviousReadOrder,
-        (select cast({C.EffectiveOrder} as char(39)) from {EventTable.Name} e1 where e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} limit 1) NextReadOrder
+SELECT  cast({C.EffectiveOrder} as varchar) as CharEffectiveOrder,        
+        (select cast({C.EffectiveOrder} as varchar) as CharEffectiveOrder from {EventTable.Name} e1 where e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} desc limit 1) PreviousReadOrder,
+        (select cast({C.EffectiveOrder} as varchar) as CharEffectiveOrder from {EventTable.Name} e1 where e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} limit 1) NextReadOrder
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
 where {C.EventId} = @{C.EventId}";
 

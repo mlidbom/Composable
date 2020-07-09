@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Npgsql;
 using System.Transactions;
+using Composable.System.Collections.Collections;
+using Composable.System.Threading.ResourceAccess;
+using Composable.SystemExtensions.TransactionsCE;
 
 namespace Composable.Persistence.PgSql.SystemExtensions
 {
@@ -9,6 +13,8 @@ namespace Composable.Persistence.PgSql.SystemExtensions
     {
         string ConnectionString { get; }
         public PgSqlConnectionProvider(string connectionString) => ConnectionString = connectionString;
+
+
 
         NpgsqlConnection OpenConnection()
         {
@@ -25,18 +31,37 @@ namespace Composable.Persistence.PgSql.SystemExtensions
             return connection;
         }
 
-        //Urgent: Since the PgSql connection pooling is way slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
+        OptimizedThreadShared<Dictionary<string, NpgsqlConnection>> _transactionConnections = new OptimizedThreadShared<Dictionary<string, NpgsqlConnection>>(new Dictionary<string, NpgsqlConnection>());
         NpgsqlConnection GetConnectionFromPool()
         {
             var connection = new NpgsqlConnection(ConnectionString);
-            connection.Open();
-            return connection;
-        }
+                connection.Open();
+                return connection;
+         }
 
         public TResult UseConnection<TResult>(Func<NpgsqlConnection, TResult> func)
         {
-            using var connection = OpenConnection();
-            return func(connection);
+            if(Transaction.Current == null)
+            {
+                using var connection = OpenConnection();
+                return func(connection);
+            } else
+            {
+                //PostgreSql has two problems with opening multiple connection within the same transaction: 1: It causes the transaction to escalate to distributed. 2: The other connections are unable to read data inserted by the first connection causing all sorts of havoc.
+                var connection = _transactionConnections.WithExclusiveAccess(@this => @this.GetOrAdd(Transaction.Current.TransactionInformation.LocalIdentifier,
+                                                                                               () =>
+                                                                                               {
+                                                                                                   var transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
+                                                                                                   var createdConnection = OpenConnection();
+                                                                                                   Transaction.Current.OnCompleted(() => _transactionConnections.WithExclusiveAccess(me =>
+                                                                                                   {
+                                                                                                       createdConnection.Dispose();
+                                                                                                       me.Remove(transactionId);
+                                                                                                   }));
+                                                                                                   return createdConnection;
+                                                                                               }));
+                return func(connection);
+            }
         }
 
         public void UseConnection(Action<NpgsqlConnection> action) => UseConnection(connection =>
@@ -57,5 +82,6 @@ namespace Composable.Persistence.PgSql.SystemExtensions
             await using var connection = OpenConnection();
             await action(connection);
         }
+
     }
 }

@@ -48,11 +48,11 @@ FROM {EventTable.Name} {lockHint} ";
                                             ReadOrder = ReadOrder.Parse(eventReader.GetString(10)),
                                             InsertedVersion = eventReader.GetInt32(9),
                                             EffectiveVersion = eventReader.GetInt32(3),
-                                            RefactoringInformation = (eventReader[7] as string, eventReader[8] as sbyte?)switch
+                                            RefactoringInformation = (eventReader[7] as string, eventReader[8] as short?)switch
                                             {
                                                 (null, null) => null,
-                                                (string targetEvent, sbyte type) => new AggregateEventRefactoringInformation(Guid.Parse(targetEvent), (AggregateEventRefactoringType)type),
-                                                _ => throw new Exception("Should not be possible to get here")
+                                                (string targetEvent, short type) => new AggregateEventRefactoringInformation(Guid.Parse(targetEvent), (AggregateEventRefactoringType)type),
+                                                (_, _) => throw new Exception($"Should not be possible to get here")
                                             }
                                         }
             );
@@ -86,8 +86,6 @@ WHERE {C.EffectiveOrder}  > CAST(@{C.EffectiveOrder} AS {EventTable.ReadOrderTyp
     AND {C.EffectiveVersion} > 0
 ORDER BY {C.EffectiveOrder} ASC
 LIMIT {batchSize}";
-                                                                    Console.WriteLine(lastReadEventReadOrder.ToString());
-                                                                    Console.WriteLine(commandText);
                                                                     return command.SetCommandText(commandText)
                                                                                   .AddParameter(C.EffectiveOrder, NpgsqlDbType.Varchar, lastReadEventReadOrder.ToString())
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)

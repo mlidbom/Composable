@@ -48,7 +48,7 @@ namespace Composable.Persistence.PgSql.EventStore
             REFERENCES {EventTable.Name} ({C.EventId})
     );
 
-    CREATE INDEX IX_{EventTable.Name}_{C.EffectiveOrder} ON {EventTable.Name} 
+    CREATE INDEX IF NOT EXISTS IX_{EventTable.Name}_{C.EffectiveOrder} ON {EventTable.Name} 
             ({C.EffectiveOrder} , {C.EffectiveVersion} );
             /*INCLUDE ({C.EventType}, {C.InsertionOrder})*/
 "));

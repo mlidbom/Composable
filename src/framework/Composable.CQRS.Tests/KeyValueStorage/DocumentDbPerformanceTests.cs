@@ -10,7 +10,7 @@ namespace Composable.Tests.KeyValueStorage
     [Performance, LongRunning, Serial]
     [TestFixture] class DocumentDbPerformanceTests : DocumentDbTestsBase
     {
-        [Test] public void In150Milliseconds_MsSql_saves_200_MySql_55_InMemory_2000()
+        [Test] public void In150Milliseconds_MsSql_saves_200_MySql_55_InMemory_2000_PgSql_200()
         {
             ServiceLocator.ExecuteInIsolatedScope(() =>
             {

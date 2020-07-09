@@ -62,16 +62,11 @@ FROM {EventTable.Name}";
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
-            if(takeWriteLock)
+            IReadOnlyList<EventDataRow> GetHistory()
             {
-                //Urgent: Find a way of doing this ServerSide so that we don't have to make two roundtrips to the server.
-                _connectionManager.UseCommand(command => command.SetCommandText($"select {C.AggregateId} from aggregatelock where aggregateid = @{C.AggregateId} for update")
-                                                                                        .AddParameter(C.AggregateId, aggregateId)
-                                                                                        .ExecuteNonQuery());
-
-                using var ignore = new TransactionScope(TransactionScopeOption.Suppress);
                 return _connectionManager.UseCommand(suppressTransactionWarning: true,
                                                      command => command.SetCommandText($@"
+
 {CreateSelectClause()} 
 WHERE {C.AggregateId} = @{C.AggregateId}
     AND {C.InsertedVersion} >= @CachedVersion
@@ -85,19 +80,20 @@ ORDER BY {C.EffectiveOrder} ASC;
                                                                        .ToList());
             }
 
-            return _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
-                                                 command => command.SetCommandText($@"
-{CreateSelectClause()} 
-WHERE {C.AggregateId} = @{C.AggregateId}
-    AND {C.InsertedVersion} >= @CachedVersion
-    AND {C.EffectiveVersion} > 0
-ORDER BY {C.EffectiveOrder} ASC;
-")
-                                                                   .AddParameter(C.AggregateId, aggregateId)
-                                                                   .AddParameter("CachedVersion", startAfterInsertedVersion)
-                                                                   .ExecuteReaderAndSelect(ReadDataRow)
-                                                                   .SkipWhile(@this => @this.StorageInformation.InsertedVersion <= startAfterInsertedVersion)
-                                                                   .ToList());
+            if(takeWriteLock)
+            {
+                //Performance: Find a way of doing this so that it does not involve two round trips to the server.
+                _connectionManager.UseCommand(command => command.SetCommandText($"select {C.AggregateId} from AggregateLock where AggregateId = @{C.AggregateId} for update")
+                                                                                        .AddParameter(C.AggregateId, aggregateId)
+                                                                                        .ExecuteNonQuery());
+
+                //We took care of the locking on the line above. Suppressing the current transaction keeps PostgreSql from incorrectly detecting a collision and failing our transactions.
+                using var ignore = new TransactionScope(TransactionScopeOption.Suppress);
+                return GetHistory();
+            } else
+            {
+                return GetHistory();
+            }
         }
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)

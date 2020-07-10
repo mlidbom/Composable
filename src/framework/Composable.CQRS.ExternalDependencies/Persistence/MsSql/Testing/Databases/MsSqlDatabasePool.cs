@@ -33,11 +33,11 @@ namespace Composable.Persistence.MsSql.Testing.Databases
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _masterConnectionString!.Replace(InitialCatalogMaster, $";Initial Catalog={db.Name()};");
+            => _masterConnectionString!.Replace(InitialCatalogMaster, $";Initial Catalog={db.Name};");
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
-            var databaseName = db.Name();
+            var databaseName = db.Name;
             var exists = (string)_masterConnectionProvider.ExecuteScalar($"select name from sysdatabases where name = '{databaseName}'") == databaseName;
             if(exists)
             {

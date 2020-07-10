@@ -14,6 +14,7 @@ using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.System.Transactions;
+using Composable.SystemExtensions;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;
 using Composable.Testing.Performance;
@@ -28,7 +29,7 @@ using NUnit.Framework;
 namespace Composable.Tests.CQRS
 {
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql))]
+    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql))]
     [TestFixture]
     public class EventStoreUpdaterTest
     {
@@ -287,13 +288,13 @@ namespace Composable.Tests.CQRS
                                     {
                                         session.Delete(user1.Id);
 
-                                        Assert.IsFalse(session.TryGet(user1.Id, out User _));
-
                                         var loadedUser2 = session.Get<User>(user2.Id);
                                         Assert.That(loadedUser2.Id, Is.EqualTo(user2.Id));
                                         Assert.That(loadedUser2.Email, Is.EqualTo(user2.Email));
                                         Assert.That(loadedUser2.Password, Is.EqualTo(user2.Password));
                                     });
+
+            UseInTransactionalScope(session => Assert.IsFalse(session.TryGet(user1.Id, out User _)));
         }
 
         [Test]
@@ -603,7 +604,6 @@ namespace Composable.Tests.CQRS
                 });
         }
 
-        //urgent: Fix transactionality of InMemory event store and reenable this test in ncrunch.
         [Test, LongRunning]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed()
         {
@@ -617,6 +617,7 @@ namespace Composable.Tests.CQRS
 
 
             var changeEmailSection = GatedCodeSection.WithTimeout(2.Seconds());
+            var hasFetchedUser = ThreadGate.CreateOpenWithTimeout(10.Seconds());
             void UpdateEmail()
             {
                 UseInTransactionalScope(session =>
@@ -624,12 +625,13 @@ namespace Composable.Tests.CQRS
                                             using(changeEmailSection.Enter())
                                             {
                                                 var userToUpdate = session.Get<User>(user.Id);
+                                                hasFetchedUser.AwaitPassthrough(1.Seconds());
                                                 userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
                                             }
                                         });
             }
 
-               var threads = 2;
+            var threads = 2;
 
             var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(UpdateEmail)).ToArray();
 
@@ -639,11 +641,16 @@ namespace Composable.Tests.CQRS
 
             Thread.Sleep(100.Milliseconds());
 
-            changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction.");
+            var bothTasksReadUserException = ExceptionExtensions.TryCatch(() => hasFetchedUser.Passed.Should().Be(1, "Only one thread should have been able to fetch the aggregate"));
+
+            //Urgent: This fails intermittently with MySql with two threads waiting at the exit gate. We don't seem to get consistently correct locking with MySql. It does work the great majority of the runs though...
+            var bothTasksCompletedException = ExceptionExtensions.TryCatch(() => changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction."));
 
             changeEmailSection.Open();
 
-            Task.WaitAll(tasks);//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized. Or a deadlock will be thrown if the locking is not done correctly.
+            var taskException = ExceptionExtensions.TryCatch(() => Task.WaitAll(tasks)) as AggregateException;//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized. Or a deadlock will be thrown if the locking is not done correctly.
+
+            if(bothTasksCompletedException != null || taskException != null || bothTasksReadUserException != null)throw new AggregateException(Seq.Create(bothTasksCompletedException).Append(bothTasksReadUserException).Concat(taskException.InnerExceptions).Where(@this => @this != null));
 
             UseInScope(
                 session =>

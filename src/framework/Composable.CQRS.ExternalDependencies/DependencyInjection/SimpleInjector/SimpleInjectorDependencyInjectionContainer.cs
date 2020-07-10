@@ -5,7 +5,7 @@ using Composable.Contracts;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 
-namespace Composable.DependencyInjection.SimpleInjectorImplementation
+namespace Composable.DependencyInjection.SimpleInjector
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class SimpleInjectorDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator, IServiceLocatorKernel
@@ -36,17 +36,17 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
             {
                 var lifestyle = componentRegistration.Lifestyle switch
                 {
-                    Lifestyle.Singleton => (SimpleInjector.Lifestyle)SimpleInjector.Lifestyle.Singleton,
-                    Lifestyle.Scoped => SimpleInjector.Lifestyle.Scoped,
+                    Lifestyle.Singleton => (global::SimpleInjector.Lifestyle)global::SimpleInjector.Lifestyle.Singleton,
+                    Lifestyle.Scoped => global::SimpleInjector.Lifestyle.Scoped,
                     _ => throw new ArgumentOutOfRangeException(nameof(componentRegistration.Lifestyle))
                 };
 
-                if (componentRegistration.InstantiationSpec.Instance != null)
+                if (componentRegistration.InstantiationSpec.SingletonInstance != null)
                 {
-                    Contract.Assert.That(lifestyle == SimpleInjector.Lifestyle.Singleton, "Instance can only be used with singletons.");
+                    Contract.Assert.That(lifestyle == global::SimpleInjector.Lifestyle.Singleton, "Instance can only be used with singletons.");
                     foreach(var serviceType in componentRegistration.ServiceTypes)
                     {
-                        _container.RegisterInstance(serviceType, componentRegistration.InstantiationSpec.Instance);
+                        _container.RegisterInstance(serviceType, componentRegistration.InstantiationSpec.SingletonInstance);
                     }
                 } else if(componentRegistration.InstantiationSpec.FactoryMethod != null)
                 {
@@ -66,12 +66,12 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
             }
         }
 
-        static SimpleInjector.Lifestyle GetSimpleInjectorLifestyle(Lifestyle @this)
+        static global::SimpleInjector.Lifestyle GetSimpleInjectorLifestyle(Lifestyle @this)
         {
             return @this switch
             {
-                Lifestyle.Singleton => SimpleInjector.Lifestyle.Singleton,
-                Lifestyle.Scoped => SimpleInjector.Lifestyle.Scoped,
+                Lifestyle.Singleton => global::SimpleInjector.Lifestyle.Singleton,
+                Lifestyle.Scoped => global::SimpleInjector.Lifestyle.Scoped,
                 _ => throw new ArgumentOutOfRangeException(nameof(@this), @this, null)
             };
         }

@@ -33,7 +33,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             IList<IEventMigration> migrations = new List<IEventMigration>();
             using var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations.ToArray());
             var timeSource = serviceLocator.Resolve<TestingTimeSource>();
-            timeSource.FreezeAtUtcTime(DateTime.Parse("2001-01-01 01:01:01.01"));
+            timeSource.FreezeAtUtcTime(DateTime.Parse("2001-02-02 01:01:01.011111"));
             var scenarioIndex = 1;
             foreach(var migrationScenario in scenarios)
             {

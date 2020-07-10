@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.Serialization;
+using JetBrains.Annotations;
 
 namespace Composable.Testing.Databases
 {
@@ -26,7 +27,9 @@ namespace Composable.Testing.Databases
             internal string ReservationName { get; private set; } = string.Empty;
             internal Guid ReservedByPoolId { get; private set; } = Guid.Empty;
 
-            public Database() { }
+            internal string Name => $"{PoolDatabaseNamePrefix}{Id:0000}";
+
+            [UsedImplicitly]public Database() { }
             internal Database(int id) => Id = id;
             internal Database(string name) : this(IdFromName(name)) { }
 
@@ -68,7 +71,7 @@ namespace Composable.Testing.Databases
                 return this;
             }
 
-            public override string ToString() => $"{nameof(Id)}: {Id}, {nameof(IsReserved)}: {IsReserved}, {nameof(ExpirationDateTime)}: {ExpirationDateTime}, {nameof(ReservationName)}:{ReservationName}, {nameof(ReservedByPoolId)}:{ReservedByPoolId}";
+            public override string ToString() => $"{nameof(Id)}: {Id}, {nameof(IsReserved)}: {IsReserved}, {nameof(IsClean)}: {IsClean}, {nameof(ExpirationDateTime)}: {ExpirationDateTime}, {nameof(ReservationName)}:{ReservationName}, {nameof(ReservedByPoolId)}:{ReservedByPoolId}";
         }
     }
 }

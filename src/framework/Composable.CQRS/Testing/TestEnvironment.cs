@@ -76,16 +76,17 @@ namespace Composable.Testing
         }
 
 
-        public static int ValueForPersistenceProvider(int? msSql = null, int? mySql = null, int? inMem = null)
-            => ValueForPersistenceProvider<int>(msSql: msSql, mySql: mySql, inMem: inMem);
+        public static int ValueForPersistenceProvider(int? msSql = null, int? mySql = null, int? inMem = null, int? pgSql = null)
+            => ValueForPersistenceProvider<int>(msSql: msSql, mySql: mySql, inMem: inMem, pgSql: pgSql);
 
-        public static TValue ValueForPersistenceProvider<TValue>(TValue? msSql= null, TValue? mySql = null, TValue? inMem = null)
+        public static TValue ValueForPersistenceProvider<TValue>(TValue? msSql= null, TValue? mySql = null, TValue? inMem = null, TValue? pgSql = null)
         where TValue : struct
         => TestEnvironment.TestingPersistenceLayer switch
             {
                 PersistenceLayer.MsSql => msSql ?? throw new Exception($"Value missing for {nameof(msSql)}"),
                 PersistenceLayer.InMemory => inMem ?? throw new Exception($"Value missing for {nameof(inMem)}"),
                 PersistenceLayer.MySql => mySql?? throw new Exception($"Value missing for {nameof(mySql)}"),
+                PersistenceLayer.PgSql => pgSql?? throw new Exception($"Value missing for {nameof(pgSql)}"),
                 _ => throw new ArgumentOutOfRangeException()
             };
     }

@@ -54,12 +54,6 @@ namespace Composable.DependencyInjection
             return new ComponentRegistration<TService>(_lifestyle, ServiceTypes, InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator), implementationType));
         }
 
-        internal ComponentRegistration<TService> CreatedBy(Type implementationType, Func<IServiceLocatorKernel, object> factoryMethod)
-        {
-            AssertImplementsAllServices(implementationType);
-            return new ComponentRegistration<TService>(_lifestyle, ServiceTypes, InstantiationSpec.FromFactoryMethod(factoryMethod, implementationType));
-        }
-
         protected void AssertImplementsAllServices(Type implementationType)
         {
             var unImplementedService = ServiceTypes.FirstOrDefault(serviceType => !serviceType.IsAssignableFrom(implementationType));
@@ -83,9 +77,9 @@ namespace Composable.DependencyInjection
 
     class InstantiationSpec
     {
-        internal object? Instance { get; }
+        internal object? SingletonInstance { get; }
         internal object RunFactoryMethod(IServiceLocatorKernel kern) => FactoryMethod!(kern);
-        internal Func<IServiceLocatorKernel, object>? FactoryMethod { get; }
+        internal Func<IServiceLocatorKernel, object> FactoryMethod { get; }
         internal Type FactoryMethodReturnType { get; }
 
         internal static InstantiationSpec FromInstance(object instance) => new InstantiationSpec(instance);
@@ -98,12 +92,12 @@ namespace Composable.DependencyInjection
             FactoryMethodReturnType = factoryMethodReturnType;
         }
 
-        InstantiationSpec(object instance)
+        InstantiationSpec(object singletonInstance)
         {
-            Assert.Argument.NotNull(instance);
-            Instance = instance;
-            FactoryMethod = kern => instance;
-            FactoryMethodReturnType = instance.GetType();
+            Assert.Argument.NotNull(singletonInstance);
+            SingletonInstance = singletonInstance;
+            FactoryMethod = kern => singletonInstance;
+            FactoryMethodReturnType = singletonInstance.GetType();
         }
     }
 
@@ -117,35 +111,12 @@ namespace Composable.DependencyInjection
 
         internal readonly int[] ServiceTypeIndexes;
 
-        readonly object _lock = new object();
-        object? _singletonInstance;
-#pragma warning disable 8602 //todo: dereference of a possibly null value.
-        internal object CreateInstance(IServiceLocatorKernel kernel) => InstantiationSpec.FactoryMethod(kernel);
-#pragma warning restore 8602
-
-        internal object GetSingletonInstance(ComposableDependencyInjectionContainer kernel, ComposableDependencyInjectionContainer.RootCache cache)
-        {
-            if(_singletonInstance == null)
-            {
-                lock(_lock)
-                {
-                    if(_singletonInstance == null)
-                    {
-                        _singletonInstance = CreateInstance(kernel);
-                        cache.Set(_singletonInstance, this);
-                    }
-                }
-            }
-
-            return _singletonInstance;
-        }
-
         internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
         {
             serviceTypes = serviceTypes.ToList();
 
             ServiceTypeIndexes = serviceTypes.Select(ComposableDependencyInjectionContainer.ServiceTypeIndex.For).ToArray();
-            Contract.Arguments.That(lifestyle == Lifestyle.Singleton || instantiationSpec.Instance == null, $"{nameof(InstantiationSpec.Instance)} registrations must be {nameof(Lifestyle.Singleton)}s");
+            Contract.Arguments.That(lifestyle == Lifestyle.Singleton || instantiationSpec.SingletonInstance == null, $"{nameof(InstantiationSpec.SingletonInstance)} registrations must be {nameof(Lifestyle.Singleton)}s");
 
             ServiceTypes = serviceTypes;
             InstantiationSpec = instantiationSpec;
@@ -154,15 +125,7 @@ namespace Composable.DependencyInjection
 
         internal abstract ComponentRegistration CreateCloneRegistration(IServiceLocator currentLocator);
 
-        internal void Dispose()
-        {
-            if(InstantiationSpec.Instance == null && _singletonInstance is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-        }
-
-        internal abstract object Resolve(ComposableDependencyInjectionContainer serviceLocator);
+        internal abstract object Resolve(IServiceLocator serviceLocator);
     }
 
     public class ComponentRegistration<TService> : ComponentRegistration where TService : class
@@ -194,7 +157,7 @@ namespace Composable.DependencyInjection
             );
         }
 
-        internal override object Resolve(ComposableDependencyInjectionContainer locator) => locator.Resolve<TService>();
+        internal override object Resolve(IServiceLocator locator) => locator.Resolve<TService>();
 
         internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
             :base(lifestyle, serviceTypes, instantiationSpec)

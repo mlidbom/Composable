@@ -4,6 +4,7 @@ using Composable.Messaging.Buses;
 using Composable.Persistence.InMemory.DependencyInjection;
 using Composable.Persistence.MySql.DependencyInjection;
 using Composable.Persistence.MsSql.DependencyInjection;
+using Composable.Persistence.PgSql.DependencyInjection;
 using Composable.Testing;
 using Composable.Testing.Performance;
 
@@ -25,6 +26,9 @@ namespace Composable.Persistence.Common.DependencyInjection
                     break;
                 case PersistenceLayer.MySql:
                     container.RegisterMySqlPersistenceLayer(connectionStringName);
+                    break;
+                case PersistenceLayer.PgSql:
+                    container.RegisterPgSqlPersistenceLayer(connectionStringName);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

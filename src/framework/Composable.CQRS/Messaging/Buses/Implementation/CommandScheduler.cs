@@ -33,7 +33,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Schedule(DateTime sendAt, MessageTypes.Remotable.ExactlyOnce.ICommand message) => _guard.Update(() =>
         {
-            if(_timeSource.UtcNow > sendAt.ToUniversalTime())
+            if(_timeSource.UtcNow > sendAt.ToUniversalTimeSafely())
                 throw new InvalidOperationException(message: "You cannot schedule a queuedMessageInformation to be sent in the past.");
 
             var scheduledCommand = new ScheduledCommand(sendAt, message);
@@ -58,7 +58,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public ScheduledCommand(DateTime sendAt, MessageTypes.Remotable.ExactlyOnce.ICommand command)
             {
-                SendAt = sendAt.SafeToUniversalTime();
+                SendAt = sendAt.ToUniversalTimeSafely();
                 Command = command;
             }
         }

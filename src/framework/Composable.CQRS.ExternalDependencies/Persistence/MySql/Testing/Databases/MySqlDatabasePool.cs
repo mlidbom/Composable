@@ -33,11 +33,11 @@ namespace Composable.Persistence.MySql.Testing.Databases
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _masterConnectionString!.Replace(DatabaseMySql, $";Database={db.Name()};");
+            => _masterConnectionString!.Replace(DatabaseMySql, $";Database={db.Name};");
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
-            var databaseName = db.Name();
+            var databaseName = db.Name;
             //Urgent: Figure out MySql equivalents and if they need to be specified
             //            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
             //            {
@@ -58,8 +58,8 @@ CREATE DATABASE {databaseName};");
 
         protected override void ResetDatabase(Database db) =>
             new MySqlConnectionProvider(this.ConnectionStringFor(db)).ExecuteNonQuery($@"
-DROP DATABASE {db.Name()};
-CREATE DATABASE {db.Name()};");
+DROP DATABASE {db.Name};
+CREATE DATABASE {db.Name};");
 
         void ResetConnectionPool(Database db)
         {

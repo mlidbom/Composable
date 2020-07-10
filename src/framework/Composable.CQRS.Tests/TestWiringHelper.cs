@@ -16,9 +16,6 @@ namespace Composable.Tests
         internal static IEventStore EventStore(this IServiceLocator @this) =>
             @this.Resolve<IEventStore>();
 
-        internal static IEventStore SqlEventStore(this IServiceLocator @this) =>
-            @this.EventStore();//todo: Throw here if it is not the correct type of store
-
         internal static IDocumentDb DocumentDb(this IServiceLocator @this) =>
             @this.Resolve<IDocumentDb>();
 

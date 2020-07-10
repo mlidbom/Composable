@@ -82,7 +82,7 @@ ORDER BY {C.EffectiveOrder} ASC")
                                                                 {
                                                                     var commandText = $@"
 {CreateSelectClause(takeWriteLock: false)} 
-WHERE {C.EffectiveOrder}  > CAST(@{C.EffectiveOrder} AS DECIMAL(38,19))
+WHERE {C.EffectiveOrder}  > CAST(@{C.EffectiveOrder} AS {EventTable.ReadOrderType})
     AND {C.EffectiveVersion} > 0
 ORDER BY {C.EffectiveOrder} ASC
 LIMIT {batchSize}";

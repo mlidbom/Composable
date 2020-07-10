@@ -32,7 +32,8 @@ namespace Composable.DependencyInjection
     {
         MsSql,
         InMemory,
-        MySql
+        MySql,
+        PgSql
     }
 
     enum Lifestyle

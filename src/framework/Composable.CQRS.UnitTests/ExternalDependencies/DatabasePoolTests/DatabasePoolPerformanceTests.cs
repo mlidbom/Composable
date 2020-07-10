@@ -3,6 +3,7 @@ using Composable.DependencyInjection;
 using Composable.Logging;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MsSql.SystemExtensions;
+using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.System;
 using Composable.Testing;
 using Composable.Testing.Databases;
@@ -109,48 +110,42 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         [Test]
-        public void Once_DB_Fetched_MsSql_Can_use_400_connections_in_10_milliseconds_MySql_40()
+        public void Once_DB_Fetched_MsSql_Can_use_100_connections_in_2_milliseconds_MySql_25_milliseconds_PgSql_1_millisecond()
         {
             using var manager = CreatePool();
             manager.SetLogLevel(LogLevel.Warning);
             var reservationName = Guid.NewGuid().ToString();
-            TestConnectionUsage(manager, reservationName);
-        }
+            var connectionsToUse = 100;
 
-        static void TestConnectionUsage(DatabasePool manager, string reservationName)
-        {
-            switch(TestEnvironment.TestingPersistenceLayer)
+            Action useConnection = null;
+
+           switch(TestEnvironment.TestingPersistenceLayer)
             {
                 case PersistenceLayer.MsSql:
-                {
-                    var connectionProvider = new MsSqlConnectionProvider(manager.ConnectionStringFor(reservationName));
-                    connectionProvider.UseConnection(_ => {});
-
-                    TimeAsserter.Execute(
-                        action: () => connectionProvider.UseConnection(_ => {}),
-                        iterations: 400,
-                        maxTotal: 10.Milliseconds()
-                    );
-                }
+                    var msSqlConnectionProvider = new MsSqlConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    useConnection = () => msSqlConnectionProvider.UseConnection(_ => {});
                     break;
                 case PersistenceLayer.InMemory:
                     break;
                 case PersistenceLayer.MySql:
-                {
-                    var connectionProvider = new MySqlConnectionProvider(manager.ConnectionStringFor(reservationName));
-                    connectionProvider.UseConnection(_ => {});
-
-                    //Performance: do something about the performance of opening MySql connections.
-                    TimeAsserter.Execute(
-                        action: () => connectionProvider.UseConnection(_ => {}),
-                        iterations: 40,
-                        maxTotal: 10.Milliseconds()
-                    );
-                }
+                    var mySqlConnectionProvider = new MySqlConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    useConnection = () => mySqlConnectionProvider.UseConnection(_ => {});
+                    break;
+                case PersistenceLayer.PgSql:
+                    var pgSqlConnectionProvider = new PgSqlConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    useConnection = () => pgSqlConnectionProvider.UseConnection(_ => {});
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+           useConnection();
+
+           TimeAsserter.Execute(
+               action: useConnection!,
+               iterations: connectionsToUse,
+               maxTotal: TestEnvironment.ValueForPersistenceProvider<TimeSpan>(msSql:2.Milliseconds(), mySql: 25.Milliseconds(), pgSql:1.Milliseconds())
+           );
         }
     }
 }

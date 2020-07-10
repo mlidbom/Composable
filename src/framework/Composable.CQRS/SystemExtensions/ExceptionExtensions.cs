@@ -20,9 +20,23 @@ namespace Composable.SystemExtensions
                  yield return exception;
                  exception = exception.InnerException;
              } while (exception != null);
-         }
+        }
 
         ///<summary>Returns the deepest nested inner exception that was the root cause of the current exception.</summary>
         public static Exception GetRootCauseException(this Exception e) => e.GetAllExceptionsInStack().Last();
+
+
+        internal static Exception? TryCatch(Action generateException)
+        {
+            try
+            {
+                generateException();
+            }
+            catch(Exception e)
+            {
+                return e;
+            }
+            return null;
+        }
     }
 }

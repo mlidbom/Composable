@@ -23,7 +23,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         {
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName);
 
-            _masterConnectionString = masterConnectionString ?? $"Host=localhost{DatabasePgSql}Username=postgres;Password=Development!1;";
+            _masterConnectionString = masterConnectionString ?? $"Host=localhost{DatabasePgSql}Username=postgres;Password=Development!1;Connection Idle Lifetime=5;Connection Pruning Interval=1";
 
             _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 

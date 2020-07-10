@@ -117,8 +117,6 @@ namespace Composable.DependencyInjection
 
         internal readonly int[] ServiceTypeIndexes;
 
-        internal readonly object Lock = new object();
-
         internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
         {
             serviceTypes = serviceTypes.ToList();

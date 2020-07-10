@@ -121,7 +121,7 @@ namespace Composable.DependencyInjection
 
             var previousResolvingComponent = _parentComponent;
             _parentComponent = currentComponent;
-            lock(currentComponent.Lock)
+            lock(registrations)
             {
                 try
                 {

@@ -29,7 +29,7 @@ namespace Composable.DependencyInjection
                     throw new Exception("Scope already exists. Nested scopes are not supported.");
                 }
 
-                _scopeCache.Value = _rootCache!.CreateScopeCache();
+                _scopeCache.Value = _rootCache.CreateScopeCache();
 
                 return Disposable.Create(EndScope);
             }
@@ -74,7 +74,7 @@ namespace Composable.DependencyInjection
             {
                 object cachedSingletonInstance;
                 ComponentRegistration[] registrations;
-                (registrations, cachedSingletonInstance) = _rootCache!.TryGet<TService>();
+                (registrations, cachedSingletonInstance) = _rootCache.TryGet<TService>();
                 currentComponent = Assert.Result.NotNull(registrations[0]);
                 resolve = null;
 
@@ -118,7 +118,7 @@ namespace Composable.DependencyInjection
                         case Lifestyle.Singleton:
                         {
                             instance = (TService)currentComponent.InstantiationSpec.FactoryMethod(this);
-                            _rootCache!.Set(instance, currentComponent);
+                            _rootCache.Set(instance, currentComponent);
                             return instance;
                         }
                         case Lifestyle.Scoped:
@@ -140,7 +140,7 @@ namespace Composable.DependencyInjection
                 if(!_disposed)
                 {
                     _disposed = true;
-                    _rootCache!.Dispose();
+                    _rootCache.Dispose();
                 }
             }
         }

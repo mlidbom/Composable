@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.Messaging.Buses;
 using Composable.System.Linq;
 
 namespace Composable.DependencyInjection
 {
     partial class ComposableDependencyInjectionContainer
     {
-        internal class RootCache
+        internal class RootCache : IDisposable
         {
             readonly int[] _serviceTypeIndexToComponentIndex;
             readonly (ComponentRegistration[] Registrations, object Instance)[] _cache;
@@ -26,9 +25,10 @@ namespace Composable.DependencyInjection
 
                 registrations.SelectMany(registration => registration.ServiceTypes.Select(serviceType => new {registration, serviceType, typeIndex = ServiceTypeIndex.For(serviceType)}))
                              .GroupBy(registrationPerTypeIndex => registrationPerTypeIndex.typeIndex)
-                             .ForEach(registrationsOnTypeindex =>
+                             .ForEach(registrationsOnTypeIndex =>
                               {
-                                  _cache[registrationsOnTypeindex.Key].Registrations = registrationsOnTypeindex.Select(regs => regs.registration).ToArray();
+                                  //refactor: We don't support more than one registration. The whole DI container assumes a single registration. Why does this code not?
+                                  _cache[registrationsOnTypeIndex.Key].Registrations = registrationsOnTypeIndex.Select(regs => regs.registration).ToArray();
                               });
 
 
@@ -49,7 +49,16 @@ namespace Composable.DependencyInjection
 
             public void Set(object instance, ComponentRegistration registration) => _cache[registration.ComponentIndex].Instance = instance;
 
-            internal (ComponentRegistration[] Registrations, object Instance) Get<TService>() => _cache[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
+            internal (ComponentRegistration[] Registrations, object Instance) TryGetSingleton<TService>() => _cache[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
+
+            public void Dispose()
+            {
+                _cache.Where(@this => @this.Registrations != null && @this.Instance != null)
+                   .Where(@this => @this.Registrations[0].InstantiationSpec.SingletonInstance == null)//We don't dispose instance registrations.
+                   .Select(@this => @this.Instance)
+                      .OfType<IDisposable>()
+                      .ForEach(disposable => disposable.Dispose());
+            }
         }
 
         internal class ScopeCache : IDisposable

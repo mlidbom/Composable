@@ -17,7 +17,7 @@ namespace Composable.DependencyInjection
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
         readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
-        RootCache? _cache;
+        RootCache? _rootCache;
 
         int _maxComponentIndex;
 
@@ -50,7 +50,7 @@ namespace Composable.DependencyInjection
 
         internal ComponentRegistration GetRegistrationFor<TService>()
         {
-            var componentRegistrations = _cache!.Get<TService>().Registrations;
+            var componentRegistrations = _rootCache!.TryGetSingleton<TService>().Registrations;
             if(componentRegistrations == null)
             {
                 throw new Exception($"There is no registered component for {typeof(TService).FullName}");
@@ -64,7 +64,7 @@ namespace Composable.DependencyInjection
             if(!_createdServiceLocator)
             {
                 _createdServiceLocator = true;
-                _cache = new RootCache(_registeredComponents.Values.ToList());//Don't create in the constructor because no registrations are done and thus new component indexes will appear, thus breaking the cache.
+                _rootCache = new RootCache(_registeredComponents.Values.ToList());//Don't create in the constructor because no registrations are done and thus new component indexes will appear, thus breaking the cache.
                 Verify();
             }
 
@@ -92,7 +92,7 @@ namespace Composable.DependencyInjection
                 throw new Exception("Scope already exists. Nested scopes are not supported.");
             }
 
-            _scopeCache.Value = _cache!.CreateScopeCache();
+            _scopeCache.Value = _rootCache!.CreateScopeCache();
 
             return Disposable.Create(EndScope);
         }
@@ -112,7 +112,7 @@ namespace Composable.DependencyInjection
         public TService Resolve<TService>() where TService : class
         {
             Assert.State.Assert(!_disposed);
-            var (registrations, instance) = _cache!.Get<TService>();
+            var (registrations, instance) = _rootCache!.TryGetSingleton<TService>();
 
             if(instance is TService singleton)
             {
@@ -146,97 +146,37 @@ namespace Composable.DependencyInjection
 
             var previousResolvingComponent = _parentComponent;
             _parentComponent = currentComponent;
-            try
+            lock(currentComponent.Lock)
             {
-                switch(currentComponent.Lifestyle)
+                try
                 {
-                    case Lifestyle.Singleton:
+                    switch(currentComponent.Lifestyle)
                     {
-                        return (TService)currentComponent.GetSingletonInstance(this, _cache);
-                    }
-                    case Lifestyle.Scoped:
-                    {
-                        if(scopeCache == null)
+                        case Lifestyle.Singleton:
                         {
-                            throw new Exception("Attempted to resolve scoped component without a scope");
+                            instance = currentComponent.InstantiationSpec.FactoryMethod(this);
+                            _rootCache.Set(instance, currentComponent);
+                            return (TService)instance;
                         }
+                        case Lifestyle.Scoped:
+                        {
+                            if(scopeCache == null)
+                            {
+                                throw new Exception("Attempted to resolve scoped component without a scope");
+                            }
 
-                        var newInstance = currentComponent.CreateInstance(this);
-                        scopeCache.Set(newInstance, currentComponent);
-
-                        return (TService)newInstance;
+                            instance = currentComponent.InstantiationSpec.FactoryMethod(this);
+                            scopeCache.Set(instance, currentComponent);
+                            return (TService)instance;
+                        }
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
-            }
-            finally
-            {
-                _parentComponent = previousResolvingComponent;
-            }
-        }
-
-        internal TService ResolveSingleton<TService>(ComponentRegistration currentComponent) where TService : class
-        {
-            Assert.State.Assert(!_disposed);
-            var (registrations, instance) = _cache!.Get<TService>();
-
-            if(instance is TService singleton)
-            {
-                return singleton;
-            }
-
-            if(registrations.Length > 1)
-            {
-                throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
-            }
-
-            var previousResolvingComponent = _parentComponent;
-            _parentComponent = currentComponent;
-            try
-            {
-                return (TService)currentComponent.GetSingletonInstance(this, _cache);
-            }
-            finally
-            {
-                _parentComponent = previousResolvingComponent;
-            }
-        }
-
-        internal TService ResolveScoped<TService>(ComponentRegistration currentComponent) where TService : class
-        {
-            Assert.State.Assert(!_disposed);
-             var scopeCache = _scopeCache.Value;
-
-            if(scopeCache == null)
-            {
-                throw new Exception("Attempted to resolve scoped component without a scope"); //Todo: Write test
-            }
-
-            //todo: We have all this information while registering the components don't we? Do the validation there so that the line that makes un invalid registration fails immediately and so that the validation applies to all DI containers.
-            if(_parentComponent?.Lifestyle == Lifestyle.Singleton)
-            {
-                //Todo: Write test
-                throw new Exception($"{Lifestyle.Singleton} service: {_parentComponent.ServiceTypes.First().FullName} depends on {currentComponent.Lifestyle} service: {currentComponent.ServiceTypes.First().FullName} ");
-            }
-
-            // ReSharper disable once PatternAlwaysOfType Silly ReSharper is wrong again
-            if (scopeCache.TryGet<TService>() is TService scoped)
-            {
-                return scoped;
-            }
-
-            var previousResolvingComponent = _parentComponent;
-            _parentComponent = currentComponent;
-            try
-            {
-                var newInstance = currentComponent.CreateInstance(this);
-                scopeCache.Set(newInstance, currentComponent);
-                return (TService)newInstance;
-            }
-            finally
-            {
-                _parentComponent = previousResolvingComponent;
+                finally
+                {
+                    _parentComponent = previousResolvingComponent;
+                }
             }
         }
 
@@ -246,10 +186,7 @@ namespace Composable.DependencyInjection
             if(!_disposed)
             {
                 _disposed = true;
-                foreach(var singleton in _singletons)
-                {
-                    singleton.Dispose();
-                }
+                _rootCache!.Dispose();
             }
         }
     }

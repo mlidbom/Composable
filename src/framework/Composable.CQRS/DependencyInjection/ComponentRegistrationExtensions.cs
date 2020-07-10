@@ -6,75 +6,8 @@ namespace Composable.DependencyInjection
     {
         class ComponentPromise<TService> where TService : class
         {
-            class ComposableState
-            {
-                public ComposableState(TService? singletonInstance, ComponentRegistration registration, IServiceLocatorKernel initialKernel, Lifestyle lifestyle)
-                {
-                    SingletonInstance = singletonInstance;
-                    Registration = registration;
-                    InitialKernel = initialKernel;
-                    Lifestyle = lifestyle;
-                }
-
-                public readonly TService? SingletonInstance;
-                public readonly ComponentRegistration Registration;
-                public readonly IServiceLocatorKernel InitialKernel;
-                public readonly Lifestyle Lifestyle;
-            }
-
-            readonly object _lock = new object();
-            bool _unInitialized = true;
-            ComposableState? _composableState;
-            TService? _singletonInstance;
-            public TService Resolve(IServiceLocatorKernel kernel)
-            {
-                if(_unInitialized)
-                {
-                    lock(_lock)
-                    {
-                        if(_unInitialized)
-                        {
-                            //refactor: We should have no type checking in here. Why would this be used for other kernels?
-                            if(kernel is ComposableDependencyInjectionContainer container)
-                            {
-                                var registration = container.GetRegistrationFor<TService>();
-                                switch(registration.Lifestyle)
-                                {
-                                    case Lifestyle.Singleton:
-                                        _singletonInstance = container.ResolveSingleton<TService>(registration);
-                                        break;
-                                    case Lifestyle.Scoped:
-                                        //performance: Custom method for resolving scoped components.
-                                        break;
-                                    default:
-                                        throw new ArgumentOutOfRangeException();
-                                }
-
-                                _composableState = new ComposableState(_singletonInstance, registration, kernel, registration.Lifestyle);
-                            }
-
-                            _unInitialized = false;
-                        }
-                    }
-                }
-
-                if(_composableState is null)
-                    return kernel.Resolve<TService>();
-
-                switch(_composableState.Lifestyle)
-                {
-                    case Lifestyle.Singleton:
-                        if(_composableState.InitialKernel == kernel)
-                        {
-                            return _composableState.SingletonInstance!;
-                        }
-                        return ((ComposableDependencyInjectionContainer)kernel).ResolveSingleton<TService>(_composableState.Registration);
-                    case Lifestyle.Scoped:
-                        return ((ComposableDependencyInjectionContainer)kernel).ResolveScoped<TService>(_composableState.Registration);
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
+            public TService Resolve(IServiceLocatorKernel kernel) =>
+                kernel.Resolve<TService>();
         }
 
         public static ComponentRegistration<TService> CreatedBy<TService, TImplementation>(

@@ -52,9 +52,9 @@ namespace Composable.DependencyInjection.Windsor
         {
             Castle.MicroKernel.Registration.ComponentRegistration<object> registration = Castle.MicroKernel.Registration.Component.For(componentRegistration.ServiceTypes);
 
-            if (componentRegistration.InstantiationSpec.Instance != null)
+            if (componentRegistration.InstantiationSpec.SingletonInstance != null)
             {
-                registration.Instance(componentRegistration.InstantiationSpec.Instance);
+                registration.Instance(componentRegistration.InstantiationSpec.SingletonInstance);
             }
             else if (componentRegistration.InstantiationSpec.FactoryMethod != null)
             {

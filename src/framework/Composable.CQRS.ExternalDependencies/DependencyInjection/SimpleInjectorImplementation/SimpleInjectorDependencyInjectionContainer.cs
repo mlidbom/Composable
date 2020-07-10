@@ -41,12 +41,12 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
                     _ => throw new ArgumentOutOfRangeException(nameof(componentRegistration.Lifestyle))
                 };
 
-                if (componentRegistration.InstantiationSpec.Instance != null)
+                if (componentRegistration.InstantiationSpec.SingletonInstance != null)
                 {
                     Contract.Assert.That(lifestyle == SimpleInjector.Lifestyle.Singleton, "Instance can only be used with singletons.");
                     foreach(var serviceType in componentRegistration.ServiceTypes)
                     {
-                        _container.RegisterInstance(serviceType, componentRegistration.InstantiationSpec.Instance);
+                        _container.RegisterInstance(serviceType, componentRegistration.InstantiationSpec.SingletonInstance);
                     }
                 } else if(componentRegistration.InstantiationSpec.FactoryMethod != null)
                 {

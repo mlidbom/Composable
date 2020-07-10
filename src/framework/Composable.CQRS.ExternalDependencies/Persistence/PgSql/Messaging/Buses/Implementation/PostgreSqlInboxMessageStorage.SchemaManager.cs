@@ -12,30 +12,32 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
         {
             public static async Task EnsureTablesExistAsync(INpgsqlConnectionProvider connectionFactory)
             {
-                await  connectionFactory.ExecuteNonQueryAsync($@"
+
+                await connectionFactory.ExecuteNonQueryAsync($@"
 
 
     CREATE TABLE IF NOT EXISTS {T.TableName}
     (
-	    {T.Identity} bigint NOT NULL AUTO_INCREMENT,
+	    {T.Identity} bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
         {T.TypeId} {PgSqlGuidType} NOT NULL,
         {T.MessageId} {PgSqlGuidType} NOT NULL,
 	    {T.Status} smallint NOT NULL,
-	    {T.Body} mediumtext NOT NULL,
+	    {T.Body} text NOT NULL,
         {T.ExceptionCount} int NOT NULL DEFAULT 0,
         {T.ExceptionType} varchar(500) NULL,
-        {T.ExceptionStackTrace} mediumtext NULL,
-        {T.ExceptionMessage} mediumtext NULL,
+        {T.ExceptionStackTrace} text NULL,
+        {T.ExceptionMessage} text NULL,
 
 
         PRIMARY KEY ( {T.Identity} ),
 
-        UNIQUE INDEX IX_{T.TableName}_Unique_{T.MessageId} ( {T.MessageId} )
-    )
+        CONSTRAINT IX_{T.TableName}_Unique_{T.MessageId} UNIQUE ( {T.MessageId} )
+    );
 
 
 
 ");
+
             }
         }
     }

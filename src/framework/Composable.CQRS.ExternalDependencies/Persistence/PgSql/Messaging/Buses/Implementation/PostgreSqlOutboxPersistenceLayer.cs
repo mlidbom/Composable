@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.System.Linq;
+using NpgsqlTypes;
 using MessageTable = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
 using DispatchingTable = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 
@@ -21,7 +22,7 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
                     command
                        .SetCommandText(
                             $@"
-INSERT {MessageTable.TableName} 
+INSERT INTO {MessageTable.TableName} 
             ({MessageTable.MessageId},  {MessageTable.TypeIdGuidValue}, {MessageTable.SerializedMessage}) 
     VALUES (@{MessageTable.MessageId}, @{MessageTable.TypeIdGuidValue}, @{MessageTable.SerializedMessage});
 ")
@@ -29,12 +30,12 @@ INSERT {MessageTable.TableName}
                        .AddParameter(MessageTable.TypeIdGuidValue, messageWithReceivers.TypeIdGuidValue)
                         //performance: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
                        .AddMediumTextParameter(MessageTable.SerializedMessage, messageWithReceivers.SerializedMessage)
-                       .AddParameter(DispatchingTable.IsReceived, 0);
+                       .AddParameter(DispatchingTable.IsReceived, NpgsqlDbType.Boolean, false);
 
                     messageWithReceivers.ReceiverEndpointIds.ForEach(
                         (endpointId, index)
                             => command.AppendCommandText($@"
-INSERT {DispatchingTable.TableName} 
+INSERT INTO {DispatchingTable.TableName} 
             ({DispatchingTable.MessageId},  {DispatchingTable.EndpointId},          {DispatchingTable.IsReceived}) 
     VALUES (@{DispatchingTable.MessageId}, @{DispatchingTable.EndpointId}_{index}, @{DispatchingTable.IsReceived});
 ").AddParameter($"{DispatchingTable.EndpointId}_{index}", endpointId));
@@ -50,10 +51,10 @@ INSERT {DispatchingTable.TableName}
                           .SetCommandText(
                                $@"
 UPDATE {DispatchingTable.TableName} 
-    SET {DispatchingTable.IsReceived} = 1
+    SET {DispatchingTable.IsReceived} = true
 WHERE {DispatchingTable.MessageId} = @{DispatchingTable.MessageId}
     AND {DispatchingTable.EndpointId} = @{DispatchingTable.EndpointId}
-    AND {DispatchingTable.IsReceived} = 0
+    AND {DispatchingTable.IsReceived} = false;
 ")
                           .AddParameter(DispatchingTable.MessageId, messageId)
                           .AddParameter(DispatchingTable.EndpointId, endpointId)

@@ -20,9 +20,9 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
                     command
                        .SetCommandText(
                             $@"
-INSERT {Schema.TableName} 
+INSERT INTO {Schema.TableName} 
             ({Schema.MessageId},  {Schema.TypeId},  {Schema.Body}, {Schema.Status}) 
-    VALUES (@{Schema.MessageId}, @{Schema.TypeId}, @{Schema.Body}, {(int)Inbox.MessageStatus.UnHandled})
+    VALUES (@{Schema.MessageId}, @{Schema.TypeId}, @{Schema.Body}, {(int)Inbox.MessageStatus.UnHandled});
 ")
                        .AddParameter(Schema.MessageId, messageId)
                        .AddParameter(Schema.TypeId, typeId)
@@ -43,7 +43,7 @@ INSERT {Schema.TableName}
 UPDATE {Schema.TableName} 
     SET {Schema.Status} = {(int)Inbox.MessageStatus.Succeeded}
 WHERE {Schema.MessageId} = @{Schema.MessageId}
-    AND {Schema.Status} = {(int)Inbox.MessageStatus.UnHandled}
+    AND {Schema.Status} = {(int)Inbox.MessageStatus.UnHandled};
 ")
                                       .AddParameter(Schema.MessageId, messageId)
                                       .ExecuteNonQuery();
@@ -65,7 +65,7 @@ UPDATE {Schema.TableName}
         {Schema.ExceptionStackTrace} = @{Schema.ExceptionStackTrace},
         {Schema.ExceptionMessage} = @{Schema.ExceptionMessage}
         
-WHERE {Schema.MessageId} = @{Schema.MessageId}
+WHERE {Schema.MessageId} = @{Schema.MessageId};
 ")
                           .AddParameter(Schema.MessageId, messageId)
                           .AddMediumTextParameter(Schema.ExceptionStackTrace, exceptionStackTrace)
@@ -83,7 +83,7 @@ WHERE {Schema.MessageId} = @{Schema.MessageId}
 UPDATE {Schema.TableName} 
     SET {Schema.Status} = {(int)Inbox.MessageStatus.Failed}
 WHERE {Schema.MessageId} = @{Schema.MessageId}
-    AND {Schema.Status} = {(int)Inbox.MessageStatus.UnHandled}")
+    AND {Schema.Status} = {(int)Inbox.MessageStatus.UnHandled};")
                           .AddParameter(Schema.MessageId, messageId)
                           .ExecuteNonQuery());
         }

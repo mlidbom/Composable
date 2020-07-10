@@ -12,38 +12,38 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
         {
             public static async Task EnsureTablesExistAsync(INpgsqlConnectionProvider connectionFactory)
             {
-                //Urgent: Figure out the syntax for the commented out parts.
+
+
                 await connectionFactory.ExecuteNonQueryAsync($@"
-    CREATE TABLE IF NOT EXISTS {M.TableName}
+   
+
+CREATE TABLE IF NOT EXISTS {M.TableName}
     (
-	    {M.GeneratedId} bigint NOT NULL AUTO_INCREMENT,
+	    {M.GeneratedId} bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
         {M.TypeIdGuidValue} {PgSqlGuidType} NOT NULL,
         {M.MessageId} {PgSqlGuidType} NOT NULL,
-	    {M.SerializedMessage} MEDIUMTEXT NOT NULL,
+	    {M.SerializedMessage} TEXT NOT NULL,
 
-        PRIMARY KEY ( {M.GeneratedId}),
+        PRIMARY KEY ({M.GeneratedId}),
 
-        UNIQUE INDEX IX_{M.TableName}_Unique_{M.MessageId} ( {M.MessageId} )
+        CONSTRAINT IX_{M.TableName}_Unique_{M.MessageId} UNIQUE ( {M.MessageId} )
 
-    )
-
+    );
 
 
     CREATE TABLE  IF NOT EXISTS {D.TableName}
     (
 	    {D.MessageId} {PgSqlGuidType} NOT NULL,
         {D.EndpointId} {PgSqlGuidType} NOT NULL,
-        {D.IsReceived} bit NOT NULL,
+        {D.IsReceived} boolean NOT NULL,
 
        
         PRIMARY KEY ( {D.MessageId}, {D.EndpointId}),
-            /*WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON PRIMARY,*/
+            
 
         FOREIGN KEY ({D.MessageId}) REFERENCES {M.TableName} ({M.MessageId})
 
-    )
-
-
+    );
 
 ");
             }

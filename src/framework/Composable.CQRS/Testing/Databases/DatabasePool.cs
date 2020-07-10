@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
@@ -17,7 +18,7 @@ namespace Composable.Testing.Databases
 {
     abstract partial class DatabasePool : StrictlyManagedResourceBase<DatabasePool>
     {
-        readonly MachineWideSharedObject<SharedState>? _machineWideState;
+        readonly MachineWideSharedObject<SharedState> _machineWideState;
         protected static string? DatabaseRootFolderOverride;
         static TimeSpan _reservationLength;
         static readonly int NumberOfDatabases = 30;
@@ -51,7 +52,7 @@ namespace Composable.Testing.Databases
         {
             Contract.Assert.That(!_disposed, "!_disposed");
 
-            var reservedDatabase = _transientCache.SingleOrDefault(db => db.IsReserved && db.ReservedByPoolId == _poolId && db.ReservationName == reservationName);
+            var reservedDatabase = _transientCache.SingleOrDefault(db => db.ReservationName == reservationName);
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if(reservedDatabase != null)
             {
@@ -69,7 +70,7 @@ namespace Composable.Testing.Databases
                 }
 
                 Exception? thrownException = null;
-                _machineWideState!.Update(
+                _machineWideState.Update(
                     machineWide =>
                     {
                         try
@@ -77,10 +78,12 @@ namespace Composable.Testing.Databases
                             if(machineWide.IsEmpty) throw new Exception("MachineWide was empty.");
                             if(!machineWide.IsValid) throw new Exception("Detected corrupt database pool.");
 
-                            if(machineWide.TryReserve(out reservedDatabase, reservationName, _poolId, _reservationLength))
+                            if(machineWide.TryReserve(reservationName, _poolId, _reservationLength, out reservedDatabase))
                             {
                                 Log.Info($"Reserved pool database: {reservedDatabase.Id}");
                                 _transientCache = machineWide.DatabasesReservedBy(_poolId);
+                                //My tests so far show no performance increase from enabling this.
+                                //CleanDataBasesInBackgroundTasks(machineWide);
                             }
                         }
                         catch(Exception exception)
@@ -101,18 +104,43 @@ namespace Composable.Testing.Databases
                 }
             }
 
-            try
+            if(!reservedDatabase.IsClean)
             {
-                ResetDatabase(reservedDatabase);
-            }
-            catch(Exception exception)
-            {
-                RebootPool();
-                throw new Exception(RebootedDatabaseExceptionMessage, exception);
+                try
+                {
+                    ResetDatabase(reservedDatabase);
+                }
+                catch(Exception exception)
+                {
+                    RebootPool();
+                    throw new Exception(RebootedDatabaseExceptionMessage, exception);
+                }
             }
 
             return this.ConnectionStringFor(reservedDatabase);
         });
+
+        void CleanDataBasesInBackgroundTasks(SharedState machineWide)
+        {
+            machineWide.ReserveDatabasesForCleaning(_poolId)
+                       .ForEach(reserved =>
+                        {
+                            Task.Run(() =>
+                            {
+                                //We are being a bit tricky here. The databases are reserved by this instance so that when it is disposed so are their reservations.
+                                //That way we don't leave our reservations around when we don't have time to clean them before the test runner terminates.
+                                //But that means we must be careful not to mess with databases that have been released when this pool was disposed.
+                                lock(_disposeLock)
+                                {
+                                    if(!_disposed)
+                                    {
+                                        ResetDatabase(reserved);
+                                        _machineWideState.Update(innerMachineWide => innerMachineWide.ReleaseClean(reserved.ReservationName));
+                                    }
+                                }
+                            });
+                        });
+        }
 
         static Exception Catch(Action generateException)
         {
@@ -142,15 +170,19 @@ namespace Composable.Testing.Databases
             return database;
         }
 
+        readonly object _disposeLock = new object();
         protected override void InternalDispose()
         {
-            if(_disposed) return;
-            _disposed = true;
-            _machineWideState!.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
+            lock(_disposeLock)
+            {
+                if(_disposed) return;
+                _disposed = true;
+            }
+            _machineWideState.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
             _machineWideState.Dispose();
         }
 
-        void RebootPool() => _machineWideState?.Update(RebootPool);
+        void RebootPool() => _machineWideState.Update(RebootPool);
 
         void RebootPool(SharedState machineWide) => TransactionScopeCe.SuppressAmbient(() =>
         {

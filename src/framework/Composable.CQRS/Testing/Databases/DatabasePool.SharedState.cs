@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Contracts;
 using Composable.Serialization;
+using Composable.System;
 using Composable.System.Linq;
 using JetBrains.Annotations;
 
@@ -11,6 +13,7 @@ namespace Composable.Testing.Databases
     {
         [UsedImplicitly] protected class SharedState : BinarySerialized<SharedState>
         {
+            const int CleanDatabaseNumberTarget = 10;
             protected override IEnumerable<MemberGetterSetter> CreateGetterSetters() => new[] {GetterSetter.ForBinarySerializableList(@this => @this._databases, (@this, value) => @this._databases = value)};
 
             List<Database> _databases = new List<Database>();
@@ -34,39 +37,52 @@ namespace Composable.Testing.Databases
                             return false;
                         }
                     }
+
                     return true;
                 }
             }
 
-            internal bool TryReserve(out Database reserved, string reservationName, Guid poolId, TimeSpan reservationLength)
+            internal bool TryReserve(string reservationName, Guid poolId, TimeSpan reservationLength, out Database reserved)
             {
                 CollectGarbage();
 
-                reserved = _databases.Where(db => !db.IsReserved)
-                                     .OrderBy(db => db.ExpirationDateTime)
-                                     .FirstOrDefault();
+                reserved = CleanUnReserved.FirstOrDefault() ?? UnReserved.FirstOrDefault();
 
-                if(reserved == null)
-                {
-                    return false;
-                }
-
-                reserved.Reserve(reservationName, poolId, reservationLength);
-                return true;
+                reserved?.Reserve(reservationName, poolId, reservationLength);
+                return reserved != null;
             }
 
-            void CollectGarbage()
+
+            IEnumerable<Database> DirtyUnReserved => UnReserved.Where(db => !db.IsClean);
+
+            IEnumerable<Database> CleanUnReserved => UnReserved.Where(db => db.IsClean);
+
+            IEnumerable<Database> UnReserved => _databases.Where(db => !db.IsReserved)
+                                                          .OrderBy(db => db.ExpirationDateTime);
+
+            internal IEnumerable<Database> ReserveDatabasesForCleaning(Guid poolId)
             {
-                var toCollect = Databases.Where(db => db.ShouldBeReleased).OrderBy(db => db.ExpirationDateTime).Take(30).ToList();
+                CollectGarbage();
+                var databasesToClean = Math.Max(CleanDatabaseNumberTarget - CleanUnReserved.Count(), 0);
 
-                foreach(var database in toCollect)
-                {
-                    if(database.IsReserved)
-                    {
-                        database.Release();
-                    }
-                }
+                return DirtyUnReserved
+                                .Take(databasesToClean)
+                                .Select(@this => @this.Mutate(db => db.Reserve(reservationName: Guid.NewGuid().ToString(),
+                                                                               poolId: poolId,
+                                                                               reservationLength: 10.Minutes())))
+                                .ToList();
             }
+
+            internal void ReleaseClean(string reservationName)
+            {
+                var existing = Databases.SingleOrDefault(@this => @this.ReservationName == reservationName);
+                Assert.Argument.Assert(existing.IsReserved);
+                existing.Release();
+                existing.Clean();
+            }
+
+            void CollectGarbage() => Databases.Where(db => db.ShouldBeReleased)
+                                              .ForEach( db => db.Release());
 
             internal void ReleaseReservationsFor(Guid poolId) => DatabasesReservedBy(poolId).ForEach(db => db.Release());
 

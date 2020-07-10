@@ -8,7 +8,7 @@ namespace Composable.System.Configuration
     class AppSettingsJsonConfigurationParameterProvider : IConfigurationParameterProvider
     {
         public static readonly IConfigurationParameterProvider Instance = new AppSettingsJsonConfigurationParameterProvider();
-        static readonly IConfigurationSection _appSettingsSection;
+        static readonly IConfigurationSection AppSettingsSection;
 
         static AppSettingsJsonConfigurationParameterProvider()
         {
@@ -18,12 +18,12 @@ namespace Composable.System.Configuration
                                    .AddJsonFile("appsettings-testing.json", true, true)
                                    .Build();
 
-            _appSettingsSection = config.GetSection("appSettings");
+            AppSettingsSection = config.GetSection("appSettings");
         }
 
         public string GetString(string parameterName, string? valueIfMissing = null)
         {
-            var parameter = _appSettingsSection[parameterName];
+            var parameter = AppSettingsSection[parameterName];
             if(parameter != null) return parameter;
             if(valueIfMissing != null)
             {

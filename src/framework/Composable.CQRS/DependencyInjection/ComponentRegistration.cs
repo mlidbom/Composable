@@ -54,12 +54,6 @@ namespace Composable.DependencyInjection
             return new ComponentRegistration<TService>(_lifestyle, ServiceTypes, InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator), implementationType));
         }
 
-        internal ComponentRegistration<TService> CreatedBy(Type implementationType, Func<IServiceLocatorKernel, object> factoryMethod)
-        {
-            AssertImplementsAllServices(implementationType);
-            return new ComponentRegistration<TService>(_lifestyle, ServiceTypes, InstantiationSpec.FromFactoryMethod(factoryMethod, implementationType));
-        }
-
         protected void AssertImplementsAllServices(Type implementationType)
         {
             var unImplementedService = ServiceTypes.FirstOrDefault(serviceType => !serviceType.IsAssignableFrom(implementationType));

@@ -131,7 +131,7 @@ namespace Composable.DependencyInjection
 
         internal abstract ComponentRegistration CreateCloneRegistration(IServiceLocator currentLocator);
 
-        internal abstract object Resolve(IServiceLocator? serviceLocator);
+        internal abstract object Resolve(IServiceLocator serviceLocator);
     }
 
     public class ComponentRegistration<TService> : ComponentRegistration where TService : class

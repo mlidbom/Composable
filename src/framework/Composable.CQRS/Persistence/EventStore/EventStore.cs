@@ -180,7 +180,7 @@ namespace Composable.Persistence.EventStore
 
         public void PersistMigrations()
         {
-            Assert.State.Assert(Transaction.Current == null, $"Cannot run execute within a transaction. Internally manages transactions.");
+            Assert.State.Assert(Transaction.Current == null, $"Cannot run {nameof(PersistMigrations)} within a transaction. Internally manages transactions.");
             Log.Warning("Starting to persist migrations");
 
             long migratedAggregates = 0;

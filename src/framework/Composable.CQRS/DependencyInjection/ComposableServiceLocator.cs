@@ -50,7 +50,7 @@ namespace Composable.DependencyInjection
             public TService Resolve<TService>() where TService : class
             {
                 Assert.State.Assert(!_disposed);
-                if(TryGetFromCache(out var registrations, out var currentComponent, out TService? cached)) return cached;
+                if(TryGetFromCache(out var currentComponent, out TService? cached)) return cached;
 
                 if(_parentComponent?.Lifestyle == Lifestyle.Singleton && currentComponent.Lifestyle != Lifestyle.Singleton)
                 {
@@ -70,9 +70,10 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            bool TryGetFromCache<TService>(out ComponentRegistration[] registrations, out ComponentRegistration currentComponent, [NotNullWhen(true)] out TService? resolve) where TService : class
+            bool TryGetFromCache<TService>(out ComponentRegistration currentComponent, [NotNullWhen(true)] out TService? resolve) where TService : class
             {
                 object cachedSingletonInstance;
+                ComponentRegistration[] registrations;
                 (registrations, cachedSingletonInstance) = _rootCache!.TryGet<TService>();
                 currentComponent = Assert.Result.NotNull(registrations[0]);
                 resolve = null;

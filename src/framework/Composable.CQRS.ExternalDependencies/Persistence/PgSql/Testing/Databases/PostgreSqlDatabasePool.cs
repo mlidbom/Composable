@@ -63,7 +63,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         }
 
         protected override void ResetDatabase(Database db) =>
-            new PgSqlConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery($@"
+            new PgSqlConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery(@"
 DO $$
 DECLARE
         dbRecord RECORD;

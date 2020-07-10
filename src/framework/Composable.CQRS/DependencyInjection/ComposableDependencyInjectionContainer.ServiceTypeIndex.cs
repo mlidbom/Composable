@@ -7,7 +7,7 @@ namespace Composable.DependencyInjection
     {
         internal static class ServiceTypeIndex
         {
-            internal static readonly object Lock = new object();
+            static readonly object Lock = new object();
             internal static int ServiceCount { get; private set; }
             static Dictionary<Type, int> _map = new Dictionary<Type, int>();
 

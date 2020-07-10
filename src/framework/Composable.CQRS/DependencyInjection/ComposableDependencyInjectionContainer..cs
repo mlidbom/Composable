@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using Composable.Contracts;
 using Composable.System;
-using Composable.System.Collections.Collections;
 using Composable.System.Reflection;
 
 namespace Composable.DependencyInjection
@@ -87,19 +87,48 @@ namespace Composable.DependencyInjection
         public TService Resolve<TService>() where TService : class
         {
             Assert.State.Assert(!_disposed);
-            var (registrations, instance) = _rootCache!.TryGet<TService>();
+            if(TryGetFromCache(out var registrations, out var currentComponent, out TService? cached)) return cached;
 
-            if(instance is TService singleton)
+            if(_parentComponent?.Lifestyle == Lifestyle.Singleton && currentComponent.Lifestyle != Lifestyle.Singleton)
             {
-                return singleton;
+                throw new Exception($"{Lifestyle.Singleton} service: {_parentComponent.ServiceTypes.First().FullName} depends on {currentComponent.Lifestyle} service: {currentComponent.ServiceTypes.First().FullName} ");
+            }
+
+            var previousResolvingComponent = _parentComponent;
+            _parentComponent = currentComponent;
+
+            try
+            {
+                return CreateAndCacheInstance<TService>(currentComponent, _scopeCache.Value);
+            }
+            finally
+            {
+                _parentComponent = previousResolvingComponent;
+            }
+        }
+
+        bool TryGetFromCache<TService>(out ComponentRegistration[] registrations,  out ComponentRegistration currentComponent, [NotNullWhen(true)]out TService? resolve) where TService : class
+        {
+            object cachedSingletonInstance;
+            (registrations, cachedSingletonInstance) = _rootCache!.TryGet<TService>();
+            currentComponent = Assert.Result.NotNull(registrations[0]);
+            resolve = null;
+
+            if(cachedSingletonInstance is TService singleton)
+            {
+                resolve = singleton;
+                return true;
             }
 
             var scopeCache = _scopeCache.Value;
 
             // ReSharper disable once PatternAlwaysOfType Silly ReSharper is wrong again
-            if (scopeCache != null && scopeCache.TryGet<TService>() is TService scoped)
+            if(scopeCache != null && scopeCache.TryGet<TService>() is TService scoped)
             {
-                return scoped;
+                {
+                    resolve = scoped;
+                    return true;
+                }
             }
 
             if(registrations == null)
@@ -112,45 +141,32 @@ namespace Composable.DependencyInjection
                 throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
             }
 
-            var currentComponent = registrations[0];
+            return false;
+        }
 
-            if(_parentComponent?.Lifestyle == Lifestyle.Singleton && currentComponent.Lifestyle != Lifestyle.Singleton)
+        TService CreateAndCacheInstance<TService>(ComponentRegistration currentComponent, ScopeCache? scopeCache) where TService : class
+        {
+            lock(currentComponent)
             {
-                throw new Exception($"{Lifestyle.Singleton} service: {_parentComponent.ServiceTypes.First().FullName} depends on {currentComponent.Lifestyle} service: {currentComponent.ServiceTypes.First().FullName} ");
-            }
-
-            var previousResolvingComponent = _parentComponent;
-            _parentComponent = currentComponent;
-            lock(registrations)
-            {
-                try
+                TService instance;
+                switch(currentComponent.Lifestyle)
                 {
-                    switch(currentComponent.Lifestyle)
+                    case Lifestyle.Singleton:
                     {
-                        case Lifestyle.Singleton:
-                        {
-                            instance = currentComponent.InstantiationSpec.FactoryMethod(this);
-                            _rootCache.Set(instance, currentComponent);
-                            return (TService)instance;
-                        }
-                        case Lifestyle.Scoped:
-                        {
-                            if(scopeCache == null)
-                            {
-                                throw new Exception("Attempted to resolve scoped component without a scope");
-                            }
-
-                            instance = currentComponent.InstantiationSpec.FactoryMethod(this);
-                            scopeCache.Set(instance, currentComponent);
-                            return (TService)instance;
-                        }
-                        default:
-                            throw new ArgumentOutOfRangeException();
+                        instance = (TService)currentComponent.InstantiationSpec.FactoryMethod(this);
+                        _rootCache!.Set(instance, currentComponent);
+                        return instance;
                     }
-                }
-                finally
-                {
-                    _parentComponent = previousResolvingComponent;
+                    case Lifestyle.Scoped:
+                    {
+                        if(scopeCache == null) throw new Exception("Attempted to resolve scoped component without a scope");
+
+                        instance = (TService)currentComponent.InstantiationSpec.FactoryMethod(this);
+                        scopeCache.Set(instance, currentComponent);
+                        return instance;
+                    }
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }

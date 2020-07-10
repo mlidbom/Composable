@@ -11,7 +11,7 @@ using Composable.Persistence.EventStore;
 
 namespace AccountManagement
 {
-    static class AccountApi
+    static class InternalApi
     {
         static ComposableApi ComposableApi => new ComposableApi();
         internal static Query Queries => new Query();

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.DependencyInjection.SimpleInjectorImplementation;
+using Composable.DependencyInjection.SimpleInjector;
 using Composable.DependencyInjection.Windsor;
 using Composable.System.Linq;
 

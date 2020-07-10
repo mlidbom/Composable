@@ -87,7 +87,7 @@ namespace Composable.DependencyInjection
         public TService Resolve<TService>() where TService : class
         {
             Assert.State.Assert(!_disposed);
-            var (registrations, instance) = _rootCache!.TryGetSingleton<TService>();
+            var (registrations, instance) = _rootCache!.TryGet<TService>();
 
             if(instance is TService singleton)
             {

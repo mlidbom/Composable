@@ -49,7 +49,7 @@ namespace Composable.DependencyInjection
 
             public void Set(object instance, ComponentRegistration registration) => _cache[registration.ComponentIndex].Instance = instance;
 
-            internal (ComponentRegistration[] Registrations, object Instance) TryGetSingleton<TService>() => _cache[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
+            internal (ComponentRegistration[] Registrations, object Instance) TryGet<TService>() => _cache[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
 
             public void Dispose()
             {

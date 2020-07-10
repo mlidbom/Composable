@@ -32,7 +32,7 @@ namespace Composable.DependencyInjection
             Assert.State.Assert(!_disposed);
             if(_createdServiceLocator == null)
             {
-                _createdServiceLocator = new ComposableServiceLocator(_registeredComponents.Values.ToList());
+                _createdServiceLocator = new ServiceLocator(_registeredComponents.Values.ToList());
                 Verify();
             }
 

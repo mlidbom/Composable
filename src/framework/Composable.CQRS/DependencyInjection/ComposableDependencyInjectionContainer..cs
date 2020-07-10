@@ -13,13 +13,9 @@ namespace Composable.DependencyInjection
     {
         bool _createdServiceLocator;
         readonly AsyncLocal<ScopeCache?> _scopeCache = new AsyncLocal<ScopeCache?>();
-        readonly List<ComponentRegistration> _singletons = new List<ComponentRegistration>();
         readonly Dictionary<Guid, ComponentRegistration> _registeredComponents = new Dictionary<Guid, ComponentRegistration>();
-        readonly IDictionary<Type, List<ComponentRegistration>> _serviceToRegistrationDictionary = new Dictionary<Type, List<ComponentRegistration>>();
 
         RootCache? _rootCache;
-
-        int _maxComponentIndex;
 
         public IRunMode RunMode { get; }
 
@@ -33,29 +29,8 @@ namespace Composable.DependencyInjection
 
             foreach(var registration in registrations)
             {
-                _maxComponentIndex = Math.Max(_maxComponentIndex, registration.ComponentIndex);
                 _registeredComponents.Add(registration.Id, registration);
-
-                if(registration.Lifestyle == Lifestyle.Singleton)
-                {
-                    _singletons.Add(registration);
-                }
-
-                foreach(var registrationServiceType in registration.ServiceTypes)
-                {
-                    _serviceToRegistrationDictionary.GetOrAdd(registrationServiceType, () => new List<ComponentRegistration>()).Add(registration);
-                }
             }
-        }
-
-        internal ComponentRegistration GetRegistrationFor<TService>()
-        {
-            var componentRegistrations = _rootCache!.TryGetSingleton<TService>().Registrations;
-            if(componentRegistrations == null)
-            {
-                throw new Exception($"There is no registered component for {typeof(TService).FullName}");
-            }
-            return componentRegistrations.Single();
         }
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()

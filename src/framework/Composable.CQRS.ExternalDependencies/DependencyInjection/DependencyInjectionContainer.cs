@@ -1,16 +1,12 @@
 ﻿using System;
 using Composable.Messaging.Buses;
 using Composable.Persistence.Common.DependencyInjection;
-using Composable.Persistence.MsSql.DependencyInjection;
-using Composable.Persistence.MsSql.Messaging.Buses;
 using JetBrains.Annotations;
 
 namespace Composable.DependencyInjection
 {
     public static class DependencyInjectionContainer
     {
-        public static IServiceLocator CreateServiceLocatorForTesting() => CreateServiceLocatorForTesting(_ => {});
-
         public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IEndpointBuilder> setup)
         {
 #pragma warning disable IDE0067 //Review OK-ish: We register the host in the container to ensure that it is disposed when the container is.
@@ -27,7 +23,6 @@ namespace Composable.DependencyInjection
             return endpoint.ServiceLocator;
         }
 
-        public static IDependencyInjectionContainer Create() => Create(RunMode.Production);
         public static IDependencyInjectionContainer Create(IRunMode runMode)
         {
             //IDependencyInjectionContainer container = new SimpleInjectorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);

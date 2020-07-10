@@ -131,7 +131,7 @@ namespace Composable.DependencyInjection
 
         internal abstract ComponentRegistration CreateCloneRegistration(IServiceLocator currentLocator);
 
-        internal abstract object Resolve(ComposableDependencyInjectionContainer serviceLocator);
+        internal abstract object Resolve(IServiceLocator? serviceLocator);
     }
 
     public class ComponentRegistration<TService> : ComponentRegistration where TService : class
@@ -163,7 +163,7 @@ namespace Composable.DependencyInjection
             );
         }
 
-        internal override object Resolve(ComposableDependencyInjectionContainer locator) => locator.Resolve<TService>();
+        internal override object Resolve(IServiceLocator locator) => locator.Resolve<TService>();
 
         internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
             :base(lifestyle, serviceTypes, instantiationSpec)

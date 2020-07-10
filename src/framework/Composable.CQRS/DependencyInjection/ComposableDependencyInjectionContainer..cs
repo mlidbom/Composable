@@ -33,6 +33,7 @@ namespace Composable.DependencyInjection
             if(_createdServiceLocator == null)
             {
                 _createdServiceLocator = new ServiceLocator(_registeredComponents.Values.ToList());
+                //This shows as a hotspot for the tests when profiling. But does not negatively effect total test suite execution time according to my tests.
                 Verify();
             }
 

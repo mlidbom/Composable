@@ -8,9 +8,9 @@ namespace Composable.System.Configuration
     class AppSettingsJsonConfigurationParameterProvider : IConfigurationParameterProvider
     {
         public static readonly IConfigurationParameterProvider Instance = new AppSettingsJsonConfigurationParameterProvider();
-        readonly IConfigurationSection _appSettingsSection;
+        static readonly IConfigurationSection _appSettingsSection;
 
-        public AppSettingsJsonConfigurationParameterProvider()
+        static AppSettingsJsonConfigurationParameterProvider()
         {
             IConfiguration config = new ConfigurationBuilder()
                                    .SetBasePath(Directory.GetCurrentDirectory())

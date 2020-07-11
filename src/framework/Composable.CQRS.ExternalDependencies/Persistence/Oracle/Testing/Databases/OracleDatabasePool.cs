@@ -44,7 +44,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
                 {
                     try
                     {
-                        Task.WaitAll(_machineWideState
+                        Task.WaitAll(MachineWideState
                                     .GetCopy()
                                     .Databases
                                     .Select(ConnectionStringFor)

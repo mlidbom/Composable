@@ -25,7 +25,7 @@ namespace Composable.Testing.Databases
             {
                 get
                 {
-                    if(_databases.Count != 30)
+                    if(_databases.Count != DatabasePool.NumberOfDatabases)
                     {
                         return false;
                     }

@@ -18,7 +18,7 @@ namespace Composable.Testing.Databases
 {
     abstract partial class DatabasePool : StrictlyManagedResourceBase<DatabasePool>
     {
-        protected readonly MachineWideSharedObject<SharedState> _machineWideState;
+        protected readonly MachineWideSharedObject<SharedState> MachineWideState;
         protected static string? DatabaseRootFolderOverride;
         static TimeSpan _reservationLength;
         protected static readonly int NumberOfDatabases = 30;
@@ -32,7 +32,7 @@ namespace Composable.Testing.Databases
                 DatabaseRootFolderOverride = ComposableTempFolder.EnsureFolderExists("DatabasePoolData");
             }
 
-            _machineWideState = MachineWideSharedObject<SharedState>.For(GetType().GetFullNameCompilable().Replace(".", "_"), usePersistentFile: true);
+            MachineWideState = MachineWideSharedObject<SharedState>.For(GetType().GetFullNameCompilable().Replace(".", "_"), usePersistentFile: true);
 
         }
 
@@ -70,7 +70,7 @@ namespace Composable.Testing.Databases
                 }
 
                 Exception? thrownException = null;
-                _machineWideState.Update(
+                MachineWideState.Update(
                     machineWide =>
                     {
                         try
@@ -135,7 +135,7 @@ namespace Composable.Testing.Databases
                                     if(!_disposed)
                                     {
                                         ResetDatabase(reserved);
-                                        _machineWideState.Update(innerMachineWide => innerMachineWide.ReleaseClean(reserved.ReservationName));
+                                        MachineWideState.Update(innerMachineWide => innerMachineWide.ReleaseClean(reserved.ReservationName));
                                     }
                                 }
                             });
@@ -167,11 +167,11 @@ namespace Composable.Testing.Databases
                 if(_disposed) return;
                 _disposed = true;
             }
-            _machineWideState.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
-            _machineWideState.Dispose();
+            MachineWideState.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
+            MachineWideState.Dispose();
         }
 
-        void RebootPool() => _machineWideState.Update(RebootPool);
+        void RebootPool() => MachineWideState.Update(RebootPool);
 
         void RebootPool(SharedState machineWide) => TransactionScopeCe.SuppressAmbient(() =>
         {

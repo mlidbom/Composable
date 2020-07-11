@@ -159,17 +159,6 @@ namespace Composable.Testing.Databases
 
         protected abstract string ConnectionStringFor(Database db);
 
-        Database InsertDatabase(SharedState machineWide)
-        {
-            var database = machineWide.Insert();
-
-            using(new TransactionScope(TransactionScopeOption.Suppress))
-            {
-                EnsureDatabaseExistsAndIsEmpty(database);
-            }
-            return database;
-        }
-
         readonly object _disposeLock = new object();
         protected override void InternalDispose()
         {
@@ -191,9 +180,13 @@ namespace Composable.Testing.Databases
             machineWide.Reset();
             _transientCache = new List<Database>();
 
-            1.Through(NumberOfDatabases)
-             .Select(index => new Database(index))
-             .ForEach(db => InsertDatabase(machineWide));
+
+            Task[] tasks = 1.Through(NumberOfDatabases)
+                            .Select(index => machineWide.Insert())
+                            .Select(db => Task.Factory.StartNew(() => EnsureDatabaseExistsAndIsEmpty(db), TaskCreationOptions.LongRunning))
+                            .ToArray();
+
+            Task.WaitAll(tasks);
         });
 
         protected abstract void EnsureDatabaseExistsAndIsEmpty(Database db);

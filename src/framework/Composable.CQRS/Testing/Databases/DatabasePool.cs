@@ -82,7 +82,7 @@ namespace Composable.Testing.Databases
                             {
                                 Log.Info($"Reserved pool database: {reservedDatabase.Id}");
                                 _transientCache = machineWide.DatabasesReservedBy(_poolId);
-                                //My tests so far show no performance increase from enabling this.
+                                //Todo:My tests so far show no performance increase from enabling this. Maybe if we used async all the way so hardly any threads were used? If we don't see an meaningful improvement. Remove this method.
                                 //CleanDataBasesInBackgroundTasks(machineWide);
                             }
                         }

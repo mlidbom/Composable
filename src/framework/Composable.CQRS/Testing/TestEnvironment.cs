@@ -76,15 +76,23 @@ namespace Composable.Testing
         }
 
 
-        public static TValue ValueForPersistenceProvider<TValue>(TValue msSql= default, TValue mySql = default, TValue inMem = default, TValue pgSql = default, TValue orcl = default)
+        public static TValue ValueForPersistenceProvider<TValue>(TValue fallback = default, TValue msSql= default, TValue mySql = default, TValue inMem = default, TValue pgSql = default, TValue orcl = default)
             => TestEnvironment.TestingPersistenceLayer switch
             {
-                PersistenceLayer.MsSql => !Equals(msSql, default(TValue))  ? msSql: throw new Exception($"Value missing for {nameof(msSql)}"),
-                PersistenceLayer.InMemory => !Equals(inMem, default(TValue))  ? inMem: throw new Exception($"Value missing for {nameof(inMem)}"),
-                PersistenceLayer.MySql => !Equals(mySql, default(TValue))  ? mySql: throw new Exception($"Value missing for {nameof(mySql)}"),
-                PersistenceLayer.PgSql => !Equals(pgSql, default(TValue))  ? pgSql: throw new Exception($"Value missing for {nameof(pgSql)}"),
-                PersistenceLayer.Orcl => !Equals(orcl, default(TValue))  ? orcl: throw new Exception($"Value missing for {nameof(orcl)}"),
+                PersistenceLayer.MsSql => SelectValue(msSql, fallback, nameof(msSql)),
+                PersistenceLayer.InMemory => SelectValue(inMem, fallback, nameof(inMem)),
+                PersistenceLayer.MySql => SelectValue(mySql, fallback, nameof(mySql)),
+                PersistenceLayer.PgSql => SelectValue(pgSql, fallback, nameof(pgSql)),
+                PersistenceLayer.Orcl => SelectValue(orcl, fallback, nameof(orcl)),
                 _ => throw new ArgumentOutOfRangeException()
             };
+
+        static TValue SelectValue<TValue>(TValue value, TValue fallback, string provider)
+        {
+            if(!Equals(value, default(TValue))) return value;
+            if(!Equals(fallback, default(TValue))) return fallback;
+
+            throw  new Exception($"Value missing for {provider} and fallback not specified");
+        }
     }
 }

@@ -8,7 +8,6 @@
       <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine.Coordinator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-37</Value>
       <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine..cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
       <Value>Messaging\Buses\Implementation\Inbox.cs:framework\Composable.CQRS\Composable.CQRS.csproj-74</Value>
-      <Value>Testing\Databases\DatabasePool.cs:framework\Composable.CQRS\Composable.CQRS.csproj-50</Value>
       <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-53</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-64</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-119</Value>

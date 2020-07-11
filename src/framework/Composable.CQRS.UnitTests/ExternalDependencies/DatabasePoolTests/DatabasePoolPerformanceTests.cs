@@ -11,6 +11,7 @@ using Composable.Testing.Databases;
 using Composable.Testing.Performance;
 using NCrunch.Framework;
 using NUnit.Framework;
+using Oracle.ManagedDataAccess.Types;
 
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
@@ -24,7 +25,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         [Test]
-        public void Single_thread_can_reserve_and_release_10_identically_named_databases_in_300_milliseconds()
+        public void Single_thread_can_reserve_and_release_10_identically_named_databases_in_300_milliseconds_Orcl_700_milliseconds()
         {
             var dbName = Guid.NewGuid().ToString();
 
@@ -37,11 +38,11 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     manager.ConnectionStringFor(dbName);
                 },
                 iterations: 10,
-                maxTotal: 300.Milliseconds());
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(fallback: 300.Milliseconds(), orcl: 700.Milliseconds()));
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_70_milliseconds()
+        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_70_milliseconds_Orcl_4000_milliseconds()
         {
             var dbName = Guid.NewGuid().ToString();
 
@@ -54,11 +55,11 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     manager.ConnectionStringFor(dbName);
                 },
                 iterations: 10,
-                maxTotal: 70.Milliseconds());
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(fallback: 70.Milliseconds(), orcl: 4000.Milliseconds()));
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds()
+        public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds_Orcl_700_milliseconds()
         {
             DatabasePool manager = null;
 
@@ -72,12 +73,12 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                 tearDown: () => manager.Dispose(),
                 action: () => manager.ConnectionStringFor(Guid.NewGuid().ToString()),
                 iterations: 10,
-                maxTotal: 300.Milliseconds()
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(fallback: 300.Milliseconds(), orcl:700.Milliseconds())
             );
         }
 
         [Test]
-        public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds()
+        public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds_Orcl_700_milliseconds()
         {
             DatabasePool manager = null;
 
@@ -91,7 +92,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                 tearDown: () => manager.Dispose(),
                 action: () => manager.ConnectionStringFor(Guid.NewGuid().ToString()),
                 iterations: 10,
-                maxTotal: 300.Milliseconds()
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(fallback: 300.Milliseconds(), orcl:700.Milliseconds())
             );
         }
 

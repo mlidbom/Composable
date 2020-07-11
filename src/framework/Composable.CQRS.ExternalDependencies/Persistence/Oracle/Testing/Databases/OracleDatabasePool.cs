@@ -28,8 +28,6 @@ namespace Composable.Persistence.Oracle.Testing.Databases
             _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
             _masterConnectionProvider = new OracleConnectionProvider(_masterConnectionString);
-
-            UglyHackOpenAllConnectionsThreadedToSpeedUpSubsequentOpenings();
         }
 
         static readonly object Lock = new object();
@@ -78,7 +76,11 @@ namespace Composable.Persistence.Oracle.Testing.Databases
             }
         }
 
-        protected override void ResetDatabase(Database db) => new OracleConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery(CleanSchema());
+        protected override void ResetDatabase(Database db)
+        {
+            UglyHackOpenAllConnectionsThreadedToSpeedUpSubsequentOpenings();   
+            new OracleConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery(CleanSchema());
+        }
 
         static string DropUserIfExistsAndRecreate(string userName) => $@"
 declare user_to_drop_exists integer;

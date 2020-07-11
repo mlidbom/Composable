@@ -28,7 +28,8 @@ namespace AccountManagement
 
         static void RegisterDomainComponents(IEndpointBuilder builder)
         {
-            builder.RegisterMsSqlPersistenceLayer();
+            //todo: This is not in the right place.
+            builder.RegisterCurrentTestsConfiguredPersistenceLayer();
             builder.RegisterEventStore()
                    .HandleAggregate<Account, AccountEvent.Root>(builder.RegisterHandlers);
 

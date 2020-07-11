@@ -35,24 +35,30 @@ namespace Composable.Persistence.Oracle.Testing.Databases
         }
 
         static object Lock = new object();
-        static bool DoneWithHack = false;
+        static bool DoneWithHack;
 
+        ///<summary>Current oracle ADO implementation takes several seconds to open the first connection per unique connection string. This code divides the slowdown by the number of databases in the pool very significantly speeding up tests.</summary>
         void UglyHackOpenAllConnectionsThreadedToSpeedUpSubsequentOpenings()
         {
             lock(Lock)
             {
                 if(!DoneWithHack)
                 {
-                    var connectionTasks = _machineWideState
-                                         .GetCopy()
-                                         .Databases
-                                         .Select(ConnectionStringFor)
-                                         .Append(_masterConnectionString)
-                                         .Select(connectionString => new Action(() => new OracleConnectionProvider(connectionString).UseConnection(_ => {})))
-                                         .ToArray();
-
-                    Console.WriteLine(StopwatchExtensions.TimeExecutionThreaded(connectionTasks, swallowExceptions: true, description: "Open connections with all oracle users."));
-                    DoneWithHack = true;
+                    try
+                    {
+                        Task.WaitAll(_machineWideState
+                                    .GetCopy()
+                                    .Databases
+                                    .Select(ConnectionStringFor)
+                                    .Append(_masterConnectionString)
+                                    .Select(connectionString => Task.Factory.StartNew(() => new OracleConnectionProvider(connectionString).UseConnection(_ => {}), TaskCreationOptions.LongRunning))
+                                    .ToArray());
+                    }
+                    catch(Exception) {}
+                    finally
+                    {
+                        DoneWithHack = true;
+                    }
                 }
             }
         }
@@ -60,104 +66,51 @@ namespace Composable.Persistence.Oracle.Testing.Databases
         protected override string ConnectionStringFor(Database db)
             => new OracleConnectionStringBuilder(_masterConnectionString) {UserID = db.Name.ToUpper(), Password = db.Name.ToUpper(), DBAPrivilege = ""}.ConnectionString;
 
+        const int OracleInvalidUserNamePasswordCombinationErrorNumber = 1017;
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
-
-
-
-
-
-
-
-
-            //ResetConnectionPool(db);
-            ResetDatabase(db);
+            try
+            {
+                ResetDatabase(db);
+            }
+            catch(OracleException exception) when(exception.Number == OracleInvalidUserNamePasswordCombinationErrorNumber)
+            {
+                _masterConnectionProvider.ExecuteScalar(DropUserIfExistsAndRecreate(db.Name.ToUpper()));
+                new OracleConnectionProvider(ConnectionStringFor(db)).UseConnection(_ => {});//We just call this to ensure that we can actually connect.
+            }
         }
 
-        protected override void ResetDatabase(Database db)
-        {
-            var localConnection = new OracleConnectionProvider(ConnectionStringFor(db));
+        protected override void ResetDatabase(Database db) => new OracleConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery(CleanSchema());
 
-            localConnection.ExecuteNonQuery(CreateUserIfNotExists(db.Name.ToUpper()));
-            localConnection.ExecuteNonQuery(CleanSchema());
-        }
-
-        static string CreateUserIfNotExists(string oracleUserName) => $@"
+        static string DropUserIfExistsAndRecreate(string userName) => $@"
 declare user_to_drop_exists integer;
 begin
-    select count(*) into user_to_drop_exists from dba_users where username='{oracleUserName}';
-    if (user_to_drop_exists = 0) then
-        execute immediate 'CREATE USER ""{oracleUserName}"" IDENTIFIED BY ""{oracleUserName}""';
-        -- ROLES
-        execute immediate 'GRANT DBA TO ""{oracleUserName}"" WITH ADMIN OPTION';
-        -- SYSTEM PRIVILEGES
-        execute immediate 'GRANT SYSDBA TO ""{oracleUserName}""';
-    end if;
-end;
-";
-
-        static string DropUserIfExistsAndRecreate(string oracleUserName) => $@"
-declare user_to_drop_exists integer;
-begin
- {DropUser(oracleUserName)}
- {CreateUser(oracleUserName)}
-end;
-";
-        static string DropUser(string oracleUserName) => $@"
-    select count(*) into user_to_drop_exists from dba_users where username='{oracleUserName}';
+    select count(*) into user_to_drop_exists from dba_users where username='{userName}';
     if (user_to_drop_exists > 0) then
-        DECLARE
-          v_user_exists NUMBER;
-          user_name CONSTANT varchar2(50) := '{oracleUserName}';
-        BEGIN
-          LOOP
-            BEGIN
-              EXECUTE IMMEDIATE 'drop user ' || user_name || ' cascade';
-              EXCEPTION WHEN OTHERS THEN
-              IF (SQLCODE = -1940) THEN
-                NULL;
-              ELSE
-                RAISE;
-              END IF;
-            END;
-
-            BEGIN
-              SELECT COUNT(*) INTO v_user_exists FROM dba_users WHERE username = user_name;
-              EXIT WHEN v_user_exists = 0;
-            END;
-
-            FOR c IN (SELECT s.sid, s.serial# FROM v$session s WHERE upper(s.username) = user_name)
-            LOOP
-              EXECUTE IMMEDIATE
-                'alter system kill session ''' || c.sid || ',' || c.serial# || ''' IMMEDIATE';
-            END LOOP;            
-          END LOOP;
-        END;
-        --execute immediate 'DROP USER ""{oracleUserName}"" CASCADE';
+        EXECUTE IMMEDIATE 'drop user ""{userName}"" cascade';        
     end if;
-";
-
-        static string CreateUser(string oracleUserName) => $@"    
-    execute immediate 'CREATE USER ""{oracleUserName}"" IDENTIFIED BY ""{oracleUserName}""';
+    
+    execute immediate 'CREATE USER ""{userName}"" IDENTIFIED BY ""{userName}""';
     -- ROLES
-    execute immediate 'GRANT DBA TO ""{oracleUserName}"" WITH ADMIN OPTION';
+    execute immediate 'GRANT DBA TO ""{userName}"" WITH ADMIN OPTION';
     -- SYSTEM PRIVILEGES
-    execute immediate 'GRANT SYSDBA TO ""{oracleUserName}""';
+    execute immediate 'GRANT SYSDBA TO ""{userName}""';
+end;
 ";
 
-        static string CleanSchema() => $@"
+        static string CleanSchema() => @"
 BEGIN
-    FOR cur_rec IN (SELECT object_name, object_type
-                  FROM   user_objects
-                  WHERE  object_type IN ('TABLE')) LOOP
-    BEGIN
-        IF cur_rec.object_type = 'TABLE' THEN
-            EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '"" CASCADE CONSTRAINTS';
-        ELSE
-            EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '""';
-        END IF;
-        END;
-     END LOOP;
+    FOR cur_rec IN (SELECT object_name, object_type FROM   user_objects) LOOP
+        BEGIN
+            IF cur_rec.object_type = 'TABLE' THEN
+                EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '"" CASCADE CONSTRAINTS';
+            ELSIF cur_rec.object_type = 'TYPE' THEN
+                EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '"" FORCE';
+            ELSE
+                EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '""';
+            END IF;
+            END;
+    END LOOP;
 END;
 ";
 

@@ -34,15 +34,15 @@ namespace Composable.Persistence.Oracle.Testing.Databases
             UglyHackOpenAllConnectionsThreadedToSpeedUpSubsequentOpenings();
         }
 
-        static object Lock = new object();
-        static bool DoneWithHack;
+        static readonly object Lock = new object();
+        static bool _doneWithHack;
 
         ///<summary>Current oracle ADO implementation takes several seconds to open the first connection per unique connection string. This code divides the slowdown by the number of databases in the pool very significantly speeding up tests.</summary>
         void UglyHackOpenAllConnectionsThreadedToSpeedUpSubsequentOpenings()
         {
             lock(Lock)
             {
-                if(!DoneWithHack)
+                if(!_doneWithHack)
                 {
                     try
                     {
@@ -57,7 +57,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
                     catch(Exception) {}
                     finally
                     {
-                        DoneWithHack = true;
+                        _doneWithHack = true;
                     }
                 }
             }
@@ -113,11 +113,5 @@ BEGIN
     END LOOP;
 END;
 ";
-
-        void ResetConnectionPool(Database db)
-        {
-            using var connection = new OracleConnection(this.ConnectionStringFor(db));
-            OracleConnection.ClearPool(connection);
-        }
     }
 }

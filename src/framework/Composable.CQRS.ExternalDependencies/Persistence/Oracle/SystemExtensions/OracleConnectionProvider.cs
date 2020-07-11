@@ -48,6 +48,7 @@ namespace Composable.Persistence.Oracle.SystemExtensions
             return 1;
         });
 
+        //Urgent: All variations, in all persistence layers, on these async methods should use OpenAsync method on the connection.
         public async Task<TResult> UseConnectionAsync<TResult>(Func<OracleConnection, Task<TResult>> func)
         {
             await using var connection = OpenConnection();

@@ -36,7 +36,7 @@ namespace Composable.Persistence.Oracle.DocumentDb
                                           .AddVarcharParameter("Id", 500, writeRow.Id)
                                           .AddDateTime2Parameter("Updated", writeRow.UpdateTime)
                                           .AddParameter("TypeId", writeRow.TypeId)
-                                          .AddMediumTextParameter("Value", writeRow.SerializedDocument)
+                                          .AddNClobParameter("Value", writeRow.SerializedDocument)
                                           .ExecuteNonQuery());
                 }
             });
@@ -76,7 +76,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                            .AddParameter("ValueTypeId", row.TypeId)
                            .AddDateTime2Parameter("Created", row.UpdateTime)
                            .AddDateTime2Parameter("Updated", row.UpdateTime)
-                           .AddMediumTextParameter("Value", row.SerializedDocument)
+                           .AddNClobParameter("Value", row.SerializedDocument)
                            .ExecuteNonQuery();
                 });
             }

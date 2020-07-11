@@ -3,6 +3,7 @@ using Composable.DependencyInjection;
 using Composable.Logging;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MsSql.SystemExtensions;
+using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.System;
 using Composable.Testing;
@@ -110,7 +111,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         [Test]
-        public void Once_DB_Fetched_MsSql_Can_use_100_connections_in_2_milliseconds_MySql_25_milliseconds_PgSql_1_millisecond()
+        public void Once_DB_Fetched_MsSql_Can_use_100_connections_in_2_milliseconds_MySql_25_milliseconds_PgSql_1_millisecond_Oracle_50_milliseconds()
         {
             using var manager = CreatePool();
             manager.SetLogLevel(LogLevel.Warning);
@@ -135,6 +136,10 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     var pgSqlConnectionProvider = new PgSqlConnectionProvider(manager.ConnectionStringFor(reservationName));
                     useConnection = () => pgSqlConnectionProvider.UseConnection(_ => {});
                     break;
+                case PersistenceLayer.Orcl:
+                    var oracleConnectionProvider = new OracleConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    useConnection = () => oracleConnectionProvider .UseConnection(_ => {});
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -144,7 +149,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
            TimeAsserter.Execute(
                action: useConnection!,
                iterations: connectionsToUse,
-               maxTotal: TestEnvironment.ValueForPersistenceProvider<TimeSpan>(msSql:2.Milliseconds(), mySql: 25.Milliseconds(), pgSql:1.Milliseconds())
+               maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:2.Milliseconds(), mySql: 25.Milliseconds(), pgSql:1.Milliseconds(), orcl:50.Milliseconds())
            );
         }
     }

@@ -5,6 +5,8 @@ using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MySql.Testing.Databases;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.Persistence.MsSql.Testing.Databases;
+using Composable.Persistence.Oracle.SystemExtensions;
+using Composable.Persistence.Oracle.Testing.Databases;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.Persistence.PgSql.Testing.Databases;
 using Composable.Testing;
@@ -14,7 +16,7 @@ using NCrunch.Framework;
 
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
-    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql))]
+    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl))]
     public class DatabasePoolTest
     {
         internal static DatabasePool CreatePool() =>
@@ -23,6 +25,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                 PersistenceLayer.MsSql => new MsSqlDatabasePool(),
                 PersistenceLayer.MySql => new MySqlDatabasePool(),
                 PersistenceLayer.PgSql => new PgSqlDatabasePool(),
+                PersistenceLayer.Orcl => new OracleDatabasePool(),
                 PersistenceLayer.InMemory => throw new ArgumentOutOfRangeException(),
                 _ => throw new ArgumentOutOfRangeException()
             };
@@ -34,13 +37,14 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                 case PersistenceLayer.MsSql:
                     UseMsSqlConnection(pool.ConnectionStringFor(connectionString), func);
                     break;
-                case PersistenceLayer.InMemory:
-                    UseMySqlConnection(pool.ConnectionStringFor(connectionString), func);
-                    break;
                 case PersistenceLayer.PgSql:
                     UsePgSqlConnection(pool.ConnectionStringFor(connectionString), func);
                     break;
                 case PersistenceLayer.MySql:
+                    UseMySqlConnection(pool.ConnectionStringFor(connectionString), func);
+                    break;
+                case PersistenceLayer.Orcl:
+                    UseOracleConnection(pool.ConnectionStringFor(connectionString), func);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -55,5 +59,8 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 
         static void UseMsSqlConnection(string connectionStringFor, Action<IDbConnection> func) =>
             new MsSqlConnectionProvider(connectionStringFor).UseConnection(func);
+
+        static void UseOracleConnection(string connectionStringFor, Action<IDbConnection> func) =>
+            new OracleConnectionProvider(connectionStringFor).UseConnection(func);
     }
 }

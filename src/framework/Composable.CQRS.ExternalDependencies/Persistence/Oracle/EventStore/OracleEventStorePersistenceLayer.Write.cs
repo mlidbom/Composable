@@ -46,7 +46,7 @@ END IF;
                                               .AddParameter(C.EventType, data.EventType)
                                               .AddParameter(C.EventId, data.EventId)
                                               .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
-                                              .AddMediumTextParameter(C.Event, data.EventJson)
+                                              .AddNClobParameter(C.Event, data.EventJson)
 
                                               .AddNullableParameter(C.EffectiveOrder, OracleDbType.Varchar2, data.StorageInformation.ReadOrder?.ToString())
                                               .AddNullableParameter(C.EffectiveVersion, OracleDbType.Int32, data.StorageInformation.EffectiveVersion)

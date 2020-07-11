@@ -89,7 +89,14 @@ namespace Composable.Testing.Databases
                         catch(Exception exception)
                         {
                             thrownException = Catch(() => throw new Exception("Encountered exception reserving database. Rebooting pool", exception));
-                            RebootPool(machineWide);
+                            try
+                            {
+                                RebootPool();
+                            }
+                            catch(Exception rebootException)
+                            {
+                                throw new AggregateException("An exception was thrown reserving database and then rebooting the pool also failed", new List<Exception> {exception, rebootException});
+                            }
                         }
                     });
 
@@ -112,7 +119,14 @@ namespace Composable.Testing.Databases
                 }
                 catch(Exception exception)
                 {
-                    RebootPool();
+                    try
+                    {
+                        RebootPool();
+                    }
+                    catch(Exception rebootException)
+                    {
+                        throw new AggregateException("An exception was thrown cleaning a database and then rebooting the pool also failed", new List<Exception> {exception, rebootException});
+                    }
                     throw new Exception(RebootedDatabaseExceptionMessage, exception);
                 }
             }

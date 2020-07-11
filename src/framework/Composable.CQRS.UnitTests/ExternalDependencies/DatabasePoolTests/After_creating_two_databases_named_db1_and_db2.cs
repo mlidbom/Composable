@@ -1,4 +1,5 @@
 using System;
+using Composable.Testing;
 using Composable.Testing.Databases;
 using FluentAssertions;
 using NUnit.Framework;
@@ -19,7 +20,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                              connection =>
                              {
                                  using var command = connection.CreateCommand();
-                                 command.CommandText = "select 1";
+                                 command.CommandText = LayerSpecificCommandText();
                                  command.ExecuteScalar().Should().Be(1);
                              });
 
@@ -29,9 +30,11 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                              connection =>
                              {
                                  using var command = connection.CreateCommand();
-                                 command.CommandText = "select 1";
+                                 command.CommandText = LayerSpecificCommandText();
                                  command.ExecuteScalar().Should().Be(1);
                              });
+
+        static string LayerSpecificCommandText() => TestEnvironment.ValueForPersistenceProvider(msSql:"select 1", mySql:"select 1", pgSql: "select 1", orcl: "select 1 from dual");
 
         [Test] public void The_same_connection_string_is_returned_by_each_call_to_CreateOrGetLocalDb_Db1()
             => _manager.ConnectionStringFor(Db1).Should().Be(_manager.ConnectionStringFor(Db1));

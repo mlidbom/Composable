@@ -14,7 +14,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
         readonly string _masterConnectionString;
         readonly OracleConnectionProvider _masterConnectionProvider;
 
-        const string DatabaseOracle = ";Database=mysql;";
+
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
@@ -22,44 +22,69 @@ namespace Composable.Persistence.Oracle.Testing.Databases
         {
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName);
 
-            _masterConnectionString = masterConnectionString ?? $"Server=localhost{DatabaseOracle}Uid=root;Pwd=;";
+            _masterConnectionString = masterConnectionString ?? "Data Source=localhost:1521/orclpdb; DBA Privilege=SYSDBA; User Id=sys; Password=Development!1;";
 
             _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
             _masterConnectionProvider = new OracleConnectionProvider(_masterConnectionString);
 
-            Contract.Assert.That(_masterConnectionString.Contains(DatabaseOracle),
-                                 $"Environment variable: {ConnectionStringConfigurationParameterName} connection string must contain the exact string: '{DatabaseOracle}' for technical optimization reasons");
+
+
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _masterConnectionString!.Replace(DatabaseOracle, $";Database={db.Name};");
+            => new OracleConnectionStringBuilder(_masterConnectionString) {UserID = db.Name.ToUpper(), Password = db.Name.ToUpper()}.ConnectionString;
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
-            var databaseName = db.Name;
-            //Urgent: Figure out Oracle equivalents and if they need to be specified
-            //            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
-            //            {
-            //                createDatabaseCommand += $@"
-            //ON      ( NAME = {databaseName}_data, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.mdf')
-            //LOG ON  ( NAME = {databaseName}_log, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.ldf');";
-            //            }
 
-            //            createDatabaseCommand += $@"
-            //ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;
-            //ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
+
+
+
+
+
+
 
             ResetConnectionPool(db);
-            _masterConnectionProvider?.ExecuteNonQuery($@"
-DROP DATABASE IF EXISTS {databaseName};
-CREATE DATABASE {databaseName};");
+            var oracleUserName = db.Name.ToUpper();
+            _masterConnectionProvider.ExecuteNonQuery($@"
+declare user_to_drop_exists integer;
+begin
+    select count(*) into user_to_drop_exists from dba_users where username='{oracleUserName}';
+    if (user_to_drop_exists = 0) then
+        --execute immediate 'DROP USER ""{oracleUserName}"" CASCADE';
+        execute immediate 'CREATE USER ""{oracleUserName}"" IDENTIFIED BY ""{oracleUserName}""';
+        -- ROLES
+        execute immediate 'GRANT DBA TO ""{oracleUserName}"" WITH ADMIN OPTION';
+        -- SYSTEM PRIVILEGES
+        execute immediate 'GRANT SYSDBA TO ""{oracleUserName}""';
+    end if;
+end;
+");
+            ResetDatabase(db);
         }
 
-        protected override void ResetDatabase(Database db) =>
-            new OracleConnectionProvider(this.ConnectionStringFor(db)).ExecuteNonQuery($@"
-DROP DATABASE {db.Name};
-CREATE DATABASE {db.Name};");
+        protected override void ResetDatabase(Database db)
+        {
+            new OracleConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery(CleanSchema(db.Name.ToUpper()));
+        }
+
+        static string CleanSchema(string databaseName) => $@"
+BEGIN
+    FOR cur_rec IN (SELECT object_name, object_type
+                  FROM   all_objects
+                  WHERE  object_type IN ('TABLE', 'VIEW', 'PACKAGE', 'PROCEDURE', 'FUNCTION', 'SEQUENCE','SYNONYM','TYPE','TABLE PARTITION') AND 
+                  owner = '{databaseName}') LOOP
+    BEGIN
+        IF cur_rec.object_type = 'TABLE' THEN
+            EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '"" CASCADE CONSTRAINTS';
+        ELSE
+            EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '""';
+        END IF;
+        END;
+     END LOOP;
+END;
+";
 
         void ResetConnectionPool(Database db)
         {

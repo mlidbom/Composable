@@ -76,17 +76,14 @@ namespace Composable.Testing
         }
 
 
-        public static int ValueForPersistenceProvider(int? msSql = null, int? mySql = null, int? inMem = null, int? pgSql = null)
-            => ValueForPersistenceProvider<int>(msSql: msSql, mySql: mySql, inMem: inMem, pgSql: pgSql);
-
-        public static TValue ValueForPersistenceProvider<TValue>(TValue? msSql= null, TValue? mySql = null, TValue? inMem = null, TValue? pgSql = null)
-        where TValue : struct
-        => TestEnvironment.TestingPersistenceLayer switch
+        public static TValue ValueForPersistenceProvider<TValue>(TValue msSql= default, TValue mySql = default, TValue inMem = default, TValue pgSql = default, TValue orcl = default)
+            => TestEnvironment.TestingPersistenceLayer switch
             {
-                PersistenceLayer.MsSql => msSql ?? throw new Exception($"Value missing for {nameof(msSql)}"),
-                PersistenceLayer.InMemory => inMem ?? throw new Exception($"Value missing for {nameof(inMem)}"),
-                PersistenceLayer.MySql => mySql?? throw new Exception($"Value missing for {nameof(mySql)}"),
-                PersistenceLayer.PgSql => pgSql?? throw new Exception($"Value missing for {nameof(pgSql)}"),
+                PersistenceLayer.MsSql => !Equals(msSql, default(TValue))  ? msSql: throw new Exception($"Value missing for {nameof(msSql)}"),
+                PersistenceLayer.InMemory => !Equals(inMem, default(TValue))  ? inMem: throw new Exception($"Value missing for {nameof(inMem)}"),
+                PersistenceLayer.MySql => !Equals(mySql, default(TValue))  ? mySql: throw new Exception($"Value missing for {nameof(mySql)}"),
+                PersistenceLayer.PgSql => !Equals(pgSql, default(TValue))  ? pgSql: throw new Exception($"Value missing for {nameof(pgSql)}"),
+                PersistenceLayer.Orcl => !Equals(orcl, default(TValue))  ? orcl: throw new Exception($"Value missing for {nameof(orcl)}"),
                 _ => throw new ArgumentOutOfRangeException()
             };
     }

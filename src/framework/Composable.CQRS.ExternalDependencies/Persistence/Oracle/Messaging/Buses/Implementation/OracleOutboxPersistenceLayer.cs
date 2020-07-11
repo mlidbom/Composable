@@ -28,7 +28,7 @@ INSERT {MessageTable.TableName}
                        .AddParameter(MessageTable.MessageId, messageWithReceivers.MessageId)
                        .AddParameter(MessageTable.TypeIdGuidValue, messageWithReceivers.TypeIdGuidValue)
                         //performance: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
-                       .AddMediumTextParameter(MessageTable.SerializedMessage, messageWithReceivers.SerializedMessage)
+                       .AddNClobParameter(MessageTable.SerializedMessage, messageWithReceivers.SerializedMessage)
                        .AddParameter(DispatchingTable.IsReceived, 0);
 
                     messageWithReceivers.ReceiverEndpointIds.ForEach(

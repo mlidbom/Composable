@@ -2,6 +2,9 @@ using System;
 using System.Threading.Tasks;
 using Oracle.ManagedDataAccess.Client;
 using System.Transactions;
+using Composable.Logging;
+using Composable.System;
+using Composable.System.Diagnostics;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {

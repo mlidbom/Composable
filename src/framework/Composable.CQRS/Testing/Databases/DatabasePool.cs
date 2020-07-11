@@ -18,10 +18,10 @@ namespace Composable.Testing.Databases
 {
     abstract partial class DatabasePool : StrictlyManagedResourceBase<DatabasePool>
     {
-        readonly MachineWideSharedObject<SharedState> _machineWideState;
+        protected readonly MachineWideSharedObject<SharedState> _machineWideState;
         protected static string? DatabaseRootFolderOverride;
         static TimeSpan _reservationLength;
-        static readonly int NumberOfDatabases = 30;
+        protected static readonly int NumberOfDatabases = 30;
 
         protected DatabasePool()
         {

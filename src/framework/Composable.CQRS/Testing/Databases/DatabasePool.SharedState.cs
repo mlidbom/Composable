@@ -17,7 +17,7 @@ namespace Composable.Testing.Databases
             protected override IEnumerable<MemberGetterSetter> CreateGetterSetters() => new[] {GetterSetter.ForBinarySerializableList(@this => @this._databases, (@this, value) => @this._databases = value)};
 
             List<Database> _databases = new List<Database>();
-            IReadOnlyList<Database> Databases => _databases;
+            internal IReadOnlyList<Database> Databases => _databases;
 
             internal bool IsEmpty => _databases.Count == 0;
 

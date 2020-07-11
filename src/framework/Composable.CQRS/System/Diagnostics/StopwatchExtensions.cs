@@ -64,6 +64,33 @@ namespace Composable.System.Diagnostics
             return new TimedThreadedExecutionSummary(iterations, individual.ToList(), total);
         });
 
+        public static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle] IReadOnlyList<Action> actions, int maxDegreeOfParallelism = -1, bool swallowExceptions = false, string description = "") => MachineWideSingleThreaded.Execute(() =>
+        {
+            maxDegreeOfParallelism = maxDegreeOfParallelism == -1
+                                         ? Math.Max(Environment.ProcessorCount, 8) / 2
+                                         : maxDegreeOfParallelism;
+
+            var individual = new ConcurrentStack<TimeSpan>();
+
+            var total = TimeExecution(() =>
+            {
+                var timedActions = actions.Select(action => Task.Factory.StartNew(() => individual.Push(TimeExecution(action)), TaskCreationOptions.LongRunning)).ToArray();
+                try
+                {
+                    Task.WaitAll(timedActions);
+                }
+                catch(Exception)
+                {
+                    if(!swallowExceptions)
+                    {
+                        throw;
+                    }
+                }
+            });
+
+            return new TimedThreadedExecutionSummary(actions.Count, individual.ToList(), total, description);
+        });
+
         public class TimedExecutionSummary
         {
             public TimedExecutionSummary(int iterations, TimeSpan total)
@@ -79,9 +106,28 @@ namespace Composable.System.Diagnostics
 
         public class TimedThreadedExecutionSummary : TimedExecutionSummary
         {
-            public TimedThreadedExecutionSummary(int iterations, IReadOnlyList<TimeSpan> individualExecutionTimes, TimeSpan total): base(iterations, total) => IndividualExecutionTimes = individualExecutionTimes;
+            readonly string _description;
+            public TimedThreadedExecutionSummary(int iterations, IReadOnlyList<TimeSpan> individualExecutionTimes, TimeSpan total, string description = ""): base(iterations, total)
+            {
+                _description = description;
+                IndividualExecutionTimes = individualExecutionTimes;
+            }
 
             public IReadOnlyList<TimeSpan> IndividualExecutionTimes { get; }
+
+            public override string ToString() =>  $@"
+{_description}
+Total: {Format(Total)}
+Average: {Format(Total)}
+
+Individual execution times    
+    Average: {Format(IndividualExecutionTimes.Average())}
+    Min:     {Format(IndividualExecutionTimes.Min())}
+    Max:     {Format(IndividualExecutionTimes.Max())}
+    Sum:     {Format(IndividualExecutionTimes.Sum())}
+";
+
+            string Format(TimeSpan? average) => average?.ToString(@"ss\.ffffff") ?? "";
         }
     }
 }

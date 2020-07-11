@@ -78,7 +78,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
 
         protected override void ResetDatabase(Database db)
         {
-            UglyHackOpenAllConnectionsThreadedToSpeedUpSubsequentOpenings();   
+            UglyHackOpenAllConnectionsThreadedToSpeedUpSubsequentOpenings();
             new OracleConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery(CleanSchema());
         }
 

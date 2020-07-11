@@ -76,13 +76,9 @@ namespace Composable.Persistence.Oracle.Testing.Databases
 
         protected override void ResetDatabase(Database db)
         {
-            var dropUserIfExistsAndRecreate = DropUserIfExistsAndRecreate(db.Name.ToUpper());
-            //Console.WriteLine(dropUserIfExistsAndRecreate);
-            //ResetConnectionPool(db);
-            _masterConnectionProvider.UseConnection(_ => {});
-            //_masterConnectionProvider.ExecuteNonQuery(CreateUserIfNotExists(db.Name.ToUpper()));
             var localConnection = new OracleConnectionProvider(ConnectionStringFor(db));
-            localConnection.UseConnection(_ => {});
+
+            localConnection.ExecuteNonQuery(CreateUserIfNotExists(db.Name.ToUpper()));
             localConnection.ExecuteNonQuery(CleanSchema());
         }
 
@@ -91,7 +87,6 @@ declare user_to_drop_exists integer;
 begin
     select count(*) into user_to_drop_exists from dba_users where username='{oracleUserName}';
     if (user_to_drop_exists = 0) then
-        --execute immediate 'DROP USER ""{oracleUserName}"" CASCADE';
         execute immediate 'CREATE USER ""{oracleUserName}"" IDENTIFIED BY ""{oracleUserName}""';
         -- ROLES
         execute immediate 'GRANT DBA TO ""{oracleUserName}"" WITH ADMIN OPTION';

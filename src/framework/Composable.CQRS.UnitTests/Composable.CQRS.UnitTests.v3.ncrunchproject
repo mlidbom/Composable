@@ -1,3 +1,26 @@
 ﻿<ProjectConfiguration>
-  <Settings />
+  <Settings>
+    <IgnoredTests>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.DatabasePoolTests.DatabasePoolPerformanceTests.Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds_Orcl_700_milliseconds</TestName>
+        <DuplicatedDimension>Orcl</DuplicatedDimension>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.DatabasePoolTests.DatabasePoolPerformanceTests.Once_DB_Fetched_MsSql_Can_use_100_connections_in_2_milliseconds_MySql_25_milliseconds_PgSql_1_millisecond_Oracle_50_milliseconds</TestName>
+        <DuplicatedDimension>Orcl</DuplicatedDimension>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.DatabasePoolTests.DatabasePoolPerformanceTests.Repeated_fetching_of_same_connection_runs_200_times_in_ten_milliseconds</TestName>
+        <DuplicatedDimension>Orcl</DuplicatedDimension>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.DatabasePoolTests.DatabasePoolPerformanceTests.Single_thread_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds_Orcl_700_milliseconds</TestName>
+        <DuplicatedDimension>Orcl</DuplicatedDimension>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.ExternalDependencies.DatabasePoolTests.DatabasePoolPerformanceTests.Single_thread_can_reserve_and_release_10_identically_named_databases_in_300_milliseconds_Orcl_700_milliseconds</TestName>
+        <DuplicatedDimension>Orcl</DuplicatedDimension>
+      </NamedTestSelector>
+    </IgnoredTests>
+  </Settings>
 </ProjectConfiguration>

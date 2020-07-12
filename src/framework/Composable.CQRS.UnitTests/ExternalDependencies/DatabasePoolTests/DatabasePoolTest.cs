@@ -9,6 +9,7 @@ using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.Persistence.Oracle.Testing.Databases;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.Persistence.PgSql.Testing.Databases;
+using Composable.System.Linq;
 using Composable.Testing;
 using Composable.Testing.Databases;
 using Composable.Testing.Performance;

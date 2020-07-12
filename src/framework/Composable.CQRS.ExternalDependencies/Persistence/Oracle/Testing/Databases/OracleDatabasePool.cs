@@ -23,40 +23,11 @@ namespace Composable.Persistence.Oracle.Testing.Databases
         {
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName);
 
-            _masterConnectionString = masterConnectionString ?? "Data Source=localhost:1521/orclpdb; DBA Privilege=SYSDBA; User Id=sys; Password=Development!1;";
+            _masterConnectionString = masterConnectionString ?? "Data Source=127.0.0.1:1521/orclpdb; DBA Privilege=SYSDBA; User Id=sys; Password=Development!1;";
 
             _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
             _masterConnectionProvider = new OracleConnectionProvider(_masterConnectionString);
-        }
-
-        static readonly object Lock = new object();
-        static bool _doneWithHack;
-
-        ///<summary>Current oracle ADO implementation takes several seconds to open the first connection per unique connection string. This code divides the slowdown by the number of databases in the pool very significantly speeding up tests.</summary>
-        internal void UglyHackOpenAllConnectionsThreadedToSpeedUpSubsequentOpenings()
-        {
-            lock(Lock)
-            {
-                if(!_doneWithHack)
-                {
-                    try
-                    {
-                        Task.WaitAll(MachineWideState
-                                    .GetCopy()
-                                    .Databases
-                                    .Select(ConnectionStringFor)
-                                    .Append(_masterConnectionString)
-                                    .Select(connectionString => Task.Factory.StartNew(() => new OracleConnectionProvider(connectionString).UseConnection(_ => {}), TaskCreationOptions.LongRunning))
-                                    .ToArray());
-                    }
-                    catch(Exception) {}
-                    finally
-                    {
-                        _doneWithHack = true;
-                    }
-                }
-            }
         }
 
         protected override string ConnectionStringFor(Database db)

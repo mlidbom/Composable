@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Composable.Logging;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 
@@ -75,7 +76,14 @@ namespace Composable.System
         {
             if(!_disposed)
             {
-                throw new StrictlyManagedResourceWasFinalizedException(GetType(), ReservationCallStack);
+                try
+                {
+                    throw new StrictlyManagedResourceWasFinalizedException(GetType(), ReservationCallStack);
+                }
+                catch(StrictlyManagedResourceWasFinalizedException exception)
+                {
+                    this.Log().Error(exception);
+                }
             }
         }
     }

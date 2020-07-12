@@ -8,6 +8,7 @@ using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.System;
 using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
 
@@ -28,18 +29,20 @@ namespace Composable.Persistence.Oracle.EventStore
                             command => command.SetCommandText(
                                                    //urgent: explore oracle alternatives to commented out hints .
                                                    $@"
-INSERT {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
+BEGIN
+INSERT INTO {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
 (       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
-VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.EffectiveOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType});
+VALUES(:{C.AggregateId}, :{C.InsertedVersion}, :{C.EffectiveVersion}, :{C.EffectiveOrder}, :{C.EventType}, :{C.EventId}, :{C.UtcTimeStamp}, :{C.Event}, :{C.TargetEvent},:{C.RefactoringType});
 
+{(data.StorageInformation.ReadOrder != null ? "":$@"
 
-IF @{C.EffectiveOrder} IS NULL THEN
+UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
+        SET {C.EffectiveOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType}),
+            {C.ReadOrder} = {C.InsertionOrder}
+        WHERE {C.EventId} = :{C.EventId};
+")}
 
-    UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-    SET {C.EffectiveOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType}),
-        {C.ReadOrder} = {C.InsertionOrder}
-    WHERE {C.EventId} = @{C.EventId};
-END IF;
+END;
 ")
                                               .AddParameter(C.AggregateId, data.AggregateId)
                                               .AddParameter(C.InsertedVersion, data.StorageInformation.InsertedVersion)
@@ -48,7 +51,7 @@ END IF;
                                               .AddParameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddNClobParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.EffectiveOrder, OracleDbType.Varchar2, data.StorageInformation.ReadOrder?.ToString())
+                                              .AddNullableParameter(C.EffectiveOrder, OracleDbType.Decimal, data.StorageInformation.ReadOrder?.ToOracleDecimal())
                                               .AddNullableParameter(C.EffectiveVersion, OracleDbType.Int32, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(C.TargetEvent, OracleDbType.Varchar2, data.StorageInformation.RefactoringInformation?.TargetEvent)
                                               .AddNullableParameter(C.RefactoringType, OracleDbType.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
@@ -80,10 +83,10 @@ END IF;
 
             var selectStatement = $@"
 SELECT  {C.EffectiveOrder},        
-        (select cast({C.EffectiveOrder} as char(39)) from {EventTable.Name} e1 where e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} desc limit 1) PreviousReadOrder,
-        (select cast({C.EffectiveOrder} as char(39)) from {EventTable.Name} e1 where e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} limit 1) NextReadOrder
+        (select {C.EffectiveOrder} from {EventTable.Name} e1 where ROWNUM <= 1 AND e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} desc) PreviousReadOrder,
+        (select {C.EffectiveOrder} from {EventTable.Name} e1 where ROWNUM <= 1 AND e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} ) NextReadOrder
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
-where {C.EventId} = @{C.EventId}";
+where {C.EventId} = :{C.EventId}";
 
             EventNeighborhood? neighborhood = null;
 
@@ -96,12 +99,12 @@ where {C.EventId} = @{C.EventId}";
                     using var reader = command.ExecuteReader();
                     reader.Read();
 
-                    var effectiveReadOrder = reader.GetString(0).Replace(",", ".");
-                    var previousEventReadOrder = (reader[1] as string)?.Replace(",", ".");
-                    var nextEventReadOrder = (reader[2] as string)?.Replace(",", ".");
-                    neighborhood = new EventNeighborhood(effectiveReadOrder: ReadOrder.Parse(effectiveReadOrder),
-                                                         previousEventReadOrder: previousEventReadOrder == null ? null : new ReadOrder?(ReadOrder.Parse(previousEventReadOrder)),
-                                                         nextEventReadOrder: nextEventReadOrder == null ? null : new ReadOrder?(ReadOrder.Parse(nextEventReadOrder)));
+                    var effectiveReadOrder = reader.GetOracleDecimal(0);
+                    var previousEventReadOrder = reader[1] as OracleDecimal?;
+                    var nextEventReadOrder = reader[2] as OracleDecimal?;
+                    neighborhood = new EventNeighborhood(effectiveReadOrder: effectiveReadOrder.ToReadOrder(),
+                                                         previousEventReadOrder: previousEventReadOrder?.ToReadOrder(),
+                                                         nextEventReadOrder: nextEventReadOrder?.ToReadOrder());
                 });
 
             return Assert.Result.NotNull(neighborhood);
@@ -114,7 +117,7 @@ where {C.EventId} = @{C.EventId}";
                 {
                     //urgent: Find equivalent to rowlock hint.
                     command.CommandText +=
-                        $"DELETE FROM {EventTable.Name} /*With(ROWLOCK)*/ WHERE {C.AggregateId} = @{C.AggregateId};";
+                        $"DELETE FROM {EventTable.Name} /*With(ROWLOCK)*/ WHERE {C.AggregateId} = :{C.AggregateId}";
                     command.Parameters.Add(new OracleParameter(C.AggregateId, OracleDbType.Varchar2) { Value = aggregateId });
                     command.ExecuteNonQuery();
                 });

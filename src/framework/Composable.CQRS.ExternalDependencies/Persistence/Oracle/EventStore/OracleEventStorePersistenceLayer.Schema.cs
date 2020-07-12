@@ -16,9 +16,8 @@ namespace Composable.Persistence.Oracle.EventStore
         {
             if(!_initialized)
             {
-                _connectionManager.UseCommand(command=> command.ExecuteNonQuery($@"
-
-//Urgent: EffectiveOrder should have a unique constraint for all persistence providers.
+                //Urgent: EffectiveOrder should have a unique constraint for all persistence providers.
+                _connectionManager.UseCommand(command => command.SetCommandText($@"
 declare existing_table_count integer;
 begin
     select count(*) into existing_table_count from user_tables where table_name='{EventTable.Name.ToUpper()}';
@@ -32,9 +31,9 @@ begin
                 {C.Event} NCLOB NOT NULL,
                 {C.EventId} {OracleGuidType} NOT NULL,
                 {C.InsertedVersion} NUMBER(10) NOT NULL,
-                {C.SqlInsertTimeStamp} TIMESTAMP default CURRENT_TIMESTAMP,
+                {C.SqlInsertTimeStamp} TIMESTAMP default CURRENT_TIMESTAMP NOT NULL,
                 {C.TargetEvent} {OracleGuidType} null,
-                {C.RefactoringType} tinyint null,
+                {C.RefactoringType} NUMBER(3) null,
                 {C.ReadOrder} NUMBER(19) null,
                 {C.ReadOrderOrderOffset} NUMBER(19) null,
                 {C.EffectiveOrder} {EventTable.ReadOrderType} null,    
@@ -42,18 +41,21 @@ begin
 
                 CONSTRAINT {EventTable.Name}_PK PRIMARY KEY ({C.AggregateId}, {C.InsertedVersion}),
 
-                CONSTRAINT {EventTable.Name}_Unique_{C.EventId} UNIQUE ( {C.EventId} ASC ),
-                CONSTRAINT {EventTable.Name}_Unique_{C.InsertionOrder} UNIQUE ( {C.InsertionOrder} ASC ),
+                CONSTRAINT {EventTable.Name}_Unique_{C.EventId} UNIQUE ( {C.EventId} ),
+                CONSTRAINT {EventTable.Name}_Unique_{C.InsertionOrder} UNIQUE ( {C.InsertionOrder} )
+            )';
 
-                CONSTRAINT FOREIGN KEY ( {C.TargetEvent} ) REFERENCES {EventTable.Name} ({C.EventId})
-            );
-          
+        EXECUTE IMMEDIATE '
+            ALTER TABLE {EventTable.Name} ADD CONSTRAINT FK_{C.TargetEvent} 
+                FOREIGN KEY ( {C.TargetEvent} ) REFERENCES {EventTable.Name} ({C.EventId})';     
+        
+        EXECUTE IMMEDIATE '
             CREATE INDEX IX_{EventTable.Name}_{C.EffectiveOrder} ON {EventTable.Name} 
-                ({C.EffectiveOrder} ASC, {C.EffectiveVersion} ASC);
-';
+                ({C.EffectiveOrder} ASC, {C.EffectiveVersion} ASC)';
     end if;
 end;
-"));
+")
+                                                                .ExecuteNonQuery());
 
                 _initialized = true;
             }

@@ -29,23 +29,23 @@ namespace Composable.Persistence.Oracle.EventStore
 
             return $@"
 SELECT {topClause} 
-{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, cast({C.EffectiveOrder} as char(39))
+{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, {C.EffectiveOrder}
 FROM {EventTable.Name} {lockHint} ";
         }
 
         static EventDataRow ReadDataRow(OracleDataReader eventReader)
         {
             return new EventDataRow(
-                eventType: eventReader.GetGuid(0),
+                eventType: eventReader.GetGuidFromString(0),
                 eventJson: eventReader.GetString(1),
-                eventId: eventReader.GetGuid(4),
+                eventId: eventReader.GetGuidFromString(4),
                 aggregateVersion: eventReader.GetInt32(3),
-                aggregateId: eventReader.GetGuid(2),
+                aggregateId: eventReader.GetGuidFromString(2),
                 //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
                 utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
                 storageInformation: new AggregateEventStorageInformation()
                                         {
-                                            ReadOrder = ReadOrder.Parse(eventReader.GetString(10)),
+                                            ReadOrder = eventReader.GetOracleDecimal(10).ToReadOrder(),
                                             InsertedVersion = eventReader.GetInt32(9),
                                             EffectiveVersion = eventReader.GetInt32(3),
                                             RefactoringInformation = (eventReader[7] as Guid?, eventReader[8] as sbyte?)switch
@@ -82,13 +82,14 @@ ORDER BY {C.EffectiveOrder} ASC")
                                                                 {
                                                                     var commandText = $@"
 {CreateSelectClause(takeWriteLock: false)} 
-WHERE {C.EffectiveOrder}  > CAST(:{C.EffectiveOrder} AS {EventTable.ReadOrderType})
+WHERE {C.EffectiveOrder}  > :{C.EffectiveOrder}
     AND {C.EffectiveVersion} > 0
-ORDER BY {C.EffectiveOrder} ASC
-LIMIT {batchSize}";
+    AND ROWNUM <= {batchSize}
+ORDER BY {C.EffectiveOrder} ASC";
                                                                     return command.SetCommandText(commandText)
                                                                                    //urgent: Figure out how to work with decimal in Oracle
-                                                                                  .AddParameter(C.EffectiveOrder, OracleDbType.Varchar2, lastReadEventReadOrder.ToString())
+                                                                                  .AddParameter(C.EffectiveOrder, OracleDbType.Decimal, lastReadEventReadOrder.ToOracleDecimal())
+                                                                                  .LogCommand()
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList();
                                                                 });
@@ -115,7 +116,7 @@ SELECT {C.AggregateId}, {C.EventType}
 FROM {EventTable.Name} 
 WHERE {C.EffectiveVersion} = 1 
 ORDER BY {C.EffectiveOrder} ASC")
-                                                                           .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuid(0), typeId: reader.GetGuid(1))));
+                                                                           .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuidFromString(0), typeId: reader.GetGuidFromString(1))));
         }
     }
 }

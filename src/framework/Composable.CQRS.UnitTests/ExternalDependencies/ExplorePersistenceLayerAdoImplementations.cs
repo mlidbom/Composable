@@ -8,14 +8,19 @@ using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MySql.Testing.Databases;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.Persistence.MsSql.Testing.Databases;
+using Composable.Persistence.Oracle.SystemExtensions;
+using Composable.Persistence.Oracle.Testing.Databases;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.Persistence.PgSql.Testing.Databases;
 using MySql.Data.MySqlClient;
 using NpgsqlTypes;
 using NUnit.Framework;
+using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 
 namespace Composable.Tests.ExternalDependencies
 {
+    //Urgent: Write tests that verify that none of the persistence layers lose precision in the persisted readorder when persisting refactorings.
     //Urgent: Remove this once we have all the persistence layers working.
     [TestFixture] public class ExplorePersistenceLayerAdoImplementations
     {
@@ -25,6 +30,9 @@ namespace Composable.Tests.ExternalDependencies
         MySqlConnectionProvider _mySqlConnection;
         PgSqlDatabasePool _pgSqlPool;
         PgSqlConnectionProvider _pgSqlConnection;
+
+        OracleDatabasePool _orclPool;
+        OracleConnectionProvider _orclConnection;
 
         [Test] public void MsSqlRoundtrip()
         {
@@ -59,6 +67,26 @@ namespace Composable.Tests.ExternalDependencies
             Console.WriteLine(result);
         }
 
+        [Test] public void OracleRoundtrip()
+        {
+            var result = _orclConnection.UseCommand(
+                command => command.SetCommandText($"select cast(cast(:parm as {EventTable.ReadOrderType}) as varchar2(39)) from dual")
+                                  .AddNullableParameter("parm", OracleDbType.Varchar2, Create(1,1).ToString())
+                                  .ExecuteReaderAndSelect(@this => ReadOrder.Parse(@this.GetString(0)))
+                                  .Single());
+
+            Console.WriteLine(result);
+
+            var result2 = _orclConnection.UseCommand(
+                command => command.SetCommandText("select :parm from dual")
+                                  .AddNullableParameter("parm", OracleDbType.Decimal, OracleDecimal.Parse("1"))
+                                  .ExecuteReaderAndSelect(@this => @this.GetOracleDecimal(0))
+                                  .Single());
+
+            Console.WriteLine(result2);
+            Console.WriteLine(result2.ToReadOrder());
+        }
+
         [SetUp] public void SetupTask()
         {
             _msSqlPool = new MsSqlDatabasePool();
@@ -69,6 +97,9 @@ namespace Composable.Tests.ExternalDependencies
 
             _pgSqlPool = new PgSqlDatabasePool();
             _pgSqlConnection = new PgSqlConnectionProvider(_pgSqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
+
+            _orclPool = new OracleDatabasePool();
+            _orclConnection = new OracleConnectionProvider(_orclPool.ConnectionStringFor(Guid.NewGuid().ToString()));
         }
 
         [TearDown] public void TearDownTask()
@@ -77,5 +108,9 @@ namespace Composable.Tests.ExternalDependencies
             _mySqlPool.Dispose();
             _pgSqlPool.Dispose();
         }
+
+        static ReadOrder Create(long order, long offset) => ReadOrder.Parse($"{order}.{offset:D19}");
+        static string CreateString(int order, int value) => $"{order}.{DecimalPlaces(value)}";
+        static string DecimalPlaces(int number) => new string(number.ToString()[0], 19);
     }
 }

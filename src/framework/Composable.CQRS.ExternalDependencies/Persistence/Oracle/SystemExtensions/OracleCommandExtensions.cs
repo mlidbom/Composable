@@ -5,6 +5,7 @@ using Oracle.ManagedDataAccess.Client;
 using System.Threading.Tasks;
 using Composable.Logging;
 using Composable.System.Linq;
+using Composable.System.Reflection;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {
@@ -39,7 +40,7 @@ namespace Composable.Persistence.Oracle.SystemExtensions
 
             SafeConsole.WriteLine("####################################### Hacking values into parameter positions #######################################");
             var commandTextWithParameterValues = @this.CommandText;
-            parameters.ForEach(parameter => commandTextWithParameterValues = commandTextWithParameterValues.Replace($":{parameter.ParameterName}", parameter.Value.ToString()));
+            parameters.ForEach(parameter => commandTextWithParameterValues = commandTextWithParameterValues.Replace($":{parameter.ParameterName}", parameter.Value == DBNull.Value ? "NULL": parameter.Value.ToString()));
             Console.WriteLine(commandTextWithParameterValues);
             SafeConsole.WriteLine("######################################################################################################");
 

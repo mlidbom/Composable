@@ -87,9 +87,7 @@ WHERE {C.EffectiveOrder}  > :{C.EffectiveOrder}
     AND ROWNUM <= {batchSize}
 ORDER BY {C.EffectiveOrder} ASC";
                                                                     return command.SetCommandText(commandText)
-                                                                                   //urgent: Figure out how to work with decimal in Oracle
                                                                                   .AddParameter(C.EffectiveOrder, OracleDbType.Decimal, lastReadEventReadOrder.ToOracleDecimal())
-                                                                                  .LogCommand()
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList();
                                                                 });

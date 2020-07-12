@@ -68,9 +68,13 @@ END;
 
         public void UpdateEffectiveVersions(IReadOnlyList<VersionSpecification> versions)
         {
-            var commandText = versions.Select((spec, index) =>
-                                                  $@"UPDATE {EventTable.Name} SET {C.EffectiveVersion} = {spec.EffectiveVersion} WHERE {C.EventId} = '{spec.EventId}';").Join(Environment.NewLine);
+            var commandText = $@"
+BEGIN
 
+{versions.Select((spec, index) =>
+                     $@"UPDATE {EventTable.Name} SET {C.EffectiveVersion} = {spec.EffectiveVersion} WHERE {C.EventId} = '{spec.EventId}';").Join(Environment.NewLine)}
+
+END;";
             _connectionManager.UseConnection(connection => connection.ExecuteNonQuery(commandText));
 
         }
@@ -81,10 +85,11 @@ END;
             //var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "";
 
+            //Urgent: Using min and max instead of order by and top is far more clean. Do the same in the other persistence layer.s
             var selectStatement = $@"
 SELECT  {C.EffectiveOrder},        
-        (select {C.EffectiveOrder} from {EventTable.Name} e1 where ROWNUM <= 1 AND e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} desc) PreviousReadOrder,
-        (select {C.EffectiveOrder} from {EventTable.Name} e1 where ROWNUM <= 1 AND e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} ) NextReadOrder
+        (select MAX({C.EffectiveOrder}) from {EventTable.Name} e1 where e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder}) PreviousReadOrder,
+        (select MIN({C.EffectiveOrder}) from {EventTable.Name} e1 where e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder}) NextReadOrder
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
 where {C.EventId} = :{C.EventId}";
 
@@ -93,15 +98,15 @@ where {C.EventId} = :{C.EventId}";
             _connectionManager.UseCommand(
                 command =>
                 {
-                    command.CommandText = selectStatement;
-
-                    command.Parameters.Add(new OracleParameter(C.EventId, OracleDbType.Varchar2) { Value = eventId });
-                    using var reader = command.ExecuteReader();
+                    using var reader = command.SetCommandText(selectStatement)
+                                             .AddParameter(new OracleParameter(C.EventId, OracleDbType.Varchar2) { Value = eventId })
+                                              .LogCommand()
+                                              .ExecuteReader();
                     reader.Read();
 
                     var effectiveReadOrder = reader.GetOracleDecimal(0);
-                    var previousEventReadOrder = reader[1] as OracleDecimal?;
-                    var nextEventReadOrder = reader[2] as OracleDecimal?;
+                    var previousEventReadOrder = reader[1] == DBNull.Value ? (OracleDecimal?)null! : reader.GetOracleDecimal(1);
+                    var nextEventReadOrder = reader[2] == DBNull.Value ? (OracleDecimal?)null! : reader.GetOracleDecimal(2);
                     neighborhood = new EventNeighborhood(effectiveReadOrder: effectiveReadOrder.ToReadOrder(),
                                                          previousEventReadOrder: previousEventReadOrder?.ToReadOrder(),
                                                          nextEventReadOrder: nextEventReadOrder?.ToReadOrder());

@@ -115,6 +115,7 @@ namespace Composable.Tests.ExternalDependencies
             _msSqlPool.Dispose();
             _mySqlPool.Dispose();
             _pgSqlPool.Dispose();
+            _orclPool.Dispose();
         }
 
         static ReadOrder Create(long order, long offset) => ReadOrder.Parse($"{order}.{offset:D19}");

@@ -48,10 +48,10 @@ FROM {EventTable.Name} {lockHint} ";
                                             ReadOrder = eventReader.GetOracleDecimal(10).ToReadOrder(),
                                             InsertedVersion = eventReader.GetInt32(9),
                                             EffectiveVersion = eventReader.GetInt32(3),
-                                            RefactoringInformation = (eventReader[7] as Guid?, eventReader[8] as sbyte?)switch
+                                            RefactoringInformation = (eventReader[7] as string, eventReader[8] as short?)switch
                                             {
                                                 (null, null) => null,
-                                                (Guid targetEvent, sbyte type) => new AggregateEventRefactoringInformation(targetEvent, (AggregateEventRefactoringType)type),
+                                                (string targetEvent, short type) => new AggregateEventRefactoringInformation(Guid.Parse(targetEvent), (AggregateEventRefactoringType)type),
                                                 _ => throw new Exception("Should not be possible to get here")
                                             }
                                         }

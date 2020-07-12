@@ -75,7 +75,7 @@ BEGIN
                      $@"UPDATE {EventTable.Name} SET {C.EffectiveVersion} = {spec.EffectiveVersion} WHERE {C.EventId} = '{spec.EventId}';").Join(Environment.NewLine)}
 
 END;";
-            _connectionManager.UseConnection(connection => connection.ExecuteNonQuery(commandText));
+            _connectionManager.UseCommand(command => command.SetCommandText(commandText).LogCommand().ExecuteNonQuery());
 
         }
 

@@ -297,6 +297,7 @@ AggregateIds:
             var replacedOrRemoved2 = refactorings.SelectMany(@this =>@this).Where(@this => newHistory.None(@event => @event.EventId == @this.EventId));
             versionUpdates.AddRange(replacedOrRemoved2.Select(@this => new VersionSpecification(@this.EventId, -@this.StorageInformation.EffectiveVersion)));
 
+            //Urgent: Filter out rows where the new value equals the old value. We don't want to go updating every event in every refactored aggregate if only a few, or none, have actually changed.
             versionUpdates.AddRange(newHistory.Select((@this , index) => new VersionSpecification(@this.EventId, index + 1)));
 
             _persistenceLayer.UpdateEffectiveVersions(versionUpdates);

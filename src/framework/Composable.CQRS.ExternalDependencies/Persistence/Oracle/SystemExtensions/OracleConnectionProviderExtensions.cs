@@ -4,7 +4,7 @@ using Oracle.ManagedDataAccess.Client;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {
-    static class MyOracleConnectionProviderExtensions
+    static class OracleConnectionProviderExtensions
     {
         public static int ExecuteNonQuery(this IOracleConnectionProvider @this, string commandText) => @this.UseCommand(command => command.SetCommandText(commandText).ExecuteNonQuery());
 

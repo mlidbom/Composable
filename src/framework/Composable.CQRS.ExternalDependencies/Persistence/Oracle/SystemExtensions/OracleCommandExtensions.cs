@@ -9,7 +9,7 @@ using Composable.System.Reflection;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {
-    static class MyOracleCommandExtensions
+    static class OracleCommandExtensions
     {
         public static void ExecuteReader(this OracleCommand @this, string commandText, Action<OracleDataReader> forEach) => @this.ExecuteReader(commandText).ForEachSuccessfulRead(forEach);
         public static OracleDataReader ExecuteReader(this OracleCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteReader();

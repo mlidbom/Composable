@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {
-    static class MyOracleConnectionExtensions
+    static class OracleConnectionExtensions
     {
         public static void UseCommand(this OracleConnection @this, Action<OracleCommand> action)
         {

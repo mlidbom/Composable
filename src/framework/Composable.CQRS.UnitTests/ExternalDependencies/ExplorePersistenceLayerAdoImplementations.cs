@@ -26,19 +26,12 @@ namespace Composable.Tests.ExternalDependencies
     //Urgent: Remove this once we have all the persistence layers working.
     [TestFixture] public class ExplorePersistenceLayerAdoImplementations
     {
-        MsSqlDatabasePool _msSqlPool;
-        MySqlDatabasePool _mySqlPool;
-        MsSqlConnectionProvider _msSqlConnection;
-        MySqlConnectionProvider _mySqlConnection;
-        PgSqlDatabasePool _pgSqlPool;
-        PgSqlConnectionProvider _pgSqlConnection;
-
-        OracleDatabasePool _orclPool;
-        OracleConnectionProvider _orclConnection;
-
         [Test] public void MsSqlRoundtrip()
         {
-            var result = _msSqlConnection.UseCommand(
+            using var msSqlPool = new MsSqlDatabasePool();
+            var msSqlConnection = new MsSqlConnectionProvider(msSqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
+
+            var result = msSqlConnection.UseCommand(
                 command => command.SetCommandText("select @parm")
                                   .AddNullableParameter("parm", SqlDbType.Decimal, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToSqlDecimal())
                                   .ExecuteReaderAndSelect(@this => @this.GetSqlDecimal(0))
@@ -49,7 +42,10 @@ namespace Composable.Tests.ExternalDependencies
 
         [Test] public void MySqlRoundtrip()
         {
-            var result = _mySqlConnection.UseCommand(
+            using var mySqlPool = new MySqlDatabasePool();
+            var mySqlConnection = new MySqlConnectionProvider(mySqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
+
+            var result = mySqlConnection.UseCommand(
                 command => command.SetCommandText($"select cast(cast(@parm as {EventTable.ReadOrderType}) as char(39))")
                                   .AddNullableParameter("parm", MySqlDbType.VarChar, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToString())
                                   .ExecuteReaderAndSelect(@this => @this.GetString(0))
@@ -60,7 +56,10 @@ namespace Composable.Tests.ExternalDependencies
 
         [Test] public void PgSqlRoundtrip()
         {
-            var result = _pgSqlConnection.UseCommand(
+            using var pgSqlPool = new PgSqlDatabasePool();
+            var pgSqlConnection = new PgSqlConnectionProvider(pgSqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
+
+            var result = pgSqlConnection.UseCommand(
                 command => command.SetCommandText($"select cast(cast(@parm as {EventTable.ReadOrderType}) as char(39))")
                                   .AddNullableParameter("parm", NpgsqlDbType.Varchar, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToString())
                                   .ExecuteReaderAndSelect(@this => @this.GetString(0))
@@ -71,7 +70,10 @@ namespace Composable.Tests.ExternalDependencies
 
         [Test] public void OracleRoundtrip()
         {
-            var result2 = _orclConnection.UseCommand(
+            using var orclPool = new OracleDatabasePool();
+            var orclConnection = new OracleConnectionProvider(orclPool.ConnectionStringFor(Guid.NewGuid().ToString()));
+
+            var result2 = orclConnection.UseCommand(
                 command => command.SetCommandText("select :parm from dual")
                                   .AddNullableParameter("parm", OracleDbType.Decimal, OracleDecimal.Parse("1"))
                                   .ExecuteReaderAndSelect(@this => @this.GetOracleDecimal(0))
@@ -81,28 +83,6 @@ namespace Composable.Tests.ExternalDependencies
             Console.WriteLine(result2.ToReadOrder());
         }
 
-        [SetUp] public void SetupTask()
-        {
-            _msSqlPool = new MsSqlDatabasePool();
-            _msSqlConnection = new MsSqlConnectionProvider(_msSqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
-
-            _mySqlPool = new MySqlDatabasePool();
-            _mySqlConnection = new MySqlConnectionProvider(_mySqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
-
-            _pgSqlPool = new PgSqlDatabasePool();
-            _pgSqlConnection = new PgSqlConnectionProvider(_pgSqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
-
-            _orclPool = new OracleDatabasePool();
-            _orclConnection = new OracleConnectionProvider(_orclPool.ConnectionStringFor(Guid.NewGuid().ToString()));
-        }
-
-        [TearDown] public void TearDownTask()
-        {
-            _msSqlPool.Dispose();
-            _mySqlPool.Dispose();
-            _pgSqlPool.Dispose();
-            _orclPool.Dispose();
-        }
 
         static ReadOrder Create(long order, long offset) => ReadOrder.Parse($"{order}.{offset:D19}");
         static string CreateString(int order, int value) => $"{order}.{DecimalPlaces(value)}";

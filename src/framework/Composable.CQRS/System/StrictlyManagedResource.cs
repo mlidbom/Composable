@@ -76,6 +76,7 @@ namespace Composable.System
         {
             if(!_disposed)
             {
+                //Don't even think about letting exceptions escape on the finalizer thread again.The day I spent trying to understand why test processes simply died without explanation was no fun. Once was plenty. 
                 try
                 {
                     throw new StrictlyManagedResourceWasFinalizedException(GetType(), ReservationCallStack);

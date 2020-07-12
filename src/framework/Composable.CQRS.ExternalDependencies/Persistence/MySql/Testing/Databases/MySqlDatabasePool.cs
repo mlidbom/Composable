@@ -5,6 +5,8 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.System;
+using Composable.System.Linq;
+using Composable.System.Threading.ResourceAccess;
 using Composable.Testing.Databases;
 
 namespace Composable.Persistence.MySql.Testing.Databases
@@ -14,26 +16,25 @@ namespace Composable.Persistence.MySql.Testing.Databases
         readonly string _masterConnectionString;
         readonly MySqlConnectionProvider _masterConnectionProvider;
 
-        const string DatabaseMySql = ";Database=mysql;";
-
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+
+        readonly OptimizedThreadShared<MySqlConnectionStringBuilder> _connectionStringBuilder;
 
         public MySqlDatabasePool()
         {
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName);
 
-            _masterConnectionString = masterConnectionString ?? $"Server=localhost{DatabaseMySql}Uid=root;Pwd=;";
+            _masterConnectionString = masterConnectionString ?? $"Server=localhost;Database=mysql;Uid=root;Pwd=;";
 
             _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
             _masterConnectionProvider = new MySqlConnectionProvider(_masterConnectionString);
 
-            Contract.Assert.That(_masterConnectionString.Contains(DatabaseMySql),
-                                 $"Environment variable: {ConnectionStringConfigurationParameterName} connection string must contain the exact string: '{DatabaseMySql}' for technical optimization reasons");
+            _connectionStringBuilder = new OptimizedThreadShared<MySqlConnectionStringBuilder>(new MySqlConnectionStringBuilder(_masterConnectionString));
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _masterConnectionString!.Replace(DatabaseMySql, $";Database={db.Name};");
+            => _connectionStringBuilder.WithExclusiveAccess(@this =>@this.Mutate(me => me.Database = db.Name).ConnectionString);
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {

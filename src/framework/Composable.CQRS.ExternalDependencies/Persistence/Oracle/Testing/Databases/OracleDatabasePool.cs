@@ -8,6 +8,7 @@ using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
+using Composable.System.Threading.ResourceAccess;
 using Composable.Testing.Databases;
 
 namespace Composable.Persistence.Oracle.Testing.Databases
@@ -19,6 +20,8 @@ namespace Composable.Persistence.Oracle.Testing.Databases
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
+        readonly OptimizedThreadShared<OracleConnectionStringBuilder> _connectionStringBuilder;
+
         public OracleDatabasePool()
         {
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName);
@@ -27,11 +30,13 @@ namespace Composable.Persistence.Oracle.Testing.Databases
 
             _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
+            _connectionStringBuilder = new OptimizedThreadShared<OracleConnectionStringBuilder>(new OracleConnectionStringBuilder(_masterConnectionString));
+
             _masterConnectionProvider = new OracleConnectionProvider(_masterConnectionString);
         }
 
         protected override string ConnectionStringFor(Database db)
-            => new OracleConnectionStringBuilder(_masterConnectionString) {UserID = db.Name.ToUpper(), Password = db.Name.ToUpper(), DBAPrivilege = ""}.ConnectionString;
+            => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => { me.UserID = db.Name.ToUpper(); me.Password = db.Name.ToUpper(); me.DBAPrivilege = ""; }).ConnectionString);
 
         const int OracleInvalidUserNamePasswordCombinationErrorNumber = 1017;
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)

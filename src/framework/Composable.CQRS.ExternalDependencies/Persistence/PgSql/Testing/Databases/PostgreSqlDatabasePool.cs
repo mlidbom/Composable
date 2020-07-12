@@ -6,6 +6,8 @@ using Castle.Core.Internal;
 using Composable.Contracts;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.System;
+using Composable.System.Linq;
+using Composable.System.Threading.ResourceAccess;
 using Composable.Testing.Databases;
 
 namespace Composable.Persistence.PgSql.Testing.Databases
@@ -15,26 +17,24 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         readonly string _masterConnectionString;
         readonly PgSqlConnectionProvider _masterConnectionProvider;
 
-        const string DatabasePgSql = ";Database=postgres;";
-
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_PgSql_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+        readonly OptimizedThreadShared<NpgsqlConnectionStringBuilder> _connectionStringBuilder;
 
         public PgSqlDatabasePool()
         {
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName);
 
-            _masterConnectionString = masterConnectionString ?? $"Host=localhost{DatabasePgSql}Username=postgres;Password=Development!1;Connection Idle Lifetime=5;Connection Pruning Interval=1";
+            _masterConnectionString = masterConnectionString ?? $"Host=localhost;Database=postgres;Username=postgres;Password=Development!1;Connection Idle Lifetime=5;Connection Pruning Interval=1";
 
             _masterConnectionString = _masterConnectionString.Replace("\\", "_");
 
             _masterConnectionProvider = new PgSqlConnectionProvider(_masterConnectionString);
 
-            Contract.Assert.That(_masterConnectionString.Contains(DatabasePgSql),
-                                 $"Environment variable: {ConnectionStringConfigurationParameterName} connection string must contain the exact string: '{DatabasePgSql}' for technical optimization reasons");
+            _connectionStringBuilder = new OptimizedThreadShared<NpgsqlConnectionStringBuilder>(new NpgsqlConnectionStringBuilder(_masterConnectionString));
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _masterConnectionString!.Replace(DatabasePgSql, $";Database={db.Name.ToLower()};");
+            => _connectionStringBuilder.WithExclusiveAccess(@this =>@this.Mutate(me => me.Database = db.Name.ToLower()).ConnectionString);
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {

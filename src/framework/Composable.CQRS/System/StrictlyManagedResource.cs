@@ -25,10 +25,7 @@ namespace Composable.System
     }
 
     ///<summary>
-    /// A strictly managed resource guarantees that an Exception of type <see cref="StrictlyManagedResourceWasFinalizedException"/> is thrown if the finalizer is ever called.
-    /// <para>In other word: If a user of an instance fails to correctly call <see cref="IDisposable.Dispose"/> on a <see cref="StrictlyManagedResourceWasFinalizedException"/>
-    /// will be thrown when the instance is eventually finalized by the garbage collector.</para>
-    /// This helps to guarantee that your application has no resource leaks.
+    /// A strictly managed resource logs an Exception of type <see cref="StrictlyManagedResourceWasFinalizedException"/> if the finalizer is ever called.
     /// <para>Implementing this interface MUST be done by inheriting from <see cref="StrictlyManagedResourceBase{TInheritor}"/> or having a readonly field of type <see cref="StrictlyManagedResource{TManagedResource}"/>.
     ///  This guarantees the expected behavior including the ability to enable and disable the collection of stacktraces for the allocations.</para>
     /// </summary>

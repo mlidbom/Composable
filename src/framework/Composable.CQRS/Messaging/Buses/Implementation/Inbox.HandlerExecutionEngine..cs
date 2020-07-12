@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
+using Composable.Logging;
 using Composable.System.Linq;
 using Composable.System.Threading;
+using Composable.SystemExtensions.Threading;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -32,20 +34,16 @@ namespace Composable.Messaging.Buses.Implementation
 
             void AwaitDispatchableMessageThread()
             {
-                try
+                while(true)
                 {
-                    while(true)
-                    {
-                        var task = _coordinator.AwaitExecutableHandlerExecutionTask(_dispatchingRules);
-                        task.Execute();
-                    }
+                    var task = _coordinator.AwaitExecutableHandlerExecutionTask(_dispatchingRules);
+                    task.Execute();
                 }
-                catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException) {}
             }
 
             public void Start()
             {
-                _awaitDispatchableMessageThread = new Thread(AwaitDispatchableMessageThread)
+                _awaitDispatchableMessageThread = new Thread(ThreadExceptionHandler.WrapThreadStart(AwaitDispatchableMessageThread))
                                                   {
                                                       Name = nameof(AwaitDispatchableMessageThread),
                                                       Priority = ThreadPriority.AboveNormal

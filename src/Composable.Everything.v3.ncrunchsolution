@@ -2,12 +2,10 @@
   <Settings>
     <AllowParallelTestExecution>True</AllowParallelTestExecution>
     <HotSpotsLineExclusionList>
-      <Value>Messaging\Buses\Implementation\Outbox..cs:framework\Composable.CQRS\Composable.CQRS.csproj-85</Value>
-      <Value>Messaging\Buses\Implementation\Inbox.cs:framework\Composable.CQRS\Composable.CQRS.csproj-56</Value>
+      <Value>Messaging\Buses\Implementation\Outbox..cs:framework\Composable.CQRS\Composable.CQRS.csproj-87</Value>
       <Value>System\Threading\ResourceAccess\ThreadShared.cs:framework\Composable.CQRS\Composable.CQRS.csproj-80</Value>
       <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine.Coordinator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-37</Value>
       <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine..cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
-      <Value>Messaging\Buses\Implementation\Inbox.cs:framework\Composable.CQRS\Composable.CQRS.csproj-74</Value>
       <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-53</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-64</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-119</Value>
@@ -85,7 +83,7 @@
       <Value>System\Threading\ResourceAccess\ResourceGuardExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-60</Value>
       <Value>Persistence\MsSql\DependencyInjection\MsSqlPersistenceLayerRegistrar.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-33</Value>
       <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-18</Value>
-      <Value>System\Threading\TaskRunner.cs:framework\Composable.CQRS\Composable.CQRS.csproj-61</Value>
+      <Value>System\Threading\TaskRunner.cs:framework\Composable.CQRS\Composable.CQRS.csproj-62</Value>
       <Value>Persistence\MsSql\Testing\Databases\MsSqlDatabasePool.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-63</Value>
       <Value>Persistence\MsSql\Testing\Databases\MsSqlDatabaseHelpers.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-54</Value>
       <Value>Persistence\MySql\DependencyInjection\MySqlPersistenceLayerRegistrar.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-32</Value>

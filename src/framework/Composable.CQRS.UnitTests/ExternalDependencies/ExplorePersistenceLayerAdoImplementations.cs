@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
@@ -12,6 +13,7 @@ using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.Persistence.Oracle.Testing.Databases;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.Persistence.PgSql.Testing.Databases;
+using Composable.System.Threading;
 using MySql.Data.MySqlClient;
 using NpgsqlTypes;
 using NUnit.Framework;

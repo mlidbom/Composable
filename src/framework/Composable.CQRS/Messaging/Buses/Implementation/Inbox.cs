@@ -5,11 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
+using Composable.Logging;
+using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
+using Composable.SystemExtensions.Threading;
 using NetMQ;
 using NetMQ.Sockets;
 
@@ -54,10 +57,10 @@ namespace Composable.Messaging.Buses.Implementation
 
                 _cancellationTokenSource = new CancellationTokenSource();
                 _poller = new NetMQPoller {_serverSocket, _responseQueue};
-                _pollerThread = new Thread(() => _poller.Run()) {Name = $"{nameof(Inbox)}_PollerThread_{configuration.Name}"};
+                _pollerThread = new Thread(ThreadExceptionHandler.WrapThreadStart(() => _poller.Run())) {Name = $"{nameof(Inbox)}_PollerThread_{configuration.Name}"};
                 _pollerThread.Start();
 
-                _messageReceiverThread = new Thread(MessageReceiverThread) {Name = $"{nameof(Inbox)}_{nameof(MessageReceiverThread)}_{configuration.Name}"};
+                _messageReceiverThread = new Thread(ThreadExceptionHandler.WrapThreadStart(MessageReceiverThread)) {Name = $"{nameof(Inbox)}_{nameof(MessageReceiverThread)}_{configuration.Name}"};
                 _messageReceiverThread.Start();
 
                 _handlerExecutionEngine.Start();
@@ -68,65 +71,61 @@ namespace Composable.Messaging.Buses.Implementation
 
             void MessageReceiverThread()
             {
-                try
+                while(true)
                 {
-                    while(true)
+                    var transportMessageBatch = _receivedMessageBatches.Take(_cancellationTokenSource.Token);
+                    foreach(var transportMessage in transportMessageBatch)
                     {
-                        var transportMessageBatch = _receivedMessageBatches.Take(_cancellationTokenSource.Token);
-                        foreach(var transportMessage in transportMessageBatch)
+                        //performance: With the current design having this code here causes all queries to wait for persisting of all transactional messages that arrived before them.
+                        if(transportMessage.Is<MessageTypes.Remotable.IAtMostOnceMessage>())
                         {
-                            //performance: With the current design having this code here causes all queries to wait for persisting of all transactional messages that arrived before them.
-                            if(transportMessage.Is<MessageTypes.Remotable.IAtMostOnceMessage>())
-                            {
-                                //todo: handle the exception that will be thrown if this is a duplicate message
-                                _storage.SaveIncomingMessage(transportMessage);
+                            //todo: handle the exception that will be thrown if this is a duplicate message
+                            _storage.SaveIncomingMessage(transportMessage);
 
-                                if(transportMessage.Is<MessageTypes.Remotable.ExactlyOnce.IMessage>())
-                                {
-                                    var persistedResponse = transportMessage.CreatePersistedResponse();
-                                    _responseQueue.Enqueue(persistedResponse);
-                                }
+                            if(transportMessage.Is<MessageTypes.Remotable.ExactlyOnce.IMessage>())
+                            {
+                                var persistedResponse = transportMessage.CreatePersistedResponse();
+                                _responseQueue.Enqueue(persistedResponse);
                             }
+                        }
 
-                            var dispatchTask = _handlerExecutionEngine.Enqueue(transportMessage);
+                        var dispatchTask = _handlerExecutionEngine.Enqueue(transportMessage);
 
-                            dispatchTask.ContinueWith(dispatchResult =>
+                        dispatchTask.ContinueWith(dispatchResult =>
+                        {
+                            //refactor: Consider moving these responsibilities into the message class or other class. Probably create more subtypes so that no type checking is required. See also: HandlerExecutionEngine.Coordinator and [.HandlerExecutionTask]
+                            var message = transportMessage.DeserializeMessageAndCacheForNextCall();
+                            if(message is MessageTypes.Remotable.IRequireRemoteResponse)
                             {
-                                //refactor: Consider moving these responsibilities into the message class or other class. Probably create more subtypes so that no type checking is required. See also: HandlerExecutionEngine.Coordinator and [.HandlerExecutionTask]
-                                var message = transportMessage.DeserializeMessageAndCacheForNextCall();
-                                if(message is MessageTypes.Remotable.IRequireRemoteResponse)
+                                if(dispatchResult.IsFaulted)
                                 {
-                                    if(dispatchResult.IsFaulted)
+                                    var failureResponse = transportMessage.CreateFailureResponse(dispatchResult.Exception);
+                                    _responseQueue.Enqueue(failureResponse);
+                                } else
+                                {
+                                    Assert.Result.Assert(dispatchResult.IsCompleted);
+                                    try
                                     {
-                                        var failureResponse = transportMessage.CreateFailureResponse(dispatchResult.Exception);
-                                        _responseQueue.Enqueue(failureResponse);
-                                    } else
-                                    {
-                                        Assert.Result.Assert(dispatchResult.IsCompleted);
-                                        try
+                                        if(message is MessageTypes.IHasReturnValue)
                                         {
-                                            if(message is MessageTypes.IHasReturnValue)
-                                            {
-                                                var successResponse = transportMessage.CreateSuccessResponseWithData(dispatchResult.Result);
-                                                _responseQueue.Enqueue(successResponse);
-                                            } else
-                                            {
-                                                var successResponse = transportMessage.CreateSuccessResponse();
-                                                _responseQueue.Enqueue(successResponse);
-                                            }
-                                        }
-                                        catch(Exception exception)
+                                            var successResponse = transportMessage.CreateSuccessResponseWithData(dispatchResult.Result);
+                                            _responseQueue.Enqueue(successResponse);
+                                        } else
                                         {
-                                            var failureResponse = transportMessage.CreateFailureResponse(new AggregateException(exception));
-                                            _responseQueue.Enqueue(failureResponse);
+                                            var successResponse = transportMessage.CreateSuccessResponse();
+                                            _responseQueue.Enqueue(successResponse);
                                         }
                                     }
+                                    catch(Exception exception)
+                                    {
+                                        var failureResponse = transportMessage.CreateFailureResponse(new AggregateException(exception));
+                                        _responseQueue.Enqueue(failureResponse);
+                                    }
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
                 }
-                catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException || exception is ThreadAbortException) {}
             }
 
             void SendResponseMessage(object sender, NetMQQueueEventArgs<NetMQMessage> e)

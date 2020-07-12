@@ -5,11 +5,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
+using Composable.SystemExtensions.Threading;
 using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation
@@ -83,7 +85,7 @@ namespace Composable.Messaging.Buses.Implementation
                                        : state.Storage.StartAsync();
 
                 state.Poller = new NetMQPoller();
-                state.PollerThread = new Thread(() => state.Poller.Run()) {Name = $"{nameof(Outbox)}_{nameof(state.PollerThread)}"};
+                state.PollerThread = new Thread(ThreadExceptionHandler.WrapThreadStart(() => state.Poller.Run())) {Name = $"{nameof(Outbox)}_{nameof(state.PollerThread)}"}; //Urgent: Research what happens if exceptions are thrown on the poller thread.
                 state.PollerThread.Start();
                 return storageStartTask;
             });

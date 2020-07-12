@@ -34,7 +34,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
         static bool _doneWithHack;
 
         ///<summary>Current oracle ADO implementation takes several seconds to open the first connection per unique connection string. This code divides the slowdown by the number of databases in the pool very significantly speeding up tests.</summary>
-        void UglyHackOpenAllConnectionsThreadedToSpeedUpSubsequentOpenings()
+        internal void UglyHackOpenAllConnectionsThreadedToSpeedUpSubsequentOpenings()
         {
             lock(Lock)
             {
@@ -78,7 +78,6 @@ namespace Composable.Persistence.Oracle.Testing.Databases
 
         protected override void ResetDatabase(Database db)
         {
-            UglyHackOpenAllConnectionsThreadedToSpeedUpSubsequentOpenings();
             new OracleConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery(CleanSchema());
         }
 

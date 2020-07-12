@@ -67,16 +67,22 @@ namespace Composable.Tests.ExternalDependencies
             Console.WriteLine(result);
         }
 
+   //urgent: Fails on magnus-desktop with:
+   //Oracle.ManagedDataAccess.Client.OracleException : ORA-01722: ogiltigt nummer
+   //at OracleInternal.ServiceObjects.OracleConnectionImpl.VerifyExecution(Int32& cursorId, Boolean bThrowArrayBindRelatedErrors, SqlStatementType sqlStatementType, Int32 arrayBindCount, OracleException& exceptionForArrayBindDML, Boolean& hasMoreRowsInDB, Boolean bFirstIterationDone)
+   //at OracleInternal.ServiceObjects.OracleCommandImpl.ExecuteReader(String commandText, OracleParameterCollection paramColl, CommandType commandType, OracleConnectionImpl connectionImpl, OracleDataReaderImpl& rdrImpl, Int32 longFetchSize, Int64 clientInitialLOBFS, OracleDependencyImpl orclDependencyImpl, Int64[] scnForExecution, Int64[]& scnFromExecution, OracleParameterCollection& bindByPositionParamColl, Boolean& bBindParamPresent, Int64& internalInitialLOBFS, OracleException& exceptionForArrayBindDML, OracleConnection connection, OracleLogicalTransaction& oracleLogicalTransaction, IEnumerable`1 adrianParsedStmt, Boolean isDescribeOnly, Boolean isFromEF)
+   //at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteReader(Boolean requery, Boolean fillRequest, CommandBehavior behavior)
+   //at Oracle.ManagedDataAccess.Client.OracleCommand.ExecuteReader()
+   //at Composable.Persistence.Oracle.SystemExtensions.MyOracleCommandExtensions.ExecuteReaderAndSelect[T](OracleCommand this, Func`2 select) in C:\Users\magnu\source\repos\Composable\src\framework\Composable.CQRS.ExternalDependencies\Persistence\Oracle\SystemExtensions\OracleCommandExtensions.cs:line 51
+   //at Composable.Tests.ExternalDependencies.ExplorePersistenceLayerAdoImplementations.<>c.<OracleRoundtrip>b__11_0(OracleCommand command) in C:\Users\magnu\source\repos\Composable\src\framework\Composable.CQRS.UnitTests\ExternalDependencies\ExplorePersistenceLayerAdoImplementations.cs:line 73
+   //at Composable.Persistence.Oracle.SystemExtensions.MyOracleConnectionExtensions.UseCommand[TResult](OracleConnection this, Func`2 action) in C:\Users\magnu\source\repos\Composable\src\framework\Composable.CQRS.ExternalDependencies\Persistence\Oracle\SystemExtensions\OracleConnectionExtensions.cs:line 20
+   //at Composable.Persistence.Oracle.SystemExtensions.MyOracleConnectionProviderExtensions.<>c__DisplayClass5_0`1.<UseCommand>b__0(OracleConnection connection) in C:\Users\magnu\source\repos\Composable\src\framework\Composable.CQRS.ExternalDependencies\Persistence\Oracle\SystemExtensions\OracleConnectionProviderExtensions.cs:line 20
+   //at Composable.Persistence.Oracle.SystemExtensions.OracleConnectionProvider.UseConnection[TResult](Func`2 func) in C:\Users\magnu\source\repos\Composable\src\framework\Composable.CQRS.ExternalDependencies\Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:line 42
+   //at Composable.Persistence.Oracle.SystemExtensions.MyOracleConnectionProviderExtensions.UseCommand[TResult](IOracleConnectionProvider this, Func`2 action) in C:\Users\magnu\source\repos\Composable\src\framework\Composable.CQRS.ExternalDependencies\Persistence\Oracle\SystemExtensions\OracleConnectionProviderExtensions.cs:line 20
+   //at Composable.Tests.ExternalDependencies.ExplorePersistenceLayerAdoImplementations.OracleRoundtrip() in C:\Users\magnu\source\repos\Composable\src\framework\Composable.CQRS.UnitTests\ExternalDependencies\ExplorePersistenceLayerAdoImplementations.cs:line 72
+
         [Test] public void OracleRoundtrip()
         {
-            var result = _orclConnection.UseCommand(
-                command => command.SetCommandText($"select cast(cast(:parm as {EventTable.ReadOrderType}) as varchar2(39)) from dual")
-                                  .AddNullableParameter("parm", OracleDbType.Varchar2, Create(1,1).ToString())
-                                  .ExecuteReaderAndSelect(@this => ReadOrder.Parse(@this.GetString(0)))
-                                  .Single());
-
-            Console.WriteLine(result);
-
             var result2 = _orclConnection.UseCommand(
                 command => command.SetCommandText("select :parm from dual")
                                   .AddNullableParameter("parm", OracleDbType.Decimal, OracleDecimal.Parse("1"))

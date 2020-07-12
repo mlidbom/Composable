@@ -17,21 +17,14 @@ namespace Composable.Persistence.Oracle.EventStore
 
         public OracleEventStorePersistenceLayer(OracleEventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
 
-        static string CreateSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
+        //var lockHint = takeWriteLock ? "With(UPDLOCK, READCOMMITTED, ROWLOCK)" : "With(READCOMMITTED, ROWLOCK)";
+        static string CreateLockHint(bool takeWriteLock) => takeWriteLock ? "FOR UPDATE" : "";
 
-        static string InternalSelect(bool takeWriteLock, int? top = null)
-        {
-            var topClause = top.HasValue ? $"TOP {top.Value} " : "";
-            //todo: Ensure that READCOMMITTED is truly sane here. If so add a comment describing why and why using it is a good idea.
-            //Urgent: Find mysql equivalents
-            //var lockHint = takeWriteLock ? "With(UPDLOCK, READCOMMITTED, ROWLOCK)" : "With(READCOMMITTED, ROWLOCK)";
-            var lockHint = "";
-
-            return $@"
-SELECT {topClause} 
-{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, {C.EffectiveOrder}
-FROM {EventTable.Name} {lockHint} ";
-        }
+        static string CreateSelectClause() =>
+            $@"
+SELECT {C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, {C.EffectiveOrder}
+FROM {EventTable.Name}
+";
 
         static EventDataRow ReadDataRow(OracleDataReader eventReader)
         {
@@ -61,11 +54,12 @@ FROM {EventTable.Name} {lockHint} ";
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
             _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
                                           command => command.SetCommandText($@"
-{CreateSelectClause(takeWriteLock)} 
+{CreateSelectClause()} 
 WHERE {C.AggregateId} = :{C.AggregateId}
     AND {C.InsertedVersion} > :CachedVersion
     AND {C.EffectiveVersion} > 0
-ORDER BY {C.EffectiveOrder} ASC")
+ORDER BY {C.EffectiveOrder} ASC
+{CreateLockHint(takeWriteLock)}")
                                                             .AddParameter(C.AggregateId, aggregateId)
                                                             .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                             .ExecuteReaderAndSelect(ReadDataRow)
@@ -81,7 +75,7 @@ ORDER BY {C.EffectiveOrder} ASC")
                                                                 command =>
                                                                 {
                                                                     var commandText = $@"
-{CreateSelectClause(takeWriteLock: false)} 
+{CreateSelectClause()} 
 WHERE {C.EffectiveOrder}  > :{C.EffectiveOrder}
     AND {C.EffectiveVersion} > 0
     AND ROWNUM <= {batchSize}

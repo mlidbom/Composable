@@ -45,7 +45,7 @@ END IF;
                                               .AddParameter(C.InsertedVersion, data.StorageInformation.InsertedVersion)
                                               .AddParameter(C.EventType, data.EventType)
                                               .AddParameter(C.EventId, data.EventId)
-                                              .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
+                                              .AddParameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddNClobParameter(C.Event, data.EventJson)
 
                                               .AddNullableParameter(C.EffectiveOrder, OracleDbType.Varchar2, data.StorageInformation.ReadOrder?.ToString())

@@ -62,8 +62,8 @@ FROM {EventTable.Name} {lockHint} ";
             _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
                                           command => command.SetCommandText($@"
 {CreateSelectClause(takeWriteLock)} 
-WHERE {C.AggregateId} = @{C.AggregateId}
-    AND {C.InsertedVersion} > @CachedVersion
+WHERE {C.AggregateId} = :{C.AggregateId}
+    AND {C.InsertedVersion} > :CachedVersion
     AND {C.EffectiveVersion} > 0
 ORDER BY {C.EffectiveOrder} ASC")
                                                             .AddParameter(C.AggregateId, aggregateId)
@@ -82,7 +82,7 @@ ORDER BY {C.EffectiveOrder} ASC")
                                                                 {
                                                                     var commandText = $@"
 {CreateSelectClause(takeWriteLock: false)} 
-WHERE {C.EffectiveOrder}  > CAST(@{C.EffectiveOrder} AS {EventTable.ReadOrderType})
+WHERE {C.EffectiveOrder}  > CAST(:{C.EffectiveOrder} AS {EventTable.ReadOrderType})
     AND {C.EffectiveVersion} > 0
 ORDER BY {C.EffectiveOrder} ASC
 LIMIT {batchSize}";

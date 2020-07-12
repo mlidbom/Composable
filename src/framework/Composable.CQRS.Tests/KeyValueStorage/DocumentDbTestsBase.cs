@@ -8,7 +8,7 @@ using NCrunch.Framework;
 namespace Composable.Tests.KeyValueStorage
 {
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql))]
+    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl))]
     class DocumentDbTestsBase
     {
         protected IDocumentDb CreateStore() => TestWiringHelper.DocumentDb(ServiceLocator);

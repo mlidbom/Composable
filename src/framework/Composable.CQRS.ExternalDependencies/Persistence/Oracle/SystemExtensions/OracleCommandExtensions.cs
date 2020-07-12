@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Oracle.ManagedDataAccess.Client;
 using System.Threading.Tasks;
+using Composable.Logging;
 using Composable.System.Linq;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
@@ -16,6 +18,33 @@ namespace Composable.Persistence.Oracle.SystemExtensions
         public static async Task<int> ExecuteNonQueryAsync(this OracleCommand @this, string commandText) => await @this.SetCommandText(commandText).ExecuteNonQueryAsync();
         public static OracleCommand AppendCommandText(this OracleCommand @this, string append) => @this.Mutate(me => me.CommandText += append);
         public static OracleCommand SetCommandText(this OracleCommand @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
+
+        //urgent: Create a version of this for the other persistence layers. It's crazy helpful.
+        public static OracleCommand LogCommand(this OracleCommand @this)
+        {
+            SafeConsole.WriteLine($"####################################### Logging command###############################################");
+            SafeConsole.WriteLine($@"{nameof(@this.CommandText)}:
+{@this.CommandText}");
+
+            var parameters = @this.Parameters.Cast<OracleParameter>().ToList();
+            parameters.ForEach(
+                parameter => Console.WriteLine($@"
+    {nameof(parameter.ParameterName)}: {parameter.ParameterName}, 
+{nameof(parameter.DbType)}: {parameter.DbType},
+{nameof(parameter.Value)}: {parameter.Value},
+{nameof(parameter.Size)}: {parameter.Size},
+{nameof(parameter.Precision)}: {parameter.Precision},
+{nameof(parameter.Direction)}: {parameter.Direction},
+{nameof(parameter.IsNullable)}: {parameter.IsNullable}".Replace(Environment.NewLine, "")));
+
+            SafeConsole.WriteLine("####################################### Hacking values into parameter positions #######################################");
+            var commandTextWithParameterValues = @this.CommandText;
+            parameters.ForEach(parameter => commandTextWithParameterValues = commandTextWithParameterValues.Replace($":{parameter.ParameterName}", parameter.Value.ToString()));
+            Console.WriteLine(commandTextWithParameterValues);
+            SafeConsole.WriteLine("######################################################################################################");
+
+            return @this;
+        }
         public static IReadOnlyList<T> ExecuteReaderAndSelect<T>(this OracleCommand @this, Func<OracleDataReader, T> select)
         {
             using(var reader = @this.ExecuteReader())

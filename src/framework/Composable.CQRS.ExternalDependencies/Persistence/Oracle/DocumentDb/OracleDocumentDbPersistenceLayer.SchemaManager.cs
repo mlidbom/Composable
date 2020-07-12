@@ -21,15 +21,21 @@ namespace Composable.Persistence.Oracle.DocumentDb
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
                             _connectionProvider.ExecuteNonQuery(@"
-CREATE TABLE IF NOT EXISTS store (
-  Id VARCHAR(500) NOT NULL,
-  ValueTypeId CHAR(38) NOT NULL,
-  Created DATETIME NOT NULL,
-  Updated DATETIME NOT NULL,
-  Value MEDIUMTEXT NOT NULL,
-  PRIMARY KEY (Id, ValueTypeId))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
+declare existing_table_count integer;
+begin
+    select count(*) into existing_table_count from user_tables where table_name='STORE';
+    if (existing_table_count <= 0) then
+        EXECUTE IMMEDIATE '
+            CREATE TABLE STORE (
+                ID VARCHAR2(500) NOT NULL, 
+                VALUETYPEID CHAR(38) NOT NULL,
+                CREATED TIMESTAMP NOT NULL,
+                UPDATED TIMESTAMP NOT NULL,
+                VALUE NCLOB NOT NULL,
+                
+                CONSTRAINT STORE_PK PRIMARY KEY (ID, VALUETYPEID ) ENABLE)';
+    end if;
+end;
 ");
                         });
                     }

@@ -100,10 +100,11 @@ end;
 
         static string CleanSchema() => @"
 BEGIN
-    FOR cur_rec IN (SELECT object_name, object_type FROM   user_objects) LOOP
+    FOR cur_rec IN (SELECT object_name, object_type FROM user_objects 
+                        WHERE object_type not in ('INDEX','PACKAGE BODY','TRIGGER','LOB')) LOOP
         BEGIN
             IF cur_rec.object_type = 'TABLE' THEN
-                EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '"" CASCADE CONSTRAINTS';
+                EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '"" CASCADE CONSTRAINTS PURGE';
             ELSIF cur_rec.object_type = 'TYPE' THEN
                 EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '"" FORCE';
             ELSE

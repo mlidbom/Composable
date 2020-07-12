@@ -9,12 +9,14 @@ namespace Composable.Persistence.Oracle.SystemExtensions
         public static void UseCommand(this OracleConnection @this, Action<OracleCommand> action)
         {
             using var command = @this.CreateCommand();
+            command.BindByName = true;
             action(command);
         }
 
         public static TResult UseCommand<TResult>(this OracleConnection @this, Func<OracleCommand, TResult> action)
         {
             using var command = @this.CreateCommand();
+            command.BindByName = true;
             return action(command);
         }
 

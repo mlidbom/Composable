@@ -32,9 +32,9 @@ namespace Composable.Persistence.Oracle.DocumentDb
                 foreach(var writeRow in toUpdate)
                 {
                     connection.UseCommand(
-                        command => command.SetCommandText("UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId = @TypeId")
+                        command => command.SetCommandText("UPDATE Store SET Value = :Value, Updated = :Updated WHERE Id = :Id AND ValueTypeId = :TypeId;")
                                           .AddVarcharParameter("Id", 500, writeRow.Id)
-                                          .AddDateTime2Parameter("Updated", writeRow.UpdateTime)
+                                          .AddParameter("Updated", writeRow.UpdateTime)
                                           .AddParameter("TypeId", writeRow.TypeId)
                                           .AddNClobParameter("Value", writeRow.SerializedDocument)
                                           .ExecuteNonQuery());
@@ -46,12 +46,13 @@ namespace Composable.Persistence.Oracle.DocumentDb
         {
             EnsureInitialized();
 
+            //urgent: check if oracle does array(or whatever it might be called) parameters. Same for other storage providers. Properly parameterizing this might significantly help performance
             var documents = _connectionProvider.UseCommand(
                 command => command.SetCommandText($@"
 SELECT Value, ValueTypeId FROM Store {UseUpdateLock(useUpdateLock)} 
-WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
+WHERE Id=:Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                                   .AddVarcharParameter("Id", 500, idString)
-                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(1), reader.GetString(0))));
+                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuidFromString(1), reader.GetString(0))));
             if(documents.Count < 1)
             {
                 document = null;
@@ -70,13 +71,13 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             {
                 _connectionProvider.UseCommand(command =>
                 {
-
-                    command.SetCommandText(@"INSERT INTO Store(Id, ValueTypeId, Value, Created, Updated) VALUES(@Id, @ValueTypeId, @Value, @Created, @Updated)")
+                    command.SetCommandText(@"INSERT INTO Store(Id, ValueTypeId, Value, Created, Updated) VALUES(:Id, :ValueTypeId, :Value, :Created, :Updated)")
                            .AddVarcharParameter("Id", 500, row.Id)
                            .AddParameter("ValueTypeId", row.TypeId)
-                           .AddDateTime2Parameter("Created", row.UpdateTime)
-                           .AddDateTime2Parameter("Updated", row.UpdateTime)
+                           .AddParameter("Created", row.UpdateTime)
+                           .AddParameter("Updated", row.UpdateTime)
                            .AddNClobParameter("Value", row.SerializedDocument)
+                           .LogCommand()
                            .ExecuteNonQuery();
                 });
             }
@@ -97,7 +98,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             EnsureInitialized();
             return _connectionProvider.UseCommand(
                 command =>
-                    command.SetCommandText($@"DELETE FROM Store WHERE Id = @Id AND ValueTypeId  {TypeInClause(acceptableTypes)}")
+                    command.SetCommandText($@"DELETE FROM Store WHERE Id = :Id AND ValueTypeId  {TypeInClause(acceptableTypes)}")
                            .AddVarcharParameter("Id", 500, idString)
                            .ExecuteNonQuery());
         }
@@ -127,9 +128,9 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
         }
 
-        static string TypeInClause(IEnumerable<Guid> acceptableTypeIds) { return "IN( '" + acceptableTypeIds.Select(guid => guid.ToString()).Join("', '") + "')\n"; }
+        static string TypeInClause(IEnumerable<Guid> acceptableTypeIds) { return "IN( '" + acceptableTypeIds.Select(guid => guid.ToString()).Join("', '") + "')"; }
 
-        //Urgent: Figure out mysql equivalent.
+        //Urgent: Figure out oracle equivalent.
         static string UseUpdateLock(bool useUpdateLock) => "";// useUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
 
         void EnsureInitialized()

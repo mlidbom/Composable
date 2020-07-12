@@ -49,8 +49,9 @@ namespace Composable.System.Threading
             static void ThrowExceptionOnBackgroundThreadIfTaskFails(Task task) => task.ContinueWith(ThrowExceptionOnNewThreadSoThatProcessCrashesInsteadOfThisFailureGoingIgnoredAsIsTheDefaultBehaviorForTasks, TaskContinuationOptions.OnlyOnFaulted);
             static void ThrowExceptionOnNewThreadSoThatProcessCrashesInsteadOfThisFailureGoingIgnoredAsIsTheDefaultBehaviorForTasks(Task faultedTask)
             {
+                //Urgent: Refactor this so that awaiting the shutdown of the TestHost guarantees that background tasks are also all completed and any exceptions have been reported.
                 Logger.For<RunnerBase>().Log().Error(faultedTask.Exception, "Exception thrown on background thread. Will now intentionally crash process since what this means state is now unknown");
-                new Thread(() => throw new Exception("Unhandled exception occured in background task", faultedTask.Exception)).Start();
+                //new Thread(() => throw new Exception("Unhandled exception occured in background task", faultedTask.Exception)).Start();
             }
 
             public void RunAndCrashProcessIfTaskThrows(IEnumerable<Action> tasks) => RunAndCrashProcessIfTaskThrows(tasks.ToArray());
@@ -64,7 +65,7 @@ namespace Composable.System.Threading
                                                                                                        catch(Exception exception)
                                                                                                        {
                                                                                                            this.Log().Error(exception, "Exception thrown on background thread. Will now intentionally crash process since what this means state is now unknown");
-                                                                                                           new Thread(() => throw new Exception("Unhandled exception occured in background task", exception)).Start();
+                                                                                                           //new Thread(() => throw new Exception("Unhandled exception occured in background task", exception)).Start();
                                                                                                        }
                                                                                                    }));
 

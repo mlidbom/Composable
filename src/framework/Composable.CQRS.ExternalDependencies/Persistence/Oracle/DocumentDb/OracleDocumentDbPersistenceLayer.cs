@@ -32,7 +32,7 @@ namespace Composable.Persistence.Oracle.DocumentDb
                 foreach(var writeRow in toUpdate)
                 {
                     connection.UseCommand(
-                        command => command.SetCommandText("UPDATE Store SET Value = :Value, Updated = :Updated WHERE Id = :Id AND ValueTypeId = :TypeId;")
+                        command => command.SetCommandText("UPDATE Store SET Value = :Value, Updated = :Updated WHERE Id = :Id AND ValueTypeId = :TypeId")
                                           .AddVarcharParameter("Id", 500, writeRow.Id)
                                           .AddParameter("Updated", writeRow.UpdateTime)
                                           .AddParameter("TypeId", writeRow.TypeId)
@@ -77,7 +77,6 @@ WHERE Id=:Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                            .AddParameter("Created", row.UpdateTime)
                            .AddParameter("Updated", row.UpdateTime)
                            .AddNClobParameter("Value", row.SerializedDocument)
-                           .LogCommand()
                            .ExecuteNonQuery();
                 });
             }
@@ -117,7 +116,7 @@ WHERE Id=:Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             return _connectionProvider.UseCommand(
                 command => command.SetCommandText($@"SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId {TypeInClause(acceptableTypes)} 
                                    AND Id IN('" + ids.Select(id => id.ToString()).Join("','") + "')")
-                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
+                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuidFromString(2), reader.GetString(1))));
         }
 
         public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IImmutableSet<Guid> acceptableTypes)
@@ -125,7 +124,7 @@ WHERE Id=:Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             EnsureInitialized();
             return _connectionProvider.UseCommand(
                 command => command.SetCommandText($@" SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId  {TypeInClause(acceptableTypes)}")
-                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
+                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuidFromString(2), reader.GetString(1))));
         }
 
         static string TypeInClause(IEnumerable<Guid> acceptableTypeIds) { return "IN( '" + acceptableTypeIds.Select(guid => guid.ToString()).Join("', '") + "')"; }

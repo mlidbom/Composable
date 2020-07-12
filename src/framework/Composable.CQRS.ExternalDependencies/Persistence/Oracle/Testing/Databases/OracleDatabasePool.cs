@@ -15,7 +15,6 @@ namespace Composable.Persistence.Oracle.Testing.Databases
 {
     sealed class OracleDatabasePool : DatabasePool
     {
-        readonly string _masterConnectionString;
         readonly OracleConnectionProvider _masterConnectionProvider;
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
@@ -24,19 +23,20 @@ namespace Composable.Persistence.Oracle.Testing.Databases
 
         public OracleDatabasePool()
         {
-            var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName);
+            var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
+                                      ?? "Data Source=127.0.0.1:1521/orclpdb; DBA Privilege=SYSDBA; User Id=sys; Password=Development!1;";
 
-            _masterConnectionString = masterConnectionString ?? "Data Source=127.0.0.1:1521/orclpdb; DBA Privilege=SYSDBA; User Id=sys; Password=Development!1;";
-
-            _masterConnectionString = _masterConnectionString.Replace("\\", "_");
-
-            _connectionStringBuilder = new OptimizedThreadShared<OracleConnectionStringBuilder>(new OracleConnectionStringBuilder(_masterConnectionString));
-
-            _masterConnectionProvider = new OracleConnectionProvider(_masterConnectionString);
+            _connectionStringBuilder = new OptimizedThreadShared<OracleConnectionStringBuilder>(new OracleConnectionStringBuilder(masterConnectionString));
+            _masterConnectionProvider = new OracleConnectionProvider(masterConnectionString);
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => { me.UserID = db.Name.ToUpper(); me.Password = db.Name.ToUpper(); me.DBAPrivilege = ""; }).ConnectionString);
+            => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me =>
+            {
+                me.UserID = db.Name.ToUpper();
+                me.Password = db.Name.ToUpper();
+                me.DBAPrivilege = "";
+            }).ConnectionString);
 
         const int OracleInvalidUserNamePasswordCombinationErrorNumber = 1017;
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
@@ -52,10 +52,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
             }
         }
 
-        protected override void ResetDatabase(Database db)
-        {
-            new OracleConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery(CleanSchema());
-        }
+        protected override void ResetDatabase(Database db) { new OracleConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery(CleanSchema()); }
 
         static string DropUserIfExistsAndRecreate(string userName) => $@"
 declare user_to_drop_exists integer;

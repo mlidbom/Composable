@@ -18,17 +18,14 @@ namespace Composable.Persistence.MsSql.Testing.Databases
 
         public MsSqlDatabasePool()
         {
-            var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName);
-
-            _masterConnectionString = masterConnectionString ?? $"Data Source=localhost;Initial Catalog=master;Integrated Security=True;";
-
-            _masterConnectionString = _masterConnectionString.Replace(oldValue: "\\", newValue: "_");
+            _masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
+                                   ?? "Data Source=localhost;Initial Catalog=master;Integrated Security=True;";
 
             _masterConnectionProvider = new MsSqlConnectionProvider(_masterConnectionString);
         }
 
         protected override string ConnectionStringFor(Database db)
-            => new SqlConnectionStringBuilder(_masterConnectionString){InitialCatalog = db.Name}.ConnectionString;
+            => new SqlConnectionStringBuilder(_masterConnectionString) {InitialCatalog = db.Name}.ConnectionString;
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
@@ -55,12 +52,12 @@ ALTER DATABASE[{databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
         }
 
         protected override void ResetDatabase(Database db) =>
-            new MsSqlConnectionProvider(this.ConnectionStringFor(db))
+            new MsSqlConnectionProvider(ConnectionStringFor(db))
                .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel());
 
         protected void ResetConnectionPool(Database db)
         {
-            using var connection = new SqlConnection(this.ConnectionStringFor(db));
+            using var connection = new SqlConnection(ConnectionStringFor(db));
             SqlConnection.ClearPool(connection);
         }
     }

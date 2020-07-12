@@ -14,7 +14,6 @@ namespace Composable.Persistence.PgSql.Testing.Databases
 {
     sealed class PgSqlDatabasePool : DatabasePool
     {
-        readonly string _masterConnectionString;
         readonly PgSqlConnectionProvider _masterConnectionProvider;
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_PgSql_DATABASE_POOL_MASTER_CONNECTIONSTRING";
@@ -22,19 +21,15 @@ namespace Composable.Persistence.PgSql.Testing.Databases
 
         public PgSqlDatabasePool()
         {
-            var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName);
+            var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
+                                      ?? "Host=localhost;Database=postgres;Username=postgres;Password=Development!1;Connection Idle Lifetime=5;Connection Pruning Interval=1";
 
-            _masterConnectionString = masterConnectionString ?? $"Host=localhost;Database=postgres;Username=postgres;Password=Development!1;Connection Idle Lifetime=5;Connection Pruning Interval=1";
-
-            _masterConnectionString = _masterConnectionString.Replace("\\", "_");
-
-            _masterConnectionProvider = new PgSqlConnectionProvider(_masterConnectionString);
-
-            _connectionStringBuilder = new OptimizedThreadShared<NpgsqlConnectionStringBuilder>(new NpgsqlConnectionStringBuilder(_masterConnectionString));
+            _masterConnectionProvider = new PgSqlConnectionProvider(masterConnectionString);
+            _connectionStringBuilder = new OptimizedThreadShared<NpgsqlConnectionStringBuilder>(new NpgsqlConnectionStringBuilder(masterConnectionString));
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _connectionStringBuilder.WithExclusiveAccess(@this =>@this.Mutate(me => me.Database = db.Name.ToLower()).ConnectionString);
+            => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => me.Database = db.Name.ToLower()).ConnectionString);
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
@@ -84,7 +79,7 @@ END; $$;");
 
         void ResetConnectionPool(Database db)
         {
-            using var connection = new NpgsqlConnection(this.ConnectionStringFor(db));
+            using var connection = new NpgsqlConnection(ConnectionStringFor(db));
             NpgsqlConnection.ClearPool(connection);
         }
     }

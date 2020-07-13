@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Reflection;
+using Composable.Persistence.EventStore;
+using Composable.Serialization;
 using Composable.System.Reflection;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Composable.Logging
 {
@@ -45,7 +49,7 @@ EXCEPTION: {exception}
         {
             try
             {
-                return JsonConvert.SerializeObject(exception, Formatting.Indented);
+                return JsonConvert.SerializeObject(exception, Formatting.Indented, ExceptionSerializationSettings);
             }
             catch(Exception e)
             {
@@ -86,5 +90,29 @@ EXCEPTION: {exception}
 
         [StringFormatMethod(formatParameterName:"queuedMessageInformation")]
         public void DebugFormat(string message, params object[] arguments) => Debug(string.Format(message, arguments));
+
+        static readonly JsonSerializerSettings ExceptionSerializationSettings =
+            new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All,
+                ContractResolver = IgnoreStackTraces.Instance
+            };
+
+        class IgnoreStackTraces : IncludeMembersWithPrivateSettersResolver
+        {
+            public new static readonly IgnoreStackTraces Instance = new IgnoreStackTraces();
+            IgnoreStackTraces() {}
+            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+            {
+                var property = base.CreateProperty(member, memberSerialization);
+
+                if(property.PropertyName == nameof(Exception.StackTrace))
+                {
+                    property.Ignored = true;
+                }
+
+                return property;
+            }
+        }
     }
 }

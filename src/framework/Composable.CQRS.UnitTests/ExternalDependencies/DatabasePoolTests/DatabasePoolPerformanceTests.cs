@@ -60,7 +60,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds()
+        public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_milliseconds_msSql_200_mySql_200_pgSql_700_orcl_400()
         {
             DatabasePool manager = null;
 
@@ -74,7 +74,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                 tearDown: () => manager.Dispose(),
                 action: () => manager.ConnectionStringFor(Guid.NewGuid().ToString()),
                 iterations: 10,
-                maxTotal: 300.Milliseconds());
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:200, mySql: 200, pgSql: 700, orcl: 400).Milliseconds());
         }
 
         [Test]

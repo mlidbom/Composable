@@ -26,6 +26,7 @@ namespace Composable.DependencyInjection
                 Assert.State.Assert(!_disposed);
                 if(_scopeCache.Value != null)
                 {
+                    //Todo: Making the scopecache value a stack could support nested scopes quite simply?
                     throw new Exception("Scope already exists. Nested scopes are not supported.");
                 }
 

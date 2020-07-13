@@ -22,7 +22,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
         public MySqlDatabasePool()
         {
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
-                                      ?? "Server=localhost;Database=mysql;Uid=root;Pwd=;";
+                                      ?? "Server=localhost;Database=mysql;Uid=root;Pwd=;ConnectionLifeTime=5;";
 
             _masterConnectionProvider = new MySqlConnectionProvider(masterConnectionString);
             _connectionStringBuilder = new OptimizedThreadShared<MySqlConnectionStringBuilder>(new MySqlConnectionStringBuilder(masterConnectionString));

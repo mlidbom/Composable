@@ -26,7 +26,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         [Test]
-        public void Single_thread_can_reserve_and_release_10_identically_named_databases_in_300_milliseconds()
+        public void Single_thread_can_reserve_and_release_10_identically_named_databases_in_milliseconds_msSql_300_mySql_300_pgSql_700_orcl_600()
         {
             var dbName = Guid.NewGuid().ToString();
 
@@ -39,11 +39,11 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     manager.ConnectionStringFor(dbName);
                 },
                 iterations: 10,
-                maxTotal: 300.Milliseconds());
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:300, mySql: 300, pgSql: 700, orcl: 600).Milliseconds());
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_70_milliseconds()
+        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_milliseconds_msSql_60_mySql_150_pgSql_200_orcl_200()
         {
             var dbName = Guid.NewGuid().ToString();
 
@@ -56,11 +56,11 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     manager.ConnectionStringFor(dbName);
                 },
                 iterations: 10,
-                maxTotal: 70.Milliseconds());
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:60, mySql: 150, pgSql: 200, orcl: 200).Milliseconds());
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_milliseconds_msSql_200_mySql_200_pgSql_700_orcl_400()
+        public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_milliseconds_msSql_250_mySql_350_pgSql_800_orcl_800()
         {
             DatabasePool manager = null;
 
@@ -74,11 +74,11 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                 tearDown: () => manager.Dispose(),
                 action: () => manager.ConnectionStringFor(Guid.NewGuid().ToString()),
                 iterations: 10,
-                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:200, mySql: 200, pgSql: 700, orcl: 400).Milliseconds());
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:250, mySql: 350, pgSql: 800, orcl: 800).Milliseconds());
         }
 
         [Test]
-        public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds()
+        public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_milliseconds_msSql_200_mySql_200_pgSql_1000_orcl_600()
         {
             DatabasePool manager = null;
 
@@ -92,7 +92,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                 tearDown: () => manager.Dispose(),
                 action: () => manager.ConnectionStringFor(Guid.NewGuid().ToString()),
                 iterations: 10,
-                maxTotal: 300.Milliseconds());
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:200, mySql: 200, pgSql: 1000, orcl: 600).Milliseconds());
         }
 
         [Test]
@@ -110,7 +110,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         [Test]
-        public void Once_DB_Fetched_MsSql_Can_use_100_connections_in_2_milliseconds_MySql_25_PgSql_1_Oracle_10()
+        public void Once_DB_Fetched_Can_use_100_connections_in_milliseconds_MsSql_3_MySql_30_PgSql_1_Oracle_10()
         {
             using var manager = CreatePool();
             manager.SetLogLevel(LogLevel.Warning);
@@ -148,7 +148,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
            TimeAsserter.Execute(
                action: useConnection!,
                iterations: connectionsToUse,
-               maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:2.Milliseconds(), mySql: 25.Milliseconds(), pgSql:1.Milliseconds(), orcl:10.Milliseconds())
+               maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:3.Milliseconds(), mySql: 30.Milliseconds(), pgSql:1.Milliseconds(), orcl:10.Milliseconds())
            );
         }
     }

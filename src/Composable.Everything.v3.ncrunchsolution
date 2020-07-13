@@ -106,7 +106,7 @@
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-45</Value>
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-54</Value>
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-55</Value>
-      <Value>Testing\Performance\TimeAsserter.cs:framework\Composable.CQRS\Composable.CQRS.csproj-142</Value>
+      <Value>Testing\Performance\TimeAsserter.cs:framework\Composable.CQRS\Composable.CQRS.csproj-146</Value>
       <Value>Persistence\MySql\SystemExtensions\MySqlCommandExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-15</Value>
       <Value>Persistence\MySql\SystemExtensions\MySqlConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-50</Value>
     </HotSpotsLineExclusionList>

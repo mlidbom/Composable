@@ -15,18 +15,18 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             var exceptionMessage = "82369B6E-80D4-4E64-92B6-A564A7195CC5";
             MyCreateAggregateCommandHandlerThreadGate.FailTransactionOnPreparePostPassThrough(new Exception(exceptionMessage));
 
-            Host.AssertThatRunningScenarioThrowsBackendAndClientException<TransactionAbortedException>(() => ClientEndpoint.ExecuteRequest(session => RemoteNavigator.Post(MyCreateAggregateCommand.Create())));
+            Host.AssertThatRunningScenarioThrowsBackendAndClientException<TransactionAbortedException>(action: () => ClientEndpoint.ExecuteRequest(request: session => RemoteNavigator.Post(MyCreateAggregateCommand.Create())));
         }
 
         [Test] public void ExactlyOnce_Event_raised_in_handler_does_not_reach_remote_handler()
         {
-            MyRemoteAggregateEventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(1, 1.Seconds())
+            MyRemoteAggregateEventHandlerThreadGate.TryAwaitPassededThroughCountEqualTo(count: 1, 1.Seconds())
                                                    .Should()
-                                                   .Be(false, "event should not reach handler");
+                                                   .Be(expected: false, because: "event should not reach handler");
         }
 
-        [Test] public void Command_handler_is_tried_5_times() => MyCreateAggregateCommandHandlerThreadGate.Passed.Should().Be(5);
+        [Test] public void Command_handler_is_tried_5_times() => MyCreateAggregateCommandHandlerThreadGate.Passed.Should().Be(expected: 5);
 
-        [Test] public void ExactlyOnce_Event_raised_in_handler_reaches_local_handler_5_times() => MyLocalAggregateEventHandlerThreadGate.Passed.Should().Be(5);
+        [Test] public void ExactlyOnce_Event_raised_in_handler_reaches_local_handler_5_times() => MyLocalAggregateEventHandlerThreadGate.Passed.Should().Be(expected: 5);
     }
 }

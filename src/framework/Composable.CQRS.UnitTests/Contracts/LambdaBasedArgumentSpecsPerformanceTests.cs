@@ -16,8 +16,8 @@ namespace Composable.Tests.Contracts
 
             TimeAsserter.Execute(
                 action: () => Contract.Argument(() => notNullOrDefault).NotNullOrDefault(),
-                iterations: 500,
-                maxTotal: 10.Milliseconds()
+                iterations: 50,
+                maxTotal: 1.Milliseconds()
             );
         }
     }

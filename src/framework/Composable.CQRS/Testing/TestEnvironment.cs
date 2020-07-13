@@ -76,23 +76,22 @@ namespace Composable.Testing
         }
 
 
-        public static TValue ValueForPersistenceProvider<TValue>(TValue fallback = default, TValue msSql= default, TValue mySql = default, TValue inMem = default, TValue pgSql = default, TValue orcl = default)
+        public static TValue ValueForPersistenceProvider<TValue>(TValue msSql= default, TValue mySql = default, TValue inMem = default, TValue pgSql = default, TValue orcl = default)
             => TestEnvironment.TestingPersistenceLayer switch
             {
-                PersistenceLayer.MsSql => SelectValue(msSql, fallback, nameof(msSql)),
-                PersistenceLayer.InMemory => SelectValue(inMem, fallback, nameof(inMem)),
-                PersistenceLayer.MySql => SelectValue(mySql, fallback, nameof(mySql)),
-                PersistenceLayer.PgSql => SelectValue(pgSql, fallback, nameof(pgSql)),
-                PersistenceLayer.Orcl => SelectValue(orcl, fallback, nameof(orcl)),
+                PersistenceLayer.MsSql => SelectValue(msSql, nameof(msSql)),
+                PersistenceLayer.InMemory => SelectValue(inMem, nameof(inMem)),
+                PersistenceLayer.MySql => SelectValue(mySql, nameof(mySql)),
+                PersistenceLayer.PgSql => SelectValue(pgSql, nameof(pgSql)),
+                PersistenceLayer.Orcl => SelectValue(orcl, nameof(orcl)),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-        static TValue SelectValue<TValue>(TValue value, TValue fallback, string provider)
+        static TValue SelectValue<TValue>(TValue value, string provider)
         {
             if(!Equals(value, default(TValue))) return value;
-            if(!Equals(fallback, default(TValue))) return fallback;
 
-            throw  new Exception($"Value missing for {provider} and fallback not specified");
+            throw  new Exception($"Value missing for {provider}");
         }
     }
 }

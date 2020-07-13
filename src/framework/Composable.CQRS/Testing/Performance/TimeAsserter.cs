@@ -8,10 +8,14 @@ using JetBrains.Annotations;
 
 namespace Composable.Testing.Performance
 {
+    //performance: Add ability to switch on strict mode such that no retries are performed. This would help us surface tests riding the edge and causing extra load during test runs.
     public static class TimeAsserter
     {
         const string DefaultTimeFormat = @"ss\.ffffff";
         const string MachineSlowdownFactorEnvironmentVariable = "COMPOSABLE_MACHINE_SLOWNESS";
+
+        const int MaxTriesLimit = 5;
+        const int MaxTriesDefault = 2;
 
         static readonly double MachineSlowdownFactor = DetectEnvironmentPerformanceAdjustment();
 
@@ -49,7 +53,7 @@ namespace Composable.Testing.Performance
              TimeSpan? maxTotal = null,
              string description = "",
              string? timeFormat = null,
-             uint maxTries = 10,
+             uint maxTries = MaxTriesDefault,
              [InstantHandle]Action? setup = null,
              [InstantHandle]Action? tearDown = null)
         {
@@ -62,6 +66,7 @@ namespace Composable.Testing.Performance
 
             string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
 
+            maxTries = Math.Min(MaxTriesLimit, maxTries);
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
@@ -81,7 +86,7 @@ namespace Composable.Testing.Performance
                 }
                 catch(TimeOutException e)
                 {
-                    SafeConsole.WriteLine($"Try: {tries} {e.Message}");
+                    SafeConsole.WriteLine($"################################  WARNING ################################ Try: {tries} : {e.Message}");
                     if(tries >= maxTries)
                     {
                         PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
@@ -105,7 +110,7 @@ namespace Composable.Testing.Performance
              string? timeFormat = null,
              [InstantHandle]Action? setup = null,
              [InstantHandle]Action? tearDown = null,
-             int maxTries = 10,
+             int maxTries = MaxTriesDefault,
             int maxDegreeOfParallelism = -1)
         {
             maxAverage = AdjustTime(maxAverage);
@@ -133,7 +138,7 @@ namespace Composable.Testing.Performance
             }
             // ReSharper restore AccessToModifiedClosure
 
-
+            maxTries = Math.Min(MaxTriesLimit, maxTries);
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
@@ -153,7 +158,7 @@ namespace Composable.Testing.Performance
                 }
                 catch(TimeOutException e)
                 {
-                    SafeConsole.WriteLine($"Try: {tries} {e.GetType() .FullName}: {e.Message}");
+                    SafeConsole.WriteLine($"################################  WARNING ################################ Try: {tries} : {e.Message}");
                     if(tries >= maxTries)
                     {
                         PrintResults(executionSummary);

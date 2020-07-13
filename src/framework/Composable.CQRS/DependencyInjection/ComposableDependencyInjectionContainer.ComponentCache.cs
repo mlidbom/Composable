@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.System.Linq;
+using Composable.SystemExtensions;
 
 namespace Composable.DependencyInjection
 {
@@ -53,11 +54,10 @@ namespace Composable.DependencyInjection
 
             public void Dispose()
             {
-                _cache.Where(@this => @this.Registrations != null && @this.Instance != null)
-                   .Where(@this => @this.Registrations[0].InstantiationSpec.SingletonInstance == null)//We don't dispose instance registrations.
-                   .Select(@this => @this.Instance)
-                      .OfType<IDisposable>()
-                      .ForEach(disposable => disposable.Dispose());
+                DisposeComponents(_cache.Where(@this => @this.Registrations != null && @this.Instance != null)
+                                        .Where(@this => @this.Registrations[0].InstantiationSpec.SingletonInstance == null) //We don't dispose instance registrations.
+                                        .Select(@this => @this.Instance)
+                                        .OfType<IDisposable>());
             }
         }
 
@@ -92,11 +92,21 @@ namespace Composable.DependencyInjection
                 if(!_isDisposed)
                 {
                     _isDisposed = true;
-                    foreach (var disposable in _disposables)
-                    {
-                        disposable.Dispose();
-                    }
+                    DisposeComponents(_disposables);
                 }
+            }
+        }
+
+        static void DisposeComponents(IEnumerable<IDisposable> disposables)
+        {
+            var exceptions = disposables
+                            .Select(disposable => ExceptionExtensions.TryCatch(disposable.Dispose))
+                            .Where(exception => exception != null)
+                            .ToList();
+
+            if(exceptions.Any())
+            {
+                throw new AggregateException("Exceptions where thrown in Dispose methods of components", exceptions);
             }
         }
     }

@@ -1,5 +1,7 @@
 ﻿using System;
+using Composable.System.Reflection;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace Composable.Logging
 {
@@ -27,7 +29,27 @@ namespace Composable.Logging
         {
             if(_logLevel >= LogLevel.Error)
             {
-                SafeConsole.WriteLine($"ERROR:{_type}: {message} {exception}");
+                SafeConsole.WriteLine($@"
+############################################# ERROR in : {_type.GetFullNameCompilable()} #############################################
+MESSAGE: {message} 
+EXCEPTION: {exception}
+############################################# SERIALIZED EXCEPTION #############################################
+{SerializeException(exception)}
+############################################# END ERROR #############################################
+");
+            }
+        }
+
+
+        static string SerializeException(Exception exception)
+        {
+            try
+            {
+                return JsonConvert.SerializeObject(exception, Formatting.Indented);
+            }
+            catch(Exception e)
+            {
+                return $"Serialization Failed with message: {e.Message}";
             }
         }
 

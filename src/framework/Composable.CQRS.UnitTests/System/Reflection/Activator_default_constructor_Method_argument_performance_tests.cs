@@ -11,15 +11,15 @@ using NUnit.Framework;
 
 namespace Composable.Tests.System.Reflection
 {
-    [TestFixture][Performance][Serial]public class Activator_default_constructor_Method_argument_uncached_performance_tests
+    [TestFixture, Performance]public class Activator_default_constructor_Method_argument_uncached_performance_tests
     {
         [UsedImplicitly] class Simple
         {}
 
 
-        [Test][Serial] public void CanCreateInstance() => Constructor.DefaultConstructorFor(typeof(Simple))().Should().NotBe(unexpected: null);
+        [Test] public void CanCreateInstance() => Constructor.DefaultConstructorFor(typeof(Simple))().Should().NotBe(unexpected: null);
 
-        [Test][Serial] public void _005_Constructs_1_000_000_instances_faster_than_via_activator_createinstance()
+        [Test] public void _005_Constructs_1_000_000_instances_faster_than_via_activator_createinstance()
         {
             var constructions = 1_000_000.InstrumentationSlowdown(slowdownFactor: 10);
 

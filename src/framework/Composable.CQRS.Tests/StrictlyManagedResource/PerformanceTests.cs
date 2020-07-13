@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.StrictlyManagedResource
 {
-    [TestFixture, Performance, Serial]
+    [TestFixture, Performance]
     public class PerformanceTests
     {
         // ReSharper disable once ClassNeverInstantiated.Local

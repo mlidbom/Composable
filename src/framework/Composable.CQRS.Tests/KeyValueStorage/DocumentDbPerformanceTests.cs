@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.KeyValueStorage
 {
-    [Performance, LongRunning, Serial]
+    [Performance, LongRunning]
     [TestFixture] class DocumentDbPerformanceTests : DocumentDbTestsBase
     {
         [Test] public void Saves_100_documents_in_milliseconds_msSql_75_MySql_250_InMemory_8_PgSql_75_Orcl_100()

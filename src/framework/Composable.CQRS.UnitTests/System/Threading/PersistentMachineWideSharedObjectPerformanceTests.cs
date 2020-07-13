@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.System.Threading
 {
-    [TestFixture, Performance, Serial] public class PersistentMachineWideSharedObjectPerformanceTests
+    [TestFixture, Performance] public class PersistentMachineWideSharedObjectPerformanceTests
     {
         MachineWideSharedObject<SharedObject> _shared;
         [SetUp] public void SetupTask()

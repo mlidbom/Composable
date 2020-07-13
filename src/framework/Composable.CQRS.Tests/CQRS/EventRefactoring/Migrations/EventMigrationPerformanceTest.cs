@@ -19,7 +19,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
     [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql))]
-    [TestFixture, Performance, LongRunning, Serial]
+    [TestFixture, Performance, LongRunning]
     public class EventMigrationPerformanceTest : EventMigrationTestBase
     {
         List<AggregateEvent> _history;

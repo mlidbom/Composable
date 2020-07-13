@@ -104,7 +104,7 @@ namespace Composable.Tests.Serialization
             );
         }
 
-        [Test, Performance, Serial] public void Should_roundtrip_simple_event_1000_times_in_15_milliseconds()
+        [Test, Performance] public void Should_roundtrip_simple_event_1000_times_in_15_milliseconds()
         {
             var @event = new TestEvent(
                                             test1: "Test1",
@@ -127,7 +127,7 @@ namespace Composable.Tests.Serialization
                                 );
         }
 
-        [Test, Performance, Serial] public void Should_roundtrip_simple_event_within_50_percent_of_default_serializer_performance()
+        [Test, Performance] public void Should_roundtrip_simple_event_within_50_percent_of_default_serializer_performance()
         {
             const int iterations = 1000;
             const double allowedSlowdown = 1.5;

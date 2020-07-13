@@ -16,7 +16,7 @@ using Oracle.ManagedDataAccess.Types;
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
     //Urgent: Review usage of Serial attribute. Remember: This stops all other tests from running!
-    [TestFixture, Performance, Serial]
+    [TestFixture, Performance]
     public class DatabasePoolPerformanceTests : DatabasePoolTest
     {
         [OneTimeSetUp]public void WarmUpCache()

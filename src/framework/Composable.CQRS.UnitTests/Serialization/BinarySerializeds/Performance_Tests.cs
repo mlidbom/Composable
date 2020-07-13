@@ -18,7 +18,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 {
     using Composable.System;
 
-    [TestFixture, Performance, Serial] public class Performance_tests
+    [TestFixture, Performance] public class Performance_tests
     {
         HasAllPropertyTypes _instance;
         byte[] _serialized;

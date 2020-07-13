@@ -8,7 +8,7 @@ using Composable.Testing;
 
 namespace Composable.Tests.Contracts
 {
-    [TestFixture, Performance, Serial] public class LambdaBasedArgumentSpecsPerformanceTests
+    [TestFixture, Performance] public class LambdaBasedArgumentSpecsPerformanceTests
     {
         [Test] public void ShouldRun50TestsIn1Millisecond() //The expression compilation stuff was worrying but this should be OK except for tight loops.
         {

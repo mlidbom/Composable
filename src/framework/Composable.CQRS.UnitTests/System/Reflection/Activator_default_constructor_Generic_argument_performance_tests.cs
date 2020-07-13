@@ -11,14 +11,14 @@ using NUnit.Framework;
 
 namespace Composable.Tests.System.Reflection
 {
-    [TestFixture, Performance, Serial]public class Activator_default_constructor_Generic_argument_performance_tests
+    [TestFixture, Performance]public class Activator_default_constructor_Generic_argument_performance_tests
     {
         [UsedImplicitly] class Simple
         {}
 
-        [Test, Serial] public void Can_construct_instance() => Constructor.For<Simple>.DefaultConstructor.Instance().Should().NotBe(null);
+        [Test] public void Can_construct_instance() => Constructor.For<Simple>.DefaultConstructor.Instance().Should().NotBe(null);
 
-        [Test, Serial] public void Constructs_1_000_000_instances_within_50_percent_of_default_constructor_time()
+        [Test] public void Constructs_1_000_000_instances_within_50_percent_of_default_constructor_time()
         {
             var constructions = 1_000_000.InstrumentationSlowdown(4.7);
 
@@ -32,7 +32,7 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime);
         }
 
-        [Test, Serial] public void Constructs_1_000_000_instances_3_times_faster_than_via_new_constraint_constructor_time()
+        [Test] public void Constructs_1_000_000_instances_3_times_faster_than_via_new_constraint_constructor_time()
         {
             var constructions = 1_000_000.InstrumentationSlowdown(10);
 
@@ -46,7 +46,7 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.InstrumentationSlowdown(4));
         }
 
-        [Test, Serial] public void Constructs_1_000_000_instances_3_times_faster_than_via_activator_CreateInstance()
+        [Test] public void Constructs_1_000_000_instances_3_times_faster_than_via_activator_CreateInstance()
         {
             var constructions = 1_000_000.InstrumentationSlowdown(10);
 

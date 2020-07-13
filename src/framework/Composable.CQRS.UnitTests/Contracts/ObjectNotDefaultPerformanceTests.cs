@@ -8,7 +8,7 @@ using Composable.Testing;
 
 namespace Composable.Tests.Contracts
 {
-    [TestFixture, Performance, Serial] public class ObjectNotDefaultPerformanceTests
+    [TestFixture, Performance] public class ObjectNotDefaultPerformanceTests
     {
         [Test] public void ShouldRun500TestsIn10Milliseconds() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
         {

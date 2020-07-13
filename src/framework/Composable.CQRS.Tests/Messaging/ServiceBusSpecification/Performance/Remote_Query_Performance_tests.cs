@@ -15,24 +15,24 @@ using Composable.Testing;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
-    [TestFixture, Performance, Serial] public class RemoteQueryPerformanceTests : PerformanceTestBase
+    [TestFixture, Performance] public class RemoteQueryPerformanceTests : PerformanceTestBase
     {
-        [Test, Serial] public void MultiThreaded_Runs_100_local_requests_making_one_remote_query_each_in_13_milliSeconds() =>
+        [Test] public void MultiThreaded_Runs_100_local_requests_making_one_remote_query_each_in_13_milliSeconds() =>
             RunScenario(threaded: true, requests: 100.InstrumentationSlowdown(2.0), queriesPerRequest: 1, maxTotal: 13.Milliseconds());
 
-        [Test, Serial] public void SingleThreaded_Runs_100_local_requests_making_one_remote_query_each_in_50_milliSeconds() =>
+        [Test] public void SingleThreaded_Runs_100_local_requests_making_one_remote_query_each_in_50_milliSeconds() =>
             RunScenario(threaded: false, requests: 100.InstrumentationSlowdown(1.3), queriesPerRequest: 1, maxTotal: 50.Milliseconds());
 
-        [Test, Serial] public void MultiThreaded_Runs_10_local_requests_making_10_remote_queries_each_in_14_milliSeconds() =>
+        [Test] public void MultiThreaded_Runs_10_local_requests_making_10_remote_queries_each_in_14_milliSeconds() =>
             RunScenario(threaded: true, requests: 10.InstrumentationSlowdown(2.3), queriesPerRequest: 10, maxTotal: 14.Milliseconds());
 
-        [Test, Serial] public void SingleThreaded_Runs_10_local_requests_making_10_remote_queries_each_in_50_milliSeconds() =>
+        [Test] public void SingleThreaded_Runs_10_local_requests_making_10_remote_queries_each_in_50_milliSeconds() =>
             RunScenario(threaded: false, requests: 10.InstrumentationSlowdown(1.3), queriesPerRequest: 10, maxTotal: 50.Milliseconds());
 
-        [Test, Serial] public void Async_Runs_1_00_local_requests_making_one_async_remote_query_each_in_10_milliSeconds() =>
+        [Test] public void Async_Runs_1_00_local_requests_making_one_async_remote_query_each_in_10_milliSeconds() =>
             RunAsyncScenario(requests: 1_00.InstrumentationSlowdown(2.0), queriesPerRequest: 1, maxTotal: 10.Milliseconds());
 
-        [Test, Serial] public void Async_Runs_100_local_requests_making_10_async_remote_queries_each_in_85_milliSeconds() =>
+        [Test] public void Async_Runs_100_local_requests_making_10_async_remote_queries_each_in_85_milliSeconds() =>
             RunAsyncScenario(requests: 100.InstrumentationSlowdown(3.0), queriesPerRequest: 10, maxTotal: 85.Milliseconds());
 
 

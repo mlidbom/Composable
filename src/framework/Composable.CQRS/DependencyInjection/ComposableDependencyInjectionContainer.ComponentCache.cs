@@ -77,7 +77,8 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            internal TService TryGet<TService>() => (TService)_instances[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
+            internal TService? TryGet<TService>() where TService: class =>
+                (TService?)_instances[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
 
             internal ScopeCache(int[] serviceServiceTypeToComponentIndex)
             {

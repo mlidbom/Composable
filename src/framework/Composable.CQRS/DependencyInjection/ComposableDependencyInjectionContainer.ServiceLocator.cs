@@ -87,7 +87,6 @@ namespace Composable.DependencyInjection
 
                 var scopeCache = _scopeCache.Value;
 
-                // ReSharper disable once PatternAlwaysOfType Silly ReSharper is wrong again
                 if(scopeCache != null && scopeCache.TryGet<TService>() is TService scoped)
                 {
                     {

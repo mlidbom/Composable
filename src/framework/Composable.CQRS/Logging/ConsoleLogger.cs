@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using Composable.Persistence.EventStore;
 using Composable.Serialization;
+using Composable.System;
 using Composable.System.Reflection;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -37,13 +40,30 @@ namespace Composable.Logging
 ############################################# ERROR in : {_type.GetFullNameCompilable()} #############################################
 MESSAGE: {message} 
 EXCEPTION: {exception}
+
+{(exception is AggregateException aggregateException
+      ? $@"
+############################################# SERIALIZED AGGREGATE EXCEPTION #############################################
+{SerializeExceptions(aggregateException.InnerExceptions)}"
+      : $@"
 ############################################# SERIALIZED EXCEPTION #############################################
-{SerializeException(exception)}
+{SerializeException(exception)}")}
+
 ############################################# END ERROR #############################################
 ");
             }
         }
 
+
+
+        static string SerializeExceptions(ReadOnlyCollection<Exception> exceptions) =>
+            exceptions.Select((exception, index) => $@"
+
+############################################# INNER EXCEPTION {index + 1} #############################################
+{SerializeException(exception)}
+############################################# END EXCEPTION {index + 1} #############################################
+
+").Join(string.Empty);
 
         static string SerializeException(Exception exception)
         {
@@ -101,12 +121,21 @@ EXCEPTION: {exception}
         class IgnoreStackTraces : IncludeMembersWithPrivateSettersResolver
         {
             public new static readonly IgnoreStackTraces Instance = new IgnoreStackTraces();
-            IgnoreStackTraces() {}
+            IgnoreStackTraces()
+            {
+                IgnoreSerializableInterface = true;
+                IgnoreSerializableAttribute = true;
+            }
             protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
             {
                 var property = base.CreateProperty(member, memberSerialization);
 
                 if(property.PropertyName == nameof(Exception.StackTrace))
+                {
+                    property.Ignored = true;
+                }
+
+                if(property.PropertyName == "StackTraceString")
                 {
                     property.Ignored = true;
                 }

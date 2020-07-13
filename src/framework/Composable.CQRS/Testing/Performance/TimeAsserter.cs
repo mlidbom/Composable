@@ -14,8 +14,8 @@ namespace Composable.Testing.Performance
         const string DefaultTimeFormat = @"ss\.ffffff";
         const string MachineSlowdownFactorEnvironmentVariable = "COMPOSABLE_MACHINE_SLOWNESS";
 
-        const int MaxTriesLimit = 5;
-        const int MaxTriesDefault = 2;
+        const int MaxTriesLimit = 10;
+        const int MaxTriesDefault = 4;
 
         static readonly double MachineSlowdownFactor = DetectEnvironmentPerformanceAdjustment();
 

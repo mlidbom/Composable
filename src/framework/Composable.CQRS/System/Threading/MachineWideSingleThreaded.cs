@@ -24,7 +24,7 @@ namespace Composable.System.Threading
                                                                             {
                                                                                 return Mutex.OpenExisting(lockId1);
                                                                             }
-                                                                            catch(Exception e)
+                                                                            catch(Exception)
                                                                             {
                                                                                 return new Mutex(initiallyOwned: false, name: lockId1);
                                                                             }

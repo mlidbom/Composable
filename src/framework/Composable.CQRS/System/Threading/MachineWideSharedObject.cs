@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using Composable.Contracts;
 using Composable.Persistence;
 using Composable.Serialization;
+using Composable.System.Collections.Collections;
+using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.System.Threading
 {
@@ -15,43 +18,49 @@ namespace Composable.System.Threading
     class MachineWideSharedObject<TObject> : MachineWideSharedObject, IDisposable where TObject : BinarySerialized<TObject>
     {
         const int LengthIndicatorIntegerLengthInBytes = 4;
+        readonly bool _usePersistentFile;
         readonly long _capacity;
-        MemoryMappedFile? _file;
+        readonly MemoryMappedFile _file;
         readonly MachineWideSingleThreaded _synchronizer;
         bool _disposed;
+
+        static readonly OptimizedThreadShared<Dictionary<string, MemoryMappedFile>> Cache = new OptimizedThreadShared<Dictionary<string, MemoryMappedFile>>(new Dictionary<string, MemoryMappedFile>());
 
         internal static MachineWideSharedObject<TObject> For(string name, bool usePersistentFile = false, long capacity = 1000_000) => new MachineWideSharedObject<TObject>(name, usePersistentFile, capacity);
 
         MachineWideSharedObject(string name, bool usePersistentFile, long capacity)
         {
+            _usePersistentFile = usePersistentFile;
             _capacity = capacity;
             var name1 = $"Composable_{name}";
             var fileName = $"{nameof(MachineWideSharedObject<TObject>)}_{name1}";
             _synchronizer = MachineWideSingleThreaded.For($"{fileName}_mutex");
 
-            foreach (var invalidChar in Path.GetInvalidFileNameChars())
-                fileName = fileName.Replace(invalidChar, '_');
-
-            fileName = Path.Combine(DataFolder, fileName);
-
-            _synchronizer.Execute(() =>
+            if(usePersistentFile)
             {
-                if(!usePersistentFile)
-                {
-                    _file = MemoryMappedFile.CreateOrOpen(name1, _capacity, MemoryMappedFileAccess.ReadWrite);
-                } else
-                {
-                    try
-                    {
-                        _file = MemoryMappedFile.OpenExisting(name1, desiredAccessRights: MemoryMappedFileRights.ReadWrite, inheritability: HandleInheritability.Inheritable);
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        var fileStream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-                        _file = MemoryMappedFile.CreateFromFile(fileStream: fileStream, mapName: name1, capacity: capacity, access: MemoryMappedFileAccess.ReadWrite, inheritability: HandleInheritability.None, leaveOpen: false);
-                    }
-                }
-            });
+                _file = Cache.WithExclusiveAccess(
+                    cache => cache.GetOrAdd(name,
+                                            () => _synchronizer.Execute(() =>
+                                            {
+                                                foreach(var invalidChar in Path.GetInvalidFileNameChars())
+                                                    fileName = fileName.Replace(invalidChar, '_');
+
+                                                fileName = Path.Combine(DataFolder, fileName);
+
+                                                try
+                                                {
+                                                    return MemoryMappedFile.OpenExisting(name1, desiredAccessRights: MemoryMappedFileRights.ReadWrite, inheritability: HandleInheritability.Inheritable);
+                                                }
+                                                catch(FileNotFoundException)
+                                                {
+                                                    var fileStream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                                                    return MemoryMappedFile.CreateFromFile(fileStream: fileStream, mapName: name1, capacity: capacity, access: MemoryMappedFileAccess.ReadWrite, inheritability: HandleInheritability.None, leaveOpen: false);
+                                                }
+                                            })));
+            } else
+            {
+                _file = MemoryMappedFile.CreateOrOpen(name1, _capacity, MemoryMappedFileAccess.ReadWrite);
+            }
         }
 
         internal TObject Update(Action<TObject> action)
@@ -59,11 +68,11 @@ namespace Composable.System.Threading
             Contract.Assert.That(!_disposed, "Attempt to use disposed object.");
             var instance = default(TObject);
             UseViewAccessor(accessor =>
-                {
-                    instance = GetCopy(accessor);
-                    action(instance);
-                    Set(instance, accessor);
-                });
+            {
+                instance = GetCopy(accessor);
+                action(instance);
+                Set(instance, accessor);
+            });
             return Assert.Result.NotNull(instance);
         }
 
@@ -94,7 +103,7 @@ namespace Composable.System.Threading
             var value = default(TObject);
 
             var objectLength = accessor.ReadInt32(0);
-            if (objectLength != 0)
+            if(objectLength != 0)
             {
                 var buffer = new byte[objectLength];
                 accessor.ReadArray(LengthIndicatorIntegerLengthInBytes, buffer, 0, buffer.Length);
@@ -102,7 +111,7 @@ namespace Composable.System.Threading
                 value = BinarySerialized<TObject>.Deserialize(buffer);
             }
 
-            if (Equals(value, default(TObject)))
+            if(Equals(value, default(TObject)))
             {
                 Set(value = BinarySerialized<TObject>.DefaultConstructor(), accessor);
             }
@@ -122,7 +131,11 @@ namespace Composable.System.Threading
 
         public void Dispose()
         {
-            _file?.Dispose();
+            if(!_disposed && !_usePersistentFile)
+            {
+                _file.Dispose();
+            }
+
             _disposed = true;
         }
     }

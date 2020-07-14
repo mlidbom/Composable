@@ -18,7 +18,8 @@ using Composable.Testing;
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl))] [TestFixture, Performance, LongRunning, Serial]
+    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl))]
+    [TestFixture, Performance, LongRunning, Serial]
     public class EventMigrationPerformanceTest : EventMigrationTestBase
     {
         List<AggregateEvent> _history;
@@ -91,7 +92,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 eventMigrations);
         }
 
-        [Test] public void With_four_migrations_that_change_nothing_uncached_loading_takes_less_than_X_milliseconds_cached_less_than_X_milliseconds_mSSql_30_5_pgSql_30_5_mySql_30_5_orcl_100_5_inMem_10()
+        [Test] public void With_four_migrations_that_change_nothing_uncached_loading_takes_less_than_X_milliseconds_cached_less_than_X_milliseconds_mSSql_30_5_pgSql_30_5_mySql_30_5_orcl_100_5_inMem_15()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
                 Before<E3>.Insert<E1>(),
@@ -101,7 +102,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             ).ToArray();
 
             AssertUncachedAndCachedAggregateLoadTimes(
-                maxUncachedLoadTime: TestEnvironment.ValueForPersistenceProvider(msSql: 30, mySql: 30, pgSql: 30, orcl: 100, inMem: 10).Milliseconds().InstrumentationSlowdown(2),
+                maxUncachedLoadTime: TestEnvironment.ValueForPersistenceProvider(msSql: 30, mySql: 30, pgSql: 30, orcl: 100, inMem: 15).Milliseconds().InstrumentationSlowdown(2),
                 maxCachedLoadTime: TestEnvironment.ValueForPersistenceProvider(msSql: 5, mySql: 5, pgSql: 5, orcl: 5, inMem: 5).Milliseconds().InstrumentationSlowdown(2),
                 eventMigrations);
         }

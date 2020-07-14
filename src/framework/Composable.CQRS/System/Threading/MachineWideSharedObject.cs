@@ -43,16 +43,12 @@ namespace Composable.System.Threading
                 {
                     try
                     {
-                        _file = MemoryMappedFile.OpenExisting(name1, desiredAccessRights: MemoryMappedFileRights.ReadWrite, inheritability: HandleInheritability.None);
+                        _file = MemoryMappedFile.OpenExisting(name1, desiredAccessRights: MemoryMappedFileRights.ReadWrite, inheritability: HandleInheritability.Inheritable);
                     }
                     catch (FileNotFoundException)
                     {
-                        _file = MemoryMappedFile.CreateFromFile(
-                            fileName,
-                            FileMode.OpenOrCreate,
-                            name1,
-                            _capacity,
-                            MemoryMappedFileAccess.ReadWrite);
+                        var fileStream = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+                        _file = MemoryMappedFile.CreateFromFile(fileStream: fileStream, mapName: name1, capacity: capacity, access: MemoryMappedFileAccess.ReadWrite, inheritability: HandleInheritability.None, leaveOpen: false);
                     }
                 }
             });

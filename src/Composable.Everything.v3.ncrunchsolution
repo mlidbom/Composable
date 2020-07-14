@@ -67,7 +67,6 @@
       <Value>System\Transactions\TransactionScopeCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-21</Value>
       <Value>Persistence\MySql\SystemExtensions\MySqlConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-13</Value>
       <Value>Persistence\MySql\SystemExtensions\MySqlConnectionExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-21</Value>
-      <Value>System\Threading\MachineWideSingleThreaded.cs:framework\Composable.CQRS\Composable.CQRS.csproj-31</Value>
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-18</Value>
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-25</Value>
       <Value>Persistence\PgSql\SystemExtensions\PostgreSqlConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-21</Value>

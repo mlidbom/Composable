@@ -1,39 +1,59 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
+using Composable.Logging;
+using Composable.System.Collections.Collections;
+using Composable.System.Threading.ResourceAccess;
 using JetBrains.Annotations;
 
 namespace Composable.System.Threading
 {
     class MachineWideSingleThreaded
     {
-        readonly string _lockId;
-        MachineWideSingleThreaded(string lockId) => _lockId = $@"Global\{lockId}";
+        static readonly OptimizedThreadShared<Dictionary<string, Mutex>> Cache = new OptimizedThreadShared<Dictionary<string, Mutex>>(new Dictionary<string, Mutex>());
 
-        internal void Execute([InstantHandle]Action action)
+        readonly Mutex _mutex;
+        MachineWideSingleThreaded(string lockId)
         {
-            using var mutex = new Mutex(initiallyOwned: false, name: _lockId);
+            var lockId1 = $@"Global\{lockId}";
+
+            _mutex = Cache.WithExclusiveAccess(cache => cache.GetOrAdd(lockId1,
+                                                                        () =>
+                                                                        {
+                                                                            try
+                                                                            {
+                                                                                return Mutex.OpenExisting(lockId1);
+                                                                            }
+                                                                            catch(Exception e)
+                                                                            {
+                                                                                return new Mutex(initiallyOwned: false, name: lockId1);
+                                                                            }
+                                                                        }));
+        }
+
+        internal void Execute([InstantHandle] Action action)
+        {
             try
             {
-                mutex.WaitOne();
+                _mutex.WaitOne();
                 action();
             }
             finally
             {
-                mutex.ReleaseMutex();
+                _mutex.ReleaseMutex();
             }
         }
 
-        internal TResult Execute<TResult>([InstantHandle]Func<TResult> func)
+        internal TResult Execute<TResult>([InstantHandle] Func<TResult> func)
         {
-            using var mutex = new Mutex(initiallyOwned: false, name: _lockId);
             try
             {
-                mutex.WaitOne();
+                _mutex.WaitOne();
                 return func();
             }
             finally
             {
-                mutex.ReleaseMutex();
+                _mutex.ReleaseMutex();
             }
         }
 

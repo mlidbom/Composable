@@ -43,7 +43,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_milliseconds_msSql_60_mySql_150_pgSql_200_orcl_200()
+        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_milliseconds_msSql_100_mySql_150_pgSql_200_orcl_200()
         {
             var dbName = Guid.NewGuid().ToString();
 
@@ -56,7 +56,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     manager.ConnectionStringFor(dbName);
                 },
                 iterations: 10,
-                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:60, mySql: 150, pgSql: 200, orcl: 200).Milliseconds());
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:100, mySql: 150, pgSql: 200, orcl: 200).Milliseconds());
         }
 
         [Test]

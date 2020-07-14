@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading;
-using Composable.Logging;
 using Composable.System.Collections.Collections;
 using Composable.System.Threading.ResourceAccess;
 using JetBrains.Annotations;
@@ -18,17 +19,26 @@ namespace Composable.System.Threading
             var lockId1 = $@"Global\{lockId}";
 
             _mutex = Cache.WithExclusiveAccess(cache => cache.GetOrAdd(lockId1,
-                                                                        () =>
-                                                                        {
-                                                                            try
-                                                                            {
-                                                                                return Mutex.OpenExisting(lockId1);
-                                                                            }
-                                                                            catch(Exception)
-                                                                            {
-                                                                                return new Mutex(initiallyOwned: false, name: lockId1);
-                                                                            }
-                                                                        }));
+                                                                       () =>
+                                                                       {
+                                                                           try
+                                                                           {
+                                                                               var existing = Mutex.OpenExisting(lockId1);
+                                                                               return existing;
+                                                                           }
+                                                                           catch
+                                                                           {
+                                                                               var mutex = new Mutex(initiallyOwned: false, name: lockId1);
+
+                                                                               MutexSecurity mutexSecurity = new MutexSecurity();
+                                                                               mutexSecurity.AddAccessRule(new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
+                                                                                                                               MutexRights.FullControl,
+                                                                                                                               AccessControlType.Allow));
+                                                                               mutex.SetAccessControl(mutexSecurity);
+
+                                                                               return mutex;
+                                                                           }
+                                                                       }));
         }
 
         internal void Execute([InstantHandle] Action action)

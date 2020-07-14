@@ -21,8 +21,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         [Test, Serial] public void Runs_10_000__MultiThreaded_local_requests_making_10_local_queries_each_in_70_milliseconds() =>
             RunScenario(threaded: true, requests: 10_000.InstrumentationSlowdown(11), queriesPerRequest: 10, maxTotal: 70.Milliseconds());
 
-        [Test, Serial] public void Runs_1_000__SingleThreaded_local_requests_making_10_local_queries_each_in_15_milliseconds() =>
-            RunScenario(threaded: false, requests: 1_000.InstrumentationSlowdown(5), queriesPerRequest: 10, maxTotal: 15.Milliseconds());
+        [Test, Serial] public void Runs_1_000__SingleThreaded_local_requests_making_10_local_queries_each_in_20_milliseconds() =>
+            RunScenario(threaded: false, requests: 1_000.InstrumentationSlowdown(5), queriesPerRequest: 10, maxTotal: 20.Milliseconds());
 
         void RunScenario(bool threaded, int requests, int queriesPerRequest, TimeSpan maxTotal)
         {

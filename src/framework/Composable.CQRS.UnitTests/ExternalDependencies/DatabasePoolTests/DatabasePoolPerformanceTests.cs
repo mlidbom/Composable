@@ -110,7 +110,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         [Test]
-        public void Once_DB_Fetched_Can_use_100_connections_in_milliseconds_MsSql_3_MySql_30_PgSql_1_Oracle_10()
+        public void Once_DB_Fetched_Can_use_100_connections_in_milliseconds_MsSql_5_MySql_30_PgSql_1_Oracle_10()
         {
             using var manager = CreatePool();
             manager.SetLogLevel(LogLevel.Warning);
@@ -148,7 +148,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
            TimeAsserter.Execute(
                action: useConnection!,
                iterations: connectionsToUse,
-               maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:3.Milliseconds(), mySql: 30.Milliseconds(), pgSql:1.Milliseconds(), orcl:10.Milliseconds())
+               maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:5.Milliseconds(), mySql: 30.Milliseconds(), pgSql:1.Milliseconds(), orcl:10.Milliseconds())
            );
         }
     }

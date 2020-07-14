@@ -177,12 +177,20 @@ namespace Composable.Testing.Performance
         {
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)
             {
-                throw new TimeOutException($"{nameof(maxTotal)}: {format(maxTotal.Value)} exceeded. Was: {format(executionSummary.Total)}");
+                string maxTotalReport = maxTotal == null
+                                         ? ""
+                                         : $" {Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {format(maxTotal)}";
+
+                throw new TimeOutException($"{nameof(maxTotal)}: {format(maxTotal!.Value)} exceeded. Was: {format(executionSummary.Total)} {maxTotalReport}");
             }
 
             if(maxAverage.HasValue && executionSummary.Average > maxAverage.Value)
             {
-                throw new TimeOutException($"{nameof(maxAverage)} exceeded");
+                string maxAverageReport = maxAverage == null
+                                           ? ""
+                                           : $" {Percent(executionSummary.Average, maxAverage.Value)} of {nameof(maxAverage)}: {format(maxAverage)}";
+
+                throw new TimeOutException($"{nameof(maxAverage)}: {format(maxAverage!.Value)} exceeded. Was: {format(executionSummary.Average)} {maxAverageReport}");
             }
         }
 
@@ -191,22 +199,31 @@ namespace Composable.Testing.Performance
             public TimeOutException(string message) : base(message) {}
         }
 
+        static string Percent(TimeSpan percent, TimeSpan of) => $"{(int)((percent.TotalMilliseconds / of.TotalMilliseconds) * 100)}%";
+
         static void PrintSummary
             (int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal, string description, [InstantHandle]Func<TimeSpan?, string> format, StopwatchExtensions.TimedExecutionSummary executionSummary)
         {
+            string maxAverageReport = maxAverage == null
+                                       ? ""
+                                       : $" {Percent(executionSummary.Average, maxAverage.Value)} of {nameof(maxAverage)}: {format(maxAverage)}";
+
+            string maxTotalReport = maxTotal == null
+                                       ? ""
+                                       : $" {Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {format(maxTotal)}";
+
             if(iterations > 1)
             {
                 SafeConsole.WriteLine(
                     $@"Executed {iterations:### ### ###} iterations of ""{description}""
-    Total:   {format(executionSummary.Total)} Limit: {format(maxTotal)} 
-    Average: {format
-                        (executionSummary.Average)} Limit: {format(maxAverage)}");
+    Total:   {format(executionSummary.Total)} {maxTotalReport}
+    Average: {format(executionSummary.Average)} {maxAverageReport}");
             }
             else
             {
                 SafeConsole.WriteLine(
                     $@"Executed {iterations} iterations of ""{description}""
-    Total:   {format(executionSummary.Total)} Limit: {format(maxTotal)}");
+    Total:   {format(executionSummary.Total)} {maxTotalReport} ");
             }
         }
     }

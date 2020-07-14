@@ -56,14 +56,12 @@ FROM {EventTable.Name}
                                           command => command.SetCommandText($@"
 {CreateSelectClause()} 
 WHERE {C.AggregateId} = :{C.AggregateId}
-    AND {C.InsertedVersion} >= :CachedVersion
+    AND {C.InsertedVersion} > :CachedVersion
     AND {C.EffectiveVersion} >= 0
-ORDER BY {C.EffectiveOrder} ASC
-{CreateLockHint(takeWriteLock)}")
+ORDER BY {C.EffectiveOrder} ASC")
                                                             .AddParameter(C.AggregateId, aggregateId)
                                                             .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                             .ExecuteReaderAndSelect(ReadDataRow)
-                                                            .SkipWhile(row => row.StorageInformation.InsertedVersion <= startAfterInsertedVersion)
                                                             .ToList());
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)

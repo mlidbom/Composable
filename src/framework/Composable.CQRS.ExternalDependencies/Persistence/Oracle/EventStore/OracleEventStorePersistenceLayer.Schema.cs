@@ -52,6 +52,11 @@ begin
         EXECUTE IMMEDIATE '
             CREATE INDEX IX_{EventTable.Name}_{C.EffectiveOrder} ON {EventTable.Name} 
                 ({C.EffectiveOrder} ASC, {C.EffectiveVersion} ASC)';
+
+EXECUTE IMMEDIATE '
+            CREATE INDEX IX_{EventTable.Name}_something ON {EventTable.Name} 
+                ({C.AggregateId} ASC, {C.InsertedVersion} ASC, {C.EffectiveVersion} ASC)';
+
     end if;
 end;
 ")

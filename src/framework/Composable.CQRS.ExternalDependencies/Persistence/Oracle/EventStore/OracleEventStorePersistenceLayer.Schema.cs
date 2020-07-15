@@ -36,7 +36,7 @@ begin
                 {Event.SqlInsertTimeStamp}   TIMESTAMP(9) default CURRENT_TIMESTAMP  NOT NULL,
                 {Event.TargetEvent}          {OracleGuidType}                        NULL,
                 {Event.RefactoringType}      NUMBER(3)                               NULL,
-                {Event.ReadOrder}       {EventTable.ReadOrderType}              NULL,    
+                {Event.ReadOrder}            {EventTable.ReadOrderType}              NULL,    
                 {Event.EffectiveVersion}     NUMBER(10)                              NULL,
 
                 CONSTRAINT {EventTable.Name}_PK PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),

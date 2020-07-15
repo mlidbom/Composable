@@ -84,12 +84,13 @@ ORDER BY {C.ReadOrder} ASC;
             {
                 //Performance: Find a way of doing this so that it does not involve two round trips to the server. If running as single-instance we can use in-memory transactional locking such as in the InMemory Persistence Layer to avoid needing this.
                 //Without this hack PostgreSql does not correctly serialize access to aggregates and odds are you would get a lot of failed transactions if an aggregate is "popular"
+                //We prefer predictable performance, even if slightly slower under easy conditions, to services that suddenly virtually stop working completely due to tons of concurrency issues as an aggregate is accessed by many threads.
                 //Pages that led to the below hack: https://tinyurl.com/y7nef75p, https://tinyurl.com/y7c63cny, https://tinyurl.com/y75qlwar
                 _connectionManager.UseCommand(command => command.SetCommandText($"select {C.AggregateId} from AggregateLock where AggregateId = @{C.AggregateId} for update;")
                                                                                         .AddParameter(C.AggregateId, aggregateId)
                                                                                         .ExecuteNonQuery());
 
-                //We took care of the locking on the line above. Since events are Append only this lock is sufficient. Suppressing the current transaction keeps PostgreSql from incorrectly detecting a collision and failing our transactions.
+                //We took care of the locking on the line above. Since events are Append only that lock is sufficient. Suppressing the current transaction keeps PostgreSql from incorrectly detecting a collision and failing our transactions.
                 using var ignore = new TransactionScope(TransactionScopeOption.Suppress);
                 return GetHistory();
             } else

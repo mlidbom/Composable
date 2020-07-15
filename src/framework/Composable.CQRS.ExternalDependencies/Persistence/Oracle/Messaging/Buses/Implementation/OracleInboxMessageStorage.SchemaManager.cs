@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.Oracle.SystemExtensions;
-using T =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
+using Message =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation
 {
@@ -14,26 +14,28 @@ namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation
             {
                 await  connectionFactory.ExecuteNonQueryAsync($@"
 
+declare existing_table_count integer;
+begin
+    select count(*) into existing_table_count from user_tables where table_name='{Message.TableName}';
+    if (existing_table_count = 0) then
+        EXECUTE IMMEDIATE '
+            CREATE TABLE {Message.TableName}
+            (
+	            {Message.GeneratedId} NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL,
+                {Message.TypeId} {OracleGuidType} NOT NULL,
+                {Message.MessageId} {OracleGuidType} NOT NULL,
+	            {Message.Status} smallint NOT NULL,
+	            {Message.Body} mediumtext NOT NULL,
+                {Message.ExceptionCount} int NOT NULL DEFAULT 0,
+                {Message.ExceptionType} varchar(500) NULL,
+                {Message.ExceptionStackTrace} mediumtext NULL,
+                {Message.ExceptionMessage} mediumtext NULL,
 
-    CREATE TABLE IF NOT EXISTS {T.TableName}
-    (
-	    {T.Identity} bigint NOT NULL AUTO_INCREMENT,
-        {T.TypeId} {OracleGuidType} NOT NULL,
-        {T.MessageId} {OracleGuidType} NOT NULL,
-	    {T.Status} smallint NOT NULL,
-	    {T.Body} mediumtext NOT NULL,
-        {T.ExceptionCount} int NOT NULL DEFAULT 0,
-        {T.ExceptionType} varchar(500) NULL,
-        {T.ExceptionStackTrace} mediumtext NULL,
-        {T.ExceptionMessage} mediumtext NULL,
 
+                CONSTRAINT {Message.TableName}_PK PRIMARY KEY ({Message.GeneratedId}),
 
-        PRIMARY KEY ( {T.Identity} ),
-
-        UNIQUE INDEX IX_{T.TableName}_Unique_{T.MessageId} ( {T.MessageId} )
-    )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
+                CONSTRAINT {Message.TableName}_Unique_{Message.MessageId} UNIQUE ( {Message.MessageId} )
+            )';
 
 ");
             }

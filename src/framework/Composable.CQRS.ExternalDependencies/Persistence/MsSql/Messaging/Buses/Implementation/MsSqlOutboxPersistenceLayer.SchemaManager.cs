@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Composable.Persistence.MsSql.SystemExtensions;
-using M = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
+using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
 using D = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 
 namespace Composable.Persistence.MsSql.Messaging.Buses.Implementation
@@ -13,18 +13,18 @@ namespace Composable.Persistence.MsSql.Messaging.Buses.Implementation
             public static async Task EnsureTablesExistAsync(IMsSqlConnectionProvider connectionFactory)
             {
                 await connectionFactory.ExecuteNonQueryAsync($@"
-IF NOT EXISTS (select name from sys.tables where name = '{M.TableName}')
+IF NOT EXISTS (select name from sys.tables where name = '{Message.TableName}')
 BEGIN
-    CREATE TABLE {M.TableName}
+    CREATE TABLE {Message.TableName}
     (
-	    [{M.GeneratedId}] bigint IDENTITY(1,1) NOT NULL,
-        {M.TypeIdGuidValue} uniqueidentifier NOT NULL,
-        {M.MessageId} uniqueidentifier NOT NULL,
-	    {M.SerializedMessage} nvarchar(MAX) NOT NULL,
+	    [{Message.GeneratedId}] bigint IDENTITY(1,1) NOT NULL,
+        {Message.TypeIdGuidValue} uniqueidentifier NOT NULL,
+        {Message.MessageId} uniqueidentifier NOT NULL,
+	    {Message.SerializedMessage} nvarchar(MAX) NOT NULL,
 
-        CONSTRAINT PK_{M.TableName} PRIMARY KEY CLUSTERED ( [{M.GeneratedId}] ASC ),
+        CONSTRAINT PK_{Message.TableName} PRIMARY KEY CLUSTERED ( [{Message.GeneratedId}] ASC ),
 
-        CONSTRAINT IX_{M.TableName}_Unique_{M.MessageId} UNIQUE ( {M.MessageId} )
+        CONSTRAINT IX_{Message.TableName}_Unique_{Message.MessageId} UNIQUE ( {Message.MessageId} )
 
     )
 
@@ -37,7 +37,7 @@ BEGIN
         CONSTRAINT PK_{D.TableName} PRIMARY KEY CLUSTERED( {D.MessageId}, {D.EndpointId})
             WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF),
 
-        CONSTRAINT FK_{D.TableName}_{D.MessageId} FOREIGN KEY ( {D.MessageId} )  REFERENCES {M.TableName} ({M.MessageId})
+        CONSTRAINT FK_{D.TableName}_{D.MessageId} FOREIGN KEY ( {D.MessageId} )  REFERENCES {Message.TableName} ({Message.MessageId})
 
     )
 END

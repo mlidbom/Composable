@@ -17,7 +17,7 @@ namespace Composable.Persistence.MySql.Messaging.Buses.Implementation
 
     CREATE TABLE IF NOT EXISTS {T.TableName}
     (
-	    {T.Identity} bigint NOT NULL AUTO_INCREMENT,
+	    {T.GeneratedId} bigint NOT NULL AUTO_INCREMENT,
         {T.TypeId} {MySqlGuidType} NOT NULL,
         {T.MessageId} {MySqlGuidType} NOT NULL,
 	    {T.Status} smallint NOT NULL,
@@ -28,7 +28,7 @@ namespace Composable.Persistence.MySql.Messaging.Buses.Implementation
         {T.ExceptionMessage} mediumtext NULL,
 
 
-        PRIMARY KEY ( {T.Identity} ),
+        PRIMARY KEY ( {T.GeneratedId} ),
 
         UNIQUE INDEX IX_{T.TableName}_Unique_{T.MessageId} ( {T.MessageId} )
     )

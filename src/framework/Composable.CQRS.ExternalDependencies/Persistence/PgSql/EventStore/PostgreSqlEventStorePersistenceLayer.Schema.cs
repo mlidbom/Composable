@@ -3,7 +3,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.System.Transactions;
-using C=Composable.Persistence.Common.EventStore.EventTable.Columns;
+using Event=Composable.Persistence.Common.EventStore.EventTable.Columns;
 
 namespace Composable.Persistence.PgSql.EventStore
 {
@@ -20,42 +20,42 @@ namespace Composable.Persistence.PgSql.EventStore
 
 
     CREATE TABLE IF NOT EXISTS {EventTable.Name}(
-        {C.InsertionOrder} bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-        {C.AggregateId} {PgSqlGuidType} NOT NULL,  
-        {C.UtcTimeStamp} timestamp NOT NULL,   
-        {C.EventType} {PgSqlGuidType} NOT NULL,    
-        {C.Event} TEXT NOT NULL,
-        {C.EventId} {PgSqlGuidType} NOT NULL,
-        {C.InsertedVersion} int NOT NULL,
-        {C.SqlInsertTimeStamp} timestamp default CURRENT_TIMESTAMP,
-        {C.TargetEvent} {PgSqlGuidType} null,
-        {C.RefactoringType} smallint null,
-        {C.ReadOrder} bigint null,
-        {C.ReadOrderOrderOffset} bigint null,
-        {C.EffectiveOrder} {EventTable.ReadOrderType} null,    
-        {C.EffectiveVersion} int NULL,
+        {Event.InsertionOrder} bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+        {Event.AggregateId} {PgSqlGuidType} NOT NULL,  
+        {Event.UtcTimeStamp} timestamp NOT NULL,   
+        {Event.EventType} {PgSqlGuidType} NOT NULL,    
+        {Event.Event} TEXT NOT NULL,
+        {Event.EventId} {PgSqlGuidType} NOT NULL,
+        {Event.InsertedVersion} int NOT NULL,
+        {Event.SqlInsertTimeStamp} timestamp default CURRENT_TIMESTAMP,
+        {Event.TargetEvent} {PgSqlGuidType} null,
+        {Event.RefactoringType} smallint null,
+        {Event.ReadOrder} bigint null,
+        {Event.ReadOrderOrderOffset} bigint null,
+        {Event.EffectiveOrder} {EventTable.ReadOrderType} null,    
+        {Event.EffectiveVersion} int NULL,
 
-        PRIMARY KEY ({C.AggregateId}, {C.InsertedVersion}),
-
-
+        PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
 
 
 
-        CONSTRAINT IX_{EventTable.Name}_Unique_{C.EventId} UNIQUE ( {C.EventId} ),
-        CONSTRAINT IX_{EventTable.Name}_Unique_{C.InsertionOrder} UNIQUE ( {C.InsertionOrder} ),
 
-        FOREIGN KEY ( {C.TargetEvent} ) 
-            REFERENCES {EventTable.Name} ({C.EventId})
+
+        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.EventId} UNIQUE ( {Event.EventId} ),
+        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} ),
+
+        FOREIGN KEY ( {Event.TargetEvent} ) 
+            REFERENCES {EventTable.Name} ({Event.EventId})
     );
 
 CREATE TABLE IF NOT EXISTS AggregateLock(
-    {C.AggregateId} {PgSqlGuidType} NOT NULL,
-    PRIMARY KEY ( {C.AggregateId} )
+    {Event.AggregateId} {PgSqlGuidType} NOT NULL,
+    PRIMARY KEY ( {Event.AggregateId} )
 );
 
-    CREATE INDEX IF NOT EXISTS IX_{EventTable.Name}_{C.EffectiveOrder} ON {EventTable.Name} 
-            ({C.EffectiveOrder} , {C.EffectiveVersion} );
-            /*INCLUDE ({C.EventType}, {C.InsertionOrder})*/
+    CREATE INDEX IF NOT EXISTS IX_{EventTable.Name}_{Event.EffectiveOrder} ON {EventTable.Name} 
+            ({Event.EffectiveOrder} , {Event.EffectiveVersion} );
+            /*INCLUDE ({Event.EventType}, {Event.InsertionOrder})*/
 "));
 
                 _initialized = true;

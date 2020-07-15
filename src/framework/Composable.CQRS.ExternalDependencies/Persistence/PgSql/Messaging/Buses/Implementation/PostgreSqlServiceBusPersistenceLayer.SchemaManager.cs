@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Composable.Persistence.PgSql.SystemExtensions;
-using M = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
-using D = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
+using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
+using Dispatch = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 
 namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
 {
@@ -17,31 +17,31 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
                 await connectionFactory.ExecuteNonQueryAsync($@"
    
 
-CREATE TABLE IF NOT EXISTS {M.TableName}
+CREATE TABLE IF NOT EXISTS {Message.TableName}
     (
-	    {M.GeneratedId} bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-        {M.TypeIdGuidValue} {PgSqlGuidType} NOT NULL,
-        {M.MessageId} {PgSqlGuidType} NOT NULL,
-	    {M.SerializedMessage} TEXT NOT NULL,
+	    {Message.GeneratedId} bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+        {Message.TypeIdGuidValue} {PgSqlGuidType} NOT NULL,
+        {Message.MessageId} {PgSqlGuidType} NOT NULL,
+	    {Message.SerializedMessage} TEXT NOT NULL,
 
-        PRIMARY KEY ({M.GeneratedId}),
+        PRIMARY KEY ({Message.GeneratedId}),
 
-        CONSTRAINT IX_{M.TableName}_Unique_{M.MessageId} UNIQUE ( {M.MessageId} )
+        CONSTRAINT IX_{Message.TableName}_Unique_{Message.MessageId} UNIQUE ( {Message.MessageId} )
 
     );
 
 
-    CREATE TABLE  IF NOT EXISTS {D.TableName}
+    CREATE TABLE  IF NOT EXISTS {Dispatch.TableName}
     (
-	    {D.MessageId} {PgSqlGuidType} NOT NULL,
-        {D.EndpointId} {PgSqlGuidType} NOT NULL,
-        {D.IsReceived} boolean NOT NULL,
+	    {Dispatch.MessageId} {PgSqlGuidType} NOT NULL,
+        {Dispatch.EndpointId} {PgSqlGuidType} NOT NULL,
+        {Dispatch.IsReceived} boolean NOT NULL,
 
        
-        PRIMARY KEY ( {D.MessageId}, {D.EndpointId}),
+        PRIMARY KEY ( {Dispatch.MessageId}, {Dispatch.EndpointId}),
             
 
-        FOREIGN KEY ({D.MessageId}) REFERENCES {M.TableName} ({M.MessageId})
+        FOREIGN KEY ({Dispatch.MessageId}) REFERENCES {Message.TableName} ({Message.MessageId})
 
     );
 

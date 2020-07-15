@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Composable.Persistence.Oracle.SystemExtensions;
-using M = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
-using D = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
+using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
+using Dispatch = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 
 namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation
 {
@@ -14,37 +14,42 @@ namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation
             {
                 //Urgent: Figure out the syntax for the commented out parts.
                 await connectionFactory.ExecuteNonQueryAsync($@"
-    CREATE TABLE IF NOT EXISTS {M.TableName}
-    (
-	    {M.GeneratedId} bigint NOT NULL AUTO_INCREMENT,
-        {M.TypeIdGuidValue} {OracleGuidType} NOT NULL,
-        {M.MessageId} {OracleGuidType} NOT NULL,
-	    {M.SerializedMessage} MEDIUMTEXT NOT NULL,
+declare existing_table_count integer;
+begin
+    select count(*) into existing_table_count from user_tables where table_name='{Message.TableName}';
+    if (existing_table_count = 0) then
 
-        PRIMARY KEY ( {M.GeneratedId}),
+        EXECUTE IMMEDIATE '
+            CREATE TABLE {Message.TableName}
+                (
+	                {Message.GeneratedId} NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL,
+                    {Message.TypeIdGuidValue} {OracleGuidType} NOT NULL,
+                    {Message.MessageId} {OracleGuidType} NOT NULL,
+	                {Message.SerializedMessage} NCLOB NOT NULL,
 
-        UNIQUE INDEX IX_{M.TableName}_Unique_{M.MessageId} ( {M.MessageId} )
+                    CONSTRAINT {Message.TableName}_PK PRIMARY KEY ({Message.GeneratedId}),
 
-    )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
+                    CONSTRAINT {Message.TableName}_Unique_{Message.MessageId} UNIQUE ( {Message.MessageId} )
 
-    CREATE TABLE  IF NOT EXISTS {D.TableName}
-    (
-	    {D.MessageId} {OracleGuidType} NOT NULL,
-        {D.EndpointId} {OracleGuidType} NOT NULL,
-        {D.IsReceived} bit NOT NULL,
+                )';
 
-       
-        PRIMARY KEY ( {D.MessageId}, {D.EndpointId}),
-            /*WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON PRIMARY,*/
+        EXECUTE IMMEDIATE '        
+            CREATE TABLE  IF NOT EXISTS {Dispatch.TableName}
+            (
+	            {Dispatch.MessageId} {OracleGuidType} NOT NULL,
+                {Dispatch.EndpointId} {OracleGuidType} NOT NULL,
+                {Dispatch.IsReceived} bit NOT NULL,
 
-        FOREIGN KEY ({D.MessageId}) REFERENCES {M.TableName} ({M.MessageId})
+               CONSTRAINT {Message.TableName}_PK PRIMARY KEY ({Message.MessageId}, {Dispatch.EndpointId})
+                    /*WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON PRIMARY,*/
+            )';
 
-    )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
+        EXECUTE IMMEDIATE '
+            ALTER TABLE {Dispatch.TableName} ADD CONSTRAINT FK_{Dispatch.MessageId} 
+                FOREIGN KEY ( {Dispatch.MessageId} ) REFERENCES {Message.TableName} ({Message.MessageId})';
 
+    end if;
+end;
 ");
             }
         }

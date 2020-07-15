@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.PgSql.SystemExtensions;
-using T =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
+using Message =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
 {
@@ -16,22 +16,22 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
                 await connectionFactory.ExecuteNonQueryAsync($@"
 
 
-    CREATE TABLE IF NOT EXISTS {T.TableName}
+    CREATE TABLE IF NOT EXISTS {Message.TableName}
     (
-	    {T.Identity} bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-        {T.TypeId} {PgSqlGuidType} NOT NULL,
-        {T.MessageId} {PgSqlGuidType} NOT NULL,
-	    {T.Status} smallint NOT NULL,
-	    {T.Body} text NOT NULL,
-        {T.ExceptionCount} int NOT NULL DEFAULT 0,
-        {T.ExceptionType} varchar(500) NULL,
-        {T.ExceptionStackTrace} text NULL,
-        {T.ExceptionMessage} text NULL,
+	    {Message.GeneratedId} bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+        {Message.TypeId} {PgSqlGuidType} NOT NULL,
+        {Message.MessageId} {PgSqlGuidType} NOT NULL,
+	    {Message.Status} smallint NOT NULL,
+	    {Message.Body} text NOT NULL,
+        {Message.ExceptionCount} int NOT NULL DEFAULT 0,
+        {Message.ExceptionType} varchar(500) NULL,
+        {Message.ExceptionStackTrace} text NULL,
+        {Message.ExceptionMessage} text NULL,
 
 
-        PRIMARY KEY ( {T.Identity} ),
+        PRIMARY KEY ( {Message.GeneratedId} ),
 
-        CONSTRAINT IX_{T.TableName}_Unique_{T.MessageId} UNIQUE ( {T.MessageId} )
+        CONSTRAINT IX_{Message.TableName}_Unique_{Message.MessageId} UNIQUE ( {Message.MessageId} )
     );
 
 

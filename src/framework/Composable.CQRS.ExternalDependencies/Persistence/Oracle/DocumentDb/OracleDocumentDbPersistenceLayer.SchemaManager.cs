@@ -27,7 +27,7 @@ namespace Composable.Persistence.Oracle.DocumentDb
 declare existing_table_count integer;
 begin
     select count(*) into existing_table_count from user_tables where table_name='STORE';
-    if (existing_table_count <= 0) then
+    if (existing_table_count = 0) then
         EXECUTE IMMEDIATE '
             CREATE TABLE STORE (
                 ID VARCHAR2(500) NOT NULL, 

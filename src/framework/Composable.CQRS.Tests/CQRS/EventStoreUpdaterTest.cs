@@ -430,7 +430,7 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session => session.Save(user));
 
             var threadedIterations = 5;
-            var delayEachTransactionBy = 10.Milliseconds();
+            var delayEachTransactionBy = 20.Milliseconds();
 
             void ReadUserHistory()
             {

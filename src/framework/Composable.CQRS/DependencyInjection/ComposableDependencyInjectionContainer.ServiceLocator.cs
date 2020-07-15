@@ -96,7 +96,10 @@ namespace Composable.DependencyInjection
 
                 if(registrations == null)
                 {
-                    throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
+                    var parentComponentMessage = _parentComponent == null
+                                                     ? ""
+                                                     : $" Required by parent component: {_parentComponent.InstantiationSpec.FactoryMethodReturnType.GetFullNameCompilable()}";
+                    throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.{parentComponentMessage}");
                 }
 
                 if(registrations.Length > 1)

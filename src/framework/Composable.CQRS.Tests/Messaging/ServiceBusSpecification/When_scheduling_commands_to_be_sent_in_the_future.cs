@@ -50,16 +50,16 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
 
-            _endpoint.ExecuteRequestInTransaction(session => session.ScheduleSend(now + .2.Seconds(), inOneHour));
+            _endpoint.ExecuteServerRequestInTransaction(session => session.ScheduleSend(now + .2.Seconds(), inOneHour));
 
-            _receivedCommandGate.AwaitPassedThroughCountEqualTo(1, timeout: .5.Seconds());
+            _receivedCommandGate.AwaitPassedThroughCountEqualTo(1, timeout: 2.Seconds());
         }
 
         [Test] public void Messages_whose_due_time_have_not_passed_are_not_delivered()
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _endpoint.ExecuteRequestInTransaction(session => session.ScheduleSend(now + 2.Seconds(), inOneHour));
+            _endpoint.ExecuteServerRequestInTransaction(session => session.ScheduleSend(now + 2.Seconds(), inOneHour));
 
             _receivedCommandGate.TryAwaitPassededThroughCountEqualTo(1, timeout: .5.Seconds())
                                 .Should().Be(false);

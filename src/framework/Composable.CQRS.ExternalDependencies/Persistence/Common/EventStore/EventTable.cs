@@ -1,8 +1,10 @@
-﻿namespace Composable.Persistence.Common.EventStore
+﻿using System;
+
+namespace Composable.Persistence.Common.EventStore
 {
     static class EventTable
     {
-        public static string Name { get; } = "Event";
+        public const string Name = "Event";
 
         public const string ReadOrderType = "decimal(38,19)";
 
@@ -12,10 +14,7 @@
             public const string InsertedVersion = nameof(InsertedVersion);
             public const string EffectiveVersion = nameof(EffectiveVersion);
             public const string InsertionOrder = nameof(InsertionOrder);
-            public const string EffectiveOrder = nameof(EffectiveOrder);
-
             public const string ReadOrder = nameof(ReadOrder);
-            public const string ReadOrderOrderOffset = nameof(ReadOrderOrderOffset);
 
             public const string TargetEvent = nameof(TargetEvent);
             public const string RefactoringType = nameof(RefactoringType);
@@ -25,5 +24,11 @@
             public const string EventId = nameof(EventId);
             public const string Event = nameof(Event);
         }
+    }
+
+    static class AggregateLockTable
+    {
+        public const string TableName = "AggregateLock";
+        public const string AggregateId = EventTable.Columns.AggregateId;
     }
 }

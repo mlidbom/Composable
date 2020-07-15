@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
+using Composable.Logging;
 using Composable.Messaging.Buses.Implementation;
 using Composable.System.Linq;
 using Composable.System.Threading;
+using Composable.SystemExtensions;
 
 namespace Composable.Messaging.Buses
 {
@@ -17,6 +19,8 @@ namespace Composable.Messaging.Buses
         bool _disposed;
         protected readonly List<IEndpoint> Endpoints = new List<IEndpoint>();
         internal IGlobalBusStateTracker GlobalBusStateTracker;
+
+        ILogger _log = Logger.For<EndpointHost>();
 
         protected EndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory)
         {
@@ -52,25 +56,25 @@ namespace Composable.Messaging.Buses
 
         bool _isStarted;
 
-        public async Task StartAsync()
+        public async Task StartAsync() => await _log.ExceptionsAsync(async () =>
         {
             Assert.State.Assert(!_isStarted, Endpoints.None(endpoint => endpoint.IsRunning));
             _isStarted = true;
 
             await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.InitAsync())).NoMarshalling();
             await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.ConnectAsync())).NoMarshalling();
-        }
+        });
 
         public void Start() => StartAsync().WaitUnwrappingException();
 
-        public void Stop()
+        public void Stop() => _log.Exceptions(() =>
         {
             Assert.State.Assert(_isStarted);
             _isStarted = false;
             Endpoints.Where(endpoint => endpoint.IsRunning).ForEach(endpoint => endpoint.Stop());
-        }
+        });
 
-        protected virtual void InternalDispose()
+        protected virtual void InternalDispose() => _log.Exceptions(() =>
         {
             if(_isStarted)
             {
@@ -78,9 +82,9 @@ namespace Composable.Messaging.Buses
             }
 
             Endpoints.ForEach(endpoint => endpoint.Dispose());
-        }
+        });
 
-        public void Dispose()
+        public void Dispose() => _log.Exceptions(() =>
         {
             if(!_disposed)
             {
@@ -88,6 +92,6 @@ namespace Composable.Messaging.Buses
                 InternalDispose();
                 GC.SuppressFinalize(this);
             }
-        }
+        });
     }
 }

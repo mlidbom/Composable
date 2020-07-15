@@ -11,7 +11,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Test] public void Five_query_handlers_can_execute_in_parallel_when_using_QueryAsync()
         {
             CloseGates();
-            TaskRunner.StartTimes(5, () => ClientEndpoint.ExecuteRequestAsync(session => session.GetAsync(new MyQuery())));
+            TaskRunner.StartTimes(5, () => ClientEndpoint.ExecuteClientRequestAsync(session => session.GetAsync(new MyQuery())));
 
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(5);
         }
@@ -19,7 +19,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Test] public void Five_query_handlers_can_execute_in_parallel_when_using_Query()
         {
             CloseGates();
-            TaskRunner.StartTimes(5, () => ClientEndpoint.ExecuteRequest(session => session.Get(new MyQuery())));
+            TaskRunner.StartTimes(5, () => ClientEndpoint.ExecuteClientRequest(session => session.Get(new MyQuery())));
 
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(5);
         }
@@ -27,8 +27,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Test] public void Two_event_handlers_cannot_execute_in_parallel()
         {
             MyRemoteAggregateEventHandlerThreadGate.Close();
-            ClientEndpoint.ExecuteRequest(session => session.Post(MyCreateAggregateCommand.Create()));
-            ClientEndpoint.ExecuteRequest(session => session.Post(MyCreateAggregateCommand.Create()));
+            ClientEndpoint.ExecuteClientRequest(session => session.Post(MyCreateAggregateCommand.Create()));
+            ClientEndpoint.ExecuteClientRequest(session => session.Post(MyCreateAggregateCommand.Create()));
 
             MyRemoteAggregateEventHandlerThreadGate.AwaitQueueLengthEqualTo(1)
                                   .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
@@ -38,8 +38,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             CloseGates();
 
-            RemoteEndpoint.ExecuteRequestInTransaction(session => session.Send(new MyExactlyOnceCommand()));
-            RemoteEndpoint.ExecuteRequestInTransaction(session => session.Send(new MyExactlyOnceCommand()));
+            RemoteEndpoint.ExecuteServerRequestInTransaction(session => session.Send(new MyExactlyOnceCommand()));
+            RemoteEndpoint.ExecuteServerRequestInTransaction(session => session.Send(new MyExactlyOnceCommand()));
 
             CommandHandlerThreadGate.AwaitQueueLengthEqualTo(1)
                                     .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
@@ -49,7 +49,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             CloseGates();
 
-            ClientEndpoint.ExecuteRequest(session =>
+            ClientEndpoint.ExecuteClientRequest(session =>
             {
                session.PostAsync(MyCreateAggregateCommand.Create());
                 session.PostAsync(MyCreateAggregateCommand.Create());

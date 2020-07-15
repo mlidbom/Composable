@@ -1,5 +1,14 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reflection;
+using Composable.Persistence.EventStore;
+using Composable.Serialization;
+using Composable.System;
+using Composable.System.Reflection;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Composable.Logging
 {
@@ -27,7 +36,44 @@ namespace Composable.Logging
         {
             if(_logLevel >= LogLevel.Error)
             {
-                SafeConsole.WriteLine($"ERROR:{_type}: {message} {exception}");
+                SafeConsole.WriteLine($@"
+############################################# ERROR in : {_type.GetFullNameCompilable()} #############################################
+MESSAGE: {message} 
+EXCEPTION: {exception}
+
+{(exception is AggregateException aggregateException
+      ? $@"
+############################################# SERIALIZED AGGREGATE EXCEPTION #############################################
+{SerializeExceptions(aggregateException.InnerExceptions)}"
+      : $@"
+############################################# SERIALIZED EXCEPTION #############################################
+{SerializeException(exception)}")}
+
+############################################# END ERROR #############################################
+");
+            }
+        }
+
+
+
+        static string SerializeExceptions(ReadOnlyCollection<Exception> exceptions) =>
+            exceptions.Select((exception, index) => $@"
+
+############################################# INNER EXCEPTION {index + 1} #############################################
+{SerializeException(exception)}
+############################################# END EXCEPTION {index + 1} #############################################
+
+").Join(string.Empty);
+
+        static string SerializeException(Exception exception)
+        {
+            try
+            {
+                return JsonConvert.SerializeObject(exception, Formatting.Indented, ExceptionSerializationSettings);
+            }
+            catch(Exception e)
+            {
+                return $"Serialization Failed with message: {e.Message}";
             }
         }
 
@@ -64,5 +110,38 @@ namespace Composable.Logging
 
         [StringFormatMethod(formatParameterName:"queuedMessageInformation")]
         public void DebugFormat(string message, params object[] arguments) => Debug(string.Format(message, arguments));
+
+        static readonly JsonSerializerSettings ExceptionSerializationSettings =
+            new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All,
+                ContractResolver = IgnoreStackTraces.Instance
+            };
+
+        class IgnoreStackTraces : IncludeMembersWithPrivateSettersResolver
+        {
+            public new static readonly IgnoreStackTraces Instance = new IgnoreStackTraces();
+            IgnoreStackTraces()
+            {
+                IgnoreSerializableInterface = true;
+                IgnoreSerializableAttribute = true;
+            }
+            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+            {
+                var property = base.CreateProperty(member, memberSerialization);
+
+                if(property.PropertyName == nameof(Exception.StackTrace))
+                {
+                    property.Ignored = true;
+                }
+
+                if(property.PropertyName == "StackTraceString")
+                {
+                    property.Ignored = true;
+                }
+
+                return property;
+            }
+        }
     }
 }

@@ -13,16 +13,14 @@ namespace Composable.Messaging.Buses
         readonly IOutbox _transport;
         readonly CommandScheduler _commandScheduler;
         readonly IMessageHandlerRegistry _handlerRegistry;
-        readonly IRemoteHypermediaNavigator _remoteNavigator;
         readonly ISingleContextUseGuard _contextGuard;
 
-        public ApiNavigatorSession(IOutbox transport, CommandScheduler commandScheduler, IMessageHandlerRegistry handlerRegistry, IRemoteHypermediaNavigator remoteNavigator)
+        public ApiNavigatorSession(IOutbox transport, CommandScheduler commandScheduler, IMessageHandlerRegistry handlerRegistry)
         {
             _contextGuard = new CombinationUsageGuard(new SingleTransactionUsageGuard());
             _transport = transport;
             _commandScheduler = commandScheduler;
             _handlerRegistry = handlerRegistry;
-            _remoteNavigator = remoteNavigator;
         }
 
         void IIntegrationBusSession.Send(MessageTypes.Remotable.ExactlyOnce.ICommand command)
@@ -67,12 +65,5 @@ namespace Composable.Messaging.Buses
                        ? selfCreating.CreateResult()
                        : _handlerRegistry.GetQueryHandler(query).Invoke(query);
         }
-
-        Task IRemoteHypermediaNavigator.PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command) => _remoteNavigator.PostAsync(command);
-        void IRemoteHypermediaNavigator.Post(MessageTypes.Remotable.AtMostOnce.ICommand command) => _remoteNavigator.Post(command);
-        Task<TResult> IRemoteHypermediaNavigator.PostAsync<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command) => _remoteNavigator.PostAsync(command);
-        TResult IRemoteHypermediaNavigator.Post<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command) => _remoteNavigator.Post(command);
-        Task<TResult> IRemoteHypermediaNavigator.GetAsync<TResult>(MessageTypes.Remotable.NonTransactional.IQuery<TResult> query) => _remoteNavigator.GetAsync(query);
-        TResult IRemoteHypermediaNavigator.Get<TResult>(MessageTypes.Remotable.NonTransactional.IQuery<TResult> query) => _remoteNavigator.Get(query);
     }
 }

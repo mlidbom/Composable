@@ -13,7 +13,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             QueryHandlerThreadGate.Close();
 
-            var(result1, result2) = ClientEndpoint.ExecuteRequest(session => (RemoteNavigator.GetAsync(test), RemoteNavigator.GetAsync(test)));
+            var(result1, result2) = ClientEndpoint.ExecuteServerRequest(session => (RemoteNavigator.GetAsync(test), RemoteNavigator.GetAsync(test)));
 
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(length: 2);
             QueryHandlerThreadGate.Open();

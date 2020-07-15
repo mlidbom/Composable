@@ -26,6 +26,7 @@ namespace Composable.DependencyInjection
                 Assert.State.Assert(!_disposed);
                 if(_scopeCache.Value != null)
                 {
+                    //Todo: Making the scopecache value a stack could support nested scopes quite simply?
                     throw new Exception("Scope already exists. Nested scopes are not supported.");
                 }
 
@@ -75,29 +76,30 @@ namespace Composable.DependencyInjection
                 object cachedSingletonInstance;
                 ComponentRegistration[] registrations;
                 (registrations, cachedSingletonInstance) = _rootCache.TryGet<TService>();
-                currentComponent = Assert.Result.NotNull(registrations[0]);
                 resolve = null;
 
                 if(cachedSingletonInstance is TService singleton)
                 {
+                    currentComponent = Assert.Result.NotNull(registrations[0]);
                     resolve = singleton;
                     return true;
                 }
 
                 var scopeCache = _scopeCache.Value;
 
-                // ReSharper disable once PatternAlwaysOfType Silly ReSharper is wrong again
-                if(scopeCache != null && scopeCache.TryGet<TService>() is TService scoped)
+                if(scopeCache != null && scopeCache.TryGet<TService>(out var scoped))
                 {
-                    {
-                        resolve = scoped;
-                        return true;
-                    }
+                    currentComponent = Assert.Result.NotNull(registrations[0]);
+                    resolve = scoped;
+                    return true;
                 }
 
                 if(registrations == null)
                 {
-                    throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.");
+                    var parentComponentMessage = _parentComponent == null
+                                                     ? ""
+                                                     : $" Required by parent component: {_parentComponent.InstantiationSpec.FactoryMethodReturnType.GetFullNameCompilable()}";
+                    throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.{parentComponentMessage}");
                 }
 
                 if(registrations.Length > 1)
@@ -105,6 +107,7 @@ namespace Composable.DependencyInjection
                     throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
                 }
 
+                currentComponent = Assert.Result.NotNull(registrations[0]);
                 return false;
             }
 

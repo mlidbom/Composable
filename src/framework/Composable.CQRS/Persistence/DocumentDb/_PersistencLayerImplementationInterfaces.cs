@@ -44,5 +44,15 @@ namespace Composable.Persistence.DocumentDb
             public DateTime UpdateTime { get; }
             public Guid TypeId { get; }
         }
+
+        internal static class DocumentTableSchemaStrings
+        {
+            internal static readonly string TableName = "Store";
+            internal static readonly string Id = nameof(Id);
+            internal static readonly string ValueTypeId = nameof(ValueTypeId);
+            internal static readonly string Created = nameof(Created);
+            internal static readonly string Updated = nameof(Updated);
+            internal static readonly string Value = nameof(Value);
+        }
     }
 }

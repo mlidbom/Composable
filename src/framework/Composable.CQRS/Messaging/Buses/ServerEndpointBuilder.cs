@@ -96,25 +96,24 @@ namespace Composable.Messaging.Buses
                                         => new Outbox.MessageStorage(persistenceLayer, typeMapper, serializer)),
                 Singleton.For<IOutbox>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, Outbox.IMessageStorage messageStorage)
                                                        => new Outbox(_globalStateTracker, timeSource, messageStorage, _typeMapper, configuration, taskRunner, serializer)),
+
+
                 Singleton.For<IGlobalBusStateTracker>().CreatedBy(() => _globalStateTracker),
                 Singleton.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>().CreatedBy(() => _registry),
-                Singleton.For<IEventStoreSerializer>().CreatedBy(() => new EventStoreSerializer(_typeMapper)),
-                Singleton.For<IDocumentDbSerializer>().CreatedBy(() => new DocumentDbSerializer(_typeMapper)),
-                Singleton.For<IRemotableMessageSerializer>().CreatedBy(() => new RemotableMessageSerializer(_typeMapper)),
-                Singleton.For<IAggregateTypeValidator>().CreatedBy(() => new AggregateTypeValidator(_typeMapper)),
+
+
+                Singleton.For<IRemotableMessageSerializer>().CreatedBy((ITypeMapper typeMapper) => new RemotableMessageSerializer(typeMapper)),
                 Singleton.For<IEventStoreEventPublisher>().CreatedBy((IOutbox outbox, IMessageHandlerRegistry messageHandlerRegistry) => new ServiceBusEventStoreEventPublisher(outbox, messageHandlerRegistry)),
                 Scoped.For<IRemoteHypermediaNavigator>().CreatedBy((IOutbox outbox) => new RemoteApiBrowserSession(outbox)),
                 Singleton.For<RealEndpointConfiguration>().CreatedBy((EndpointConfiguration conf, IConfigurationParameterProvider configurationParameterProvider) => new RealEndpointConfiguration(conf, configurationParameterProvider)));
 
-            if(Configuration.HasMessageHandlers)
-            {
-                _container.Register(
-                    Singleton.For<Inbox.IMessageStorage>().CreatedBy((IServiceBusPersistenceLayer.IInboxPersistenceLayer persistenceLayer) => new InboxMessageStorage(persistenceLayer)),
-                    Singleton.For<IInbox>().CreatedBy((IServiceLocator serviceLocator, RealEndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, Inbox.IMessageStorage messageStorage) => new Inbox(serviceLocator, _globalStateTracker, _registry, endpointConfiguration, messageStorage, _typeMapper, taskRunner, serializer)),
-                    Singleton.For<CommandScheduler>().CreatedBy((IOutbox transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource)),
-                    Scoped.For<IServiceBusSession, ILocalHypermediaNavigator>().CreatedBy((IOutbox outbox, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteHypermediaNavigator remoteNavigator) => new ApiNavigatorSession(outbox, commandScheduler, messageHandlerRegistry, remoteNavigator))
-                );
-            }
+
+            _container.Register(
+                Singleton.For<Inbox.IMessageStorage>().CreatedBy((IServiceBusPersistenceLayer.IInboxPersistenceLayer persistenceLayer) => new InboxMessageStorage(persistenceLayer)),
+                Singleton.For<IInbox>().CreatedBy((IServiceLocator serviceLocator, RealEndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, Inbox.IMessageStorage messageStorage) => new Inbox(serviceLocator, _globalStateTracker, _registry, endpointConfiguration, messageStorage, _typeMapper, taskRunner, serializer)),
+                Singleton.For<CommandScheduler>().CreatedBy((IOutbox transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource)),
+                Scoped.For<IServiceBusSession, ILocalHypermediaNavigator>().CreatedBy((IOutbox outbox, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry) => new ApiNavigatorSession(outbox, commandScheduler, messageHandlerRegistry))
+            );
 
             if(_container.RunMode == RunMode.Production)
             {

@@ -29,7 +29,7 @@ namespace Composable.Persistence.EventStore.PersistenceLayer
 
         public SqlDecimal ToSqlDecimal() => SqlDecimal.ConvertToPrecScale(SqlDecimal.Parse(ToString()), 38, 19);
 
-        public static ReadOrder Parse(string value)
+        public static ReadOrder Parse(string value, bool bypassScaleTest = false)
         {
             var parts = value.Split(".");
             Assert.Argument.Assert(parts.Length == 2);
@@ -38,7 +38,10 @@ namespace Composable.Persistence.EventStore.PersistenceLayer
             if(order[0] == '-') throw new ArgumentException("We do not use negative numbers");
             if(offset[0] == '-') throw new ArgumentException("We do not use negative numbers");
 
-            if(offset.Length != 19) throw new ArgumentException($"Got number with {offset.Length} decimal numbers. It must be exactly 19", nameof(value));
+            if(!bypassScaleTest)
+            {
+                if(offset.Length != 19) throw new ArgumentException($"Got number with {offset.Length} decimal numbers. It must be exactly 19", nameof(value));
+            }
 
             return new ReadOrder(Int64.Parse(order, CultureInfo.InvariantCulture), Int64.Parse(offset, CultureInfo.InvariantCulture));
         }

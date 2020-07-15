@@ -22,7 +22,7 @@ namespace Composable.Tests.KeyValueStorage
     class DocumentDbTests : DocumentDbTestsBase
     {
         [Test]
-        public void CanSaveAndLoadAggregate()
+        public void CanSaveAndLoadDocument()
         {
             var user = new User
                        {

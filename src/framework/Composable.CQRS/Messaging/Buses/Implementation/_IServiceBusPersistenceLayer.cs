@@ -44,7 +44,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             internal const string TableName = "InboxMessages";
 
-            internal const string Identity = nameof(Identity);
+            internal const string GeneratedId = nameof(GeneratedId);
             internal const string TypeId = nameof(TypeId);
             internal const string MessageId = nameof(MessageId);
             internal const string Body = nameof(Body);

@@ -5,6 +5,7 @@ using Composable.Logging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.MsSql.Messaging.Buses;
+using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System;
 using Composable.System.Diagnostics;
@@ -25,16 +26,8 @@ namespace Composable.Tests.Serialization
     public class NewtonSoftEventStoreEventSerializerTests
     {
         IEventStoreSerializer _eventSerializer;
-        ITestingEndpointHost _host;
 
-        [OneTimeSetUp] public void SetupTask()
-        {
-            _host = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
-            var clientEndpoint = _host.RegisterClientEndpointForRegisteredEndpoints();
-            _eventSerializer = clientEndpoint.ServiceLocator.Resolve<IEventStoreSerializer>();
-        }
-
-        [OneTimeSetUp] public void TearDownTask() => _host.Dispose();
+        [OneTimeSetUp] public void SetupTask() => _eventSerializer = new EventStoreSerializer(new TypeMapper());
 
         class TestEvent : AggregateEvent
         {

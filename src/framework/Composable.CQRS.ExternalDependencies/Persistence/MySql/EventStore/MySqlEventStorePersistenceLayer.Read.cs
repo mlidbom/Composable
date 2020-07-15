@@ -29,7 +29,7 @@ namespace Composable.Persistence.MySql.EventStore
 
             return $@"
 SELECT {topClause} 
-{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, cast({C.EffectiveOrder} as char(39))
+{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, cast({C.ReadOrder} as char(39))
 FROM {EventTable.Name} {lockHint} ";
         }
 
@@ -65,7 +65,7 @@ FROM {EventTable.Name} {lockHint} ";
 WHERE {C.AggregateId} = @{C.AggregateId}
     AND {C.InsertedVersion} > @CachedVersion
     AND {C.EffectiveVersion} > 0
-ORDER BY {C.EffectiveOrder} ASC")
+ORDER BY {C.ReadOrder} ASC")
                                                             .AddParameter(C.AggregateId, aggregateId)
                                                             .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                             .ExecuteReaderAndSelect(ReadDataRow)
@@ -82,12 +82,12 @@ ORDER BY {C.EffectiveOrder} ASC")
                                                                 {
                                                                     var commandText = $@"
 {CreateSelectClause(takeWriteLock: false)} 
-WHERE {C.EffectiveOrder}  > CAST(@{C.EffectiveOrder} AS {EventTable.ReadOrderType})
+WHERE {C.ReadOrder}  > CAST(@{C.ReadOrder} AS {EventTable.ReadOrderType})
     AND {C.EffectiveVersion} > 0
-ORDER BY {C.EffectiveOrder} ASC
+ORDER BY {C.ReadOrder} ASC
 LIMIT {batchSize}";
                                                                     return command.SetCommandText(commandText)
-                                                                                  .AddParameter(C.EffectiveOrder, MySqlDbType.String, lastReadEventReadOrder.ToString())
+                                                                                  .AddParameter(C.ReadOrder, MySqlDbType.String, lastReadEventReadOrder.ToString())
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList();
                                                                 });
@@ -113,7 +113,7 @@ LIMIT {batchSize}";
 SELECT {C.AggregateId}, {C.EventType} 
 FROM {EventTable.Name} 
 WHERE {C.EffectiveVersion} = 1 
-ORDER BY {C.EffectiveOrder} ASC")
+ORDER BY {C.ReadOrder} ASC")
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuid(0), typeId: reader.GetGuid(1))));
         }
     }

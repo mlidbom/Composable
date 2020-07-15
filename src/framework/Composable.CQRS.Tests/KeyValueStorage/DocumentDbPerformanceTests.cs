@@ -10,7 +10,7 @@ namespace Composable.Tests.KeyValueStorage
     [Performance, LongRunning, Serial]
     [TestFixture] class DocumentDbPerformanceTests : DocumentDbTestsBase
     {
-        [Test] public void In150Milliseconds_MsSql_saves_200_MySql_55_InMemory_2000_PgSql_200()
+        [Test] public void Saves_100_documents_in_milliseconds_msSql_75_MySql_300_InMemory_8_PgSql_100_Orcl_100()
         {
             ServiceLocator.ExecuteInIsolatedScope(() =>
             {
@@ -26,10 +26,11 @@ namespace Composable.Tests.KeyValueStorage
                 SaveOneNewUserInTransaction();
 
                 //Urgent: Fix the MySql opening connection slowness problem and up the number for MySql in this test
+                //Urgent: See if using stored procedures and/or prepared statements speeds this up.
                 TimeAsserter.Execute(
                     action: SaveOneNewUserInTransaction,
-                    iterations: TestEnvironment.ValueForPersistenceProvider(msSql:200, mySql:55, inMem:2000, pgSql: 200),
-                    maxTotal: 150.Milliseconds()
+                    iterations: 100,
+                    maxTotal: TestEnvironment.ValueForPersistenceProvider(inMem:8, msSql:75, pgSql: 100, orcl: 100, mySql:300).Milliseconds()
                 );
             });
         }

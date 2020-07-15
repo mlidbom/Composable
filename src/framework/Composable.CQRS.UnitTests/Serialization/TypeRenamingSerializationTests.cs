@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Persistence.Common.DependencyInjection;
+using Composable.Persistence.InMemory.DependencyInjection;
 using Composable.Persistence.MsSql.DependencyInjection;
 using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.Refactoring.Naming;
@@ -121,7 +122,7 @@ namespace Composable.Tests.Serialization
             _originaltypesMap = _originalHost.RegisterTestingEndpoint(
                 setup: builder =>
                 {
-                    builder.RegisterCurrentTestsConfiguredPersistenceLayer();
+                    builder.RegisterInMemoryPersistenceLayer();
                     builder.TypeMapper
                            .Map<OriginalTypes.TypeA>(Ids.TypeA)
                            .Map<OriginalTypes.TypeB>(Ids.TypeB)
@@ -132,7 +133,7 @@ namespace Composable.Tests.Serialization
             _renamedTypesMap = _originalHost.RegisterTestingEndpoint(
                 setup: builder =>
                 {
-                    builder.RegisterCurrentTestsConfiguredPersistenceLayer();
+                    builder.RegisterInMemoryPersistenceLayer();
                     builder.TypeMapper
                            .Map<RenamedTypes.TypeA>(Ids.TypeA)
                            .Map<RenamedTypes.TypeB>(Ids.TypeB)
@@ -150,7 +151,7 @@ namespace Composable.Tests.Serialization
             _renamedHost.Dispose();
         }
 
-        [Test] public void Roundtrips_polymorphic_types_types()
+        [Test] public void Roundtrips_polymorphic_types()
         {
             var originalRoot = OriginalTypes.Root.Create();
             var originalJson = _originalTypesSerializer.Serialize(originalRoot);

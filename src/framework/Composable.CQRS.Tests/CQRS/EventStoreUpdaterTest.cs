@@ -29,7 +29,7 @@ using NUnit.Framework;
 namespace Composable.Tests.CQRS
 {
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql))]
+    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl))]
     [TestFixture]
     public class EventStoreUpdaterTest
     {
@@ -430,7 +430,7 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session => session.Save(user));
 
             var threadedIterations = 5;
-            var delayEachTransactionBy = 10.Milliseconds();
+            var delayEachTransactionBy = 20.Milliseconds();
 
             void ReadUserHistory()
             {
@@ -643,6 +643,7 @@ namespace Composable.Tests.CQRS
 
             var bothTasksReadUserException = ExceptionExtensions.TryCatch(() => hasFetchedUser.Passed.Should().Be(1, "Only one thread should have been able to fetch the aggregate"));
 
+            //Urgent: This fails intermittently with Oracle. Pretty consistently on old-asus-laptop, so test it there :). We need to look into making sure to touch existing rows for both oracle and MySql below.
             //Urgent: This fails intermittently with MySql with two threads waiting at the exit gate. We don't seem to get consistently correct locking with MySql. It does work the great majority of the runs though...
             var bothTasksCompletedException = ExceptionExtensions.TryCatch(() => changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction."));
 

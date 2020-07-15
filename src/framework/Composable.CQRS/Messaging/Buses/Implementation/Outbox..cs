@@ -5,11 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
+using Composable.Logging;
+using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
+using Composable.SystemExtensions.Threading;
 using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation
@@ -42,6 +45,7 @@ namespace Composable.Messaging.Buses.Implementation
             public Thread? PollerThread;
         }
 
+        readonly ILogger _log = Logger.For<Outbox>();
         readonly IThreadShared<State> _state;
         readonly ITaskRunner _taskRunner;
 
@@ -83,7 +87,7 @@ namespace Composable.Messaging.Buses.Implementation
                                        : state.Storage.StartAsync();
 
                 state.Poller = new NetMQPoller();
-                state.PollerThread = new Thread(() => state.Poller.Run()) {Name = $"{nameof(Outbox)}_{nameof(state.PollerThread)}"};
+                state.PollerThread = new Thread(ThreadExceptionHandler.WrapThreadStart(() => state.Poller.Run())) {Name = $"{nameof(Outbox)}_{nameof(state.PollerThread)}"}; //Urgent: Research what happens if exceptions are thrown on the poller thread.
                 state.PollerThread.Start();
                 return storageStartTask;
             });
@@ -108,6 +112,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                .Where(id => id != state.Configuration.Id)
                                                .ToArray();//We dispatch events to ourself synchronously so don't go doing it again here.;
 
+            //Urgent: bug. Our traceability thinking does not allow just discarding this message.But removing this if statement breaks a lot of tests that uses endpoint wiring but do not start an endpoint.
             if(eventHandlerEndpointIds.Length != 0)//Don't waste time if there are no receivers
             {
                 var connections = eventHandlerEndpointIds.Select(endpointId => state.InboxConnections[endpointId])

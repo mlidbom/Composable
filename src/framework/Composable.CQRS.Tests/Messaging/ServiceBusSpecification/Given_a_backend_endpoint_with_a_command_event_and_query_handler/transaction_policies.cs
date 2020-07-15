@@ -14,7 +14,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
     {
         [Test] public void Command_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            RemoteEndpoint.ExecuteRequestInTransaction(session => session.Send(new MyExactlyOnceCommand()));
+            RemoteEndpoint.ExecuteServerRequestInTransaction(session => session.Send(new MyExactlyOnceCommand()));
 
             var transaction = CommandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                        .PassedThrough.Single().Transaction;
@@ -24,7 +24,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Test] public void Command_handler_with_result_runs_in_transaction_with_isolation_level_Serializable()
         {
-            var commandResult = ClientEndpoint.ExecuteRequest(session => session.Post(MyAtMostOnceCommandWithResult.Create()));
+            var commandResult = ClientEndpoint.ExecuteClientRequest(session => session.Post(MyAtMostOnceCommandWithResult.Create()));
 
             commandResult.Should().NotBe(null);
 
@@ -36,7 +36,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Test] public void Event_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            ClientEndpoint.ExecuteRequest(session => session.Post(MyCreateAggregateCommand.Create()));
+            ClientEndpoint.ExecuteClientRequest(session => session.Post(MyCreateAggregateCommand.Create()));
 
             var transaction = MyRemoteAggregateEventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                      .PassedThrough.Single().Transaction;
@@ -46,7 +46,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Test] public void Query_handler_does_not_run_in_transaction()
         {
-            ClientEndpoint.ExecuteRequest(session => session.Get(new MyQuery()));
+            ClientEndpoint.ExecuteClientRequest(session => session.Get(new MyQuery()));
 
             QueryHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                    .PassedThrough.Single().Transaction.Should().Be(null);
@@ -54,19 +54,19 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
 
         [Test] public void Calling_PostRemoteAsync_within_a_transaction_with_AtLeastOnceCommand_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Async<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.PostAsync(MyAtMostOnceCommandWithResult.Create())))).Wait();
+            AssertThrows.Async<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteClientRequest(session => session.PostAsync(MyAtMostOnceCommandWithResult.Create())))).Wait();
 
         [Test] public void Calling_PostRemoteAsync_within_a_transaction_AtLeastOnceCommand_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.Post(MyAtMostOnceCommandWithResult.Create()))));
+            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteClientRequest(session => session.Post(MyAtMostOnceCommandWithResult.Create()))));
 
 
         [Test] public void Calling_PostRemoteAsync_without_a_transaction_with_ExactlyOnceCommand_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => RemoteEndpoint.ExecuteRequest(session => session.Send(new MyExactlyOnceCommand())));
+            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => RemoteEndpoint.ExecuteServerRequest(session => session.Send(new MyExactlyOnceCommand())));
 
         [Test] public void Calling_GetRemoteAsync_within_a_transaction_with_Query_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Async<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.GetAsync(new MyQuery())))).Wait();
+            AssertThrows.Async<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteClientRequest(session => session.GetAsync(new MyQuery())))).Wait();
 
         [Test] public void Calling_GetRemote_within_a_transaction_with_Query_throws_TransactionPolicyViolationException() =>
-            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteRequest(session => session.Get(new MyQuery()))));
+            AssertThrows.Exception<MessageInspector.TransactionPolicyViolationException>(() => TransactionScopeCe.Execute(() => ClientEndpoint.ExecuteClientRequest(session => session.Get(new MyQuery()))));
     }
 }

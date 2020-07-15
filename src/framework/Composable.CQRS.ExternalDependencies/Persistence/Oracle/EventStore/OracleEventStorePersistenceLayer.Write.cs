@@ -30,6 +30,9 @@ namespace Composable.Persistence.Oracle.EventStore
                                                    //urgent: explore oracle alternatives to commented out hints .
                                                    $@"
 BEGIN
+
+{(data.AggregateVersion > 1 ? "" :$@"insert into AggregateLock(AggregateId) values('{data.AggregateId}');")}
+
 INSERT INTO {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
 (       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.ReadOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
 VALUES(:{C.AggregateId}, :{C.InsertedVersion}, :{C.EffectiveVersion}, :{C.ReadOrder}, :{C.EventType}, :{C.EventId}, :{C.UtcTimeStamp}, :{C.Event}, :{C.TargetEvent},:{C.RefactoringType});

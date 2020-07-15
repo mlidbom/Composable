@@ -53,6 +53,15 @@ begin
             CREATE INDEX IX_{EventTable.Name}_{Event.ReadOrder} ON {EventTable.Name} 
                 ({Event.ReadOrder} ASC, {Event.EffectiveVersion} ASC)';
 
+
+        EXECUTE IMMEDIATE '
+            CREATE TABLE AggregateLock
+            (
+                {Event.AggregateId} {OracleGuidType} NOT NULL,
+
+                CONSTRAINT PK_AggregateLock PRIMARY KEY ({Event.AggregateId})
+            )';
+
     end if;
 end;
 ")

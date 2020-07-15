@@ -51,18 +51,29 @@ FROM {EventTable.Name}
             );
         }
 
-        public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
-            _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
-                                          command => command.SetCommandText($@"
+        public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
+        {
+            if(takeWriteLock)
+            {
+                //Performance: Find a way of doing this so that it does not involve two round trips to the server. If running as single-instance we can use in-memory transactional locking such as in the InMemory Persistence Layer to avoid needing this.
+                //Without this hack Oracle does not correctly serialize access to aggregates and odds are you would get a lot of failed transactions if an aggregate is "popular"
+                _connectionManager.UseCommand(command => command.SetCommandText($"select {C.AggregateId} from AggregateLock where AggregateId = :{C.AggregateId} for update")
+                                                                .AddParameter(C.AggregateId, aggregateId)
+                                                                .ExecuteNonQuery());
+            }
+
+            return _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
+                                                 command => command.SetCommandText($@"
 {CreateSelectClause()} 
 WHERE {C.AggregateId} = :{C.AggregateId}
     AND {C.InsertedVersion} > :CachedVersion
     AND {C.EffectiveVersion} >= 0
 ORDER BY {C.ReadOrder} ASC")
-                                                            .AddParameter(C.AggregateId, aggregateId)
-                                                            .AddParameter("CachedVersion", startAfterInsertedVersion)
-                                                            .ExecuteReaderAndSelect(ReadDataRow)
-                                                            .ToList());
+                                                                   .AddParameter(C.AggregateId, aggregateId)
+                                                                   .AddParameter("CachedVersion", startAfterInsertedVersion)
+                                                                   .ExecuteReaderAndSelect(ReadDataRow)
+                                                                   .ToList());
+        }
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
         {

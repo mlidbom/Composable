@@ -1,5 +1,6 @@
 ﻿using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System.Transactions;
+using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
 namespace Composable.Persistence.MsSql.DocumentDb
 {
@@ -20,21 +21,22 @@ namespace Composable.Persistence.MsSql.DocumentDb
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            _connectionProvider.ExecuteNonQuery(@"
+                            _connectionProvider.ExecuteNonQuery($@"
 IF NOT EXISTS(select name from sys.tables where name = 'Store')
 BEGIN 
-    CREATE TABLE [dbo].[Store](
-	    [Id] [nvarchar](500) NOT NULL,
-	    [ValueTypeId] uniqueidentifier NOT NULL,
-        [Created] [datetime2] NOT NULL,
-        [Updated] [datetime2] NOT NULL,
-	    [Value] [nvarchar](max) NOT NULL,
-     CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
+    CREATE TABLE dbo.{Document.TableName}
     (
-	    [Id] ASC,
-	    [ValueTypeId] ASC
-    )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY]
-    ) ON [PRIMARY]
+        {Document.Id}          nvarchar(500)    NOT NULL,
+        {Document.ValueTypeId} uniqueidentifier NOT NULL,
+        {Document.Created}     datetime2        NOT NULL,
+        {Document.Updated}     datetime2        NOT NULL,
+        {Document.Value}       nvarchar(max)    NOT NULL,
+           
+        CONSTRAINT PK_{Document.TableName} PRIMARY KEY CLUSTERED 
+           ({Document.Id} ASC, {Document.ValueTypeId} ASC)
+           WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF)
+    )
+
 END
 ");
                         });

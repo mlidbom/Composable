@@ -21,15 +21,15 @@ begin
         EXECUTE IMMEDIATE '
             CREATE TABLE {Message.TableName}
             (
-	            {Message.GeneratedId} NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL,
-                {Message.TypeId} {OracleGuidType} NOT NULL,
-                {Message.MessageId} {OracleGuidType} NOT NULL,
-	            {Message.Status} smallint NOT NULL,
-	            {Message.Body} mediumtext NOT NULL,
-                {Message.ExceptionCount} int NOT NULL DEFAULT 0,
-                {Message.ExceptionType} varchar(500) NULL,
-                {Message.ExceptionStackTrace} mediumtext NULL,
-                {Message.ExceptionMessage} mediumtext NULL,
+                {Message.GeneratedId}           NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL,
+                {Message.TypeId}                {OracleGuidType}                        NOT NULL,
+                {Message.MessageId}             {OracleGuidType}                        NOT NULL,
+                {Message.Status}                smallint                                NOT NULL,
+                {Message.Body}                  mediumtext                              NOT NULL,
+                {Message.ExceptionCount}        int                                     NOT NULL  DEFAULT 0,
+                {Message.ExceptionType}         varchar(500)                            NULL,
+                {Message.ExceptionStackTrace}   mediumtext                              NULL,
+                {Message.ExceptionMessage}      mediumtext                              NULL,
 
 
                 CONSTRAINT {Message.TableName}_PK PRIMARY KEY ({Message.GeneratedId}),

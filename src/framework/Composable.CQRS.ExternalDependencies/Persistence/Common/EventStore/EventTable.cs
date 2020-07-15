@@ -1,4 +1,6 @@
-﻿namespace Composable.Persistence.Common.EventStore
+﻿using System;
+
+namespace Composable.Persistence.Common.EventStore
 {
     static class EventTable
     {
@@ -14,8 +16,8 @@
             public const string InsertionOrder = nameof(InsertionOrder);
             public const string EffectiveOrder = nameof(EffectiveOrder);
 
-            public const string ReadOrder = nameof(ReadOrder);
-            public const string ReadOrderOrderOffset = nameof(ReadOrderOrderOffset);
+            [Obsolete]public const string ReadOrder = nameof(ReadOrder);
+            [Obsolete]public const string ReadOrderOrderOffset = nameof(ReadOrderOrderOffset);
 
             public const string TargetEvent = nameof(TargetEvent);
             public const string RefactoringType = nameof(RefactoringType);

@@ -23,21 +23,23 @@ begin
     select count(*) into existing_table_count from user_tables where table_name='{EventTable.Name.ToUpper()}';
     if (existing_table_count = 0) then
         EXECUTE IMMEDIATE '
-            CREATE TABLE {EventTable.Name}(
-                {Event.InsertionOrder} NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL,
-                {Event.AggregateId} {OracleGuidType} NOT NULL,  
-                {Event.UtcTimeStamp} TIMESTAMP(7) NOT NULL,   
-                {Event.EventType} {OracleGuidType} NOT NULL,    
-                {Event.Event} NCLOB NOT NULL,
-                {Event.EventId} {OracleGuidType} NOT NULL,
-                {Event.InsertedVersion} NUMBER(10) NOT NULL,
-                {Event.SqlInsertTimeStamp} TIMESTAMP(9) default CURRENT_TIMESTAMP NOT NULL,
-                {Event.TargetEvent} {OracleGuidType} null,
-                {Event.RefactoringType} NUMBER(3) null,
-                {Event.ReadOrder} NUMBER(19) null,
-                {Event.ReadOrderOrderOffset} NUMBER(19) null,
-                {Event.EffectiveOrder} {EventTable.ReadOrderType} null,    
-                {Event.EffectiveVersion} NUMBER(10) NULL,
+
+            CREATE TABLE {EventTable.Name}
+            (
+                {Event.InsertionOrder}       NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL ,
+                {Event.AggregateId}          {OracleGuidType}                        NOT NULL,  
+                {Event.UtcTimeStamp}         TIMESTAMP(7)                            NOT NULL,   
+                {Event.EventType}            {OracleGuidType}                        NOT NULL,    
+                {Event.Event}                NCLOB                                   NOT NULL,
+                {Event.EventId}              {OracleGuidType}                        NOT NULL,
+                {Event.InsertedVersion}      NUMBER(10)                              NOT NULL,
+                {Event.SqlInsertTimeStamp}   TIMESTAMP(9) default CURRENT_TIMESTAMP  NOT NULL,
+                {Event.TargetEvent}          {OracleGuidType}                        NULL,
+                {Event.RefactoringType}      NUMBER(3)                               NULL,
+                {Event.ReadOrder}            NUMBER(19)                              NULL,
+                {Event.ReadOrderOrderOffset} NUMBER(19)                              NULL,
+                {Event.EffectiveOrder}       {EventTable.ReadOrderType}              NULL,    
+                {Event.EffectiveVersion}     NUMBER(10)                              NULL,
 
                 CONSTRAINT {EventTable.Name}_PK PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
 

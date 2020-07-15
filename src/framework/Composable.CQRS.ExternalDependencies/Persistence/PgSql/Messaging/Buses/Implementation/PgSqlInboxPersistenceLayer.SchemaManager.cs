@@ -18,15 +18,15 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
 
     CREATE TABLE IF NOT EXISTS {Message.TableName}
     (
-	    {Message.GeneratedId} bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-        {Message.TypeId} {PgSqlGuidType} NOT NULL,
-        {Message.MessageId} {PgSqlGuidType} NOT NULL,
-	    {Message.Status} smallint NOT NULL,
-	    {Message.Body} text NOT NULL,
-        {Message.ExceptionCount} int NOT NULL DEFAULT 0,
-        {Message.ExceptionType} varchar(500) NULL,
-        {Message.ExceptionStackTrace} text NULL,
-        {Message.ExceptionMessage} text NULL,
+        {Message.GeneratedId}           bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+        {Message.TypeId}                {PgSqlGuidType}                     NOT NULL,
+        {Message.MessageId}             {PgSqlGuidType}                     NOT NULL,
+        {Message.Status}                smallint                            NOT NULL,
+        {Message.Body}                  text                                NOT NULL,
+        {Message.ExceptionCount}        int                                 NOT NULL  DEFAULT 0,
+        {Message.ExceptionType}         varchar(500)                        NULL,
+        {Message.ExceptionStackTrace}   text                                NULL,
+        {Message.ExceptionMessage}      text                                NULL,
 
 
         PRIMARY KEY ( {Message.GeneratedId} ),

@@ -19,21 +19,22 @@ namespace Composable.Persistence.MsSql.EventStore
                 _connectionManager.UseCommand(command=> command.ExecuteNonQuery($@"
 IF NOT EXISTS(SELECT NAME FROM sys.tables WHERE name = '{EventTable.Name}')
 BEGIN
-    CREATE TABLE dbo.{EventTable.Name}(
-        {Event.InsertionOrder} bigint IDENTITY(1,1) NOT NULL,
-        {Event.AggregateId} uniqueidentifier NOT NULL,  
-        {Event.UtcTimeStamp} datetime2 NOT NULL,   
-        {Event.EventType} uniqueidentifier NOT NULL,    
-        {Event.Event} nvarchar(max) NOT NULL,
-        {Event.EventId} uniqueidentifier NOT NULL,
-        {Event.InsertedVersion} int NOT NULL,
-        {Event.SqlInsertTimeStamp} datetime2 default SYSUTCDATETIME(),
-        {Event.TargetEvent} uniqueidentifier null,
-        {Event.RefactoringType} tinyint null,
-        {Event.ReadOrder} bigint null,
-        {Event.ReadOrderOrderOffset} bigint null,
-        {Event.EffectiveOrder} {EventTable.ReadOrderType} null,    
-        {Event.EffectiveVersion} int NULL,
+    CREATE TABLE dbo.{EventTable.Name}
+    (
+        {Event.InsertionOrder}       bigint IDENTITY(1,1)               NOT NULL,
+        {Event.AggregateId}          uniqueidentifier                   NOT NULL,  
+        {Event.UtcTimeStamp}         datetime2                          NOT NULL,   
+        {Event.EventType}            uniqueidentifier                   NOT NULL,    
+        {Event.Event}                nvarchar(max)                      NOT NULL,
+        {Event.EventId}              uniqueidentifier                   NOT NULL,
+        {Event.InsertedVersion}      int                                NOT NULL,
+        {Event.SqlInsertTimeStamp}   datetime2 default SYSUTCDATETIME() NOT NULL,
+        {Event.TargetEvent}          uniqueidentifier                   NULL,
+        {Event.RefactoringType}      tinyint                            NULL,
+        {Event.ReadOrder}            bigint                             NULL,
+        {Event.ReadOrderOrderOffset} bigint                             NULL,
+        {Event.EffectiveOrder}       {EventTable.ReadOrderType}         NULL,    
+        {Event.EffectiveVersion}     int                                NULL,
 
         CONSTRAINT PK_{EventTable.Name} PRIMARY KEY CLUSTERED 
         (

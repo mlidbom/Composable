@@ -17,15 +17,15 @@ namespace Composable.Persistence.MySql.Messaging.Buses.Implementation
 
     CREATE TABLE IF NOT EXISTS {T.TableName}
     (
-	    {T.GeneratedId} bigint NOT NULL AUTO_INCREMENT,
-        {T.TypeId} {MySqlGuidType} NOT NULL,
-        {T.MessageId} {MySqlGuidType} NOT NULL,
-	    {T.Status} smallint NOT NULL,
-	    {T.Body} mediumtext NOT NULL,
-        {T.ExceptionCount} int NOT NULL DEFAULT 0,
-        {T.ExceptionType} varchar(500) NULL,
-        {T.ExceptionStackTrace} mediumtext NULL,
-        {T.ExceptionMessage} mediumtext NULL,
+        {T.GeneratedId}         bigint          NOT NULL  AUTO_INCREMENT,
+        {T.TypeId}              {MySqlGuidType} NOT NULL,
+        {T.MessageId}           {MySqlGuidType} NOT NULL,
+        {T.Status}              smallint        NOT NULL,
+        {T.Body}                mediumtext      NOT NULL,
+        {T.ExceptionCount}      int             NOT NULL  DEFAULT 0,
+        {T.ExceptionType}       varchar(500)    NULL,
+        {T.ExceptionStackTrace} mediumtext      NULL,
+        {T.ExceptionMessage}    mediumtext      NULL,
 
 
         PRIMARY KEY ( {T.GeneratedId} ),

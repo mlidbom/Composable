@@ -17,21 +17,20 @@ IF NOT EXISTS(select name from sys.tables where name = '{Message.TableName}')
 BEGIN
     CREATE TABLE {Message.TableName}
     (
-	    [{Message.GeneratedId}] bigint IDENTITY(1,1) NOT NULL,
-        {Message.TypeId} uniqueidentifier NOT NULL,
-        {Message.MessageId} uniqueidentifier NOT NULL,
-	    {Message.Status} smallint NOT NULL,
-	    {Message.Body} nvarchar(MAX) NOT NULL,
-        {Message.ExceptionCount} int NOT NULL DEFAULT 0,
-        {Message.ExceptionType} nvarchar(500) NULL,
-        {Message.ExceptionStackTrace} nvarchar(MAX) NULL,
-        {Message.ExceptionMessage} nvarchar(MAX) NULL,
+        {Message.GeneratedId}         bigint IDENTITY(1,1) NOT NULL,
+        {Message.TypeId}              uniqueidentifier     NOT NULL,
+        {Message.MessageId}           uniqueidentifier     NOT NULL,
+        {Message.Status}              smallint             NOT NULL,
+        {Message.Body}                nvarchar(MAX)        NOT NULL,
+        {Message.ExceptionCount}      int                  NOT NULL  DEFAULT 0,
+        {Message.ExceptionType}       nvarchar(500)        NULL,
+        {Message.ExceptionStackTrace} nvarchar(MAX)        NULL,
+        {Message.ExceptionMessage}    nvarchar(MAX)        NULL,
 
 
         CONSTRAINT PK_{Message.TableName} PRIMARY KEY CLUSTERED ( [{Message.GeneratedId}] ASC ),
 
         CONSTRAINT IX_{Message.TableName}_Unique_{Message.MessageId} UNIQUE ( {Message.MessageId} )
-
     )
 END
 ");

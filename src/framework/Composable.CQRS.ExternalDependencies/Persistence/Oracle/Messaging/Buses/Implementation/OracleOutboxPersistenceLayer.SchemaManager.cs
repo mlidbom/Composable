@@ -22,25 +22,24 @@ begin
         EXECUTE IMMEDIATE '
             CREATE TABLE {Message.TableName}
                 (
-	                {Message.GeneratedId} NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL,
-                    {Message.TypeIdGuidValue} {OracleGuidType} NOT NULL,
-                    {Message.MessageId} {OracleGuidType} NOT NULL,
-	                {Message.SerializedMessage} NCLOB NOT NULL,
+                    {Message.GeneratedId}       NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL,
+                    {Message.TypeIdGuidValue}   {OracleGuidType}                        NOT NULL,
+                    {Message.MessageId}         {OracleGuidType}                        NOT NULL,
+                    {Message.SerializedMessage} NCLOB                                   NOT NULL,
 
                     CONSTRAINT {Message.TableName}_PK PRIMARY KEY ({Message.GeneratedId}),
 
                     CONSTRAINT {Message.TableName}_Unique_{Message.MessageId} UNIQUE ( {Message.MessageId} )
-
                 )';
 
         EXECUTE IMMEDIATE '        
             CREATE TABLE  IF NOT EXISTS {Dispatch.TableName}
             (
-	            {Dispatch.MessageId} {OracleGuidType} NOT NULL,
+                {Dispatch.MessageId}  {OracleGuidType} NOT NULL,
                 {Dispatch.EndpointId} {OracleGuidType} NOT NULL,
-                {Dispatch.IsReceived} bit NOT NULL,
+                {Dispatch.IsReceived} bit              NOT NULL,
 
-               CONSTRAINT {Message.TableName}_PK PRIMARY KEY ({Message.MessageId}, {Dispatch.EndpointId})
+                CONSTRAINT {Message.TableName}_PK PRIMARY KEY ({Message.MessageId}, {Dispatch.EndpointId})
                     /*WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON PRIMARY,*/
             )';
 

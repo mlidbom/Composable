@@ -1,5 +1,6 @@
 ﻿using Composable.Persistence.MySql.SystemExtensions;
 using Composable.System.Transactions;
+using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
 namespace Composable.Persistence.MySql.DocumentDb
 {
@@ -20,16 +21,20 @@ namespace Composable.Persistence.MySql.DocumentDb
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            _connectionProvider.ExecuteNonQuery(@"
-CREATE TABLE IF NOT EXISTS store (
-  Id VARCHAR(500) NOT NULL,
-  ValueTypeId CHAR(38) NOT NULL,
-  Created DATETIME NOT NULL,
-  Updated DATETIME NOT NULL,
-  Value MEDIUMTEXT NOT NULL,
-  PRIMARY KEY (Id, ValueTypeId))
+                            _connectionProvider.ExecuteNonQuery($@"
+CREATE TABLE IF NOT EXISTS {Document.TableName} 
+(
+  {Document.Id}          VARCHAR(500) NOT NULL,
+  {Document.ValueTypeId} CHAR(38)     NOT NULL,
+  {Document.Created}     DATETIME     NOT NULL,
+  {Document.Updated}     DATETIME     NOT NULL,
+  {Document.Value}       MEDIUMTEXT   NOT NULL,
+
+  PRIMARY KEY ({Document.Id}, {Document.ValueTypeId})
+)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
+
 ");
                         });
                     }

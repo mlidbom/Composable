@@ -1,5 +1,6 @@
 ﻿using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.System.Transactions;
+using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
 namespace Composable.Persistence.Oracle.DocumentDb
 {
@@ -29,14 +30,19 @@ begin
     select count(*) into existing_table_count from user_tables where table_name='STORE';
     if (existing_table_count = 0) then
         EXECUTE IMMEDIATE '
-            CREATE TABLE STORE (
-                ID VARCHAR2(500) NOT NULL, 
-                VALUETYPEID {OracleGuidType} NOT NULL,
-                CREATED TIMESTAMP NOT NULL,
-                UPDATED TIMESTAMP NOT NULL,
-                VALUE NCLOB NOT NULL,
+        
+            CREATE TABLE {Document.TableName} 
+            (
+                {Document.Id}           VARCHAR2(500)    NOT NULL, 
+                {Document.ValueTypeId}  {OracleGuidType} NOT NULL,
+                {Document.Created}      TIMESTAMP        NOT NULL,
+                {Document.Updated}      TIMESTAMP        NOT NULL,
+                {Document.Value}        NCLOB            NOT NULL,
                 
-                CONSTRAINT STORE_PK PRIMARY KEY (ID, VALUETYPEID ) ENABLE)';
+                CONSTRAINT PK_{Document.TableName} PRIMARY KEY ({Document.Id}, {Document.ValueTypeId}) ENABLE
+            )
+        ';
+
     end if;
 end;
 ");

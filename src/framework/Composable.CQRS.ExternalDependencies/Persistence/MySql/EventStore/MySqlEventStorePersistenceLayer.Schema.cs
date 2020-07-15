@@ -19,21 +19,22 @@ namespace Composable.Persistence.MySql.EventStore
                 _connectionManager.UseCommand(command=> command.ExecuteNonQuery($@"
 
 
-    CREATE TABLE IF NOT EXISTS {EventTable.Name}(
-        {C.InsertionOrder} bigint NOT NULL AUTO_INCREMENT,
-        {C.AggregateId} {MySqlGuidType} NOT NULL,  
-        {C.UtcTimeStamp} datetime(6) NOT NULL,   
-        {C.EventType} {MySqlGuidType} NOT NULL,    
-        {C.Event} MEDIUMTEXT NOT NULL,
-        {C.EventId} {MySqlGuidType} NOT NULL,
-        {C.InsertedVersion} int NOT NULL,
-        {C.SqlInsertTimeStamp} datetime(6) default CURRENT_TIMESTAMP,
-        {C.TargetEvent} {MySqlGuidType} null,
-        {C.RefactoringType} tinyint null,
-        {C.ReadOrder} bigint null,
-        {C.ReadOrderOrderOffset} bigint null,
-        {C.EffectiveOrder} {EventTable.ReadOrderType} null,    
-        {C.EffectiveVersion} int NULL,
+    CREATE TABLE IF NOT EXISTS {EventTable.Name}
+    (
+        {C.InsertionOrder}       bigint                     NOT NULL  AUTO_INCREMENT,
+        {C.AggregateId}          {MySqlGuidType}            NOT NULL,  
+        {C.UtcTimeStamp}         datetime(6) NOT            NULL,   
+        {C.EventType}            {MySqlGuidType}            NOT NULL,    
+        {C.Event}                MEDIUMTEXT                 NOT NULL,
+        {C.EventId}              {MySqlGuidType}            NOT NULL,
+        {C.InsertedVersion}      int                        NOT NULL,
+        {C.SqlInsertTimeStamp}   datetime(6)                NOT NULL  default CURRENT_TIMESTAMP,
+        {C.TargetEvent}          {MySqlGuidType}            NULL,
+        {C.RefactoringType}      tinyint                    NULL,
+        {C.ReadOrder}            bigint                     NULL,
+        {C.ReadOrderOrderOffset} bigint                     NULL,
+        {C.EffectiveOrder}       {EventTable.ReadOrderType} NULL,    
+        {C.EffectiveVersion}     int                        NULL,
 
         PRIMARY KEY ({C.AggregateId}, {C.InsertedVersion}),
 

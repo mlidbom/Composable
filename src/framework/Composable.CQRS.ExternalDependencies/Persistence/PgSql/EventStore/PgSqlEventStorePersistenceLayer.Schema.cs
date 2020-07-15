@@ -19,21 +19,22 @@ namespace Composable.Persistence.PgSql.EventStore
                 _connectionManager.UseCommand(command=> command.ExecuteNonQuery($@"
 
 
-    CREATE TABLE IF NOT EXISTS {EventTable.Name}(
-        {Event.InsertionOrder} bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-        {Event.AggregateId} {PgSqlGuidType} NOT NULL,  
-        {Event.UtcTimeStamp} timestamp NOT NULL,   
-        {Event.EventType} {PgSqlGuidType} NOT NULL,    
-        {Event.Event} TEXT NOT NULL,
-        {Event.EventId} {PgSqlGuidType} NOT NULL,
-        {Event.InsertedVersion} int NOT NULL,
-        {Event.SqlInsertTimeStamp} timestamp default CURRENT_TIMESTAMP,
-        {Event.TargetEvent} {PgSqlGuidType} null,
-        {Event.RefactoringType} smallint null,
-        {Event.ReadOrder} bigint null,
-        {Event.ReadOrderOrderOffset} bigint null,
-        {Event.EffectiveOrder} {EventTable.ReadOrderType} null,    
-        {Event.EffectiveVersion} int NULL,
+    CREATE TABLE IF NOT EXISTS {EventTable.Name}
+    (
+        {Event.InsertionOrder}          bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+        {Event.AggregateId}             {PgSqlGuidType}                     NOT NULL,  
+        {Event.UtcTimeStamp}            timestamp                           NOT NULL,   
+        {Event.EventType}               {PgSqlGuidType}                     NOT NULL,    
+        {Event.Event}                   TEXT                                NOT NULL,
+        {Event.EventId}                 {PgSqlGuidType}                     NOT NULL,
+        {Event.InsertedVersion}         int                                 NOT NULL,
+        {Event.SqlInsertTimeStamp}      timestamp                           NOT NULL  default CURRENT_TIMESTAMP,
+        {Event.TargetEvent}             {PgSqlGuidType}                     NULL,
+        {Event.RefactoringType}         smallint                            NULL,
+        {Event.ReadOrder}               bigint                              NULL,
+        {Event.ReadOrderOrderOffset}    bigint                              NULL,
+        {Event.EffectiveOrder}          {EventTable.ReadOrderType}          NULL,    
+        {Event.EffectiveVersion}        int                                 NULL,
 
         PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
 
@@ -48,14 +49,17 @@ namespace Composable.Persistence.PgSql.EventStore
             REFERENCES {EventTable.Name} ({Event.EventId})
     );
 
-CREATE TABLE IF NOT EXISTS AggregateLock(
-    {Event.AggregateId} {PgSqlGuidType} NOT NULL,
-    PRIMARY KEY ( {Event.AggregateId} )
-);
-
     CREATE INDEX IF NOT EXISTS IX_{EventTable.Name}_{Event.EffectiveOrder} ON {EventTable.Name} 
             ({Event.EffectiveOrder} , {Event.EffectiveVersion} );
             /*INCLUDE ({Event.EventType}, {Event.InsertionOrder})*/
+
+
+    CREATE TABLE IF NOT EXISTS AggregateLock
+    (
+        {Event.AggregateId} {PgSqlGuidType} NOT NULL,
+        PRIMARY KEY ( {Event.AggregateId} )
+    );
+
 "));
 
                 _initialized = true;

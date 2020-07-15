@@ -29,10 +29,10 @@ BEGIN
         {Event.EventId}              uniqueidentifier                   NOT NULL,
         {Event.InsertedVersion}      int                                NOT NULL,
         {Event.SqlInsertTimeStamp}   datetime2 default SYSUTCDATETIME() NOT NULL,
+        {Event.ReadOrder}            {EventTable.ReadOrderType}         NOT NULL,    
+        {Event.EffectiveVersion}     int                                NOT NULL,
         {Event.TargetEvent}          uniqueidentifier                   NULL,
         {Event.RefactoringType}      tinyint                            NULL,
-        {Event.ReadOrder}       {EventTable.ReadOrderType}         NULL,    
-        {Event.EffectiveVersion}     int                                NULL,
 
         CONSTRAINT PK_{EventTable.Name} PRIMARY KEY CLUSTERED 
         (

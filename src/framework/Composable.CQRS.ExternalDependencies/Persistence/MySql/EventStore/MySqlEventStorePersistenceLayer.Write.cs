@@ -33,7 +33,7 @@ INSERT {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
 VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.ReadOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType});
 
 
-IF @{C.ReadOrder} IS NULL THEN
+IF @{C.ReadOrder} = '0.0000000000000000000' THEN
 
     UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
     SET {C.ReadOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType})
@@ -47,8 +47,8 @@ END IF;
                                               .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddMediumTextParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.ReadOrder, MySqlDbType.VarChar, data.StorageInformation.ReadOrder?.ToString())
-                                              .AddNullableParameter(C.EffectiveVersion, MySqlDbType.Int32, data.StorageInformation.EffectiveVersion)
+                                              .AddParameter(C.ReadOrder, MySqlDbType.VarChar, data.StorageInformation.ReadOrder?.ToString() ?? new ReadOrder(0,0).ToString())
+                                              .AddParameter(C.EffectiveVersion, MySqlDbType.Int32, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(C.TargetEvent, MySqlDbType.VarChar, data.StorageInformation.RefactoringInformation?.TargetEvent)
                                               .AddNullableParameter(C.RefactoringType, MySqlDbType.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());

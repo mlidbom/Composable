@@ -16,7 +16,6 @@ namespace Composable.Persistence.Oracle.EventStore
         {
             if(!_initialized)
             {
-                //Urgent: EffectiveOrder should have a unique constraint for all persistence providers.
                 _connectionManager.UseCommand(command => command.SetCommandText($@"
 declare existing_table_count integer;
 begin
@@ -34,10 +33,10 @@ begin
                 {Event.EventId}              {OracleGuidType}                        NOT NULL,
                 {Event.InsertedVersion}      NUMBER(10)                              NOT NULL,
                 {Event.SqlInsertTimeStamp}   TIMESTAMP(9) default CURRENT_TIMESTAMP  NOT NULL,
+                {Event.ReadOrder}            {EventTable.ReadOrderType}              NOT NULL,
+                {Event.EffectiveVersion}     NUMBER(10)                              NOT NULL,
                 {Event.TargetEvent}          {OracleGuidType}                        NULL,
-                {Event.RefactoringType}      NUMBER(3)                               NULL,
-                {Event.ReadOrder}            {EventTable.ReadOrderType}              NULL,    
-                {Event.EffectiveVersion}     NUMBER(10)                              NULL,
+                {Event.RefactoringType}      NUMBER(3)                               NULL,                
 
                 CONSTRAINT {EventTable.Name}_PK PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
 
@@ -66,6 +65,7 @@ begin
 end;
 ")
                                                                 .ExecuteNonQuery());
+                //Urgent: EffectiveOrder should have a unique constraint for all persistence providers.
 
                 _initialized = true;
             }

@@ -29,10 +29,10 @@ namespace Composable.Persistence.PgSql.EventStore
         {Event.EventId}                 {PgSqlGuidType}                     NOT NULL,
         {Event.InsertedVersion}         int                                 NOT NULL,
         {Event.SqlInsertTimeStamp}      timestamp                           NOT NULL  default CURRENT_TIMESTAMP,
+        {Event.ReadOrder}               {EventTable.ReadOrderType}          NOT NULL,    
+        {Event.EffectiveVersion}        int                                 NOT NULL,
         {Event.TargetEvent}             {PgSqlGuidType}                     NULL,
         {Event.RefactoringType}         smallint                            NULL,
-        {Event.ReadOrder}          {EventTable.ReadOrderType}          NULL,    
-        {Event.EffectiveVersion}        int                                 NULL,
 
         PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
 

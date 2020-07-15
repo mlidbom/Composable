@@ -51,8 +51,8 @@ UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
                                               .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddMediumTextParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.ReadOrder, NpgsqlDbType.Varchar, data.StorageInformation.ReadOrder?.ToString())
-                                              .AddNullableParameter(C.EffectiveVersion, NpgsqlDbType.Integer, data.StorageInformation.EffectiveVersion)
+                                              .AddParameter(C.ReadOrder, NpgsqlDbType.Varchar, data.StorageInformation.ReadOrder?.ToString() ?? new ReadOrder().ToString())
+                                              .AddParameter(C.EffectiveVersion, NpgsqlDbType.Integer, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(C.TargetEvent, NpgsqlDbType.Varchar, data.StorageInformation.RefactoringInformation?.TargetEvent.ToString())
                                               .AddNullableParameter(C.RefactoringType, NpgsqlDbType.Smallint, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());

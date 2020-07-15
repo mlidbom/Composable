@@ -37,13 +37,12 @@ INSERT INTO {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
 (       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.ReadOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
 VALUES(:{C.AggregateId}, :{C.InsertedVersion}, :{C.EffectiveVersion}, :{C.ReadOrder}, :{C.EventType}, :{C.EventId}, :{C.UtcTimeStamp}, :{C.Event}, :{C.TargetEvent},:{C.RefactoringType});
 
-{(data.StorageInformation.ReadOrder != null ? "":$@"
 
-UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-        SET {C.ReadOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType})
-        WHERE {C.EventId} = :{C.EventId};
-")}
-
+IF :{C.ReadOrder} = 0 THEN
+    UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
+            SET {C.ReadOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType})
+            WHERE {C.EventId} = :{C.EventId};
+END IF;
 END;
 ")
                                               .AddParameter(C.AggregateId, data.AggregateId)
@@ -53,8 +52,8 @@ END;
                                               .AddParameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddNClobParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.ReadOrder, OracleDbType.Decimal, data.StorageInformation.ReadOrder?.ToOracleDecimal())
-                                              .AddNullableParameter(C.EffectiveVersion, OracleDbType.Int32, data.StorageInformation.EffectiveVersion)
+                                              .AddParameter(C.ReadOrder, OracleDbType.Decimal, (data.StorageInformation.ReadOrder?.ToOracleDecimal() ?? new OracleDecimal(0)))
+                                              .AddParameter(C.EffectiveVersion, OracleDbType.Int32, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(C.TargetEvent, OracleDbType.Varchar2, data.StorageInformation.RefactoringInformation?.TargetEvent)
                                               .AddNullableParameter(C.RefactoringType, OracleDbType.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());

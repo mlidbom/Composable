@@ -29,10 +29,10 @@ namespace Composable.Persistence.MySql.EventStore
         {C.EventId}              {MySqlGuidType}            NOT NULL,
         {C.InsertedVersion}      int                        NOT NULL,
         {C.SqlInsertTimeStamp}   datetime(6)                NOT NULL  default CURRENT_TIMESTAMP,
+        {C.ReadOrder}            {EventTable.ReadOrderType} NOT NULL,    
+        {C.EffectiveVersion}     int                        NOT NULL,
         {C.TargetEvent}          {MySqlGuidType}            NULL,
         {C.RefactoringType}      tinyint                    NULL,
-        {C.ReadOrder}       {EventTable.ReadOrderType} NULL,    
-        {C.EffectiveVersion}     int                        NULL,
 
         PRIMARY KEY ({C.AggregateId}, {C.InsertedVersion}),
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
@@ -34,7 +35,7 @@ INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK)
 VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.ReadOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType})
 
 
-IF(@{C.ReadOrder} IS NULL)
+IF(@{C.ReadOrder} = 0)
 BEGIN
     UPDATE {EventTable.Name} With(READCOMMITTED, ROWLOCK)
     SET {C.ReadOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType})
@@ -48,8 +49,8 @@ END
                                               .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddNVarcharMaxParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.ReadOrder, SqlDbType.Decimal, data.StorageInformation.ReadOrder?.ToSqlDecimal())
-                                              .AddNullableParameter(C.EffectiveVersion, SqlDbType.Int, data.StorageInformation.EffectiveVersion)
+                                              .AddParameter(C.ReadOrder, SqlDbType.Decimal, data.StorageInformation.ReadOrder?.ToSqlDecimal() ?? new SqlDecimal(0))
+                                              .AddParameter(C.EffectiveVersion, SqlDbType.Int, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(C.TargetEvent, SqlDbType.UniqueIdentifier, data.StorageInformation.RefactoringInformation?.TargetEvent)
                                               .AddNullableParameter(C.RefactoringType, SqlDbType.TinyInt, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());

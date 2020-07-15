@@ -20,6 +20,7 @@ namespace Composable.Messaging.Buses
         void ScheduleSend(DateTime sendAt, MessageTypes.Remotable.ExactlyOnce.ICommand command);
     }
 
+    //Urgent: This interface should probably be removed. The ones it inherits should stay.
     ///<summary>Dispatches messages between processes.</summary>
     public interface IServiceBusSession : ILocalHypermediaNavigator, IIntegrationBusSession
     {

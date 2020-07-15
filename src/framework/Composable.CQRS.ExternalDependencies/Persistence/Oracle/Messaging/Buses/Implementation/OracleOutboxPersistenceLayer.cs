@@ -21,10 +21,12 @@ namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation
                     command
                        .SetCommandText(
                             $@"
-INSERT {MessageTable.TableName} 
-            ({MessageTable.MessageId},  {MessageTable.TypeIdGuidValue}, {MessageTable.SerializedMessage}) 
-    VALUES (@{MessageTable.MessageId}, @{MessageTable.TypeIdGuidValue}, @{MessageTable.SerializedMessage});
-")
+BEGIN
+
+    INSERT INTO {MessageTable.TableName} 
+                ({MessageTable.MessageId},  {MessageTable.TypeIdGuidValue}, {MessageTable.SerializedMessage}) 
+        VALUES (:{MessageTable.MessageId}, :{MessageTable.TypeIdGuidValue}, :{MessageTable.SerializedMessage});
+    ")
                        .AddParameter(MessageTable.MessageId, messageWithReceivers.MessageId)
                        .AddParameter(MessageTable.TypeIdGuidValue, messageWithReceivers.TypeIdGuidValue)
                         //performance: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
@@ -34,11 +36,14 @@ INSERT {MessageTable.TableName}
                     messageWithReceivers.ReceiverEndpointIds.ForEach(
                         (endpointId, index)
                             => command.AppendCommandText($@"
-INSERT {DispatchingTable.TableName} 
-            ({DispatchingTable.MessageId},  {DispatchingTable.EndpointId},          {DispatchingTable.IsReceived}) 
-    VALUES (@{DispatchingTable.MessageId}, @{DispatchingTable.EndpointId}_{index}, @{DispatchingTable.IsReceived});
+    INSERT INTO {DispatchingTable.TableName}
+                ({DispatchingTable.MessageId},  {DispatchingTable.EndpointId},          {DispatchingTable.IsReceived}) 
+        VALUES (:{DispatchingTable.MessageId}, :{DispatchingTable.EndpointId}_{index}, :{DispatchingTable.IsReceived});
 ").AddParameter($"{DispatchingTable.EndpointId}_{index}", endpointId));
 
+                    command.AppendCommandText(@"
+END;
+");
                     command.ExecuteNonQuery();
                 });
         }
@@ -51,8 +56,8 @@ INSERT {DispatchingTable.TableName}
                                $@"
 UPDATE {DispatchingTable.TableName} 
     SET {DispatchingTable.IsReceived} = 1
-WHERE {DispatchingTable.MessageId} = @{DispatchingTable.MessageId}
-    AND {DispatchingTable.EndpointId} = @{DispatchingTable.EndpointId}
+WHERE {DispatchingTable.MessageId} = :{DispatchingTable.MessageId}
+    AND {DispatchingTable.EndpointId} = :{DispatchingTable.EndpointId}
     AND {DispatchingTable.IsReceived} = 0
 ")
                           .AddParameter(DispatchingTable.MessageId, messageId)

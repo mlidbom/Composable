@@ -13,7 +13,8 @@ namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation
             public static async Task EnsureTablesExistAsync(IOracleConnectionProvider connectionFactory)
             {
                 //Urgent: Figure out the syntax for the commented out parts.
-                await connectionFactory.ExecuteNonQueryAsync($@"
+                await connectionFactory.UseCommandAsync(
+                    command => command.SetCommandText($@"
 declare existing_table_count integer;
 begin
     select count(*) into existing_table_count from user_tables where table_name='{Message.TableName}';
@@ -27,19 +28,19 @@ begin
                     {Message.MessageId}         {OracleGuidType}                        NOT NULL,
                     {Message.SerializedMessage} NCLOB                                   NOT NULL,
 
-                    CONSTRAINT {Message.TableName}_PK PRIMARY KEY ({Message.GeneratedId}),
+                    CONSTRAINT PK_{Message.TableName} PRIMARY KEY ({Message.GeneratedId}),
 
                     CONSTRAINT {Message.TableName}_Unique_{Message.MessageId} UNIQUE ( {Message.MessageId} )
                 )';
 
         EXECUTE IMMEDIATE '        
-            CREATE TABLE  IF NOT EXISTS {Dispatch.TableName}
+            CREATE TABLE  {Dispatch.TableName}
             (
                 {Dispatch.MessageId}  {OracleGuidType} NOT NULL,
                 {Dispatch.EndpointId} {OracleGuidType} NOT NULL,
-                {Dispatch.IsReceived} bit              NOT NULL,
+                {Dispatch.IsReceived} NUMBER(1)        NOT NULL,
 
-                CONSTRAINT {Message.TableName}_PK PRIMARY KEY ({Message.MessageId}, {Dispatch.EndpointId})
+                CONSTRAINT PK_{Dispatch.TableName} PRIMARY KEY ({Dispatch.MessageId}, {Dispatch.EndpointId})
                     /*WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON PRIMARY,*/
             )';
 
@@ -47,9 +48,10 @@ begin
             ALTER TABLE {Dispatch.TableName} ADD CONSTRAINT FK_{Dispatch.MessageId} 
                 FOREIGN KEY ( {Dispatch.MessageId} ) REFERENCES {Message.TableName} ({Message.MessageId})';
 
-    end if;
-end;
-");
+        end if;
+    end;
+")
+                                      .ExecuteNonQueryAsync());
             }
         }
     }

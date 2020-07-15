@@ -17,6 +17,8 @@ namespace Composable.Persistence.Oracle.SystemExtensions
 
         public static void UseCommand(this IOracleConnectionProvider @this, Action<OracleCommand> action) => @this.UseConnection(connection => connection.UseCommand(action));
 
+        public static Task UseCommandAsync(this IOracleConnectionProvider @this, Func<OracleCommand, Task> action) => @this.UseConnectionAsync(async connection => await connection.UseCommandAsync(action));
+
         public static TResult UseCommand<TResult>(this IOracleConnectionProvider @this, Func<OracleCommand, TResult> action) => @this.UseConnection(connection => connection.UseCommand(action));
     }
 }

@@ -28,8 +28,11 @@ namespace Composable.Persistence.Oracle.SystemExtensions
 {@this.CommandText}");
 
             var parameters = @this.Parameters.Cast<OracleParameter>().ToList();
-            parameters.ForEach(
-                parameter => Console.WriteLine($@"
+
+            if(parameters.Any())
+            {
+                parameters.ForEach(
+                    parameter => Console.WriteLine($@"
     {nameof(parameter.ParameterName)}: {parameter.ParameterName}, 
 {nameof(parameter.DbType)}: {parameter.DbType},
 {nameof(parameter.Value)}: {parameter.Value},
@@ -38,14 +41,17 @@ namespace Composable.Persistence.Oracle.SystemExtensions
 {nameof(parameter.Direction)}: {parameter.Direction},
 {nameof(parameter.IsNullable)}: {parameter.IsNullable}".Replace(Environment.NewLine, "")));
 
-            SafeConsole.WriteLine("####################################### Hacking values into parameter positions #######################################");
-            var commandTextWithParameterValues = @this.CommandText;
-            parameters.ForEach(parameter => commandTextWithParameterValues = commandTextWithParameterValues.Replace($":{parameter.ParameterName}", parameter.Value == DBNull.Value ? "NULL": parameter.Value.ToString()));
-            Console.WriteLine(commandTextWithParameterValues);
-            SafeConsole.WriteLine("######################################################################################################");
+                SafeConsole.WriteLine("####################################### Hacking values into parameter positions #######################################");
+                var commandTextWithParameterValues = @this.CommandText;
+                parameters.ForEach(parameter => commandTextWithParameterValues = commandTextWithParameterValues.Replace($":{parameter.ParameterName}", parameter.Value == DBNull.Value ? "NULL" : parameter.Value.ToString()));
+                Console.WriteLine(commandTextWithParameterValues);
+                SafeConsole.WriteLine("######################################################################################################");
+            }
 
             return @this;
         }
+
+
         public static IReadOnlyList<T> ExecuteReaderAndSelect<T>(this OracleCommand @this, Func<OracleDataReader, T> select)
         {
             using(var reader = @this.ExecuteReader())

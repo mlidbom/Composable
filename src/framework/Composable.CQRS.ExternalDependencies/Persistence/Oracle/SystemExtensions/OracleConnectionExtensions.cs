@@ -20,6 +20,13 @@ namespace Composable.Persistence.Oracle.SystemExtensions
             return action(command);
         }
 
+        public static async Task UseCommandAsync(this OracleConnection @this, Func<OracleCommand, Task> action)
+        {
+            using var command = @this.CreateCommand();
+            command.BindByName = true;
+            await action(command);
+        }
+
         public static void ExecuteNonQuery(this OracleConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteNonQuery(commandText));
         public static async Task<int> ExecuteNonQueryAsync(this OracleConnection @this, string commandText) => await @this.UseCommand(command => command.ExecuteNonQueryAsync(commandText));
         public static object ExecuteScalar(this OracleConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteScalar(commandText));

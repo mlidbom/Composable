@@ -1,6 +1,7 @@
 ﻿<SolutionConfiguration>
   <Settings>
     <AllowParallelTestExecution>True</AllowParallelTestExecution>
+    <DefaultTestTimeout>5000</DefaultTestTimeout>
     <HotSpotsLineExclusionList>
       <Value>System\Threading\ResourceAccess\ThreadShared.cs:framework\Composable.CQRS\Composable.CQRS.csproj-80</Value>
       <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine.Coordinator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-37</Value>

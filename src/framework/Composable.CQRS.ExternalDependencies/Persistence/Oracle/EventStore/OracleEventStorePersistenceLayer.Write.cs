@@ -74,7 +74,7 @@ BEGIN
                      $@"UPDATE {EventTable.Name} SET {C.EffectiveVersion} = {spec.EffectiveVersion} WHERE {C.EventId} = '{spec.EventId}';").Join(Environment.NewLine)}
 
 END;";
-            _connectionManager.UseCommand(command => command.SetCommandText(commandText).LogCommand().ExecuteNonQuery());
+            _connectionManager.UseCommand(command => command.SetCommandText(commandText).ExecuteNonQuery());
 
         }
 
@@ -99,7 +99,6 @@ where {C.EventId} = :{C.EventId}";
                 {
                     using var reader = command.SetCommandText(selectStatement)
                                              .AddParameter(new OracleParameter(C.EventId, OracleDbType.Varchar2) { Value = eventId })
-                                              .LogCommand()
                                               .ExecuteReader();
                     reader.Read();
 

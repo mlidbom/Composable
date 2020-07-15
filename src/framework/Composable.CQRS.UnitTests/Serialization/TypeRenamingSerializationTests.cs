@@ -151,7 +151,7 @@ namespace Composable.Tests.Serialization
             _renamedHost.Dispose();
         }
 
-        [Test] public void Roundtrips_polymorphic_types_types()
+        [Test] public void Roundtrips_polymorphic_types()
         {
             var originalRoot = OriginalTypes.Root.Create();
             var originalJson = _originalTypesSerializer.Serialize(originalRoot);

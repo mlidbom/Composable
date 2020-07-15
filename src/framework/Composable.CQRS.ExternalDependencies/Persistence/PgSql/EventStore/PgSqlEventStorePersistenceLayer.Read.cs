@@ -85,7 +85,7 @@ ORDER BY {C.ReadOrder} ASC;
                 //Performance: Find a way of doing this so that it does not involve two round trips to the server. If running as single-instance we can use in-memory transactional locking such as in the InMemory Persistence Layer to avoid needing this.
                 //Without this hack PostgreSql does not correctly serialize access to aggregates and odds are you would get a lot of failed transactions if an aggregate is "popular"
                 //Pages that led to the below hack: https://tinyurl.com/y7nef75p, https://tinyurl.com/y7c63cny, https://tinyurl.com/y75qlwar
-                _connectionManager.UseCommand(command => command.SetCommandText($"SET enable_seqscan=off;select {C.AggregateId} from AggregateLock where AggregateId = @{C.AggregateId} for update;SET enable_seqscan=on;")
+                _connectionManager.UseCommand(command => command.SetCommandText($"select {C.AggregateId} from AggregateLock where AggregateId = @{C.AggregateId} for update;")
                                                                                         .AddParameter(C.AggregateId, aggregateId)
                                                                                         .ExecuteNonQuery());
 

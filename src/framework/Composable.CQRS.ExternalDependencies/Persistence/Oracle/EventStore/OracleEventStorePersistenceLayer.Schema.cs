@@ -4,6 +4,7 @@ using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.System.Transactions;
 using Event=Composable.Persistence.Common.EventStore.EventTable.Columns;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTable;
 
 namespace Composable.Persistence.Oracle.EventStore
 {
@@ -55,11 +56,11 @@ begin
 
 
         EXECUTE IMMEDIATE '
-            CREATE TABLE AggregateLock
+            CREATE TABLE {Lock.TableName}
             (
-                {Event.AggregateId} {OracleGuidType} NOT NULL,
+                {Lock.AggregateId} {OracleGuidType} NOT NULL,
 
-                CONSTRAINT PK_AggregateLock PRIMARY KEY ({Event.AggregateId})
+                CONSTRAINT PK_AggregateLock PRIMARY KEY ({Lock.AggregateId})
             )';
 
     end if;

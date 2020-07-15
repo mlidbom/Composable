@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore;
@@ -8,6 +9,7 @@ using Composable.Persistence.Oracle.SystemExtensions;
 using Oracle.ManagedDataAccess.Client;
 
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTable;
 
 namespace Composable.Persistence.Oracle.EventStore
 {
@@ -53,24 +55,33 @@ FROM {EventTable.Name}
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
-            if(takeWriteLock)
-            {
-                //Performance: Find a way of doing this so that it does not involve two round trips to the server. If running as single-instance we can use in-memory transactional locking such as in the InMemory Persistence Layer to avoid needing this.
-                //Without this hack Oracle does not correctly serialize access to aggregates and odds are you would get a lot of failed transactions if an aggregate is "popular"
-                _connectionManager.UseCommand(command => command.SetCommandText($"select {C.AggregateId} from AggregateLock where AggregateId = :{C.AggregateId} for update")
-                                                                .AddParameter(C.AggregateId, aggregateId)
-                                                                .ExecuteNonQuery());
-            }
-
             return _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
                                                  command => command.SetCommandText($@"
-{CreateSelectClause()} 
-WHERE {C.AggregateId} = :{C.AggregateId}
-    AND {C.InsertedVersion} > :CachedVersion
-    AND {C.EffectiveVersion} >= 0
-ORDER BY {C.ReadOrder} ASC")
+DECLARE
+     existing_aggregate_id {Lock.TableName}.{Lock.AggregateId}%TYPE;
+BEGIN
+
+    IF (:TakeWriteLock) THEN
+        BEGIN
+            select  {Lock.AggregateId} INTO existing_aggregate_id from AggregateLock where {Lock.AggregateId} = :{Lock.AggregateId} for update;
+            EXCEPTION
+                WHEN NO_DATA_FOUND THEN
+                existing_aggregate_id := NULL;
+        END;
+    END IF;
+    
+    OPEN :rcursor FOR {CreateSelectClause()} 
+    WHERE {C.AggregateId} = :{C.AggregateId}
+        AND {C.InsertedVersion} > :CachedVersion
+        AND {C.EffectiveVersion} >= 0
+    ORDER BY {C.ReadOrder} ASC;
+
+END;
+")
                                                                    .AddParameter(C.AggregateId, aggregateId)
                                                                    .AddParameter("CachedVersion", startAfterInsertedVersion)
+                                                                   .AddParameter("TakeWriteLock", OracleDbType.Boolean, takeWriteLock)
+                                                                   .AddParameter(new OracleParameter(parameterName:"rcursor", type: OracleDbType.RefCursor, direction: ParameterDirection.Output))
                                                                    .ExecuteReaderAndSelect(ReadDataRow)
                                                                    .ToList());
         }

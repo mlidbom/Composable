@@ -28,7 +28,6 @@ INSERT INTO {Schema.TableName}
                        .AddParameter(Schema.TypeId, typeId)
                         //performance: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
                        .AddNClobParameter(Schema.Body, serializedMessage)
-                       .LogCommand()
                        .ExecuteNonQuery();
                 });
         }

@@ -4,6 +4,7 @@ using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.System.Transactions;
 using Event=Composable.Persistence.Common.EventStore.EventTable.Columns;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTable;
 
 namespace Composable.Persistence.PgSql.EventStore
 {
@@ -53,10 +54,10 @@ namespace Composable.Persistence.PgSql.EventStore
             /*INCLUDE ({Event.EventType}, {Event.InsertionOrder})*/
 
 
-    CREATE TABLE IF NOT EXISTS AggregateLock
+    CREATE TABLE IF NOT EXISTS {Lock.TableName}
     (
-        {Event.AggregateId} {PgSqlGuidType} NOT NULL,
-        PRIMARY KEY ( {Event.AggregateId} )
+        {Lock.AggregateId} {PgSqlGuidType} NOT NULL,
+        PRIMARY KEY ( {Lock.AggregateId} )
     );
 
 "));

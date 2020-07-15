@@ -11,6 +11,7 @@ using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTable;
 
 namespace Composable.Persistence.Oracle.EventStore
 {
@@ -30,19 +31,20 @@ namespace Composable.Persistence.Oracle.EventStore
                                                    //urgent: explore oracle alternatives to commented out hints .
                                                    $@"
 BEGIN
+    IF (:{C.InsertedVersion} = 1) THEN
+        insert into {Lock.TableName}({Lock.AggregateId}) values(:{Lock.AggregateId});
+    END IF;
 
-{(data.AggregateVersion > 1 ? "" :$@"insert into AggregateLock(AggregateId) values('{data.AggregateId}');")}
-
-INSERT INTO {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.ReadOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
-VALUES(:{C.AggregateId}, :{C.InsertedVersion}, :{C.EffectiveVersion}, :{C.ReadOrder}, :{C.EventType}, :{C.EventId}, :{C.UtcTimeStamp}, :{C.Event}, :{C.TargetEvent},:{C.RefactoringType});
+    INSERT INTO {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
+    (       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.ReadOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
+    VALUES(:{C.AggregateId}, :{C.InsertedVersion}, :{C.EffectiveVersion}, :{C.ReadOrder}, :{C.EventType}, :{C.EventId}, :{C.UtcTimeStamp}, :{C.Event}, :{C.TargetEvent},:{C.RefactoringType});
 
 
-IF :{C.ReadOrder} = 0 THEN
-    UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-            SET {C.ReadOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType})
-            WHERE {C.EventId} = :{C.EventId};
-END IF;
+    IF (:{C.ReadOrder} = 0) THEN
+        UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
+                SET {C.ReadOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType})
+                WHERE {C.EventId} = :{C.EventId};
+    END IF;
 END;
 ")
                                               .AddParameter(C.AggregateId, data.AggregateId)
@@ -51,7 +53,6 @@ END;
                                               .AddParameter(C.EventId, data.EventId)
                                               .AddParameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddNClobParameter(C.Event, data.EventJson)
-
                                               .AddParameter(C.ReadOrder, OracleDbType.Decimal, (data.StorageInformation.ReadOrder?.ToOracleDecimal() ?? new OracleDecimal(0)))
                                               .AddParameter(C.EffectiveVersion, OracleDbType.Int32, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(C.TargetEvent, OracleDbType.Varchar2, data.StorageInformation.RefactoringInformation?.TargetEvent)

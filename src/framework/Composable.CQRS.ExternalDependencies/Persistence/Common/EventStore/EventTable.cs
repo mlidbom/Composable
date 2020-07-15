@@ -25,4 +25,10 @@ namespace Composable.Persistence.Common.EventStore
             public const string Event = nameof(Event);
         }
     }
+
+    static class AggregateLockTable
+    {
+        public const string TableName = "AggregateLock";
+        public const string AggregateId = EventTable.Columns.AggregateId;
+    }
 }

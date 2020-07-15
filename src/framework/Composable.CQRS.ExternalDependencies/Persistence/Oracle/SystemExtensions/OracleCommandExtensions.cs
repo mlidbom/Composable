@@ -43,7 +43,7 @@ namespace Composable.Persistence.Oracle.SystemExtensions
 
                 SafeConsole.WriteLine("####################################### Hacking values into parameter positions #######################################");
                 var commandTextWithParameterValues = @this.CommandText;
-                parameters.ForEach(parameter => commandTextWithParameterValues = commandTextWithParameterValues.Replace($":{parameter.ParameterName}", parameter.Value == DBNull.Value ? "NULL" : parameter.Value.ToString()));
+                parameters.ForEach(parameter => commandTextWithParameterValues = commandTextWithParameterValues.Replace($":{parameter.ParameterName}", parameter.Value == DBNull.Value ? "NULL" : parameter.Value?.ToString()));
                 Console.WriteLine(commandTextWithParameterValues);
                 SafeConsole.WriteLine("######################################################################################################");
             }

@@ -12,6 +12,7 @@ using Npgsql;
 using NpgsqlTypes;
 using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTable;
 
 namespace Composable.Persistence.PgSql.EventStore
 {
@@ -31,7 +32,7 @@ namespace Composable.Persistence.PgSql.EventStore
                             command => command.SetCommandText(
                                                    //urgent: explore PgSql alternatives to commented out hints .
                                                    $@"
-{(data.AggregateVersion > 1 ? "" :$@"insert into AggregateLock(AggregateId) values('{data.AggregateId}');")}
+{(data.AggregateVersion > 1 ? "" :$@"insert into {Lock.TableName}({Lock.AggregateId}) values(@{Lock.AggregateId});")}
 
 INSERT INTO {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
 (       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.ReadOrder},                                      {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 

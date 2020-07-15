@@ -40,8 +40,9 @@ namespace Composable.Persistence.MySql.EventStore
 
 
 
-        UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.EventId} ( {C.EventId} ASC ),
+        UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.EventId}        ( {C.EventId} ASC ),
         UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.InsertionOrder} ( {C.InsertionOrder} ASC ),
+        UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.ReadOrder}      ( {C.ReadOrder} ASC ),
 
         FOREIGN KEY ( {C.TargetEvent} ) 
             REFERENCES {EventTable.Name} ({C.EventId}),

@@ -40,8 +40,9 @@ namespace Composable.Persistence.PgSql.EventStore
 
 
 
-        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.EventId} UNIQUE ( {Event.EventId} ),
+        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.EventId}        UNIQUE ( {Event.EventId} ),
         CONSTRAINT IX_{EventTable.Name}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} ),
+        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.ReadOrder}      UNIQUE ( {Event.ReadOrder} ),
 
         FOREIGN KEY ( {Event.TargetEvent} ) 
             REFERENCES {EventTable.Name} ({Event.EventId})

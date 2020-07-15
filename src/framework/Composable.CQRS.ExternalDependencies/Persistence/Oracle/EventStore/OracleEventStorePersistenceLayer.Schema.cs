@@ -40,8 +40,9 @@ begin
 
                 CONSTRAINT {EventTable.Name}_PK PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
 
-                CONSTRAINT {EventTable.Name}_Unique_{Event.EventId} UNIQUE ( {Event.EventId} ),
-                CONSTRAINT {EventTable.Name}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} )
+                CONSTRAINT {EventTable.Name}_Unique_{Event.EventId}        UNIQUE ( {Event.EventId} ),
+                CONSTRAINT {EventTable.Name}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} ),
+                CONSTRAINT {EventTable.Name}_Unique_{Event.ReadOrder}      UNIQUE ( {Event.ReadOrder} )
             )';
 
         EXECUTE IMMEDIATE '

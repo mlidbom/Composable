@@ -40,8 +40,9 @@ BEGIN
             {Event.InsertedVersion} ASC
         )WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF),
 
-        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.EventId} UNIQUE ( {Event.EventId} ),
+        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.EventId}        UNIQUE ( {Event.EventId} ),
         CONSTRAINT IX_{EventTable.Name}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} ),
+        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.ReadOrder}      UNIQUE ( {Event.ReadOrder} ),
 
         CONSTRAINT FK_{EventTable.Name}_{Event.TargetEvent} FOREIGN KEY ( {Event.TargetEvent} ) 
             REFERENCES {EventTable.Name} ({Event.EventId}) 

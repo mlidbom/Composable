@@ -31,9 +31,7 @@ BEGIN
         {Event.SqlInsertTimeStamp}   datetime2 default SYSUTCDATETIME() NOT NULL,
         {Event.TargetEvent}          uniqueidentifier                   NULL,
         {Event.RefactoringType}      tinyint                            NULL,
-        {Event.ReadOrder}            bigint                             NULL,
-        {Event.ReadOrderOrderOffset} bigint                             NULL,
-        {Event.EffectiveOrder}       {EventTable.ReadOrderType}         NULL,    
+        {Event.ReadOrder}       {EventTable.ReadOrderType}         NULL,    
         {Event.EffectiveVersion}     int                                NULL,
 
         CONSTRAINT PK_{EventTable.Name} PRIMARY KEY CLUSTERED 
@@ -49,8 +47,8 @@ BEGIN
             REFERENCES {EventTable.Name} ({Event.EventId}) 
     )
 
-        CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{Event.EffectiveOrder} ON dbo.{EventTable.Name}
-            ({Event.EffectiveOrder}, {Event.EffectiveVersion})
+        CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{Event.ReadOrder} ON dbo.{EventTable.Name}
+            ({Event.ReadOrder}, {Event.EffectiveVersion})
             INCLUDE ({Event.EventType}, {Event.InsertionOrder})
 END 
 "));

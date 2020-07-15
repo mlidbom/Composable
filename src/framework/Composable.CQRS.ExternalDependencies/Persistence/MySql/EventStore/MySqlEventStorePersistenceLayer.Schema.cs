@@ -31,9 +31,7 @@ namespace Composable.Persistence.MySql.EventStore
         {C.SqlInsertTimeStamp}   datetime(6)                NOT NULL  default CURRENT_TIMESTAMP,
         {C.TargetEvent}          {MySqlGuidType}            NULL,
         {C.RefactoringType}      tinyint                    NULL,
-        {C.ReadOrder}            bigint                     NULL,
-        {C.ReadOrderOrderOffset} bigint                     NULL,
-        {C.EffectiveOrder}       {EventTable.ReadOrderType} NULL,    
+        {C.ReadOrder}       {EventTable.ReadOrderType} NULL,    
         {C.EffectiveVersion}     int                        NULL,
 
         PRIMARY KEY ({C.AggregateId}, {C.InsertedVersion}),
@@ -49,8 +47,8 @@ namespace Composable.Persistence.MySql.EventStore
             REFERENCES {EventTable.Name} ({C.EventId}),
 
 
-        INDEX IX_{EventTable.Name}_{C.EffectiveOrder} 
-            ({C.EffectiveOrder} ASC, {C.EffectiveVersion} ASC)
+        INDEX IX_{EventTable.Name}_{C.ReadOrder} 
+            ({C.ReadOrder} ASC, {C.EffectiveVersion} ASC)
             /*INCLUDE ({C.EventType}, {C.InsertionOrder})*/
 
     )

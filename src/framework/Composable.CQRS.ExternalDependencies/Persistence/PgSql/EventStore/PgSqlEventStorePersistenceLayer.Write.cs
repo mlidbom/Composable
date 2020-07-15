@@ -34,13 +34,12 @@ namespace Composable.Persistence.PgSql.EventStore
 {(data.AggregateVersion > 1 ? "" :$@"insert into AggregateLock(AggregateId) values('{data.AggregateId}');")}
 
 INSERT INTO {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},                                      {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
-VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, cast(@{C.EffectiveOrder} as {EventTable.ReadOrderType}), @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType});
+(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.ReadOrder},                                      {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
+VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, cast(@{C.ReadOrder} as {EventTable.ReadOrderType}), @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType});
 
 {(data.StorageInformation.ReadOrder != null ? "":$@"
 UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-        SET {C.EffectiveOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType}),
-            {C.ReadOrder} = {C.InsertionOrder}
+        SET {C.ReadOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType})
         WHERE {C.EventId} = @{C.EventId};
 ")}
 
@@ -52,7 +51,7 @@ UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
                                               .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddMediumTextParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.EffectiveOrder, NpgsqlDbType.Varchar, data.StorageInformation.ReadOrder?.ToString())
+                                              .AddNullableParameter(C.ReadOrder, NpgsqlDbType.Varchar, data.StorageInformation.ReadOrder?.ToString())
                                               .AddNullableParameter(C.EffectiveVersion, NpgsqlDbType.Integer, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(C.TargetEvent, NpgsqlDbType.Varchar, data.StorageInformation.RefactoringInformation?.TargetEvent.ToString())
                                               .AddNullableParameter(C.RefactoringType, NpgsqlDbType.Smallint, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
@@ -81,9 +80,9 @@ UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "";
 
             var selectStatement = $@"
-SELECT  cast({C.EffectiveOrder} as varchar) as CharEffectiveOrder,        
-        (select cast({C.EffectiveOrder} as varchar) as CharEffectiveOrder from {EventTable.Name} e1 where e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} desc limit 1) PreviousReadOrder,
-        (select cast({C.EffectiveOrder} as varchar) as CharEffectiveOrder from {EventTable.Name} e1 where e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} limit 1) NextReadOrder
+SELECT  cast({C.ReadOrder} as varchar) as CharEffectiveOrder,        
+        (select cast({C.ReadOrder} as varchar) as CharEffectiveOrder from {EventTable.Name} e1 where e1.{C.ReadOrder} < {EventTable.Name}.{C.ReadOrder} order by {C.ReadOrder} desc limit 1) PreviousReadOrder,
+        (select cast({C.ReadOrder} as varchar) as CharEffectiveOrder from {EventTable.Name} e1 where e1.{C.ReadOrder} > {EventTable.Name}.{C.ReadOrder} order by {C.ReadOrder} limit 1) NextReadOrder
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
 where {C.EventId} = @{C.EventId}
 {CreateLockHint(takeWriteLock:true)}";

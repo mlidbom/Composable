@@ -31,9 +31,7 @@ namespace Composable.Persistence.PgSql.EventStore
         {Event.SqlInsertTimeStamp}      timestamp                           NOT NULL  default CURRENT_TIMESTAMP,
         {Event.TargetEvent}             {PgSqlGuidType}                     NULL,
         {Event.RefactoringType}         smallint                            NULL,
-        {Event.ReadOrder}               bigint                              NULL,
-        {Event.ReadOrderOrderOffset}    bigint                              NULL,
-        {Event.EffectiveOrder}          {EventTable.ReadOrderType}          NULL,    
+        {Event.ReadOrder}          {EventTable.ReadOrderType}          NULL,    
         {Event.EffectiveVersion}        int                                 NULL,
 
         PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
@@ -49,8 +47,8 @@ namespace Composable.Persistence.PgSql.EventStore
             REFERENCES {EventTable.Name} ({Event.EventId})
     );
 
-    CREATE INDEX IF NOT EXISTS IX_{EventTable.Name}_{Event.EffectiveOrder} ON {EventTable.Name} 
-            ({Event.EffectiveOrder} , {Event.EffectiveVersion} );
+    CREATE INDEX IF NOT EXISTS IX_{EventTable.Name}_{Event.ReadOrder} ON {EventTable.Name} 
+            ({Event.ReadOrder} , {Event.EffectiveVersion} );
             /*INCLUDE ({Event.EventType}, {Event.InsertionOrder})*/
 
 

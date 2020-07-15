@@ -30,15 +30,14 @@ namespace Composable.Persistence.MsSql.EventStore
                                                    //urgent: ensure that READCOMMITTED is really sane here and add comment.
                                                    $@"
 INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
-(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
-VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.EffectiveOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType})
+(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.ReadOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
+VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.ReadOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType})
 
 
-IF(@{C.EffectiveOrder} IS NULL)
+IF(@{C.ReadOrder} IS NULL)
 BEGIN
     UPDATE {EventTable.Name} With(READCOMMITTED, ROWLOCK)
-    SET {C.EffectiveOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType}),
-        {C.ReadOrder} = {C.InsertionOrder}
+    SET {C.ReadOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType})
     WHERE {C.EventId} = @{C.EventId}
 END
 ")
@@ -49,7 +48,7 @@ END
                                               .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddNVarcharMaxParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.EffectiveOrder, SqlDbType.Decimal, data.StorageInformation.ReadOrder?.ToSqlDecimal())
+                                              .AddNullableParameter(C.ReadOrder, SqlDbType.Decimal, data.StorageInformation.ReadOrder?.ToSqlDecimal())
                                               .AddNullableParameter(C.EffectiveVersion, SqlDbType.Int, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(C.TargetEvent, SqlDbType.UniqueIdentifier, data.StorageInformation.RefactoringInformation?.TargetEvent)
                                               .AddNullableParameter(C.RefactoringType, SqlDbType.TinyInt, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
@@ -80,9 +79,9 @@ END
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
 
             var selectStatement = $@"
-SELECT  {C.EffectiveOrder},        
-        (select top 1 {C.EffectiveOrder} from {EventTable.Name} e1 where e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder} desc) PreviousReadOrder,
-        (select top 1 {C.EffectiveOrder} from {EventTable.Name} e1 where e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder} order by {C.EffectiveOrder}) NextReadOrder
+SELECT  {C.ReadOrder},        
+        (select top 1 {C.ReadOrder} from {EventTable.Name} e1 where e1.{C.ReadOrder} < {EventTable.Name}.{C.ReadOrder} order by {C.ReadOrder} desc) PreviousReadOrder,
+        (select top 1 {C.ReadOrder} from {EventTable.Name} e1 where e1.{C.ReadOrder} > {EventTable.Name}.{C.ReadOrder} order by {C.ReadOrder}) NextReadOrder
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
 where {C.EventId} = @{C.EventId}";
 

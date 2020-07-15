@@ -31,14 +31,13 @@ namespace Composable.Persistence.Oracle.EventStore
                                                    $@"
 BEGIN
 INSERT INTO {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.EffectiveOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
-VALUES(:{C.AggregateId}, :{C.InsertedVersion}, :{C.EffectiveVersion}, :{C.EffectiveOrder}, :{C.EventType}, :{C.EventId}, :{C.UtcTimeStamp}, :{C.Event}, :{C.TargetEvent},:{C.RefactoringType});
+(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.ReadOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
+VALUES(:{C.AggregateId}, :{C.InsertedVersion}, :{C.EffectiveVersion}, :{C.ReadOrder}, :{C.EventType}, :{C.EventId}, :{C.UtcTimeStamp}, :{C.Event}, :{C.TargetEvent},:{C.RefactoringType});
 
 {(data.StorageInformation.ReadOrder != null ? "":$@"
 
 UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-        SET {C.EffectiveOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType}),
-            {C.ReadOrder} = {C.InsertionOrder}
+        SET {C.ReadOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType})
         WHERE {C.EventId} = :{C.EventId};
 ")}
 
@@ -51,7 +50,7 @@ END;
                                               .AddParameter(C.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddNClobParameter(C.Event, data.EventJson)
 
-                                              .AddNullableParameter(C.EffectiveOrder, OracleDbType.Decimal, data.StorageInformation.ReadOrder?.ToOracleDecimal())
+                                              .AddNullableParameter(C.ReadOrder, OracleDbType.Decimal, data.StorageInformation.ReadOrder?.ToOracleDecimal())
                                               .AddNullableParameter(C.EffectiveVersion, OracleDbType.Int32, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(C.TargetEvent, OracleDbType.Varchar2, data.StorageInformation.RefactoringInformation?.TargetEvent)
                                               .AddNullableParameter(C.RefactoringType, OracleDbType.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
@@ -87,9 +86,9 @@ END;";
 
             //Urgent: Using min and max instead of order by and top is far more clean. Do the same in the other persistence layer.s
             var selectStatement = $@"
-SELECT  {C.EffectiveOrder},        
-        (select MAX({C.EffectiveOrder}) from {EventTable.Name} e1 where e1.{C.EffectiveOrder} < {EventTable.Name}.{C.EffectiveOrder}) PreviousReadOrder,
-        (select MIN({C.EffectiveOrder}) from {EventTable.Name} e1 where e1.{C.EffectiveOrder} > {EventTable.Name}.{C.EffectiveOrder}) NextReadOrder
+SELECT  {C.ReadOrder},        
+        (select MAX({C.ReadOrder}) from {EventTable.Name} e1 where e1.{C.ReadOrder} < {EventTable.Name}.{C.ReadOrder}) PreviousReadOrder,
+        (select MIN({C.ReadOrder}) from {EventTable.Name} e1 where e1.{C.ReadOrder} > {EventTable.Name}.{C.ReadOrder}) NextReadOrder
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
 where {C.EventId} = :{C.EventId}";
 

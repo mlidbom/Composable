@@ -31,7 +31,7 @@ namespace Composable.Persistence.PgSql.EventStore
 
             return $@"
 SELECT {topClause} 
-{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, cast({C.EffectiveOrder} as varchar) as CharEffectiveOrder --The as is required, or Postgre sorts by this column when we ask it to sort by EffectiveOrder.
+{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, cast({C.ReadOrder} as varchar) as CharEffectiveOrder --The as is required, or Postgre sorts by this column when we ask it to sort by EffectiveOrder.
 FROM {EventTable.Name}";
         }
 
@@ -71,7 +71,7 @@ FROM {EventTable.Name}";
 WHERE {C.AggregateId} = @{C.AggregateId}
     AND {C.InsertedVersion} >= @CachedVersion
     AND {C.EffectiveVersion} > 0
-ORDER BY {C.EffectiveOrder} ASC;
+ORDER BY {C.ReadOrder} ASC;
 ")
                                                                        .AddParameter(C.AggregateId, aggregateId)
                                                                        .AddParameter("CachedVersion", startAfterInsertedVersion)
@@ -109,12 +109,12 @@ ORDER BY {C.EffectiveOrder} ASC;
                                                                 {
                                                                     var commandText = $@"
 {CreateSelectClause()} 
-WHERE {C.EffectiveOrder}  > CAST(@{C.EffectiveOrder} AS {EventTable.ReadOrderType})
+WHERE {C.ReadOrder}  > CAST(@{C.ReadOrder} AS {EventTable.ReadOrderType})
     AND {C.EffectiveVersion} > 0
-ORDER BY {C.EffectiveOrder} ASC
+ORDER BY {C.ReadOrder} ASC
 LIMIT {batchSize}";
                                                                     return command.SetCommandText(commandText)
-                                                                                  .AddParameter(C.EffectiveOrder, NpgsqlDbType.Varchar, lastReadEventReadOrder.ToString())
+                                                                                  .AddParameter(C.ReadOrder, NpgsqlDbType.Varchar, lastReadEventReadOrder.ToString())
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList();
                                                                 });
@@ -140,7 +140,7 @@ LIMIT {batchSize}";
 SELECT {C.AggregateId}, {C.EventType} 
 FROM {EventTable.Name} 
 WHERE {C.EffectiveVersion} = 1 
-ORDER BY {C.EffectiveOrder} ASC")
+ORDER BY {C.ReadOrder} ASC")
                                                                             //Urgent: Check out how to deal with Guids
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: Guid.Parse(reader.GetString(0)), typeId: Guid.Parse(reader.GetString(1)))));
         }

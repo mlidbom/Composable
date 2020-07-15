@@ -36,9 +36,7 @@ begin
                 {Event.SqlInsertTimeStamp}   TIMESTAMP(9) default CURRENT_TIMESTAMP  NOT NULL,
                 {Event.TargetEvent}          {OracleGuidType}                        NULL,
                 {Event.RefactoringType}      NUMBER(3)                               NULL,
-                {Event.ReadOrder}            NUMBER(19)                              NULL,
-                {Event.ReadOrderOrderOffset} NUMBER(19)                              NULL,
-                {Event.EffectiveOrder}       {EventTable.ReadOrderType}              NULL,    
+                {Event.ReadOrder}       {EventTable.ReadOrderType}              NULL,    
                 {Event.EffectiveVersion}     NUMBER(10)                              NULL,
 
                 CONSTRAINT {EventTable.Name}_PK PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
@@ -52,8 +50,8 @@ begin
                 FOREIGN KEY ( {Event.TargetEvent} ) REFERENCES {EventTable.Name} ({Event.EventId})';
         
         EXECUTE IMMEDIATE '
-            CREATE INDEX IX_{EventTable.Name}_{Event.EffectiveOrder} ON {EventTable.Name} 
-                ({Event.EffectiveOrder} ASC, {Event.EffectiveVersion} ASC)';
+            CREATE INDEX IX_{EventTable.Name}_{Event.ReadOrder} ON {EventTable.Name} 
+                ({Event.ReadOrder} ASC, {Event.EffectiveVersion} ASC)';
 
     end if;
 end;

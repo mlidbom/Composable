@@ -22,7 +22,7 @@ namespace Composable.Persistence.Oracle.EventStore
 
         static string CreateSelectClause() =>
             $@"
-SELECT {C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, {C.EffectiveOrder}
+SELECT {C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, {C.ReadOrder}
 FROM {EventTable.Name}
 ";
 
@@ -58,7 +58,7 @@ FROM {EventTable.Name}
 WHERE {C.AggregateId} = :{C.AggregateId}
     AND {C.InsertedVersion} > :CachedVersion
     AND {C.EffectiveVersion} >= 0
-ORDER BY {C.EffectiveOrder} ASC")
+ORDER BY {C.ReadOrder} ASC")
                                                             .AddParameter(C.AggregateId, aggregateId)
                                                             .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                             .ExecuteReaderAndSelect(ReadDataRow)
@@ -75,12 +75,12 @@ ORDER BY {C.EffectiveOrder} ASC")
                                                                 {
                                                                     var commandText = $@"
 {CreateSelectClause()} 
-WHERE {C.EffectiveOrder}  > :{C.EffectiveOrder}
+WHERE {C.ReadOrder}  > :{C.ReadOrder}
     AND {C.EffectiveVersion} > 0
     AND ROWNUM <= {batchSize}
-ORDER BY {C.EffectiveOrder} ASC";
+ORDER BY {C.ReadOrder} ASC";
                                                                     return command.SetCommandText(commandText)
-                                                                                  .AddParameter(C.EffectiveOrder, OracleDbType.Decimal, lastReadEventReadOrder.ToOracleDecimal())
+                                                                                  .AddParameter(C.ReadOrder, OracleDbType.Decimal, lastReadEventReadOrder.ToOracleDecimal())
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList();
                                                                 });
@@ -106,7 +106,7 @@ ORDER BY {C.EffectiveOrder} ASC";
 SELECT {C.AggregateId}, {C.EventType} 
 FROM {EventTable.Name} 
 WHERE {C.EffectiveVersion} = 1 
-ORDER BY {C.EffectiveOrder} ASC")
+ORDER BY {C.ReadOrder} ASC")
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuidFromString(0), typeId: reader.GetGuidFromString(1))));
         }
     }

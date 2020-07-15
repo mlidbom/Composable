@@ -4,7 +4,7 @@ namespace Composable.Persistence.Common.EventStore
 {
     static class EventTable
     {
-        public static string Name { get; } = "Event";
+        public const string Name = "Event";
 
         public const string ReadOrderType = "decimal(38,19)";
 
@@ -14,10 +14,7 @@ namespace Composable.Persistence.Common.EventStore
             public const string InsertedVersion = nameof(InsertedVersion);
             public const string EffectiveVersion = nameof(EffectiveVersion);
             public const string InsertionOrder = nameof(InsertionOrder);
-            public const string EffectiveOrder = nameof(EffectiveOrder);
-
-            [Obsolete]public const string ReadOrder = nameof(ReadOrder);
-            [Obsolete]public const string ReadOrderOrderOffset = nameof(ReadOrderOrderOffset);
+            public const string ReadOrder = nameof(ReadOrder);
 
             public const string TargetEvent = nameof(TargetEvent);
             public const string RefactoringType = nameof(RefactoringType);

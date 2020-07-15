@@ -50,7 +50,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
 
-            _endpoint.ExecuteRequestInTransaction(session => session.ScheduleSend(now + .2.Seconds(), inOneHour));
+            _endpoint.ExecuteServerRequestInTransaction(session => session.ScheduleSend(now + .2.Seconds(), inOneHour));
 
             _receivedCommandGate.AwaitPassedThroughCountEqualTo(1, timeout: 2.Seconds());
         }
@@ -59,7 +59,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _endpoint.ExecuteRequestInTransaction(session => session.ScheduleSend(now + 2.Seconds(), inOneHour));
+            _endpoint.ExecuteServerRequestInTransaction(session => session.ScheduleSend(now + 2.Seconds(), inOneHour));
 
             _receivedCommandGate.TryAwaitPassededThroughCountEqualTo(1, timeout: .5.Seconds())
                                 .Should().Be(false);

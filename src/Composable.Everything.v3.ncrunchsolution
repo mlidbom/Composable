@@ -73,7 +73,7 @@
       <Value>System\Threading\ResourceAccess\ResourceGuard.ExclusiveAccessGuardedResource.cs:framework\Composable.CQRS\Composable.CQRS.csproj-86</Value>
       <Value>System\Threading\ResourceAccess\ResourceGuardExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-60</Value>
       <Value>Persistence\MsSql\DependencyInjection\MsSqlPersistenceLayerRegistrar.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-33</Value>
-      <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-18</Value>
+      <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-26</Value>
       <Value>System\Threading\TaskRunner.cs:framework\Composable.CQRS\Composable.CQRS.csproj-63</Value>
       <Value>Persistence\MsSql\Testing\Databases\MsSqlDatabasePool.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-55</Value>
       <Value>Persistence\MsSql\Testing\Databases\MsSqlDatabaseHelpers.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-54</Value>

@@ -112,7 +112,7 @@ namespace Composable.Messaging.Buses
                 Singleton.For<Inbox.IMessageStorage>().CreatedBy((IServiceBusPersistenceLayer.IInboxPersistenceLayer persistenceLayer) => new InboxMessageStorage(persistenceLayer)),
                 Singleton.For<IInbox>().CreatedBy((IServiceLocator serviceLocator, RealEndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, Inbox.IMessageStorage messageStorage) => new Inbox(serviceLocator, _globalStateTracker, _registry, endpointConfiguration, messageStorage, _typeMapper, taskRunner, serializer)),
                 Singleton.For<CommandScheduler>().CreatedBy((IOutbox transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource)),
-                Scoped.For<IServiceBusSession, ILocalHypermediaNavigator>().CreatedBy((IOutbox outbox, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry, IRemoteHypermediaNavigator remoteNavigator) => new ApiNavigatorSession(outbox, commandScheduler, messageHandlerRegistry, remoteNavigator))
+                Scoped.For<IServiceBusSession, ILocalHypermediaNavigator>().CreatedBy((IOutbox outbox, CommandScheduler commandScheduler, IMessageHandlerRegistry messageHandlerRegistry) => new ApiNavigatorSession(outbox, commandScheduler, messageHandlerRegistry))
             );
 
             if(_container.RunMode == RunMode.Production)

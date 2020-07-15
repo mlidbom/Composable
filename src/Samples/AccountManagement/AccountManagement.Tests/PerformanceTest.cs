@@ -86,7 +86,7 @@ namespace AccountManagement
                                          {
                                              var (_, _, id) = accountsArray[Interlocked.Increment(ref currentAccount)];
 
-                                             var accountResource = _clientEndpoint.ExecuteRequest(AccountApi.Instance.Query.AccountById(id));
+                                             var accountResource = _clientEndpoint.ExecuteClientRequest(AccountApi.Instance.Query.AccountById(id));
                                              if(accountResource.Id != id)
                                              {
                                                  throw new Exception();

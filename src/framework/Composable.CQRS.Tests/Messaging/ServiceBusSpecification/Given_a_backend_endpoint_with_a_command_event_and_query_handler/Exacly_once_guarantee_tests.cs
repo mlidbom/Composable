@@ -15,7 +15,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
     {
         [Test] public void If_transaction_fails_after_successfully_Sending_ExactlyOnceCommand_command_never_reaches_command_handler()
         {
-            AssertThrows.Exception<TransactionAbortedException>(() => RemoteEndpoint.ExecuteRequestInTransaction(session =>
+            AssertThrows.Exception<TransactionAbortedException>(() => RemoteEndpoint.ExecuteServerRequestInTransaction(session =>
             {
                 Transaction.Current.FailOnPrepare();
                 session.Send(new MyExactlyOnceCommand());
@@ -31,7 +31,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             var exceptionMessage = "82369B6E-80D4-4E64-92B6-A564A7195CC5";
             MyCreateAggregateCommandHandlerThreadGate.FailTransactionOnPreparePostPassThrough(new Exception(exceptionMessage));
 
-            var (backendException, frontEndException) = Host.AssertThatRunningScenarioThrowsBackendAndClientException<TransactionAbortedException>(() => ClientEndpoint.ExecuteRequest(session => RemoteNavigator.Post(MyCreateAggregateCommand.Create())));
+            var (backendException, frontEndException) = Host.AssertThatRunningScenarioThrowsBackendAndClientException<TransactionAbortedException>(() => ClientEndpoint.ExecuteServerRequest(session => RemoteNavigator.Post(MyCreateAggregateCommand.Create())));
 
             backendException.InnerException.Message.Should().Contain(exceptionMessage);
             frontEndException.Message.Should().Contain(exceptionMessage);

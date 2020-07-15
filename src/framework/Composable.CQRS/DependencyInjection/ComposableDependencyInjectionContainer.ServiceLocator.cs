@@ -76,23 +76,22 @@ namespace Composable.DependencyInjection
                 object cachedSingletonInstance;
                 ComponentRegistration[] registrations;
                 (registrations, cachedSingletonInstance) = _rootCache.TryGet<TService>();
-                currentComponent = Assert.Result.NotNull(registrations[0]);
                 resolve = null;
 
                 if(cachedSingletonInstance is TService singleton)
                 {
+                    currentComponent = Assert.Result.NotNull(registrations[0]);
                     resolve = singleton;
                     return true;
                 }
 
                 var scopeCache = _scopeCache.Value;
 
-                if(scopeCache != null && scopeCache.TryGet<TService>() is TService scoped)
+                if(scopeCache != null && scopeCache.TryGet<TService>(out var scoped))
                 {
-                    {
-                        resolve = scoped;
-                        return true;
-                    }
+                    currentComponent = Assert.Result.NotNull(registrations[0]);
+                    resolve = scoped;
+                    return true;
                 }
 
                 if(registrations == null)
@@ -105,6 +104,7 @@ namespace Composable.DependencyInjection
                     throw new Exception($"Requested single instance for service:{typeof(TService)}, but there were multiple services registered.");
                 }
 
+                currentComponent = Assert.Result.NotNull(registrations[0]);
                 return false;
             }
 

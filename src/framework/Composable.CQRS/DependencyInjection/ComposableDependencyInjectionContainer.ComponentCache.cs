@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.System.Linq;
 using Composable.SystemExtensions;
@@ -77,8 +78,11 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            internal TService? TryGet<TService>() where TService: class =>
-                (TService?)_instances[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
+            internal bool TryGet<TService>([NotNullWhen(true)]out TService? service) where TService : class
+            {
+                service = (TService?)_instances[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
+                return service != null;
+            }
 
             internal ScopeCache(int[] serviceServiceTypeToComponentIndex)
             {

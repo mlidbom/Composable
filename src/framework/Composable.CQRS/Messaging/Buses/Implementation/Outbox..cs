@@ -112,6 +112,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                .Where(id => id != state.Configuration.Id)
                                                .ToArray();//We dispatch events to ourself synchronously so don't go doing it again here.;
 
+            //Urgent: bug. Our traceability thinking does not allow just discarding this message.But removing this if statement breaks a lot of tests that uses endpoint wiring but do not start an endpoint.
             if(eventHandlerEndpointIds.Length != 0)//Don't waste time if there are no receivers
             {
                 var connections = eventHandlerEndpointIds.Select(endpointId => state.InboxConnections[endpointId])

@@ -31,7 +31,7 @@ namespace AccountManagement
             //todo: This is not in the right place.
             builder.RegisterCurrentTestsConfiguredPersistenceLayer();
             builder.RegisterEventStore()
-                   .HandleAggregate<Account, AccountEvent.Root>(builder.RegisterHandlers);
+                   .HandleAggregate<Account, AccountEvent.Root>();
 
             builder.RegisterDocumentDb()
                    .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(builder.RegisterHandlers)

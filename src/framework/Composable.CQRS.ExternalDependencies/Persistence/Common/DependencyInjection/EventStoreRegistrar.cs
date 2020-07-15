@@ -6,6 +6,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.Aggregates;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Persistence.InMemory.EventStore;
@@ -20,27 +21,18 @@ namespace Composable.Persistence.Common.DependencyInjection
 
         public static EventStoreRegistrationBuilder RegisterEventStore(this IEndpointBuilder @this) => @this.RegisterEventStore(EmptyMigrationsArray);
         public static EventStoreRegistrationBuilder RegisterEventStore(this IEndpointBuilder @this, IReadOnlyList<IEventMigration> migrations)
-            => @this.Container.RegisterEventStore(@this.Configuration.ConnectionStringName, migrations);
-
-        public static EventStoreRegistrationBuilder RegisterEventStore(this IDependencyInjectionContainer @this,
-                                                                                         string connectionName) => @this.RegisterEventStore(connectionName, EmptyMigrationsArray);
-        public static EventStoreRegistrationBuilder RegisterEventStore(this IDependencyInjectionContainer @this,
-                                                                                            string connectionName,
-                                                                                            IReadOnlyList<IEventMigration> migrations)
         {
-            Contract.Argument(connectionName, nameof(connectionName)).NotNullEmptyOrWhiteSpace();
-
-            @this.Register(Singleton.For<EventCache>().CreatedBy(() => new EventCache()));
-
-            @this.Register(Scoped.For<IEventStore>()
-                                    .CreatedBy((IEventStorePersistenceLayer persistenceLayer, IEventStoreSerializer serializer, ITypeMapper typeMapper, EventCache eventCache) => new Persistence.EventStore.EventStore(persistenceLayer, typeMapper, serializer, eventCache, migrations)));
-
-            @this.Register(Scoped.For<IEventStoreUpdater, IEventStoreReader>()
-                                 .CreatedBy((IEventStoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
-                                                new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
-
-            return new EventStoreRegistrationBuilder();
+            @this.Container.RegisterEventStore(@this.Configuration.ConnectionStringName, migrations);
+            return new EventStoreRegistrationBuilder(@this.RegisterHandlers);
         }
+
+        public static void RegisterEventStore(this IDependencyInjectionContainer @this, string connectionName) =>
+            @this.RegisterEventStore(connectionName, EmptyMigrationsArray);
+
+        public static void RegisterEventStore(this IDependencyInjectionContainer @this,
+                                              string connectionName,
+                                              IReadOnlyList<IEventMigration> migrations) =>
+            @this.RegisterEventStoreForFlexibleTesting(connectionName, () => migrations);
 
         internal static void RegisterEventStoreForFlexibleTesting(this IDependencyInjectionContainer @this,
                                                                   string connectionName,
@@ -48,31 +40,32 @@ namespace Composable.Persistence.Common.DependencyInjection
         {
             Contract.Argument(connectionName, nameof(connectionName)).NotNullEmptyOrWhiteSpace();
 
-            @this.Register(Singleton.For<EventCache>().CreatedBy(() => new EventCache()));
-
-            @this.Register(Scoped.For<IEventStore>()
-                                 .CreatedBy(
-                                      (IEventStorePersistenceLayer persistenceLayer, ITypeMapper typeMapper, IEventStoreSerializer serializer, EventCache cache) =>
-                                          new Persistence.EventStore.EventStore(
-                                              persistenceLayer: persistenceLayer,
-                                              typeMapper: typeMapper,
-                                              serializer: serializer,
-                                              migrations: migrations(),
-                                              cache: cache)));
-
-             @this.Register(Scoped.For<IEventStoreUpdater, IEventStoreReader>()
-                                  .CreatedBy((IEventStoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
-                                                 new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
+            @this.Register(
+                Singleton.For<IAggregateTypeValidator>()
+                         .CreatedBy((ITypeMapper typeMapper) => new AggregateTypeValidator(typeMapper)),
+                Singleton.For<IEventStoreSerializer>()
+                         .CreatedBy((ITypeMapper typeMapper) => new EventStoreSerializer(typeMapper)),
+                Singleton.For<EventCache>()
+                         .CreatedBy(() => new EventCache()),
+                Scoped.For<IEventStore>()
+                      .CreatedBy((IEventStorePersistenceLayer persistenceLayer, ITypeMapper typeMapper, IEventStoreSerializer serializer, EventCache cache) =>
+                                     new Persistence.EventStore.EventStore(persistenceLayer, typeMapper, serializer, cache, migrations())),
+                Scoped.For<IEventStoreUpdater, IEventStoreReader>()
+                      .CreatedBy((IEventStoreEventPublisher eventPublisher, IEventStore eventStore, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator) =>
+                                     new EventStoreUpdater(eventPublisher, eventStore, timeSource, aggregateTypeValidator)));
         }
     }
 
     public class EventStoreRegistrationBuilder
     {
-        public EventStoreRegistrationBuilder HandleAggregate<TAggregate, TEvent>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
+        readonly MessageHandlerRegistrarWithDependencyInjectionSupport _handlerRegistrar;
+        internal EventStoreRegistrationBuilder(MessageHandlerRegistrarWithDependencyInjectionSupport handlerRegistrar) => _handlerRegistrar = handlerRegistrar;
+
+        public EventStoreRegistrationBuilder HandleAggregate<TAggregate, TEvent>()
             where TAggregate : IEventStored<TEvent>
             where TEvent : IAggregateEvent
         {
-           EventStoreApi.RegisterHandlersForAggregate<TAggregate, TEvent>(registrar);
+            EventStoreApi.RegisterHandlersForAggregate<TAggregate, TEvent>(_handlerRegistrar);
             return this;
         }
     }

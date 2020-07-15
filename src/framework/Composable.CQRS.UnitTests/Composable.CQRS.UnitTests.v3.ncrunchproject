@@ -1,3 +1,15 @@
 ﻿<ProjectConfiguration>
-  <Settings />
+  <Settings>
+    <IgnoredTests>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.Serialization.NewtonSoftEventStoreEventSerializerTests.IgnoresAllIAggregateEventProperties</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.Serialization.NewtonSoftEventStoreEventSerializerTests.Should_roundtrip_simple_event_1000_times_in_15_milliseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.Serialization.NewtonSoftEventStoreEventSerializerTests.Should_roundtrip_simple_event_within_50_percent_of_default_serializer_performance</TestName>
+      </NamedTestSelector>
+    </IgnoredTests>
+  </Settings>
 </ProjectConfiguration>

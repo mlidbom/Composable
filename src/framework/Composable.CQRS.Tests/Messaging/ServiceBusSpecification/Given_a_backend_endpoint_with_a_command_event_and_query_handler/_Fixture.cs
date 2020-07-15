@@ -71,7 +71,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 {
                     builder.RegisterCurrentTestsConfiguredPersistenceLayer();
                     builder.RegisterEventStore()
-                           .HandleAggregate<MyAggregate, MyAggregateEvent.IRoot>(builder.RegisterHandlers);
+                           .HandleAggregate<MyAggregate, MyAggregateEvent.IRoot>();
 
                     builder.RegisterHandlers
                            .ForCommand((MyExactlyOnceCommand command) => CommandHandlerThreadGate.AwaitPassthrough())

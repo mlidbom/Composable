@@ -39,4 +39,5 @@ using NUnit.Framework;
 
 [assembly: AssemblyVersion("1.0.0.0")]
 //urgent: include at least MySql as testing PersistenceLayerProvider [assembly:NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.InMemory))]
+//Urgent: Make sure that only tests that use the duplicated persistence layers accurately are impacted by duplication
 [assembly:NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql))]

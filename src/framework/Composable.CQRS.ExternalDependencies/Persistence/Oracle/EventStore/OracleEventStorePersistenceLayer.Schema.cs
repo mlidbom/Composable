@@ -67,7 +67,6 @@ begin
 end;
 ")
                                                                 .ExecuteNonQuery());
-                //Urgent: EffectiveOrder should have a unique constraint for all persistence providers.
 
                 _initialized = true;
             }

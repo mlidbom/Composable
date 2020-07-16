@@ -18,10 +18,8 @@ namespace Composable.Persistence.DB2.EventStore
             if(!_initialized)
             {
                 _connectionManager.UseCommand(command => command.SetCommandText($@"
-declare existing_table_count integer;
 begin
-    select count(*) into existing_table_count from user_tables where table_name='{EventTable.Name.ToUpper()}';
-    if (existing_table_count = 0) then
+  declare continue handler for sqlstate '42710' begin end; --Ignore error if table exists
         EXECUTE IMMEDIATE '
 
             CREATE TABLE {EventTable.Name}
@@ -39,7 +37,7 @@ begin
                 {Event.TargetEvent}          {DB2GuidType}                        NULL,
                 {Event.RefactoringType}      NUMBER(3)                               NULL,                
 
-                CONSTRAINT {EventTable.Name}_PK PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
+                PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
 
                 CONSTRAINT {EventTable.Name}_Unique_{Event.EventId}        UNIQUE ( {Event.EventId} ),
                 CONSTRAINT {EventTable.Name}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} ),
@@ -63,11 +61,9 @@ begin
                 CONSTRAINT PK_AggregateLock PRIMARY KEY ({Lock.AggregateId})
             )';
 
-    end if;
-end;
+end
 ")
                                                                 .ExecuteNonQuery());
-                //Urgent: EffectiveOrder should have a unique constraint for all persistence providers.
 
                 _initialized = true;
             }

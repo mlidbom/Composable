@@ -51,8 +51,8 @@ namespace Composable.Persistence.DB2.Testing.Databases
         }
 
         protected override void ResetDatabase(Database db) =>
-            _masterConnectionProvider.UseCommand(command => command.SetCommandText($@"CALL EMPTY_SCHEMA(@Schema);")
-                                                                   .AddParameter("Schema", DB2Type.VarChar, db.Name.ToUpper())
+            _masterConnectionProvider.UseCommand(command => command.SetStoredProcedure("EMPTY_SCHEMA")
+                                                                   .AddParameter("ASCHEMA", DB2Type.VarChar, db.Name.ToUpper())
                                                                    .ExecuteNonQuery());
     }
 }

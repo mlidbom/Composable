@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using IBM.Data.DB2.Core;
 using System.Threading.Tasks;
@@ -19,6 +20,11 @@ namespace Composable.Persistence.DB2.SystemExtensions
         public static async Task<int> ExecuteNonQueryAsync(this DB2Command @this, string commandText) => await @this.SetCommandText(commandText).ExecuteNonQueryAsync();
         public static DB2Command AppendCommandText(this DB2Command @this, string append) => @this.Mutate(me => me.CommandText += append);
         public static DB2Command SetCommandText(this DB2Command @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
+        public static DB2Command SetStoredProcedure(this DB2Command @this, string storedProcedure) => @this.Mutate(me =>
+        {
+            me.CommandType = CommandType.StoredProcedure;
+            me.CommandText = storedProcedure;
+        });
 
         //urgent: Create a version of this for the other persistence layers. It's crazy helpful.
         public static DB2Command LogCommand(this DB2Command @this)

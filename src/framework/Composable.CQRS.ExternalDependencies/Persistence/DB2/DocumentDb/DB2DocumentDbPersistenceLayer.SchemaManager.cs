@@ -1,6 +1,7 @@
 ﻿using Composable.Persistence.DB2.SystemExtensions;
 using Composable.System.Transactions;
 using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
+// ReSharper disable StringLiteralTypo
 
 namespace Composable.Persistence.DB2.DocumentDb
 {
@@ -23,28 +24,22 @@ namespace Composable.Persistence.DB2.DocumentDb
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            //Urgent: Move to using common schema strings class like in event store and bus persistence layers.
                             _connectionProvider.ExecuteNonQuery($@"
-declare existing_table_count integer;
 begin
-    select count(*) into existing_table_count from sysibm.systables where table_name='{Document.TableName}';
-    if (existing_table_count = 0) then
-        EXECUTE IMMEDIATE '
-        
-            CREATE TABLE {Document.TableName} 
-            (
-                {Document.Id}           VARCHAR2(500)    NOT NULL, 
-                {Document.ValueTypeId}  {DB2GuidType} NOT NULL,
-                {Document.Created}      TIMESTAMP        NOT NULL,
-                {Document.Updated}      TIMESTAMP        NOT NULL,
-                {Document.Value}        NCLOB            NOT NULL,
-                
-                CONSTRAINT PK_{Document.TableName} PRIMARY KEY ({Document.Id}, {Document.ValueTypeId}) ENABLE
-            )
-        ';
-
-    end if;
-end;
+  declare continue handler for sqlstate '42710' begin end; --Ignore error if table exists
+      EXECUTE IMMEDIATE '
+    
+        CREATE TABLE {Document.TableName} 
+        (
+            {Document.Id}           VARCHAR2(500)    NOT NULL, 
+            {Document.ValueTypeId}  {DB2GuidType} NOT NULL,
+            {Document.Created}      TIMESTAMP        NOT NULL,
+            {Document.Updated}      TIMESTAMP        NOT NULL,
+            {Document.Value}        NCLOB            NOT NULL,
+            
+            CONSTRAINT PK_{Document.TableName} PRIMARY KEY ({Document.Id}, {Document.ValueTypeId}) ENABLE
+        );
+end
 ");
                         });
                     }

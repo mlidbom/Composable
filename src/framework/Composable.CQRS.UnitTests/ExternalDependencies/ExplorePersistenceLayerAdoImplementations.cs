@@ -115,17 +115,6 @@ namespace Composable.Tests.ExternalDependencies
             result.Should().Be(schema.ToUpper());
         }
 
-        [Test] public void DB2Test2()
-        {
-            var schema = "Composable_DatabasePool_0001";
-            var db2Connection = new DB2ConnectionProvider($"SERVER=localhost;DATABASE=CDBPOOL;CurrentSchema={schema};User ID=db2admin;Password=Development!1;");
-
-            db2Connection.UseCommand(cmd => cmd.SetCommandText($@"CALL DB2ADMIN.DROP_SCHEMA(@Name);")
-                                                                        .AddParameter("Name", DB2Type.VarChar, schema)
-                                                                        .ExecuteNonQuery());
-
-        }
-
         static ReadOrder Create(long order, long offset) => ReadOrder.Parse($"{order}.{offset:D19}");
         static string CreateString(int order, int value) => $"{order}.{DecimalPlaces(value)}";
         static string DecimalPlaces(int number) => new string(number.ToString()[index: 0], count: 19);

@@ -27,7 +27,7 @@ namespace Composable.Persistence.DB2.DocumentDb
                             _connectionProvider.ExecuteNonQuery($@"
 declare existing_table_count integer;
 begin
-    select count(*) into existing_table_count from user_tables where table_name='STORE';
+    select count(*) into existing_table_count from sysibm.systables where table_name='{Document.TableName}';
     if (existing_table_count = 0) then
         EXECUTE IMMEDIATE '
         

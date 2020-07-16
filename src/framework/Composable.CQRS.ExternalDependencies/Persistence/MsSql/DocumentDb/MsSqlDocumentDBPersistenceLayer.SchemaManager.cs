@@ -22,7 +22,7 @@ namespace Composable.Persistence.MsSql.DocumentDb
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
                             _connectionProvider.ExecuteNonQuery($@"
-IF NOT EXISTS(select name from sys.tables where name = 'Store')
+IF NOT EXISTS(select name from sys.tables where name = '{Document.TableName}')
 BEGIN 
     CREATE TABLE dbo.{Document.TableName}
     (

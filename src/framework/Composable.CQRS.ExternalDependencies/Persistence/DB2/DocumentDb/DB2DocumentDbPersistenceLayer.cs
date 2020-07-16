@@ -7,6 +7,7 @@ using System.Linq;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.System;
+using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
 namespace Composable.Persistence.DB2.DocumentDb
 {
@@ -32,7 +33,7 @@ namespace Composable.Persistence.DB2.DocumentDb
                 foreach(var writeRow in toUpdate)
                 {
                     connection.UseCommand(
-                        command => command.SetCommandText("UPDATE Store SET Value = :Value, Updated = :Updated WHERE Id = :Id AND ValueTypeId = :TypeId")
+                        command => command.SetCommandText("UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId = @TypeId")
                                           .AddVarcharParameter("Id", 500, writeRow.Id)
                                           .AddParameter("Updated", writeRow.UpdateTime)
                                           .AddParameter("TypeId", writeRow.TypeId)
@@ -50,7 +51,7 @@ namespace Composable.Persistence.DB2.DocumentDb
             var documents = _connectionProvider.UseCommand(
                 command => command.SetCommandText($@"
 SELECT Value, ValueTypeId FROM Store {UseUpdateLock(useUpdateLock)} 
-WHERE Id=:Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
+WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                                   .AddVarcharParameter("Id", 500, idString)
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuidFromString(1), reader.GetString(0))));
             if(documents.Count < 1)
@@ -71,7 +72,7 @@ WHERE Id=:Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             {
                 _connectionProvider.UseCommand(command =>
                 {
-                    command.SetCommandText(@"INSERT INTO Store(Id, ValueTypeId, Value, Created, Updated) VALUES(:Id, :ValueTypeId, :Value, :Created, :Updated)")
+                    command.SetCommandText(@"INSERT INTO Store(Id, ValueTypeId, Value, Created, Updated) VALUES(@Id, @ValueTypeId, @Value, @Created, @Updated)")
                            .AddVarcharParameter("Id", 500, row.Id)
                            .AddParameter("ValueTypeId", row.TypeId)
                            .AddParameter("Created", row.UpdateTime)
@@ -97,7 +98,7 @@ WHERE Id=:Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             EnsureInitialized();
             return _connectionProvider.UseCommand(
                 command =>
-                    command.SetCommandText($@"DELETE FROM Store WHERE Id = :Id AND ValueTypeId  {TypeInClause(acceptableTypes)}")
+                    command.SetCommandText($@"DELETE FROM Store WHERE Id = @Id AND ValueTypeId  {TypeInClause(acceptableTypes)}")
                            .AddVarcharParameter("Id", 500, idString)
                            .ExecuteNonQuery());
         }

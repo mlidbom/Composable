@@ -24,23 +24,24 @@ namespace Composable.Persistence.DB2.DocumentDb
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            _connectionProvider.ExecuteNonQuery($@"
+                            _connectionProvider.UseCommand(cmd => cmd.SetCommandText($@"
 begin
   declare continue handler for sqlstate '42710' begin end; --Ignore error if table exists
       EXECUTE IMMEDIATE '
     
         CREATE TABLE {Document.TableName} 
         (
-            {Document.Id}           VARCHAR2(500)    NOT NULL, 
-            {Document.ValueTypeId}  {DB2GuidType} NOT NULL,
+            {Document.Id}           VARCHAR(500)   NOT NULL, 
+            {Document.ValueTypeId}  {DB2GuidType}   NOT NULL,
             {Document.Created}      TIMESTAMP        NOT NULL,
             {Document.Updated}      TIMESTAMP        NOT NULL,
-            {Document.Value}        NCLOB            NOT NULL,
+            {Document.Value}        CLOB            NOT NULL,
             
-            CONSTRAINT PK_{Document.TableName} PRIMARY KEY ({Document.Id}, {Document.ValueTypeId}) ENABLE
-        );
+            PRIMARY KEY ({Document.Id}, {Document.ValueTypeId})
+        );';
 end
-");
+")
+                                                                     .ExecuteNonQuery());
                         });
                     }
 

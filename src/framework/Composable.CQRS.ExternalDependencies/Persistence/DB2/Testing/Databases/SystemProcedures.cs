@@ -26,7 +26,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
 
             DropObjectIgnoreNonExistence(@"DROP FUNCTION X_DROP_LIST");
             DropObjectIgnoreNonExistence(@"DROP FUNCTION QUOTE_IDENTIFIER");
-            DropObjectIgnoreNonExistence(@"DROP PROCEDURE DROP_SCHEMA");
+            DropObjectIgnoreNonExistence(@"DROP PROCEDURE EMPTY_SCHEMA");
 
 
             connection.ExecuteNonQuery(@"
@@ -154,13 +154,6 @@ RETURN
         FROM SYSCAT.SEQUENCES
         WHERE SEQTYPE <> 'I'
             AND SEQSCHEMA = ASCHEMA
-        UNION
-        SELECT
-            CREATE_TIME,
-            SCHEMANAME AS SCHEMA_NAME,
-            'DROP SCHEMA ' || QUOTE_IDENTIFIER(SCHEMANAME) || ' RESTRICT' AS DDL
-        FROM SYSCAT.SCHEMATA
-        WHERE SCHEMANAME = ASCHEMA
     )
     SELECT CREATE_TIME, DDL
     FROM DROP_LIST
@@ -168,7 +161,7 @@ RETURN
 ");
 
             connection.ExecuteNonQuery(@"
-CREATE PROCEDURE DROP_SCHEMA(ASCHEMA VARCHAR(128))
+CREATE PROCEDURE EMPTY_SCHEMA(ASCHEMA VARCHAR(128))
     SPECIFIC DROP_SCHEMA1
     MODIFIES SQL DATA
     NOT DETERMINISTIC

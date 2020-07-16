@@ -10,7 +10,7 @@ namespace Composable.Persistence.DB2.SystemExtensions
         public static DB2Command AddParameter(this DB2Command @this, string name, int value) => AddParameter(@this, name, DB2Type.Integer, value);
         public static DB2Command AddParameter(this DB2Command @this, string name, Guid value) => AddParameter(@this, name, DB2Type.Char, value.ToString(), 39);
         public static DB2Command AddParameter(this DB2Command @this, string name, DateTime value) => AddParameter(@this, name, DB2Type.Timestamp, value);
-        public static DB2Command AddVarcharParameter(this DB2Command @this, string name, int length, string value) => AddParameter(@this, name, DB2Type.NVarChar, value, length);
+        public static DB2Command AddVarcharParameter(this DB2Command @this, string name, int length, string value) => AddParameter(@this, name, DB2Type.VarChar, value, length);
         public static DB2Command AddNClobParameter(this DB2Command @this, string name, string value) => AddParameter(@this, name, DB2Type.Text, value);
 
         public static DB2Command AddParameter(this DB2Command @this, DB2Parameter parameter)

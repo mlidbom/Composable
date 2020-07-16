@@ -5,6 +5,7 @@ using IBM.Data.DB2.Core;
 using System.Linq;
 using System.Threading.Tasks;
 using Composable.Contracts;
+using Composable.Logging;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.System;
 using Composable.System.Diagnostics;
@@ -31,17 +32,27 @@ namespace Composable.Persistence.DB2.Testing.Databases
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _masterConnectionString + $"CurrentSchema={db.Name};";
+            => _masterConnectionString + $"CurrentSchema={db.Name.ToUpper()};";
 
         protected override void InitReboot() => SystemProcedures.CreateProcedures(_masterConnectionProvider);
 
-        protected override void EnsureDatabaseExistsAndIsEmpty(Database db) => ResetDatabase(db);
 
-        protected override void ResetDatabase(Database db)
+        static readonly string ObjectAlreadyExists = "42710";
+        protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
-             _masterConnectionProvider.ExecuteNonQuery($@"
-CALL DROP_SCHEMA('{db.Name}');
-CREATE SCHEMA ""{db.Name}""");
+            try
+            {
+                _masterConnectionProvider.ExecuteNonQuery($@"CREATE SCHEMA ""{db.Name.ToUpper()}""");
+            }
+            catch(DB2Exception exception) when(exception.Errors.Cast<DB2Error>().Any(error => error.SQLState == ObjectAlreadyExists))
+            {}
+
+            ResetDatabase(db);
         }
+
+        protected override void ResetDatabase(Database db) =>
+            _masterConnectionProvider.UseCommand(command => command.SetCommandText($@"CALL EMPTY_SCHEMA(@Schema);")
+                                                                   .AddParameter("Schema", DB2Type.VarChar, db.Name.ToUpper())
+                                                                   .ExecuteNonQuery());
     }
 }

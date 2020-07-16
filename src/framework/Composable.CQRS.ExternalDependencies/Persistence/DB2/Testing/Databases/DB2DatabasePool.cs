@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using IBM.Data.DB2.Core;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,68 +20,28 @@ namespace Composable.Persistence.DB2.Testing.Databases
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_DB2_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
-        readonly OptimizedThreadShared<DB2ConnectionStringBuilder> _connectionStringBuilder;
+        readonly string _masterConnectionString;
 
         public DB2DatabasePool()
         {
-            var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
-                                      ?? "SERVER=localhost;DATABASE=CDBPOOL;CurrentSchema={schema};User ID=db2admin;Password=Development!1;";
+            _masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
+                                   ?? "SERVER=localhost;DATABASE=CDBPOOL;User ID=db2admin;Password=Development!1;";
 
-            _connectionStringBuilder = new OptimizedThreadShared<DB2ConnectionStringBuilder>(new DB2ConnectionStringBuilder(masterConnectionString));
-            _masterConnectionProvider = new DB2ConnectionProvider(masterConnectionString);
+            _masterConnectionProvider = new DB2ConnectionProvider(_masterConnectionString);
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => me.CurrentSchema = db.Name).ConnectionString);
+            => _masterConnectionString + $"CurrentSchema={db.Name};";
 
-        const int DB2InvalidUserNamePasswordCombinationErrorNumber = 1017;
-        protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
+        protected override void InitReboot() => SystemProcedures.CreateProcedures(_masterConnectionProvider);
+
+        protected override void EnsureDatabaseExistsAndIsEmpty(Database db) => ResetDatabase(db);
+
+        protected override void ResetDatabase(Database db)
         {
-            try
-            {
-                ResetDatabase(db);
-            }
-            //urgent: This is a number from oracle. Find a DB2 way
-            catch(DB2Exception exception) when(exception.ErrorCode == DB2InvalidUserNamePasswordCombinationErrorNumber)
-            {
-                _masterConnectionProvider.ExecuteScalar(DropUserIfExistsAndRecreate(db.Name.ToUpper()));
-                new DB2ConnectionProvider(ConnectionStringFor(db)).UseConnection(_ => {}); //We just call this to ensure that we can actually connect.
-            }
+             _masterConnectionProvider.ExecuteNonQuery($@"
+CALL DROP_SCHEMA('{db.Name}');
+CREATE SCHEMA ""{db.Name}""");
         }
-
-        protected override void ResetDatabase(Database db) { new DB2ConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery(CleanSchema()); }
-
-        static string DropUserIfExistsAndRecreate(string userName) => $@"
-declare user_to_drop_exists integer;
-begin
-    select count(*) into user_to_drop_exists from dba_users where username='{userName}';
-    if (user_to_drop_exists > 0) then
-        EXECUTE IMMEDIATE 'drop user ""{userName}"" cascade';        
-    end if;
-    
-    execute immediate 'CREATE USER ""{userName}"" IDENTIFIED BY ""{userName}""';
-    -- ROLES
-    execute immediate 'GRANT DBA TO ""{userName}"" WITH ADMIN OPTION';
-    -- SYSTEM PRIVILEGES
-    execute immediate 'GRANT SYSDBA TO ""{userName}""';
-end;
-";
-
-        static string CleanSchema() => @"
-BEGIN
-    FOR cur_rec IN (SELECT object_name, object_type FROM user_objects 
-                        WHERE object_type not in ('INDEX','PACKAGE BODY','TRIGGER','LOB', 'SEQUENCE')) LOOP
-        BEGIN
-            IF cur_rec.object_type = 'TABLE' THEN
-                EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '"" CASCADE CONSTRAINTS PURGE';
-            ELSIF cur_rec.object_type = 'TYPE' THEN
-                EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '"" FORCE';
-            ELSE
-                EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '""';
-            END IF;
-            END;
-    END LOOP;
-END;
-";
     }
 }

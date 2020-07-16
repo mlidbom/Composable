@@ -104,7 +104,7 @@ namespace Composable.Testing.Databases
                 }
             }
 
-            if(!reservedDatabase.IsClean)
+            if(!reservedDatabase!.IsClean)
             {
                 try
                 {
@@ -188,6 +188,8 @@ namespace Composable.Testing.Databases
 
             Task.WaitAll(tasks);
         });
+
+        protected abstract void InitReboot();
 
         protected abstract void EnsureDatabaseExistsAndIsEmpty(Database db);
     }

@@ -38,6 +38,8 @@ namespace Composable.Persistence.Oracle.Testing.Databases
                 me.DBAPrivilege = "";
             }).ConnectionString);
 
+        protected override void InitReboot() {}
+
         const int OracleInvalidUserNamePasswordCombinationErrorNumber = 1017;
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {

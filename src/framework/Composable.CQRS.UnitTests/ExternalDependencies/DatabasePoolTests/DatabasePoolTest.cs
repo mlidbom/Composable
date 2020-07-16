@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 using Composable.DependencyInjection;
+using Composable.Persistence.DB2.SystemExtensions;
+using Composable.Persistence.DB2.Testing.Databases;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MySql.Testing.Databases;
 using Composable.Persistence.MsSql.SystemExtensions;
@@ -17,7 +19,7 @@ using NCrunch.Framework;
 
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
-    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl))]
+    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl), nameof(PersistenceLayer.DB2))]
     public class DatabasePoolTest
     {
         internal static DatabasePool CreatePool() =>
@@ -27,6 +29,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                 PersistenceLayer.MySql => new MySqlDatabasePool(),
                 PersistenceLayer.PgSql => new PgSqlDatabasePool(),
                 PersistenceLayer.Orcl => new OracleDatabasePool(),
+                PersistenceLayer.DB2 => new DB2DatabasePool(),
                 PersistenceLayer.InMemory => throw new ArgumentOutOfRangeException(),
                 _ => throw new ArgumentOutOfRangeException()
             };
@@ -47,6 +50,9 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                 case PersistenceLayer.Orcl:
                     UseOracleConnection(pool.ConnectionStringFor(connectionString), func);
                     break;
+                case PersistenceLayer.DB2:
+                    UseDB2Connection(pool.ConnectionStringFor(connectionString), func);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -63,5 +69,8 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 
         static void UseOracleConnection(string connectionStringFor, Action<IDbConnection> func) =>
             new OracleConnectionProvider(connectionStringFor).UseConnection(func);
+
+        static void UseDB2Connection(string connectionStringFor, Action<IDbConnection> func) =>
+            new DB2ConnectionProvider(connectionStringFor).UseConnection(func);
     }
 }

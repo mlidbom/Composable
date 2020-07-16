@@ -31,6 +31,8 @@ namespace Composable.Persistence.MySql.Testing.Databases
         protected override string ConnectionStringFor(Database db)
             => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => me.Database = db.Name).ConnectionString);
 
+        protected override void InitReboot() { }
+
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
             var databaseName = db.Name;

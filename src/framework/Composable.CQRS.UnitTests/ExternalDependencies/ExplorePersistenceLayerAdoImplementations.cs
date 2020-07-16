@@ -90,12 +90,12 @@ namespace Composable.Tests.ExternalDependencies
 
         [Test] public void DB2Roundtrip()
         {
-            using var db2Pool = new DB2DatabasePool();
-            var db2Connection = new DB2ConnectionProvider(db2Pool.ConnectionStringFor(Guid.NewGuid().ToString()));
+            var schema = "Composable_DatabasePool_0001";
+            var db2Connection = new DB2ConnectionProvider($"SERVER=localhost;DATABASE=CDBPOOL;CurrentSchema={schema};User ID=db2admin;Password=Development!1;");
 
             var result2 = db2Connection.UseCommand(
-                action: command => command.SetCommandText(commandText: "select :parm from dual")
-                                          .AddNullableParameter(name: "parm", DB2Type.Decimal, DB2Decimal.Parse("1"))
+                action: command => command.SetCommandText(commandText: "select cast(@parm as decimal(31,19)) from sysibm.sysdummy1")
+                                          .AddParameter(name: "@parm", DB2Type.Decimal, DB2Decimal.Parse("1"))
                                           .ExecuteReaderAndSelect(@select: @this => @this.GetDB2Decimal(i: 0))
                                           .Single());
 
@@ -113,6 +113,17 @@ namespace Composable.Tests.ExternalDependencies
             cmd.CommandText = @"select current_schema from   sysibm.sysdummy1;";
             var result = (string)cmd.ExecuteScalar();
             result.Should().Be(schema.ToUpper());
+        }
+
+        [Test] public void DB2Test2()
+        {
+            var schema = "Composable_DatabasePool_0001";
+            var db2Connection = new DB2ConnectionProvider($"SERVER=localhost;DATABASE=CDBPOOL;CurrentSchema={schema};User ID=db2admin;Password=Development!1;");
+
+            db2Connection.UseCommand(cmd => cmd.SetCommandText($@"CALL DB2ADMIN.DROP_SCHEMA(@Name);")
+                                                                        .AddParameter("Name", DB2Type.VarChar, schema)
+                                                                        .ExecuteNonQuery());
+
         }
 
         static ReadOrder Create(long order, long offset) => ReadOrder.Parse($"{order}.{offset:D19}");

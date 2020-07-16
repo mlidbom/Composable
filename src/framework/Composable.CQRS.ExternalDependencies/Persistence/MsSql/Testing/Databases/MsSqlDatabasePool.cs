@@ -27,6 +27,7 @@ namespace Composable.Persistence.MsSql.Testing.Databases
         protected override string ConnectionStringFor(Database db)
             => new SqlConnectionStringBuilder(_masterConnectionString) {InitialCatalog = db.Name}.ConnectionString;
 
+        protected override void InitReboot() { }
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
             var databaseName = db.Name;

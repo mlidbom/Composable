@@ -17,7 +17,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
     {
         readonly DB2ConnectionProvider _masterConnectionProvider;
 
-        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_DB2_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
         readonly OptimizedThreadShared<DB2ConnectionStringBuilder> _connectionStringBuilder;
 

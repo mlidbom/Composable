@@ -17,7 +17,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
     {
         readonly OracleConnectionProvider _masterConnectionProvider;
 
-        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_ORACLE_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
         readonly OptimizedThreadShared<OracleConnectionStringBuilder> _connectionStringBuilder;
 

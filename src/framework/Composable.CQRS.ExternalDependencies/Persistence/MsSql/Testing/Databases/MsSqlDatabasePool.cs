@@ -14,7 +14,7 @@ namespace Composable.Persistence.MsSql.Testing.Databases
         readonly string _masterConnectionString;
         readonly MsSqlConnectionProvider _masterConnectionProvider;
 
-        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_SQL_SERVER_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MSSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
         public MsSqlDatabasePool()
         {

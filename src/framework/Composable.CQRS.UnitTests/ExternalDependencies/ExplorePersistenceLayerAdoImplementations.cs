@@ -3,6 +3,8 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using Composable.Persistence.Common.EventStore;
+using Composable.Persistence.DB2.SystemExtensions;
+using Composable.Persistence.DB2.Testing.Databases;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
@@ -16,6 +18,7 @@ using Composable.Persistence.PgSql.Testing.Databases;
 using Composable.System.Threading;
 using FluentAssertions;
 using IBM.Data.DB2.Core;
+using IBM.Data.DB2Types;
 using MySql.Data.MySqlClient;
 using NpgsqlTypes;
 using NUnit.Framework;
@@ -79,6 +82,21 @@ namespace Composable.Tests.ExternalDependencies
                 action: command => command.SetCommandText(commandText: "select :parm from dual")
                                           .AddNullableParameter(name: "parm", OracleDbType.Decimal, OracleDecimal.Parse(numStr: "1"))
                                           .ExecuteReaderAndSelect(@select: @this => @this.GetOracleDecimal(i: 0))
+                                          .Single());
+
+            Console.WriteLine(result2);
+            Console.WriteLine(result2.ToReadOrder());
+        }
+
+        [Test] public void DB2Roundtrip()
+        {
+            using var db2Pool = new DB2DatabasePool();
+            var db2Connection = new DB2ConnectionProvider(db2Pool.ConnectionStringFor(Guid.NewGuid().ToString()));
+
+            var result2 = db2Connection.UseCommand(
+                action: command => command.SetCommandText(commandText: "select :parm from dual")
+                                          .AddNullableParameter(name: "parm", DB2Type.Decimal, DB2Decimal.Parse("1"))
+                                          .ExecuteReaderAndSelect(@select: @this => @this.GetDB2Decimal(i: 0))
                                           .Single());
 
             Console.WriteLine(result2);

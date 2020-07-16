@@ -16,7 +16,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
     {
         readonly PgSqlConnectionProvider _masterConnectionProvider;
 
-        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_PgSql_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_PGSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
         readonly OptimizedThreadShared<NpgsqlConnectionStringBuilder> _connectionStringBuilder;
 
         public PgSqlDatabasePool()

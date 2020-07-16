@@ -180,6 +180,7 @@ namespace Composable.Testing.Databases
             machineWide.Reset();
             _transientCache = new List<Database>();
 
+            InitReboot();
 
             Task[] tasks = 1.Through(NumberOfDatabases)
                             .Select(index => machineWide.Insert())

@@ -36,7 +36,6 @@ namespace Composable.Persistence.DB2.Testing.Databases
 
         protected override void InitReboot() => SystemProcedures.CreateProcedures(_masterConnectionProvider);
 
-
         const string ObjectAlreadyExists = "42710";
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
@@ -44,15 +43,28 @@ namespace Composable.Persistence.DB2.Testing.Databases
             {
                 _masterConnectionProvider.ExecuteNonQuery($@"CREATE SCHEMA ""{db.Name.ToUpperInvariant()}""");
             }
-            catch(DB2Exception exception) when(exception.Errors.Cast<DB2Error>().Any(error => error.SQLState == ObjectAlreadyExists))
-            {}
+            catch(DB2Exception exception) when(exception.Errors.Cast<DB2Error>().Any(error => error.SQLState == ObjectAlreadyExists)) {}
 
             ResetDatabase(db);
         }
 
-        protected override void ResetDatabase(Database db) =>
-            _masterConnectionProvider.UseCommand(command => command.SetStoredProcedure("EMPTY_SCHEMA")
-                                                                   .AddParameter("ASCHEMA", DB2Type.VarChar, db.Name.ToUpperInvariant())
-                                                                   .ExecuteNonQuery());
+        const string DeadlockOrTimeout = "40001";
+        protected override void ResetDatabase(Database db)
+        {
+            for(int tries = 0; tries < 5; tries++)
+            {
+                try
+                {
+                    _masterConnectionProvider.UseCommand(command => command.SetStoredProcedure("EMPTY_SCHEMA")
+                                                                           .AddParameter("ASCHEMA", DB2Type.VarChar, db.Name.ToUpperInvariant())
+                                                                           .ExecuteNonQuery());
+                    return;
+                }
+                catch(DB2Exception exception)when(exception.Errors.Cast<DB2Error>().Any(error => error.SQLState == DeadlockOrTimeout))
+                {
+                    this.Log().Error(exception);
+                }
+            }
+        }
     }
 }

@@ -81,7 +81,7 @@ FROM {Event.TableName}
                                                                 {
                                                                     var commandText = $@"
 {CreateSelectClause()} 
-WHERE {Event.ReadOrderIntegerPart} > @{Event.ReadOrderIntegerPart} OR ({Event.ReadOrderIntegerPart} = @{Event.ReadOrderIntegerPart} AND {Event.ReadOrderFractionPart} > @{Event.ReadOrderFractionPart})
+WHERE ({Event.ReadOrderIntegerPart} > @{Event.ReadOrderIntegerPart} OR ({Event.ReadOrderIntegerPart} = @{Event.ReadOrderIntegerPart} AND {Event.ReadOrderFractionPart} > @{Event.ReadOrderFractionPart}))
     AND {Event.EffectiveVersion} > 0
 ORDER BY {Event.ReadOrderIntegerPart} ASC, {Event.ReadOrderFractionPart} ASC
 FETCH FIRST {batchSize} ROWS ONLY;
@@ -89,6 +89,7 @@ FETCH FIRST {batchSize} ROWS ONLY;
                                                                     return command.SetCommandText(commandText)
                                                                                   .AddParameter(Event.ReadOrderIntegerPart, DB2Type.Decimal, lastReadEventReadOrder.ToDB2DecimalIntegerPart())
                                                                                   .AddParameter(Event.ReadOrderFractionPart, DB2Type.Decimal, lastReadEventReadOrder.ToDB2DecimalFractionPart())
+                                                                                  .LogCommand()
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList();
                                                                 });

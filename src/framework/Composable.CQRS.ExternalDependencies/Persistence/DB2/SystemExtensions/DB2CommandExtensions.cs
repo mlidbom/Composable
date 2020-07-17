@@ -51,7 +51,7 @@ namespace Composable.Persistence.DB2.SystemExtensions
 
                 SafeConsole.WriteLine("####################################### Hacking values into parameter positions #######################################");
                 var commandTextWithParameterValues = @this.CommandText;
-                parameters.ForEach(parameter => commandTextWithParameterValues = commandTextWithParameterValues.ReplaceInvariant($":{parameter.ParameterName}", parameter.Value == DBNull.Value ? "NULL" : parameter.Value?.ToString() ?? "NULL"));
+                parameters.ForEach(parameter => commandTextWithParameterValues = commandTextWithParameterValues.ReplaceInvariant($"@{parameter.ParameterName}", parameter.Value == DBNull.Value ? "NULL" : parameter.Value?.ToString() ?? "NULL"));
                 Console.WriteLine(commandTextWithParameterValues);
                 SafeConsole.WriteLine("######################################################################################################");
             }

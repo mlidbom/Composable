@@ -56,8 +56,8 @@ END;
                                               .AddParameter(Event.ReadOrderIntegerPart, DB2Type.Decimal, (data.StorageInformation.ReadOrder?.ToDB2DecimalIntegerPart() ?? new DB2Decimal(0)))
                                               .AddParameter(Event.ReadOrderFractionPart, DB2Type.Decimal, (data.StorageInformation.ReadOrder?.ToDB2DecimalFractionPart() ?? new DB2Decimal(0)))
                                               .AddParameter(Event.EffectiveVersion, DB2Type.Integer, data.StorageInformation.EffectiveVersion)
-                                              .AddNullableParameter(Event.TargetEvent, DB2Type.VarChar, data.StorageInformation.RefactoringInformation?.TargetEvent)
-                                              .AddNullableParameter(Event.RefactoringType, DB2Type.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
+                                              .AddNullableParameter(Event.TargetEvent, DB2Type.VarChar, data.StorageInformation.RefactoringInformation?.TargetEvent.ToString())
+                                              .AddNullableParameter(Event.RefactoringType, DB2Type.SmallInt, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (int?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
                     catch(DB2Exception e) when ((e.Data["Server Error Code"] as int?)  == PrimaryKeyViolationSqlErrorNumber )
@@ -88,11 +88,22 @@ END;";
             //var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "";
 
-            //Urgent: Using min and max instead of order by and top is far more clean. Do the same in the other persistence layer.s
             var selectStatement = $@"
-SELECT  {Event.ReadOrder},        
-        (select MAX({Event.ReadOrder}) from {Event.TableName} e1 where e1.{Event.ReadOrder} < {Event.TableName}.{Event.ReadOrder}) PreviousReadOrder,
-        (select MIN({Event.ReadOrder}) from {Event.TableName} e1 where e1.{Event.ReadOrder} > {Event.TableName}.{Event.ReadOrder}) NextReadOrder
+SELECT  {Event.ReadOrderIntegerPart} CONCAT '.' CONCAT {Event.ReadOrderFractionPart},
+
+        (select {Event.ReadOrderIntegerPart} CONCAT '.' CONCAT {Event.ReadOrderFractionPart} from {Event.TableName} e1 
+            where e1.{Event.ReadOrderIntegerPart} < {Event.TableName}.{Event.ReadOrderIntegerPart} 
+                    OR (    e1.{Event.ReadOrderIntegerPart} = {Event.TableName}.{Event.ReadOrderIntegerPart} 
+                        AND e1.{Event.ReadOrderFractionPart} < {Event.TableName}.{Event.ReadOrderFractionPart})
+            ORDER BY e1.{Event.ReadOrderIntegerPart} DESC, e1.{Event.ReadOrderIntegerPart} DESC
+            FETCH FIRST 1 ROWS ONLY) PreviousReadOrder,
+
+        (select {Event.ReadOrderIntegerPart} CONCAT '.' CONCAT {Event.ReadOrderFractionPart} from {Event.TableName} e1 
+            where e1.{Event.ReadOrderIntegerPart} > {Event.TableName}.{Event.ReadOrderIntegerPart} 
+                    OR (    e1.{Event.ReadOrderIntegerPart} = {Event.TableName}.{Event.ReadOrderIntegerPart} 
+                        AND e1.{Event.ReadOrderFractionPart} > {Event.TableName}.{Event.ReadOrderFractionPart}) 
+            ORDER BY e1.{Event.ReadOrderIntegerPart} ASC, e1.{Event.ReadOrderIntegerPart} ASC
+            FETCH FIRST 1 ROWS ONLY) NextReadOrder
 FROM    {Event.TableName} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
 where {Event.EventId} = @{Event.EventId}";
 
@@ -102,16 +113,16 @@ where {Event.EventId} = @{Event.EventId}";
                 command =>
                 {
                     using var reader = command.SetCommandText(selectStatement)
-                                             .AddParameter(new DB2Parameter(Event.EventId, DB2Type.VarChar) { Value = eventId })
+                                             .AddParameter(Event.EventId, eventId)
                                               .ExecuteReader();
                     reader.Read();
 
-                    var effectiveReadOrder = reader.GetDB2Decimal(0);
-                    var previousEventReadOrder = reader[1] == DBNull.Value ? (DB2Decimal?)null! : reader.GetDB2Decimal(1);
-                    var nextEventReadOrder = reader[2] == DBNull.Value ? (DB2Decimal?)null! : reader.GetDB2Decimal(2);
-                    neighborhood = new EventNeighborhood(effectiveReadOrder: effectiveReadOrder.ToReadOrder(),
-                                                         previousEventReadOrder: previousEventReadOrder?.ToReadOrder(),
-                                                         nextEventReadOrder: nextEventReadOrder?.ToReadOrder());
+                    var effectiveReadOrder = ReadOrder.Parse(reader.GetString(0), bypassScaleTest: true);
+                    var previousEventReadOrder = reader[1] is string prevString ? ReadOrder.Parse(prevString, bypassScaleTest: true): (ReadOrder?)null;
+                    var nextEventReadOrder = reader[2] is string nextString ? ReadOrder.Parse(nextString, bypassScaleTest: true): (ReadOrder?)null;
+                    neighborhood = new EventNeighborhood(effectiveReadOrder: effectiveReadOrder,
+                                                         previousEventReadOrder: previousEventReadOrder,
+                                                         nextEventReadOrder: nextEventReadOrder);
                 });
 
             return Assert.Result.NotNull(neighborhood);

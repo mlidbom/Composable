@@ -6,7 +6,7 @@ namespace Composable.Logging
 {
     static class ExceptionLogger
     {
-        internal static void Exceptions(this ILogger log, Action action)
+        internal static void ExceptionsAndRethrow(this ILogger log, Action action)
         {
             try
             {
@@ -19,7 +19,7 @@ namespace Composable.Logging
             }
         }
 
-        internal static async Task ExceptionsAsync(this ILogger log, Func<Task> action)
+        internal static async Task ExceptionsAndRethrowAsync(this ILogger log, Func<Task> action)
         {
             try
             {

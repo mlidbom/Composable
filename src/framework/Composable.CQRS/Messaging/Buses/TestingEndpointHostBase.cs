@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
+using Composable.Logging;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Refactoring.Naming;
 using Composable.System.Linq;
@@ -11,7 +12,9 @@ namespace Composable.Messaging.Buses
 {
     public class TestingEndpointHostBase : EndpointHost, ITestingEndpointHost, IEndpointRegistry
     {
-        readonly List<Exception> _handledExceptions = new List<Exception>();
+        readonly ILogger _log = Logger.For<TestingEndpointHostBase>();
+
+        readonly List<Exception> _expectedExceptions = new List<Exception>();
         public TestingEndpointHostBase(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory)
         {
             GlobalBusStateTracker = new GlobalBusStateTracker();
@@ -50,22 +53,29 @@ namespace Composable.Messaging.Buses
                 throw new Exception("Matching exception not thrown.");
             }
 
-            _handledExceptions.Add(matchingException);
+            _expectedExceptions.Add(matchingException);
             return matchingException;
         }
-        protected override void InternalDispose()
+
+        bool _disposed;
+        protected override void Dispose(bool disposing) => _log.ExceptionsAndRethrow(() =>
         {
-            WaitForEndpointsToBeAtRest();
-
-            var unHandledExceptions = GetThrownExceptions().Except(_handledExceptions).ToList();
-
-            base.InternalDispose();
-
-            if(unHandledExceptions.Any())
+            if(!_disposed)
             {
-                throw new AggregateException("Unhandled exceptions thrown in bus", unHandledExceptions.ToArray());
+                _disposed = true;
+                WaitForEndpointsToBeAtRest();
+
+                var unHandledExceptions = GetThrownExceptions().Except(_expectedExceptions).ToList();
+
+                base.Dispose(disposing);
+
+                if(unHandledExceptions.Any())
+                {
+                    throw new AggregateException("Unhandled exceptions thrown in bus", unHandledExceptions.ToArray());
+                }
             }
-        }
+        });
+
         List<Exception> GetThrownExceptions() => GlobalBusStateTracker.GetExceptions().ToList();
     }
 }

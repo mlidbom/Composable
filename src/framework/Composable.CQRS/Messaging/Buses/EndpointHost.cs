@@ -56,7 +56,7 @@ namespace Composable.Messaging.Buses
 
         bool _isStarted;
 
-        public async Task StartAsync() => await _log.ExceptionsAsync(async () =>
+        public async Task StartAsync() => await _log.ExceptionsAndRethrowAsync(async () =>
         {
             Assert.State.Assert(!_isStarted, Endpoints.None(endpoint => endpoint.IsRunning));
             _isStarted = true;
@@ -67,31 +67,31 @@ namespace Composable.Messaging.Buses
 
         public void Start() => StartAsync().WaitUnwrappingException();
 
-        public void Stop() => _log.Exceptions(() =>
+        public void Stop() => _log.ExceptionsAndRethrow(() =>
         {
             Assert.State.Assert(_isStarted);
             _isStarted = false;
             Endpoints.Where(endpoint => endpoint.IsRunning).ForEach(endpoint => endpoint.Stop());
         });
 
-        protected virtual void InternalDispose() => _log.Exceptions(() =>
-        {
-            if(_isStarted)
-            {
-                Stop();
-            }
-
-            Endpoints.ForEach(endpoint => endpoint.Dispose());
-        });
-
-        public void Dispose() => _log.Exceptions(() =>
+        protected virtual void Dispose(bool disposing) => _log.ExceptionsAndRethrow(() =>
         {
             if(!_disposed)
             {
                 _disposed = true;
-                InternalDispose();
-                GC.SuppressFinalize(this);
+                if(_isStarted)
+                {
+                    Stop();
+                }
+
+                Endpoints.ForEach(endpoint => endpoint.Dispose());
             }
         });
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+         }
     }
 }

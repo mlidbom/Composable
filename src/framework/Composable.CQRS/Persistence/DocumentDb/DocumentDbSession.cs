@@ -204,12 +204,7 @@ namespace Composable.Persistence.DocumentDb
         readonly Guid _id = Guid.NewGuid();
         readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
-
-#pragma warning disable IDE0069 //Reviewed OK: We should really not dispose the transaction just because we reference it :)
-#pragma warning disable CA2213 // Disposable fields should be disposed
-        Transaction? _participatingIn = null;
-#pragma warning restore CA2213 // Disposable fields should be disposed
-#pragma warning restore IDE0069 // Disposable fields should be disposed
+        Transaction? _participatingIn;
         void EnsureParticipatingInTransaction()
         {
             var ambientTransaction = Transaction.Current;

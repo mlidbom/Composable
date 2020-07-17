@@ -141,8 +141,8 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     useConnection = () => oracleConnectionProvider .UseConnection(_ => {});
                     break;
                 case PersistenceLayer.DB2:
-                    var db2ConnectionProvider = new DB2ConnectionProvider(manager.ConnectionStringFor(reservationName));
-                    useConnection = () => db2ConnectionProvider .UseConnection(_ => {});
+                    var ComposableDB2ConnectionProvider = new ComposableDB2ConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    useConnection = () => ComposableDB2ConnectionProvider .UseConnection(_ => {});
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

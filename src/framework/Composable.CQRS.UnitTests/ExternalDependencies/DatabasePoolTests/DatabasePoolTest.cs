@@ -51,7 +51,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     UseOracleConnection(pool.ConnectionStringFor(connectionString), func);
                     break;
                 case PersistenceLayer.DB2:
-                    UseDB2Connection(pool.ConnectionStringFor(connectionString), func);
+                    UseComposableDB2Connection(pool.ConnectionStringFor(connectionString), func);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -70,7 +70,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         static void UseOracleConnection(string connectionStringFor, Action<IDbConnection> func) =>
             new OracleConnectionProvider(connectionStringFor).UseConnection(func);
 
-        static void UseDB2Connection(string connectionStringFor, Action<IDbConnection> func) =>
-            new DB2ConnectionProvider(connectionStringFor).UseConnection(func);
+        static void UseComposableDB2Connection(string connectionStringFor, Action<IDbConnection> func) =>
+            new ComposableDB2ConnectionProvider(connectionStringFor).UseConnection(conn => func(conn.Connection));
     }
 }

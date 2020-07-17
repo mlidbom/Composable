@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Composable.Persistence.MySql.SystemExtensions;
+using Composable.System.Threading;
 using M = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
 using D = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 
@@ -43,7 +44,7 @@ namespace Composable.Persistence.MySql.Messaging.Buses.Implementation
     ENGINE = InnoDB
     DEFAULT CHARACTER SET = utf8mb4;
 
-");
+").NoMarshalling();
             }
         }
     }

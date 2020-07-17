@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Composable.Logging;
 using Composable.System.Linq;
 using Composable.System.Reflection;
+using Composable.System.Threading;
 
 namespace Composable.Persistence.DB2.SystemExtensions
 {
@@ -15,9 +16,9 @@ namespace Composable.Persistence.DB2.SystemExtensions
         public static void ExecuteReader(this DB2Command @this, string commandText, Action<DB2DataReader> forEach) => @this.ExecuteReader(commandText).ForEachSuccessfulRead(forEach);
         public static DB2DataReader ExecuteReader(this DB2Command @this, string commandText) => @this.SetCommandText(commandText).ExecuteReader();
         public static object ExecuteScalar(this DB2Command @this, string commandText) => @this.SetCommandText(commandText).ExecuteScalar();
-        public static async Task<object> ExecuteScalarAsync(this DB2Command @this, string commandText) => await @this.SetCommandText(commandText).ExecuteScalarAsync();
+        public static async Task<object> ExecuteScalarAsync(this DB2Command @this, string commandText) => await @this.SetCommandText(commandText).ExecuteScalarAsync().NoMarshalling();
         public static void ExecuteNonQuery(this DB2Command @this, string commandText) => @this.SetCommandText(commandText).ExecuteNonQuery();
-        public static async Task<int> ExecuteNonQueryAsync(this DB2Command @this, string commandText) => await @this.SetCommandText(commandText).ExecuteNonQueryAsync();
+        public static async Task<int> ExecuteNonQueryAsync(this DB2Command @this, string commandText) => await @this.SetCommandText(commandText).ExecuteNonQueryAsync().NoMarshalling();
         public static DB2Command AppendCommandText(this DB2Command @this, string append) => @this.Mutate(me => me.CommandText += append);
         public static DB2Command SetCommandText(this DB2Command @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
         public static DB2Command SetStoredProcedure(this DB2Command @this, string storedProcedure) => @this.Mutate(me =>

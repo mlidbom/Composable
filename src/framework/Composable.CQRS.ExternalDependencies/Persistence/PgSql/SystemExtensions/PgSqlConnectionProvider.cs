@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Npgsql;
 using System.Transactions;
 using Composable.System.Collections.Collections;
+using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.SystemExtensions.TransactionsCE;
 
@@ -73,14 +74,14 @@ namespace Composable.Persistence.PgSql.SystemExtensions
         public async Task<TResult> UseConnectionAsync<TResult>(Func<NpgsqlConnection, Task<TResult>> func)
         {
             await using var connection = OpenConnection();
-            return await func(connection);
+            return await func(connection).NoMarshalling();
         }
 
 
         public async Task UseConnectionAsync(Func<NpgsqlConnection, Task> action)
         {
             await using var connection = OpenConnection();
-            await action(connection);
+            await action(connection).NoMarshalling();
         }
 
     }

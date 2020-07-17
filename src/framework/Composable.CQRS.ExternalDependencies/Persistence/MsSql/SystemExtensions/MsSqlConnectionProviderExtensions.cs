@@ -1,6 +1,7 @@
 using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Composable.System.Threading;
 
 namespace Composable.Persistence.MsSql.SystemExtensions
 {
@@ -9,7 +10,7 @@ namespace Composable.Persistence.MsSql.SystemExtensions
         public static int ExecuteNonQuery(this IMsSqlConnectionProvider @this, string commandText) => @this.UseCommand(command => command.SetCommandText(commandText).ExecuteNonQuery());
 
         public static async Task<int> ExecuteNonQueryAsync(this IMsSqlConnectionProvider @this, string commandText)
-            => await @this.UseConnectionAsync(async connection => await connection.ExecuteNonQueryAsync(commandText));
+            => await @this.UseConnectionAsync(async connection => await connection.ExecuteNonQueryAsync(commandText).NoMarshalling()).NoMarshalling();
 
         public static object ExecuteScalar(this IMsSqlConnectionProvider @this, string commandText) => @this.UseCommand(command => command.SetCommandText(commandText).ExecuteScalar());
 

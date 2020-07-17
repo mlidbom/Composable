@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using System.Transactions;
+using Composable.System.Threading;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {
@@ -48,14 +49,14 @@ namespace Composable.Persistence.MySql.SystemExtensions
         public async Task<TResult> UseConnectionAsync<TResult>(Func<MySqlConnection, Task<TResult>> func)
         {
             await using var connection = OpenConnection();
-            return await func(connection);
+            return await func(connection).NoMarshalling();
         }
 
 
         public async Task UseConnectionAsync(Func<MySqlConnection, Task> action)
         {
             await using var connection = OpenConnection();
-            await action(connection);
+            await action(connection).NoMarshalling();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Composable.Persistence.DB2.SystemExtensions;
+using Composable.System.Threading;
 using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
 using Dispatch = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 
@@ -51,7 +52,7 @@ begin
         end if;
     end;
 ")
-                                      .ExecuteNonQueryAsync());
+                                      .ExecuteNonQueryAsync()).NoMarshalling();
             }
         }
     }

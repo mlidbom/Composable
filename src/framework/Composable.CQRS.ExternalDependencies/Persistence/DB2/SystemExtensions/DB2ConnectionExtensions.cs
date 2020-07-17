@@ -1,6 +1,7 @@
 using System;
 using IBM.Data.DB2.Core;
 using System.Threading.Tasks;
+using Composable.System.Threading;
 
 namespace Composable.Persistence.DB2.SystemExtensions
 {
@@ -21,11 +22,11 @@ namespace Composable.Persistence.DB2.SystemExtensions
         public static async Task UseCommandAsync(this DB2Connection @this, Func<DB2Command, Task> action)
         {
             using var command = @this.CreateCommand();
-            await action(command);
+            await action(command).NoMarshalling();
         }
 
         public static void ExecuteNonQuery(this DB2Connection @this, string commandText) => @this.UseCommand(command => command.ExecuteNonQuery(commandText));
-        public static async Task<int> ExecuteNonQueryAsync(this DB2Connection @this, string commandText) => await @this.UseCommand(command => command.ExecuteNonQueryAsync(commandText));
+        public static async Task<int> ExecuteNonQueryAsync(this DB2Connection @this, string commandText) => await @this.UseCommand(command => command.ExecuteNonQueryAsync(commandText)).NoMarshalling();
         public static object ExecuteScalar(this DB2Connection @this, string commandText) => @this.UseCommand(command => command.ExecuteScalar(commandText));
         public static Task<object> ExecuteScalarAsync(this DB2Connection @this, string commandText) => @this.UseCommand(command => command.ExecuteScalarAsync(commandText));
         public static void ExecuteReader(this DB2Connection @this, string commandText, Action<DB2DataReader> forEach) => @this.UseCommand(command => command.ExecuteReader(commandText, forEach));

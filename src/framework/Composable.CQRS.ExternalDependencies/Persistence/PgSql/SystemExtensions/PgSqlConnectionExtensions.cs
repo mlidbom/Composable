@@ -1,6 +1,7 @@
 using System;
 using Npgsql;
 using System.Threading.Tasks;
+using Composable.System.Threading;
 
 namespace Composable.Persistence.PgSql.SystemExtensions
 {
@@ -19,7 +20,7 @@ namespace Composable.Persistence.PgSql.SystemExtensions
         }
 
         public static void ExecuteNonQuery(this NpgsqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteNonQuery(commandText));
-        public static async Task<int> ExecuteNonQueryAsync(this NpgsqlConnection @this, string commandText) => await @this.UseCommand(command => command.ExecuteNonQueryAsync(commandText));
+        public static async Task<int> ExecuteNonQueryAsync(this NpgsqlConnection @this, string commandText) => await @this.UseCommand(command => command.ExecuteNonQueryAsync(commandText)).NoMarshalling();
         public static object ExecuteScalar(this NpgsqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteScalar(commandText));
         public static Task<object> ExecuteScalarAsync(this NpgsqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteScalarAsync(commandText));
         public static void ExecuteReader(this NpgsqlConnection @this, string commandText, Action<NpgsqlDataReader> forEach) => @this.UseCommand(command => command.ExecuteReader(commandText, forEach));

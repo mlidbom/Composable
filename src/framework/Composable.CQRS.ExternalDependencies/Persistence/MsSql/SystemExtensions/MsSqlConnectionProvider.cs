@@ -2,6 +2,7 @@ using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Transactions;
+using Composable.System.Threading;
 
 namespace Composable.Persistence.MsSql.SystemExtensions
 {
@@ -42,14 +43,14 @@ namespace Composable.Persistence.MsSql.SystemExtensions
         public async Task<TResult> UseConnectionAsync<TResult>(Func<SqlConnection, Task<TResult>> func)
         {
             await using var connection = OpenConnection();
-            return await func(connection);
+            return await func(connection).NoMarshalling();
         }
 
 
         public async Task UseConnectionAsync(Func<SqlConnection, Task> action)
         {
             await using var connection = OpenConnection();
-            await action(connection);
+            await action(connection).NoMarshalling();
         }
     }
 }

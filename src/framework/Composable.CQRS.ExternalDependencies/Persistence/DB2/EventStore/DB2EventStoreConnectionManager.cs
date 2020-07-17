@@ -8,10 +8,10 @@ namespace Composable.Persistence.DB2.EventStore
 {
     class DB2EventStoreConnectionManager
     {
-        readonly IDB2ConnectionProvider _connectionProvider;
-        public DB2EventStoreConnectionManager(IDB2ConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
+        readonly IComposableDB2ConnectionProvider _connectionProvider;
+        public DB2EventStoreConnectionManager(IComposableDB2ConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
 
-        public void UseConnection([InstantHandle] Action<DB2Connection> action)
+        public void UseConnection([InstantHandle] Action<ComposableDB2Connection> action)
         {
             AssertTransactionPolicy(false);
             _connectionProvider.UseConnection(action);

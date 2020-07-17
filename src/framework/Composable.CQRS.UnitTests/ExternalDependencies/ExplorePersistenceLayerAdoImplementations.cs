@@ -3,6 +3,7 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using Composable.Persistence.Common.EventStore;
+using Composable.Persistence.DB2;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.Persistence.DB2.Testing.Databases;
 using Composable.Persistence.EventStore;
@@ -93,9 +94,9 @@ namespace Composable.Tests.ExternalDependencies
         [Test] public void DB2Roundtrip()
         {
             var schema = "Composable_DatabasePool_0001";
-            var db2Connection = new DB2ConnectionProvider($"SERVER=localhost;DATABASE=CDBPOOL;CurrentSchema={schema};User ID=db2admin;Password=Development!1;");
+            var ComposableDB2Connection = new ComposableDB2ConnectionProvider($"SERVER=localhost;DATABASE=CDBPOOL;CurrentSchema={schema};User ID=db2admin;Password=Development!1;");
 
-            var result2 = db2Connection.UseCommand(
+            var result2 = ComposableDB2Connection.UseCommand(
                 action: command => command.SetCommandText(commandText: "select cast(@parm as decimal(31,19)) from sysibm.sysdummy1")
                                           .AddParameter(name: "@parm", DB2Type.Decimal, DB2Decimal.Parse("1"))
                                           .ExecuteReaderAndSelect(@select: @this => @this.GetDB2Decimal(i: 0))
@@ -108,7 +109,7 @@ namespace Composable.Tests.ExternalDependencies
         [Test] public void Db2Test()
         {
             var schema = "Composable_DatabasePool_0001";
-            using var db2conn = new DB2Connection(connectionString: $"SERVER=localhost;DATABASE=CDBPOOL;CurrentSchema={schema};User ID=db2admin;Password=Development!1;");
+            using var db2conn = new ComposableDB2Connection(connectionString: $"SERVER=localhost;DATABASE=CDBPOOL;CurrentSchema={schema};User ID=db2admin;Password=Development!1;");
             db2conn.Open();
 
             var cmd = db2conn.CreateCommand();

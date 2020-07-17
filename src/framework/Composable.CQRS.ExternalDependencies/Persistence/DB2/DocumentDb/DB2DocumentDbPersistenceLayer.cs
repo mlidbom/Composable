@@ -13,13 +13,13 @@ namespace Composable.Persistence.DB2.DocumentDb
 {
     partial class DB2DocumentDbPersistenceLayer : IDocumentDbPersistenceLayer
     {
-        readonly IDB2ConnectionProvider _connectionProvider;
+        readonly IComposableDB2ConnectionProvider _connectionProvider;
         readonly SchemaManager _schemaManager;
         bool _initialized;
         readonly object _lockObject = new object();
         const int UniqueConstraintViolationErrorNumber = 2627;
 
-        internal DB2DocumentDbPersistenceLayer(IDB2ConnectionProvider connectionProvider)
+        internal DB2DocumentDbPersistenceLayer(IComposableDB2ConnectionProvider connectionProvider)
         {
             _schemaManager = new SchemaManager(connectionProvider);
             _connectionProvider = connectionProvider;

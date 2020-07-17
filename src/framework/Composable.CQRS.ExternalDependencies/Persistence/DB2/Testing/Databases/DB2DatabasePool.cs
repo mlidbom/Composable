@@ -17,7 +17,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
 {
     sealed class DB2DatabasePool : DatabasePool
     {
-        readonly DB2ConnectionProvider _masterConnectionProvider;
+        readonly ComposableDB2ConnectionProvider _masterConnectionProvider;
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_DB2_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
@@ -28,7 +28,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
             _masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
                                    ?? "SERVER=localhost;DATABASE=CDBPOOL;User ID=db2admin;Password=Development!1;";
 
-            _masterConnectionProvider = new DB2ConnectionProvider(_masterConnectionString);
+            _masterConnectionProvider = new ComposableDB2ConnectionProvider(_masterConnectionString);
         }
 
         protected override string ConnectionStringFor(Database db)

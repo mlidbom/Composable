@@ -13,8 +13,8 @@ namespace Composable.Persistence.DB2.DocumentDb
         {
             readonly object _lockObject = new object();
             bool _initialized = false;
-            readonly IDB2ConnectionProvider _connectionProvider;
-            public SchemaManager(IDB2ConnectionProvider connectionProvider) => _connectionProvider = connectionProvider;
+            readonly IComposableDB2ConnectionProvider _connectionProvider;
+            public SchemaManager(IComposableDB2ConnectionProvider connectionProvider) => _connectionProvider = connectionProvider;
 
             internal void EnsureInitialized()
             {

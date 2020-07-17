@@ -24,12 +24,12 @@ begin
         EXECUTE IMMEDIATE '
             CREATE TABLE {Message.TableName}
                 (
-                    {Message.GeneratedId}       NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL,
+                    {Message.GeneratedId}       BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
                     {Message.TypeIdGuidValue}   {DB2GuidType}                        NOT NULL,
                     {Message.MessageId}         {DB2GuidType}                        NOT NULL,
-                    {Message.SerializedMessage} NCLOB                                   NOT NULL,
+                    {Message.SerializedMessage} CLOB                                   NOT NULL,
 
-                    CONSTRAINT PK_{Message.TableName} PRIMARY KEY ({Message.GeneratedId}),
+                    PRIMARY KEY ({Message.GeneratedId}),
 
                     CONSTRAINT {Message.TableName}_Unique_{Message.MessageId} UNIQUE ( {Message.MessageId} )
                 )';
@@ -41,7 +41,7 @@ begin
                 {Dispatch.EndpointId} {DB2GuidType} NOT NULL,
                 {Dispatch.IsReceived} NUMBER(1)        NOT NULL,
 
-                CONSTRAINT PK_{Dispatch.TableName} PRIMARY KEY ({Dispatch.MessageId}, {Dispatch.EndpointId})
+                PRIMARY KEY ({Dispatch.MessageId}, {Dispatch.EndpointId})
                     /*WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON PRIMARY,*/
             )';
 

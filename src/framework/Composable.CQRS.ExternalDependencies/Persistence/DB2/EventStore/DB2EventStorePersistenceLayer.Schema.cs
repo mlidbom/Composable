@@ -24,25 +24,25 @@ begin
 
             CREATE TABLE {Event.TableName}
             (
-                {Event.InsertionOrder}        NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL ,
+                {Event.InsertionOrder}        BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL ,
                 {Event.AggregateId}           {DB2GuidType}                           NOT NULL,  
-                {Event.UtcTimeStamp}          TIMESTAMP(7)                            NOT NULL,   
+                {Event.UtcTimeStamp}          TIMESTAMP                               NOT NULL,   
                 {Event.EventType}             {DB2GuidType}                           NOT NULL,    
-                {Event.Event}                 NCLOB                                   NOT NULL,
+                {Event.Event}                 CLOB                                    NOT NULL,
                 {Event.EventId}               {DB2GuidType}                           NOT NULL,
-                {Event.InsertedVersion}       NUMBER(10)                              NOT NULL,
-                {Event.SqlInsertTimeStamp}    TIMESTAMP(9) default CURRENT_TIMESTAMP  NOT NULL,
-                {Event.ReadOrderIntegerPart}  NUMBER(19)                              NOT NULL,
-                {Event.ReadOrderFractionPart} NUMBER(19)                              NOT NULL,
-                {Event.EffectiveVersion}      NUMBER(10)                              NOT NULL,
+                {Event.InsertedVersion}       INTEGER                                 NOT NULL,
+                {Event.SqlInsertTimeStamp}    TIMESTAMP    default CURRENT_TIMESTAMP  NOT NULL,
+                {Event.ReadOrderIntegerPart}  DECIMAL(19)                             NOT NULL,
+                {Event.ReadOrderFractionPart} DECIMAL(19)                             NOT NULL,
+                {Event.EffectiveVersion}      INTEGER                                 NOT NULL,
                 {Event.TargetEvent}           {DB2GuidType}                           NULL,
-                {Event.RefactoringType}       NUMBER(3)                               NULL,                
+                {Event.RefactoringType}       SMALLINT                                NULL,                
 
                 PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
 
                 CONSTRAINT {Event.TableName}_Unique_{Event.EventId}        UNIQUE ( {Event.EventId} ),
                 CONSTRAINT {Event.TableName}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} ),
-                CONSTRAINT {Event.TableName}_Unique_{Event.ReadOrder}      UNIQUE ( {Event.ReadOrderIntegerPart}, {Event.ReadOrderFractionPart} ),
+                CONSTRAINT {Event.TableName}_Unique_{Event.ReadOrder}      UNIQUE ( {Event.ReadOrderIntegerPart}, {Event.ReadOrderFractionPart} )
             )';
 
         EXECUTE IMMEDIATE '

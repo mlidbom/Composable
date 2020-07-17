@@ -8,6 +8,7 @@ namespace Composable.Persistence.DB2.SystemExtensions
         //DB2Decimal does maintain the full precision, but when all 19 numbers are not required to display accurately it omits all the trailing zeroes.
         internal static ReadOrder ToReadOrder(this DB2Decimal db2Decimal) => ReadOrder.Parse(db2Decimal.ToString().Replace(',','.'));
 
-        internal static DB2Decimal ToDB2Decimal(this ReadOrder readOrder) => DB2Decimal.Parse(readOrder.ToString());
+        internal static DB2Decimal ToDB2DecimalIntegerPart(this ReadOrder readOrder) => DB2Decimal.Parse(readOrder.ToString().Split(".")[0]);
+        internal static DB2Decimal ToDB2DecimalFractionPart(this ReadOrder readOrder) => DB2Decimal.Parse(readOrder.ToString().Split(".")[1]);
     }
 }

@@ -31,19 +31,19 @@ namespace Composable.Persistence.DB2.EventStore
                                                    //urgent: explore db2 alternatives to commented out hints .
                                                    $@"
 BEGIN
-    IF (:{Event.InsertedVersion} = 1) THEN
-        insert into {Lock.TableName}({Lock.AggregateId}) values(:{Lock.AggregateId});
+    IF (@{Event.InsertedVersion} = 1) THEN
+        insert into {Lock.TableName}({Lock.AggregateId}) values(@{Lock.AggregateId});
     END IF;
 
     INSERT INTO {Event.TableName} /*With(READCOMMITTED, ROWLOCK)*/
-    (       {Event.AggregateId},  {Event.InsertedVersion},  {Event.EffectiveVersion},  {Event.ReadOrder},  {Event.EventType},  {Event.EventId},  {Event.UtcTimeStamp},  {Event.Event},  {Event.TargetEvent}, {Event.RefactoringType}) 
-    VALUES(:{Event.AggregateId}, :{Event.InsertedVersion}, :{Event.EffectiveVersion}, :{Event.ReadOrder}, :{Event.EventType}, :{Event.EventId}, :{Event.UtcTimeStamp}, :{Event.Event}, :{Event.TargetEvent},:{Event.RefactoringType});
+    (       {Event.AggregateId},  {Event.InsertedVersion},  {Event.EffectiveVersion},  {Event.ReadOrderIntegerPart},  {Event.ReadOrderFractionPart},  {Event.EventType},  {Event.EventId},  {Event.UtcTimeStamp},  {Event.Event},  {Event.TargetEvent}, {Event.RefactoringType}) 
+    VALUES(@{Event.AggregateId}, @{Event.InsertedVersion}, @{Event.EffectiveVersion}, @{Event.ReadOrderIntegerPart}, @{Event.ReadOrderFractionPart}, @{Event.EventType}, @{Event.EventId}, @{Event.UtcTimeStamp}, @{Event.Event}, @{Event.TargetEvent},@{Event.RefactoringType});
 
 
-    IF (:{Event.ReadOrder} = 0) THEN
+    IF (@{Event.ReadOrderIntegerPart} = 0) THEN
         UPDATE {Event.TableName} /*With(READCOMMITTED, ROWLOCK)*/
-                SET {Event.ReadOrder} = cast({Event.InsertionOrder} as {Event.ReadOrderType})
-                WHERE {Event.EventId} = :{Event.EventId};
+                SET {Event.ReadOrderIntegerPart} = cast({Event.InsertionOrder} as DECIMAL(19))
+                WHERE {Event.EventId} = @{Event.EventId};
     END IF;
 END;
 ")
@@ -53,7 +53,8 @@ END;
                                               .AddParameter(Event.EventId, data.EventId)
                                               .AddParameter(Event.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddNClobParameter(Event.Event, data.EventJson)
-                                              .AddParameter(Event.ReadOrder, DB2Type.Decimal, (data.StorageInformation.ReadOrder?.ToDB2Decimal() ?? new DB2Decimal(0)))
+                                              .AddParameter(Event.ReadOrderIntegerPart, DB2Type.Decimal, (data.StorageInformation.ReadOrder?.ToDB2DecimalIntegerPart() ?? new DB2Decimal(0)))
+                                              .AddParameter(Event.ReadOrderFractionPart, DB2Type.Decimal, (data.StorageInformation.ReadOrder?.ToDB2DecimalFractionPart() ?? new DB2Decimal(0)))
                                               .AddParameter(Event.EffectiveVersion, DB2Type.Integer, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(Event.TargetEvent, DB2Type.VarChar, data.StorageInformation.RefactoringInformation?.TargetEvent)
                                               .AddNullableParameter(Event.RefactoringType, DB2Type.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
@@ -93,7 +94,7 @@ SELECT  {Event.ReadOrder},
         (select MAX({Event.ReadOrder}) from {Event.TableName} e1 where e1.{Event.ReadOrder} < {Event.TableName}.{Event.ReadOrder}) PreviousReadOrder,
         (select MIN({Event.ReadOrder}) from {Event.TableName} e1 where e1.{Event.ReadOrder} > {Event.TableName}.{Event.ReadOrder}) NextReadOrder
 FROM    {Event.TableName} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
-where {Event.EventId} = :{Event.EventId}";
+where {Event.EventId} = @{Event.EventId}";
 
             EventNeighborhood? neighborhood = null;
 
@@ -116,17 +117,14 @@ where {Event.EventId} = :{Event.EventId}";
             return Assert.Result.NotNull(neighborhood);
         }
 
-        public void DeleteAggregate(Guid aggregateId)
-        {
+        public void DeleteAggregate(Guid aggregateId) =>
             _connectionManager.UseCommand(
                 command =>
                 {
                     //urgent: Find equivalent to rowlock hint.
-                    command.CommandText +=
-                        $"DELETE FROM {Event.TableName} /*With(ROWLOCK)*/ WHERE {Event.AggregateId} = :{Event.AggregateId}";
-                    command.Parameters.Add(new DB2Parameter(Event.AggregateId, DB2Type.VarChar) { Value = aggregateId });
-                    command.ExecuteNonQuery();
+                    command.SetCommandText($"DELETE FROM {Event.TableName} /*With(ROWLOCK)*/ WHERE {Event.AggregateId} = @{Event.AggregateId}")
+                           .AddParameter(Event.AggregateId, aggregateId)
+                           .ExecuteNonQuery();
                 });
-        }
     }
 }

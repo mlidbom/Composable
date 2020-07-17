@@ -23,18 +23,18 @@ begin
         EXECUTE IMMEDIATE '
             CREATE TABLE {Message.TableName}
             (
-                {Message.GeneratedId}           NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL,
+                {Message.GeneratedId}           BIGINT GENERATED ALWAYS AS IDENTITY   NOT NULL,
                 {Message.TypeId}                {DB2GuidType}                        NOT NULL,
                 {Message.MessageId}             {DB2GuidType}                        NOT NULL,
                 {Message.Status}                smallint                                NOT NULL,
-                {Message.Body}                  NCLOB                                   NOT NULL,
-                {Message.ExceptionCount}        int DEFAULT 0                           NOT NULL,
+                {Message.Body}                  CLOB                                   NOT NULL,
+                {Message.ExceptionCount}        integer DEFAULT 0                           NOT NULL,
                 {Message.ExceptionType}         varchar(500)                            NULL,
-                {Message.ExceptionStackTrace}   NCLOB                                   NULL,
-                {Message.ExceptionMessage}      NCLOB                                   NULL,
+                {Message.ExceptionStackTrace}   CLOB                                   NULL,
+                {Message.ExceptionMessage}      CLOB                                   NULL,
 
 
-                CONSTRAINT {Message.TableName}_PK PRIMARY KEY ({Message.GeneratedId}),
+                PRIMARY KEY ({Message.GeneratedId}),
 
                 CONSTRAINT {Message.TableName}_Unique_{Message.MessageId} UNIQUE ( {Message.MessageId} )
             )';

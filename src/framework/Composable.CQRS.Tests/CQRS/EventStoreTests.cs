@@ -24,7 +24,8 @@ namespace Composable.Tests.CQRS
     }
 
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl))] [TestFixture]
+    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl), nameof(PersistenceLayer.DB2))]
+    [TestFixture]
     public class EventStoreTests
     {
         IEventStore EventStore => _serviceLocator.EventStore();
@@ -155,7 +156,7 @@ namespace Composable.Tests.CQRS
                                                    {
                                                        var eventStore = _serviceLocator.EventStore();
 
-                                                       eventStore.GetAggregateHistory(Guid.NewGuid()); //Trick store inte ensuring the schema exists.
+                                                       eventStore.GetAggregateHistory(Guid.NewGuid()); //Trick store into ensuring the schema exists.
 
                                                        var user = new User();
                                                        user.Register("email@email.se", "password", Guid.NewGuid());

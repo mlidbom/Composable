@@ -23,7 +23,7 @@ namespace Composable.Persistence.DB2.EventStore
 
         static string CreateSelectClause() =>
             $@"
-SELECT {Event.EventType}, {Event.Event}, {Event.AggregateId}, {Event.EffectiveVersion}, {Event.EventId}, {Event.UtcTimeStamp}, {Event.InsertionOrder}, {Event.TargetEvent}, {Event.RefactoringType}, {Event.InsertedVersion}, {Event.ReadOrder}
+SELECT {Event.EventType}, {Event.Event}, {Event.AggregateId}, {Event.EffectiveVersion}, {Event.EventId}, {Event.UtcTimeStamp}, {Event.InsertionOrder}, {Event.TargetEvent}, {Event.RefactoringType}, {Event.InsertedVersion}, {Event.ReadOrderIntegerPart}, {Event.ReadOrderFractionPart}
 FROM {Event.TableName}
 ";
 
@@ -39,7 +39,7 @@ FROM {Event.TableName}
                 utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
                 storageInformation: new AggregateEventStorageInformation()
                                         {
-                                            ReadOrder = eventReader.GetDB2Decimal(10).ToReadOrder(),
+                                            ReadOrder = ReadOrder.Parse($"{eventReader.GetDB2Decimal(10)}.{eventReader.GetDB2Decimal(11)}", bypassScaleTest: true),
                                             InsertedVersion = eventReader.GetInt32(9),
                                             EffectiveVersion = eventReader.GetInt32(3),
                                             RefactoringInformation = (eventReader[7] as string, eventReader[8] as short?)switch
@@ -59,14 +59,13 @@ FROM {Event.TableName}
 
     
     {CreateSelectClause()} 
-    WHERE {Event.AggregateId} = :{Event.AggregateId}
-        AND {Event.InsertedVersion} > :CachedVersion
+    WHERE {Event.AggregateId} = @{Event.AggregateId}
+        AND {Event.InsertedVersion} > @CachedVersion
         AND {Event.EffectiveVersion} >= 0
-    ORDER BY {Event.ReadOrder} ASC;
+    ORDER BY {Event.ReadOrderIntegerPart} ASC, {Event.ReadOrderFractionPart} ASC;
 ")
                                                                    .AddParameter(Event.AggregateId, aggregateId)
                                                                    .AddParameter("CachedVersion", startAfterInsertedVersion)
-                                                                   .AddParameter("TakeWriteLock", DB2Type.Boolean, takeWriteLock)
                                                                    .ExecuteReaderAndSelect(ReadDataRow)
                                                                    .ToList());
         }
@@ -82,12 +81,14 @@ FROM {Event.TableName}
                                                                 {
                                                                     var commandText = $@"
 {CreateSelectClause()} 
-WHERE {Event.ReadOrder}  > :{Event.ReadOrder}
+WHERE {Event.ReadOrderIntegerPart} > @{Event.ReadOrderIntegerPart} OR ({Event.ReadOrderIntegerPart} = @{Event.ReadOrderIntegerPart} AND {Event.ReadOrderFractionPart} > @{Event.ReadOrderFractionPart})
     AND {Event.EffectiveVersion} > 0
-    AND ROWNUM <= {batchSize}
-ORDER BY {Event.ReadOrder} ASC";
+ORDER BY {Event.ReadOrderIntegerPart} ASC, {Event.ReadOrderFractionPart} ASC
+FETCH FIRST {batchSize} ROWS ONLY;
+";
                                                                     return command.SetCommandText(commandText)
-                                                                                  .AddParameter(Event.ReadOrder, DB2Type.Decimal, lastReadEventReadOrder.ToDB2Decimal())
+                                                                                  .AddParameter(Event.ReadOrderIntegerPart, DB2Type.Decimal, lastReadEventReadOrder.ToDB2DecimalIntegerPart())
+                                                                                  .AddParameter(Event.ReadOrderFractionPart, DB2Type.Decimal, lastReadEventReadOrder.ToDB2DecimalFractionPart())
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList();
                                                                 });
@@ -113,7 +114,7 @@ ORDER BY {Event.ReadOrder} ASC";
 SELECT {Event.AggregateId}, {Event.EventType} 
 FROM {Event.TableName} 
 WHERE {Event.EffectiveVersion} = 1 
-ORDER BY {Event.ReadOrder} ASC")
+ORDER BY {Event.ReadOrderIntegerPart} ASC, {Event.ReadOrderFractionPart} ASC")
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuidFromString(0), typeId: reader.GetGuidFromString(1))));
         }
     }

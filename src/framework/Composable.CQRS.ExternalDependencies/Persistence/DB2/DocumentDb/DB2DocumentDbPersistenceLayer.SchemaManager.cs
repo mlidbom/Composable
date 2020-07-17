@@ -31,11 +31,11 @@ begin
     
         CREATE TABLE {Document.TableName} 
         (
-            {Document.Id}           VARCHAR(500)   NOT NULL, 
-            {Document.ValueTypeId}  {DB2GuidType}   NOT NULL,
-            {Document.Created}      TIMESTAMP        NOT NULL,
-            {Document.Updated}      TIMESTAMP        NOT NULL,
-            {Document.Value}        CLOB            NOT NULL,
+            {Document.Id}           VARCHAR(500)  NOT NULL, 
+            {Document.ValueTypeId}  {DB2GuidType} NOT NULL,
+            {Document.Created}      TIMESTAMP     NOT NULL,
+            {Document.Updated}      TIMESTAMP     NOT NULL,
+            {Document.Value}        CLOB          NOT NULL,
             
             PRIMARY KEY ({Document.Id}, {Document.ValueTypeId})
         );';

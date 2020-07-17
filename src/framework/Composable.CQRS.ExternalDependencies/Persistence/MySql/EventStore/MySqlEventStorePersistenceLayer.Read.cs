@@ -20,6 +20,7 @@ namespace Composable.Persistence.MySql.EventStore
 
         static string CreateSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
 
+        static string CreateLockHint(bool takeWriteLock) => takeWriteLock ? "FOR UPDATE" : "";
         // ReSharper disable once UnusedParameter.Local
         static string InternalSelect(bool takeWriteLock, int? top = null)
         {
@@ -67,7 +68,8 @@ FROM {Event.TableName} {lockHint} ";
 WHERE {Event.AggregateId} = @{Event.AggregateId}
     AND {Event.InsertedVersion} > @CachedVersion
     AND {Event.EffectiveVersion} > 0
-ORDER BY {Event.ReadOrder} ASC")
+ORDER BY {Event.ReadOrder} ASC
+{CreateLockHint(takeWriteLock)}")
                                                             .AddParameter(Event.AggregateId, aggregateId)
                                                             .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                             .ExecuteReaderAndSelect(ReadDataRow)

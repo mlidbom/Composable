@@ -616,8 +616,8 @@ namespace Composable.Tests.CQRS
                                     });
 
 
-            var changeEmailSection = GatedCodeSection.WithTimeout(2.Seconds());
-            var hasFetchedUser = ThreadGate.CreateOpenWithTimeout(10.Seconds());
+            var changeEmailSection = GatedCodeSection.WithTimeout(20.Seconds());
+            var hasFetchedUser = ThreadGate.CreateOpenWithTimeout(20.Seconds());
             void UpdateEmail()
             {
                 UseInTransactionalScope(session =>

@@ -58,11 +58,11 @@ FROM {Event.TableName}
                                                  command => command.SetCommandText($@"
 
     
-    {CreateSelectClause()} 
-    WHERE {Event.AggregateId} = @{Event.AggregateId}
-        AND {Event.InsertedVersion} > @CachedVersion
-        AND {Event.EffectiveVersion} >= 0
-    ORDER BY {Event.ReadOrderIntegerPart} ASC, {Event.ReadOrderFractionPart} ASC;
+{CreateSelectClause()} 
+WHERE {Event.AggregateId} = @{Event.AggregateId}
+    AND {Event.InsertedVersion} > @CachedVersion
+    AND {Event.EffectiveVersion} >= 0
+ORDER BY {Event.ReadOrderIntegerPart} ASC, {Event.ReadOrderFractionPart} ASC;
 ")
                                                                    .AddParameter(Event.AggregateId, aggregateId)
                                                                    .AddParameter("CachedVersion", startAfterInsertedVersion)
@@ -89,7 +89,6 @@ FETCH FIRST {batchSize} ROWS ONLY;
                                                                     return command.SetCommandText(commandText)
                                                                                   .AddParameter(Event.ReadOrderIntegerPart, DB2Type.Decimal, lastReadEventReadOrder.ToDB2DecimalIntegerPart())
                                                                                   .AddParameter(Event.ReadOrderFractionPart, DB2Type.Decimal, lastReadEventReadOrder.ToDB2DecimalFractionPart())
-                                                                                  .LogCommand()
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList();
                                                                 });

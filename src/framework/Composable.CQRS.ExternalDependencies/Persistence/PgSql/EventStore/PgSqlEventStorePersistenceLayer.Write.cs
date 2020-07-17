@@ -58,7 +58,7 @@ UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
                                               .AddNullableParameter(C.RefactoringType, NpgsqlDbType.Smallint, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
-                    catch(PostgresException e) when(e.SqlState == PrimaryKeyViolationSqlErrorNumber.ToString())
+                    catch(PostgresException e) when(e.SqlState == PrimaryKeyViolationSqlErrorNumber.ToStringInvariant())
                     {
                         //todo: Make sure we have test coverage for this.
                         throw new EventDuplicateKeyException(e);
@@ -99,9 +99,9 @@ where {C.EventId} = @{C.EventId}
                     using var reader = command.ExecuteReader();
                     reader.Read();
 
-                    var effectiveReadOrder = reader.GetString(0).Replace(",", ".");
-                    var previousEventReadOrder = (reader[1] as string)?.Replace(",", ".");
-                    var nextEventReadOrder = (reader[2] as string)?.Replace(",", ".");
+                    var effectiveReadOrder = reader.GetString(0).ReplaceInvariant(",", ".");
+                    var previousEventReadOrder = (reader[1] as string)?.ReplaceInvariant(",", ".");
+                    var nextEventReadOrder = (reader[2] as string)?.ReplaceInvariant(",", ".");
                     neighborhood = new EventNeighborhood(effectiveReadOrder: ReadOrder.Parse(effectiveReadOrder),
                                                          previousEventReadOrder: previousEventReadOrder == null ? null : new ReadOrder?(ReadOrder.Parse(previousEventReadOrder)),
                                                          nextEventReadOrder: nextEventReadOrder == null ? null : new ReadOrder?(ReadOrder.Parse(nextEventReadOrder)));

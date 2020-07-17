@@ -4,6 +4,7 @@ using System.Linq;
 using Oracle.ManagedDataAccess.Client;
 using System.Threading.Tasks;
 using Composable.Logging;
+using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Reflection;
 using Composable.System.Threading;
@@ -40,11 +41,11 @@ namespace Composable.Persistence.Oracle.SystemExtensions
 {nameof(parameter.Size)}: {parameter.Size},
 {nameof(parameter.Precision)}: {parameter.Precision},
 {nameof(parameter.Direction)}: {parameter.Direction},
-{nameof(parameter.IsNullable)}: {parameter.IsNullable}".Replace(Environment.NewLine, "")));
+{nameof(parameter.IsNullable)}: {parameter.IsNullable}".ReplaceInvariant(Environment.NewLine, "")));
 
                 SafeConsole.WriteLine("####################################### Hacking values into parameter positions #######################################");
                 var commandTextWithParameterValues = @this.CommandText;
-                parameters.ForEach(parameter => commandTextWithParameterValues = commandTextWithParameterValues.Replace($":{parameter.ParameterName}", parameter.Value == DBNull.Value ? "NULL" : parameter.Value?.ToString()));
+                parameters.ForEach(parameter => commandTextWithParameterValues = commandTextWithParameterValues.ReplaceInvariant($":{parameter.ParameterName}", parameter.Value == DBNull.Value ? "NULL" : parameter.Value?.ToString() ?? "NULL"));
                 Console.WriteLine(commandTextWithParameterValues);
                 SafeConsole.WriteLine("######################################################################################################");
             }

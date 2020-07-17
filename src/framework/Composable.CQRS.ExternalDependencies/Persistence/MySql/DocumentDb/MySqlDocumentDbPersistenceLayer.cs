@@ -130,7 +130,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
         static string TypeInClause(IEnumerable<Guid> acceptableTypeIds) { return "IN( '" + acceptableTypeIds.Select(guid => guid.ToString()).Join("', '") + "')\n"; }
 
         //Urgent: Figure out mysql equivalent.
-        static string UseUpdateLock(bool useUpdateLock) => "";// useUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
+        static string UseUpdateLock(bool _) => "";// useUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
 
         void EnsureInitialized()
         {

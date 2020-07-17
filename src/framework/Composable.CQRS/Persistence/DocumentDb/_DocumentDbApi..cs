@@ -6,10 +6,10 @@ namespace Composable.Persistence.DocumentDb
 {
     public partial class DocumentDbApi
     {
-        public Query Queries => new Query();
+        public QueryApi Queries => new QueryApi();
         public Command Commands => new Command();
 
-        public partial class Query
+        public partial class QueryApi
         {
             public TryGetDocument<TDocument> TryGet<TDocument>(Guid id) where TDocument : IHasPersistentIdentity<Guid> => new TryGetDocument<TDocument>(id.ToString());
 

@@ -9,6 +9,7 @@ using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 using Composable.Testing.Databases;
+#pragma warning disable CA1308 // Normalize strings to uppercase
 
 namespace Composable.Persistence.PgSql.Testing.Databases
 {
@@ -50,7 +51,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
 
             ResetConnectionPool(db);
             var exists = (string)_masterConnectionProvider.ExecuteScalar($"SELECT datname FROM pg_database WHERE datname = '{databaseName.ToLowerInvariant()}'");
-            if(!exists.IsNullOrEmpty())
+            if (!exists.IsNullOrEmpty())
             {
                 ResetDatabase(db);
             } else

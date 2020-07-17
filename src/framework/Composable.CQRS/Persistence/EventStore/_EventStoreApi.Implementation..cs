@@ -11,7 +11,7 @@ namespace Composable.Persistence.EventStore
 {
     public partial class EventStoreApi
     {
-        public partial class Query
+        public partial class QueryApi
         {
             public class AggregateLink<TAggregate> : MessageTypes.StrictlyLocal.Queries.Query<TAggregate> where TAggregate : IEventStored
             {
@@ -74,10 +74,10 @@ namespace Composable.Persistence.EventStore
             where TEvent : IAggregateEvent
         {
             Command.SaveAggregate<TAggregate>.RegisterHandler(registrar);
-            Query.AggregateLink<TAggregate>.RegisterHandler(registrar);
-            Query.GetReadonlyCopyOfAggregate<TAggregate>.RegisterHandler(registrar);
-            Query.GetReadonlyCopyOfAggregateVersion<TAggregate>.RegisterHandler(registrar);
-            Query.GetAggregateHistory<TEvent>.RegisterHandler(registrar);
+            QueryApi.AggregateLink<TAggregate>.RegisterHandler(registrar);
+            QueryApi.GetReadonlyCopyOfAggregate<TAggregate>.RegisterHandler(registrar);
+            QueryApi.GetReadonlyCopyOfAggregateVersion<TAggregate>.RegisterHandler(registrar);
+            QueryApi.GetAggregateHistory<TEvent>.RegisterHandler(registrar);
         }
 
         public static void MapTypes(ITypeMappingRegistar typeMapper)

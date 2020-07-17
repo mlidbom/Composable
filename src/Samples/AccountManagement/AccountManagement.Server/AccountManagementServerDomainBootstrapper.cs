@@ -34,7 +34,7 @@ namespace AccountManagement
                    .HandleAggregate<Account, AccountEvent.Root>();
 
             builder.RegisterDocumentDb()
-                   .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(builder.RegisterHandlers)
+                   .HandleDocumentType<EventStoreApi.QueryApi.AggregateLink<Account>>(builder.RegisterHandlers)
                    .HandleDocumentType<AccountStatistics.SingletonStatisticsQuerymodel>(builder.RegisterHandlers);
         }
 

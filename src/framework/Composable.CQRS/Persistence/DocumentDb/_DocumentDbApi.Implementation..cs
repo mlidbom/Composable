@@ -8,7 +8,7 @@ namespace Composable.Persistence.DocumentDb
 {
     public partial class DocumentDbApi
     {
-        public partial class Query
+        public partial class QueryApi
         {
             public class GetDocumentForUpdate<TDocument> : MessageTypes.StrictlyLocal.Queries.Query<TDocument>
             {
@@ -67,9 +67,9 @@ namespace Composable.Persistence.DocumentDb
 
         internal static void HandleDocumentType<TDocument>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            Query.TryGetDocument<TDocument>.RegisterHandler(registrar);
-            Query.GetReadonlyCopyOfDocument<TDocument>.RegisterHandler(registrar);
-            Query.GetDocumentForUpdate<TDocument>.RegisterHandler(registrar);
+            QueryApi.TryGetDocument<TDocument>.RegisterHandler(registrar);
+            QueryApi.GetReadonlyCopyOfDocument<TDocument>.RegisterHandler(registrar);
+            QueryApi.GetDocumentForUpdate<TDocument>.RegisterHandler(registrar);
             Command.SaveDocument<TDocument>.RegisterHandler(registrar);
             Command.DeleteDocument<TDocument>.RegisterHandler(registrar);
         }

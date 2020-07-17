@@ -37,7 +37,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
         protected override void InitReboot() => SystemProcedures.CreateProcedures(_masterConnectionProvider);
 
 
-        static readonly string ObjectAlreadyExists = "42710";
+        const string ObjectAlreadyExists = "42710";
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
             try

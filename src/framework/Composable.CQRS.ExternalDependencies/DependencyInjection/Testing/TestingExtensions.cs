@@ -19,10 +19,12 @@ namespace Composable.DependencyInjection.Testing
 
             IDependencyInjectionContainer cloneContainer = sourceContainer switch
             {
+#pragma warning disable CA2000 // Dispose objects before losing scope: Review: OK-ish. We dispose the container byr registering its created serviceLocator in the container. It will dispose the container when disposed.
                 ComposableDependencyInjectionContainer _ => new ComposableDependencyInjectionContainer(sourceContainer.RunMode),
                 WindsorDependencyInjectionContainer _ => new WindsorDependencyInjectionContainer(sourceContainer.RunMode),
                 SimpleInjectorDependencyInjectionContainer _ => new SimpleInjectorDependencyInjectionContainer(sourceContainer.RunMode),
                 _ => throw new ArgumentOutOfRangeException()
+#pragma warning restore CA2000 // Dispose objects before losing scope
             };
 
             cloneContainer.Register(Singleton.For<IServiceLocator>().CreatedBy(() => cloneContainer.CreateServiceLocator()));

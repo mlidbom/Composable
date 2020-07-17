@@ -19,13 +19,13 @@ namespace Composable.Persistence.DB2
         public void Open()
         {
             _connection.Open();
-            EnsureParticipatingInTransaction();
+            EnsureParticipatingInAnyTransaction();
         }
 
         public DB2Command CreateCommand()
         {
             Assert.State.Assert(_connection.IsOpen);
-            EnsureParticipatingInTransaction();
+            EnsureParticipatingInAnyTransaction();
             return _connection.CreateCommand().Mutate(@this => @this.Transaction = _db2Transaction);
         }
 
@@ -64,7 +64,7 @@ namespace Composable.Persistence.DB2
 
 
         Transaction? _participatingIn;
-        void EnsureParticipatingInTransaction()
+        void EnsureParticipatingInAnyTransaction()
         {
             var ambientTransaction = Transaction.Current;
             if(ambientTransaction != null)

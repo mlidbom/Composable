@@ -54,7 +54,7 @@ FROM {Event.TableName}
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
-            //Urgent: Even with this is place DB2 does not block the second reader from passing right by.
+            //Urgent: Even with this in place DB2 does not block the second reader from passing right by.
             if(takeWriteLock)
             {
                 _connectionManager.UseCommand(command => command.SetCommandText($"select {Event.AggregateId} from AggregateLock where AggregateId = @{Event.AggregateId} for update;")

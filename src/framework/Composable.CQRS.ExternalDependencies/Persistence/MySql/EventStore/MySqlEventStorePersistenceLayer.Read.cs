@@ -20,9 +20,7 @@ namespace Composable.Persistence.MySql.EventStore
         static string CreateSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
 
         // ReSharper disable once UnusedParameter.Local
-#pragma warning disable CA1801 // Review unused parameters
         static string InternalSelect(bool takeWriteLock, int? top = null)
-#pragma warning restore CA1801 // Review unused parameters
         {
             var topClause = top.HasValue ? $"TOP {top.Value} " : "";
             //todo: Ensure that READCOMMITTED is truly sane here. If so add a comment describing why and why using it is a good idea.

@@ -19,12 +19,10 @@ namespace Composable.Persistence.MsSql.SystemExtensions
         public static SqlCommand SetCommandText(this SqlCommand @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
         public static IReadOnlyList<T> ExecuteReaderAndSelect<T>(this SqlCommand @this, Func<SqlDataReader, T> select)
         {
-            using(var reader = @this.ExecuteReader())
-            {
-                var result = new List<T>();
-                reader.ForEachSuccessfulRead(row => result.Add(select(row)));
-                return result;
-            }
+            using var reader = @this.ExecuteReader();
+            var result = new List<T>();
+            reader.ForEachSuccessfulRead(row => result.Add(@select(row)));
+            return result;
         }
     }
 }

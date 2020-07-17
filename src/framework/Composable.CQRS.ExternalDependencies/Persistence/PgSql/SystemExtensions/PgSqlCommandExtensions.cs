@@ -19,12 +19,10 @@ namespace Composable.Persistence.PgSql.SystemExtensions
         public static NpgsqlCommand SetCommandText(this NpgsqlCommand @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
         public static IReadOnlyList<T> ExecuteReaderAndSelect<T>(this NpgsqlCommand @this, Func<NpgsqlDataReader, T> select)
         {
-            using(var reader = @this.ExecuteReader())
-            {
-                var result = new List<T>();
-                reader.ForEachSuccessfulRead(row => result.Add(select(row)));
-                return result;
-            }
+            using var reader = @this.ExecuteReader();
+            var result = new List<T>();
+            reader.ForEachSuccessfulRead(row => result.Add(@select(row)));
+            return result;
         }
     }
 }

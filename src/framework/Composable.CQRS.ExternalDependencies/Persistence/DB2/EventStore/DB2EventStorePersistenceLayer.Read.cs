@@ -54,10 +54,10 @@ FROM {Event.TableName}
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
-            //Urgent: Even with this in place DB2 does not block the second reader from passing right by.
+            //Urgent: Try to do this with a single roundtrip: https://tinyurl.com/y2dv5noe
             if(takeWriteLock)
             {
-                _connectionManager.UseCommand(command => command.SetCommandText($"select {Event.AggregateId} from AggregateLock where AggregateId = @{Event.AggregateId} for update;")
+                _connectionManager.UseCommand(command => command.SetCommandText($"select {Event.AggregateId} from AggregateLock where AggregateId = @{Event.AggregateId} FOR READ ONLY WITH RS USE AND KEEP EXCLUSIVE LOCKS;")
                                                                 .AddParameter(Event.AggregateId, aggregateId)
                                                                 .ExecuteNonQuery());
             }

@@ -8,8 +8,9 @@ using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.System;
 using MySql.Data.MySqlClient;
-using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
+using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.MySql.EventStore
 {
@@ -28,29 +29,29 @@ namespace Composable.Persistence.MySql.EventStore
                             command => command.SetCommandText(
                                                    //urgent: explore mysql alternatives to commented out hints .
                                                    $@"
-INSERT {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.ReadOrder},  {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
-VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, @{C.ReadOrder}, @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType});
+INSERT {Event.TableName} /*With(READCOMMITTED, ROWLOCK)*/
+(       {Event.AggregateId},  {Event.InsertedVersion},  {Event.EffectiveVersion},  {Event.ReadOrder},  {Event.EventType},  {Event.EventId},  {Event.UtcTimeStamp},  {Event.Event},  {Event.TargetEvent}, {Event.RefactoringType}) 
+VALUES(@{Event.AggregateId}, @{Event.InsertedVersion}, @{Event.EffectiveVersion}, @{Event.ReadOrder}, @{Event.EventType}, @{Event.EventId}, @{Event.UtcTimeStamp}, @{Event.Event}, @{Event.TargetEvent},@{Event.RefactoringType});
 
 
-IF @{C.ReadOrder} = '0.0000000000000000000' THEN
+IF @{Event.ReadOrder} = '0.0000000000000000000' THEN
 
-    UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-    SET {C.ReadOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType})
-    WHERE {C.EventId} = @{C.EventId};
+    UPDATE {Event.TableName} /*With(READCOMMITTED, ROWLOCK)*/
+    SET {Event.ReadOrder} = cast({Event.InsertionOrder} as {Event.ReadOrderType})
+    WHERE {Event.EventId} = @{Event.EventId};
 END IF;
 ")
-                                              .AddParameter(C.AggregateId, data.AggregateId)
-                                              .AddParameter(C.InsertedVersion, data.StorageInformation.InsertedVersion)
-                                              .AddParameter(C.EventType, data.EventType)
-                                              .AddParameter(C.EventId, data.EventId)
-                                              .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
-                                              .AddMediumTextParameter(C.Event, data.EventJson)
+                                              .AddParameter(Event.AggregateId, data.AggregateId)
+                                              .AddParameter(Event.InsertedVersion, data.StorageInformation.InsertedVersion)
+                                              .AddParameter(Event.EventType, data.EventType)
+                                              .AddParameter(Event.EventId, data.EventId)
+                                              .AddDateTime2Parameter(Event.UtcTimeStamp, data.UtcTimeStamp)
+                                              .AddMediumTextParameter(Event.Event, data.EventJson)
 
-                                              .AddParameter(C.ReadOrder, MySqlDbType.VarChar, data.StorageInformation.ReadOrder?.ToString() ?? new ReadOrder(0,0).ToString())
-                                              .AddParameter(C.EffectiveVersion, MySqlDbType.Int32, data.StorageInformation.EffectiveVersion)
-                                              .AddNullableParameter(C.TargetEvent, MySqlDbType.VarChar, data.StorageInformation.RefactoringInformation?.TargetEvent)
-                                              .AddNullableParameter(C.RefactoringType, MySqlDbType.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
+                                              .AddParameter(Event.ReadOrder, MySqlDbType.VarChar, data.StorageInformation.ReadOrder?.ToString() ?? new ReadOrder(0,0).ToString())
+                                              .AddParameter(Event.EffectiveVersion, MySqlDbType.Int32, data.StorageInformation.EffectiveVersion)
+                                              .AddNullableParameter(Event.TargetEvent, MySqlDbType.VarChar, data.StorageInformation.RefactoringInformation?.TargetEvent)
+                                              .AddNullableParameter(Event.RefactoringType, MySqlDbType.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
                     catch(MySqlException e) when ((e.Data["Server Error Code"] as int?)  == PrimaryKeyViolationSqlErrorNumber )
@@ -65,7 +66,7 @@ END IF;
         public void UpdateEffectiveVersions(IReadOnlyList<VersionSpecification> versions)
         {
             var commandText = versions.Select((spec, index) =>
-                                                  $@"UPDATE {EventTable.Name} SET {C.EffectiveVersion} = {spec.EffectiveVersion} WHERE {C.EventId} = '{spec.EventId}';").Join(Environment.NewLine);
+                                                  $@"UPDATE {Event.TableName} SET {Event.EffectiveVersion} = {spec.EffectiveVersion} WHERE {Event.EventId} = '{spec.EventId}';").Join(Environment.NewLine);
 
             _connectionManager.UseConnection(connection => connection.ExecuteNonQuery(commandText));
 
@@ -78,11 +79,11 @@ END IF;
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "";
 
             var selectStatement = $@"
-SELECT  {C.ReadOrder},        
-        (select cast({C.ReadOrder} as char(39)) from {EventTable.Name} e1 where e1.{C.ReadOrder} < {EventTable.Name}.{C.ReadOrder} order by {C.ReadOrder} desc limit 1) PreviousReadOrder,
-        (select cast({C.ReadOrder} as char(39)) from {EventTable.Name} e1 where e1.{C.ReadOrder} > {EventTable.Name}.{C.ReadOrder} order by {C.ReadOrder} limit 1) NextReadOrder
-FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
-where {C.EventId} = @{C.EventId}";
+SELECT  {Event.ReadOrder},        
+        (select cast({Event.ReadOrder} as char(39)) from {Event.TableName} e1 where e1.{Event.ReadOrder} < {Event.TableName}.{Event.ReadOrder} order by {Event.ReadOrder} desc limit 1) PreviousReadOrder,
+        (select cast({Event.ReadOrder} as char(39)) from {Event.TableName} e1 where e1.{Event.ReadOrder} > {Event.TableName}.{Event.ReadOrder} order by {Event.ReadOrder} limit 1) NextReadOrder
+FROM    {Event.TableName} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
+where {Event.EventId} = @{Event.EventId}";
 
             EventNeighborhood? neighborhood = null;
 
@@ -91,7 +92,7 @@ where {C.EventId} = @{C.EventId}";
                 {
                     command.CommandText = selectStatement;
 
-                    command.Parameters.Add(new MySqlParameter(C.EventId, MySqlDbType.Guid) { Value = eventId });
+                    command.Parameters.Add(new MySqlParameter(Event.EventId, MySqlDbType.Guid) { Value = eventId });
                     using var reader = command.ExecuteReader();
                     reader.Read();
 
@@ -113,8 +114,8 @@ where {C.EventId} = @{C.EventId}";
                 {
                     //urgent: Find equivalent to rowlock hint.
                     command.CommandText +=
-                        $"DELETE FROM {EventTable.Name} /*With(ROWLOCK)*/ WHERE {C.AggregateId} = @{C.AggregateId};";
-                    command.Parameters.Add(new MySqlParameter(C.AggregateId, MySqlDbType.Guid) { Value = aggregateId });
+                        $"DELETE FROM {Event.TableName} /*With(ROWLOCK)*/ WHERE {Event.AggregateId} = @{Event.AggregateId};";
+                    command.Parameters.Add(new MySqlParameter(Event.AggregateId, MySqlDbType.Guid) { Value = aggregateId });
                     command.ExecuteNonQuery();
                 });
         }

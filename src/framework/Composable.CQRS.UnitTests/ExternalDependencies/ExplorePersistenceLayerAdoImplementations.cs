@@ -51,7 +51,7 @@ namespace Composable.Tests.ExternalDependencies
             var mySqlConnection = new MySqlConnectionProvider(mySqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
 
             var result = mySqlConnection.UseCommand(
-                action: command => command.SetCommandText($"select cast(cast(@parm as {EventTable.ReadOrderType}) as char(39))")
+                action: command => command.SetCommandText($"select cast(cast(@parm as {Event.ReadOrderType}) as char(39))")
                                           .AddNullableParameter(name: "parm", MySqlDbType.VarChar, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToString())
                                           .ExecuteReaderAndSelect(@select: @this => @this.GetString(i: 0))
                                           .Single());
@@ -65,7 +65,7 @@ namespace Composable.Tests.ExternalDependencies
             var pgSqlConnection = new PgSqlConnectionProvider(pgSqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
 
             var result = pgSqlConnection.UseCommand(
-                action: command => command.SetCommandText($"select cast(cast(@parm as {EventTable.ReadOrderType}) as char(39))")
+                action: command => command.SetCommandText($"select cast(cast(@parm as {Event.ReadOrderType}) as char(39))")
                                           .AddNullableParameter(name: "parm", NpgsqlDbType.Varchar, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToString())
                                           .ExecuteReaderAndSelect(@select: @this => @this.GetString(ordinal: 0))
                                           .Single());

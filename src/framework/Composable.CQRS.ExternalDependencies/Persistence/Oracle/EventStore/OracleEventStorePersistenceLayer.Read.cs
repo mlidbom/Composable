@@ -7,9 +7,8 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Oracle.ManagedDataAccess.Client;
-
-using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
-using Lock = Composable.Persistence.Common.EventStore.AggregateLockTable;
+using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.Oracle.EventStore
 {
@@ -24,8 +23,8 @@ namespace Composable.Persistence.Oracle.EventStore
 
         static string CreateSelectClause() =>
             $@"
-SELECT {C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, {C.ReadOrder}
-FROM {EventTable.Name}
+SELECT {Event.EventType}, {Event.Event}, {Event.AggregateId}, {Event.EffectiveVersion}, {Event.EventId}, {Event.UtcTimeStamp}, {Event.InsertionOrder}, {Event.TargetEvent}, {Event.RefactoringType}, {Event.InsertedVersion}, {Event.ReadOrder}
+FROM {Event.TableName}
 ";
 
         static EventDataRow ReadDataRow(OracleDataReader eventReader)
@@ -71,14 +70,14 @@ BEGIN
     END IF;
     
     OPEN :rcursor FOR {CreateSelectClause()} 
-    WHERE {C.AggregateId} = :{C.AggregateId}
-        AND {C.InsertedVersion} > :CachedVersion
-        AND {C.EffectiveVersion} >= 0
-    ORDER BY {C.ReadOrder} ASC;
+    WHERE {Event.AggregateId} = :{Event.AggregateId}
+        AND {Event.InsertedVersion} > :CachedVersion
+        AND {Event.EffectiveVersion} >= 0
+    ORDER BY {Event.ReadOrder} ASC;
 
 END;
 ")
-                                                                   .AddParameter(C.AggregateId, aggregateId)
+                                                                   .AddParameter(Event.AggregateId, aggregateId)
                                                                    .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                                    .AddParameter("TakeWriteLock", OracleDbType.Boolean, takeWriteLock)
                                                                    .AddParameter(new OracleParameter(parameterName:"rcursor", type: OracleDbType.RefCursor, direction: ParameterDirection.Output))
@@ -97,12 +96,12 @@ END;
                                                                 {
                                                                     var commandText = $@"
 {CreateSelectClause()} 
-WHERE {C.ReadOrder}  > :{C.ReadOrder}
-    AND {C.EffectiveVersion} > 0
+WHERE {Event.ReadOrder}  > :{Event.ReadOrder}
+    AND {Event.EffectiveVersion} > 0
     AND ROWNUM <= {batchSize}
-ORDER BY {C.ReadOrder} ASC";
+ORDER BY {Event.ReadOrder} ASC";
                                                                     return command.SetCommandText(commandText)
-                                                                                  .AddParameter(C.ReadOrder, OracleDbType.Decimal, lastReadEventReadOrder.ToOracleDecimal())
+                                                                                  .AddParameter(Event.ReadOrder, OracleDbType.Decimal, lastReadEventReadOrder.ToOracleDecimal())
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList();
                                                                 });
@@ -125,10 +124,10 @@ ORDER BY {C.ReadOrder} ASC";
         {
             return _connectionManager.UseCommand(suppressTransactionWarning: true,
                                                  action: command => command.SetCommandText($@"
-SELECT {C.AggregateId}, {C.EventType} 
-FROM {EventTable.Name} 
-WHERE {C.EffectiveVersion} = 1 
-ORDER BY {C.ReadOrder} ASC")
+SELECT {Event.AggregateId}, {Event.EventType} 
+FROM {Event.TableName} 
+WHERE {Event.EffectiveVersion} = 1 
+ORDER BY {Event.ReadOrder} ASC")
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuidFromString(0), typeId: reader.GetGuidFromString(1))));
         }
     }

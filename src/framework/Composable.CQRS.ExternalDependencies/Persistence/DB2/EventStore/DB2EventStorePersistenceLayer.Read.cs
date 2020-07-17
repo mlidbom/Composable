@@ -7,9 +7,8 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.DB2.SystemExtensions;
 using IBM.Data.DB2.Core;
-
-using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
-using Lock = Composable.Persistence.Common.EventStore.AggregateLockTable;
+using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.DB2.EventStore
 {
@@ -24,8 +23,8 @@ namespace Composable.Persistence.DB2.EventStore
 
         static string CreateSelectClause() =>
             $@"
-SELECT {C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, {C.ReadOrder}
-FROM {EventTable.Name}
+SELECT {Event.EventType}, {Event.Event}, {Event.AggregateId}, {Event.EffectiveVersion}, {Event.EventId}, {Event.UtcTimeStamp}, {Event.InsertionOrder}, {Event.TargetEvent}, {Event.RefactoringType}, {Event.InsertedVersion}, {Event.ReadOrder}
+FROM {Event.TableName}
 ";
 
         static EventDataRow ReadDataRow(DB2DataReader eventReader)
@@ -60,12 +59,12 @@ FROM {EventTable.Name}
 
     
     {CreateSelectClause()} 
-    WHERE {C.AggregateId} = :{C.AggregateId}
-        AND {C.InsertedVersion} > :CachedVersion
-        AND {C.EffectiveVersion} >= 0
-    ORDER BY {C.ReadOrder} ASC;
+    WHERE {Event.AggregateId} = :{Event.AggregateId}
+        AND {Event.InsertedVersion} > :CachedVersion
+        AND {Event.EffectiveVersion} >= 0
+    ORDER BY {Event.ReadOrder} ASC;
 ")
-                                                                   .AddParameter(C.AggregateId, aggregateId)
+                                                                   .AddParameter(Event.AggregateId, aggregateId)
                                                                    .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                                    .AddParameter("TakeWriteLock", DB2Type.Boolean, takeWriteLock)
                                                                    .ExecuteReaderAndSelect(ReadDataRow)
@@ -83,12 +82,12 @@ FROM {EventTable.Name}
                                                                 {
                                                                     var commandText = $@"
 {CreateSelectClause()} 
-WHERE {C.ReadOrder}  > :{C.ReadOrder}
-    AND {C.EffectiveVersion} > 0
+WHERE {Event.ReadOrder}  > :{Event.ReadOrder}
+    AND {Event.EffectiveVersion} > 0
     AND ROWNUM <= {batchSize}
-ORDER BY {C.ReadOrder} ASC";
+ORDER BY {Event.ReadOrder} ASC";
                                                                     return command.SetCommandText(commandText)
-                                                                                  .AddParameter(C.ReadOrder, DB2Type.Decimal, lastReadEventReadOrder.ToDB2Decimal())
+                                                                                  .AddParameter(Event.ReadOrder, DB2Type.Decimal, lastReadEventReadOrder.ToDB2Decimal())
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList();
                                                                 });
@@ -111,10 +110,10 @@ ORDER BY {C.ReadOrder} ASC";
         {
             return _connectionManager.UseCommand(suppressTransactionWarning: true,
                                                  action: command => command.SetCommandText($@"
-SELECT {C.AggregateId}, {C.EventType} 
-FROM {EventTable.Name} 
-WHERE {C.EffectiveVersion} = 1 
-ORDER BY {C.ReadOrder} ASC")
+SELECT {Event.AggregateId}, {Event.EventType} 
+FROM {Event.TableName} 
+WHERE {Event.EffectiveVersion} = 1 
+ORDER BY {Event.ReadOrder} ASC")
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuidFromString(0), typeId: reader.GetGuidFromString(1))));
         }
     }

@@ -3,9 +3,8 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.System.Transactions;
-using Event=Composable.Persistence.DB2.EventStore.DB2EventTableColumns;
-using Lock = Composable.Persistence.Common.EventStore.AggregateLockTable;
-// ReSharper disable AccessToStaticMemberViaDerivedType
+using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.DB2.EventStore
 {
@@ -23,7 +22,7 @@ begin
   declare continue handler for sqlstate '42710' begin end; --Ignore error if table exists
         EXECUTE IMMEDIATE '
 
-            CREATE TABLE {EventTable.Name}
+            CREATE TABLE {Event.TableName}
             (
                 {Event.InsertionOrder}        NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL ,
                 {Event.AggregateId}           {DB2GuidType}                           NOT NULL,  
@@ -41,18 +40,18 @@ begin
 
                 PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
 
-                CONSTRAINT {EventTable.Name}_Unique_{Event.EventId}        UNIQUE ( {Event.EventId} ),
-                CONSTRAINT {EventTable.Name}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} ),
-                CONSTRAINT {EventTable.Name}_Unique_{Event.ReadOrder}      UNIQUE ( {Event.ReadOrder} )
+                CONSTRAINT {Event.TableName}_Unique_{Event.EventId}        UNIQUE ( {Event.EventId} ),
+                CONSTRAINT {Event.TableName}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} ),
+                CONSTRAINT {Event.TableName}_Unique_{Event.ReadOrder}      UNIQUE ( {Event.ReadOrderIntegerPart}, {Event.ReadOrderFractionPart} ),
             )';
 
         EXECUTE IMMEDIATE '
-            ALTER TABLE {EventTable.Name} ADD CONSTRAINT FK_{Event.TargetEvent} 
-                FOREIGN KEY ( {Event.TargetEvent} ) REFERENCES {EventTable.Name} ({Event.EventId})';
+            ALTER TABLE {Event.TableName} ADD CONSTRAINT FK_{Event.TargetEvent} 
+                FOREIGN KEY ( {Event.TargetEvent} ) REFERENCES {Event.TableName} ({Event.EventId})';
         
         EXECUTE IMMEDIATE '
-            CREATE INDEX IX_{EventTable.Name}_{Event.ReadOrder} ON {EventTable.Name} 
-                ({Event.ReadOrder} ASC, {Event.EffectiveVersion} ASC)';
+            CREATE INDEX IX_{Event.TableName}_{Event.ReadOrder} ON {Event.TableName} 
+                ({Event.ReadOrderIntegerPart} ASC, {Event.ReadOrderFractionPart} ASC, {Event.EffectiveVersion} ASC)';
 
 
         EXECUTE IMMEDIATE '

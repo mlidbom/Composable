@@ -8,7 +8,8 @@ using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
-using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
+using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.MsSql.EventStore
 {
@@ -29,8 +30,8 @@ namespace Composable.Persistence.MsSql.EventStore
 
             return $@"
 SELECT {topClause} 
-{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, {C.ReadOrder}
-FROM {EventTable.Name} {lockHint} ";
+{Event.EventType}, {Event.Event}, {Event.AggregateId}, {Event.EffectiveVersion}, {Event.EventId}, {Event.UtcTimeStamp}, {Event.InsertionOrder}, {Event.TargetEvent}, {Event.RefactoringType}, {Event.InsertedVersion}, {Event.ReadOrder}
+FROM {Event.TableName} {lockHint} ";
         }
 
         static EventDataRow ReadDataRow(SqlDataReader eventReader) => new EventDataRow(
@@ -59,11 +60,11 @@ FROM {EventTable.Name} {lockHint} ";
             _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
                                           command => command.SetCommandText($@"
 {CreateSelectClause(takeWriteLock)} 
-WHERE {C.AggregateId} = @{C.AggregateId}
-    AND {C.InsertedVersion} > @CachedVersion
-    AND {C.EffectiveVersion} > 0
-ORDER BY {C.ReadOrder} ASC")
-                                                            .AddParameter(C.AggregateId, aggregateId)
+WHERE {Event.AggregateId} = @{Event.AggregateId}
+    AND {Event.InsertedVersion} > @CachedVersion
+    AND {Event.EffectiveVersion} > 0
+ORDER BY {Event.ReadOrder} ASC")
+                                                            .AddParameter(Event.AggregateId, aggregateId)
                                                             .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                             .ExecuteReaderAndSelect(ReadDataRow)
                                                             .ToList());
@@ -77,10 +78,10 @@ ORDER BY {C.ReadOrder} ASC")
                 var historyData = _connectionManager.UseCommand(suppressTransactionWarning: true,
                                                                 command => command.SetCommandText($@"
 {CreateSelectTopClause(batchSize, takeWriteLock: false)} 
-WHERE {C.ReadOrder}  > @{C.ReadOrder}
-    AND {C.EffectiveVersion} > 0
-ORDER BY {C.ReadOrder} ASC")
-                                                                                  .AddParameter(C.ReadOrder, SqlDbType.Decimal, lastReadEventReadOrder)
+WHERE {Event.ReadOrder}  > @{Event.ReadOrder}
+    AND {Event.EffectiveVersion} > 0
+ORDER BY {Event.ReadOrder} ASC")
+                                                                                  .AddParameter(Event.ReadOrder, SqlDbType.Decimal, lastReadEventReadOrder)
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList());
                 if(historyData.Any())
@@ -102,10 +103,10 @@ ORDER BY {C.ReadOrder} ASC")
         {
             return _connectionManager.UseCommand(suppressTransactionWarning: true,
                                                  action: command => command.SetCommandText($@"
-SELECT {C.AggregateId}, {C.EventType} 
-FROM {EventTable.Name} 
-WHERE {C.EffectiveVersion} = 1 
-ORDER BY {C.ReadOrder} ASC")
+SELECT {Event.AggregateId}, {Event.EventType} 
+FROM {Event.TableName} 
+WHERE {Event.EffectiveVersion} = 1 
+ORDER BY {Event.ReadOrder} ASC")
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: reader.GetGuid(0), typeId: reader.GetGuid(1))));
         }
     }

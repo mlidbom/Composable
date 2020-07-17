@@ -3,7 +3,8 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.System.Transactions;
-using Event=Composable.Persistence.Common.EventStore.EventTable.Columns;
+using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.MsSql.EventStore
 {
@@ -17,9 +18,9 @@ namespace Composable.Persistence.MsSql.EventStore
             if(!_initialized)
             {
                 _connectionManager.UseCommand(command=> command.ExecuteNonQuery($@"
-IF NOT EXISTS(SELECT NAME FROM sys.tables WHERE name = '{EventTable.Name}')
+IF NOT EXISTS(SELECT NAME FROM sys.tables WHERE name = '{Event.TableName}')
 BEGIN
-    CREATE TABLE dbo.{EventTable.Name}
+    CREATE TABLE dbo.{Event.TableName}
     (
         {Event.InsertionOrder}       bigint IDENTITY(1,1)               NOT NULL,
         {Event.AggregateId}          uniqueidentifier                   NOT NULL,  
@@ -29,26 +30,26 @@ BEGIN
         {Event.EventId}              uniqueidentifier                   NOT NULL,
         {Event.InsertedVersion}      int                                NOT NULL,
         {Event.SqlInsertTimeStamp}   datetime2 default SYSUTCDATETIME() NOT NULL,
-        {Event.ReadOrder}            {EventTable.ReadOrderType}         NOT NULL,    
+        {Event.ReadOrder}            {Event.ReadOrderType}              NOT NULL,    
         {Event.EffectiveVersion}     int                                NOT NULL,
         {Event.TargetEvent}          uniqueidentifier                   NULL,
         {Event.RefactoringType}      tinyint                            NULL,
 
-        CONSTRAINT PK_{EventTable.Name} PRIMARY KEY CLUSTERED 
+        CONSTRAINT PK_{Event.TableName} PRIMARY KEY CLUSTERED 
         (
             {Event.AggregateId} ASC,
             {Event.InsertedVersion} ASC
         )WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF),
 
-        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.EventId}        UNIQUE ( {Event.EventId} ),
-        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} ),
-        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.ReadOrder}      UNIQUE ( {Event.ReadOrder} ),
+        CONSTRAINT IX_{Event.TableName}_Unique_{Event.EventId}        UNIQUE ( {Event.EventId} ),
+        CONSTRAINT IX_{Event.TableName}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} ),
+        CONSTRAINT IX_{Event.TableName}_Unique_{Event.ReadOrder}      UNIQUE ( {Event.ReadOrder} ),
 
-        CONSTRAINT FK_{EventTable.Name}_{Event.TargetEvent} FOREIGN KEY ( {Event.TargetEvent} ) 
-            REFERENCES {EventTable.Name} ({Event.EventId}) 
+        CONSTRAINT FK_{Event.TableName}_{Event.TargetEvent} FOREIGN KEY ( {Event.TargetEvent} ) 
+            REFERENCES {Event.TableName} ({Event.EventId}) 
     )
 
-        CREATE NONCLUSTERED INDEX IX_{EventTable.Name}_{Event.ReadOrder} ON dbo.{EventTable.Name}
+        CREATE NONCLUSTERED INDEX IX_{Event.TableName}_{Event.ReadOrder} ON dbo.{Event.TableName}
             ({Event.ReadOrder}, {Event.EffectiveVersion})
             INCLUDE ({Event.EventType}, {Event.InsertionOrder})
 END 

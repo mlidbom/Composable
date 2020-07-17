@@ -9,7 +9,8 @@ using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.System;
 using Npgsql;
 using NpgsqlTypes;
-using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
+using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.PgSql.EventStore
 {
@@ -31,8 +32,8 @@ namespace Composable.Persistence.PgSql.EventStore
 
             return $@"
 SELECT {topClause} 
-{C.EventType}, {C.Event}, {C.AggregateId}, {C.EffectiveVersion}, {C.EventId}, {C.UtcTimeStamp}, {C.InsertionOrder}, {C.TargetEvent}, {C.RefactoringType}, {C.InsertedVersion}, cast({C.ReadOrder} as varchar) as CharEffectiveOrder --The as is required, or Postgre sorts by this column when we ask it to sort by EffectiveOrder.
-FROM {EventTable.Name}";
+{Event.EventType}, {Event.Event}, {Event.AggregateId}, {Event.EffectiveVersion}, {Event.EventId}, {Event.UtcTimeStamp}, {Event.InsertionOrder}, {Event.TargetEvent}, {Event.RefactoringType}, {Event.InsertedVersion}, cast({Event.ReadOrder} as varchar) as CharEffectiveOrder --The as is required, or Postgre sorts by this column when we ask it to sort by EffectiveOrder.
+FROM {Event.TableName}";
         }
 
         static EventDataRow ReadDataRow(NpgsqlDataReader eventReader)
@@ -68,12 +69,12 @@ FROM {EventTable.Name}";
                                                      command => command.SetCommandText($@"
 
 {CreateSelectClause()} 
-WHERE {C.AggregateId} = @{C.AggregateId}
-    AND {C.InsertedVersion} >= @CachedVersion
-    AND {C.EffectiveVersion} > 0
-ORDER BY {C.ReadOrder} ASC;
+WHERE {Event.AggregateId} = @{Event.AggregateId}
+    AND {Event.InsertedVersion} >= @CachedVersion
+    AND {Event.EffectiveVersion} > 0
+ORDER BY {Event.ReadOrder} ASC;
 ")
-                                                                       .AddParameter(C.AggregateId, aggregateId)
+                                                                       .AddParameter(Event.AggregateId, aggregateId)
                                                                        .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                                        .ExecuteReaderAndSelect(ReadDataRow)
                                                                        .SkipWhile(@this => @this.StorageInformation.InsertedVersion <= startAfterInsertedVersion)
@@ -86,8 +87,8 @@ ORDER BY {C.ReadOrder} ASC;
                 //Without this hack PostgreSql does not correctly serialize access to aggregates and odds are you would get a lot of failed transactions if an aggregate is "popular"
                 //We prefer predictable performance, even if slightly slower under easy conditions, to services that suddenly virtually stop working completely due to tons of concurrency issues as an aggregate is accessed by many threads.
                 //Pages that led to the below hack: https://tinyurl.com/y7nef75p, https://tinyurl.com/y7c63cny, https://tinyurl.com/y75qlwar
-                _connectionManager.UseCommand(command => command.SetCommandText($"select {C.AggregateId} from AggregateLock where AggregateId = @{C.AggregateId} for update;")
-                                                                                        .AddParameter(C.AggregateId, aggregateId)
+                _connectionManager.UseCommand(command => command.SetCommandText($"select {Event.AggregateId} from AggregateLock where AggregateId = @{Event.AggregateId} for update;")
+                                                                                        .AddParameter(Event.AggregateId, aggregateId)
                                                                                         .ExecuteNonQuery());
 
                 //We took care of the locking on the line above. Since events are Append only that lock is sufficient. Suppressing the current transaction keeps PostgreSql from incorrectly detecting a collision and failing our transactions.
@@ -110,12 +111,12 @@ ORDER BY {C.ReadOrder} ASC;
                                                                 {
                                                                     var commandText = $@"
 {CreateSelectClause()} 
-WHERE {C.ReadOrder}  > CAST(@{C.ReadOrder} AS {EventTable.ReadOrderType})
-    AND {C.EffectiveVersion} > 0
-ORDER BY {C.ReadOrder} ASC
+WHERE {Event.ReadOrder}  > CAST(@{Event.ReadOrder} AS {Event.ReadOrderType})
+    AND {Event.EffectiveVersion} > 0
+ORDER BY {Event.ReadOrder} ASC
 LIMIT {batchSize}";
                                                                     return command.SetCommandText(commandText)
-                                                                                  .AddParameter(C.ReadOrder, NpgsqlDbType.Varchar, lastReadEventReadOrder.ToString())
+                                                                                  .AddParameter(Event.ReadOrder, NpgsqlDbType.Varchar, lastReadEventReadOrder.ToString())
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList();
                                                                 });
@@ -138,10 +139,10 @@ LIMIT {batchSize}";
         {
             return _connectionManager.UseCommand(suppressTransactionWarning: true,
                                                  action: command => command.SetCommandText($@"
-SELECT {C.AggregateId}, {C.EventType} 
-FROM {EventTable.Name} 
-WHERE {C.EffectiveVersion} = 1 
-ORDER BY {C.ReadOrder} ASC")
+SELECT {Event.AggregateId}, {Event.EventType} 
+FROM {Event.TableName} 
+WHERE {Event.EffectiveVersion} = 1 
+ORDER BY {Event.ReadOrder} ASC")
                                                                             //Urgent: Check out how to deal with Guids
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: Guid.Parse(reader.GetString(0)), typeId: Guid.Parse(reader.GetString(1)))));
         }

@@ -24,6 +24,8 @@ using NpgsqlTypes;
 using NUnit.Framework;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
+using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Tests.ExternalDependencies
 {

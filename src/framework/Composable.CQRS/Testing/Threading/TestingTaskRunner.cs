@@ -35,7 +35,11 @@ namespace Composable.Testing.Threading
         public void StartTimes(int times, Action task) => Start(1.Through(times).Select(index => task));
         public void StartTimes(int times, Action<int> task) => Start(1.Through(times).Select<int, Action>(index => () => task(index)));
 
-        public void Dispose() => WaitForTasksToComplete();
+        public void Dispose()
+        {
+            WaitForTasksToComplete();
+            GC.SuppressFinalize(this);
+        }
 
         public void WaitForTasksToComplete()
         {

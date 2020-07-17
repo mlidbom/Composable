@@ -15,10 +15,10 @@ namespace Composable.System.Threading
 {
     interface ITaskRunner
     {
-        void MonitorAndCrashProcessIfTaskThrows(IEnumerable<Task> tasks);
-        void MonitorAndCrashProcessIfTaskThrows(params Task[] tasks);
-        void RunAndCrashProcessIfTaskThrows(IEnumerable<Action> tasks);
-        void RunAndCrashProcessIfTaskThrows(params Action[] tasks);
+        void MonitorAndSurfaceExceptions(IEnumerable<Task> tasks);
+        void MonitorAndSurfaceExceptions(params Task[] tasks);
+        void RunAndSurfaceExceptions(IEnumerable<Action> tasks);
+        void RunAndSurfaceExceptions(params Action[] tasks);
     }
 
     [UsedImplicitly] class TaskRunner : ITaskRunner, IDisposable
@@ -35,17 +35,17 @@ namespace Composable.System.Threading
             _inner = new SystemTasksRunner();
         }
 
-        public void MonitorAndCrashProcessIfTaskThrows(IEnumerable<Task> tasks) => _inner.MonitorAndCrashProcessIfTaskThrows(tasks);
-        public void MonitorAndCrashProcessIfTaskThrows(params Task[] tasks) => _inner.MonitorAndCrashProcessIfTaskThrows(tasks);
-        public void RunAndCrashProcessIfTaskThrows(IEnumerable<Action> tasks) => _inner.RunAndCrashProcessIfTaskThrows(tasks);
-        public void RunAndCrashProcessIfTaskThrows(params Action[] tasks) => _inner.RunAndCrashProcessIfTaskThrows(tasks);
+        public void MonitorAndSurfaceExceptions(IEnumerable<Task> tasks) => _inner.MonitorAndSurfaceExceptions(tasks);
+        public void MonitorAndSurfaceExceptions(params Task[] tasks) => _inner.MonitorAndSurfaceExceptions(tasks);
+        public void RunAndSurfaceExceptions(IEnumerable<Action> tasks) => _inner.RunAndSurfaceExceptions(tasks);
+        public void RunAndSurfaceExceptions(params Action[] tasks) => _inner.RunAndSurfaceExceptions(tasks);
         public void Dispose() => (_inner as IDisposable)?.Dispose();
 
 
         abstract class RunnerBase : ITaskRunner
         {
-            public void MonitorAndCrashProcessIfTaskThrows(IEnumerable<Task> tasks) => MonitorAndCrashProcessIfTaskThrows(tasks.ToArray());
-            public void MonitorAndCrashProcessIfTaskThrows(params Task[] tasks) => tasks.ForEach(ThrowExceptionOnBackgroundThreadIfTaskFails);
+            public void MonitorAndSurfaceExceptions(IEnumerable<Task> tasks) => MonitorAndSurfaceExceptions(tasks.ToArray());
+            public void MonitorAndSurfaceExceptions(params Task[] tasks) => tasks.ForEach(ThrowExceptionOnBackgroundThreadIfTaskFails);
 
             static void ThrowExceptionOnBackgroundThreadIfTaskFails(Task task) => task.ContinueOnDefaultScheduler(ThrowExceptionOnNewThreadSoThatProcessCrashesInsteadOfThisFailureGoingIgnoredAsIsTheDefaultBehaviorForTasks, TaskContinuationOptions.OnlyOnFaulted);
             static void ThrowExceptionOnNewThreadSoThatProcessCrashesInsteadOfThisFailureGoingIgnoredAsIsTheDefaultBehaviorForTasks(Task faultedTask)
@@ -55,8 +55,8 @@ namespace Composable.System.Threading
                 //new Thread(() => throw new Exception("Unhandled exception occured in background task", faultedTask.Exception)).Start();
             }
 
-            public void RunAndCrashProcessIfTaskThrows(IEnumerable<Action> tasks) => RunAndCrashProcessIfTaskThrows(tasks.ToArray());
-            public void RunAndCrashProcessIfTaskThrows(params Action[] tasks) => tasks.ForEach(action => EnqueueWrappedTask(
+            public void RunAndSurfaceExceptions(IEnumerable<Action> tasks) => RunAndSurfaceExceptions(tasks.ToArray());
+            public void RunAndSurfaceExceptions(params Action[] tasks) => tasks.ForEach(action => EnqueueWrappedTask(
                                                                                                    () =>
                                                                                                    {
                                                                                                        try
@@ -80,11 +80,7 @@ namespace Composable.System.Threading
 
             protected override void EnqueueWrappedTask(Action action) => Task.Run(action, _cancellationTokenSource.Token);
 
-            public void Dispose()
-            {
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource.Dispose();
-            }
+            public void Dispose() => _cancellationTokenSource.Dispose();
         }
 
         // ReSharper disable once UnusedMember.Local

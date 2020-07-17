@@ -58,8 +58,7 @@ namespace Composable.Persistence.DocumentDb
             persistentValues.GetOrAddDefault(value.GetType())[idString] = serializedDocument;
         }
 
-
-        static string GetIdString(object id) => id.ToString().ToLowerInvariant().TrimEnd(' ');
+        internal static string GetIdString(object id) => id.ToString().ToUpperInvariant().TrimEnd(' ');
 
         public void Remove(object id, Type documentType)
         {

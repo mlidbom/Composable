@@ -120,17 +120,18 @@ namespace Composable.System
 
         public void Dispose()
         {
-            //todo: _disposed should be set to true before calling something that might conceivably cause reentrancy...
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             if(!_disposed)
             {
                 _disposed = true;
                 _strictlyManagedResource.Dispose();
-                InternalDispose();
             }
         }
-
-        protected abstract void InternalDispose();
     }
 
     ///<summary><see cref="IStrictlyManagedResource"/></summary>

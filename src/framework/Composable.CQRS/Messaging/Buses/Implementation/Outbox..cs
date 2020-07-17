@@ -45,7 +45,6 @@ namespace Composable.Messaging.Buses.Implementation
             public Thread? PollerThread;
         }
 
-        readonly ILogger _log = Logger.For<Outbox>();
         readonly IThreadShared<State> _state;
         readonly ITaskRunner _taskRunner;
 

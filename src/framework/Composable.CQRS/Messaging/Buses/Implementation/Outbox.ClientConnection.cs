@@ -112,7 +112,10 @@ namespace Composable.Messaging.Buses.Implementation
                 _serializer = serializer;
                 _typeMapper = typeMapper;
                 _taskRunner = taskRunner;
+
+#pragma warning disable CA2000 // Dispose objects before losing scope
                 _state = new OptimizedThreadShared<InboxConnectionState>(new InboxConnectionState(timeSource, messageStorage, new DealerSocket(), globalBusStateTracker));
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
                 _state.WithExclusiveAccess(state =>
                 {
@@ -183,7 +186,7 @@ namespace Composable.Messaging.Buses.Implementation
                             case TransportMessage.Response.ResponseType.SuccessWithData:
                             {
                                 var successResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
-                                _taskRunner.RunAndCrashProcessIfTaskThrows(() =>
+                                _taskRunner.RunAndSurfaceExceptions(() =>
                                 {
                                     try
                                     {
@@ -199,7 +202,7 @@ namespace Composable.Messaging.Buses.Implementation
                             case TransportMessage.Response.ResponseType.Success:
                             {
                                 var successResponse = state.ExpectedCompletionTasks.GetAndRemove(response.RespondingToMessageId);
-                                _taskRunner.RunAndCrashProcessIfTaskThrows(() =>
+                                _taskRunner.RunAndSurfaceExceptions(() =>
                                 {
                                     try
                                     {
@@ -222,7 +225,7 @@ namespace Composable.Messaging.Buses.Implementation
                                 break;
                             case TransportMessage.Response.ResponseType.Received:
                                 Assert.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
-                                _taskRunner.RunAndCrashProcessIfTaskThrows(() => state.Storage.MarkAsReceived(response, EndpointInformation.Id));
+                                _taskRunner.RunAndSurfaceExceptions(() => state.Storage.MarkAsReceived(response, EndpointInformation.Id));
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();

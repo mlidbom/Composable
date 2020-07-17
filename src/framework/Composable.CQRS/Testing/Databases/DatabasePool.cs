@@ -161,7 +161,7 @@ namespace Composable.Testing.Databases
         protected abstract string ConnectionStringFor(Database db);
 
         readonly object _disposeLock = new object();
-        protected override void InternalDispose()
+        protected override void Dispose(bool disposing)
         {
             lock(_disposeLock)
             {
@@ -170,6 +170,7 @@ namespace Composable.Testing.Databases
             }
             MachineWideState.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
             MachineWideState.Dispose();
+            base.Dispose(disposing);
         }
 
         void RebootPool() => MachineWideState.Update(RebootPool);

@@ -20,7 +20,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class Inbox : IInbox, IDisposable
     {
-        class Runner
+        class Runner : IDisposable
         {
             readonly NetMQQueue<NetMQMessage> _responseQueue;
             readonly RouterSocket _serverSocket;
@@ -146,6 +146,7 @@ namespace Composable.Messaging.Buses.Implementation
             public void Dispose()
             {
                 _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
                 _messageReceiverThread.InterruptAndJoin();
                 _poller.StopAsync();
                 _pollerThread.Join();
@@ -155,6 +156,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _handlerExecutionEngine.Stop();
 
                 _receivedMessageBatches.Dispose();
+                _responseQueue.Dispose();
             }
         }
 

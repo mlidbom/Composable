@@ -13,7 +13,7 @@ namespace Composable.Persistence.DocumentDb
                 {
                     throw new ArgumentException("Since a type can implement multiple interfaces using it to uniquely identify an instance is impossible");
                 }
-                Id = id.ToString().ToLowerInvariant().TrimEnd(' ');
+                Id = DocumentDb.GetIdString(id);
                 Type = type;
             }
 

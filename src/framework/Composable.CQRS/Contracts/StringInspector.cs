@@ -13,7 +13,7 @@ namespace Composable.Contracts
         internal static IInspected<string> NotNullOrEmpty(this IInspected<string> me)
         {
             me.NotNull(); //We want the proper exceptions
-            return me.Inspect(inspected => inspected != String.Empty,
+            return me.Inspect(inspected => inspected.Length > 0,
                 badValue => new StringIsEmptyContractViolationException(badValue));
         }
 

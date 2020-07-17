@@ -122,7 +122,7 @@ namespace Composable.System.Reflection
         }
 
         ///<summary>Thrown if there is more than one type that matches the string passed to <see cref="TypeExtensions.AsType"/></summary>
-        class MultipleMatchingTypesException : Exception
+        public class MultipleMatchingTypesException : Exception
         {
             internal MultipleMatchingTypesException(string typeName): base(typeName)
             {
@@ -130,7 +130,7 @@ namespace Composable.System.Reflection
         }
 
         ///<summary>Thrown if there is no type that matches the string passed to <see cref="TypeExtensions.AsType"/> is found</summary>
-        internal class FailedToFindTypeException : Exception
+        public class FailedToFindTypeException : Exception
         {
             internal FailedToFindTypeException(string typeName): base(typeName)
             {

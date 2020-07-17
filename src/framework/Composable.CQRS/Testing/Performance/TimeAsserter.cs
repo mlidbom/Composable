@@ -194,7 +194,7 @@ namespace Composable.Testing.Performance
             }
         }
 
-        class TimeOutException : Exception
+        public class TimeOutException : Exception
         {
             public TimeOutException(string message) : base(message) {}
         }

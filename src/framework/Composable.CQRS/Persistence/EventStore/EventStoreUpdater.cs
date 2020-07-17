@@ -90,7 +90,7 @@ namespace Composable.Persistence.EventStore
             }
             if (aggregate.Version == 0 && changes.None())
             {
-                throw new AttemptToSaveEmptyAggregate(aggregate);
+                throw new AttemptToSaveEmptyAggregateException(aggregate);
             }
 
             var events = aggregate.GetChanges().ToList();

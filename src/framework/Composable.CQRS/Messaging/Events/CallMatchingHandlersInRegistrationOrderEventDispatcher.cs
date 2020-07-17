@@ -158,7 +158,7 @@ namespace Composable.Messaging.Events
         public bool Handles(IAggregateEvent @event) => GetHandlers(@event.GetType(), validateHandlerExists: false).Any();
     }
 
-    class EventUnhandledException : Exception
+    public class EventUnhandledException : Exception
     {
         public EventUnhandledException(Type handlerType, Type eventType)
             : base($@"{handlerType} does not handle nor ignore incoming event {eventType}") {}

@@ -109,7 +109,7 @@ namespace Composable.Contracts
             return new ChainedAssertion(inspectionType, recursionLevel + 1);
         }
 
-        class AssertionException : Exception
+        public class AssertionException : Exception
         {
             public AssertionException(InspectionType inspectionType, int index) : base($"{inspectionType}: {index}") { }
         }

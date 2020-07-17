@@ -2,7 +2,7 @@
 
 namespace Composable.Persistence.DocumentDb
 {
-    class AttemptToSaveAlreadyPersistedValueException : Exception
+    public class AttemptToSaveAlreadyPersistedValueException : Exception
     {
         public AttemptToSaveAlreadyPersistedValueException(object key, object value)
             : base(

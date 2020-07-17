@@ -4,7 +4,7 @@ namespace Composable.Messaging
 {
     static partial class MessageTypeInspector
     {
-        class MessageTypeDesignViolationException : Exception
+        public class MessageTypeDesignViolationException : Exception
         {
             public MessageTypeDesignViolationException(string message) : base(message + TypeDesignRationale) {}
 

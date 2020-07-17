@@ -135,7 +135,7 @@ namespace Composable.System
     }
 
     ///<summary><see cref="IStrictlyManagedResource"/></summary>
-    class StrictlyManagedResourceWasFinalizedException : Exception
+    public class StrictlyManagedResourceWasFinalizedException : Exception
     {
         public StrictlyManagedResourceWasFinalizedException(Type instanceType, string? reservationCallStack) : base(FormatMessage(instanceType, reservationCallStack)) { }
 
@@ -149,7 +149,7 @@ Set configuration value: {StrictlyManagedResources.CollectStackTracesForAllStric
 Please note that this will decrease performance and should only be set while debugging resource leaks.";
     }
 
-    class StrictlyManagedResourceLifespanWasExceededException : Exception
+    public class StrictlyManagedResourceLifespanWasExceededException : Exception
     {
         public StrictlyManagedResourceLifespanWasExceededException(Type instanceType, string reservationCallStack, TimeSpan maxTimeSpan) : base(FormatMessage(instanceType, reservationCallStack, maxTimeSpan)) { }
 

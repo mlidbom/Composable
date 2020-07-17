@@ -6,6 +6,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
+using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
 
@@ -28,7 +29,7 @@ namespace Composable.Messaging.Buses.Implementation
         public async Task StartAsync()
         {
             _scheduledMessagesTimer = new Timer(callback: _ => SendDueCommands(), state: null, dueTime: 0.Seconds(), period: 100.Milliseconds());
-            await Task.CompletedTask;
+            await Task.CompletedTask.NoMarshalling();
         }
 
         public void Schedule(DateTime sendAt, MessageTypes.Remotable.ExactlyOnce.ICommand message) => _guard.Update(() =>

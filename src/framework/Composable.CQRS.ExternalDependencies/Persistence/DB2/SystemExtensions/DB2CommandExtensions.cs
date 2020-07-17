@@ -60,12 +60,10 @@ namespace Composable.Persistence.DB2.SystemExtensions
 
         public static IReadOnlyList<T> ExecuteReaderAndSelect<T>(this DB2Command @this, Func<DB2DataReader, T> select)
         {
-            using(var reader = @this.ExecuteReader())
-            {
-                var result = new List<T>();
-                reader.ForEachSuccessfulRead(row => result.Add(select(row)));
-                return result;
-            }
+            using var reader = @this.ExecuteReader();
+            var result = new List<T>();
+            reader.ForEachSuccessfulRead(row => result.Add(select(row)));
+            return result;
         }
     }
 }

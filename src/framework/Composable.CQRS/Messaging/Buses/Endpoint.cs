@@ -6,6 +6,7 @@ using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
 using Composable.System.Linq;
+using Composable.System.Threading;
 
 namespace Composable.Messaging.Buses
 {
@@ -22,7 +23,7 @@ namespace Composable.Messaging.Buses
                 Inbox = inbox;
             }
 
-            public async Task InitAsync() => await Task.WhenAll(Inbox.StartAsync(), _commandScheduler.StartAsync());
+            public async Task InitAsync() => await Task.WhenAll(Inbox.StartAsync(), _commandScheduler.StartAsync()).NoMarshalling();
             public void Stop()
             {
                 _commandScheduler.Stop();
@@ -82,7 +83,7 @@ namespace Composable.Messaging.Buses
                 initTasks.Add(_serverComponents.InitAsync());
             }
 
-            await Task.WhenAll(initTasks);
+            await Task.WhenAll(initTasks).NoMarshalling();
 
             IsRunning = true;
         }
@@ -94,7 +95,7 @@ namespace Composable.Messaging.Buses
             {
                 serverEndpoints.Add(_serverComponents.Inbox.Address); //Yes, we do connect to ourselves. Scheduled commands need to dispatch over the remote protocol to get the delivery guarantees...
             }
-            await Task.WhenAll(serverEndpoints.Select(address => _interProcessTransport.ConnectAsync(address)));
+            await Task.WhenAll(serverEndpoints.Select(address => _interProcessTransport.ConnectAsync(address))).NoMarshalling();
         }
 
         static void RunSanityChecks()

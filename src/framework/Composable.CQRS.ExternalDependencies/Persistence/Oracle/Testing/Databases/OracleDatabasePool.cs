@@ -33,8 +33,8 @@ namespace Composable.Persistence.Oracle.Testing.Databases
         protected override string ConnectionStringFor(Database db)
             => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me =>
             {
-                me.UserID = db.Name.ToUpper();
-                me.Password = db.Name.ToUpper();
+                me.UserID = db.Name.ToUpperInvariant();
+                me.Password = db.Name.ToUpperInvariant();
                 me.DBAPrivilege = "";
             }).ConnectionString);
 
@@ -49,7 +49,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
             }
             catch(OracleException exception) when(exception.Number == OracleInvalidUserNamePasswordCombinationErrorNumber)
             {
-                _masterConnectionProvider.ExecuteScalar(DropUserIfExistsAndRecreate(db.Name.ToUpper()));
+                _masterConnectionProvider.ExecuteScalar(DropUserIfExistsAndRecreate(db.Name.ToUpperInvariant()));
                 new OracleConnectionProvider(ConnectionStringFor(db)).UseConnection(_ => {}); //We just call this to ensure that we can actually connect.
             }
         }

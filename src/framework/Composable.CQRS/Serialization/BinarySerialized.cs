@@ -12,21 +12,13 @@ namespace Composable.Serialization
 {
     abstract partial class BinarySerialized<TInheritor> where TInheritor : BinarySerialized<TInheritor>
     {
-        static readonly MemberGetterSetter[] MemberGetterSetters;
-        static readonly MemberGetterSetter[] MemberGetterSettersReversed;
-
         internal static readonly Func<TInheritor> DefaultConstructor = Constructor.For<TInheritor>.DefaultConstructor.Instance;
+        static readonly MemberGetterSetter[] MemberGetterSetters = DefaultConstructor().CreateGetterSetters().ToArray();
+        static readonly MemberGetterSetter[] MemberGetterSettersReversed = MemberGetterSetters.Reverse().ToArray();
 
         readonly TInheritor _this;
 
         protected BinarySerialized() => _this = (TInheritor)this;
-
-        static BinarySerialized()
-        {
-            var inheritor = DefaultConstructor();
-            MemberGetterSetters = inheritor.CreateGetterSetters().ToArray();
-            MemberGetterSettersReversed = MemberGetterSetters.Reverse().ToArray();
-        }
 
         protected abstract IEnumerable<MemberGetterSetter> CreateGetterSetters();
 

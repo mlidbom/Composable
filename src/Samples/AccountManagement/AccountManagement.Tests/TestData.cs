@@ -18,8 +18,8 @@ namespace AccountManagement
                 public static readonly string ShorterThanFourCharacters = ValidPassword[0..3];
                 public static readonly string BorderedByWhiteSpaceAtEnd = $"{ValidPassword} ";
                 public static readonly string BorderedByWhiteSpaceAtBeginning = $" {ValidPassword}";
-                public static readonly string MissingUpperCaseCharacter = ValidPassword.ToLower();
-                public static readonly string MissingLowercaseCharacter = ValidPassword.ToUpper();
+                public static readonly string MissingUpperCaseCharacter = ValidPassword.ToLowerInvariant();
+                public static readonly string MissingLowercaseCharacter = ValidPassword.ToUpperInvariant();
 
                 public static readonly string[] All =
                 {

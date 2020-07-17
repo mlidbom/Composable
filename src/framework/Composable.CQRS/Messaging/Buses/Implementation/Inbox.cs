@@ -123,7 +123,7 @@ namespace Composable.Messaging.Buses.Implementation
                                     }
                                 }
                             }
-                        });
+                        }, TaskScheduler.Default);
                     }
                 }
             }
@@ -184,7 +184,7 @@ namespace Composable.Messaging.Buses.Implementation
             Assert.State.Assert(_runner is null);
             var storageStartTask = _storage.StartAsync();
             _runner = new Runner(_handlerExecutionEngine, _storage, _address, _configuration, _typeMapper, _serializer);
-            await storageStartTask;
+            await storageStartTask.NoMarshalling();
         }
 
         public void Stop()

@@ -26,7 +26,7 @@ namespace Composable.Contracts
         {
             me.NotNullOrEmpty(); //We want the proper exceptions
             return me.Inspect(
-                inspected => inspected.Trim() != String.Empty,
+                inspected => inspected.Trim().Length > 0,
                 badValue => new StringIsWhitespaceContractViolationException(badValue));
         }
     }

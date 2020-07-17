@@ -8,7 +8,7 @@ namespace Composable.Persistence.Common.EventStore
 
         public const string ReadOrderType = "decimal(38,19)";
 
-        internal static class Columns
+        internal class Columns
         {
             public const string AggregateId = nameof(AggregateId);
             public const string InsertedVersion = nameof(InsertedVersion);

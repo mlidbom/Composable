@@ -47,12 +47,12 @@ namespace Composable.Persistence.DocumentDb
 
         internal static class DocumentTableSchemaStrings
         {
-            internal static readonly string TableName = "Store";
-            internal static readonly string Id = nameof(Id);
-            internal static readonly string ValueTypeId = nameof(ValueTypeId);
-            internal static readonly string Created = nameof(Created);
-            internal static readonly string Updated = nameof(Updated);
-            internal static readonly string Value = nameof(Value);
+            internal const string TableName = "Store";
+            internal const string Id = nameof(Id);
+            internal const string ValueTypeId = nameof(ValueTypeId);
+            internal const string Created = nameof(Created);
+            internal const string Updated = nameof(Updated);
+            internal const string Value = nameof(Value);
         }
     }
 }

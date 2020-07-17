@@ -76,7 +76,9 @@ namespace Composable.System
                 //Don't even think about letting exceptions escape on the finalizer thread again.The day I spent trying to understand why test processes simply died without explanation was no fun. Once was plenty.
                 try
                 {
+#pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
                     throw new StrictlyManagedResourceWasFinalizedException(GetType(), ReservationCallStack);
+#pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
                 }
                 catch(StrictlyManagedResourceWasFinalizedException exception)
                 {
@@ -151,7 +153,7 @@ Please note that this will decrease performance and should only be set while deb
         public StrictlyManagedResourceLifespanWasExceededException(Type instanceType, string reservationCallStack, TimeSpan maxTimeSpan) : base(FormatMessage(instanceType, reservationCallStack, maxTimeSpan)) { }
 
         static string FormatMessage(Type instanceType, string reservationCallStack, TimeSpan maxTimeSpan)
-            => reservationCallStack != string.Empty
+            => !reservationCallStack.IsNullEmptyOrWhiteSpace()
                    ? $@"User code failed to Dispose this instance of {instanceType.FullName} within the maximum lifetime: {maxTimeSpan}
 Construction call stack: {reservationCallStack}"
                    : $@"No allocation stack trace collected. 

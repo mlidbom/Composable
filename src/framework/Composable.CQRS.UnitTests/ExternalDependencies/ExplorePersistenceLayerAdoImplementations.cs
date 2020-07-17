@@ -112,11 +112,7 @@ namespace Composable.Tests.ExternalDependencies
             var cmd = db2conn.CreateCommand();
             cmd.CommandText = @"select current_schema from   sysibm.sysdummy1;";
             var result = (string)cmd.ExecuteScalar();
-            result.Should().Be(schema.ToUpper());
+            result.Should().Be(schema.ToUpperInvariant());
         }
-
-        static ReadOrder Create(long order, long offset) => ReadOrder.Parse($"{order}.{offset:D19}");
-        static string CreateString(int order, int value) => $"{order}.{DecimalPlaces(value)}";
-        static string DecimalPlaces(int number) => new string(number.ToString()[index: 0], count: 19);
     }
 }

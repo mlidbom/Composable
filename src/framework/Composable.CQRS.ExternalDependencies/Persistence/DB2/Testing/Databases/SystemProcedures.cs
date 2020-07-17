@@ -9,7 +9,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
 {
     class SystemProcedures
     {
-        static string ObjectDoesNotExist = "42704";
+        const string ObjectDoesNotExist = "42704";
         public static void CreateProcedures(DB2ConnectionProvider connection)
         {
             //drop if they exist. For new we ignore errors

@@ -12,7 +12,7 @@ namespace Composable.System.Linq
     {
         static class EmptySequence<T>
         {
-            public static readonly IEnumerable<T> Instance = new T[0];
+            public static readonly IEnumerable<T> Instance = Array.Empty<T>();
         }
 
         /// <summary>Returns an empty array of type T. Does not allocate any memory unless this is the first time it is called for T. </summary>

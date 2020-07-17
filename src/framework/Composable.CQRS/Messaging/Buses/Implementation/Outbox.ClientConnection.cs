@@ -53,7 +53,7 @@ namespace Composable.Messaging.Buses.Implementation
                     DispatchMessage(state, outGoingMessage);
                 });
 
-                return (TCommandResult)await taskCompletionSource.Task;
+                return (TCommandResult)await taskCompletionSource.Task.NoMarshalling();
             }
 
             public async Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
@@ -67,7 +67,7 @@ namespace Composable.Messaging.Buses.Implementation
                     DispatchMessage(state, outGoingMessage);
                 });
 
-                await taskCompletionSource.Task;
+                await taskCompletionSource.Task.NoMarshalling();
             }
 
             public async Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
@@ -82,10 +82,10 @@ namespace Composable.Messaging.Buses.Implementation
                     state.DispatchQueue.Enqueue(outGoingMessage);
                 });
 
-                return (TQueryResult)await taskCompletionSource.Task;
+                return (TQueryResult)await taskCompletionSource.Task.NoMarshalling();
             }
 
-            static void DispatchMessage(State @this, TransportMessage.OutGoing outGoingMessage)
+            static void DispatchMessage(InboxConnectionState @this, TransportMessage.OutGoing outGoingMessage)
             {
                 if(outGoingMessage.IsExactlyOnceDeliveryMessage)
                 {
@@ -96,7 +96,7 @@ namespace Composable.Messaging.Buses.Implementation
                 @this.DispatchQueue.Enqueue(outGoingMessage);
             }
 
-            internal async Task Init() { EndpointInformation = await DispatchAsync(new MessageTypes.Internal.EndpointInformationQuery()); }
+            internal async Task Init() { EndpointInformation = await DispatchAsync(new MessageTypes.Internal.EndpointInformationQuery()).NoMarshalling(); }
 
 #pragma warning disable 8618 //Refactor: This really should not be suppressed. We do have a bad design that might cause null reference exceptions here if Init has not been called.
             internal InboxConnection(IGlobalBusStateTracker globalBusStateTracker,
@@ -112,7 +112,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _serializer = serializer;
                 _typeMapper = typeMapper;
                 _taskRunner = taskRunner;
-                _state = new OptimizedThreadShared<State>(new State(timeSource, messageStorage, new DealerSocket(), globalBusStateTracker));
+                _state = new OptimizedThreadShared<InboxConnectionState>(new InboxConnectionState(timeSource, messageStorage, new DealerSocket(), globalBusStateTracker));
 
                 _state.WithExclusiveAccess(state =>
                 {
@@ -139,13 +139,9 @@ namespace Composable.Messaging.Buses.Implementation
                 while(netMQQueueEventArgs.Queue.TryDequeue(out var message, TimeSpan.Zero)) state.Socket.Send(message);
             });
 
-            public void Dispose() => _state.WithExclusiveAccess(state =>
-            {
-                state.Socket.Dispose();
-                state.DispatchQueue.Dispose();
-            });
+            public void Dispose() => _state.WithExclusiveAccess(state => state.Dispose());
 
-            class State
+            class InboxConnectionState : IDisposable
             {
                 internal readonly IGlobalBusStateTracker GlobalBusStateTracker;
                 internal readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
@@ -156,16 +152,22 @@ namespace Composable.Messaging.Buses.Implementation
                 internal IUtcTimeTimeSource TimeSource { get; private set; }
                 internal Outbox.IMessageStorage Storage { get; private set; }
 
-                public State(IUtcTimeTimeSource timeSource, Outbox.IMessageStorage storage, DealerSocket socket, IGlobalBusStateTracker globalBusStateTracker)
+                public InboxConnectionState(IUtcTimeTimeSource timeSource, Outbox.IMessageStorage storage, DealerSocket socket, IGlobalBusStateTracker globalBusStateTracker)
                 {
                     Socket = socket;
                     TimeSource = timeSource;
                     Storage = storage;
                     GlobalBusStateTracker = globalBusStateTracker;
                 }
+
+                public void Dispose()
+                {
+                    Socket.Dispose();
+                    DispatchQueue.Dispose();
+                }
             }
 
-            readonly IThreadShared<State> _state;
+            readonly IThreadShared<InboxConnectionState> _state;
 
             //Runs on poller thread so NO BLOCKING HERE!
             void ReceiveResponse(object sender, NetMQSocketEventArgs e)

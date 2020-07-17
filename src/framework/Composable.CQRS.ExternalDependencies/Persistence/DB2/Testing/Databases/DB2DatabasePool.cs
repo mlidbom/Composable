@@ -32,7 +32,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _masterConnectionString + $"CurrentSchema={db.Name.ToUpper()};";
+            => _masterConnectionString + $"CurrentSchema={db.Name.ToUpperInvariant()};";
 
         protected override void InitReboot() => SystemProcedures.CreateProcedures(_masterConnectionProvider);
 
@@ -42,7 +42,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
         {
             try
             {
-                _masterConnectionProvider.ExecuteNonQuery($@"CREATE SCHEMA ""{db.Name.ToUpper()}""");
+                _masterConnectionProvider.ExecuteNonQuery($@"CREATE SCHEMA ""{db.Name.ToUpperInvariant()}""");
             }
             catch(DB2Exception exception) when(exception.Errors.Cast<DB2Error>().Any(error => error.SQLState == ObjectAlreadyExists))
             {}
@@ -52,7 +52,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
 
         protected override void ResetDatabase(Database db) =>
             _masterConnectionProvider.UseCommand(command => command.SetStoredProcedure("EMPTY_SCHEMA")
-                                                                   .AddParameter("ASCHEMA", DB2Type.VarChar, db.Name.ToUpper())
+                                                                   .AddParameter("ASCHEMA", DB2Type.VarChar, db.Name.ToUpperInvariant())
                                                                    .ExecuteNonQuery());
     }
 }

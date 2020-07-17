@@ -54,7 +54,7 @@ namespace Composable.System.Reflection
                     ConstructorInfo constructor = instanceType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, types: constructorArgumentTypes, modifiers: null);
                     if (constructor == null)
                     {
-                        throw new Exception($"Expected to find a constructor with the signature: [private|protected|public] {instanceType.FullName}({DescribeParameterList(constructorArgumentTypes)})");
+                        throw new Exception($"Expected to find a constructor with the signature: [private|protected|public] {instanceType.GetFullNameCompilable()}({DescribeParameterList(constructorArgumentTypes)})");
                     }
 
                     var constructorCallMethod = new DynamicMethod($"Generated_constructor_for_{instanceType.Name}", instanceType, constructorArgumentTypes, instanceType);

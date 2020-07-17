@@ -1,0 +1,37 @@
+﻿[*.cs]
+
+# CA1032: Implement standard exception constructors
+dotnet_diagnostic.CA1032.severity = suggestion
+
+# CA1034: Do not nest type AggregateLink. Alternatively, change its accessibility so that it is not externally visible.
+dotnet_diagnostic.CA1034.severity = silent
+
+# CA1040: Avoid empty interfaces
+dotnet_diagnostic.CA1040.severity = silent
+
+# CA1000: Do not declare static members on generic types
+dotnet_diagnostic.CA1000.severity = silent
+
+# CA1062: In externally visible method 'ComponentRegistration<TService> ComponentRegistrationExtensions.CreatedBy<TService, TImplementation, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8, TDependency9>(ComponentRegistrationWithoutInstantiationSpec<TService> @this, Func<TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8, TDependency9, TImplementation> factoryMethod)', validate parameter 'this' is non-null before using it. If appropriate, throw an ArgumentNullException when the argument is null or add a Code Contract precondition asserting non-null argument.
+dotnet_diagnostic.CA1062.severity = silent
+
+# CA1716: In virtual/interface member IGetSetAggregateEntityEventEntityId<TEntityId, TEventImplementation, TEvent>.SetEntityId(TEventImplementation, TEntityId), rename parameter event so that it no longer conflicts with the reserved language keyword 'event'. Using a reserved keyword as the name of a parameter on a virtual/interface member makes it harder for consumers in other languages to override/implement the member.
+dotnet_diagnostic.CA1716.severity = silent
+
+# CA1822: Member 'Commands' does not access instance data and can be marked as static
+dotnet_diagnostic.CA1822.severity = silent
+
+# CA1303: Method 'double TimeAsserter.DetectEnvironmentPerformanceAdjustment()' passes a literal string as parameter 'message' of a call to 'Exception.Exception(string message)'. Retrieve the following string(s) from a resource table instead: "Environment variable har invalid value: COMPOSABLE_MACHINE_SLOWNESS. It should be parsable as a double.".
+dotnet_diagnostic.CA1303.severity = silent
+
+# CA1031: Modify 'TryCatch' to catch a more specific allowed exception type, or rethrow the exception.
+dotnet_diagnostic.CA1031.severity = silent
+
+# CA2208: Call the ArgumentOutOfRangeException constructor that contains a message and/or paramName parameter.
+dotnet_diagnostic.CA2208.severity = silent
+
+# CA1051: Do not declare visible instance fields
+dotnet_diagnostic.CA1051.severity = suggestion
+
+# IDE1006: Naming Styles
+dotnet_diagnostic.IDE1006.severity = silent

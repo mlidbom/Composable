@@ -29,13 +29,13 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => me.Database = db.Name.ToLower()).ConnectionString);
+            => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => me.Database = db.Name.ToLowerInvariant()).ConnectionString);
 
         protected override void InitReboot() {}
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
-            var databaseName = db.Name.ToLower();
+            var databaseName = db.Name.ToLowerInvariant();
             //Urgent: Figure out PgSql equivalents and if they need to be specified
             //            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
             //            {
@@ -49,7 +49,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
             //ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
             ResetConnectionPool(db);
-            var exists = (string)_masterConnectionProvider.ExecuteScalar($"SELECT datname FROM pg_database WHERE datname = '{databaseName.ToLower()}'");
+            var exists = (string)_masterConnectionProvider.ExecuteScalar($"SELECT datname FROM pg_database WHERE datname = '{databaseName.ToLowerInvariant()}'");
             if(!exists.IsNullOrEmpty())
             {
                 ResetDatabase(db);

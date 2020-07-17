@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Composable.System.Threading;
 
 namespace Composable.Messaging.Hypermedia
 {
@@ -17,6 +18,6 @@ namespace Composable.Messaging.Hypermedia
 
         public static TResult Navigate<TResult>(this IRemoteHypermediaNavigator navigator, NavigationSpecification<TResult> navigationSpecification) => navigationSpecification.NavigateOn(navigator);
 
-        public static async Task<TResult> NavigateAsync<TResult>(this IRemoteHypermediaNavigator navigator, NavigationSpecification<TResult> navigationSpecification) => await navigationSpecification.NavigateOnAsync(navigator);
+        public static async Task<TResult> NavigateAsync<TResult>(this IRemoteHypermediaNavigator navigator, NavigationSpecification<TResult> navigationSpecification) => await navigationSpecification.NavigateOnAsync(navigator).NoMarshalling();
     }
 }

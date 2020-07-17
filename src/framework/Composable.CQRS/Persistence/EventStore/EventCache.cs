@@ -70,7 +70,7 @@ namespace Composable.Persistence.EventStore
             public static readonly Entry Empty = new Entry();
             Entry()
             {
-                Events = new AggregateEvent[]{};
+                Events = Array.Empty<AggregateEvent>();
                 MaxSeenInsertedVersion = 0;
             }
 

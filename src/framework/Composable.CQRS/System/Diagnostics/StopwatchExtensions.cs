@@ -2,11 +2,14 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Composable.System.Linq;
 using Composable.System.Threading;
 using JetBrains.Annotations;
+using TaskExtensions = Composable.System.Threading.TaskExtensions;
 
 namespace Composable.System.Diagnostics
 {
@@ -74,7 +77,7 @@ namespace Composable.System.Diagnostics
 
             var total = TimeExecution(() =>
             {
-                var timedActions = actions.Select(action => Task.Factory.StartNew(() => individual.Push(TimeExecution(action)), TaskCreationOptions.LongRunning)).ToArray();
+                var timedActions = actions.Select(action => TaskExtensions.StartLongRunning(() => individual.Push(TimeExecution(action)))).ToArray();
                 try
                 {
                     Task.WaitAll(timedActions);
@@ -127,7 +130,7 @@ Individual execution times
     Sum:     {Format(IndividualExecutionTimes.Sum())}
 ";
 
-            string Format(TimeSpan? average) => average?.ToString(@"ss\.ffffff") ?? "";
+            string Format(TimeSpan? average) => average?.ToString(@"ss\.ffffff", CultureInfo.InvariantCulture) ?? "";
         }
     }
 }

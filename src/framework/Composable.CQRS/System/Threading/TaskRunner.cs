@@ -47,7 +47,7 @@ namespace Composable.System.Threading
             public void MonitorAndCrashProcessIfTaskThrows(IEnumerable<Task> tasks) => MonitorAndCrashProcessIfTaskThrows(tasks.ToArray());
             public void MonitorAndCrashProcessIfTaskThrows(params Task[] tasks) => tasks.ForEach(ThrowExceptionOnBackgroundThreadIfTaskFails);
 
-            static void ThrowExceptionOnBackgroundThreadIfTaskFails(Task task) => task.ContinueWith(ThrowExceptionOnNewThreadSoThatProcessCrashesInsteadOfThisFailureGoingIgnoredAsIsTheDefaultBehaviorForTasks, TaskContinuationOptions.OnlyOnFaulted);
+            static void ThrowExceptionOnBackgroundThreadIfTaskFails(Task task) => task.ContinueOnDefaultScheduler(ThrowExceptionOnNewThreadSoThatProcessCrashesInsteadOfThisFailureGoingIgnoredAsIsTheDefaultBehaviorForTasks, TaskContinuationOptions.OnlyOnFaulted);
             static void ThrowExceptionOnNewThreadSoThatProcessCrashesInsteadOfThisFailureGoingIgnoredAsIsTheDefaultBehaviorForTasks(Task faultedTask)
             {
                 //Urgent: Refactor this so that awaiting the shutdown of the TestHost guarantees that background tasks are also all completed and any exceptions have been reported.

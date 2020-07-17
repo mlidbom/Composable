@@ -11,7 +11,7 @@ namespace Composable.DependencyInjection
             internal static int ServiceCount { get; private set; }
             static Dictionary<Type, int> _map = new Dictionary<Type, int>();
 
-            static Type[] _backMap = new Type[0];
+            static Type[] _backMap = Array.Empty<Type>();
 
             internal static int For(Type type)
             {

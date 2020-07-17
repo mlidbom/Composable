@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Composable.System.Threading;
 
 namespace Composable.Logging
 {
@@ -22,7 +23,7 @@ namespace Composable.Logging
         {
             try
             {
-                await action();
+                await action().NoMarshalling();
             }
             catch(Exception e)
             {

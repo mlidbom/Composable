@@ -17,10 +17,10 @@ namespace Composable.Messaging.Buses
         readonly IRunMode _mode;
         readonly Func<IRunMode, IDependencyInjectionContainer> _containerFactory;
         bool _disposed;
-        protected readonly List<IEndpoint> Endpoints = new List<IEndpoint>();
+        protected List<IEndpoint> Endpoints { get; } = new List<IEndpoint>();
         internal IGlobalBusStateTracker GlobalBusStateTracker;
 
-        ILogger _log = Logger.For<EndpointHost>();
+        readonly ILogger _log = Logger.For<EndpointHost>();
 
         protected EndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory)
         {
@@ -63,7 +63,7 @@ namespace Composable.Messaging.Buses
 
             await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.InitAsync())).NoMarshalling();
             await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.ConnectAsync())).NoMarshalling();
-        });
+        }).NoMarshalling();
 
         public void Start() => StartAsync().WaitUnwrappingException();
 

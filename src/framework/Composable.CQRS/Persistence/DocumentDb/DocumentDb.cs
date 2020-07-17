@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using Composable.Contracts;
 using Composable.DDD;
@@ -58,7 +59,7 @@ namespace Composable.Persistence.DocumentDb
         }
 
 
-        static string GetIdString(object id) => id.ToString().ToLower().TrimEnd(' ');
+        static string GetIdString(object id) => id.ToString().ToLowerInvariant().TrimEnd(' ');
 
         public void Remove(object id, Type documentType)
         {

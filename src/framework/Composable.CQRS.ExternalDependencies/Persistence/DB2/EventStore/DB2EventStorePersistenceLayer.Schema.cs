@@ -3,8 +3,9 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.System.Transactions;
-using Event=Composable.Persistence.Common.EventStore.EventTable.Columns;
+using Event=Composable.Persistence.DB2.EventStore.DB2EventTableColumns;
 using Lock = Composable.Persistence.Common.EventStore.AggregateLockTable;
+// ReSharper disable AccessToStaticMemberViaDerivedType
 
 namespace Composable.Persistence.DB2.EventStore
 {
@@ -24,18 +25,19 @@ begin
 
             CREATE TABLE {EventTable.Name}
             (
-                {Event.InsertionOrder}       NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL ,
-                {Event.AggregateId}          {DB2GuidType}                        NOT NULL,  
-                {Event.UtcTimeStamp}         TIMESTAMP(7)                            NOT NULL,   
-                {Event.EventType}            {DB2GuidType}                        NOT NULL,    
-                {Event.Event}                NCLOB                                   NOT NULL,
-                {Event.EventId}              {DB2GuidType}                        NOT NULL,
-                {Event.InsertedVersion}      NUMBER(10)                              NOT NULL,
-                {Event.SqlInsertTimeStamp}   TIMESTAMP(9) default CURRENT_TIMESTAMP  NOT NULL,
-                {Event.ReadOrder}            {EventTable.ReadOrderType}              NOT NULL,
-                {Event.EffectiveVersion}     NUMBER(10)                              NOT NULL,
-                {Event.TargetEvent}          {DB2GuidType}                        NULL,
-                {Event.RefactoringType}      NUMBER(3)                               NULL,                
+                {Event.InsertionOrder}        NUMBER(19) GENERATED ALWAYS AS IDENTITY NOT NULL ,
+                {Event.AggregateId}           {DB2GuidType}                           NOT NULL,  
+                {Event.UtcTimeStamp}          TIMESTAMP(7)                            NOT NULL,   
+                {Event.EventType}             {DB2GuidType}                           NOT NULL,    
+                {Event.Event}                 NCLOB                                   NOT NULL,
+                {Event.EventId}               {DB2GuidType}                           NOT NULL,
+                {Event.InsertedVersion}       NUMBER(10)                              NOT NULL,
+                {Event.SqlInsertTimeStamp}    TIMESTAMP(9) default CURRENT_TIMESTAMP  NOT NULL,
+                {Event.ReadOrderIntegerPart}  NUMBER(19)                              NOT NULL,
+                {Event.ReadOrderFractionPart} NUMBER(19)                              NOT NULL,
+                {Event.EffectiveVersion}      NUMBER(10)                              NOT NULL,
+                {Event.TargetEvent}           {DB2GuidType}                           NULL,
+                {Event.RefactoringType}       NUMBER(3)                               NULL,                
 
                 PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
 

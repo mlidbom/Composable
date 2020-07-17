@@ -66,7 +66,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var clientConnection = _state.WithExclusiveAccess(@this => new InboxConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller!, @this.TimeSource, @this.Storage, @this.TypeMapper, _taskRunner, @this.Serializer));
 
-            await clientConnection.Init();
+            await clientConnection.Init().NoMarshalling();
 
             _state.WithExclusiveAccess(@this =>
             {
@@ -92,7 +92,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return storageStartTask;
             });
 
-            await storageStartTask;
+            await storageStartTask.NoMarshalling();
         }
 
         public void Stop() => _state.WithExclusiveAccess(state =>
@@ -149,7 +149,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return state.InboxConnections[endPointId];
             });
 
-            return await connection.DispatchAsync(atMostOnceCommand);
+            return await connection.DispatchAsync(atMostOnceCommand).NoMarshalling();
         }
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
@@ -160,7 +160,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return state.InboxConnections[endPointId];
             });
 
-            return await connection.DispatchAsync(query);
+            return await connection.DispatchAsync(query).NoMarshalling();
         }
 
         public void Dispose() => _state.WithExclusiveAccess(state =>

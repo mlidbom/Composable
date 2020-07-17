@@ -64,7 +64,7 @@ namespace Composable.Testing.Performance
 
             timeFormat ??= DefaultTimeFormat;
 
-            string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
+            string Format(TimeSpan? date) => date?.ToStringInvariant(timeFormat) ?? "";
 
             maxTries = Math.Min(MaxTriesLimit, maxTries);
             for(var tries = 1; tries <= maxTries; tries++)
@@ -122,7 +122,7 @@ namespace Composable.Testing.Performance
 
             // ReSharper disable AccessToModifiedClosure
 
-            string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
+            string Format(TimeSpan? date) => date?.ToStringInvariant(timeFormat) ?? "";
 
             void PrintResults(StopwatchExtensions.TimedThreadedExecutionSummary executionSummary)
             {

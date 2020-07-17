@@ -19,7 +19,7 @@ namespace Composable.Messaging.Buses
         {
             MessageInspector.AssertValidToSendRemote(command);
             CommandValidator.AssertCommandIsValid(command);
-            await _transport.DispatchAsync(command);
+            await _transport.DispatchAsync(command).NoMarshalling();
         }
 
         TResult IRemoteHypermediaNavigator.Post<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command) => ((IRemoteHypermediaNavigator)this).PostAsync(command).ResultUnwrappingException();

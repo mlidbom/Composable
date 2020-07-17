@@ -110,11 +110,11 @@ namespace Composable.System.Reflection
 
         public static string GetFullNameCompilable(this Type @this)
         {
-            if(!@this.IsConstructedGenericType) return @this.FullName.Replace("+", ".");
+            if(!@this.IsConstructedGenericType) return @this.FullName.ReplaceInvariant("+", ".");
 
             var typeArguments = @this.GenericTypeArguments;
             // ReSharper disable once PossibleNullReferenceException
-            var genericTypeName = @this.GetGenericTypeDefinition().GetFullNameCompilable().Replace($@"`{typeArguments.Length}", "");
+            var genericTypeName = @this.GetGenericTypeDefinition().GetFullNameCompilable().ReplaceInvariant($@"`{typeArguments.Length}", "");
 
             var name = $"{genericTypeName}<{typeArguments.Select(type => type.GetFullNameCompilable()).Join(",")}>";
 

@@ -20,7 +20,7 @@ namespace Composable.Persistence.Oracle.EventStore
                 _connectionManager.UseCommand(command => command.SetCommandText($@"
 declare existing_table_count integer;
 begin
-    select count(*) into existing_table_count from user_tables where table_name='{EventTable.Name.ToUpper()}';
+    select count(*) into existing_table_count from user_tables where table_name='{EventTable.Name.ToUpperInvariant()}';
     if (existing_table_count = 0) then
         EXECUTE IMMEDIATE '
 

@@ -26,7 +26,7 @@ namespace Composable.Persistence.Oracle.DocumentDb
                             _connectionProvider.ExecuteNonQuery($@"
 declare existing_table_count integer;
 begin
-    select count(*) into existing_table_count from user_tables where table_name='{Document.TableName.ToUpper()}';
+    select count(*) into existing_table_count from user_tables where table_name='{Document.TableName.ToUpperInvariant()}';
     if (existing_table_count = 0) then
         EXECUTE IMMEDIATE '
         

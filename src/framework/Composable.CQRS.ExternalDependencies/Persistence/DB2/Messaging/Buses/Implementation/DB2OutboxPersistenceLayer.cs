@@ -25,7 +25,7 @@ BEGIN
 
     INSERT INTO {MessageTable.TableName} 
                 ({MessageTable.MessageId},  {MessageTable.TypeIdGuidValue}, {MessageTable.SerializedMessage}) 
-        VALUES (:{MessageTable.MessageId}, @{MessageTable.TypeIdGuidValue}, @{MessageTable.SerializedMessage});
+        VALUES (@{MessageTable.MessageId}, @{MessageTable.TypeIdGuidValue}, @{MessageTable.SerializedMessage});
     ")
                        .AddParameter(MessageTable.MessageId, messageWithReceivers.MessageId)
                        .AddParameter(MessageTable.TypeIdGuidValue, messageWithReceivers.TypeIdGuidValue)

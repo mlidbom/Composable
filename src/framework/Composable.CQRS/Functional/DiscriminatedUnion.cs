@@ -17,7 +17,7 @@ namespace Composable.Functional
             }
         }
 
-        class InvalidDiscriminatedUnionTypeException : Exception
+        public class InvalidDiscriminatedUnionTypeException : Exception
         {
             public InvalidDiscriminatedUnionTypeException(Type instanceType, IReadOnlyList<Type> allowedTypes) : base($"{instanceType.FullName} is not one of {allowedTypes.Select(type => type.FullName).Join(",")}") {}
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Composable.System.Threading;
 using MySql.Data.MySqlClient;
 
 namespace Composable.Persistence.MySql.SystemExtensions
@@ -11,7 +12,7 @@ namespace Composable.Persistence.MySql.SystemExtensions
         public static object ExecuteScalar(this IMySqlConnectionProvider @this, string commandText) => @this.UseCommand(command => command.SetCommandText(commandText).ExecuteScalar());
 
         public static async Task<int> ExecuteNonQueryAsync(this IMySqlConnectionProvider @this, string commandText)
-            => await @this.UseConnectionAsync(async connection => await connection.ExecuteNonQueryAsync(commandText));
+            => await @this.UseConnectionAsync(async connection => await connection.ExecuteNonQueryAsync(commandText).NoMarshalling()).NoMarshalling();
 
         public static void ExecuteReader(this IMySqlConnectionProvider @this, string commandText, Action<MySqlDataReader> forEach) => @this.UseCommand(command => command.ExecuteReader(commandText, forEach));
 

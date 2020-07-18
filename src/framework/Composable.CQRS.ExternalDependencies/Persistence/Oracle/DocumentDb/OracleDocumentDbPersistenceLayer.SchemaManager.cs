@@ -23,11 +23,10 @@ namespace Composable.Persistence.Oracle.DocumentDb
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            //Urgent: Move to using common schema strings class like in event store and bus persistence layers.
                             _connectionProvider.ExecuteNonQuery($@"
 declare existing_table_count integer;
 begin
-    select count(*) into existing_table_count from user_tables where table_name='STORE';
+    select count(*) into existing_table_count from user_tables where table_name='{Document.TableName.ToUpperInvariant()}';
     if (existing_table_count = 0) then
         EXECUTE IMMEDIATE '
         

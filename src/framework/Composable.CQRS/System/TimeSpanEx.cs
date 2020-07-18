@@ -1,11 +1,11 @@
 using System;
-
+using System.Globalization;
 
 // ReSharper disable UnusedMember.Global
 namespace Composable.System
 {
     /// <summary>A collection of extensions to work with timespans</summary>
-    static class TimeSpanExtensions
+    static class TimeSpanEx
     {
         /// <summary>Returns a TimeSpan <paramref name="this"/> milliseconds long.</summary>
         public static TimeSpan Milliseconds(this int @this) => TimeSpan.FromMilliseconds(@this);
@@ -55,5 +55,7 @@ namespace Composable.System
         public static TimeSpan MultiplyBy(this TimeSpan @this, double times) => TimeSpan.FromTicks((long)(@this.Ticks * times));
 
         public static TimeSpan DivideBy(this TimeSpan @this, double divideBy) => TimeSpan.FromTicks((long)(@this.Ticks / divideBy));
+
+        internal static string ToStringInvariant(this TimeSpan @this, string format) => @this.ToString(format, CultureInfo.InvariantCulture);
     }
 }

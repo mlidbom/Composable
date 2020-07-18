@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Composable.Persistence.EventStore;
@@ -108,8 +109,8 @@ EXCEPTION: {exception}
             }
         }
 
-        [StringFormatMethod(formatParameterName:"queuedMessageInformation")]
-        public void DebugFormat(string message, params object[] arguments) => Debug(string.Format(message, arguments));
+        [StringFormatMethod(formatParameterName:"message")]
+        public void DebugFormat(string message, params object[] arguments) => StringEx.FormatInvariant(message, arguments);
 
         static readonly JsonSerializerSettings ExceptionSerializationSettings =
             new JsonSerializerSettings

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Composable.Persistence.PgSql.SystemExtensions;
+using Composable.System.Threading;
 using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
 using Dispatch = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 
@@ -43,7 +44,7 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
         FOREIGN KEY ({Dispatch.MessageId}) REFERENCES {Message.TableName} ({Message.MessageId})
     );
 
-");
+").NoMarshalling();
             }
         }
     }

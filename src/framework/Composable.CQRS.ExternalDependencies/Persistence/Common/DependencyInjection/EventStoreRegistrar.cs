@@ -17,7 +17,7 @@ namespace Composable.Persistence.Common.DependencyInjection
 {
     public static class EventStoreRegistrar
     {
-        static readonly IEventMigration[] EmptyMigrationsArray = new IEventMigration[0];
+        static readonly IEventMigration[] EmptyMigrationsArray = Array.Empty<IEventMigration>();
 
         public static EventStoreRegistrationBuilder RegisterEventStore(this IEndpointBuilder @this) => @this.RegisterEventStore(EmptyMigrationsArray);
         public static EventStoreRegistrationBuilder RegisterEventStore(this IEndpointBuilder @this, IReadOnlyList<IEventMigration> migrations)

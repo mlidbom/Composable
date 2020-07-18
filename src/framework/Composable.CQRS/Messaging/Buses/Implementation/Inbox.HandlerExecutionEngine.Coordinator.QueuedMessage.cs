@@ -31,7 +31,7 @@ namespace Composable.Messaging.Buses.Implementation
                     public void Execute()
                     {
                         var message = TransportMessage.DeserializeMessageAndCacheForNextCall();
-                        _taskRunner.RunAndCrashProcessIfTaskThrows(() =>
+                        _taskRunner.RunAndSurfaceExceptions(() =>
                         {
                             var retryPolicy = new DefaultRetryPolicy(message);
 

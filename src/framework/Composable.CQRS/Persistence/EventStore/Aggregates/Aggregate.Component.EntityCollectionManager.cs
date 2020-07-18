@@ -60,7 +60,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                     where TCreationEvent : TEntityEventImplementation, TEntityCreatedEvent
                 {
                     _raiseEventThroughParent(creationEvent);
-                    var result = ManagedEntities.InCreationOrder.Last();
+                    var result = ManagedEntities.InCreationOrder[^1];
                     result._eventHandlersEventDispatcher.Dispatch(creationEvent);
                     return result;
                 }

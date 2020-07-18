@@ -13,6 +13,7 @@ using Composable.System.Reflection;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
+using TaskExtensions = Composable.System.Threading.TaskExtensions;
 
 namespace Composable.Testing.Databases
 {
@@ -21,7 +22,7 @@ namespace Composable.Testing.Databases
         protected readonly MachineWideSharedObject<SharedState> MachineWideState;
         protected static string? DatabaseRootFolderOverride;
         static TimeSpan _reservationLength;
-        protected static readonly int NumberOfDatabases = 30;
+        protected const int NumberOfDatabases = 30;
 
         protected DatabasePool()
         {
@@ -32,7 +33,7 @@ namespace Composable.Testing.Databases
                 DatabaseRootFolderOverride = ComposableTempFolder.EnsureFolderExists("DatabasePoolData");
             }
 
-            MachineWideState = MachineWideSharedObject<SharedState>.For(GetType().GetFullNameCompilable().Replace(".", "_"), usePersistentFile: true);
+            MachineWideState = MachineWideSharedObject<SharedState>.For(GetType().GetFullNameCompilable().ReplaceInvariant(".", "_"), usePersistentFile: true);
 
         }
 
@@ -44,7 +45,7 @@ namespace Composable.Testing.Databases
 
         static ILogger Log = Logger.For<DatabasePool>();
         bool _disposed;
-        static readonly string RebootedDatabaseExceptionMessage = "Something went wrong with the database pool and it was rebooted. You may see other test failures due to this. If this is the first time you use the pool everything is fine. If this error pops up at other times something is amiss.";
+        const string RebootedDatabaseExceptionMessage = "Something went wrong with the database pool and it was rebooted. You may see other test failures due to this. If this is the first time you use the pool everything is fine. If this error pops up at other times something is amiss.";
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => Log = Log.WithLogLevel(logLevel));
 
@@ -104,7 +105,7 @@ namespace Composable.Testing.Databases
                 }
             }
 
-            if(!reservedDatabase.IsClean)
+            if(!reservedDatabase!.IsClean)
             {
                 try
                 {
@@ -160,7 +161,7 @@ namespace Composable.Testing.Databases
         protected abstract string ConnectionStringFor(Database db);
 
         readonly object _disposeLock = new object();
-        protected override void InternalDispose()
+        protected override void Dispose(bool disposing)
         {
             lock(_disposeLock)
             {
@@ -169,6 +170,7 @@ namespace Composable.Testing.Databases
             }
             MachineWideState.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
             MachineWideState.Dispose();
+            base.Dispose(disposing);
         }
 
         void RebootPool() => MachineWideState.Update(RebootPool);
@@ -180,14 +182,17 @@ namespace Composable.Testing.Databases
             machineWide.Reset();
             _transientCache = new List<Database>();
 
+            InitReboot();
 
             Task[] tasks = 1.Through(NumberOfDatabases)
                             .Select(index => machineWide.Insert())
-                            .Select(db => Task.Factory.StartNew(() => EnsureDatabaseExistsAndIsEmpty(db), TaskCreationOptions.LongRunning))
+                            .Select(db => TaskExtensions.StartLongRunning(() => EnsureDatabaseExistsAndIsEmpty(db)))
                             .ToArray();
 
             Task.WaitAll(tasks);
         });
+
+        protected abstract void InitReboot();
 
         protected abstract void EnsureDatabaseExistsAndIsEmpty(Database db);
     }

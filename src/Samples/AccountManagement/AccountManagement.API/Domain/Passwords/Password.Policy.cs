@@ -25,8 +25,8 @@ namespace AccountManagement.Domain.Passwords
                 //Create a simple extension to keep the code short an expressive and DRY. If AddIf is unclear just hover your pointer over the method and the documentation comment should clear everything up.
                 failures.AddIf(password.Length < 4, Failures.ShorterThanFourCharacters);
                 failures.AddIf(password.Trim() != password, Failures.BorderedByWhitespace);
-                failures.AddIf(password.ToLower() == password, Failures.MissingUppercaseCharacter);
-                failures.AddIf(password.ToUpper() == password, Failures.MissingLowerCaseCharacter);
+                failures.AddIf(password.ToLowerInvariant() == password, Failures.MissingUppercaseCharacter);
+                failures.AddIf(password.ToUpperInvariant() == password, Failures.MissingLowerCaseCharacter);
                 return failures;
             }
 

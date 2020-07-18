@@ -88,7 +88,9 @@ namespace Composable.Persistence.InMemory.DocumentDB
                       .Where(@this => typeIds.Contains(@this.TypeId))
                       .Select(@this =>
                        {
+#pragma warning disable CA1806 // Do not ignore method results
                            Guid.TryParse(@this.Id, out var id);
+#pragma warning restore CA1806 // Do not ignore method results
                            return id;
                        })
                       .Where(@this => @this != Guid.Empty)

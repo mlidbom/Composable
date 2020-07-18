@@ -68,10 +68,8 @@ namespace Composable.System.Reflection
     static class MemberAccessorHelper<T>
     {
         // ReSharper disable StaticFieldInGenericType
-        static readonly Func<Object, Object>[] Fields;
+        static readonly Func<Object, Object>[] Fields = MemberAccessorHelper.GetFieldGetters(typeof(T));
         // ReSharper restore StaticFieldInGenericType
-
-        static MemberAccessorHelper() => Fields = MemberAccessorHelper.GetFieldGetters(typeof(T));
 
         ///<summary>Returns functions that when invoked will return the values of the fields an properties in an instance of the supplied type.</summary>
         public static Func<object, object?>[] GetFieldGetters(Type type)

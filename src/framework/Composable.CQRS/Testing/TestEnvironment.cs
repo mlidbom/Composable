@@ -76,7 +76,7 @@ namespace Composable.Testing
         }
 
 
-        public static TValue ValueForPersistenceProvider<TValue>(TValue msSql= default, TValue mySql = default, TValue inMem = default, TValue pgSql = default, TValue orcl = default)
+        public static TValue ValueForPersistenceProvider<TValue>(TValue msSql= default, TValue mySql = default, TValue inMem = default, TValue pgSql = default, TValue orcl = default, TValue db2 = default)
             => TestEnvironment.TestingPersistenceLayer switch
             {
                 PersistenceLayer.MsSql => SelectValue(msSql, nameof(msSql)),
@@ -84,6 +84,7 @@ namespace Composable.Testing
                 PersistenceLayer.MySql => SelectValue(mySql, nameof(mySql)),
                 PersistenceLayer.PgSql => SelectValue(pgSql, nameof(pgSql)),
                 PersistenceLayer.Orcl => SelectValue(orcl, nameof(orcl)),
+                PersistenceLayer.DB2 => SelectValue(db2, nameof(db2)),
                 _ => throw new ArgumentOutOfRangeException()
             };
 

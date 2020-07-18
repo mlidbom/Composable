@@ -22,11 +22,11 @@ namespace AccountManagement
         {
             internal TryGetByEmailQuery TryGetByEmail(Email email) => new TryGetByEmailQuery(email);
 
-            internal EventStoreApi.Query.AggregateLink<Account> GetForUpdate(Guid id) => ComposableApi.EventStore.Queries.GetForUpdate<Account>(id);
+            internal EventStoreApi.QueryApi.AggregateLink<Account> GetForUpdate(Guid id) => ComposableApi.EventStore.Queries.GetForUpdate<Account>(id);
 
-            internal EventStoreApi.Query.GetReadonlyCopyOfAggregate<Account> GetReadOnlyCopy(Guid id) => ComposableApi.EventStore.Queries.GetReadOnlyCopy<Account>(id);
+            internal EventStoreApi.QueryApi.GetReadonlyCopyOfAggregate<Account> GetReadOnlyCopy(Guid id) => ComposableApi.EventStore.Queries.GetReadOnlyCopy<Account>(id);
 
-            internal EventStoreApi.Query.GetReadonlyCopyOfAggregateVersion<Account> GetReadOnlyCopyOfVersion(Guid id, int version) => ComposableApi.EventStore.Queries.GetReadOnlyCopyOfVersion<Account>(id, version);
+            internal EventStoreApi.QueryApi.GetReadonlyCopyOfAggregateVersion<Account> GetReadOnlyCopyOfVersion(Guid id, int version) => ComposableApi.EventStore.Queries.GetReadOnlyCopyOfVersion<Account>(id, version);
 
             internal class TryGetByEmailQuery : MessageTypes.StrictlyLocal.IQuery<Option<Account>>
             {

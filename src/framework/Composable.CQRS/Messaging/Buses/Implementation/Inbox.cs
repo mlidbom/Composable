@@ -20,7 +20,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class Inbox : IInbox, IDisposable
     {
-        class Runner
+        class Runner : IDisposable
         {
             readonly NetMQQueue<NetMQMessage> _responseQueue;
             readonly RouterSocket _serverSocket;
@@ -123,7 +123,7 @@ namespace Composable.Messaging.Buses.Implementation
                                     }
                                 }
                             }
-                        });
+                        }, TaskScheduler.Default);
                     }
                 }
             }
@@ -146,6 +146,7 @@ namespace Composable.Messaging.Buses.Implementation
             public void Dispose()
             {
                 _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
                 _messageReceiverThread.InterruptAndJoin();
                 _poller.StopAsync();
                 _pollerThread.Join();
@@ -155,6 +156,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _handlerExecutionEngine.Stop();
 
                 _receivedMessageBatches.Dispose();
+                _responseQueue.Dispose();
             }
         }
 
@@ -184,7 +186,7 @@ namespace Composable.Messaging.Buses.Implementation
             Assert.State.Assert(_runner is null);
             var storageStartTask = _storage.StartAsync();
             _runner = new Runner(_handlerExecutionEngine, _storage, _address, _configuration, _typeMapper, _serializer);
-            await storageStartTask;
+            await storageStartTask.NoMarshalling();
         }
 
         public void Stop()

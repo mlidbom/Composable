@@ -14,7 +14,7 @@ namespace Composable.Persistence.MsSql.Testing.Databases
         readonly string _masterConnectionString;
         readonly MsSqlConnectionProvider _masterConnectionProvider;
 
-        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_SQL_SERVER_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MSSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
         public MsSqlDatabasePool()
         {
@@ -27,6 +27,7 @@ namespace Composable.Persistence.MsSql.Testing.Databases
         protected override string ConnectionStringFor(Database db)
             => new SqlConnectionStringBuilder(_masterConnectionString) {InitialCatalog = db.Name}.ConnectionString;
 
+        protected override void InitReboot() { }
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
             var databaseName = db.Name;

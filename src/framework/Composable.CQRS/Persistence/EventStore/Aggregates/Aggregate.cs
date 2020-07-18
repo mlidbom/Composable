@@ -6,6 +6,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 using Composable.System.Linq;
 using Composable.System.Reactive;
+#pragma warning disable CA1033 // Interface methods should be callable by child types
 
 namespace Composable.Persistence.EventStore.Aggregates
 {

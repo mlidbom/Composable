@@ -5,7 +5,7 @@ namespace Composable.Persistence.MsSql.Testing.Databases
 {
     static class MsSqlDatabaseHelpers
     {
-        static readonly string DropAllObjectsStatement = @"
+        const string DropAllObjectsStatement = @"
 
 DECLARE @statements nvarchar(max)
 
@@ -34,7 +34,7 @@ FROM (SELECT CASE
 execute sp_executesql @statements
 ";
 
-        internal static readonly string SetReadCommittedSnapshotOnStatement = @"
+        internal const string SetReadCommittedSnapshotOnStatement = @"
 declare @databaseName varchar(1000)
 select @databaseName = DB_NAME()
 declare @sql nvarchar(500)

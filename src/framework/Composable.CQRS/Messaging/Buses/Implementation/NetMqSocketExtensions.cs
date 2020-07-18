@@ -1,4 +1,5 @@
-﻿using NetMQ;
+﻿using Composable.System;
+using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -6,8 +7,8 @@ namespace Composable.Messaging.Buses.Implementation
     {
         internal static string BindAndReturnActualAddress(this NetMQSocket @this, string address)
         {
-            //Check if we are autoassigning a port with a port wildcard
-            if(address.StartsWith("tcp://") && ( address.EndsWith(":0") || address.EndsWith(":*")))
+            //Check if we are auto-assigning a port with a port wildcard
+            if(address.StartsWithInvariant("tcp://") && ( address.EndsWithInvariant(":0") || address.EndsWithInvariant(":*")))
             {
                 var startOfAddress = address[0..^2];
                 var port = @this.BindRandomPort(startOfAddress);

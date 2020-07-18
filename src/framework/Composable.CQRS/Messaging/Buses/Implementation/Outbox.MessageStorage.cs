@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
+using Composable.System.Threading;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -39,7 +40,7 @@ namespace Composable.Messaging.Buses.Implementation
                 Assert.Result.Assert(affectedRows == 1);
             }
 
-            public async Task StartAsync() => await _persistenceLayer.InitAsync();
+            public async Task StartAsync() => await _persistenceLayer.InitAsync().NoMarshalling();
         }
     }
 }

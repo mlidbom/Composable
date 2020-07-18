@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Composable.System.Threading;
 
 namespace Composable.Logging
 {
     static class ExceptionLogger
     {
-        internal static void Exceptions(this ILogger log, Action action)
+        internal static void ExceptionsAndRethrow(this ILogger log, Action action)
         {
             try
             {
@@ -18,11 +19,11 @@ namespace Composable.Logging
             }
         }
 
-        internal static async Task ExceptionsAsync(this ILogger log, Func<Task> action)
+        internal static async Task ExceptionsAndRethrowAsync(this ILogger log, Func<Task> action)
         {
             try
             {
-                await action();
+                await action().NoMarshalling();
             }
             catch(Exception e)
             {

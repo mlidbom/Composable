@@ -5,7 +5,7 @@ namespace Composable.Contracts
     /// <summary>
     /// Exceptions raise by the inspectors should inherit this exception type.
     /// </summary>
-    class ContractViolationException : Exception
+    public class ContractViolationException : Exception
     {
         ///<summary>Standard constructor that will construct a queuedMessageInformation based on the name and value of the failing member. </summary>
         public ContractViolationException(IInspectedValue badValue) => BadValue = badValue;

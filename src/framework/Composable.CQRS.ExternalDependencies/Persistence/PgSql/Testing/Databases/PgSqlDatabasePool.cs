@@ -9,6 +9,7 @@ using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 using Composable.Testing.Databases;
+#pragma warning disable CA1308 // Normalize strings to uppercase
 
 namespace Composable.Persistence.PgSql.Testing.Databases
 {
@@ -16,7 +17,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
     {
         readonly PgSqlConnectionProvider _masterConnectionProvider;
 
-        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_PgSql_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_PGSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
         readonly OptimizedThreadShared<NpgsqlConnectionStringBuilder> _connectionStringBuilder;
 
         public PgSqlDatabasePool()
@@ -29,11 +30,13 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => me.Database = db.Name.ToLower()).ConnectionString);
+            => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => me.Database = db.Name.ToLowerInvariant()).ConnectionString);
+
+        protected override void InitReboot() {}
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
-            var databaseName = db.Name.ToLower();
+            var databaseName = db.Name.ToLowerInvariant();
             //Urgent: Figure out PgSql equivalents and if they need to be specified
             //            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
             //            {
@@ -47,8 +50,8 @@ namespace Composable.Persistence.PgSql.Testing.Databases
             //ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
             ResetConnectionPool(db);
-            var exists = (string)_masterConnectionProvider.ExecuteScalar($"SELECT datname FROM pg_database WHERE datname = '{databaseName.ToLower()}'");
-            if(!exists.IsNullOrEmpty())
+            var exists = (string)_masterConnectionProvider.ExecuteScalar($"SELECT datname FROM pg_database WHERE datname = '{databaseName.ToLowerInvariant()}'");
+            if (!exists.IsNullOrEmpty())
             {
                 ResetDatabase(db);
             } else

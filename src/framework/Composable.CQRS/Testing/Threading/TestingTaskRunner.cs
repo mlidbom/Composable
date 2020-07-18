@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Composable.System.Linq;
+using TaskExtensions = Composable.System.Threading.TaskExtensions;
 
 namespace Composable.Testing.Threading
 {
     ///<summary>
     /// Runs and monitors tasks on background threads.
     /// Throws <see cref="AggregateException"/> on dispose if any throw exceptions or do not complete within timeout. </summary>
-    public class TestingTaskRunner : IDisposable
+    public sealed class TestingTaskRunner : IDisposable
     {
         readonly List<Task> _monitoredTasks = new List<Task>();
         readonly TimeSpan _timeout;
@@ -27,14 +28,18 @@ namespace Composable.Testing.Threading
         public TestingTaskRunner Start(IEnumerable<Action> tasks) => Start(tasks.ToArray());
         public TestingTaskRunner Start(params Action[] tasks)
         {
-            tasks.ForEach(task => _monitoredTasks.Add(Task.Factory.StartNew(task, TaskCreationOptions.LongRunning)));
+            tasks.ForEach(task => _monitoredTasks.Add(TaskExtensions.StartLongRunning(task)));
             return this;
         }
 
         public void StartTimes(int times, Action task) => Start(1.Through(times).Select(index => task));
         public void StartTimes(int times, Action<int> task) => Start(1.Through(times).Select<int, Action>(index => () => task(index)));
 
-        public void Dispose() => WaitForTasksToComplete();
+        public void Dispose()
+        {
+            WaitForTasksToComplete();
+            GC.SuppressFinalize(this);
+        }
 
         public void WaitForTasksToComplete()
         {

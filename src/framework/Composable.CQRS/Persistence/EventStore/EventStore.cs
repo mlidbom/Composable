@@ -140,7 +140,7 @@ namespace Composable.Persistence.EventStore
             _usageGuard.AssertNoContextChangeOccurred(this);
             _persistenceLayer.SetupSchemaIfDatabaseUnInitialized();
 
-            var aggregateId = aggregateEvents.First().AggregateId;
+            var aggregateId = aggregateEvents[0].AggregateId;
 
             if(aggregateEvents.Any(@this => @this.AggregateId != aggregateId))
             {
@@ -321,7 +321,7 @@ AggregateIds:
 
         void InsertEventsForSingleRefactoring(IReadOnlyList<EventDataRow> events)
         {
-            var refactoring = events.First().StorageInformation.RefactoringInformation!;
+            var refactoring = events[0].StorageInformation.RefactoringInformation!;
 
             switch(refactoring.RefactoringType)
             {
@@ -383,8 +383,8 @@ AggregateIds:
 
         static bool IsRecoverableSqlException(Exception exception)
         {
-            var message = exception.Message.ToLower();
-            return message.Contains("timeout") || message.Contains("deadlock");
+            var message = exception.Message.ToUpperInvariant();
+            return message.ContainsInvariant("TIMEOUT") || message.ContainsInvariant("DEADLOCK");
         }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type? eventBaseType = null)

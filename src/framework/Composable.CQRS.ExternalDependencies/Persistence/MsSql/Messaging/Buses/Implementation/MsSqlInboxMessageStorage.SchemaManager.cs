@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.MsSql.SystemExtensions;
+using Composable.System.Threading;
 using Message =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.MsSql.Messaging.Buses.Implementation
@@ -33,7 +34,7 @@ BEGIN
         CONSTRAINT IX_{Message.TableName}_Unique_{Message.MessageId} UNIQUE ( {Message.MessageId} )
     )
 END
-");
+").NoMarshalling();
             }
         }
     }

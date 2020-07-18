@@ -5,7 +5,7 @@ using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
 using Composable.Persistence.DocumentDb;
 using JetBrains.Annotations;
-using AccountLink = Composable.Persistence.EventStore.EventStoreApi.Query.AggregateLink<AccountManagement.Domain.Account>;
+using AccountLink = Composable.Persistence.EventStore.EventStoreApi.QueryApi.AggregateLink<AccountManagement.Domain.Account>;
 
 namespace AccountManagement.Domain
 {

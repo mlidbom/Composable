@@ -10,7 +10,7 @@ using Composable.SystemExtensions.Threading;
 namespace Composable.Persistence.EventStore.Query.Models.Generators
 {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
-    public class QueryModelGeneratingDocumentDbReader : IVersioningDocumentDbReader
+    class QueryModelGeneratingDocumentDbReader : IVersioningDocumentDbReader
     {
         readonly ISingleContextUseGuard _usageGuard;
         readonly IEnumerable<IQueryModelGenerator> _documentGenerators;

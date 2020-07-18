@@ -29,7 +29,7 @@ using NUnit.Framework;
 namespace Composable.Tests.CQRS
 {
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl))]
+    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl), nameof(PersistenceLayer.DB2))]
     [TestFixture]
     public class EventStoreUpdaterTest
     {
@@ -430,7 +430,7 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session => session.Save(user));
 
             var threadedIterations = 5;
-            var delayEachTransactionBy = 20.Milliseconds();
+            var delayEachTransactionBy = 50.Milliseconds();
 
             void ReadUserHistory()
             {
@@ -616,8 +616,8 @@ namespace Composable.Tests.CQRS
                                     });
 
 
-            var changeEmailSection = GatedCodeSection.WithTimeout(2.Seconds());
-            var hasFetchedUser = ThreadGate.CreateOpenWithTimeout(10.Seconds());
+            var changeEmailSection = GatedCodeSection.WithTimeout(20.Seconds());
+            var hasFetchedUser = ThreadGate.CreateOpenWithTimeout(20.Seconds());
             void UpdateEmail()
             {
                 UseInTransactionalScope(session =>

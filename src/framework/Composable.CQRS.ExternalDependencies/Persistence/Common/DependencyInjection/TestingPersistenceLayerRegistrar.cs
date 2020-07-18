@@ -1,6 +1,7 @@
 ﻿using System;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
+using Composable.Persistence.DB2.DependencyInjection;
 using Composable.Persistence.InMemory.DependencyInjection;
 using Composable.Persistence.MySql.DependencyInjection;
 using Composable.Persistence.MsSql.DependencyInjection;
@@ -33,6 +34,9 @@ namespace Composable.Persistence.Common.DependencyInjection
                     break;
                 case PersistenceLayer.Orcl:
                     container.RegisterOraclePersistenceLayer(connectionStringName);
+                    break;
+                case PersistenceLayer.DB2:
+                    container.RegisterDB2PersistenceLayer(connectionStringName);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

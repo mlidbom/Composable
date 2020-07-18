@@ -203,7 +203,7 @@ namespace Composable.Tests.KeyValueStorage
         public void ObjectsWhoseKeysDifferOnlyByCaseAreConsideredTheSameObjectForCompatibilityWithMsSql()
         {
             var lowerCase = new Email("theemail");
-            var upperCase = new Email(lowerCase.TheEmail.ToUpper());
+            var upperCase = new Email(lowerCase.TheEmail.ToUpperInvariant());
 
             UseInTransactionalScope((reader, updater) =>
                                            {

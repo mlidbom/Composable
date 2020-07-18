@@ -17,7 +17,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
     {
         readonly OracleConnectionProvider _masterConnectionProvider;
 
-        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
+        const string ConnectionStringConfigurationParameterName = "COMPOSABLE_ORACLE_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
         readonly OptimizedThreadShared<OracleConnectionStringBuilder> _connectionStringBuilder;
 
@@ -33,10 +33,12 @@ namespace Composable.Persistence.Oracle.Testing.Databases
         protected override string ConnectionStringFor(Database db)
             => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me =>
             {
-                me.UserID = db.Name.ToUpper();
-                me.Password = db.Name.ToUpper();
+                me.UserID = db.Name.ToUpperInvariant();
+                me.Password = db.Name.ToUpperInvariant();
                 me.DBAPrivilege = "";
             }).ConnectionString);
+
+        protected override void InitReboot() {}
 
         const int OracleInvalidUserNamePasswordCombinationErrorNumber = 1017;
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
@@ -47,7 +49,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
             }
             catch(OracleException exception) when(exception.Number == OracleInvalidUserNamePasswordCombinationErrorNumber)
             {
-                _masterConnectionProvider.ExecuteScalar(DropUserIfExistsAndRecreate(db.Name.ToUpper()));
+                _masterConnectionProvider.ExecuteScalar(DropUserIfExistsAndRecreate(db.Name.ToUpperInvariant()));
                 new OracleConnectionProvider(ConnectionStringFor(db)).UseConnection(_ => {}); //We just call this to ensure that we can actually connect.
             }
         }

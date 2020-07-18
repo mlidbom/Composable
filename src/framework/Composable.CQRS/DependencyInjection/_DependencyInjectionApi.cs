@@ -34,7 +34,8 @@ namespace Composable.DependencyInjection
         InMemory,
         MySql,
         PgSql,
-        Orcl
+        Orcl, 
+        DB2
     }
 
     enum Lifestyle

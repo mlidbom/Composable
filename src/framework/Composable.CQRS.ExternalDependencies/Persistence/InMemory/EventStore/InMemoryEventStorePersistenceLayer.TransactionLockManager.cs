@@ -38,7 +38,7 @@ namespace Composable.Persistence.InMemory.EventStore
 
                 public void AwaitAccess(bool takeWriteLock)
                 {
-                    if(OwningTransactionLocalId == string.Empty && !takeWriteLock)
+                    if(OwningTransactionLocalId.Length > 0 && !takeWriteLock)
                     {
                         return;
                     }

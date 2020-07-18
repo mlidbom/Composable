@@ -3,6 +3,9 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using Composable.Persistence.Common.EventStore;
+using Composable.Persistence.DB2;
+using Composable.Persistence.DB2.SystemExtensions;
+using Composable.Persistence.DB2.Testing.Databases;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
@@ -14,11 +17,16 @@ using Composable.Persistence.Oracle.Testing.Databases;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.Persistence.PgSql.Testing.Databases;
 using Composable.System.Threading;
+using FluentAssertions;
+using IBM.Data.DB2.Core;
+using IBM.Data.DB2Types;
 using MySql.Data.MySqlClient;
 using NpgsqlTypes;
 using NUnit.Framework;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
+using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Tests.ExternalDependencies
 {
@@ -32,10 +40,10 @@ namespace Composable.Tests.ExternalDependencies
             var msSqlConnection = new MsSqlConnectionProvider(msSqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
 
             var result = msSqlConnection.UseCommand(
-                command => command.SetCommandText("select @parm")
-                                  .AddNullableParameter("parm", SqlDbType.Decimal, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToSqlDecimal())
-                                  .ExecuteReaderAndSelect(@this => @this.GetSqlDecimal(0))
-                                  .Single());
+                action: command => command.SetCommandText(commandText: "select @parm")
+                                          .AddNullableParameter(name: "parm", SqlDbType.Decimal, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToSqlDecimal())
+                                          .ExecuteReaderAndSelect(@select: @this => @this.GetSqlDecimal(i: 0))
+                                          .Single());
 
             Console.WriteLine(result.ToString());
         }
@@ -46,10 +54,10 @@ namespace Composable.Tests.ExternalDependencies
             var mySqlConnection = new MySqlConnectionProvider(mySqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
 
             var result = mySqlConnection.UseCommand(
-                command => command.SetCommandText($"select cast(cast(@parm as {EventTable.ReadOrderType}) as char(39))")
-                                  .AddNullableParameter("parm", MySqlDbType.VarChar, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToString())
-                                  .ExecuteReaderAndSelect(@this => @this.GetString(0))
-                                  .Single());
+                action: command => command.SetCommandText($"select cast(cast(@parm as {Event.ReadOrderType}) as char(39))")
+                                          .AddNullableParameter(name: "parm", MySqlDbType.VarChar, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToString())
+                                          .ExecuteReaderAndSelect(@select: @this => @this.GetString(i: 0))
+                                          .Single());
 
             Console.WriteLine(result);
         }
@@ -60,10 +68,10 @@ namespace Composable.Tests.ExternalDependencies
             var pgSqlConnection = new PgSqlConnectionProvider(pgSqlPool.ConnectionStringFor(Guid.NewGuid().ToString()));
 
             var result = pgSqlConnection.UseCommand(
-                command => command.SetCommandText($"select cast(cast(@parm as {EventTable.ReadOrderType}) as char(39))")
-                                  .AddNullableParameter("parm", NpgsqlDbType.Varchar, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToString())
-                                  .ExecuteReaderAndSelect(@this => @this.GetString(0))
-                                  .Single());
+                action: command => command.SetCommandText($"select cast(cast(@parm as {Event.ReadOrderType}) as char(39))")
+                                          .AddNullableParameter(name: "parm", NpgsqlDbType.Varchar, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToString())
+                                          .ExecuteReaderAndSelect(@select: @this => @this.GetString(ordinal: 0))
+                                          .Single());
 
             Console.WriteLine(result);
         }
@@ -74,18 +82,40 @@ namespace Composable.Tests.ExternalDependencies
             var orclConnection = new OracleConnectionProvider(orclPool.ConnectionStringFor(Guid.NewGuid().ToString()));
 
             var result2 = orclConnection.UseCommand(
-                command => command.SetCommandText("select :parm from dual")
-                                  .AddNullableParameter("parm", OracleDbType.Decimal, OracleDecimal.Parse("1"))
-                                  .ExecuteReaderAndSelect(@this => @this.GetOracleDecimal(0))
-                                  .Single());
+                action: command => command.SetCommandText(commandText: "select :parm from dual")
+                                          .AddNullableParameter(name: "parm", OracleDbType.Decimal, OracleDecimal.Parse(numStr: "1"))
+                                          .ExecuteReaderAndSelect(@select: @this => @this.GetOracleDecimal(i: 0))
+                                          .Single());
 
             Console.WriteLine(result2);
             Console.WriteLine(result2.ToReadOrder());
         }
 
+        [Test] public void DB2Roundtrip()
+        {
+            var schema = "Composable_DatabasePool_0001";
+            var ComposableDB2Connection = new ComposableDB2ConnectionProvider($"SERVER=localhost;DATABASE=CDBPOOL;CurrentSchema={schema};User ID=db2admin;Password=Development!1;");
 
-        static ReadOrder Create(long order, long offset) => ReadOrder.Parse($"{order}.{offset:D19}");
-        static string CreateString(int order, int value) => $"{order}.{DecimalPlaces(value)}";
-        static string DecimalPlaces(int number) => new string(number.ToString()[0], 19);
+            var result2 = ComposableDB2Connection.UseCommand(
+                action: command => command.SetCommandText(commandText: "select cast(@parm as decimal(31,19)) from sysibm.sysdummy1")
+                                          .AddParameter(name: "@parm", DB2Type.Decimal, DB2Decimal.Parse("1"))
+                                          .ExecuteReaderAndSelect(@select: @this => @this.GetDB2Decimal(i: 0))
+                                          .Single());
+
+            Console.WriteLine(result2);
+            Console.WriteLine(result2.ToReadOrder());
+        }
+
+        [Test] public void Db2Test()
+        {
+            var schema = "Composable_DatabasePool_0001";
+            using var db2conn = new ComposableDB2Connection(connectionString: $"SERVER=localhost;DATABASE=CDBPOOL;CurrentSchema={schema};User ID=db2admin;Password=Development!1;");
+            db2conn.Open();
+
+            var cmd = db2conn.CreateCommand();
+            cmd.CommandText = @"select current_schema from   sysibm.sysdummy1;";
+            var result = (string)cmd.ExecuteScalar();
+            result.Should().Be(schema.ToUpperInvariant());
+        }
     }
 }

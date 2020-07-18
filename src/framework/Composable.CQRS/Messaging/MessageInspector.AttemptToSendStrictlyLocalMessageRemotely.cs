@@ -4,7 +4,7 @@ namespace Composable.Messaging
 {
     static partial class MessageInspector
     {
-        class AttemptToSendStrictlyLocalMessageRemotely : Exception
+        public class AttemptToSendStrictlyLocalMessageRemotely : Exception
         {
             public AttemptToSendStrictlyLocalMessageRemotely(MessageTypes.StrictlyLocal.IMessage message) : base(RemoteSendOfStrictlyLocalMessageMessage(message)) {}
 

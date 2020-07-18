@@ -5,6 +5,7 @@ using System.Transactions;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Diagnostics;
+using Composable.System.Threading;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {
@@ -52,14 +53,14 @@ namespace Composable.Persistence.Oracle.SystemExtensions
         public async Task<TResult> UseConnectionAsync<TResult>(Func<OracleConnection, Task<TResult>> func)
         {
             await using var connection = OpenConnection();
-            return await func(connection);
+            return await func(connection).NoMarshalling();
         }
 
 
         public async Task UseConnectionAsync(Func<OracleConnection, Task> action)
         {
             await using var connection = OpenConnection();
-            await action(connection);
+            await action(connection).NoMarshalling();
         }
     }
 }

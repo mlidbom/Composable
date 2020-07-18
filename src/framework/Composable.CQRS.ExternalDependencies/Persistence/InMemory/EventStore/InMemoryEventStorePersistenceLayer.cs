@@ -23,7 +23,7 @@ namespace Composable.Persistence.InMemory.EventStore
 
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events) =>
             _transactionLockManager.WithTransactionWideLock(
-                events.First().AggregateId,
+                events[0].AggregateId,
                 () => _state.WithExclusiveAccess(state =>
                 {
                     events.ForEach((@event, index) => @event.StorageInformation.ReadOrder ??= new ReadOrder(state.Events.Count + index + 1, offSet: 0));
@@ -45,7 +45,7 @@ namespace Composable.Persistence.InMemory.EventStore
 
         public void UpdateEffectiveVersions(IReadOnlyList<VersionSpecification> versions)
             => _transactionLockManager.WithTransactionWideLock(
-                _state.WithExclusiveAccess(state => state.Events.Single(@event => @event.EventId == versions.First().EventId)).AggregateId,
+                _state.WithExclusiveAccess(state => state.Events.Single(@event => @event.EventId == versions[0].EventId)).AggregateId,
                 () => _state.WithExclusiveAccess(
                     state =>
                     {

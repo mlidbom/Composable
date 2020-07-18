@@ -17,7 +17,7 @@ namespace Composable.Persistence.InMemory.DependencyInjection
             @this.Container.RegisterInMemoryPersistenceLayer(@this.Configuration.ConnectionStringName);
         }
 
-        public static void RegisterInMemoryPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
+        public static void RegisterInMemoryPersistenceLayer(this IDependencyInjectionContainer container, string _)
         {
             //DocumentDB
             container.Register(

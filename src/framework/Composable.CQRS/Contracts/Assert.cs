@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using NotNull = global::System.Diagnostics.CodeAnalysis.NotNullAttribute;
+#pragma warning disable CA1815 // Override equals and operator equals on value types
 
 namespace Composable.Contracts
 {
@@ -108,7 +109,7 @@ namespace Composable.Contracts
             return new ChainedAssertion(inspectionType, recursionLevel + 1);
         }
 
-        class AssertionException : Exception
+        public class AssertionException : Exception
         {
             public AssertionException(InspectionType inspectionType, int index) : base($"{inspectionType}: {index}") { }
         }

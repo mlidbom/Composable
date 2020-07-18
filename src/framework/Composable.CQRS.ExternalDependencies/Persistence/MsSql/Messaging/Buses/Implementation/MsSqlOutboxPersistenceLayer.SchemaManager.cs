@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Composable.Persistence.MsSql.SystemExtensions;
+using Composable.System.Threading;
 using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
 using D = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 
@@ -39,7 +40,7 @@ BEGIN
         CONSTRAINT FK_{D.TableName}_{D.MessageId} FOREIGN KEY ( {D.MessageId} )  REFERENCES {Message.TableName} ({Message.MessageId})
     )
 END
-");
+").NoMarshalling();
             }
         }
     }

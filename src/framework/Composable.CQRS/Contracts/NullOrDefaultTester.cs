@@ -4,28 +4,25 @@ using System.Diagnostics.CodeAnalysis;
 namespace Composable.Contracts {
     static class NullOrDefaultTester<TType>
     {
-        static readonly Func<TType, bool> IsNullOrDefaultInternal;
-        static NullOrDefaultTester()
+        static readonly Func<TType, bool> IsNullOrDefaultInternal = CreateNullOrDefaultTester();
+        static Func<TType, bool> CreateNullOrDefaultTester()
         {
             var type = typeof(TType);
 
             if(type.IsInterface || type == typeof(object))
             {
-                IsNullOrDefaultInternal = obj => (obj is null) || (obj.GetType().IsValueType && Equals(obj, Activator.CreateInstance(obj.GetType())));
-                return;
+                return obj => (obj is null) || (obj.GetType().IsValueType && Equals(obj, Activator.CreateInstance(obj.GetType())));
             }
 
             if(type.IsClass)
             {
-                IsNullOrDefaultInternal = obj => obj is null;
-                return;
+                return obj => obj is null;
             }
 
             if(type.IsValueType)
             {
                 var defaultValue = Activator.CreateInstance(type);
-                IsNullOrDefaultInternal = obj => Equals(obj, defaultValue);
-                return;
+                return obj => Equals(obj, defaultValue);
             }
 
             throw new Exception("WTF");

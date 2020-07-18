@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.PgSql.SystemExtensions;
+using Composable.System.Threading;
 using Message =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
@@ -36,7 +37,7 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
 
 
 
-");
+").NoMarshalling();
 
             }
         }

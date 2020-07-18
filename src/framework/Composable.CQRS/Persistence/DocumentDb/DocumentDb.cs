@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using Composable.Contracts;
 using Composable.DDD;
@@ -57,8 +58,7 @@ namespace Composable.Persistence.DocumentDb
             persistentValues.GetOrAddDefault(value.GetType())[idString] = serializedDocument;
         }
 
-
-        static string GetIdString(object id) => id.ToString().ToLower().TrimEnd(' ');
+        internal static string GetIdString(object id) => id.ToString().ToUpperInvariant().TrimEnd(' ');
 
         public void Remove(object id, Type documentType)
         {

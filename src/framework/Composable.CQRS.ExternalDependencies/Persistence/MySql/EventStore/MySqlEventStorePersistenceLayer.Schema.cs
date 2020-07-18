@@ -3,7 +3,8 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.System.Transactions;
-using C=Composable.Persistence.Common.EventStore.EventTable.Columns;
+using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.MySql.EventStore
 {
@@ -19,38 +20,38 @@ namespace Composable.Persistence.MySql.EventStore
                 _connectionManager.UseCommand(command=> command.ExecuteNonQuery($@"
 
 
-    CREATE TABLE IF NOT EXISTS {EventTable.Name}
+    CREATE TABLE IF NOT EXISTS {Event.TableName}
     (
-        {C.InsertionOrder}       bigint                     NOT NULL  AUTO_INCREMENT,
-        {C.AggregateId}          {MySqlGuidType}            NOT NULL,  
-        {C.UtcTimeStamp}         datetime(6) NOT            NULL,   
-        {C.EventType}            {MySqlGuidType}            NOT NULL,    
-        {C.Event}                MEDIUMTEXT                 NOT NULL,
-        {C.EventId}              {MySqlGuidType}            NOT NULL,
-        {C.InsertedVersion}      int                        NOT NULL,
-        {C.SqlInsertTimeStamp}   datetime(6)                NOT NULL  default CURRENT_TIMESTAMP,
-        {C.ReadOrder}            {EventTable.ReadOrderType} NOT NULL,    
-        {C.EffectiveVersion}     int                        NOT NULL,
-        {C.TargetEvent}          {MySqlGuidType}            NULL,
-        {C.RefactoringType}      tinyint                    NULL,
+        {Event.InsertionOrder}       bigint                     NOT NULL  AUTO_INCREMENT,
+        {Event.AggregateId}          {MySqlGuidType}            NOT NULL,  
+        {Event.UtcTimeStamp}         datetime(6) NOT            NULL,   
+        {Event.EventType}            {MySqlGuidType}            NOT NULL,    
+        {Event.Event}                MEDIUMTEXT                 NOT NULL,
+        {Event.EventId}              {MySqlGuidType}            NOT NULL,
+        {Event.InsertedVersion}      int                        NOT NULL,
+        {Event.SqlInsertTimeStamp}   datetime(6)                NOT NULL  default CURRENT_TIMESTAMP,
+        {Event.ReadOrder}            {Event.ReadOrderType}      NOT NULL,    
+        {Event.EffectiveVersion}     int                        NOT NULL,
+        {Event.TargetEvent}          {MySqlGuidType}            NULL,
+        {Event.RefactoringType}      tinyint                    NULL,
 
-        PRIMARY KEY ({C.AggregateId}, {C.InsertedVersion}),
-
-
+        PRIMARY KEY ({Event.AggregateId}, {Event.InsertedVersion}),
 
 
 
-        UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.EventId}        ( {C.EventId} ASC ),
-        UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.InsertionOrder} ( {C.InsertionOrder} ASC ),
-        UNIQUE INDEX IX_{EventTable.Name}_Unique_{C.ReadOrder}      ( {C.ReadOrder} ASC ),
-
-        FOREIGN KEY ( {C.TargetEvent} ) 
-            REFERENCES {EventTable.Name} ({C.EventId}),
 
 
-        INDEX IX_{EventTable.Name}_{C.ReadOrder} 
-            ({C.ReadOrder} ASC, {C.EffectiveVersion} ASC)
-            /*INCLUDE ({C.EventType}, {C.InsertionOrder})*/
+        UNIQUE INDEX IX_{Event.TableName}_Unique_{Event.EventId}        ( {Event.EventId} ASC ),
+        UNIQUE INDEX IX_{Event.TableName}_Unique_{Event.InsertionOrder} ( {Event.InsertionOrder} ASC ),
+        UNIQUE INDEX IX_{Event.TableName}_Unique_{Event.ReadOrder}      ( {Event.ReadOrder} ASC ),
+
+        FOREIGN KEY ( {Event.TargetEvent} ) 
+            REFERENCES {Event.TableName} ({Event.EventId}),
+
+
+        INDEX IX_{Event.TableName}_{Event.ReadOrder} 
+            ({Event.ReadOrder} ASC, {Event.EffectiveVersion} ASC)
+            /*INCLUDE ({Event.EventType}, {Event.InsertionOrder})*/
 
     )
 ENGINE = InnoDB

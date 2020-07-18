@@ -2,5 +2,5 @@
 
 namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
-    class NonIdempotentMigrationDetectedException : Exception {}
+    public class NonIdempotentMigrationDetectedException : Exception {}
 }

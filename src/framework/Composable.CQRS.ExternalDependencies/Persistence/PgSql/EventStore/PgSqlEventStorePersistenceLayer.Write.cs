@@ -10,9 +10,9 @@ using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.System;
 using Npgsql;
 using NpgsqlTypes;
-using C = Composable.Persistence.Common.EventStore.EventTable.Columns;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
-using Lock = Composable.Persistence.Common.EventStore.AggregateLockTable;
+using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.PgSql.EventStore
 {
@@ -34,31 +34,31 @@ namespace Composable.Persistence.PgSql.EventStore
                                                    $@"
 {(data.AggregateVersion > 1 ? "" :$@"insert into {Lock.TableName}({Lock.AggregateId}) values(@{Lock.AggregateId});")}
 
-INSERT INTO {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-(       {C.AggregateId},  {C.InsertedVersion},  {C.EffectiveVersion},  {C.ReadOrder},                                      {C.EventType},  {C.EventId},  {C.UtcTimeStamp},  {C.Event},  {C.TargetEvent}, {C.RefactoringType}) 
-VALUES(@{C.AggregateId}, @{C.InsertedVersion}, @{C.EffectiveVersion}, cast(@{C.ReadOrder} as {EventTable.ReadOrderType}), @{C.EventType}, @{C.EventId}, @{C.UtcTimeStamp}, @{C.Event}, @{C.TargetEvent},@{C.RefactoringType});
+INSERT INTO {Event.TableName} /*With(READCOMMITTED, ROWLOCK)*/
+(       {Event.AggregateId},  {Event.InsertedVersion},  {Event.EffectiveVersion},       {Event.ReadOrder},                            {Event.EventType},  {Event.EventId},  {Event.UtcTimeStamp},  {Event.Event},  {Event.TargetEvent}, {Event.RefactoringType}) 
+VALUES(@{Event.AggregateId}, @{Event.InsertedVersion}, @{Event.EffectiveVersion}, cast(@{Event.ReadOrder} as {Event.ReadOrderType}), @{Event.EventType}, @{Event.EventId}, @{Event.UtcTimeStamp}, @{Event.Event}, @{Event.TargetEvent},@{Event.RefactoringType});
 
 {(data.StorageInformation.ReadOrder != null ? "":$@"
-UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
-        SET {C.ReadOrder} = cast({C.InsertionOrder} as {EventTable.ReadOrderType})
-        WHERE {C.EventId} = @{C.EventId};
+UPDATE {Event.TableName} /*With(READCOMMITTED, ROWLOCK)*/
+        SET {Event.ReadOrder} = cast({Event.InsertionOrder} as {Event.ReadOrderType})
+        WHERE {Event.EventId} = @{Event.EventId};
 ")}
 
 ")
-                                              .AddParameter(C.AggregateId, data.AggregateId)
-                                              .AddParameter(C.InsertedVersion, data.StorageInformation.InsertedVersion)
-                                              .AddParameter(C.EventType, data.EventType)
-                                              .AddParameter(C.EventId, data.EventId)
-                                              .AddDateTime2Parameter(C.UtcTimeStamp, data.UtcTimeStamp)
-                                              .AddMediumTextParameter(C.Event, data.EventJson)
+                                              .AddParameter(Event.AggregateId, data.AggregateId)
+                                              .AddParameter(Event.InsertedVersion, data.StorageInformation.InsertedVersion)
+                                              .AddParameter(Event.EventType, data.EventType)
+                                              .AddParameter(Event.EventId, data.EventId)
+                                              .AddDateTime2Parameter(Event.UtcTimeStamp, data.UtcTimeStamp)
+                                              .AddMediumTextParameter(Event.Event, data.EventJson)
 
-                                              .AddParameter(C.ReadOrder, NpgsqlDbType.Varchar, data.StorageInformation.ReadOrder?.ToString() ?? new ReadOrder().ToString())
-                                              .AddParameter(C.EffectiveVersion, NpgsqlDbType.Integer, data.StorageInformation.EffectiveVersion)
-                                              .AddNullableParameter(C.TargetEvent, NpgsqlDbType.Varchar, data.StorageInformation.RefactoringInformation?.TargetEvent.ToString())
-                                              .AddNullableParameter(C.RefactoringType, NpgsqlDbType.Smallint, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
+                                              .AddParameter(Event.ReadOrder, NpgsqlDbType.Varchar, data.StorageInformation.ReadOrder?.ToString() ?? new ReadOrder().ToString())
+                                              .AddParameter(Event.EffectiveVersion, NpgsqlDbType.Integer, data.StorageInformation.EffectiveVersion)
+                                              .AddNullableParameter(Event.TargetEvent, NpgsqlDbType.Varchar, data.StorageInformation.RefactoringInformation?.TargetEvent.ToString())
+                                              .AddNullableParameter(Event.RefactoringType, NpgsqlDbType.Smallint, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
-                    catch(PostgresException e) when(e.SqlState == PrimaryKeyViolationSqlErrorNumber.ToString())
+                    catch(PostgresException e) when(e.SqlState == PrimaryKeyViolationSqlErrorNumber.ToStringInvariant())
                     {
                         //todo: Make sure we have test coverage for this.
                         throw new EventDuplicateKeyException(e);
@@ -70,7 +70,7 @@ UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
         public void UpdateEffectiveVersions(IReadOnlyList<VersionSpecification> versions)
         {
             var commandText = versions.Select((spec, index) =>
-                                                  $@"UPDATE {EventTable.Name} SET {C.EffectiveVersion} = {spec.EffectiveVersion} WHERE {C.EventId} = '{spec.EventId}';").Join(Environment.NewLine);
+                                                  $@"UPDATE {Event.TableName} SET {Event.EffectiveVersion} = {spec.EffectiveVersion} WHERE {Event.EventId} = '{spec.EventId}';").Join(Environment.NewLine);
 
             _connectionManager.UseConnection(connection => connection.ExecuteNonQuery(commandText));
 
@@ -81,11 +81,11 @@ UPDATE {EventTable.Name} /*With(READCOMMITTED, ROWLOCK)*/
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "";
 
             var selectStatement = $@"
-SELECT  cast({C.ReadOrder} as varchar) as CharEffectiveOrder,        
-        (select cast({C.ReadOrder} as varchar) as CharEffectiveOrder from {EventTable.Name} e1 where e1.{C.ReadOrder} < {EventTable.Name}.{C.ReadOrder} order by {C.ReadOrder} desc limit 1) PreviousReadOrder,
-        (select cast({C.ReadOrder} as varchar) as CharEffectiveOrder from {EventTable.Name} e1 where e1.{C.ReadOrder} > {EventTable.Name}.{C.ReadOrder} order by {C.ReadOrder} limit 1) NextReadOrder
-FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
-where {C.EventId} = @{C.EventId}
+SELECT  cast({Event.ReadOrder} as varchar) as CharEffectiveOrder,        
+        (select cast({Event.ReadOrder} as varchar) as CharEffectiveOrder from {Event.TableName} e1 where e1.{Event.ReadOrder} < {Event.TableName}.{Event.ReadOrder} order by {Event.ReadOrder} desc limit 1) PreviousReadOrder,
+        (select cast({Event.ReadOrder} as varchar) as CharEffectiveOrder from {Event.TableName} e1 where e1.{Event.ReadOrder} > {Event.TableName}.{Event.ReadOrder} order by {Event.ReadOrder} limit 1) NextReadOrder
+FROM    {Event.TableName} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
+where {Event.EventId} = @{Event.EventId}
 {CreateLockHint(takeWriteLock:true)}";
 
             EventNeighborhood? neighborhood = null;
@@ -95,13 +95,13 @@ where {C.EventId} = @{C.EventId}
                 {
                     command.CommandText = selectStatement;
 
-                    command.AddParameter(C.EventId, eventId);
+                    command.AddParameter(Event.EventId, eventId);
                     using var reader = command.ExecuteReader();
                     reader.Read();
 
-                    var effectiveReadOrder = reader.GetString(0).Replace(",", ".");
-                    var previousEventReadOrder = (reader[1] as string)?.Replace(",", ".");
-                    var nextEventReadOrder = (reader[2] as string)?.Replace(",", ".");
+                    var effectiveReadOrder = reader.GetString(0).ReplaceInvariant(",", ".");
+                    var previousEventReadOrder = (reader[1] as string)?.ReplaceInvariant(",", ".");
+                    var nextEventReadOrder = (reader[2] as string)?.ReplaceInvariant(",", ".");
                     neighborhood = new EventNeighborhood(effectiveReadOrder: ReadOrder.Parse(effectiveReadOrder),
                                                          previousEventReadOrder: previousEventReadOrder == null ? null : new ReadOrder?(ReadOrder.Parse(previousEventReadOrder)),
                                                          nextEventReadOrder: nextEventReadOrder == null ? null : new ReadOrder?(ReadOrder.Parse(nextEventReadOrder)));
@@ -117,8 +117,8 @@ where {C.EventId} = @{C.EventId}
                 {
                     //urgent: Find equivalent to rowlock hint.
                     command.CommandText +=
-                        $"DELETE FROM {EventTable.Name} /*With(ROWLOCK)*/ WHERE {C.AggregateId} = @{C.AggregateId};";
-                    command.AddParameter(C.AggregateId, aggregateId);
+                        $"DELETE FROM {Event.TableName} /*With(ROWLOCK)*/ WHERE {Event.AggregateId} = @{Event.AggregateId};";
+                    command.AddParameter(Event.AggregateId, aggregateId);
                     command.ExecuteNonQuery();
                 });
         }

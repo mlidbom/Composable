@@ -4,7 +4,7 @@ namespace Composable.Messaging
 {
     static partial class MessageInspector
     {
-        internal class TransactionPolicyViolationException : Exception
+        public class TransactionPolicyViolationException : Exception
         {
             public TransactionPolicyViolationException(string message) : base(message + TransactionPolicyRationale) {}
 

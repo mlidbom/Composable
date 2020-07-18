@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.System;
 using JetBrains.Annotations;
 
 namespace Composable.Logging
@@ -15,7 +16,7 @@ namespace Composable.Logging
             }
         }
 
-        [StringFormatMethod("queuedMessageInformation")] internal static void WriteLine(string message, params object[] args) { WriteLine(string.Format(message, args)); }
+        [StringFormatMethod("queuedMessageInformation")] internal static void WriteLine(string message, params object[] args) { WriteLine(StringEx.FormatInvariant(message, args)); }
 
         internal static void WriteLine() => WriteLine("");
 
@@ -27,6 +28,6 @@ namespace Composable.Logging
             }
         }
 
-        [StringFormatMethod("queuedMessageInformation")] internal static void Write(string message, params object[] args) { Write(string.Format(message, args)); }
+        [StringFormatMethod("queuedMessageInformation")] internal static void Write(string message, params object[] args) { Write(StringEx.FormatInvariant(message, args)); }
     }
 }

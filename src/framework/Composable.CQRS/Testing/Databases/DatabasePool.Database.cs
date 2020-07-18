@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.Serialization;
+using Composable.System;
 using JetBrains.Annotations;
 
 namespace Composable.Testing.Databases
@@ -38,8 +39,8 @@ namespace Composable.Testing.Databases
 
             static int IdFromName(string name)
             {
-                var nameIndex = name.Replace(PoolDatabaseNamePrefix, "");
-                return int.Parse(nameIndex);
+                var nameIndex = name.ReplaceInvariant(PoolDatabaseNamePrefix, "");
+                return IntEx.ParseInvariant(nameIndex);
             }
 
             internal Database Release()

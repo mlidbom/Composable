@@ -12,7 +12,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Composable.Persistence.EventStore
 {
-    class EventCache
+    class EventCache : IDisposable
     {
         class TransactionalOverlay
         {
@@ -70,7 +70,7 @@ namespace Composable.Persistence.EventStore
             public static readonly Entry Empty = new Entry();
             Entry()
             {
-                Events = new AggregateEvent[]{};
+                Events = Array.Empty<AggregateEvent>();
                 MaxSeenInsertedVersion = 0;
             }
 
@@ -154,6 +154,11 @@ namespace Composable.Persistence.EventStore
             var originalCache = _internalCache;
             _internalCache = new MemoryCache(new MemoryCacheOptions()) {};
             originalCache.Dispose();
+        }
+
+        public void Dispose()
+        {
+            _internalCache.Dispose();
         }
     }
 }

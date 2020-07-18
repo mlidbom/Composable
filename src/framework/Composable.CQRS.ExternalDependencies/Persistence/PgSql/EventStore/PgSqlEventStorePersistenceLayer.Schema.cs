@@ -3,8 +3,8 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.System.Transactions;
-using Event=Composable.Persistence.Common.EventStore.EventTable.Columns;
-using Lock = Composable.Persistence.Common.EventStore.AggregateLockTable;
+using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.PgSql.EventStore
 {
@@ -20,7 +20,7 @@ namespace Composable.Persistence.PgSql.EventStore
                 _connectionManager.UseCommand(command=> command.ExecuteNonQuery($@"
 
 
-    CREATE TABLE IF NOT EXISTS {EventTable.Name}
+    CREATE TABLE IF NOT EXISTS {Event.TableName}
     (
         {Event.InsertionOrder}          bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
         {Event.AggregateId}             {PgSqlGuidType}                     NOT NULL,  
@@ -30,7 +30,7 @@ namespace Composable.Persistence.PgSql.EventStore
         {Event.EventId}                 {PgSqlGuidType}                     NOT NULL,
         {Event.InsertedVersion}         int                                 NOT NULL,
         {Event.SqlInsertTimeStamp}      timestamp                           NOT NULL  default CURRENT_TIMESTAMP,
-        {Event.ReadOrder}               {EventTable.ReadOrderType}          NOT NULL,    
+        {Event.ReadOrder}               {Event.ReadOrderType}               NOT NULL,    
         {Event.EffectiveVersion}        int                                 NOT NULL,
         {Event.TargetEvent}             {PgSqlGuidType}                     NULL,
         {Event.RefactoringType}         smallint                            NULL,
@@ -41,15 +41,15 @@ namespace Composable.Persistence.PgSql.EventStore
 
 
 
-        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.EventId}        UNIQUE ( {Event.EventId} ),
-        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} ),
-        CONSTRAINT IX_{EventTable.Name}_Unique_{Event.ReadOrder}      UNIQUE ( {Event.ReadOrder} ),
+        CONSTRAINT IX_{Event.TableName}_Unique_{Event.EventId}        UNIQUE ( {Event.EventId} ),
+        CONSTRAINT IX_{Event.TableName}_Unique_{Event.InsertionOrder} UNIQUE ( {Event.InsertionOrder} ),
+        CONSTRAINT IX_{Event.TableName}_Unique_{Event.ReadOrder}      UNIQUE ( {Event.ReadOrder} ),
 
         FOREIGN KEY ( {Event.TargetEvent} ) 
-            REFERENCES {EventTable.Name} ({Event.EventId})
+            REFERENCES {Event.TableName} ({Event.EventId})
     );
 
-    CREATE INDEX IF NOT EXISTS IX_{EventTable.Name}_{Event.ReadOrder} ON {EventTable.Name} 
+    CREATE INDEX IF NOT EXISTS IX_{Event.TableName}_{Event.ReadOrder} ON {Event.TableName} 
             ({Event.ReadOrder} , {Event.EffectiveVersion} );
             /*INCLUDE ({Event.EventType}, {Event.InsertionOrder})*/
 

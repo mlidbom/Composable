@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Composable.Logging;
 using Composable.System.Configuration;
 using Composable.System.Linq;
+using Composable.System.Reflection;
 
 namespace Composable.System
 {
@@ -141,7 +142,7 @@ namespace Composable.System
 
         static string FormatMessage(Type instanceType, string? reservationCallStack)
             => !reservationCallStack.IsNullEmptyOrWhiteSpace()
-                   ? $@"User code failed to Dispose this instance of {instanceType.FullName}
+                   ? $@"User code failed to Dispose this instance of {instanceType.GetFullNameCompilable()}
 Construction call stack: {reservationCallStack}"
                    : $@"No allocation stack trace collected. 
 Set configuration value: {StrictlyManagedResources.ConfigurationParamaterNameFor(instanceType)} to ""true"" to collect allocation stack traces for this type.

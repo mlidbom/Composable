@@ -60,8 +60,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
                                                                                                                     new
                                                                                                                     {
                                                                                                                         CreateTime = reader.GetDateTime(0),
-                                                                                                                        SchemaName = reader.GetString(1),
-                                                                                                                        DropStatement = reader.GetString(2)
+                                                                                                                        DropStatement = reader.GetString(1)
                                                                                                                     })
                                                                                         .OrderByDescending(me => me.CreateTime)
                                                                                         .Select(me => me.DropStatement)
@@ -80,9 +79,9 @@ namespace Composable.Persistence.DB2.Testing.Databases
 
         const string SchemaParameterName = "Schema";
         static readonly string GetRemovalStatementsSql = $@"
-select CREATE_TIME, SCHEMA_NAME, DDL from
+select CREATE_TIME, DDL from
 (
-    SELECT CREATE_TIME, TABSCHEMA AS SCHEMA_NAME,
+    SELECT CREATE_TIME, 
         'DROP ' || CASE TYPE
             WHEN 'A' THEN 'ALIAS'
             WHEN 'H' THEN 'TABLE'
@@ -95,11 +94,11 @@ select CREATE_TIME, SCHEMA_NAME, DDL from
         END || ' ' || TRIM(TABSCHEMA) || '.' || TRIM(TABNAME) AS DDL
     FROM SYSCAT.TABLES WHERE TABSCHEMA = @{SchemaParameterName}
     UNION
-    SELECT CREATE_TIME, TRIGSCHEMA AS SCHEMA_NAME,
+    SELECT CREATE_TIME,
         'DROP TRIGGER ' || TRIM(TRIGSCHEMA) || '.' || TRIM(TRIGNAME) AS DDL
     FROM SYSCAT.TRIGGERS WHERE TRIGSCHEMA = @{SchemaParameterName}
     UNION
-    SELECT CREATE_TIME, ROUTINESCHEMA AS SCHEMA_NAME,
+    SELECT CREATE_TIME,
         'DROP ' || CASE ROUTINETYPE
             WHEN 'F' THEN 'SPECIFIC FUNCTION'
             WHEN 'M' THEN 'SPECIFIC METHOD'
@@ -107,11 +106,12 @@ select CREATE_TIME, SCHEMA_NAME, DDL from
         END || ' ' || TRIM(ROUTINESCHEMA) || '.' || TRIM(SPECIFICNAME) AS DDL
     FROM SYSCAT.ROUTINES WHERE ROUTINESCHEMA = @{SchemaParameterName}
     UNION
-    SELECT CREATE_TIME, TYPESCHEMA AS SCHEMA_NAME,
+    SELECT CREATE_TIME,
         'DROP TYPE ' || TRIM(TYPESCHEMA) || '.' || TRIM(TYPENAME) AS DDL
     FROM SYSCAT.DATATYPES WHERE TYPESCHEMA = @{SchemaParameterName}
     UNION
-    SELECT CREATE_TIME, SEQSCHEMA AS SCHEMA_NAME, 'DROP SEQUENCE ' || TRIM(SEQSCHEMA) || '.' || TRIM(SEQNAME) AS DDL
+    SELECT CREATE_TIME, 
+        'DROP SEQUENCE ' || TRIM(SEQSCHEMA) || '.' || TRIM(SEQNAME) AS DDL
     FROM SYSCAT.SEQUENCES WHERE SEQTYPE <> 'I' AND SEQSCHEMA = @{SchemaParameterName}
 )
 FOR READ ONLY WITH UR

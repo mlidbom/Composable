@@ -14,7 +14,7 @@ namespace Composable.System.Reflection
     {
         static readonly IDictionary<Type, Func<Object, Object>[]> TypeFields = new ConcurrentDictionary<Type, Func<Object, Object>[]>();
 
-        static Func<object, object> BuildFieldGetter(FieldInfo field)
+        internal static Func<object, object> BuildFieldGetter(FieldInfo field)
         {
             Contract.Argument(field, nameof(field))
                              .NotNull();

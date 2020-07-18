@@ -44,7 +44,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public async Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command)
             {
-                var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+                var taskCompletionSource = new AsyncTaskCompletionSource<object>();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
 
                 _state.WithExclusiveAccess(state =>
@@ -58,7 +58,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public async Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
             {
-                var taskCompletionSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                var taskCompletionSource = new AsyncTaskCompletionSource();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
 
                 _state.WithExclusiveAccess(state =>
@@ -72,7 +72,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public async Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
             {
-                var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+                var taskCompletionSource = new AsyncTaskCompletionSource<object>();
                 var outGoingMessage = TransportMessage.OutGoing.Create(query, _typeMapper, _serializer);
 
                 _state.WithExclusiveAccess(state =>
@@ -147,8 +147,8 @@ namespace Composable.Messaging.Buses.Implementation
             class InboxConnectionState : IDisposable
             {
                 internal readonly IGlobalBusStateTracker GlobalBusStateTracker;
-                internal readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
-                internal readonly Dictionary<Guid, TaskCompletionSource> ExpectedCompletionTasks = new Dictionary<Guid, TaskCompletionSource>();
+                internal readonly Dictionary<Guid, AsyncTaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, AsyncTaskCompletionSource<object>>();
+                internal readonly Dictionary<Guid, AsyncTaskCompletionSource> ExpectedCompletionTasks = new Dictionary<Guid, AsyncTaskCompletionSource>();
                 internal readonly Dictionary<Guid, DateTime> PendingDeliveryNotifications = new Dictionary<Guid, DateTime>();
                 internal readonly DealerSocket Socket;
                 internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();

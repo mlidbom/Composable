@@ -4,6 +4,7 @@ using Composable.DependencyInjection;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Threading;
+using Composable.System.Threading.Tasks;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -16,7 +17,7 @@ namespace Composable.Messaging.Buses.Implementation
                 // ReSharper disable once MemberCanBePrivate.Local Resharper is just confused....
                 internal class HandlerExecutionTask
                 {
-                    readonly TaskCompletionSource<object?> _taskCompletionSource = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+                    readonly AsyncTaskCompletionSource<object?> _taskCompletionSource = new AsyncTaskCompletionSource<object?>();
                     internal readonly TransportMessage.InComing TransportMessage;
                     readonly Coordinator _coordinator;
                     readonly Func<object, object?> _messageTask;

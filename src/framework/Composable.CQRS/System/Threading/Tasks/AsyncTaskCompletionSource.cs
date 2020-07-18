@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Composable.Contracts;
 using Composable.GenericAbstractions;
+using Composable.System.Reflection;
 
 namespace Composable.System.Threading.Tasks
 {
-    class TaskCompletionSource
+    class AsyncTaskCompletionSource<TResult> : TaskCompletionSource<TResult>
+    {
+        public AsyncTaskCompletionSource() : base(TaskCreationOptions.RunContinuationsAsynchronously) {}
+        public AsyncTaskCompletionSource(TaskCreationOptions creationOptions) : base(creationOptions | TaskCreationOptions.RunContinuationsAsynchronously) {}
+    }
+
+    class AsyncTaskCompletionSource
     {
         readonly TaskCompletionSource<Unit> _completionSource;
         public Task Task => _completionSource.Task;
@@ -18,6 +26,9 @@ namespace Composable.System.Threading.Tasks
         public void SetException(IEnumerable<Exception> exception) => _completionSource.SetException(exception);
         public void TrySetException(IEnumerable<Exception> exception) => _completionSource.TrySetException(exception);
 
-        public TaskCompletionSource(TaskCreationOptions options) => _completionSource  = new TaskCompletionSource<Unit>(options);
+        public AsyncTaskCompletionSource() => _completionSource = new AsyncTaskCompletionSource<Unit>();
+        public AsyncTaskCompletionSource(TaskCreationOptions options) => _completionSource = new AsyncTaskCompletionSource<Unit>(options);
     }
+
+    //Hack to implement the suggested framework fix from here: https://github.com/dotnet/runtime/issues/23405 so that calling cancel on a CancellationTokenSource does not call registrations synchronously.
 }

@@ -17,6 +17,7 @@ namespace Composable.Persistence.Oracle.EventStore
 {
     partial class OracleEventStorePersistenceLayer
     {
+        //Urgent: Not sure which persistence layer this came from
         const int PrimaryKeyViolationSqlErrorNumber = 1062;
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {

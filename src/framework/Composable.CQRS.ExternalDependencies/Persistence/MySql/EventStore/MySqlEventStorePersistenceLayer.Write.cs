@@ -16,6 +16,7 @@ namespace Composable.Persistence.MySql.EventStore
 {
     partial class MySqlEventStorePersistenceLayer
     {
+        //Urgent: Not sure which persistence layer this came from
         const int PrimaryKeyViolationSqlErrorNumber = 1062;
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {

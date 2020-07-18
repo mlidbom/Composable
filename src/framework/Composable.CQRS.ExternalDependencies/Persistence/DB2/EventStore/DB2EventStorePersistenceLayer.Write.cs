@@ -17,6 +17,7 @@ namespace Composable.Persistence.DB2.EventStore
 {
     partial class DB2EventStorePersistenceLayer
     {
+        //Urgent: Not sure which persistence layer this came from
         const int PrimaryKeyViolationSqlErrorNumber = 1062;
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {

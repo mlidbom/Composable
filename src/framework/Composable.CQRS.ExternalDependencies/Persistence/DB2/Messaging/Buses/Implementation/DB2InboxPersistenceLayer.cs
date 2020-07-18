@@ -23,7 +23,7 @@ namespace Composable.Persistence.DB2.Messaging.Buses.Implementation
                             $@"
 INSERT INTO {Schema.TableName} 
             ({Schema.MessageId},  {Schema.TypeId},  {Schema.Body}, {Schema.Status}) 
-    VALUES (:{Schema.MessageId}, :{Schema.TypeId}, :{Schema.Body}, {(int)Inbox.MessageStatus.UnHandled})
+    VALUES (@{Schema.MessageId}, @{Schema.TypeId}, @{Schema.Body}, {(int)Inbox.MessageStatus.UnHandled})
 ")
                        .AddParameter(Schema.MessageId, messageId)
                        .AddParameter(Schema.TypeId, typeId)
@@ -43,7 +43,7 @@ INSERT INTO {Schema.TableName}
                                            $@"
 UPDATE {Schema.TableName} 
     SET {Schema.Status} = {(int)Inbox.MessageStatus.Succeeded}
-WHERE {Schema.MessageId} = :{Schema.MessageId}
+WHERE {Schema.MessageId} = @{Schema.MessageId}
     AND {Schema.Status} = {(int)Inbox.MessageStatus.UnHandled}
 ")
                                       .AddParameter(Schema.MessageId, messageId)
@@ -62,11 +62,11 @@ WHERE {Schema.MessageId} = :{Schema.MessageId}
                                $@"
 UPDATE {Schema.TableName} 
     SET {Schema.ExceptionCount} = {Schema.ExceptionCount} + 1,
-        {Schema.ExceptionType} = :{Schema.ExceptionType},
-        {Schema.ExceptionStackTrace} = :{Schema.ExceptionStackTrace},
-        {Schema.ExceptionMessage} = :{Schema.ExceptionMessage}
+        {Schema.ExceptionType} = @{Schema.ExceptionType},
+        {Schema.ExceptionStackTrace} = @{Schema.ExceptionStackTrace},
+        {Schema.ExceptionMessage} = @{Schema.ExceptionMessage}
         
-WHERE {Schema.MessageId} = :{Schema.MessageId}
+WHERE {Schema.MessageId} = @{Schema.MessageId}
 ")
                           .AddParameter(Schema.MessageId, messageId)
                           .AddNClobParameter(Schema.ExceptionStackTrace, exceptionStackTrace)
@@ -83,7 +83,7 @@ WHERE {Schema.MessageId} = :{Schema.MessageId}
                                $@"
 UPDATE {Schema.TableName} 
     SET {Schema.Status} = {(int)Inbox.MessageStatus.Failed}
-WHERE {Schema.MessageId} = :{Schema.MessageId}
+WHERE {Schema.MessageId} = @{Schema.MessageId}
     AND {Schema.Status} = {(int)Inbox.MessageStatus.UnHandled}")
                           .AddParameter(Schema.MessageId, messageId)
                           .ExecuteNonQuery());

@@ -24,7 +24,7 @@ begin
 
             CREATE TABLE {Event.TableName}
             (
-                {Event.InsertionOrder}        BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL ,
+                {Event.InsertionOrder}        BIGINT GENERATED ALWAYS AS IDENTITY     NOT NULL ,
                 {Event.AggregateId}           {DB2GuidType}                           NOT NULL,  
                 {Event.UtcTimeStamp}          TIMESTAMP                               NOT NULL,   
                 {Event.EventType}             {DB2GuidType}                           NOT NULL,    

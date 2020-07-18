@@ -25,7 +25,7 @@ BEGIN
 
     INSERT INTO {MessageTable.TableName} 
                 ({MessageTable.MessageId},  {MessageTable.TypeIdGuidValue}, {MessageTable.SerializedMessage}) 
-        VALUES (:{MessageTable.MessageId}, :{MessageTable.TypeIdGuidValue}, :{MessageTable.SerializedMessage});
+        VALUES (:{MessageTable.MessageId}, @{MessageTable.TypeIdGuidValue}, @{MessageTable.SerializedMessage});
     ")
                        .AddParameter(MessageTable.MessageId, messageWithReceivers.MessageId)
                        .AddParameter(MessageTable.TypeIdGuidValue, messageWithReceivers.TypeIdGuidValue)
@@ -38,7 +38,7 @@ BEGIN
                             => command.AppendCommandText($@"
     INSERT INTO {DispatchingTable.TableName}
                 ({DispatchingTable.MessageId},  {DispatchingTable.EndpointId},          {DispatchingTable.IsReceived}) 
-        VALUES (:{DispatchingTable.MessageId}, :{DispatchingTable.EndpointId}_{index}, :{DispatchingTable.IsReceived});
+        VALUES (@{DispatchingTable.MessageId}, @{DispatchingTable.EndpointId}_{index}, @{DispatchingTable.IsReceived});
 ").AddParameter($"{DispatchingTable.EndpointId}_{index}", endpointId));
 
                     command.AppendCommandText(@"
@@ -56,8 +56,8 @@ END;
                                $@"
 UPDATE {DispatchingTable.TableName} 
     SET {DispatchingTable.IsReceived} = 1
-WHERE {DispatchingTable.MessageId} = :{DispatchingTable.MessageId}
-    AND {DispatchingTable.EndpointId} = :{DispatchingTable.EndpointId}
+WHERE {DispatchingTable.MessageId} = @{DispatchingTable.MessageId}
+    AND {DispatchingTable.EndpointId} = @{DispatchingTable.EndpointId}
     AND {DispatchingTable.IsReceived} = 0
 ")
                           .AddParameter(DispatchingTable.MessageId, messageId)

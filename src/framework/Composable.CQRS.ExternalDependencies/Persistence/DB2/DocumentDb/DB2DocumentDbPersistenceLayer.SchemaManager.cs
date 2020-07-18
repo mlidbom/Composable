@@ -26,9 +26,10 @@ namespace Composable.Persistence.DB2.DocumentDb
                         {
                             _connectionProvider.UseCommand(cmd => cmd.SetCommandText($@"
 begin
-  declare continue handler for sqlstate '42710' begin end; --Ignore error if table exists
-      EXECUTE IMMEDIATE '
-    
+    declare continue handler for sqlstate '42710' begin end; --Ignore error if table exists
+        
+    EXECUTE IMMEDIATE '
+
         CREATE TABLE {Document.TableName} 
         (
             {Document.Id}           VARCHAR(500)  NOT NULL, 
@@ -38,8 +39,9 @@ begin
             {Document.Value}        CLOB          NOT NULL,
             
             PRIMARY KEY ({Document.Id}, {Document.ValueTypeId})
-        );';
-end
+        );
+    ';
+end;
 ")
                                                                      .ExecuteNonQuery());
                         });

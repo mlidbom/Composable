@@ -16,18 +16,16 @@ namespace Composable.Persistence.DB2.Messaging.Buses.Implementation
                 //Urgent: Figure out the syntax for the commented out parts.
                 await connectionFactory.UseCommandAsync(
                     command => command.SetCommandText($@"
-declare existing_table_count integer;
 begin
-    select count(*) into existing_table_count from user_tables where table_name='{Message.TableName}';
-    if (existing_table_count = 0) then
+    declare continue handler for sqlstate '42710' begin end; --Ignore error if table exists
 
         EXECUTE IMMEDIATE '
             CREATE TABLE {Message.TableName}
                 (
                     {Message.GeneratedId}       BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
-                    {Message.TypeIdGuidValue}   {DB2GuidType}                        NOT NULL,
-                    {Message.MessageId}         {DB2GuidType}                        NOT NULL,
-                    {Message.SerializedMessage} CLOB                                   NOT NULL,
+                    {Message.TypeIdGuidValue}   {DB2GuidType}                       NOT NULL,
+                    {Message.MessageId}         {DB2GuidType}                       NOT NULL,
+                    {Message.SerializedMessage} CLOB                                NOT NULL,
 
                     PRIMARY KEY ({Message.GeneratedId}),
 
@@ -39,7 +37,7 @@ begin
             (
                 {Dispatch.MessageId}  {DB2GuidType} NOT NULL,
                 {Dispatch.EndpointId} {DB2GuidType} NOT NULL,
-                {Dispatch.IsReceived} NUMBER(1)        NOT NULL,
+                {Dispatch.IsReceived} SMALLINT      NOT NULL,
 
                 PRIMARY KEY ({Dispatch.MessageId}, {Dispatch.EndpointId})
                     /*WITH (ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON PRIMARY,*/
@@ -49,8 +47,7 @@ begin
             ALTER TABLE {Dispatch.TableName} ADD CONSTRAINT FK_{Dispatch.MessageId} 
                 FOREIGN KEY ( {Dispatch.MessageId} ) REFERENCES {Message.TableName} ({Message.MessageId})';
 
-        end if;
-    end;
+end;
 ")
                                       .ExecuteNonQueryAsync()).NoMarshalling();
             }

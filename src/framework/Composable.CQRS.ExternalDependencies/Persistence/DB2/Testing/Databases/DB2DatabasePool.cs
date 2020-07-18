@@ -54,7 +54,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
             if(Transaction.Current != null) throw  new Exception("This code should never run in a transaction");
 
             //Splitting this into one call to get the drop statements and another to execute them seems to perform about three times faster than doing everything on the server as an SP. It also eliminated the deadlocks we were getting.
-            //Urgent: Performance: Running this query in data studio takes about 50-80ms the first time and following times between 12-20. According to NCrunch, here it takes about 200 per covering test. What's up? No statement cache?
+            //Urgent: Performance: Running this query in data studio takes about 50-80ms the first time and following times between 12-20. According to NCrunch, here it takes about 200 per covering test and spikes at 1200ms. What's up? No statement cache?
             var dropStatements = _masterConnectionProvider.UseCommand(command => command.SetCommandText(GetRemovalStatementsSql)
                                                                    .AddParameter(SchemaParameterName, DB2Type.VarChar, db.Name.ToUpperInvariant())
                                                                    .ExecuteReaderAndSelect(reader =>
@@ -79,38 +79,41 @@ namespace Composable.Persistence.DB2.Testing.Databases
 
         const string SchemaParameterName = "Schema";
         static readonly string GetRemovalStatementsSql = $@"
-SELECT CREATE_TIME, TABSCHEMA AS SCHEMA_NAME,
-    'DROP ' || CASE TYPE
-        WHEN 'A' THEN 'ALIAS'
-        WHEN 'H' THEN 'TABLE'
-        WHEN 'N' THEN 'NICKNAME'
-        WHEN 'S' THEN 'TABLE'
-        WHEN 'T' THEN 'TABLE'
-        WHEN 'U' THEN 'TABLE'
-        WHEN 'V' THEN 'VIEW'
-        WHEN 'W' THEN 'VIEW'
-    END || ' ' || TRIM(TABSCHEMA) || '.' || TRIM(TABNAME) AS DDL
-FROM SYSCAT.TABLES WHERE TABSCHEMA = @{SchemaParameterName}
-UNION
-SELECT CREATE_TIME, TRIGSCHEMA AS SCHEMA_NAME,
-    'DROP TRIGGER ' || TRIM(TRIGSCHEMA) || '.' || TRIM(TRIGNAME) AS DDL
-FROM SYSCAT.TRIGGERS WHERE TRIGSCHEMA = @{SchemaParameterName}
-UNION
-SELECT CREATE_TIME, ROUTINESCHEMA AS SCHEMA_NAME,
-    'DROP ' || CASE ROUTINETYPE
-        WHEN 'F' THEN 'SPECIFIC FUNCTION'
-        WHEN 'M' THEN 'SPECIFIC METHOD'
-        WHEN 'P' THEN 'SPECIFIC PROCEDURE'
-    END || ' ' || TRIM(ROUTINESCHEMA) || '.' || TRIM(SPECIFICNAME) AS DDL
-FROM SYSCAT.ROUTINES WHERE ROUTINESCHEMA = @{SchemaParameterName}
-UNION
-SELECT CREATE_TIME, TYPESCHEMA AS SCHEMA_NAME,
-    'DROP TYPE ' || TRIM(TYPESCHEMA) || '.' || TRIM(TYPENAME) AS DDL
-FROM SYSCAT.DATATYPES WHERE TYPESCHEMA = @{SchemaParameterName}
-UNION
-SELECT CREATE_TIME, SEQSCHEMA AS SCHEMA_NAME, 'DROP SEQUENCE ' || TRIM(SEQSCHEMA) || '.' || TRIM(SEQNAME) AS DDL
-FROM SYSCAT.SEQUENCES WHERE SEQTYPE <> 'I' AND SEQSCHEMA = @{SchemaParameterName}
-
+select CREATE_TIME, SCHEMA_NAME, DDL from
+(
+    SELECT CREATE_TIME, TABSCHEMA AS SCHEMA_NAME,
+        'DROP ' || CASE TYPE
+            WHEN 'A' THEN 'ALIAS'
+            WHEN 'H' THEN 'TABLE'
+            WHEN 'N' THEN 'NICKNAME'
+            WHEN 'S' THEN 'TABLE'
+            WHEN 'T' THEN 'TABLE'
+            WHEN 'U' THEN 'TABLE'
+            WHEN 'V' THEN 'VIEW'
+            WHEN 'W' THEN 'VIEW'
+        END || ' ' || TRIM(TABSCHEMA) || '.' || TRIM(TABNAME) AS DDL
+    FROM SYSCAT.TABLES WHERE TABSCHEMA = @{SchemaParameterName}
+    UNION
+    SELECT CREATE_TIME, TRIGSCHEMA AS SCHEMA_NAME,
+        'DROP TRIGGER ' || TRIM(TRIGSCHEMA) || '.' || TRIM(TRIGNAME) AS DDL
+    FROM SYSCAT.TRIGGERS WHERE TRIGSCHEMA = @{SchemaParameterName}
+    UNION
+    SELECT CREATE_TIME, ROUTINESCHEMA AS SCHEMA_NAME,
+        'DROP ' || CASE ROUTINETYPE
+            WHEN 'F' THEN 'SPECIFIC FUNCTION'
+            WHEN 'M' THEN 'SPECIFIC METHOD'
+            WHEN 'P' THEN 'SPECIFIC PROCEDURE'
+        END || ' ' || TRIM(ROUTINESCHEMA) || '.' || TRIM(SPECIFICNAME) AS DDL
+    FROM SYSCAT.ROUTINES WHERE ROUTINESCHEMA = @{SchemaParameterName}
+    UNION
+    SELECT CREATE_TIME, TYPESCHEMA AS SCHEMA_NAME,
+        'DROP TYPE ' || TRIM(TYPESCHEMA) || '.' || TRIM(TYPENAME) AS DDL
+    FROM SYSCAT.DATATYPES WHERE TYPESCHEMA = @{SchemaParameterName}
+    UNION
+    SELECT CREATE_TIME, SEQSCHEMA AS SCHEMA_NAME, 'DROP SEQUENCE ' || TRIM(SEQSCHEMA) || '.' || TRIM(SEQNAME) AS DDL
+    FROM SYSCAT.SEQUENCES WHERE SEQTYPE <> 'I' AND SEQSCHEMA = @{SchemaParameterName}
+)
+FOR FETCH ONLY
 ";
     }
 }

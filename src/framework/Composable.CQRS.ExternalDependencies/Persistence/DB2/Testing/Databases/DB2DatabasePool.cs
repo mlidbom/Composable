@@ -54,6 +54,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
             if(Transaction.Current != null) throw  new Exception("This code should never run in a transaction");
 
             //Splitting this into one call to get the drop statements and another to execute them seems to perform about three times faster than doing everything on the server as an SP. It also eliminated the deadlocks we were getting.
+            //Urgent: Performance: Running this query in data studio takes about 50-80ms the first time and following times between 12-20. According to NCrunch, here it takes about 200 per covering test. What's up? No statement cache?
             var dropStatements = _masterConnectionProvider.UseCommand(command => command.SetCommandText(GetRemovalStatementsSql)
                                                                    .AddParameter(SchemaParameterName, DB2Type.VarChar, db.Name.ToUpperInvariant())
                                                                    .ExecuteReaderAndSelect(reader =>

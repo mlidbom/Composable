@@ -35,7 +35,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
         protected override string ConnectionStringFor(Database db)
             => _masterConnectionString + $"CurrentSchema={db.Name.ToUpperInvariant()};";
 
-        protected override void InitReboot() => SystemProcedures.CreateProcedures(_masterConnectionProvider);
+        protected override void InitReboot() {}
 
         const string ObjectAlreadyExists = "42710";
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
@@ -54,20 +54,21 @@ namespace Composable.Persistence.DB2.Testing.Databases
             if(Transaction.Current != null) throw  new Exception("This code should never run in a transaction");
 
             //Splitting this into one call to get the drop statements and another to execute them seems to perform about three times faster than doing everything on the server as an SP. It also eliminated the deadlocks we were getting.
-            //Urgent: Performance: Running this query in data studio takes about 50-80ms the first time and following times between 12-20. According to NCrunch, here it takes about 200 per covering test and spikes at 1200ms. What's up? No statement cache?
             var dropStatements = _masterConnectionProvider.UseCommand(command => command.SetCommandText(GetRemovalStatementsSql)
-                                                                   .AddParameter(SchemaParameterName, DB2Type.VarChar, db.Name.ToUpperInvariant())
-                                                                   .ExecuteReaderAndSelect(reader =>
-                                                                                               new
-                                                                                               {
-                                                                                                   CreateTime = reader.GetDateTime(0),
-                                                                                                   SchemaName = reader.GetString(1),
-                                                                                                   DropStatement = reader.GetString(2)
-                                                                                               })
+                                                                                        .AddParameter(SchemaParameterName, DB2Type.VarChar, db.Name.ToUpperInvariant())
+                                                                                        .ExecuteReaderAndSelect(reader =>
+                                                                                                                    new
+                                                                                                                    {
+                                                                                                                        CreateTime = reader.GetDateTime(0),
+                                                                                                                        SchemaName = reader.GetString(1),
+                                                                                                                        DropStatement = reader.GetString(2)
+                                                                                                                    })
                                                                                         .OrderByDescending(me => me.CreateTime)
                                                                                         .Select(me => me.DropStatement)
                                                                                         .Where(me => !me.IsNullEmptyOrWhiteSpace())
                                                                                         .Join($";{Environment.NewLine}")).Trim();
+
+            //SELECT * FROM TABLE(CDBPOOL_DROP_SCHEMA_STATEMENTS(@{SchemaParameterName}))
 
             if(dropStatements.Length > 0)
             {
@@ -113,7 +114,7 @@ select CREATE_TIME, SCHEMA_NAME, DDL from
     SELECT CREATE_TIME, SEQSCHEMA AS SCHEMA_NAME, 'DROP SEQUENCE ' || TRIM(SEQSCHEMA) || '.' || TRIM(SEQNAME) AS DDL
     FROM SYSCAT.SEQUENCES WHERE SEQTYPE <> 'I' AND SEQSCHEMA = @{SchemaParameterName}
 )
-FOR FETCH ONLY
+FOR READ ONLY WITH UR
 ";
     }
 }

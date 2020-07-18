@@ -29,6 +29,4 @@ namespace Composable.System.Threading.Tasks
         public AsyncTaskCompletionSource() => _completionSource = new AsyncTaskCompletionSource<Unit>();
         public AsyncTaskCompletionSource(TaskCreationOptions options) => _completionSource = new AsyncTaskCompletionSource<Unit>(options);
     }
-
-    //Hack to implement the suggested framework fix from here: https://github.com/dotnet/runtime/issues/23405 so that calling cancel on a CancellationTokenSource does not call registrations synchronously.
 }

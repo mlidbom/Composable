@@ -4,7 +4,7 @@ using AccountManagement.API;
 using AccountManagement.UserStories.Scenarios;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
-using Composable.Persistence.SqlServer.Messaging.Buses;
+using Composable.Persistence.MsSql.Messaging.Buses;
 using NUnit.Framework;
 
 namespace AccountManagement.UserStories

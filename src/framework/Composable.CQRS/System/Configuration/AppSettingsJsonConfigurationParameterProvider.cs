@@ -8,22 +8,19 @@ namespace Composable.System.Configuration
     class AppSettingsJsonConfigurationParameterProvider : IConfigurationParameterProvider
     {
         public static readonly IConfigurationParameterProvider Instance = new AppSettingsJsonConfigurationParameterProvider();
-        readonly IConfigurationSection _appSettingsSection;
 
-        public AppSettingsJsonConfigurationParameterProvider()
-        {
-            IConfiguration config = new ConfigurationBuilder()
-                                   .SetBasePath(Directory.GetCurrentDirectory())
-                                   .AddJsonFile("appsettings.json", false, true)
-                                   .AddJsonFile("appsettings-testing.json", true, true)
-                                   .Build();
+        static readonly OptimizedLazy<IConfigurationSection> AppSettingsSectionInitializer = new OptimizedLazy<IConfigurationSection>(() => new ConfigurationBuilder()
+                                                                                                                                 .SetBasePath(Directory.GetCurrentDirectory())
+                                                                                                                                 .AddJsonFile("appsettings.json", false, true)
+                                                                                                                                 .AddJsonFile("appsettings-testing.json", true, true)
+                                                                                                                                 .Build()
+                                                                                                                                 .GetSection("appSettings"));
 
-            _appSettingsSection = config.GetSection("appSettings");
-        }
+        static IConfigurationSection AppSettingsSection => AppSettingsSectionInitializer.Value;
 
         public string GetString(string parameterName, string? valueIfMissing = null)
         {
-            var parameter = _appSettingsSection[parameterName];
+            var parameter = AppSettingsSection[parameterName];
             if(parameter != null) return parameter;
             if(valueIfMissing != null)
             {

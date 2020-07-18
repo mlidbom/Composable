@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Transactions;
 using Composable.Contracts;
+using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.System;
 using Composable.System.Threading.ResourceAccess;
 using Composable.SystemExtensions.TransactionsCE;
@@ -11,7 +12,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Composable.Persistence.EventStore
 {
-    class EventCache
+    class EventCache : IDisposable
     {
         class TransactionalOverlay
         {
@@ -69,7 +70,7 @@ namespace Composable.Persistence.EventStore
             public static readonly Entry Empty = new Entry();
             Entry()
             {
-                Events = new AggregateEvent[]{};
+                Events = Array.Empty<AggregateEvent>();
                 MaxSeenInsertedVersion = 0;
             }
 
@@ -90,7 +91,7 @@ namespace Composable.Persistence.EventStore
                 {
                     return new EventInsertionSpecification(@event: @event,
                                                            insertedVersion: @event.AggregateVersion + InsertedVersionToAggregateVersionOffset,
-                                                           manualVersion:@event.AggregateVersion);
+                                                           effectiveVersion:@event.AggregateVersion);
                 } else
                 {
                     return new EventInsertionSpecification(@event:@event);
@@ -153,6 +154,11 @@ namespace Composable.Persistence.EventStore
             var originalCache = _internalCache;
             _internalCache = new MemoryCache(new MemoryCacheOptions()) {};
             originalCache.Dispose();
+        }
+
+        public void Dispose()
+        {
+            _internalCache.Dispose();
         }
     }
 }

@@ -8,7 +8,7 @@ using Composable.Logging;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
-using Composable.Persistence.SqlServer.EventStore;
+using Composable.Persistence.MsSql.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
@@ -16,6 +16,7 @@ using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Composable.System;
+using Composable.Testing;
 
 // ReSharper disable AccessToModifiedClosure
 
@@ -32,7 +33,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             IList<IEventMigration> migrations = new List<IEventMigration>();
             using var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations.ToArray());
             var timeSource = serviceLocator.Resolve<TestingTimeSource>();
-            timeSource.FreezeAtUtcTime(DateTime.Parse("2001-01-01 01:01:01.01"));
+            timeSource.FreezeAtUtcTime(DateTime.Parse("2001-02-02 01:01:01.011111"));
             var scenarioIndex = 1;
             foreach(var migrationScenario in scenarios)
             {
@@ -219,7 +220,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                                               .GetType())
                         {
                             throw new AssertionException(
-                                $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory.ElementAt(index) .GetType()}");
+                                $"Expected event at position {index} to be of type {@event.GetType()} but it was of type: {migratedHistory.ElementAt(index) .GetType()}");
                         }
                     });
 

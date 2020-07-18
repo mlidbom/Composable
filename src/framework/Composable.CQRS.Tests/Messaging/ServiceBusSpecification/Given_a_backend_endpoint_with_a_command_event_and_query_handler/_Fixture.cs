@@ -9,8 +9,8 @@ using Composable.Messaging.Hypermedia;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
-using Composable.Persistence.SqlServer.DependencyInjection;
-using Composable.Persistence.SqlServer.Messaging.Buses;
+using Composable.Persistence.MsSql.DependencyInjection;
+using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.System.Linq;
 using Composable.Testing.Threading;
 using FluentAssertions;
@@ -71,7 +71,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 {
                     builder.RegisterCurrentTestsConfiguredPersistenceLayer();
                     builder.RegisterEventStore()
-                           .HandleAggregate<MyAggregate, MyAggregateEvent.IRoot>(builder.RegisterHandlers);
+                           .HandleAggregate<MyAggregate, MyAggregateEvent.IRoot>();
 
                     builder.RegisterHandlers
                            .ForCommand((MyExactlyOnceCommand command) => CommandHandlerThreadGate.AwaitPassthrough())
@@ -120,7 +120,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         protected void CloseGates() => AllGates.ForEach(gate => gate.Close());
 
-        protected void OpenGates() => AllGates.ForEach(gate => gate.Open());
+        protected void OpenGates() => AllGates?.ForEach(gate => gate.Open());
 
         protected static class MyAggregateEvent
         {

@@ -26,14 +26,16 @@ namespace Composable.DependencyInjection
     public interface IRunMode
     {
         bool IsTesting { get; }
-        PersistenceLayer TestingPersistenceLayer { get; }
     }
 
     public enum PersistenceLayer
     {
-        SqlServer,
+        MsSql,
         InMemory,
-        MySql
+        MySql,
+        PgSql,
+        Orcl, 
+        DB2
     }
 
     enum Lifestyle

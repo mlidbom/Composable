@@ -17,7 +17,9 @@ namespace Composable.Messaging
         {
             public static class Queries
             {
+#pragma warning disable CA1724 //Class name conflicts with namespace name.
                 public abstract class Query<TResult> : StrictlyLocal.IQuery<TResult> {}
+#pragma warning restore CA1724 //
 
                 public class EntityLink<TResult> : StrictlyLocal.Queries.Query<TResult> where TResult : IHasPersistentIdentity<Guid>
                 {
@@ -84,7 +86,9 @@ namespace Composable.Messaging
             {
                 public static class Queries
                 {
+#pragma warning disable CA1724 //Class name conflicts with namespace name.
                     public abstract class Query<TResult> : Remotable.NonTransactional.IQuery<TResult> {}
+#pragma warning restore CA1724 //Class name conflicts with namespace name.
 
                     public class EntityLink<TResult> : Remotable.NonTransactional.Queries.Query<TResult> where TResult : IHasPersistentIdentity<Guid>
                     {

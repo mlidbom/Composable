@@ -5,11 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
+using Composable.Logging;
+using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
+using Composable.SystemExtensions.Threading;
 using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation
@@ -62,7 +65,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var clientConnection = _state.WithExclusiveAccess(@this => new InboxConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller!, @this.TimeSource, @this.Storage, @this.TypeMapper, _taskRunner, @this.Serializer));
 
-            await clientConnection.Init();
+            await clientConnection.Init().NoMarshalling();
 
             _state.WithExclusiveAccess(@this =>
             {
@@ -83,12 +86,12 @@ namespace Composable.Messaging.Buses.Implementation
                                        : state.Storage.StartAsync();
 
                 state.Poller = new NetMQPoller();
-                state.PollerThread = new Thread(() => state.Poller.Run()) {Name = $"{nameof(Outbox)}_{nameof(state.PollerThread)}"};
+                state.PollerThread = new Thread(ThreadExceptionHandler.WrapThreadStart(() => state.Poller.Run())) {Name = $"{nameof(Outbox)}_{nameof(state.PollerThread)}"}; //Urgent: Research what happens if exceptions are thrown on the poller thread.
                 state.PollerThread.Start();
                 return storageStartTask;
             });
 
-            await storageStartTask;
+            await storageStartTask.NoMarshalling();
         }
 
         public void Stop() => _state.WithExclusiveAccess(state =>
@@ -108,6 +111,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                .Where(id => id != state.Configuration.Id)
                                                .ToArray();//We dispatch events to ourself synchronously so don't go doing it again here.;
 
+            //Urgent: bug. Our traceability thinking does not allow just discarding this message.But removing this if statement breaks a lot of tests that uses endpoint wiring but do not start an endpoint.
             if(eventHandlerEndpointIds.Length != 0)//Don't waste time if there are no receivers
             {
                 var connections = eventHandlerEndpointIds.Select(endpointId => state.InboxConnections[endpointId])
@@ -144,7 +148,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return state.InboxConnections[endPointId];
             });
 
-            return await connection.DispatchAsync(atMostOnceCommand);
+            return await connection.DispatchAsync(atMostOnceCommand).NoMarshalling();
         }
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
@@ -155,7 +159,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return state.InboxConnections[endPointId];
             });
 
-            return await connection.DispatchAsync(query);
+            return await connection.DispatchAsync(query).NoMarshalling();
         }
 
         public void Dispose() => _state.WithExclusiveAccess(state =>

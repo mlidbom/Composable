@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using Composable.DependencyInjection;
+using NCrunch.Framework;
 using NUnit.Framework;
 
 // General Information about an assembly is controlled through the following
@@ -37,6 +38,6 @@ using NUnit.Framework;
 // by using the '*' as shown below:
 
 [assembly: AssemblyVersion("1.0.0.0")]
-
-//urgent: include at least InMemory as testing PersistenceLayerProvider [assembly:NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.InMemory))]
-[assembly:NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer))]
+//urgent: include at least MySql as testing PersistenceLayerProvider [assembly:NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.InMemory))]
+//Urgent: Make sure that only tests that use the duplicated persistence layers accurately are impacted by duplication
+[assembly:DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl), nameof(PersistenceLayer.DB2))]

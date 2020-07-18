@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Composable.System.Reflection;
 using JetBrains.Annotations;
 
 namespace Composable.System.Threading.ResourceAccess
@@ -12,11 +13,12 @@ namespace Composable.System.Threading.ResourceAccess
 
     class ThreadShared<TResource> : IThreadShared<TResource> where TResource : new()
     {
+        static readonly Func<TResource> CreateInstance = Constructor.For<TResource>.DefaultConstructor.Instance;
         readonly IResourceGuard _guard;
         readonly TResource _resource;
 
         public static ThreadShared<TResource> WithTimeout(TimeSpan timeout) => new ThreadShared<TResource>(ResourceGuard.WithTimeout(timeout), new TResource());
-        public static IThreadShared<TResource> Optimized() => new OptimizedThreadShared<TResource>(new TResource());
+        public static IThreadShared<TResource> Optimized() => new OptimizedThreadShared<TResource>(CreateInstance());
 
         internal ThreadShared(IResourceGuard guard, TResource resource)
         {
@@ -33,10 +35,6 @@ namespace Composable.System.Threading.ResourceAccess
         readonly TResource _resource;
         readonly object _lock = new object();
         public OptimizedThreadShared(TResource resource) => _resource = resource;
-
-        public TResult ByPass<TResult>(Func<TResource, TResult> func) => func(_resource);
-
-        public void ByPass(Action<TResource> func) => func(_resource);
 
         public TResult WithExclusiveAccess<TResult>(Func<TResource, TResult> func) => ResourceGuard.WithExclusiveLock(_lock, () => func(_resource));
 

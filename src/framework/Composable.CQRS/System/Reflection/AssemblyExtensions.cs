@@ -11,7 +11,7 @@ namespace Composable.System.Reflection
 
             if(ExactNamesForKnownThirdPartyLibraryAssemblies.Contains(name)) return true;
 
-            if(StartPatternsForKnownThirdPartyLibraryAssemblies.Any(me => name.StartsWith(me))) return true;
+            if(StartPatternsForKnownThirdPartyLibraryAssemblies.Any(me => name.StartsWithInvariant(me))) return true;
 
             return false;
         }

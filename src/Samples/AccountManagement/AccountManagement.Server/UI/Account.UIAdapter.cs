@@ -18,7 +18,7 @@ namespace AccountManagement.UI
             {
                 var email = Email.Parse(logIn.Email);
 
-                if(bus.Execute(AccountApi.Queries.TryGetByEmail(email)) is Some<Account> account)
+                if(bus.Execute(InternalApi.Queries.TryGetByEmail(email)) is Some<Account> account)
                 {
                     return account.Value.Login(logIn.Password) switch
                     {
@@ -34,11 +34,11 @@ namespace AccountManagement.UI
 
         internal static void ChangePassword(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Command.ChangePassword command, ILocalHypermediaNavigator bus) =>
-                bus.Execute(AccountApi.Queries.GetForUpdate(command.AccountId)).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
+                bus.Execute(InternalApi.Queries.GetForUpdate(command.AccountId)).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
 
         internal static void ChangeEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
             (AccountResource.Command.ChangeEmail command, ILocalHypermediaNavigator bus) =>
-                bus.Execute(AccountApi.Queries.GetForUpdate(command.AccountId)).ChangeEmail(Email.Parse(command.Email)));
+                bus.Execute(InternalApi.Queries.GetForUpdate(command.AccountId)).ChangeEmail(Email.Parse(command.Email)));
 
         internal static void Register(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
             (AccountResource.Command.Register command, ILocalHypermediaNavigator bus) =>
@@ -54,6 +54,6 @@ namespace AccountManagement.UI
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
             (MessageTypes.Remotable.NonTransactional.Queries.EntityLink<AccountResource> accountQuery, ILocalHypermediaNavigator bus)
-                => new AccountResource(bus.Execute(AccountApi.AccountQueryModel.Queries.Get(accountQuery.EntityId))));
+                => new AccountResource(bus.Execute(InternalApi.AccountQueryModel.Queries.Get(accountQuery.EntityId))));
     }
 }

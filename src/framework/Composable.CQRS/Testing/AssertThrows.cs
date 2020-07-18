@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using Composable.System.Threading;
 
 namespace Composable.Testing
 {
@@ -10,7 +11,7 @@ namespace Composable.Testing
         {
          try
          {
-             await action();
+             await action().NoMarshalling();
          }
          catch(TException exception)
          {

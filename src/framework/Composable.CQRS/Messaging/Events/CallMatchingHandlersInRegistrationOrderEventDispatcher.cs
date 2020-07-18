@@ -92,7 +92,7 @@ namespace Composable.Messaging.Events
         Dictionary<Type, Action<object>[]> _typeToHandlerCache = new Dictionary<Type, Action<object>[]>();
         int _cachedTotalHandlers;
         // ReSharper disable once StaticMemberInGenericType
-        static readonly Action<object>[] NullHandlerList = new Action<object>[0];
+        static readonly Action<object>[] NullHandlerList = Array.Empty<Action<object>>();
 
         Action<object>[] GetHandlers(Type type, bool validateHandlerExists = true)
         {
@@ -158,7 +158,7 @@ namespace Composable.Messaging.Events
         public bool Handles(IAggregateEvent @event) => GetHandlers(@event.GetType(), validateHandlerExists: false).Any();
     }
 
-    class EventUnhandledException : Exception
+    public class EventUnhandledException : Exception
     {
         public EventUnhandledException(Type handlerType, Type eventType)
             : base($@"{handlerType} does not handle nor ignore incoming event {eventType}") {}

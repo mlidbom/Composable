@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.DependencyInjection.SimpleInjectorImplementation;
+using Composable.DependencyInjection.SimpleInjector;
 using Composable.DependencyInjection.Windsor;
 using Composable.System.Linq;
 
@@ -16,9 +16,18 @@ namespace Composable.DependencyInjection.Testing
         {
             var sourceContainer = (IDependencyInjectionContainer)@this;
 
-#pragma warning disable IDE0067 //Review OK-ish: The created servicelocator that is return is actually the cloneContainer cast to another interface.
-            var cloneContainer = DependencyInjectionContainer.Create();
-#pragma warning restore IDE0067 // Dispose objects before losing scope
+
+            IDependencyInjectionContainer cloneContainer = sourceContainer switch
+            {
+#pragma warning disable CA2000 // Dispose objects before losing scope: Review: OK-ish. We dispose the container byr registering its created serviceLocator in the container. It will dispose the container when disposed.
+                ComposableDependencyInjectionContainer _ => new ComposableDependencyInjectionContainer(sourceContainer.RunMode),
+                WindsorDependencyInjectionContainer _ => new WindsorDependencyInjectionContainer(sourceContainer.RunMode),
+                SimpleInjectorDependencyInjectionContainer _ => new SimpleInjectorDependencyInjectionContainer(sourceContainer.RunMode),
+                _ => throw new ArgumentOutOfRangeException()
+#pragma warning restore CA2000 // Dispose objects before losing scope
+            };
+
+            cloneContainer.Register(Singleton.For<IServiceLocator>().CreatedBy(() => cloneContainer.CreateServiceLocator()));
 
             sourceContainer.RegisteredComponents()
                            .Where(component => TypesThatAreFacadesForTheContainer.None(facadeForTheContainer => component.ServiceTypes.Contains(facadeForTheContainer)))

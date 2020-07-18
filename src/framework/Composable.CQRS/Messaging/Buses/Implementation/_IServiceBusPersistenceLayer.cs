@@ -42,9 +42,9 @@ namespace Composable.Messaging.Buses.Implementation
 
         static class InboxMessageDatabaseSchemaStrings
         {
-            internal const string TableName = nameof(InboxMessageDatabaseSchemaStrings);
+            internal const string TableName = "InboxMessages";
 
-            internal const string Identity = nameof(Identity);
+            internal const string GeneratedId = nameof(GeneratedId);
             internal const string TypeId = nameof(TypeId);
             internal const string MessageId = nameof(MessageId);
             internal const string Body = nameof(Body);
@@ -57,9 +57,9 @@ namespace Composable.Messaging.Buses.Implementation
 
         static class OutboxMessagesDatabaseSchemaStrings
         {
-            internal const string TableName = nameof(OutboxMessagesDatabaseSchemaStrings);
+            internal const string TableName = "OutboxMessages";
 
-            internal const string Identity = nameof(Identity);
+            internal const string GeneratedId = nameof(GeneratedId);
             internal const string TypeIdGuidValue = nameof(TypeIdGuidValue);
             internal const string MessageId = nameof(MessageId);
             internal const string SerializedMessage = nameof(SerializedMessage);
@@ -67,7 +67,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         static class OutboxMessageDispatchingTableSchemaStrings
         {
-            internal const string TableName = nameof(OutboxMessageDispatchingTableSchemaStrings);
+            internal const string TableName = "OutboxMessageDispatching";
 
             internal const string MessageId = nameof(MessageId);
             internal const string EndpointId = nameof(EndpointId);

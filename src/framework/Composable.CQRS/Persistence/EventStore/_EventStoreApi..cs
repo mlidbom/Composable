@@ -6,10 +6,10 @@ namespace Composable.Persistence.EventStore
 {
     public partial class EventStoreApi
     {
-        public Query Queries => new Query();
+        public QueryApi Queries => new QueryApi();
         public Command Commands => new Command();
 
-        public partial class Query
+        public partial class QueryApi
         {
             public AggregateLink<TAggregate> GetForUpdate<TAggregate>(Guid id) where TAggregate : IEventStored =>
                 new AggregateLink<TAggregate>(id);

@@ -9,7 +9,7 @@ using AccountManagement.UserStories.Scenarios;
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Persistence.SqlServer.Messaging.Buses;
+using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.System.Diagnostics;
 using Composable.Testing.Performance;
 using FluentAssertions.Extensions;
@@ -86,7 +86,7 @@ namespace AccountManagement
                                          {
                                              var (_, _, id) = accountsArray[Interlocked.Increment(ref currentAccount)];
 
-                                             var accountResource = _clientEndpoint.ExecuteRequest(AccountApi.Instance.Query.AccountById(id));
+                                             var accountResource = _clientEndpoint.ExecuteClientRequest(AccountApi.Instance.Query.AccountById(id));
                                              if(accountResource.Id != id)
                                              {
                                                  throw new Exception();

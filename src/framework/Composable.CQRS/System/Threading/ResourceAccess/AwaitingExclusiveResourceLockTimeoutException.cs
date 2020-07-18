@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Composable.System.Threading.ResourceAccess
 {
-    class AwaitingExclusiveResourceLockTimeoutException : Exception
+    public class AwaitingExclusiveResourceLockTimeoutException : Exception, IDisposable
     {
         internal static void TestingOnlyRunWithAlternativeTimeToWaitForOwningThreadStacktrace(TimeSpan timeoutOverride, Action action)
         {
@@ -45,6 +45,25 @@ namespace Composable.System.Threading.ResourceAccess
         {
             Interlocked.CompareExchange(ref _blockingThreadStacktrace, blockingThreadStackTrace.ToString(), null);
             _blockingStacktraceWaitHandle.Set();
+        }
+
+        ~AwaitingExclusiveResourceLockTimeoutException()
+        {
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if(disposing)
+            {
+                _blockingStacktraceWaitHandle.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -4,11 +4,11 @@ namespace Composable.Messaging
 {
     static partial class MessageTypeInspector
     {
-        class MessageTypeDesignViolationException : Exception
+        public class MessageTypeDesignViolationException : Exception
         {
             public MessageTypeDesignViolationException(string message) : base(message + TypeDesignRationale) {}
 
-            static readonly string TypeDesignRationale = @"
+            const string TypeDesignRationale = @"
 
 Rationale: 
 In order to provide reliable guarantees as to the behavior of services on the bus we must know the exact semantics of each message sent. 

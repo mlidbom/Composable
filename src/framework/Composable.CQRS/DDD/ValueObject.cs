@@ -72,13 +72,13 @@ namespace Composable.DDD
                     if(!(value2 is null))
                         return false;
                 }
-                else if (value1 is IEnumerable && !(value1 is string))
+                else if (value1 is IEnumerable valueAsEnumerable && !(value1 is string))
                 {
                     if (value2 is null)
                     {
                         return false;
                     }
-                    var value1Array = ((IEnumerable)value1).Cast<object>().ToArray();
+                    var value1Array = valueAsEnumerable.Cast<object>().ToArray();
                     var value2Array = ((IEnumerable)value2).Cast<object>().ToArray();
                     if (value1Array.Length != value2Array.Length)
                     {

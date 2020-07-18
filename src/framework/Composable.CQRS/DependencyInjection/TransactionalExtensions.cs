@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Composable.System.Threading;
 using Composable.System.Transactions;
 using JetBrains.Annotations;
 
@@ -43,7 +44,7 @@ namespace Composable.DependencyInjection
         {
             using (me.BeginScope())
             {
-                return await function();
+                return await function().NoMarshalling();
             }
         }
 
@@ -51,7 +52,7 @@ namespace Composable.DependencyInjection
         {
             using (me.BeginScope())
             {
-                await action();
+                await action().NoMarshalling();
             }
         }
     }

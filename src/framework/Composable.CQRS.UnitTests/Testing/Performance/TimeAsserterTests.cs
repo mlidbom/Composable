@@ -2,6 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using Composable.System;
+using Composable.Testing;
 
 namespace Composable.Tests.Testing.Performance
 {
@@ -21,12 +22,12 @@ namespace Composable.Tests.Testing.Performance
 
         [Test] public void ExecuteThreaded_should_add_at_most_1_milliseconds_to_100_iterations_of_action()
         {
+            //Warmup
+            TimeAsserter.ExecuteThreaded(action: () => {}, iterations: 100, maxTotal: 100.Milliseconds());
+
             TimeAsserter.ExecuteThreaded(
-                setup: () => {},
-                tearDown: () => {},
                 action: () => {},
                 iterations: 100,
-                timeFormat: "ffff",
                 maxTotal: 1.Milliseconds()
             );
         }

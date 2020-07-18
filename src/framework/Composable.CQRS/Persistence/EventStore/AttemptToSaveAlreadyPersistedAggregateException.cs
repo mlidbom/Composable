@@ -2,7 +2,7 @@
 
 namespace Composable.Persistence.EventStore
 {
-    class AttemptToSaveAlreadyPersistedAggregateException : Exception
+    public class AttemptToSaveAlreadyPersistedAggregateException : Exception
     {
         public AttemptToSaveAlreadyPersistedAggregateException(IEventStored aggregate)
             :base(

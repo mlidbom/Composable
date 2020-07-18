@@ -1,8 +1,8 @@
 ﻿namespace Composable.GenericAbstractions
 {
-    public class Unit
+    class Unit
     {
-        public static Unit Instance = new Unit();
+        public static readonly Unit Instance = new Unit();
         Unit(){}
     }
 }

@@ -6,8 +6,8 @@ using AccountManagement.UI.QueryModels;
 using Composable.Messaging.Buses;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.SqlServer.DependencyInjection;
-using Composable.Persistence.SqlServer.Messaging.Buses;
+using Composable.Persistence.MsSql.DependencyInjection;
+using Composable.Persistence.MsSql.Messaging.Buses;
 
 namespace AccountManagement
 {
@@ -28,12 +28,13 @@ namespace AccountManagement
 
         static void RegisterDomainComponents(IEndpointBuilder builder)
         {
-            builder.RegisterSqlServerPersistenceLayer();
+            //todo: This is not in the right place.
+            builder.RegisterCurrentTestsConfiguredPersistenceLayer();
             builder.RegisterEventStore()
-                   .HandleAggregate<Account, AccountEvent.Root>(builder.RegisterHandlers);
+                   .HandleAggregate<Account, AccountEvent.Root>();
 
             builder.RegisterDocumentDb()
-                   .HandleDocumentType<EventStoreApi.Query.AggregateLink<Account>>(builder.RegisterHandlers)
+                   .HandleDocumentType<EventStoreApi.QueryApi.AggregateLink<Account>>(builder.RegisterHandlers)
                    .HandleDocumentType<AccountStatistics.SingletonStatisticsQuerymodel>(builder.RegisterHandlers);
         }
 

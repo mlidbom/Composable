@@ -58,7 +58,7 @@ namespace AccountManagement.UI.MVC
 
             app.UseRouting();
 
-            app.Use(async (context, next) => await _clientEndpoint.ExecuteRequestAsync(async () => await next.Invoke()));
+            app.Use(async (context, next) => await _clientEndpoint.ExecuteClientRequestAsync(async () => await next.Invoke()));
 
             app.UseEndpoints(endpoints =>
             {

@@ -90,7 +90,7 @@ namespace Composable.Persistence.EventStore
             }
             if (aggregate.Version == 0 && changes.None())
             {
-                throw new AttemptToSaveEmptyAggregate(aggregate);
+                throw new AttemptToSaveEmptyAggregateException(aggregate);
             }
 
             var events = aggregate.GetChanges().ToList();
@@ -134,15 +134,10 @@ namespace Composable.Persistence.EventStore
 
         public IReadOnlyList<IAggregateEvent> GetHistory(Guid aggregateId) => GetHistoryInternal(aggregateId, takeWriteLock:false);
 
-        IReadOnlyList<IAggregateEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
-        {
-            var history = takeWriteLock
-                              ? _store.GetAggregateHistoryForUpdate(aggregateId)
-                              : _store.GetAggregateHistory(aggregateId);
-
-            AggregateHistoryValidator.ValidateHistory(aggregateId, history);
-            return history;
-        }
+        IReadOnlyList<IAggregateEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock) =>
+            takeWriteLock
+                ? _store.GetAggregateHistoryForUpdate(aggregateId)
+                : _store.GetAggregateHistory(aggregateId);
 
         bool DoTryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)]out TAggregate aggregate) where TAggregate : IEventStored
         {

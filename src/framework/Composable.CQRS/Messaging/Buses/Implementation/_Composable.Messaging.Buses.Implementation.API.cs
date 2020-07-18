@@ -27,9 +27,9 @@ namespace Composable.Messaging.Buses.Implementation
         void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
         void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);
 
+        //Urgent: These hypermedia client methods should be moved to another abstraction that does not need persistence etc. A client, not an endpoint.
         Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand);
         Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand);
-
         Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
     }
 
@@ -38,6 +38,7 @@ namespace Composable.Messaging.Buses.Implementation
         void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
         void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand command);
 
+        //Urgent: These hypermedia client methods should be moved to another abstraction that does not need persistence etc. A client, not an endpoint.
         Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand command);
         Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);

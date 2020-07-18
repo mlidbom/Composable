@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Composable.Logging;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 
@@ -24,10 +25,7 @@ namespace Composable.System
     }
 
     ///<summary>
-    /// A strictly managed resource guarantees that an Exception of type <see cref="StrictlyManagedResourceWasFinalizedException"/> is thrown if the finalizer is ever called.
-    /// <para>In other word: If a user of an instance fails to correctly call <see cref="IDisposable.Dispose"/> on a <see cref="StrictlyManagedResourceWasFinalizedException"/>
-    /// will be thrown when the instance is eventually finalized by the garbage collector.</para>
-    /// This helps to guarantee that your application has no resource leaks.
+    /// A strictly managed resource logs an Exception of type <see cref="StrictlyManagedResourceWasFinalizedException"/> if the finalizer is ever called.
     /// <para>Implementing this interface MUST be done by inheriting from <see cref="StrictlyManagedResourceBase{TInheritor}"/> or having a readonly field of type <see cref="StrictlyManagedResource{TManagedResource}"/>.
     ///  This guarantees the expected behavior including the ability to enable and disable the collection of stacktraces for the allocations.</para>
     /// </summary>
@@ -75,7 +73,21 @@ namespace Composable.System
         {
             if(!_disposed)
             {
-                throw new StrictlyManagedResourceWasFinalizedException(GetType(), ReservationCallStack);
+                //Don't even think about letting exceptions escape on the finalizer thread again.The day I spent trying to understand why test processes simply died without explanation was no fun. Once was plenty.
+                try
+                {
+#pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
+                    throw new StrictlyManagedResourceWasFinalizedException(GetType(), ReservationCallStack);
+#pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
+                }
+                catch(StrictlyManagedResourceWasFinalizedException exception)
+                {
+                    try
+                    {
+                        this.Log().Error(exception);
+                        // ReSharper disable once EmptyGeneralCatchClause
+                    }catch{}
+                }
             }
         }
     }
@@ -108,21 +120,22 @@ namespace Composable.System
 
         public void Dispose()
         {
-            //todo: _disposed should be set to true before calling something that might conceivable cause reentrancy...
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             if(!_disposed)
             {
                 _disposed = true;
                 _strictlyManagedResource.Dispose();
-                InternalDispose();
             }
         }
-
-        protected abstract void InternalDispose();
     }
 
     ///<summary><see cref="IStrictlyManagedResource"/></summary>
-    class StrictlyManagedResourceWasFinalizedException : Exception
+    public class StrictlyManagedResourceWasFinalizedException : Exception
     {
         public StrictlyManagedResourceWasFinalizedException(Type instanceType, string? reservationCallStack) : base(FormatMessage(instanceType, reservationCallStack)) { }
 
@@ -136,12 +149,12 @@ Set configuration value: {StrictlyManagedResources.CollectStackTracesForAllStric
 Please note that this will decrease performance and should only be set while debugging resource leaks.";
     }
 
-    class StrictlyManagedResourceLifespanWasExceededException : Exception
+    public class StrictlyManagedResourceLifespanWasExceededException : Exception
     {
         public StrictlyManagedResourceLifespanWasExceededException(Type instanceType, string reservationCallStack, TimeSpan maxTimeSpan) : base(FormatMessage(instanceType, reservationCallStack, maxTimeSpan)) { }
 
         static string FormatMessage(Type instanceType, string reservationCallStack, TimeSpan maxTimeSpan)
-            => reservationCallStack != string.Empty
+            => !reservationCallStack.IsNullEmptyOrWhiteSpace()
                    ? $@"User code failed to Dispose this instance of {instanceType.FullName} within the maximum lifetime: {maxTimeSpan}
 Construction call stack: {reservationCallStack}"
                    : $@"No allocation stack trace collected. 

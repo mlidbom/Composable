@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.System;
 
 namespace Composable.Persistence.DocumentDb
 {
@@ -12,11 +13,11 @@ namespace Composable.Persistence.DocumentDb
                 {
                     throw new ArgumentException("Since a type can implement multiple interfaces using it to uniquely identify an instance is impossible");
                 }
-                Id = id.ToString().ToLower().TrimEnd(' ');
+                Id = DocumentDb.GetIdString(id);
                 Type = type;
             }
 
-            public bool Equals(DocumentKey other)
+            public bool Equals(DocumentKey? other)
             {
                 if(other == null)
                 {
@@ -31,7 +32,7 @@ namespace Composable.Persistence.DocumentDb
                 return Type.IsAssignableFrom(other.Type) || other.Type.IsAssignableFrom(Type);
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 if (obj is null)
                 {
@@ -48,7 +49,7 @@ namespace Composable.Persistence.DocumentDb
                 return Equals((DocumentKey)obj);
             }
 
-            public override int GetHashCode() => Id.GetHashCode();
+            public override int GetHashCode() => Id.GetHashcodeInvariant();
 
             public override string ToString() => $"Id: {Id}, Type: {Type}";
 

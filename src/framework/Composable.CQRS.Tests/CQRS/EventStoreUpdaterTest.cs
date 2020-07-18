@@ -14,6 +14,7 @@ using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.System.Transactions;
+using Composable.SystemExtensions;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;
 using Composable.Testing.Performance;
@@ -21,13 +22,14 @@ using Composable.Testing.Threading;
 using Composable.Testing.Transactions;
 using FluentAssertions;
 using JetBrains.Annotations;
+using NCrunch.Framework;
 using NUnit.Framework;
 // ReSharper disable AccessToDisposedClosure
 
 namespace Composable.Tests.CQRS
 {
     //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.SqlServer), nameof(PersistenceLayer.InMemory))]
+    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.InMemory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl), nameof(PersistenceLayer.DB2))]
     [TestFixture]
     public class EventStoreUpdaterTest
     {
@@ -286,13 +288,13 @@ namespace Composable.Tests.CQRS
                                     {
                                         session.Delete(user1.Id);
 
-                                        Assert.IsFalse(session.TryGet(user1.Id, out User _));
-
                                         var loadedUser2 = session.Get<User>(user2.Id);
                                         Assert.That(loadedUser2.Id, Is.EqualTo(user2.Id));
                                         Assert.That(loadedUser2.Email, Is.EqualTo(user2.Email));
                                         Assert.That(loadedUser2.Password, Is.EqualTo(user2.Password));
                                     });
+
+            UseInTransactionalScope(session => Assert.IsFalse(session.TryGet(user1.Id, out User _)));
         }
 
         [Test]
@@ -428,7 +430,7 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session => session.Save(user));
 
             var threadedIterations = 5;
-            var delayEachTransactionBy = 10.Milliseconds();
+            var delayEachTransactionBy = 50.Milliseconds();
 
             void ReadUserHistory()
             {
@@ -447,7 +449,6 @@ namespace Composable.Tests.CQRS
             var timingsSummary = TimeAsserter.ExecuteThreaded(
                 action: ReadUserHistory,
                 iterations: threadedIterations,
-                timeIndividualExecutions:true,
                 maxTotal: (approximateSinglethreadedExecutionTimeInMilliseconds / 2).Milliseconds(),
                 description: $"If access is serialized the time will be approximately {approximateSinglethreadedExecutionTimeInMilliseconds} milliseconds. If parallelized it should be far below this value.");
 
@@ -484,10 +485,15 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session =>
                                     {
                                         Assert.That(_eventSpy.DispatchedMessages.Count, Is.EqualTo(18));
-                                        Assert.That(_eventSpy.DispatchedMessages.OfType<IAggregateEvent>().Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
-                                        var allPersistedEvents = _serviceLocator.EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
 
-                                        _eventSpy.DispatchedMessages.OfType<IAggregateEvent>().Should().BeEquivalentTo(allPersistedEvents,options => options.WithStrictOrdering());
+                                        var dispatchedEvents = _eventSpy.DispatchedMessages.OfType<IAggregateEvent>().ToList();
+                                        Assert.That(dispatchedEvents.Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
+
+                                        var allPersistedEvents = _serviceLocator.EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
+                                        EventStorageTestHelper.StripSeventhDecimalPointFromSecondFractionOnUtcUpdateTime(dispatchedEvents);
+                                        EventStorageTestHelper.StripSeventhDecimalPointFromSecondFractionOnUtcUpdateTime(allPersistedEvents);
+
+                                        allPersistedEvents.Should().BeEquivalentTo(dispatchedEvents, options => options.WithStrictOrdering());
                                     });
         }
 
@@ -598,7 +604,6 @@ namespace Composable.Tests.CQRS
                 });
         }
 
-        //urgent: Fix transactionality of InMemory event store and reenable this test in ncrunch.
         [Test, LongRunning]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed()
         {
@@ -611,7 +616,8 @@ namespace Composable.Tests.CQRS
                                     });
 
 
-            var changeEmailSection = GatedCodeSection.WithTimeout(2.Seconds());
+            var changeEmailSection = GatedCodeSection.WithTimeout(20.Seconds());
+            var hasFetchedUser = ThreadGate.CreateOpenWithTimeout(20.Seconds());
             void UpdateEmail()
             {
                 UseInTransactionalScope(session =>
@@ -619,12 +625,13 @@ namespace Composable.Tests.CQRS
                                             using(changeEmailSection.Enter())
                                             {
                                                 var userToUpdate = session.Get<User>(user.Id);
+                                                hasFetchedUser.AwaitPassthrough(1.Seconds());
                                                 userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
                                             }
                                         });
             }
 
-               var threads = 2;
+            var threads = 2;
 
             var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(UpdateEmail)).ToArray();
 
@@ -632,13 +639,19 @@ namespace Composable.Tests.CQRS
             changeEmailSection.EntranceGate.AwaitPassedThroughCountEqualTo(2);
             changeEmailSection.ExitGate.AwaitQueueLengthEqualTo(1);
 
-            Thread.Sleep(10.Milliseconds());
+            Thread.Sleep(100.Milliseconds());
 
-            changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction.");
+            var bothTasksReadUserException = ExceptionExtensions.TryCatch(() => hasFetchedUser.Passed.Should().Be(1, "Only one thread should have been able to fetch the aggregate"));
+
+            //Urgent: This fails intermittently with Oracle. Pretty consistently on old-asus-laptop, so test it there :). We need to look into making sure to touch existing rows for both oracle and MySql below.
+            //Urgent: This fails intermittently with MySql with two threads waiting at the exit gate. We don't seem to get consistently correct locking with MySql. It does work the great majority of the runs though...
+            var bothTasksCompletedException = ExceptionExtensions.TryCatch(() => changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction."));
 
             changeEmailSection.Open();
 
-            Task.WaitAll(tasks);//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized. Or a deadlock will be thrown if the locking is not done correctly.
+            var taskException = ExceptionExtensions.TryCatch(() => Task.WaitAll(tasks)) as AggregateException;//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized. Or a deadlock will be thrown if the locking is not done correctly.
+
+            if(bothTasksCompletedException != null || taskException != null || bothTasksReadUserException != null)throw new AggregateException(Seq.Create(bothTasksCompletedException).Append(bothTasksReadUserException).Concat(taskException.InnerExceptions).Where(@this => @this != null));
 
             UseInScope(
                 session =>

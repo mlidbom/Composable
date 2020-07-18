@@ -16,13 +16,14 @@ namespace Composable.System
 
         internal void Add(params IDisposable[] disposables) { _managedResources.AddRange(disposables); }
 
-        protected override void InternalDispose()
+        protected override void Dispose(bool disposing)
         {
             foreach (var managedResource in _managedResources)
             {
                 managedResource.Dispose();
             }
             _managedResources.Clear();
+            base.Dispose(disposing);
         }
     }
 }

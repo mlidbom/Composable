@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Composable.Persistence.DocumentDb
@@ -7,40 +8,51 @@ namespace Composable.Persistence.DocumentDb
     interface IDocumentDbPersistenceLayer
     {
         void Update(IReadOnlyList<WriteRow> toUpdate);
-        bool TryGet(string idString, IReadOnlyList<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out ReadRow? document);
-        void Add(string idString, Guid typeIdGuid, DateTime now, string serializedDocument);
-        int Remove(string idString, IReadOnlyList<Guid> acceptableTypeIds);
-        IEnumerable<Guid> GetAllIds(IReadOnlyList<Guid> acceptableTypeIds);
-        IReadOnlyList<ReadRow> GetAll(IEnumerable<Guid> ids, IReadOnlyList<Guid> getAcceptableTypes);
-        IReadOnlyList<ReadRow> GetAll(IReadOnlyList<Guid> acceptableTypeIds);
+        bool TryGet(string idString, IImmutableSet<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out ReadRow? document);
+        void Add(WriteRow row);
+        int Remove(string idString, IImmutableSet<Guid> acceptableTypes);
+        //Urgent: This whole Guid vs string thing must be removed.
+        IEnumerable<Guid> GetAllIds(IImmutableSet<Guid> acceptableTypes);
+        IReadOnlyList<ReadRow> GetAll(IEnumerable<Guid> ids, IImmutableSet<Guid> acceptableTypes);
+        IReadOnlyList<ReadRow> GetAll(IImmutableSet<Guid> acceptableTypes);
 
         class ReadRow
         {
-            public ReadRow(Guid typeGuid, string serializedValue)
+            public ReadRow(Guid typeId, string serializedDocument)
             {
-                TypeGuid = typeGuid;
-                SerializedValue = serializedValue;
+                TypeId = typeId;
+                SerializedDocument = serializedDocument;
             }
 
-            public Guid TypeGuid { get; }
+            public Guid TypeId { get; }
 
-            public string SerializedValue { get; }
+            public string SerializedDocument { get; }
         }
 
         class WriteRow
         {
-            public WriteRow(string idString, string serializedDocument, DateTime updateTime, Guid typeIdGuid)
+            public WriteRow(string id, string serializedDocument, DateTime updateTime, Guid typeId)
             {
-                IdString = idString;
+                Id = id;
                 SerializedDocument = serializedDocument;
                 UpdateTime = updateTime;
-                TypeIdGuid = typeIdGuid;
+                TypeId = typeId;
             }
 
-            public string IdString { get; }
+            public string Id { get; }
             public string SerializedDocument { get; }
             public DateTime UpdateTime { get; }
-            public Guid TypeIdGuid { get; }
+            public Guid TypeId { get; }
+        }
+
+        internal static class DocumentTableSchemaStrings
+        {
+            internal const string TableName = "Store";
+            internal const string Id = nameof(Id);
+            internal const string ValueTypeId = nameof(ValueTypeId);
+            internal const string Created = nameof(Created);
+            internal const string Updated = nameof(Updated);
+            internal const string Value = nameof(Value);
         }
     }
 }

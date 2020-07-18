@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
+using Composable.Logging;
 using Composable.Messaging.Buses.Implementation;
 using Composable.System.Linq;
 using Composable.System.Threading;
+using Composable.SystemExtensions;
 
 namespace Composable.Messaging.Buses
 {
@@ -15,8 +17,10 @@ namespace Composable.Messaging.Buses
         readonly IRunMode _mode;
         readonly Func<IRunMode, IDependencyInjectionContainer> _containerFactory;
         bool _disposed;
-        protected readonly List<IEndpoint> Endpoints = new List<IEndpoint>();
+        protected List<IEndpoint> Endpoints { get; } = new List<IEndpoint>();
         internal IGlobalBusStateTracker GlobalBusStateTracker;
+
+        readonly ILogger _log = Logger.For<EndpointHost>();
 
         protected EndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory)
         {
@@ -52,42 +56,42 @@ namespace Composable.Messaging.Buses
 
         bool _isStarted;
 
-        public async Task StartAsync()
+        public async Task StartAsync() => await _log.ExceptionsAndRethrowAsync(async () =>
         {
             Assert.State.Assert(!_isStarted, Endpoints.None(endpoint => endpoint.IsRunning));
             _isStarted = true;
 
             await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.InitAsync())).NoMarshalling();
             await Task.WhenAll(Endpoints.Select(endpointToStart => endpointToStart.ConnectAsync())).NoMarshalling();
-        }
+        }).NoMarshalling();
 
         public void Start() => StartAsync().WaitUnwrappingException();
 
-        public void Stop()
+        public void Stop() => _log.ExceptionsAndRethrow(() =>
         {
             Assert.State.Assert(_isStarted);
             _isStarted = false;
             Endpoints.Where(endpoint => endpoint.IsRunning).ForEach(endpoint => endpoint.Stop());
-        }
+        });
 
-        protected virtual void InternalDispose()
-        {
-            if(_isStarted)
-            {
-                Stop();
-            }
-
-            Endpoints.ForEach(endpoint => endpoint.Dispose());
-        }
-
-        public void Dispose()
+        protected virtual void Dispose(bool disposing) => _log.ExceptionsAndRethrow(() =>
         {
             if(!_disposed)
             {
                 _disposed = true;
-                InternalDispose();
-                GC.SuppressFinalize(this);
+                if(_isStarted)
+                {
+                    Stop();
+                }
+
+                Endpoints.ForEach(endpoint => endpoint.Dispose());
             }
-        }
+        });
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+         }
     }
 }

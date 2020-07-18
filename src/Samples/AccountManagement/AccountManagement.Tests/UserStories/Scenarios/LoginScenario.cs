@@ -30,6 +30,6 @@ namespace AccountManagement.UserStories.Scenarios
             _clientEndpoint = clientEndpoint;
         }
 
-        public override AccountResource.Command.LogIn.LoginAttemptResult Execute() => Api.Command.Login(Email, Password).ExecuteAsRequestOn(_clientEndpoint);
+        public override AccountResource.Command.LogIn.LoginAttemptResult Execute() => Api.Command.Login(Email, Password).ExecuteAsClientRequestOn(_clientEndpoint);
     }
 }

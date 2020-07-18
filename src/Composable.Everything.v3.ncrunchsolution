@@ -4,9 +4,8 @@
     <HotSpotsLineExclusionList>
       <Value>System\Threading\ResourceAccess\ThreadShared.cs:framework\Composable.CQRS\Composable.CQRS.csproj-82</Value>
       <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine.Coordinator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-37</Value>
-      <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-53</Value>
+      <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-59</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-65</Value>
-      <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-122</Value>
       <Value>System\Threading\ResourceAccess\ResourceGuardExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-101</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer..cs:framework\Composable.CQRS\Composable.CQRS.csproj-62</Value>
       <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-43</Value>
@@ -65,7 +64,7 @@
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-21</Value>
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-28</Value>
       <Value>Messaging\Buses\ServerEndpointBuilder.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
-      <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-159</Value>
+      <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-191</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer..cs:framework\Composable.CQRS\Composable.CQRS.csproj-48</Value>
       <Value>Testing\Threading\ThreadGate.cs:framework\Composable.CQRS\Composable.CQRS.csproj-45</Value>
       <Value>System\Threading\ResourceAccess\ResourceGuard.ExclusiveAccessGuardedResource.cs:framework\Composable.CQRS\Composable.CQRS.csproj-86</Value>

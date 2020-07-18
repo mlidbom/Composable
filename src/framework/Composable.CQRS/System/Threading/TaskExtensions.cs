@@ -9,9 +9,9 @@ namespace Composable.System.Threading
 {
     static class TaskExtensions
     {
-        //Urgent: We need to apply this to every single await for performance and to avoid deadlocks in clients with a synchronization context. It is not enough to have it at the edges of the public API: https://tinyurl.com/y8cjr77w, https://tinyurl.com/vwrcd8j, https://tinyurl.com/y7sxqb53, https://tinyurl.com/n6zheop, 
+        //We need to apply this to every single await for performance and to avoid deadlocks in clients with a synchronization context. It is not enough to have it at the edges of the public API: https://tinyurl.com/y8cjr77w, https://tinyurl.com/vwrcd8j, https://tinyurl.com/y7sxqb53, https://tinyurl.com/n6zheop,
+        //Also hacks that null out the SyncronizationContext are not reliable because await uses TaskScheduler.Current so no SetSynchronizationContext hack will do the trick reliably.  https://tinyurl.com/y37d54xg
         internal static ConfiguredTaskAwaitable NoMarshalling(this Task @this) => @this.ConfigureAwait(continueOnCapturedContext: false);
-
         internal static ConfiguredTaskAwaitable<TResult> NoMarshalling<TResult>(this Task<TResult> @this) => @this.ConfigureAwait(continueOnCapturedContext: false);
 
         internal static TResult ResultUnwrappingException<TResult>(this Task<TResult> task)

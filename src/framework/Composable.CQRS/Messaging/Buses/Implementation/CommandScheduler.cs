@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
+using Composable.Logging;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
@@ -16,14 +17,16 @@ namespace Composable.Messaging.Buses.Implementation
     {
         readonly IOutbox _transport;
         readonly IUtcTimeTimeSource _timeSource;
+        readonly ITaskRunner _taskRunner;
         Timer? _scheduledMessagesTimer;
         readonly List<ScheduledCommand> _scheduledMessages = new List<ScheduledCommand>();
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(1.Seconds());
 
-        public CommandScheduler(IOutbox transport, IUtcTimeTimeSource timeSource)
+        public CommandScheduler(IOutbox transport, IUtcTimeTimeSource timeSource, ITaskRunner taskRunner)
         {
             _transport = transport;
             _timeSource = timeSource;
+            _taskRunner = taskRunner;
         }
 
         public async Task StartAsync()
@@ -46,7 +49,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         bool HasPassedSendtime(ScheduledCommand message) => _timeSource.UtcNow >= message.SendAt;
 
-        void Send(ScheduledCommand scheduledCommand) => TransactionScopeCe.Execute(() => _transport.DispatchIfTransactionCommits(scheduledCommand.Command));
+        void Send(ScheduledCommand scheduledCommand) => _taskRunner.RunAndSurfaceExceptions(() => TransactionScopeCe.Execute(() => _transport.DispatchIfTransactionCommits(scheduledCommand.Command)));
 
         public void Dispose() => Stop();
 

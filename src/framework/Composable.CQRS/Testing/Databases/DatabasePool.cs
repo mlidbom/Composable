@@ -109,7 +109,7 @@ namespace Composable.Testing.Databases
             {
                 try
                 {
-                    ResetDatabase(reservedDatabase);
+                    TransactionScopeCe.SuppressAmbient(() => ResetDatabase(reservedDatabase));
                 }
                 catch(Exception exception)
                 {
@@ -135,7 +135,7 @@ namespace Composable.Testing.Databases
                                 {
                                     if(!_disposed)
                                     {
-                                        ResetDatabase(reserved);
+                                        TransactionScopeCe.SuppressAmbient(() => ResetDatabase(reserved));
                                         MachineWideState.Update(innerMachineWide => innerMachineWide.ReleaseClean(reserved.ReservationName));
                                     }
                                 }

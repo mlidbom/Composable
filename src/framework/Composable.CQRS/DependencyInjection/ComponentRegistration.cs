@@ -2,7 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
+using Composable.Logging;
+using Composable.Persistence.EventStore;
+using Composable.Serialization;
+using Composable.System;
+using Composable.System.Diagnostics;
 using Composable.System.Linq;
+using Composable.System.Reflection;
 
 // ReSharper disable UnusedMember.Global
 
@@ -77,6 +83,7 @@ namespace Composable.DependencyInjection
 
     class InstantiationSpec
     {
+        static readonly bool LogSlowConstructions = false;
         internal object? SingletonInstance { get; }
         internal object RunFactoryMethod(IServiceLocatorKernel kern) => FactoryMethod!(kern);
         internal Func<IServiceLocatorKernel, object> FactoryMethod { get; }
@@ -88,8 +95,33 @@ namespace Composable.DependencyInjection
 
         InstantiationSpec(Func<IServiceLocatorKernel, object> factoryMethod, Type factoryMethodReturnType)
         {
-            FactoryMethod = factoryMethod;
             FactoryMethodReturnType = factoryMethodReturnType;
+
+            if(!LogSlowConstructions)
+            {
+                FactoryMethod = factoryMethod;
+            } else
+            {
+                FactoryMethod = kern =>
+                {
+
+                    object instance = null!;
+
+                    IEnumerable<string> ignoredTypePatterns = Seq.Create(nameof(EventCache), //Constructing the system provided cache is slow.
+                                                                         nameof(EventStoreSerializer),//Caused by NewtonsoftJson initialization that is static and happens only once.
+                                                                         "ConnectionProvider", //This is caused by getting a database from the database pool.
+                                                                         "DatabasePool"//This is slow the first time because it sets up the MachineWideSharedObject
+                        );
+
+                    var constructionTime = StopwatchExtensions.TimeExecution(() => instance = factoryMethod(kern));
+                    if(constructionTime > 1.Milliseconds() && ignoredTypePatterns.None(ignored => factoryMethodReturnType.Name.ContainsInvariant(ignored)))
+                    {
+                        this.Log().Warning($"###########################################################: Component: {factoryMethodReturnType.GetFullNameCompilable()} took: {constructionTime:ss\\.fff} to construct");
+                    }
+
+                    return instance;
+                };
+            }
         }
 
         InstantiationSpec(object singletonInstance)

@@ -58,7 +58,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public async Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
             {
-                var taskCompletionSource = new VoidTaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                var taskCompletionSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
 
                 _state.WithExclusiveAccess(state =>
@@ -148,7 +148,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 internal readonly IGlobalBusStateTracker GlobalBusStateTracker;
                 internal readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
-                internal readonly Dictionary<Guid, VoidTaskCompletionSource> ExpectedCompletionTasks = new Dictionary<Guid, VoidTaskCompletionSource>();
+                internal readonly Dictionary<Guid, TaskCompletionSource> ExpectedCompletionTasks = new Dictionary<Guid, TaskCompletionSource>();
                 internal readonly Dictionary<Guid, DateTime> PendingDeliveryNotifications = new Dictionary<Guid, DateTime>();
                 internal readonly DealerSocket Socket;
                 internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();

@@ -5,7 +5,7 @@ using Composable.GenericAbstractions;
 
 namespace Composable.System.Threading.Tasks
 {
-    class VoidTaskCompletionSource
+    class TaskCompletionSource
     {
         readonly TaskCompletionSource<Unit> _completionSource;
         public Task Task => _completionSource.Task;
@@ -18,6 +18,6 @@ namespace Composable.System.Threading.Tasks
         public void SetException(IEnumerable<Exception> exception) => _completionSource.SetException(exception);
         public void TrySetException(IEnumerable<Exception> exception) => _completionSource.TrySetException(exception);
 
-        public VoidTaskCompletionSource(TaskCreationOptions options) => _completionSource  = new TaskCompletionSource<Unit>(options);
+        public TaskCompletionSource(TaskCreationOptions options) => _completionSource  = new TaskCompletionSource<Unit>(options);
     }
 }

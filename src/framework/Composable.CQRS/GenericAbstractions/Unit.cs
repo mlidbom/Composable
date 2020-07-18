@@ -1,6 +1,6 @@
 ﻿namespace Composable.GenericAbstractions
 {
-    class Unit
+    sealed class Unit
     {
         public static readonly Unit Instance = new Unit();
         Unit(){}

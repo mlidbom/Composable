@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Composable.System.Threading;
 using NUnit.Framework;
 
@@ -15,18 +19,18 @@ namespace Composable.Tests.System.Threading
 
         [Test] public void WithNoCallbacksRegisteredCancelIsInvokedSynchronously()
         {
-            _tokenSource.Cancel();
+            _tokenSource.CancelAsync();
             //It seems unlikely that a thread has been spawned and changed the value between this thread executing the previous line and this line
             Assert.True(_tokenSource.Token.IsCancellationRequested);
         }
 
         [Test] public void WithCallbacksCancelIsInvokedAsynchronously()
         {
-            _tokenSource.Token.Register(() => Thread.Sleep(1000));
+            _tokenSource.Token.Register(() => Thread.Sleep(100));
             var now = DateTime.UtcNow;
-            _tokenSource.Cancel();
+            _tokenSource.CancelAsync();
             Assert.LessOrEqual((DateTime.UtcNow - now),
-                               TimeSpan.FromMilliseconds(100),
+                               TimeSpan.FromMilliseconds(50),
                                "If we syncronously wait for the sleep in the registered callback we should not get here for at least 1000 milliseconds");
         }
 
@@ -36,7 +40,7 @@ namespace Composable.Tests.System.Threading
             var registration = _tokenSource.Token.Register(() => {});
             registration.Unregister();
             registration.Dispose();
-            _tokenSource.Cancel();
+            _tokenSource.CancelAsync();
             //It seems unlikely that a thread has been spawned and changed the value between this thread executing the previous line and this line
             Assert.False(_tokenSource.Token.IsCancellationRequested);
         }

@@ -18,20 +18,21 @@ namespace Composable.System.Threading
         public AsyncCancellationTokenSource(TimeSpan delay) => _source = new CancellationTokenSource(delay);
         public AsyncCancellationTokenSource(int millisecondsDelay) => _source = new CancellationTokenSource(millisecondsDelay);
 
-        public bool HasCallbacks => GetCallbackPartitionsAsObject(_source) != null;
+        public bool HasOrHasHadCallbacks => GetCallbackPartitionsAsObject(_source) != null;
 
         public CancellationToken Token => _source.Token;
 
         public bool IsCancellationRequested => _source.IsCancellationRequested;
 
-        public void Cancel()
+        public Task CancelAsync()
         {
-            if(HasCallbacks)
+            if(HasOrHasHadCallbacks)
             {
-                Task.Run(() => _source.Cancel());
+                return Task.Run(() => _source.Cancel());
             } else
             {
                 _source.Cancel();
+                return Task.CompletedTask;
             }
         }
 

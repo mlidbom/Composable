@@ -44,7 +44,7 @@ namespace Composable.System.Threading
         static Func<CancellationTokenSource, IEnumerable> CreateCallbackPartitionsAccessor()
         {
             FieldInfo callbackPartitionsField = typeof(CancellationTokenSource).GetField("_callbackPartitions", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                                             ?? throw new Exception($"Failed to find the internal field:_callbackPartitions. You may be running a different version of .Net than this hack supports.");
+                                             ?? throw new Exception("Failed to find the internal field:_callbackPartitions. You may be running a different version of .Net than this hack supports.");
 
             var cancellationTokenSource = Expression.Parameter(typeof(CancellationTokenSource), "cancellationTokenSource");
 

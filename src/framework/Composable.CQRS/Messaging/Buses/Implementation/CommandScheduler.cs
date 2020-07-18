@@ -31,7 +31,6 @@ namespace Composable.Messaging.Buses.Implementation
 
         public async Task StartAsync()
         {
-            //Urgent: exceptions on timer callback apparently crashes the process. Look for other cases. Merge this problem into the TaskRunner problem about dealing with background failures in a sane way. Including surfacing them and deciding whether we are OK to keep running.
             _scheduledMessagesTimer = new Timer(callback: _ => SendDueCommands(), state: null, dueTime: 0.Seconds(), period: 100.Milliseconds());
             await Task.CompletedTask.NoMarshalling();
         }

@@ -4,6 +4,7 @@ using System.Data;
 using IBM.Data.DB2.Core;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
 using Composable.Persistence.DB2.SystemExtensions;
@@ -48,23 +49,67 @@ namespace Composable.Persistence.DB2.Testing.Databases
             ResetDatabase(db);
         }
 
-        const string DeadlockOrTimeout = "40001";
         protected override void ResetDatabase(Database db)
         {
-            for(int tries = 0; tries < 5; tries++)
+            if(Transaction.Current != null) throw  new Exception("This code should never run in a transaction");
+
+            //Splitting this into one call to get the drop statements and another to execute them seems to perform about three times faster than doing everything on the server as an SP. It also eliminated the deadlocks we were getting.
+            var dropStatements = _masterConnectionProvider.UseCommand(command => command.SetCommandText(GetRemovalStatementsSql)
+                                                                   .AddParameter(SchemaParameterName, DB2Type.VarChar, db.Name.ToUpperInvariant())
+                                                                   .ExecuteReaderAndSelect(reader =>
+                                                                                               new
+                                                                                               {
+                                                                                                   CreateTime = reader.GetDateTime(0),
+                                                                                                   SchemaName = reader.GetString(1),
+                                                                                                   DropStatement = reader.GetString(2)
+                                                                                               })
+                                                                                        .OrderByDescending(me => me.CreateTime)
+                                                                                        .Select(me => me.DropStatement)
+                                                                                        .Where(me => !me.IsNullEmptyOrWhiteSpace())
+                                                                                        .Join($";{Environment.NewLine}")).Trim();
+
+            if(dropStatements.Length > 0)
             {
-                try
-                {
-                    _masterConnectionProvider.UseCommand(command => command.SetStoredProcedure("EMPTY_SCHEMA")
-                                                                           .AddParameter("ASCHEMA", DB2Type.VarChar, db.Name.ToUpperInvariant())
-                                                                           .ExecuteNonQuery());
-                    return;
-                }
-                catch(DB2Exception exception)when(exception.Errors.Cast<DB2Error>().Any(error => error.SQLState == DeadlockOrTimeout))
-                {
-                    this.Log().Error(exception);
-                }
+                dropStatements += ";";
+                _masterConnectionProvider.ExecuteNonQuery(dropStatements);
             }
         }
+
+
+        const string SchemaParameterName = "Schema";
+        static readonly string GetRemovalStatementsSql = $@"
+SELECT CREATE_TIME, TABSCHEMA AS SCHEMA_NAME,
+    'DROP ' || CASE TYPE
+        WHEN 'A' THEN 'ALIAS'
+        WHEN 'H' THEN 'TABLE'
+        WHEN 'N' THEN 'NICKNAME'
+        WHEN 'S' THEN 'TABLE'
+        WHEN 'T' THEN 'TABLE'
+        WHEN 'U' THEN 'TABLE'
+        WHEN 'V' THEN 'VIEW'
+        WHEN 'W' THEN 'VIEW'
+    END || ' ' || TRIM(TABSCHEMA) || '.' || TRIM(TABNAME) AS DDL
+FROM SYSCAT.TABLES WHERE TABSCHEMA = @{SchemaParameterName}
+UNION
+SELECT CREATE_TIME, TRIGSCHEMA AS SCHEMA_NAME,
+    'DROP TRIGGER ' || TRIM(TRIGSCHEMA) || '.' || TRIM(TRIGNAME) AS DDL
+FROM SYSCAT.TRIGGERS WHERE TRIGSCHEMA = @{SchemaParameterName}
+UNION
+SELECT CREATE_TIME, ROUTINESCHEMA AS SCHEMA_NAME,
+    'DROP ' || CASE ROUTINETYPE
+        WHEN 'F' THEN 'SPECIFIC FUNCTION'
+        WHEN 'M' THEN 'SPECIFIC METHOD'
+        WHEN 'P' THEN 'SPECIFIC PROCEDURE'
+    END || ' ' || TRIM(ROUTINESCHEMA) || '.' || TRIM(SPECIFICNAME) AS DDL
+FROM SYSCAT.ROUTINES WHERE ROUTINESCHEMA = @{SchemaParameterName}
+UNION
+SELECT CREATE_TIME, TYPESCHEMA AS SCHEMA_NAME,
+    'DROP TYPE ' || TRIM(TYPESCHEMA) || '.' || TRIM(TYPENAME) AS DDL
+FROM SYSCAT.DATATYPES WHERE TYPESCHEMA = @{SchemaParameterName}
+UNION
+SELECT CREATE_TIME, SEQSCHEMA AS SCHEMA_NAME, 'DROP SEQUENCE ' || TRIM(SEQSCHEMA) || '.' || TRIM(SEQNAME) AS DDL
+FROM SYSCAT.SEQUENCES WHERE SEQTYPE <> 'I' AND SEQSCHEMA = @{SchemaParameterName}
+
+";
     }
 }

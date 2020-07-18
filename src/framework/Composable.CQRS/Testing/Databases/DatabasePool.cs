@@ -81,7 +81,7 @@ namespace Composable.Testing.Databases
 
                             if(machineWide.TryReserve(reservationName, _poolId, _reservationLength, out reservedDatabase))
                             {
-                                Log.Info($"Reserved pool database: {reservedDatabase.Id}");
+                                Log.Info($"Reserved pool database: {reservedDatabase.Name}");
                                 _transientCache = machineWide.DatabasesReservedBy(_poolId);
                                 //Todo:My tests so far show no performance increase from enabling this. Maybe if we used async all the way so hardly any threads were used? If we don't see an meaningful improvement. Remove this method.
                                 //CleanDataBasesInBackgroundTasks(machineWide);

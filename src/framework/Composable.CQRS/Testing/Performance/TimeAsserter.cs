@@ -29,9 +29,9 @@ namespace Composable.Testing.Performance
              [InstantHandle]Action? tearDown = null)
         {
             Assert.Argument.Assert(maxTries > 0);
-            maxAverage = TestEnv.Performance.AdjustTime(maxAverage);
-            maxTotal = TestEnv.Performance.AdjustTime(maxTotal);
-            TestEnv.Performance.LogTimeAdjustment();
+            maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
+            maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
+            TestEnv.Performance.LogMachineSlownessAdjustment();
 
             timeFormat ??= DefaultTimeFormat;
 
@@ -84,9 +84,9 @@ namespace Composable.Testing.Performance
              [InstantHandle]Action? tearDown = null)
         {
             Assert.Argument.Assert(maxTries > 0);
-            maxAverage = TestEnv.Performance.AdjustTime(maxAverage);
-            maxTotal = TestEnv.Performance.AdjustTime(maxTotal);
-            TestEnv.Performance.LogTimeAdjustment();
+            maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
+            maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
+            TestEnv.Performance.LogMachineSlownessAdjustment();
 
             timeFormat ??= DefaultTimeFormat;
 
@@ -139,9 +139,9 @@ namespace Composable.Testing.Performance
              int maxTries = MaxTriesDefault,
             int maxDegreeOfParallelism = -1)
         {
-            maxAverage = TestEnv.Performance.AdjustTime(maxAverage);
-            maxTotal = TestEnv.Performance.AdjustTime(maxTotal);
-            TestEnv.Performance.LogTimeAdjustment();
+            maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
+            maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
+            TestEnv.Performance.LogMachineSlownessAdjustment();
 
             timeFormat ??= DefaultTimeFormat;
 

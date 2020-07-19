@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Globalization;
-using Composable.DependencyInjection;
 using Composable.System;
 using Composable.System.Diagnostics;
-using NCrunch.Framework;
 
 namespace Composable.Testing
 {
@@ -37,16 +35,16 @@ namespace Composable.Testing
                 return time.Total > 1.Milliseconds();
             }
 
-            public static readonly double MachineSlowdownFactor = DetectEnvironmentPerformanceAdjustment();
-            public const string MachineSlowdownFactorEnvironmentVariable = "COMPOSABLE_MACHINE_SLOWNESS";
+            public static readonly double MachineSlowness = DetectEnvironmentPerformanceAdjustment();
+            public const string MachineSlownessEnvironmentVariable = "COMPOSABLE_MACHINE_SLOWNESS";
             static double DetectEnvironmentPerformanceAdjustment()
             {
-                var environmentOverride = Environment.GetEnvironmentVariable(MachineSlowdownFactorEnvironmentVariable);
+                var environmentOverride = Environment.GetEnvironmentVariable(MachineSlownessEnvironmentVariable);
                 if(environmentOverride != null)
                 {
                     if(!Double.TryParse(environmentOverride, NumberStyles.Any, CultureInfo.InvariantCulture, out var adjustment))
                     {
-                        throw new Exception($"Environment variable har invalid value: {MachineSlowdownFactorEnvironmentVariable}. It should be parsable as a double.");
+                        throw new Exception($"Environment variable har invalid value: {MachineSlownessEnvironmentVariable}. It should be parsable as a double.");
                     }
 
                     return adjustment;
@@ -54,13 +52,14 @@ namespace Composable.Testing
 
                 return 1.0;
             }
-            public static TimeSpan? AdjustTime(TimeSpan? timespan) => timespan?.MultiplyBy(MachineSlowdownFactor);
-            public static void LogTimeAdjustment()
+
+            public static TimeSpan? AdjustForMachineSlowness(TimeSpan? timespan) => timespan?.MultiplyBy(MachineSlowness);
+            public static void LogMachineSlownessAdjustment()
             {
                 // ReSharper disable once CompareOfFloatsByEqualityOperator
-                if(MachineSlowdownFactor != 1.0)
+                if(MachineSlowness != 1.0)
                 {
-                    Console.WriteLine($"Adjusting allowed execution time with value {MachineSlowdownFactor} from environment variable {MachineSlowdownFactorEnvironmentVariable}");
+                    Console.WriteLine($"Adjusting allowed execution time with value {MachineSlowness} from environment variable {MachineSlownessEnvironmentVariable}");
                 }
             }
 

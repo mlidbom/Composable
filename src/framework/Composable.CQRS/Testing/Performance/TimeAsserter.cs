@@ -1,9 +1,11 @@
 using System;
 using System.Globalization;
+using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Diagnostics;
+using Composable.System.Threading;
 using JetBrains.Annotations;
 
 namespace Composable.Testing.Performance
@@ -44,6 +46,61 @@ namespace Composable.Testing.Performance
             {
                 Console.WriteLine($"Adjusting allowed execution time with value {MachineSlowdownFactor} from environment variable {MachineSlowdownFactorEnvironmentVariable}");
             }
+        }
+
+        public static async Task<StopwatchExtensions.TimedExecutionSummary> ExecuteAsync
+            ([InstantHandle]Func<Task> action,
+             int iterations = 1,
+             TimeSpan? maxAverage = null,
+             TimeSpan? maxTotal = null,
+             string description = "",
+             string? timeFormat = null,
+             uint maxTries = MaxTriesDefault,
+             [InstantHandle]Action? setup = null,
+             [InstantHandle]Action? tearDown = null)
+        {
+            Assert.Argument.Assert(maxTries > 0);
+            maxAverage = AdjustTime(maxAverage);
+            maxTotal = AdjustTime(maxTotal);
+            LogTimeAdjustment();
+
+            timeFormat ??= DefaultTimeFormat;
+
+            string Format(TimeSpan? date) => date?.ToStringInvariant(timeFormat) ?? "";
+
+            maxTries = Math.Min(MaxTriesLimit, maxTries);
+            for(var tries = 1; tries <= maxTries; tries++)
+            {
+                setup?.Invoke();
+                StopwatchExtensions.TimedExecutionSummary executionSummary;
+                try
+                {
+                    executionSummary = await StopwatchExtensions.TimeExecutionAsync(action: action, iterations: iterations).NoMarshalling();
+                }
+                finally
+                {
+                    tearDown?.Invoke();
+                }
+
+                try
+                {
+                    RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format: Format);
+                }
+                catch(TimeOutException e)
+                {
+                    SafeConsole.WriteLine($"################################  WARNING ################################ Try: {tries} : {e.Message}");
+                    if(tries >= maxTries)
+                    {
+                        PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
+                        throw;
+                    }
+                    continue;
+                }
+                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
+                return executionSummary;
+            }
+
+            throw new Exception("Unreachable");
         }
 
         public static StopwatchExtensions.TimedExecutionSummary Execute

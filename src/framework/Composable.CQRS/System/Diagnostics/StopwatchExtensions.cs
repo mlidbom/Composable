@@ -20,6 +20,7 @@ namespace Composable.System.Diagnostics
 
         ///<summary>Measures how long it takes to execute <paramref name="action"/></summary>
         internal static TimeSpan TimeExecution([InstantHandle]Action action) => new Stopwatch().TimeExecution(action);
+        internal static async Task<TimeSpan> TimeExecutionAsync([InstantHandle]Func<Task> action) => await new Stopwatch().TimeExecutionAsync(action).NoMarshalling();
 
         ///<summary>Measures how long it takes to execute <paramref name="action"/></summary>
         static TimeSpan TimeExecution(this Stopwatch @this, [InstantHandle]Action action)
@@ -30,6 +31,29 @@ namespace Composable.System.Diagnostics
             return @this.Elapsed;
         }
 
+        ///<summary>Measures how long it takes to execute <paramref name="action"/></summary>
+        static async Task<TimeSpan> TimeExecutionAsync(this Stopwatch @this, [InstantHandle]Func<Task> action)
+        {
+            @this.Reset();
+            @this.Start();
+            await action().NoMarshalling();
+            return @this.Elapsed;
+        }
+
+        // ReSharper disable once MethodOverloadWithOptionalParameter
+        public static async Task<TimedExecutionSummary> TimeExecutionAsync([InstantHandle]Func<Task> action, int iterations = 1)
+        {
+            var total = await TimeExecutionAsync(
+                async () =>
+                {
+                    for(var i = 0; i < iterations; i++)
+                    {
+                        await action().NoMarshalling();
+                    }
+                }).NoMarshalling();
+
+            return new TimedExecutionSummary(iterations, total);
+        }
 
         // ReSharper disable once MethodOverloadWithOptionalParameter
         public static TimedExecutionSummary TimeExecution([InstantHandle]Action action, int iterations = 1) => MachineWideSingleThreaded.Execute(() =>

@@ -10,6 +10,7 @@ namespace Composable.Testing
     ///<summary>TestEnvironment class. Shortened name since it is referenced statically and has nested types</summary>
     static partial class TestEnv
     {
+        //todo: It is rather confusing how one of these identically named methods divides by the slowdownFactor and the other multiplies. Do something about the names.
         internal static TimeSpan InstrumentationSlowdown(this TimeSpan original, double slowdownFactor) => Performance.InstrumentationSlowdown(original, slowdownFactor);
         internal static int InstrumentationSlowdown(this int original, double slowdownFactor) => Performance.InstrumentationSlowdown(original, slowdownFactor);
 

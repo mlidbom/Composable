@@ -96,6 +96,51 @@
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-57</Value>
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-58</Value>
       <Value>Testing\Performance\TimeAsserter.cs:framework\Composable.CQRS\Composable.CQRS.csproj-146</Value>
+      <Value>SystemExtensions\Threading\ThreadExceptionHandler.cs:framework\Composable.CQRS\Composable.CQRS.csproj-17</Value>
+      <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-115</Value>
+      <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-22</Value>
+      <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-9</Value>
+      <Value>Messaging\Buses\Implementation\Inbox.cs:framework\Composable.CQRS\Composable.CQRS.csproj-59</Value>
+      <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine..cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
+      <Value>Messaging\Buses\Implementation\Inbox.cs:framework\Composable.CQRS\Composable.CQRS.csproj-75</Value>
+      <Value>CQRS\EventRefactoring\Migrations\EventMigrationTest.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-220</Value>
+      <Value>Persistence\PgSql\SystemExtensions\PgSqlConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-20</Value>
+      <Value>DependencyInjection\DependencyInjectionContainer.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-14</Value>
+      <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-63</Value>
+      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-22</Value>
+      <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-122</Value>
+      <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-42</Value>
+      <Value>Persistence\Oracle\SystemExtensions\OracleConnectionExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-20</Value>
+      <Value>Persistence\PgSql\SystemExtensions\PgSqlConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-9</Value>
+      <Value>TestWiringHelper.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-51</Value>
+      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-18</Value>
+      <Value>Logging\ExceptionLogger.cs:framework\Composable.CQRS\Composable.CQRS.csproj-25</Value>
+      <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-58</Value>
+      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-9</Value>
+      <Value>System\Threading\TaskRunner.cs:framework\Composable.CQRS\Composable.CQRS.csproj-25</Value>
+      <Value>Messaging\ServiceBusSpecification\Given_a_backend_endpoint_with_a_command_event_and_query_handler\_Fixture.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-98</Value>
+      <Value>CQRS\EventRefactoring\Migrations\EventMigrationTestBase.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-41</Value>
+      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-52</Value>
+      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-20</Value>
+      <Value>Persistence\MySql\SystemExtensions\MySqlConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-14</Value>
+      <Value>Persistence\MySql\SystemExtensions\MySqlConnectionExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-22</Value>
+      <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-20</Value>
+      <Value>Persistence\PgSql\SystemExtensions\PgSqlConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-22</Value>
+      <Value>AccountManagementServerDomainBootstrapper.cs:Samples\AccountManagement\AccountManagement.Server\AccountManagement.Server.csproj-17</Value>
+      <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-41</Value>
+      <Value>Persistence\PgSql\SystemExtensions\PgSqlConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-46</Value>
+      <Value>Persistence\MySql\SystemExtensions\MySqlConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-51</Value>
+      <Value>Persistence\MySql\SystemExtensions\MySqlCommandExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-16</Value>
+      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-89</Value>
+      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-24</Value>
+      <Value>Persistence\Oracle\EventStore\OracleEventStoreConnectionManager.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-30</Value>
+      <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-37</Value>
+      <Value>Persistence\DB2\EventStore\DB2EventStoreConnectionManager.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-30</Value>
+      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-68</Value>
+      <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-62</Value>
+      <Value>Messaging\Hypermedia\NavigationSpecification.cs:framework\Composable.CQRS\Composable.CQRS.csproj-28</Value>
+      <Value>Persistence\Oracle\SystemExtensions\OracleConnectionExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-27</Value>
+      <Value>Messaging\Buses\Implementation\Outbox..cs:framework\Composable.CQRS\Composable.CQRS.csproj-88</Value>
     </HotSpotsLineExclusionList>
     <InstrumentationMode>Optimised</InstrumentationMode>
     <SlidingBuildDelayInMilliseconds>1000</SlidingBuildDelayInMilliseconds>

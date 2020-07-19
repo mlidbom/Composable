@@ -84,7 +84,7 @@ BEGIN
             ELSE
                 EXECUTE IMMEDIATE 'DROP ' || cur_rec.object_type || ' ""' || cur_rec.object_name || '""';
             END IF;
-            END;
+        END;
     END LOOP;
 END;
 ";

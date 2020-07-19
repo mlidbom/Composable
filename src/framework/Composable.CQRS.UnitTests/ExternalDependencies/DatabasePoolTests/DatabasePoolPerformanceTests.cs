@@ -16,6 +16,7 @@ using Oracle.ManagedDataAccess.Types;
 
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
+    //Urgent: Consider whether these tests should run all the time. Don't they sort of mess up the performance of the pool by involving more databases than necessary, growing the connection pools, trashing cache locality etc?
     //Urgent: Review usage of Serial attribute. Remember: This stops all other tests from running!
     [TestFixture, Performance, Serial]
     public class DatabasePoolPerformanceTests : DatabasePoolTest
@@ -27,7 +28,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         [Test]
-        public void Single_thread_can_reserve_and_release_10_identically_named_databases_in_milliseconds_msSql_300_mySql_300_pgSql_700_orcl_600_db2_300()
+        public void Single_thread_can_reserve_and_release_5_identically_named_databases_in_milliseconds_msSql_150_mySql_150_pgSql_150_orcl_300_db2_150()
         {
             var dbName = Guid.NewGuid().ToString();
 
@@ -39,12 +40,12 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     manager.SetLogLevel(LogLevel.Warning);
                     manager.ConnectionStringFor(dbName);
                 },
-                iterations: 10,
-                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:300, mySql: 300, pgSql: 700, orcl: 600, db2: 300).Milliseconds());
+                iterations: 5,
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:150, mySql: 150, pgSql: 150, orcl: 300, db2: 150).Milliseconds());
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_milliseconds_msSql_100_mySql_150_pgSql_200_orcl_200_db2_100()
+        public void Multiple_threads_can_reserve_and_release_5_identically_named_databases_in_milliseconds_msSql_50_mySql_75_pgSql_25_orcl_100_db2_50()
         {
             var dbName = Guid.NewGuid().ToString();
 
@@ -56,12 +57,12 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     manager.SetLogLevel(LogLevel.Warning);
                     manager.ConnectionStringFor(dbName);
                 },
-                iterations: 10,
-                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:100, mySql: 150, pgSql: 200, orcl: 200, db2:100).Milliseconds());
+                iterations: 5,
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:50, mySql: 75, pgSql: 25, orcl: 100, db2:50).Milliseconds());
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_milliseconds_msSql_250_mySql_350_pgSql_800_orcl_800_db2_200()
+        public void Multiple_threads_can_reserve_and_release_5_differently_named_databases_in_milliseconds_msSql_125_mySql_175_pgSql_400_orcl_400_db2_100()
         {
             DatabasePool manager = null;
 
@@ -74,12 +75,12 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                        },
                 tearDown: () => manager.Dispose(),
                 action: () => manager.ConnectionStringFor(Guid.NewGuid().ToString()),
-                iterations: 10,
-                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:250, mySql: 350, pgSql: 800, orcl: 800, db2:200).Milliseconds());
+                iterations: 5,
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:125, mySql: 175, pgSql: 400, orcl: 400, db2:100).Milliseconds());
         }
 
         [Test]
-        public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_milliseconds_msSql_200_mySql_200_pgSql_1000_orcl_600_db2_200()
+        public void Single_thread_can_reserve_and_release_5_differently_named_databases_in_milliseconds_msSql_100_mySql_100_pgSql_500_orcl_300_db2_100()
         {
             DatabasePool manager = null;
 
@@ -92,8 +93,8 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                        },
                 tearDown: () => manager.Dispose(),
                 action: () => manager.ConnectionStringFor(Guid.NewGuid().ToString()),
-                iterations: 10,
-                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:200, mySql: 200, pgSql: 1000, orcl: 600, db2:200).Milliseconds());
+                iterations: 5,
+                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:100, mySql: 100, pgSql: 500, orcl: 300, db2:100).Milliseconds());
         }
 
         [Test]

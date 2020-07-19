@@ -17,8 +17,7 @@ namespace Composable.Persistence.DB2.EventStore
 {
     partial class DB2EventStorePersistenceLayer
     {
-        //Urgent: Not sure which persistence layer this came from
-        const int PrimaryKeyViolationSqlErrorNumber = 1062;
+        const string PrimaryKeyViolationSqlState = "23505";
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {
             _connectionManager.UseConnection(connection =>
@@ -61,7 +60,7 @@ END;
                                               .AddNullableParameter(Event.RefactoringType, DB2Type.SmallInt, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (int?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
-                    catch(DB2Exception e) when ((e.Data["Server Error Code"] as int?)  == PrimaryKeyViolationSqlErrorNumber )
+                    catch(DB2Exception e) when (e.Errors.Cast<DB2Error>().Any(error => error.SQLState == PrimaryKeyViolationSqlState))
                     {
                         //todo: Make sure we have test coverage for this.
                         throw new EventDuplicateKeyException(e);

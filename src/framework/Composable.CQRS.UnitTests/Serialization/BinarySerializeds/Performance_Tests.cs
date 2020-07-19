@@ -50,6 +50,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
         }
 
+        //todo: Check if the new, supposedly highly optimized, Json serializer from microsoft is fast enough to make this code redundant.
         [Test] public void Instance_with_recursive_list_and_array_property_with_one_null_value_roundtrip_5_times_faster_than_NewtonSoft()
         {
             const int iterations = 1_000;

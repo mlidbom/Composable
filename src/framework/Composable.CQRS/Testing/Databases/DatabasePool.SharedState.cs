@@ -58,7 +58,7 @@ namespace Composable.Testing.Databases
             IEnumerable<Database> CleanUnReserved => UnReserved.Where(db => db.IsClean);
 
             IEnumerable<Database> UnReserved => _databases.Where(db => !db.IsReserved)
-                                                          .OrderBy(db => db.ExpirationDateTime);
+                                                          .OrderByDescending(db => db.ExpirationDateTime);//Reusing lately used databases helps performance in a pretty big way, disk cache, connection pool etc
 
             internal IEnumerable<Database> ReserveDatabasesForCleaning(Guid poolId)
             {

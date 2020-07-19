@@ -67,10 +67,24 @@ namespace Composable.Persistence.DB2.Testing.Databases
                                                                                         .Where(me => !me.IsNullEmptyOrWhiteSpace())
                                                                                         .Join($";{Environment.NewLine}")).Trim();
 
+            const string DeadlockOrTimeout = "40001";
             if(dropStatements.Length > 0)
             {
                 dropStatements += ";";
-                _masterConnectionProvider.ExecuteNonQuery(dropStatements);
+
+                for(int retries = 0; retries < 3; retries++)
+                {
+                    try
+                    {
+                        _masterConnectionProvider.ExecuteNonQuery(dropStatements);
+                        return;
+                    }
+                    catch(DB2Exception exception)when(exception.Errors.Cast<DB2Error>().Any(error => error.SQLState == DeadlockOrTimeout))
+                    {
+                        this.Log().Error(exception);
+                    }
+                }
+                throw new Exception("Failed to clean DB2 database");
             }
         }
 

@@ -41,7 +41,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     manager.ConnectionStringFor(dbName);
                 },
                 iterations: 5,
-                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:150, mySql: 150, pgSql: 150, orcl: 300, db2: 150).Milliseconds());
+                maxTotal: TestEnv.PersistenceLayer.ValueFor(msSql:150, mySql: 150, pgSql: 150, orcl: 300, db2: 150).Milliseconds());
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     manager.ConnectionStringFor(dbName);
                 },
                 iterations: 5,
-                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:50, mySql: 75, pgSql: 25, orcl: 100, db2:50).Milliseconds());
+                maxTotal: TestEnv.PersistenceLayer.ValueFor(msSql:50, mySql: 75, pgSql: 25, orcl: 100, db2:50).Milliseconds());
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                            manager.ConnectionStringFor(Guid.NewGuid().ToString());
                        },
                 iterations: 5,
-                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:125, mySql: 175, pgSql: 400, orcl: 400, db2:100).Milliseconds());
+                maxTotal: TestEnv.PersistenceLayer.ValueFor(msSql:125, mySql: 175, pgSql: 400, orcl: 400, db2:100).Milliseconds());
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                            manager.ConnectionStringFor(Guid.NewGuid().ToString());
                        },
                 iterations: 5,
-                maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:100, mySql: 100, pgSql: 500, orcl: 300, db2:100).Milliseconds());
+                maxTotal: TestEnv.PersistenceLayer.ValueFor(msSql:100, mySql: 100, pgSql: 500, orcl: 300, db2:100).Milliseconds());
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 
             Action useConnection = null;
 
-           switch(TestEnvironment.TestingPersistenceLayer)
+           switch(TestEnv.PersistenceLayer.Current)
             {
                 case PersistenceLayer.MsSql:
                     var msSqlConnectionProvider = new MsSqlConnectionProvider(manager.ConnectionStringFor(reservationName));
@@ -146,7 +146,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
            TimeAsserter.Execute(
                action: useConnection!,
                iterations: connectionsToUse,
-               maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:5, mySql: 30, pgSql:1, orcl:10, db2: 50).Milliseconds()
+               maxTotal: TestEnv.PersistenceLayer.ValueFor(msSql:5, mySql: 30, pgSql:1, orcl:10, db2: 50).Milliseconds()
            );
         }
     }

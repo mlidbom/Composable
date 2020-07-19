@@ -23,7 +23,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
     public class DatabasePoolTest
     {
         internal static DatabasePool CreatePool() =>
-            TestEnvironment.TestingPersistenceLayer switch
+            TestEnv.PersistenceLayer.Current switch
             {
                 PersistenceLayer.MsSql => new MsSqlDatabasePool(),
                 PersistenceLayer.MySql => new MySqlDatabasePool(),
@@ -36,7 +36,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 
         internal static void UseConnection(string connectionString, DatabasePool pool, Action<IDbConnection> func)
         {
-            switch(TestEnvironment.TestingPersistenceLayer)
+            switch(TestEnv.PersistenceLayer.Current)
             {
                 case PersistenceLayer.MsSql:
                     UseMsSqlConnection(pool.ConnectionStringFor(connectionString), func);

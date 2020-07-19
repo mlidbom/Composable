@@ -14,39 +14,8 @@ namespace Composable.Testing.Performance
     public static class TimeAsserter
     {
         const string DefaultTimeFormat = @"ss\.ffffff";
-        const string MachineSlowdownFactorEnvironmentVariable = "COMPOSABLE_MACHINE_SLOWNESS";
-
         const int MaxTriesLimit = 10;
         const int MaxTriesDefault = 4;
-
-        static readonly double MachineSlowdownFactor = DetectEnvironmentPerformanceAdjustment();
-
-        static double DetectEnvironmentPerformanceAdjustment()
-        {
-            var enviromentOverride = Environment.GetEnvironmentVariable(MachineSlowdownFactorEnvironmentVariable);
-            if(enviromentOverride != null)
-            {
-                if(!double.TryParse(enviromentOverride, NumberStyles.Any, CultureInfo.InvariantCulture, out var adjustment))
-                {
-                    throw new Exception($"Environment variable har invalid value: {MachineSlowdownFactorEnvironmentVariable}. It should be parsable as a double.");
-                }
-
-                return adjustment;
-            }
-
-            return 1.0;
-        }
-
-        static TimeSpan? AdjustTime(TimeSpan? timespan) => timespan?.MultiplyBy(MachineSlowdownFactor);
-
-        static void LogTimeAdjustment()
-        {
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
-            if(MachineSlowdownFactor != 1.0)
-            {
-                Console.WriteLine($"Adjusting allowed execution time with value {MachineSlowdownFactor} from environment variable {MachineSlowdownFactorEnvironmentVariable}");
-            }
-        }
 
         public static async Task<StopwatchExtensions.TimedExecutionSummary> ExecuteAsync
             ([InstantHandle]Func<Task> action,
@@ -60,9 +29,9 @@ namespace Composable.Testing.Performance
              [InstantHandle]Action? tearDown = null)
         {
             Assert.Argument.Assert(maxTries > 0);
-            maxAverage = AdjustTime(maxAverage);
-            maxTotal = AdjustTime(maxTotal);
-            LogTimeAdjustment();
+            maxAverage = TestEnv.Performance.AdjustTime(maxAverage);
+            maxTotal = TestEnv.Performance.AdjustTime(maxTotal);
+            TestEnv.Performance.LogTimeAdjustment();
 
             timeFormat ??= DefaultTimeFormat;
 
@@ -115,9 +84,9 @@ namespace Composable.Testing.Performance
              [InstantHandle]Action? tearDown = null)
         {
             Assert.Argument.Assert(maxTries > 0);
-            maxAverage = AdjustTime(maxAverage);
-            maxTotal = AdjustTime(maxTotal);
-            LogTimeAdjustment();
+            maxAverage = TestEnv.Performance.AdjustTime(maxAverage);
+            maxTotal = TestEnv.Performance.AdjustTime(maxTotal);
+            TestEnv.Performance.LogTimeAdjustment();
 
             timeFormat ??= DefaultTimeFormat;
 
@@ -170,9 +139,9 @@ namespace Composable.Testing.Performance
              int maxTries = MaxTriesDefault,
             int maxDegreeOfParallelism = -1)
         {
-            maxAverage = AdjustTime(maxAverage);
-            maxTotal = AdjustTime(maxTotal);
-            LogTimeAdjustment();
+            maxAverage = TestEnv.Performance.AdjustTime(maxAverage);
+            maxTotal = TestEnv.Performance.AdjustTime(maxTotal);
+            TestEnv.Performance.LogTimeAdjustment();
 
             timeFormat ??= DefaultTimeFormat;
 

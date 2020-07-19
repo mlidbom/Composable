@@ -87,8 +87,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             ).ToArray();
 
             AssertUncachedAndCachedAggregateLoadTimes(
-                maxUncachedLoadTime: TestEnvironment.ValueForPersistenceProvider(msSql: 25, mySql: 25, pgSql: 25, orcl: 75, inMem: 15, db2: 25).Milliseconds().InstrumentationSlowdown(2),
-                maxCachedLoadTime: TestEnvironment.ValueForPersistenceProvider(msSql: 5, mySql: 5, pgSql: 5, orcl: 5, inMem: 5, db2: 5).Milliseconds().InstrumentationSlowdown(2.5),
+                maxUncachedLoadTime: TestEnv.PersistenceLayer.ValueFor(msSql: 25, mySql: 25, pgSql: 25, orcl: 75, inMem: 15, db2: 25).Milliseconds().InstrumentationSlowdown(2),
+                maxCachedLoadTime: TestEnv.PersistenceLayer.ValueFor(msSql: 5, mySql: 5, pgSql: 5, orcl: 5, inMem: 5, db2: 5).Milliseconds().InstrumentationSlowdown(2.5),
                 eventMigrations);
         }
 
@@ -102,8 +102,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             ).ToArray();
 
             AssertUncachedAndCachedAggregateLoadTimes(
-                maxUncachedLoadTime: TestEnvironment.ValueForPersistenceProvider(msSql: 30, mySql: 30, pgSql: 30, orcl: 100, inMem: 15, db2: 25).Milliseconds().InstrumentationSlowdown(2),
-                maxCachedLoadTime: TestEnvironment.ValueForPersistenceProvider(msSql: 5, mySql: 5, pgSql: 5, orcl: 5, inMem: 5, db2: 5).Milliseconds().InstrumentationSlowdown(2),
+                maxUncachedLoadTime: TestEnv.PersistenceLayer.ValueFor(msSql: 30, mySql: 30, pgSql: 30, orcl: 100, inMem: 15, db2: 25).Milliseconds().InstrumentationSlowdown(2),
+                maxCachedLoadTime: TestEnv.PersistenceLayer.ValueFor(msSql: 5, mySql: 5, pgSql: 5, orcl: 5, inMem: 5, db2: 5).Milliseconds().InstrumentationSlowdown(2),
                 eventMigrations);
         }
 
@@ -111,8 +111,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         {
             var eventMigrations = Seq.Create<IEventMigration>().ToArray();
             AssertUncachedAndCachedAggregateLoadTimes(
-                maxUncachedLoadTime: TestEnvironment.ValueForPersistenceProvider(msSql: 20, mySql: 20, pgSql: 20, orcl: 75, inMem: 10, db2: 25).Milliseconds().InstrumentationSlowdown(2),
-                maxCachedLoadTime: TestEnvironment.ValueForPersistenceProvider(msSql: 5, mySql: 5, pgSql: 5, orcl: 5, inMem: 5, db2:5).Milliseconds().InstrumentationSlowdown(2.5),
+                maxUncachedLoadTime: TestEnv.PersistenceLayer.ValueFor(msSql: 20, mySql: 20, pgSql: 20, orcl: 75, inMem: 10, db2: 25).Milliseconds().InstrumentationSlowdown(2),
+                maxCachedLoadTime: TestEnv.PersistenceLayer.ValueFor(msSql: 5, mySql: 5, pgSql: 5, orcl: 5, inMem: 5, db2:5).Milliseconds().InstrumentationSlowdown(2.5),
                                                       eventMigrations);
         }
     }

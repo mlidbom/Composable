@@ -95,7 +95,7 @@
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-74</Value>
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-83</Value>
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-84</Value>
-      <Value>Testing\Performance\TimeAsserter.cs:framework\Composable.CQRS\Composable.CQRS.csproj-203</Value>
+      <Value>Testing\Performance\TimeAsserter.cs:framework\Composable.CQRS\Composable.CQRS.csproj-172</Value>
       <Value>SystemExtensions\Threading\ThreadExceptionHandler.cs:framework\Composable.CQRS\Composable.CQRS.csproj-17</Value>
       <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-116</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-22</Value>

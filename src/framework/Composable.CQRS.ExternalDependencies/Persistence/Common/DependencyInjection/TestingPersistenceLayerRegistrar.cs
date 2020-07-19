@@ -18,7 +18,7 @@ namespace Composable.Persistence.Common.DependencyInjection
 
         public static void RegisterCurrentTestsConfiguredPersistenceLayer(this IDependencyInjectionContainer container, string connectionStringName)
         {
-            switch(TestEnvironment.TestingPersistenceLayer)
+            switch(TestEnv.PersistenceLayer.Current)
             {
                 case PersistenceLayer.MsSql:
                     container.RegisterMsSqlPersistenceLayer(connectionStringName);

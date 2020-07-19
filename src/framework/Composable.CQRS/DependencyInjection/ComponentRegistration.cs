@@ -83,7 +83,9 @@ namespace Composable.DependencyInjection
 
     class InstantiationSpec
     {
+#pragma warning disable CA1802 // Use literals where appropriate
         static readonly bool LogSlowConstructions = false;
+#pragma warning restore CA1802 // Use literals where appropriate
         internal object? SingletonInstance { get; }
         internal object RunFactoryMethod(IServiceLocatorKernel kern) => FactoryMethod!(kern);
         internal Func<IServiceLocatorKernel, object> FactoryMethod { get; }

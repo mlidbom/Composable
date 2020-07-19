@@ -42,7 +42,6 @@ namespace Composable.Messaging.Buses.Implementation
             public ITypeMapper TypeMapper { get; }
             public IRemotableMessageSerializer Serializer { get; }
             public readonly RealEndpointConfiguration Configuration;
-            public Thread? PollerThread;
         }
 
         readonly IThreadShared<State> _state;
@@ -86,8 +85,7 @@ namespace Composable.Messaging.Buses.Implementation
                                        : state.Storage.StartAsync();
 
                 state.Poller = new NetMQPoller();
-                state.PollerThread = new Thread(ThreadExceptionHandler.WrapThreadStart(() => state.Poller.Run())) {Name = $"{nameof(Outbox)}_{nameof(state.PollerThread)}"}; //Urgent: Research what happens if exceptions are thrown on the poller thread.
-                state.PollerThread.Start();
+                state.Poller.RunAsync($"{nameof(Outbox)}_{nameof(state.Poller)}");
                 return storageStartTask;
             });
 
@@ -96,10 +94,9 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Stop() => _state.WithExclusiveAccess(state =>
         {
-            Assert.State.Assert(state.Running, state.PollerThread != null, state.Poller != null);
+            Assert.State.Assert(state.Running, state.Poller != null, state.Poller.IsRunning);
             state.Running = false;
             state.Poller.StopAsync();
-            state.PollerThread.Join();
             state.Poller.Dispose();
             state.InboxConnections.Values.ForEach(socket => socket.Dispose());
             state.Poller = null;

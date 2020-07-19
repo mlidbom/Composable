@@ -18,8 +18,7 @@ namespace Composable.Persistence.DB2.SystemExtensions
     class ComposableDB2ConnectionProvider : IComposableDB2ConnectionProvider
     {
         readonly OptimizedLazy<string> _connectionString;
-        string ConnectionString => _connectionString.Value;
-
+        string GetConnectionString() => _connectionString.Value;
 
         public ComposableDB2ConnectionProvider(string connectionString) : this(() => connectionString)
         {}
@@ -45,7 +44,8 @@ namespace Composable.Persistence.DB2.SystemExtensions
         //Urgent: Since the DB2 connection pooling is way slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
         ComposableDB2Connection GetConnectionFromPool()
         {
-            var connection = new ComposableDB2Connection(ConnectionString);
+            var connectionString = GetConnectionString();
+            var connection = new ComposableDB2Connection(connectionString);
             connection.Open();
             return connection;
         }

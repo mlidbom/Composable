@@ -14,8 +14,7 @@ namespace Composable.Persistence.PgSql.SystemExtensions
     class PgSqlConnectionProvider : INpgsqlConnectionProvider
     {
         readonly OptimizedLazy<string> _connectionString;
-        string ConnectionString => _connectionString.Value;
-
+        string GetConnectionString() => _connectionString.Value;
 
         public PgSqlConnectionProvider(string connectionString) : this(() => connectionString)
         {}
@@ -42,7 +41,8 @@ namespace Composable.Persistence.PgSql.SystemExtensions
         readonly OptimizedThreadShared<Dictionary<string, NpgsqlConnection>> _transactionConnections = new OptimizedThreadShared<Dictionary<string, NpgsqlConnection>>(new Dictionary<string, NpgsqlConnection>());
         NpgsqlConnection GetConnectionFromPool()
         {
-            var connection = new NpgsqlConnection(ConnectionString);
+            var connectionString = GetConnectionString();
+            var connection = new NpgsqlConnection(connectionString);
                 connection.Open();
                 return connection;
          }

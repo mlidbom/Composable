@@ -12,8 +12,7 @@ namespace Composable.Persistence.Oracle.SystemExtensions
     class OracleConnectionProvider : IOracleConnectionProvider
     {
         readonly OptimizedLazy<string> _connectionString;
-        string ConnectionString => _connectionString.Value;
-
+        string GetConnectionString() => _connectionString.Value;
 
         public OracleConnectionProvider(string connectionString) : this(() => connectionString)
         {}
@@ -38,7 +37,8 @@ namespace Composable.Persistence.Oracle.SystemExtensions
         //Urgent: Since the Oracle connection pooling is way slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
         OracleConnection GetConnectionFromPool()
         {
-            var connection = new OracleConnection(ConnectionString);
+            var connectionString = GetConnectionString();
+            var connection = new OracleConnection(connectionString);
             connection.Open();
             return connection;
         }

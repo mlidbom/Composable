@@ -10,8 +10,7 @@ namespace Composable.Persistence.MySql.SystemExtensions
     class MySqlConnectionProvider : IMySqlConnectionProvider
     {
         readonly OptimizedLazy<string> _connectionString;
-        string ConnectionString => _connectionString.Value;
-
+        string GetConnectionString() => _connectionString.Value;
 
         public MySqlConnectionProvider(string connectionString) : this(() => connectionString)
         {}
@@ -36,7 +35,8 @@ namespace Composable.Persistence.MySql.SystemExtensions
         //Urgent: Since the MySql connection pooling is way slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
         MySqlConnection GetConnectionFromPool()
         {
-            var connection = new MySqlConnection(ConnectionString);
+            var connectionString = GetConnectionString();
+            var connection = new MySqlConnection(connectionString);
             connection.Open();
             return connection;
         }

@@ -10,8 +10,7 @@ namespace Composable.Persistence.MsSql.SystemExtensions
     class MsSqlConnectionProvider : IMsSqlConnectionProvider
     {
         readonly OptimizedLazy<string> _connectionString;
-        string ConnectionString => _connectionString.Value;
-
+        string GetConnectionString() => _connectionString.Value;
 
         public MsSqlConnectionProvider(string connectionString) : this(() => connectionString)
         {}
@@ -21,7 +20,7 @@ namespace Composable.Persistence.MsSql.SystemExtensions
         SqlConnection OpenConnection()
         {
             var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier;
-            var connectionString = ConnectionString;
+            var connectionString = GetConnectionString();
             var connection = new SqlConnection(connectionString);
             connection.Open();
             if(transactionInformationDistributedIdentifierBefore != null && transactionInformationDistributedIdentifierBefore.Value == Guid.Empty)

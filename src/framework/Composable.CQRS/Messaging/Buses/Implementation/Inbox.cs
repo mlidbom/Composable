@@ -26,7 +26,6 @@ namespace Composable.Messaging.Buses.Implementation
             readonly RouterSocket _serverSocket;
             readonly NetMQPoller _poller;
             readonly Thread _messageReceiverThread;
-            readonly Thread _pollerThread;
             readonly CancellationTokenSource _cancellationTokenSource;
             readonly BlockingCollection<IReadOnlyList<TransportMessage.InComing>> _receivedMessageBatches = new BlockingCollection<IReadOnlyList<TransportMessage.InComing>>();
             readonly HandlerExecutionEngine _handlerExecutionEngine;
@@ -57,8 +56,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 _cancellationTokenSource = new CancellationTokenSource();
                 _poller = new NetMQPoller {_serverSocket, _responseQueue};
-                _pollerThread = new Thread(ThreadExceptionHandler.WrapThreadStart(() => _poller.Run())) {Name = $"{nameof(Inbox)}_PollerThread_{configuration.Name}"};
-                _pollerThread.Start();
+                _poller.RunAsync($"{nameof(Inbox)}_PollerThread_{configuration.Name}");
 
                 _messageReceiverThread = new Thread(ThreadExceptionHandler.WrapThreadStart(MessageReceiverThread)) {Name = $"{nameof(Inbox)}_{nameof(MessageReceiverThread)}_{configuration.Name}"};
                 _messageReceiverThread.Start();
@@ -149,7 +147,6 @@ namespace Composable.Messaging.Buses.Implementation
                 _cancellationTokenSource.Dispose();
                 _messageReceiverThread.InterruptAndJoin();
                 _poller.StopAsync();
-                _pollerThread.Join();
                 _poller.Dispose();
                 _serverSocket.Close();
                 _serverSocket.Dispose();

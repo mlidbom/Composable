@@ -2,14 +2,21 @@ using System;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using System.Transactions;
+using Composable.System;
 using Composable.System.Threading;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {
     class MySqlConnectionProvider : IMySqlConnectionProvider
     {
-        string ConnectionString { get; }
-        public MySqlConnectionProvider(string connectionString) => ConnectionString = connectionString;
+        readonly OptimizedLazy<string> _connectionString;
+        string ConnectionString => _connectionString.Value;
+
+
+        public MySqlConnectionProvider(string connectionString) : this(() => connectionString)
+        {}
+
+        public MySqlConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
 
         MySqlConnection OpenConnection()
         {

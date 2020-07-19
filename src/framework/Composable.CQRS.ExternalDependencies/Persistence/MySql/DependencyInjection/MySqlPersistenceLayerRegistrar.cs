@@ -30,7 +30,7 @@ namespace Composable.Persistence.MySql.DependencyInjection
 
                 container.Register(
                     Singleton.For<IMySqlConnectionProvider>()
-                             .CreatedBy((MySqlDatabasePool pool) => new MySqlConnectionProvider(pool.ConnectionStringFor(connectionStringName)))
+                             .CreatedBy((MySqlDatabasePool pool) => new MySqlConnectionProvider(() => pool.ConnectionStringFor(connectionStringName)))
                 );
             } else
             {

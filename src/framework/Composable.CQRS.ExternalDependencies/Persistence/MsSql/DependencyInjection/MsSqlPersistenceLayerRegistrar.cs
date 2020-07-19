@@ -31,7 +31,7 @@ namespace Composable.Persistence.MsSql.DependencyInjection
 
                 container.Register(
                     Singleton.For<IMsSqlConnectionProvider>()
-                             .CreatedBy((MsSqlDatabasePool pool) => new MsSqlConnectionProvider(pool.ConnectionStringFor(connectionStringName)))
+                             .CreatedBy((MsSqlDatabasePool pool) => new MsSqlConnectionProvider(() => pool.ConnectionStringFor(connectionStringName)))
                 );
             } else
             {

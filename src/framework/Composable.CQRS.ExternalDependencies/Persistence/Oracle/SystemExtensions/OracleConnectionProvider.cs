@@ -11,8 +11,14 @@ namespace Composable.Persistence.Oracle.SystemExtensions
 {
     class OracleConnectionProvider : IOracleConnectionProvider
     {
-        string ConnectionString { get; }
-        public OracleConnectionProvider(string connectionString) => ConnectionString = connectionString;
+        readonly OptimizedLazy<string> _connectionString;
+        string ConnectionString => _connectionString.Value;
+
+
+        public OracleConnectionProvider(string connectionString) : this(() => connectionString)
+        {}
+
+        public OracleConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
 
         OracleConnection OpenConnection()
         {

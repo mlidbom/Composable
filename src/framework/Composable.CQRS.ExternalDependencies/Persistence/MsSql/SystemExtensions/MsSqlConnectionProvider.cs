@@ -2,14 +2,21 @@ using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Transactions;
+using Composable.System;
 using Composable.System.Threading;
 
 namespace Composable.Persistence.MsSql.SystemExtensions
 {
     class MsSqlConnectionProvider : IMsSqlConnectionProvider
     {
-        string ConnectionString { get; }
-        public MsSqlConnectionProvider(string connectionString) => ConnectionString = connectionString;
+        readonly OptimizedLazy<string> _connectionString;
+        string ConnectionString => _connectionString.Value;
+
+
+        public MsSqlConnectionProvider(string connectionString) : this(() => connectionString)
+        {}
+
+        public MsSqlConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
 
         SqlConnection OpenConnection()
         {

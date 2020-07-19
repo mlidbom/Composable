@@ -30,7 +30,7 @@ namespace Composable.Persistence.Oracle.DependencyInjection
 
                 container.Register(
                     Singleton.For<IOracleConnectionProvider>()
-                             .CreatedBy((OracleDatabasePool pool) => new OracleConnectionProvider(pool.ConnectionStringFor(connectionStringName)))
+                             .CreatedBy((OracleDatabasePool pool) => new OracleConnectionProvider(() => pool.ConnectionStringFor(connectionStringName)))
                 );
             } else
             {

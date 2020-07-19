@@ -17,8 +17,14 @@ namespace Composable.Persistence.DB2.SystemExtensions
 {
     class ComposableDB2ConnectionProvider : IComposableDB2ConnectionProvider
     {
-        string ConnectionString { get; }
-        public ComposableDB2ConnectionProvider(string connectionString) => ConnectionString = connectionString;
+        readonly OptimizedLazy<string> _connectionString;
+        string ConnectionString => _connectionString.Value;
+
+
+        public ComposableDB2ConnectionProvider(string connectionString) : this(() => connectionString)
+        {}
+
+        public ComposableDB2ConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
 
         ComposableDB2Connection OpenConnection()
         {

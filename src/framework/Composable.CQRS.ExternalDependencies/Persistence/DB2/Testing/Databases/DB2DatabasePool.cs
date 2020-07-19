@@ -67,8 +67,6 @@ namespace Composable.Persistence.DB2.Testing.Databases
                                                                                         .Where(me => !me.IsNullEmptyOrWhiteSpace())
                                                                                         .Join($";{Environment.NewLine}")).Trim();
 
-            //SELECT * FROM TABLE(CDBPOOL_DROP_SCHEMA_STATEMENTS(@{SchemaParameterName}))
-
             if(dropStatements.Length > 0)
             {
                 dropStatements += ";";

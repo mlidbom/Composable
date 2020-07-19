@@ -30,8 +30,7 @@ namespace Composable.Persistence.DB2.DependencyInjection
 
                 container.Register(
                     Singleton.For<IComposableDB2ConnectionProvider>()
-                              //Urgent:This is often very slow and it is called in verify of the container for every test. Whether or not they use storage. Can we do something about that? The same goes for all the pools.
-                             .CreatedBy((DB2DatabasePool pool) => new ComposableDB2ConnectionProvider(pool.ConnectionStringFor(connectionStringName)))
+                             .CreatedBy((DB2DatabasePool pool) => new ComposableDB2ConnectionProvider(() => pool.ConnectionStringFor(connectionStringName)))
                 );
             } else
             {

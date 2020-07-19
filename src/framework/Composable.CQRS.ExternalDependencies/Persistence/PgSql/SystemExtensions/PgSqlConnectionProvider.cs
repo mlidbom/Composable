@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Npgsql;
 using System.Transactions;
+using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
@@ -12,8 +13,14 @@ namespace Composable.Persistence.PgSql.SystemExtensions
 {
     class PgSqlConnectionProvider : INpgsqlConnectionProvider
     {
-        string ConnectionString { get; }
-        public PgSqlConnectionProvider(string connectionString) => ConnectionString = connectionString;
+        readonly OptimizedLazy<string> _connectionString;
+        string ConnectionString => _connectionString.Value;
+
+
+        public PgSqlConnectionProvider(string connectionString) : this(() => connectionString)
+        {}
+
+        public PgSqlConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
 
 
 

@@ -30,7 +30,7 @@ namespace Composable.Persistence.PgSql.DependencyInjection
 
                 container.Register(
                     Singleton.For<INpgsqlConnectionProvider>()
-                             .CreatedBy((PgSqlDatabasePool pool) => new PgSqlConnectionProvider(pool.ConnectionStringFor(connectionStringName)))
+                             .CreatedBy((PgSqlDatabasePool pool) => new PgSqlConnectionProvider(() => pool.ConnectionStringFor(connectionStringName)))
                 );
             } else
             {

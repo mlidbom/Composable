@@ -18,8 +18,6 @@ namespace Composable.Persistence.PgSql.EventStore
 {
     partial class PgSqlEventStorePersistenceLayer
     {
-        const int PrimaryKeyViolationSqlErrorNumber = 23505;
-
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {
             _connectionManager.UseConnection(connection =>
@@ -58,7 +56,7 @@ UPDATE {Event.TableName} /*With(READCOMMITTED, ROWLOCK)*/
                                               .AddNullableParameter(Event.RefactoringType, NpgsqlDbType.Smallint, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
-                    catch(PostgresException e) when(e.SqlState == PrimaryKeyViolationSqlErrorNumber.ToStringInvariant())
+                    catch(PostgresException e) when(SqlExceptions.PgSql.IsPrimaryKeyViolation(e))
                     {
                         //todo: Make sure we have test coverage for this.
                         throw new EventDuplicateKeyException(e);

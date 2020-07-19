@@ -16,8 +16,6 @@ namespace Composable.Persistence.MySql.EventStore
 {
     partial class MySqlEventStorePersistenceLayer
     {
-        //Urgent: Not sure which persistence layer this came from
-        const int PrimaryKeyViolationSqlErrorNumber = 1062;
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {
             _connectionManager.UseConnection(connection =>
@@ -55,7 +53,7 @@ END IF;
                                               .AddNullableParameter(Event.RefactoringType, MySqlDbType.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
-                    catch(MySqlException e) when ((e.Data["Server Error Code"] as int?)  == PrimaryKeyViolationSqlErrorNumber )
+                    catch(MySqlException e) when (SqlExceptions.MySql.IsPrimaryKeyViolation(e))
                     {
                         //todo: Make sure we have test coverage for this.
                         throw new EventDuplicateKeyException(e);

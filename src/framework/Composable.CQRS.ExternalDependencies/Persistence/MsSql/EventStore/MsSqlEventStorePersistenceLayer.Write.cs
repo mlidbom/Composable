@@ -17,8 +17,6 @@ namespace Composable.Persistence.MsSql.EventStore
 {
     partial class MsSqlEventStorePersistenceLayer
     {
-        const int PrimaryKeyViolationSqlErrorNumber = 2627;
-
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {
             _connectionManager.UseConnection(connection =>
@@ -56,7 +54,7 @@ END
                                               .AddNullableParameter(Event.RefactoringType, SqlDbType.TinyInt, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
-                    catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
+                    catch(SqlException e) when(SqlExceptions.MsSql.IsPrimaryKeyViolation(e))
                     {
                         //todo: Make sure we have test coverage for this.
                         throw new EventDuplicateKeyException(e);

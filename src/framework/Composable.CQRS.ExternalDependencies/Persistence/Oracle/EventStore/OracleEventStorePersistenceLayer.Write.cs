@@ -17,8 +17,6 @@ namespace Composable.Persistence.Oracle.EventStore
 {
     partial class OracleEventStorePersistenceLayer
     {
-        //Urgent: Not sure which persistence layer this came from
-        const int PrimaryKeyViolationSqlErrorNumber = 1062;
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
         {
             _connectionManager.UseConnection(connection =>
@@ -60,7 +58,7 @@ END;
                                               .AddNullableParameter(Event.RefactoringType, OracleDbType.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
-                    catch(OracleException e) when ((e.Data["Server Error Code"] as int?)  == PrimaryKeyViolationSqlErrorNumber )
+                    catch(OracleException e) when (SqlExceptions.Oracle.IsPrimaryKeyViolationTODO(e))
                     {
                         //todo: Make sure we have test coverage for this.
                         throw new EventDuplicateKeyException(e);

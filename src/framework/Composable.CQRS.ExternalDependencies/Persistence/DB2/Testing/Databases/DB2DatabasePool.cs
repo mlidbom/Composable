@@ -67,7 +67,6 @@ namespace Composable.Persistence.DB2.Testing.Databases
                                                                                         .Where(me => !me.IsNullEmptyOrWhiteSpace())
                                                                                         .Join($";{Environment.NewLine}")).Trim();
 
-            const string DeadlockOrTimeout = "40001";
             if(dropStatements.Length > 0)
             {
                 dropStatements += ";";
@@ -79,7 +78,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
                         _masterConnectionProvider.ExecuteNonQuery(dropStatements);
                         return;
                     }
-                    catch(DB2Exception exception)when(exception.Errors.Cast<DB2Error>().Any(error => error.SQLState == DeadlockOrTimeout))
+                    catch(DB2Exception exception)when(SqlExceptions.DB2.IsDeadlockOrTimeOut(exception))
                     {
                         this.Log().Error(exception);
                     }

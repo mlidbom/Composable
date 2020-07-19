@@ -40,6 +40,8 @@ namespace Composable.System.Diagnostics
             return @this.Elapsed;
         }
 
+
+        //urgent: Can we get MachineWideSingleThreaded functionality with async?
         // ReSharper disable once MethodOverloadWithOptionalParameter
         public static async Task<TimedExecutionSummary> TimeExecutionAsync([InstantHandle]Func<Task> action, int iterations = 1)
         {

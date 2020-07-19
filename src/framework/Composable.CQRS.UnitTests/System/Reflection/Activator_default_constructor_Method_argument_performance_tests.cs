@@ -21,7 +21,7 @@ namespace Composable.Tests.System.Reflection
 
         [Test][Serial] public void _005_Constructs_1_000_000_instances_faster_than_via_activator_createinstance()
         {
-            var constructions = 1_000_000.InstrumentationSlowdown(slowdownFactor: 10);
+            var constructions = 1_000_000.IfInstrumentedDivideBy(@by: 10);
 
             //warmup
             StopwatchExtensions.TimeExecution(ActivatorCreateInstance, constructions);
@@ -29,7 +29,7 @@ namespace Composable.Tests.System.Reflection
 
 
             var defaultConstructor = StopwatchExtensions.TimeExecution(ActivatorCreateInstance, constructions).Total;
-            TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: defaultConstructor.InstrumentationSlowdown(slowdownFactor: 2));
+            TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: defaultConstructor.IfInstrumentedMultiplyBy(@by: 2));
         }
 
         static void DynamicModuleConstruct() => Constructor.DefaultConstructorFor(typeof(Simple))();

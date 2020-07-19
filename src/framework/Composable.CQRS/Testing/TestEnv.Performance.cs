@@ -10,34 +10,14 @@ namespace Composable.Testing
     ///<summary>TestEnvironment class. Shortened name since it is referenced statically and has nested types</summary>
     static partial class TestEnv
     {
-        //todo: It is rather confusing how one of these identically named methods divides by the slowdownFactor and the other multiplies. Do something about the names.
-        internal static TimeSpan InstrumentationSlowdown(this TimeSpan original, double slowdownFactor) => Performance.InstrumentationSlowdown(original, slowdownFactor);
-        internal static int InstrumentationSlowdown(this int original, double slowdownFactor) => Performance.InstrumentationSlowdown(original, slowdownFactor);
+        internal static TimeSpan IfInstrumentedMultiplyBy(this TimeSpan original, double by) =>
+            Performance.IsInstrumented ? original * by : original;
+
+        internal static int IfInstrumentedDivideBy(this int original, double by) =>
+            Performance.IsInstrumented ? (int)(original / by) : original;
 
         internal static class Performance
         {
-            internal static TimeSpan InstrumentationSlowdown(TimeSpan original, double slowdownFactor)
-            {
-                if(IsInstrumented)
-                {
-                    return ((int)(original.TotalMilliseconds * slowdownFactor)).Milliseconds();
-                } else
-                {
-                    return original;
-                }
-            }
-
-            internal static int InstrumentationSlowdown(int original, double slowdownFactor)
-            {
-                if(IsInstrumented)
-                {
-                    return (int)(original / slowdownFactor);
-                } else
-                {
-                    return original;
-                }
-            }
-
             internal static readonly bool IsInstrumented = CheckIfInstrumented();
             static bool CheckIfInstrumented()
             {
@@ -54,7 +34,7 @@ namespace Composable.Testing
                                                              },
                                                              iterations: 500);
 
-                return time.Total.TotalMilliseconds > 1;
+                return time.Total > 1.Milliseconds();
             }
 
             public static readonly double MachineSlowdownFactor = DetectEnvironmentPerformanceAdjustment();

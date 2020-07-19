@@ -18,22 +18,22 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
     [TestFixture, Performance, Serial] public class RemoteQueryPerformanceTests : PerformanceTestBase
     {
         [Test, Serial] public void MultiThreaded_Runs_100_local_requests_making_one_remote_query_each_in_13_milliSeconds() =>
-            RunScenario(threaded: true, requests: 100.InstrumentationSlowdown(2.0), queriesPerRequest: 1, maxTotal: 13.Milliseconds());
+            RunScenario(threaded: true, requests: 100.IfInstrumentedDivideBy(2.0), queriesPerRequest: 1, maxTotal: 13.Milliseconds());
 
         [Test, Serial] public void SingleThreaded_Runs_100_local_requests_making_one_remote_query_each_in_50_milliSeconds() =>
-            RunScenario(threaded: false, requests: 100.InstrumentationSlowdown(1.3), queriesPerRequest: 1, maxTotal: 50.Milliseconds());
+            RunScenario(threaded: false, requests: 100.IfInstrumentedDivideBy(1.3), queriesPerRequest: 1, maxTotal: 50.Milliseconds());
 
         [Test, Serial] public void MultiThreaded_Runs_10_local_requests_making_10_remote_queries_each_in_14_milliSeconds() =>
-            RunScenario(threaded: true, requests: 10.InstrumentationSlowdown(2.3), queriesPerRequest: 10, maxTotal: 14.Milliseconds());
+            RunScenario(threaded: true, requests: 10.IfInstrumentedDivideBy(2.3), queriesPerRequest: 10, maxTotal: 14.Milliseconds());
 
         [Test, Serial] public void SingleThreaded_Runs_10_local_requests_making_10_remote_queries_each_in_50_milliSeconds() =>
-            RunScenario(threaded: false, requests: 10.InstrumentationSlowdown(1.3), queriesPerRequest: 10, maxTotal: 50.Milliseconds());
+            RunScenario(threaded: false, requests: 10.IfInstrumentedDivideBy(1.3), queriesPerRequest: 10, maxTotal: 50.Milliseconds());
 
         [Test, Serial] public async Task Async_Runs_100_local_requests_making_one_async_remote_query_each_in_10_milliSeconds() =>
-            await RunAsyncScenario(requests: 100.InstrumentationSlowdown(2.0), queriesPerRequest: 1, maxTotal: 10.Milliseconds());
+            await RunAsyncScenario(requests: 100.IfInstrumentedDivideBy(2.0), queriesPerRequest: 1, maxTotal: 10.Milliseconds());
 
         [Test, Serial] public async Task Async_Runs_100_local_requests_making_10_async_remote_queries_each_in_85_milliSeconds() =>
-            await RunAsyncScenario(requests: 100.InstrumentationSlowdown(3.0), queriesPerRequest: 10, maxTotal: 85.Milliseconds());
+            await RunAsyncScenario(requests: 100.IfInstrumentedDivideBy(3.0), queriesPerRequest: 10, maxTotal: 85.Milliseconds());
 
 
         void RunScenario(bool threaded, int requests, int queriesPerRequest, TimeSpan maxTotal)

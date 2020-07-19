@@ -17,7 +17,7 @@ namespace Composable.Tests.Contracts
             TimeAsserter.Execute(
                 action: () => Contract.Argument(() => one).NotDefault(),
                 iterations: 300,
-                maxTotal: 1.Milliseconds().InstrumentationSlowdown(2));
+                maxTotal: 1.Milliseconds().IfInstrumentedMultiplyBy(2));
         }
 
         [Test] public void ShouldRun300TestsIn1Millisecond()
@@ -31,7 +31,7 @@ namespace Composable.Tests.Contracts
                     inspected.NotNullOrDefault();
                 },
                 iterations: 300,
-                maxTotal: 1.Milliseconds().InstrumentationSlowdown(3));
+                maxTotal: 1.Milliseconds().IfInstrumentedMultiplyBy(3));
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             TimeAsserter.ExecuteThreaded(HammerUpdateLocks,
                                          iterations,
                                          description: $"Take {locksPerIteration} update locks",
-                                         maxTotal: 6.Milliseconds().InstrumentationSlowdown(slowdownFactor: 10));
+                                         maxTotal: 6.Milliseconds().IfInstrumentedMultiplyBy(@by: 10));
         }
 
         [Fact] public void Multiple_threads_take_10_000_read_locks_in_6_milliseconds()
@@ -51,7 +51,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             TimeAsserter.ExecuteThreaded(HammerUpdateLocks,
                                          iterations,
                                          description: $"Take {locksPerIteration} update locks",
-                                         maxTotal: 6.Milliseconds().InstrumentationSlowdown(slowdownFactor: 10));
+                                         maxTotal: 6.Milliseconds().IfInstrumentedMultiplyBy(@by: 10));
         }
     }
 }

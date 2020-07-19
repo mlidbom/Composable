@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 
 namespace AccountManagement.Domain.Events
 {
+    //refactor: Consider using interfaces instead of static classes for nesting our events.
     public static partial class AccountEvent
     {
         public static class Implementation

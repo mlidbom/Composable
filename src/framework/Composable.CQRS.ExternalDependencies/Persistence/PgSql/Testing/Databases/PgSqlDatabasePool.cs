@@ -23,7 +23,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         public PgSqlDatabasePool()
         {
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
-                                      ?? "Host=localhost;Database=postgres;Username=postgres;Password=Development!1;Connection Idle Lifetime=5;Connection Pruning Interval=1";
+                                      ?? "Host=localhost;Database=postgres;Username=postgres;Password=Development!1;";
 
             _masterConnectionProvider = new PgSqlConnectionProvider(masterConnectionString);
             _connectionStringBuilder = new OptimizedThreadShared<NpgsqlConnectionStringBuilder>(new NpgsqlConnectionStringBuilder(masterConnectionString));

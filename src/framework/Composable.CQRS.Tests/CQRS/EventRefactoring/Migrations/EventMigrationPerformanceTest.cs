@@ -107,11 +107,11 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 eventMigrations);
         }
 
-        [Test] public void When_there_are_no_migrations_uncached_loading_takes_less_than_X_milliseconds_cached_less_than_Y_milliseconds_mSSql_20_5_pgSql_20_5_mySql_20_5_orcl_75_5_inMem_10_DB2_15_5()
+        [Test] public void When_there_are_no_migrations_uncached_loading_takes_less_than_X_milliseconds_cached_less_than_Y_milliseconds_mSSql_20_5_pgSql_20_5_mySql_20_5_orcl_75_5_inMem_10_DB2_25_5()
         {
             var eventMigrations = Seq.Create<IEventMigration>().ToArray();
             AssertUncachedAndCachedAggregateLoadTimes(
-                maxUncachedLoadTime: TestEnvironment.ValueForPersistenceProvider(msSql: 20, mySql: 20, pgSql: 20, orcl: 75, inMem: 10, db2: 15).Milliseconds().InstrumentationSlowdown(2),
+                maxUncachedLoadTime: TestEnvironment.ValueForPersistenceProvider(msSql: 20, mySql: 20, pgSql: 20, orcl: 75, inMem: 10, db2: 25).Milliseconds().InstrumentationSlowdown(2),
                 maxCachedLoadTime: TestEnvironment.ValueForPersistenceProvider(msSql: 5, mySql: 5, pgSql: 5, orcl: 5, inMem: 5, db2:5).Milliseconds().InstrumentationSlowdown(2.5),
                                                       eventMigrations);
         }

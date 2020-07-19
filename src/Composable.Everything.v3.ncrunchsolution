@@ -64,7 +64,7 @@
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-21</Value>
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-29</Value>
       <Value>Messaging\Buses\ServerEndpointBuilder.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
-      <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-190</Value>
+      <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-192</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer..cs:framework\Composable.CQRS\Composable.CQRS.csproj-48</Value>
       <Value>Testing\Threading\ThreadGate.cs:framework\Composable.CQRS\Composable.CQRS.csproj-45</Value>
       <Value>System\Threading\ResourceAccess\ResourceGuard.ExclusiveAccessGuardedResource.cs:framework\Composable.CQRS\Composable.CQRS.csproj-86</Value>
@@ -97,7 +97,7 @@
       <Value>System\Diagnostics\StopwatchExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-84</Value>
       <Value>Testing\Performance\TimeAsserter.cs:framework\Composable.CQRS\Composable.CQRS.csproj-203</Value>
       <Value>SystemExtensions\Threading\ThreadExceptionHandler.cs:framework\Composable.CQRS\Composable.CQRS.csproj-17</Value>
-      <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-114</Value>
+      <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-116</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-22</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-9</Value>
       <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine..cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>

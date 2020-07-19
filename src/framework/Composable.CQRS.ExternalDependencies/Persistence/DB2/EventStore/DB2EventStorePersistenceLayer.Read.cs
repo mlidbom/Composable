@@ -55,12 +55,12 @@ FROM {Event.TableName}
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
             //Urgent: Not sure whether this version or the current version performs better. If we keep the current version, remove the AggregateLock table.: https://tinyurl.com/y2dv5noe
-            //if(takeWriteLock)
-            //{
-            //    _connectionManager.UseCommand(command => command.SetCommandText($"select {Event.AggregateId} from AggregateLock where AggregateId = @{Event.AggregateId} FOR READ ONLY WITH RS USE AND KEEP EXCLUSIVE LOCKS;")
-            //                                                    .AddParameter(Event.AggregateId, aggregateId)
-            //                                                    .ExecuteNonQuery());
-            //}
+            if (takeWriteLock)
+            {
+                _connectionManager.UseCommand(command => command.SetCommandText($"select {Event.AggregateId} from AggregateLock where AggregateId = @{Event.AggregateId} FOR READ ONLY WITH RS USE AND KEEP EXCLUSIVE LOCKS;")
+                                                                .AddParameter(Event.AggregateId, aggregateId)
+                                                                .ExecuteNonQuery());
+            }
 
             return _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
                                                  command => command.SetCommandText($@"
@@ -68,7 +68,7 @@ FROM {Event.TableName}
     
 {CreateSelectClause()} 
 WHERE {Event.AggregateId} = @{Event.AggregateId}
-    AND {Event.InsertedVersion} >= @CachedVersion
+    AND {Event.InsertedVersion} > @CachedVersion
     AND {Event.EffectiveVersion} >= 0
 ORDER BY {Event.ReadOrderIntegerPart} ASC, {Event.ReadOrderFractionPart} ASC
 {CreateLockHint(takeWriteLock)};
@@ -76,7 +76,6 @@ ORDER BY {Event.ReadOrderIntegerPart} ASC, {Event.ReadOrderFractionPart} ASC
                                                                    .AddParameter(Event.AggregateId, aggregateId)
                                                                    .AddParameter("CachedVersion", startAfterInsertedVersion)
                                                                    .ExecuteReaderAndSelect(ReadDataRow)
-                                                                   .SkipWhile(row => row.StorageInformation.InsertedVersion <= startAfterInsertedVersion)
                                                                    .ToList());
         }
 

@@ -67,33 +67,6 @@ namespace Composable.System.Diagnostics
             return new TimedThreadedExecutionSummary(iterations, individual.ToList(), total);
         });
 
-        public static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle] IReadOnlyList<Action> actions, int maxDegreeOfParallelism = -1, bool swallowExceptions = false, string description = "") => MachineWideSingleThreaded.Execute(() =>
-        {
-            maxDegreeOfParallelism = maxDegreeOfParallelism == -1
-                                         ? Math.Max(Environment.ProcessorCount, 8) / 2
-                                         : maxDegreeOfParallelism;
-
-            var individual = new ConcurrentStack<TimeSpan>();
-
-            var total = TimeExecution(() =>
-            {
-                var timedActions = actions.Select(action => TaskExtensions.StartLongRunning(() => individual.Push(TimeExecution(action)))).ToArray();
-                try
-                {
-                    Task.WaitAll(timedActions);
-                }
-                catch(Exception)
-                {
-                    if(!swallowExceptions)
-                    {
-                        throw;
-                    }
-                }
-            });
-
-            return new TimedThreadedExecutionSummary(actions.Count, individual.ToList(), total, description);
-        });
-
         public class TimedExecutionSummary
         {
             public TimedExecutionSummary(int iterations, TimeSpan total)

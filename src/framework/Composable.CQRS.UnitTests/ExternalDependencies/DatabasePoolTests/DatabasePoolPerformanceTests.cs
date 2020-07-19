@@ -64,17 +64,13 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         [Test]
         public void Multiple_threads_can_reserve_and_release_5_differently_named_databases_in_milliseconds_msSql_125_mySql_175_pgSql_400_orcl_400_db2_100()
         {
-            DatabasePool manager = null;
-
             TimeAsserter.ExecuteThreaded(
-                setup: () =>
+                action: () =>
                        {
-                           manager = CreatePool();
+                           using var manager = CreatePool();
                            manager.SetLogLevel(LogLevel.Warning);
-                           manager.ConnectionStringFor("fake_to_force_creation_of_manager_database");
+                           manager.ConnectionStringFor(Guid.NewGuid().ToString());
                        },
-                tearDown: () => manager.Dispose(),
-                action: () => manager.ConnectionStringFor(Guid.NewGuid().ToString()),
                 iterations: 5,
                 maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:125, mySql: 175, pgSql: 400, orcl: 400, db2:100).Milliseconds());
         }
@@ -82,17 +78,13 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         [Test]
         public void Single_thread_can_reserve_and_release_5_differently_named_databases_in_milliseconds_msSql_100_mySql_100_pgSql_500_orcl_300_db2_100()
         {
-            DatabasePool manager = null;
-
             TimeAsserter.Execute(
-                setup: () =>
+                action: () =>
                        {
-                           manager = CreatePool();
+                           using var manager = CreatePool();
                            manager.SetLogLevel(LogLevel.Warning);
-                           manager.ConnectionStringFor("fake_to_force_creation_of_manager_database");
+                           manager.ConnectionStringFor(Guid.NewGuid().ToString());
                        },
-                tearDown: () => manager.Dispose(),
-                action: () => manager.ConnectionStringFor(Guid.NewGuid().ToString()),
                 iterations: 5,
                 maxTotal: TestEnvironment.ValueForPersistenceProvider(msSql:100, mySql: 100, pgSql: 500, orcl: 300, db2:100).Milliseconds());
         }

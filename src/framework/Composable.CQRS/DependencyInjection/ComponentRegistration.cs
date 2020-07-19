@@ -83,7 +83,7 @@ namespace Composable.DependencyInjection
 
     class InstantiationSpec
     {
-        static readonly bool LogSlowConstructions = true;
+        static readonly bool LogSlowConstructions = false;
         internal object? SingletonInstance { get; }
         internal object RunFactoryMethod(IServiceLocatorKernel kern) => FactoryMethod!(kern);
         internal Func<IServiceLocatorKernel, object> FactoryMethod { get; }
@@ -109,12 +109,11 @@ namespace Composable.DependencyInjection
 
                     IEnumerable<string> ignoredTypePatterns = Seq.Create(nameof(EventCache), //Constructing the system provided cache is slow.
                                                                          nameof(EventStoreSerializer),//Caused by NewtonsoftJson initialization that is static and happens only once.
-                                                                         "euConnectionProvider", //This is caused by getting a database from the database pool.
                                                                          "DatabasePool"//This is slow the first time because it sets up the MachineWideSharedObject
                         );
 
                     var constructionTime = StopwatchExtensions.TimeExecution(() => instance = factoryMethod(kern));
-                    if(constructionTime > 30.Milliseconds() && ignoredTypePatterns.None(ignored => factoryMethodReturnType.Name.ContainsInvariant(ignored)))
+                    if(constructionTime > 5.Milliseconds() && ignoredTypePatterns.None(ignored => factoryMethodReturnType.Name.ContainsInvariant(ignored)))
                     {
                         this.Log().Warning($"###########################################################: Component: {factoryMethodReturnType.GetFullNameCompilable()} took: {constructionTime:ss\\.fff} to construct");
                     }

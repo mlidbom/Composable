@@ -22,7 +22,7 @@ namespace Composable.Testing.Databases
         protected readonly MachineWideSharedObject<SharedState> MachineWideState;
         protected static string? DatabaseRootFolderOverride;
         static TimeSpan _reservationLength;
-        protected const int NumberOfDatabases = 30;
+        protected const int NumberOfDatabases = 10;
 
         protected DatabasePool()
         {

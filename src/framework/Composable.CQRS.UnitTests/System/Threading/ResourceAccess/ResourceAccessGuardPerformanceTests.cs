@@ -3,9 +3,11 @@ using Composable.Testing.Performance;
 using Xunit;
 using Composable.System;
 using Composable.Testing;
+using NCrunch.Framework;
 
 namespace Composable.Tests.System.Threading.ResourceAccess
 {
+    [Performance, Serial]
     public class ResourceAccessGuardPerformanceTests
     {
         [Fact] public void Multiple_threads_take_10_000_update_locks_in_6_milliseconds()

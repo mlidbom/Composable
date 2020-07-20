@@ -30,7 +30,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                 PersistenceLayer.PgSql => new PgSqlDatabasePool(),
                 PersistenceLayer.Orcl => new OracleDatabasePool(),
                 PersistenceLayer.DB2 => new DB2DatabasePool(),
-                PersistenceLayer.InMemory => throw new ArgumentOutOfRangeException(),
+                PersistenceLayer.Memory => throw new ArgumentOutOfRangeException(),
                 _ => throw new ArgumentOutOfRangeException()
             };
 

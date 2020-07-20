@@ -31,10 +31,10 @@ namespace Composable.DependencyInjection
     public enum PersistenceLayer
     {
         MsSql,
-        InMemory,
+        Memory,
         MySql,
         PgSql,
-        Orcl, 
+        Orcl,
         DB2
     }
 

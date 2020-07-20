@@ -23,7 +23,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
     {
         [OneTimeSetUp]public void WarmUpCache()
         {
-            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.InMemory) Assert.Ignore();
+            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) Assert.Ignore();
             using var pool = CreatePool();
             pool.ConnectionStringFor(Guid.NewGuid().ToString());
         }
@@ -120,7 +120,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     var msSqlConnectionProvider = new MsSqlConnectionProvider(manager.ConnectionStringFor(reservationName));
                     useConnection = () => msSqlConnectionProvider.UseConnection(_ => {});
                     break;
-                case PersistenceLayer.InMemory:
+                case PersistenceLayer.Memory:
                     break;
                 case PersistenceLayer.MySql:
                     var mySqlConnectionProvider = new MySqlConnectionProvider(manager.ConnectionStringFor(reservationName));

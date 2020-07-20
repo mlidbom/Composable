@@ -1,5 +1,7 @@
 ﻿using System;
 using Composable.DependencyInjection;
+using Composable.System.Configuration;
+using Composable.System.Reflection;
 using NCrunch.Framework;
 
 namespace Composable.Testing
@@ -16,26 +18,22 @@ namespace Composable.Testing
                 {
                     if(IsRunningUnderNCrunch) return GetNCrunchProvider();
 
-                    if(TryGetNunitParameterForProvider(out DependencyInjection.PersistenceLayer nUnitPersistenceLayer)) return nUnitPersistenceLayer;
-
-                    if(TryGetConfigurationFileSpecifiedProvider(out DependencyInjection.PersistenceLayer configurationFilePersistenceLayer)) return configurationFilePersistenceLayer;
-
-                    return DependencyInjection.PersistenceLayer.InMemory;
+                    return GetConfigurationFileSpecifiedProvider();
                 }
             }
 
-            static bool TryGetConfigurationFileSpecifiedProvider(out DependencyInjection.PersistenceLayer persistenceLayer)
+            static DependencyInjection.PersistenceLayer GetConfigurationFileSpecifiedProvider()
             {
-                //urgent: implement
-                persistenceLayer = (DependencyInjection.PersistenceLayer) (-1);
-                return false;
-            }
+                const string composableTestingPersistenceLayerParameterName = "Composable.Testing.PersistenceLayer";
 
-            static bool TryGetNunitParameterForProvider(out DependencyInjection.PersistenceLayer persistenceLayer)
-            {
-                //urgent:implement
-                persistenceLayer = (DependencyInjection.PersistenceLayer) (-1);
-                return false;
+                var configurationReader = new AppSettingsJsonConfigurationParameterProvider();
+                var configurationValue = configurationReader.GetString(composableTestingPersistenceLayerParameterName);
+
+                if(!Enum.TryParse(configurationValue, out DependencyInjection.PersistenceLayer persistenceLayer))
+                {
+                    throw new Exception($"The configuration parameter:{composableTestingPersistenceLayerParameterName} has an invalid value: {configurationValue}. It must be one of the values in: {typeof(DependencyInjection.PersistenceLayer).GetFullNameCompilable()}.");
+                }
+                return persistenceLayer;
             }
 
             static DependencyInjection.PersistenceLayer GetNCrunchProvider()
@@ -54,7 +52,7 @@ namespace Composable.Testing
                     Current switch
                 {
                     DependencyInjection.PersistenceLayer.MsSql => SelectValue(msSql, nameof(msSql)),
-                    DependencyInjection.PersistenceLayer.InMemory => SelectValue(inMem, nameof(inMem)),
+                    DependencyInjection.PersistenceLayer.Memory => SelectValue(inMem, nameof(inMem)),
                     DependencyInjection.PersistenceLayer.MySql => SelectValue(mySql, nameof(mySql)),
                     DependencyInjection.PersistenceLayer.PgSql => SelectValue(pgSql, nameof(pgSql)),
                     DependencyInjection.PersistenceLayer.Orcl => SelectValue(orcl, nameof(orcl)),

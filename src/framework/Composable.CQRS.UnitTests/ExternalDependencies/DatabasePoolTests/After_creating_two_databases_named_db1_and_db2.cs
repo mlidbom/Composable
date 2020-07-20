@@ -15,7 +15,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 
         [SetUp] public void SetupTask()
         {
-            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.InMemory) Assert.Ignore();
+            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) Assert.Ignore();
             _manager = CreatePool();
         }
 
@@ -52,7 +52,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 
         [TearDown] public void TearDownTask()
         {
-            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.InMemory) return;
+            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) return;
             _manager.Dispose();
 
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed

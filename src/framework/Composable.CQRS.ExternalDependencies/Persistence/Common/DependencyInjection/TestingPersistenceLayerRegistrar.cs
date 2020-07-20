@@ -23,7 +23,7 @@ namespace Composable.Persistence.Common.DependencyInjection
                 case PersistenceLayer.MsSql:
                     container.RegisterMsSqlPersistenceLayer(connectionStringName);
                     break;
-                case PersistenceLayer.InMemory:
+                case PersistenceLayer.Memory:
                     container.RegisterInMemoryPersistenceLayer(connectionStringName);
                     break;
                 case PersistenceLayer.MySql:

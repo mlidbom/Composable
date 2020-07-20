@@ -12,25 +12,25 @@ namespace Composable.Messaging.Hypermedia
 
         public RemoteApiBrowserSession(IOutbox transport) => _transport = transport;
 
-        void IRemoteHypermediaNavigator.Post(MessageTypes.Remotable.AtMostOnce.ICommand command) => ((IRemoteHypermediaNavigator)this).PostAsync(command).WaitUnwrappingException();
+        public void Post(MessageTypes.Remotable.AtMostOnce.ICommand command) => PostAsync(command).WaitUnwrappingException();
 
-        async Task IRemoteHypermediaNavigator.PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
+        public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
         {
             MessageInspector.AssertValidToSendRemote(command);
             CommandValidator.AssertCommandIsValid(command);
             await _transport.DispatchAsync(command).NoMarshalling();
         }
 
-        TResult IRemoteHypermediaNavigator.Post<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command) => ((IRemoteHypermediaNavigator)this).PostAsync(command).ResultUnwrappingException();
+        public TResult Post<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command) => PostAsync(command).ResultUnwrappingException();
 
-        async Task<TResult> IRemoteHypermediaNavigator.PostAsync<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command)
+        public async Task<TResult> PostAsync<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command)
         {
             MessageInspector.AssertValidToSendRemote(command);
             CommandValidator.AssertCommandIsValid(command);
             return await _transport.DispatchAsync(command).NoMarshalling();
         }
 
-        async Task<TResult> IRemoteHypermediaNavigator.GetAsync<TResult>(MessageTypes.Remotable.NonTransactional.IQuery<TResult> query)
+        public async Task<TResult> GetAsync<TResult>(MessageTypes.Remotable.NonTransactional.IQuery<TResult> query)
         {
             MessageInspector.AssertValidToSendRemote(query);
             return query is MessageTypes.ICreateMyOwnResultQuery<TResult> selfCreating
@@ -38,6 +38,6 @@ namespace Composable.Messaging.Hypermedia
                        : await _transport.DispatchAsync(query).NoMarshalling();
         }
 
-        TResult IRemoteHypermediaNavigator.Get<TResult>(MessageTypes.Remotable.NonTransactional.IQuery<TResult> query) => ((IRemoteHypermediaNavigator)this).GetAsync(query).ResultUnwrappingException();
+        TResult IRemoteHypermediaNavigator.Get<TResult>(MessageTypes.Remotable.NonTransactional.IQuery<TResult> query) => GetAsync(query).ResultUnwrappingException();
     }
 }

@@ -14,28 +14,28 @@ namespace Composable.Messaging.Hypermedia
             _handlerRegistry = handlerRegistry;
         }
 
-        TResult ILocalHypermediaNavigator.Execute<TResult>(MessageTypes.StrictlyLocal.ICommand<TResult> command)
+        public TResult Execute<TResult>(MessageTypes.StrictlyLocal.ICommand<TResult> command)
         {
-            MessageInspector.AssertValidToSendLocal(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
+            MessageInspector.AssertValidToSendLocal(command);
             CommandValidator.AssertCommandIsValid(command);
             return _handlerRegistry.GetCommandHandler(command).Invoke(command);
         }
 
-        void ILocalHypermediaNavigator.Execute(MessageTypes.StrictlyLocal.ICommand command)
+        public void Execute(MessageTypes.StrictlyLocal.ICommand command)
         {
-            MessageInspector.AssertValidToSendLocal(command);
             _contextGuard.AssertNoContextChangeOccurred(this);
+            MessageInspector.AssertValidToSendLocal(command);
             CommandValidator.AssertCommandIsValid(command);
             _handlerRegistry.GetCommandHandler(command).Invoke(command);
         }
 
-        TResult ILocalHypermediaNavigator.Execute<TResult>(MessageTypes.StrictlyLocal.IQuery<TResult> query)
+        public TResult Execute<TResult>(MessageTypes.StrictlyLocal.IQuery<TResult> query)
         {
-            MessageInspector.AssertValidToSendLocal(query);
             _contextGuard.AssertNoContextChangeOccurred(this);
+            MessageInspector.AssertValidToSendLocal(query);
             // ReSharper disable once SuspiciousTypeConversion.Global
-            //Todo: Test and stop disabling resharper warning
+            //Todo: Test and stop disabling ReSharper warning
             return query is MessageTypes.ICreateMyOwnResultQuery<TResult> selfCreating
                        ? selfCreating.CreateResult()
                        : _handlerRegistry.GetQueryHandler(query).Invoke(query);

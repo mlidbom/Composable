@@ -32,7 +32,7 @@ namespace Composable.Tests.Linq
 
             // ReSharper disable once ExpressionIsAlwaysNull
             indexesEqualValues.Invoking( me => me.Second()).Should().Throw<Exception>()
-                .WithMessage("Argument: me");
+                .WithMessage("*Parameter 'me'*");
         }
     }
 }

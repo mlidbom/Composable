@@ -19,8 +19,7 @@ namespace Composable.SystemExtensions.Threading
         ///<summary>Occasionally you have to be able to run code without validating the context. Passing such code to this method allows for that.</summary>
         public static void RunInContextExcludedFromSingleUseRule([InstantHandle]Action action)
         {
-            Contract.Argument(action, nameof(action))
-                             .NotNull();
+            Contract.ArgumentNotNull(action, nameof(action));
 
             //Make sure that we do not loose the context if this is called again from within such a context
             if(IsInIgnoredContextDueToInfrastructureSuchAsTransaction)

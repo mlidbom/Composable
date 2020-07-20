@@ -26,8 +26,7 @@ namespace Composable.System.Reflection
         ///<returns>true if <paramref name="me"/> implements the interface: <paramref name="implemented"/>. By definition true if <paramref name="me"/> == <paramref name="implemented"/>.</returns>
         public static bool Implements(this Type me, Type implemented)
         {
-            Contract.Argument(me, nameof(me), implemented, nameof(implemented))
-                             .NotNull();
+            Contract.ArgumentNotNull(me, nameof(me), implemented, nameof(implemented));
 
             if(!implemented.IsInterface)
             {

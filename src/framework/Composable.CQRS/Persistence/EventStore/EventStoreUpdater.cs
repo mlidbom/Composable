@@ -24,8 +24,7 @@ namespace Composable.Persistence.EventStore
 
         public EventStoreUpdater(IEventStoreEventPublisher eventStoreEventPublisher, IEventStore store, IUtcTimeTimeSource timeSource, IAggregateTypeValidator aggregateTypeValidator)
         {
-            Contract.Argument(() => eventStoreEventPublisher, () => store, () => timeSource)
-                        .NotNull();
+            Contract.ArgumentNotNull(eventStoreEventPublisher, nameof(eventStoreEventPublisher), store, nameof(store), timeSource, nameof(timeSource));
 
             _usageGuard = new CombinationUsageGuard(new SingleThreadUseGuard(), new SingleTransactionUsageGuard());
             _eventStoreEventPublisher = eventStoreEventPublisher;

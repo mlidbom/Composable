@@ -14,8 +14,7 @@ namespace Composable.System.Linq
         /// </summary>
         public static IEnumerable<T> Append<T>(this IEnumerable<T> source, params T[] instances)
         {
-            Contract.Argument(source, nameof(source), instances, nameof(instances))
-                             .NotNull();
+            Contract.ArgumentNotNull(source, nameof(source), instances, nameof(instances));
             return source.Concat(instances);
         }
 
@@ -26,8 +25,7 @@ namespace Composable.System.Linq
         /// <returns>true if <paramref name="me"/> contains no objects. Otherwise false.</returns>
         public static bool None<T>(this IEnumerable<T> me)
         {
-            Contract.Argument(me, nameof(me))
-                             .NotNull();
+            Contract.ArgumentNotNull(me, nameof(me));
 
             return !me.Any();
         }
@@ -45,8 +43,7 @@ namespace Composable.System.Linq
         /// <returns>true if <paramref name="me"/> contains no objects. Otherwise false.</returns>
         public static bool None<T>(this IEnumerable<T> me, Func<T,bool> condition)
         {
-            Contract.Argument(me, nameof(me), condition, nameof(condition))
-                             .NotNull();
+            Contract.ArgumentNotNull(me, nameof(me), condition, nameof(condition));
 
             return !me.Any(condition);
         }
@@ -56,8 +53,7 @@ namespace Composable.System.Linq
         /// </summary>
         public static IEnumerable<IEnumerable<T>> ChopIntoSizesOf<T>(this IEnumerable<T> me, int size)
         {
-            Contract.Argument(me, nameof(me))
-                             .NotNull();
+            Contract.ArgumentNotNull(me, nameof(me));
 
             // ReSharper disable once GenericEnumeratorNotDisposed ReSharper is plain wrong again.
             using var enumerator = me.GetEnumerator();
@@ -94,8 +90,7 @@ namespace Composable.System.Linq
         /// <returns>All the objects in all the nested collections </returns>
         public static IEnumerable<TChild> Flatten<T, TChild>(this IEnumerable<T> me) where T : IEnumerable<TChild>
         {
-            Contract.Argument(me, nameof(me))
-                             .NotNull();
+            Contract.ArgumentNotNull(me, nameof(me));
 
             return me.SelectMany(obj => obj);
         }

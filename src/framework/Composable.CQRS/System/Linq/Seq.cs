@@ -26,8 +26,7 @@ namespace Composable.System.Linq
         /// <returns></returns>
         public static IEnumerable<T> Create<T>(params T[] values)
         {
-            Contract.Argument(values, nameof(values))
-                             .NotNull();
+            Contract.ArgumentNotNull(values, nameof(values));
             return values;
         }
 

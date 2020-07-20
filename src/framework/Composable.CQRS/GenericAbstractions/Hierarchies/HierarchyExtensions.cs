@@ -51,8 +51,8 @@ namespace Composable.GenericAbstractions.Hierarchies
         /// </summary>
         public static IAutoHierarchy<T> AsHierarchy<T>(this T me, Func<T, IEnumerable<T>> childGetter)
         {
-            Contract.Argument<object>(me, nameof(me), childGetter, nameof(childGetter)).NotNull();
-            return Contract.Return(new Hierarchy<T>(me, childGetter), inspect => inspect.NotNull());
+            Contract.ArgumentNotNull(me, nameof(me), childGetter, nameof(childGetter));
+            return Contract.ReturnNotNull(new Hierarchy<T>(me, childGetter));
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Composable.GenericAbstractions.Hierarchies
         /// </summary>
         public static IEnumerable<T> Unwrap<T>(this IEnumerable<IAutoHierarchy<T>> root)
         {
-            Contract.Argument(root, nameof(root)).NotNull();
+            Contract.ArgumentNotNull(root, nameof(root));
             return root.Select(me => me.Wrapped);
         }
     }

@@ -17,8 +17,7 @@ namespace Composable.System
         /// <summary>Delegates to <see cref="string.Join(string,string[])"/> </summary>
         public static string Join(this IEnumerable<string> @this, string separator)
         {
-            Contract.Argument(@this, nameof(@this), separator, nameof(separator))
-                             .NotNull();
+            Contract.ArgumentNotNull(@this, nameof(@this), separator, nameof(separator));
 
             return string.Join(separator, @this.ToArray());
         }

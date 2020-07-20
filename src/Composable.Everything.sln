@@ -50,6 +50,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.Testing", "frame
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.CQRS.UnitTests", "framework\Composable.CQRS.UnitTests\Composable.CQRS.UnitTests.csproj", "{018B4778-4C98-41EC-98B5-C2CA8C29D30A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.UnitTests", "Samples\AccountManagement\AccountManagement.UnitTests\AccountManagement.UnitTests.csproj", "{9B6BDD56-85CB-486B-81E8-3660A6754076}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -133,6 +135,12 @@ Global
 		{018B4778-4C98-41EC-98B5-C2CA8C29D30A}.docs|Any CPU.Build.0 = Debug|Any CPU
 		{018B4778-4C98-41EC-98B5-C2CA8C29D30A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{018B4778-4C98-41EC-98B5-C2CA8C29D30A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B6BDD56-85CB-486B-81E8-3660A6754076}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B6BDD56-85CB-486B-81E8-3660A6754076}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B6BDD56-85CB-486B-81E8-3660A6754076}.docs|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B6BDD56-85CB-486B-81E8-3660A6754076}.docs|Any CPU.Build.0 = Debug|Any CPU
+		{9B6BDD56-85CB-486B-81E8-3660A6754076}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B6BDD56-85CB-486B-81E8-3660A6754076}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -144,6 +152,7 @@ Global
 		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
 		{1D6122CA-D55B-44C1-B313-0BC0D6F39A59} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
 		{151A5ECC-76FE-47C3-A0BB-54F7FDF80736} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
+		{9B6BDD56-85CB-486B-81E8-3660A6754076} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {275B298E-4082-4323-8E00-FB580CDC1E06}

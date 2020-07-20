@@ -38,7 +38,7 @@ namespace Composable.Persistence.Common.DependencyInjection
                                                                   string connectionName,
                                                                   Func<IReadOnlyList<IEventMigration>> migrations)
         {
-            Contract.Argument(connectionName, nameof(connectionName)).NotNullEmptyOrWhiteSpace();
+            Contract.ArgumentNotNullEmptyOrWhitespace(connectionName, nameof(connectionName));
 
             @this.Register(
                 Singleton.For<IAggregateTypeValidator>()

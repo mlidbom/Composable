@@ -12,7 +12,7 @@ namespace Composable.SystemExtensions
         ///<summary>Flattens the exception.InnerException hierarchy into a sequence.</summary>
          public static IEnumerable<Exception> GetAllExceptionsInStack(this Exception exception)
         {
-            Contract.Argument(exception, nameof(exception));
+            Contract.ArgumentNotNull(exception, nameof(exception));
 
              do
              {

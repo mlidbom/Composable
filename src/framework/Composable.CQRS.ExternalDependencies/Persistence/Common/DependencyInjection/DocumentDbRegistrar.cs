@@ -18,7 +18,7 @@ namespace Composable.Persistence.Common.DependencyInjection
 
         public static DocumentDbRegistrationBuilder RegisterDocumentDb(this IDependencyInjectionContainer @this, string connectionName)
         {
-            Contract.Argument(connectionName, nameof(connectionName)).NotNullEmptyOrWhiteSpace();
+            Contract.ArgumentNotNullEmptyOrWhitespace(connectionName, nameof(connectionName));
 
             @this.Register(Singleton.For<IDocumentDbSerializer>()
                                     .CreatedBy((ITypeMapper typeMapper) => new DocumentDbSerializer(typeMapper)));

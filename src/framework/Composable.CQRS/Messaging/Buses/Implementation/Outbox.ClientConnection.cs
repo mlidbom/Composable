@@ -44,7 +44,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public async Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command)
             {
-                var taskCompletionSource = new AsyncTaskCompletionSource<object>();
+                var taskCompletionSource = new AsyncTaskCompletionSource<Func<object>>();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
 
                 _state.WithExclusiveAccess(state =>
@@ -53,7 +53,7 @@ namespace Composable.Messaging.Buses.Implementation
                     DispatchMessage(state, outGoingMessage);
                 });
 
-                return (TCommandResult)await taskCompletionSource.Task.NoMarshalling();
+                return (TCommandResult)(await taskCompletionSource.Task.NoMarshalling()).Invoke();
             }
 
             public async Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
@@ -72,7 +72,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public async Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
             {
-                var taskCompletionSource = new AsyncTaskCompletionSource<object>();
+                var taskCompletionSource = new AsyncTaskCompletionSource<Func<object>>();
                 var outGoingMessage = TransportMessage.OutGoing.Create(query, _typeMapper, _serializer);
 
                 _state.WithExclusiveAccess(state =>
@@ -82,7 +82,7 @@ namespace Composable.Messaging.Buses.Implementation
                     state.DispatchQueue.Enqueue(outGoingMessage);
                 });
 
-                return (TQueryResult)await taskCompletionSource.Task.NoMarshalling();
+                return (TQueryResult)(await taskCompletionSource.Task.NoMarshalling()).Invoke();
             }
 
             static void DispatchMessage(InboxConnectionState @this, TransportMessage.OutGoing outGoingMessage)
@@ -147,7 +147,7 @@ namespace Composable.Messaging.Buses.Implementation
             class InboxConnectionState : IDisposable
             {
                 internal readonly IGlobalBusStateTracker GlobalBusStateTracker;
-                internal readonly Dictionary<Guid, AsyncTaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, AsyncTaskCompletionSource<object>>();
+                internal readonly Dictionary<Guid, AsyncTaskCompletionSource<Func<object>>> ExpectedResponseTasks = new Dictionary<Guid, AsyncTaskCompletionSource<Func<object>>>();
                 internal readonly Dictionary<Guid, AsyncTaskCompletionSource> ExpectedCompletionTasks = new Dictionary<Guid, AsyncTaskCompletionSource>();
                 internal readonly Dictionary<Guid, DateTime> PendingDeliveryNotifications = new Dictionary<Guid, DateTime>();
                 internal readonly DealerSocket Socket;
@@ -185,19 +185,8 @@ namespace Composable.Messaging.Buses.Implementation
                         {
                             case TransportMessage.Response.ResponseType.SuccessWithData:
                             {
-                                var successResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
-                                _taskRunner.RunAndSurfaceExceptions(() =>
-                                {
-                                    try
-                                    {
-                                        //performance: Could we use an optimized lazy for the deserialization and thus not have to spin up an extra thread here, but let the receiver thread do deserialization? And then we also suddenly surface the exception is exactly the right spot!
-                                        successResponse.SetResult(Assert.Result.NotNull(response.DeserializeResult(_serializer))); //Refactor: Lying about nullability to the compiler is not pretty at all.
-                                    }
-                                    catch(Exception exception)
-                                    {
-                                        successResponse.SetException(exception);
-                                    }
-                                });
+                                state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId)
+                                     .SetResult(() => Assert.Result.NotNull(response.DeserializeResult(_serializer)));
                             }
                                 break;
                             case TransportMessage.Response.ResponseType.Success:

@@ -19,7 +19,9 @@ namespace Composable.Messaging.Hypermedia
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSendLocal(command);
             CommandValidator.AssertCommandIsValid(command);
-            return _handlerRegistry.GetCommandHandler(command).Invoke(command);
+
+            var commandHandler = _handlerRegistry.GetCommandHandler(command);
+            return commandHandler.Invoke(command);
         }
 
         public void Execute(MessageTypes.StrictlyLocal.ICommand command)
@@ -27,18 +29,23 @@ namespace Composable.Messaging.Hypermedia
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSendLocal(command);
             CommandValidator.AssertCommandIsValid(command);
-            _handlerRegistry.GetCommandHandler(command).Invoke(command);
+
+            var commandHandler = _handlerRegistry.GetCommandHandler(command);
+            commandHandler.Invoke(command);
         }
 
         public TResult Execute<TResult>(MessageTypes.StrictlyLocal.IQuery<TResult> query)
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSendLocal(query);
+
             // ReSharper disable once SuspiciousTypeConversion.Global
             //Todo: Test and stop disabling ReSharper warning
-            return query is MessageTypes.ICreateMyOwnResultQuery<TResult> selfCreating
-                       ? selfCreating.CreateResult()
-                       : _handlerRegistry.GetQueryHandler(query).Invoke(query);
+            if(query is MessageTypes.ICreateMyOwnResultQuery<TResult> selfCreating)
+                return selfCreating.CreateResult();
+
+            var queryHandler = _handlerRegistry.GetQueryHandler(query);
+            return queryHandler.Invoke(query);
         }
     }
 }

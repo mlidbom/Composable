@@ -1,4 +1,5 @@
 using System;
+using Composable.DependencyInjection;
 using Composable.Testing;
 using Composable.Testing.Databases;
 using FluentAssertions;
@@ -12,7 +13,11 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         const string Db1 = "LocalDBManagerTests_After_creating_connection_Db1";
         const string Db2 = "LocalDBManagerTests_After_creating_connection_Db2";
 
-        [SetUp] public void SetupTask() { _manager = CreatePool(); }
+        [SetUp] public void SetupTask()
+        {
+            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.InMemory) Assert.Ignore();
+            _manager = CreatePool();
+        }
 
         [Test] public void Connection_to_Db1_can_be_opened_and_used()
             => UseConnection(Db1,
@@ -47,6 +52,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 
         [TearDown] public void TearDownTask()
         {
+            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.InMemory) return;
             _manager.Dispose();
 
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed

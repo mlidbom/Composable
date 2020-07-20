@@ -23,6 +23,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
     {
         [OneTimeSetUp]public void WarmUpCache()
         {
+            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.InMemory) Assert.Ignore();
             using var pool = CreatePool();
             pool.ConnectionStringFor(Guid.NewGuid().ToString());
         }

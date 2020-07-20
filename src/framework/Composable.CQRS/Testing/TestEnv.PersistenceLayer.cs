@@ -14,14 +14,39 @@ namespace Composable.Testing
             {
                 get
                 {
-                    var storageProviderName = NCrunchEnvironment.GetDuplicatedDimension();
-                    if(!Enum.TryParse(storageProviderName, out DependencyInjection.PersistenceLayer provider))
-                    {
-                        throw new Exception("Failed to parse PersistenceLayerProvider from test environment");
-                    }
+                    if(IsRunningUnderNCrunch) return GetNCrunchProvider();
 
-                    return provider;
+                    if(TryGetNunitParameterForProvider(out DependencyInjection.PersistenceLayer nUnitPersistenceLayer)) return nUnitPersistenceLayer;
+
+                    if(TryGetConfigurationFileSpecifiedProvider(out DependencyInjection.PersistenceLayer configurationFilePersistenceLayer)) return configurationFilePersistenceLayer;
+
+                    return DependencyInjection.PersistenceLayer.InMemory;
                 }
+            }
+
+            static bool TryGetConfigurationFileSpecifiedProvider(out DependencyInjection.PersistenceLayer persistenceLayer)
+            {
+                //urgent: implement
+                persistenceLayer = (DependencyInjection.PersistenceLayer) (-1);
+                return false;
+            }
+
+            static bool TryGetNunitParameterForProvider(out DependencyInjection.PersistenceLayer persistenceLayer)
+            {
+                //urgent:implement
+                persistenceLayer = (DependencyInjection.PersistenceLayer) (-1);
+                return false;
+            }
+
+            static DependencyInjection.PersistenceLayer GetNCrunchProvider()
+            {
+                var storageProviderName = NCrunchEnvironment.GetDuplicatedDimension();
+                if(!Enum.TryParse(storageProviderName, out DependencyInjection.PersistenceLayer provider))
+                {
+                    throw new Exception("Failed to parse PersistenceLayerProvider from test environment");
+                }
+
+                return provider;
             }
 
             public static TValue ValueFor<TValue>(TValue msSql= default, TValue mySql = default, TValue inMem = default, TValue pgSql = default, TValue orcl = default, TValue db2 = default)

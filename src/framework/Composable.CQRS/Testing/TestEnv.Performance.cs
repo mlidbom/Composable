@@ -62,17 +62,17 @@ namespace Composable.Testing
                     Console.WriteLine($"Adjusting allowed execution time with value {MachineSlowness} from environment variable {MachineSlownessEnvironmentVariable}");
                 }
             }
+        }
 
-            static bool IsRunningUnderNCrunch
+        static bool IsRunningUnderNCrunch
+        {
+            get
             {
-                get
-                {
 #if NCRUNCH
     return true;
 #else
-                    return false;
+                return false;
 #endif
-                }
             }
         }
     }

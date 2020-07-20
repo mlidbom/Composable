@@ -190,6 +190,7 @@ namespace Composable.Messaging.Buses.Implementation
                                 {
                                     try
                                     {
+                                        //performance: Could we use an optimized lazy for the deserialization and thus not have to spin up an extra thread here, but let the receiver thread do deserialization? And then we also suddenly surface the exception is exactly the right spot!
                                         successResponse.SetResult(Assert.Result.NotNull(response.DeserializeResult(_serializer))); //Refactor: Lying about nullability to the compiler is not pretty at all.
                                     }
                                     catch(Exception exception)
@@ -201,18 +202,7 @@ namespace Composable.Messaging.Buses.Implementation
                                 break;
                             case TransportMessage.Response.ResponseType.Success:
                             {
-                                var successResponse = state.ExpectedCompletionTasks.GetAndRemove(response.RespondingToMessageId);
-                                _taskRunner.RunAndSurfaceExceptions(() =>
-                                {
-                                    try
-                                    {
-                                        successResponse.SetResult();
-                                    }
-                                    catch(Exception exception)
-                                    {
-                                        successResponse.SetException(exception);
-                                    }
-                                });
+                                state.ExpectedCompletionTasks.GetAndRemove(response.RespondingToMessageId).SetResult();
                             }
                                 break;
                             case TransportMessage.Response.ResponseType.FailureExpectedReturnValue:

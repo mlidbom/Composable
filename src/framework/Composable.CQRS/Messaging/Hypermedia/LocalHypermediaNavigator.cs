@@ -16,9 +16,7 @@ namespace Composable.Messaging.Hypermedia
 
         public TResult Execute<TResult>(MessageTypes.StrictlyLocal.ICommand<TResult> command)
         {
-            _contextGuard.AssertNoContextChangeOccurred(this);
-            MessageInspector.AssertValidToSendLocal(command);
-            CommandValidator.AssertCommandIsValid(command);
+            CommonAssertion(command);
 
             var commandHandler = _handlerRegistry.GetCommandHandler(command);
             return commandHandler.Invoke(command);
@@ -26,9 +24,7 @@ namespace Composable.Messaging.Hypermedia
 
         public void Execute(MessageTypes.StrictlyLocal.ICommand command)
         {
-            _contextGuard.AssertNoContextChangeOccurred(this);
-            MessageInspector.AssertValidToSendLocal(command);
-            CommandValidator.AssertCommandIsValid(command);
+            CommonAssertion(command);
 
             var commandHandler = _handlerRegistry.GetCommandHandler(command);
             commandHandler.Invoke(command);
@@ -36,8 +32,7 @@ namespace Composable.Messaging.Hypermedia
 
         public TResult Execute<TResult>(MessageTypes.StrictlyLocal.IQuery<TResult> query)
         {
-            _contextGuard.AssertNoContextChangeOccurred(this);
-            MessageInspector.AssertValidToSendLocal(query);
+            CommonAssertion(query);
 
             // ReSharper disable once SuspiciousTypeConversion.Global
             //Todo: Test and stop disabling ReSharper warning
@@ -46,6 +41,12 @@ namespace Composable.Messaging.Hypermedia
 
             var queryHandler = _handlerRegistry.GetQueryHandler(query);
             return queryHandler.Invoke(query);
+        }
+
+        void CommonAssertion(MessageTypes.IMessage message)
+        {
+            _contextGuard.AssertNoContextChangeOccurred(this);
+            MessageInspector.AssertValidToSendLocal(message);
         }
     }
 }

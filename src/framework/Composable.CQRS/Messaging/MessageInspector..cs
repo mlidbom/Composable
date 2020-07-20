@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Transactions;
+using Composable.Messaging.Buses.Implementation;
 using Composable.System.Linq;
 
 namespace Composable.Messaging
@@ -13,19 +14,25 @@ namespace Composable.Messaging
 
         internal static void AssertValidToSendRemote(MessageTypes.IMessage message)
         {
+            CommonAssertions(message);
+
             if(message is MessageTypes.StrictlyLocal.IMessage strictlyLocalMessage) throw new AttemptToSendStrictlyLocalMessageRemotely(strictlyLocalMessage);
             if(message is MessageTypes.IRequireTransactionalSender && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IRequireTransactionalSender).FullName} but there is no transaction.");
             if(message is MessageTypes.IForbidTransactionalRemoteSender && Transaction.Current != null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IForbidTransactionalRemoteSender).FullName} but there is a transaction.");
             if(message is MessageTypes.Remotable.IAtMostOnceMessage atMostOnce && atMostOnce.MessageId == Guid.Empty) throw new Exception($"{nameof(MessageTypes.Remotable.IAtMostOnceMessage.MessageId)} was Guid.Empty for message of type: {message.GetType().FullName}");
-
-            MessageTypeInspector.AssertValid(message.GetType());
         }
 
         internal static void AssertValidToSendLocal(MessageTypes.IMessage message)
         {
-            if(message is MessageTypes.IRequireTransactionalSender && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IRequireTransactionalSender).FullName} but there is no transaction.");
+            CommonAssertions(message);
 
+            if(message is MessageTypes.IRequireTransactionalSender && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IRequireTransactionalSender).FullName} but there is no transaction.");
+        }
+
+        static void CommonAssertions(MessageTypes.IMessage message)
+        {
             MessageTypeInspector.AssertValid(message.GetType());
+            if(message is MessageTypes.ICommand command) CommandValidator.AssertCommandIsValid(command);
         }
     }
 }

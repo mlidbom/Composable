@@ -184,15 +184,11 @@ namespace Composable.Messaging.Buses.Implementation
                         switch(response.ResponseType)
                         {
                             case TransportMessage.Response.ResponseType.SuccessWithData:
-                            {
                                 state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId)
                                      .SetResult(() => Assert.Result.NotNull(response.DeserializeResult(_serializer)));
-                            }
                                 break;
                             case TransportMessage.Response.ResponseType.Success:
-                            {
                                 state.ExpectedCompletionTasks.GetAndRemove(response.RespondingToMessageId).SetResult();
-                            }
                                 break;
                             case TransportMessage.Response.ResponseType.FailureExpectedReturnValue:
                                 var failureResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);

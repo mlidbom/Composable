@@ -3,7 +3,6 @@
     <AllowParallelTestExecution>True</AllowParallelTestExecution>
     <HotSpotsLineExclusionList>
       <Value>System\Threading\ResourceAccess\ThreadShared.cs:framework\Composable.CQRS\Composable.CQRS.csproj-82</Value>
-      <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine.Coordinator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-37</Value>
       <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-59</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-65</Value>
       <Value>System\Threading\ResourceAccess\ResourceGuardExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-101</Value>

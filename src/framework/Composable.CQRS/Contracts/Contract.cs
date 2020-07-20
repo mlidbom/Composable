@@ -181,10 +181,7 @@ namespace Composable.Contracts
             return returnValue;
         }
 
-        public static TReturnValue ReturnNotNull<TReturnValue>(TReturnValue returnValue)
-        {
-            return returnValue ?? throw new NullReferenceException("The contract of this method does not allow for a null return value but the return value was null");
-        }
+        [return:NotNull]internal static TReturnValue ReturnNotNull<TReturnValue>(TReturnValue returnValue) => returnValue ?? throw new NullReferenceException("The contract of this method does not allow for a null return value but the return value was null");
 
         static IInspected<TParameter> CreateInspected<TParameter>(Expression<Func<TParameter>>[] arguments, InspectionType inspectionType)
         { //Yes the loop is not as pretty as a linq expression but this is performance critical code that might run in tight loops. If it was not I would be using linq.

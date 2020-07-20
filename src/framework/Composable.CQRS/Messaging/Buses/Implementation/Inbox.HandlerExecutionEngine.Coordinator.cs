@@ -36,8 +36,7 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     HandlerExecutionTask? handlerExecutionTask = null;
                     _implementation.Await(implementation => implementation.TryGetDispatchableMessage(dispatchingRules, out handlerExecutionTask));
-                    Assert.Result.Assert(handlerExecutionTask != null);
-                    return handlerExecutionTask;
+                    return Contract.ReturnNotNull(handlerExecutionTask);
                 }
 
                 public Task<object?> EnqueueMessageTask(TransportMessage.InComing message) => _implementation.Update(implementation =>

@@ -37,13 +37,13 @@ namespace AccountManagement.UI.QueryModels
         }
 
         static void MaintainStatisticsWhenRelevantEventsAreReceived(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForEvent(
-            (AccountEvent.Root @event, ILocalHypermediaNavigator bus, StatisticsSingletonInitializer initializer) =>
+            (AccountEvent.Root @event, ILocalHypermediaNavigator navigator, StatisticsSingletonInitializer initializer) =>
             {
-                initializer.EnsureInitialized(bus);
+                initializer.EnsureInitialized(navigator);
 
                 if(new SingletonStatisticsQuerymodel().HandlesEvent(@event))
                 {
-                    bus.Execute(new DocumentDbApi().Queries.GetForUpdate<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId))
+                    navigator.Execute(new DocumentDbApi().Queries.GetForUpdate<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId))
                        .ApplyEvent(@event);
                 }
             });
@@ -59,16 +59,16 @@ namespace AccountManagement.UI.QueryModels
             readonly object _initializationlock = new object();
             bool _isInitialized;
             readonly DocumentDbApi _documentDbApi = new DocumentDbApi();
-            public void EnsureInitialized(ILocalHypermediaNavigator bus)
+            public void EnsureInitialized(ILocalHypermediaNavigator navigator)
             {
                 lock(_initializationlock)
                 {
                     if(!_isInitialized)
                     {
                         _isInitialized = true;
-                        if(bus.Execute(_documentDbApi.Queries.TryGet<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId)) is None<SingletonStatisticsQuerymodel>)
+                        if(navigator.Execute(_documentDbApi.Queries.TryGet<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId)) is None<SingletonStatisticsQuerymodel>)
                         {
-                            bus.Execute(_documentDbApi.Commands.Save(new SingletonStatisticsQuerymodel()));
+                            navigator.Execute(_documentDbApi.Commands.Save(new SingletonStatisticsQuerymodel()));
                         }
                     }
                 }

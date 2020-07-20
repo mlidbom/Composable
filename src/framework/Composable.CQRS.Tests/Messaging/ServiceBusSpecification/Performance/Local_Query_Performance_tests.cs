@@ -33,7 +33,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
                 {
                     for(int i = 0; i < queriesPerRequest; i++)
                     {
-                        ServerBusSession.Execute(new MyLocalQuery());
+                        LocalNavigator.Execute(new MyLocalQuery());
                     }
                 });
             }

@@ -42,8 +42,8 @@ namespace AccountManagement.UI.QueryModels
             public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => Get(registrar);
 
             static void Get(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-                (MessageTypes.StrictlyLocal.Queries.EntityLink<AccountQueryModel> query, ILocalHypermediaNavigator bus) =>
-                    new AccountQueryModel(bus.Execute(new EventStoreApi().Queries.GetHistory<AccountEvent.Root>(query.EntityId))));
+                (MessageTypes.StrictlyLocal.Queries.EntityLink<AccountQueryModel> query, ILocalHypermediaNavigator navigator) =>
+                    new AccountQueryModel(navigator.Execute(new EventStoreApi().Queries.GetHistory<AccountEvent.Root>(query.EntityId))));
         }
     }
 }

@@ -41,14 +41,14 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        internal static (RegistrationAttemptStatus Status, Account? Registered) Register(Guid accountId, Email email ,Password password, ILocalHypermediaNavigator bus)
+        internal static (RegistrationAttemptStatus Status, Account? Registered) Register(Guid accountId, Email email ,Password password, ILocalHypermediaNavigator navigator)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
-            Contract.Argument(() => accountId, () => email, () => password, () => bus).NotNullOrDefault();
+            Contract.Argument(() => accountId, () => email, () => password, () => navigator).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so duplicates are forbidden.
-            if(bus.Execute(InternalApi.Queries.TryGetByEmail(email)) is Some<Account>)
+            if(navigator.Execute(InternalApi.Queries.TryGetByEmail(email)) is Some<Account>)
             {
                 return (RegistrationAttemptStatus.EmailAlreadyRegistered, null);
             }
@@ -56,7 +56,7 @@ namespace AccountManagement.Domain
             var newAccount = new Account();
             newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
 
-            bus.Execute(InternalApi.Commands.Save(newAccount));
+            navigator.Execute(InternalApi.Commands.Save(newAccount));
 
             return (RegistrationAttemptStatus.Successful, newAccount);
         }

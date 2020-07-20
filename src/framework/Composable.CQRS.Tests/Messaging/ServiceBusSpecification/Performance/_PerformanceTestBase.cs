@@ -22,6 +22,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         public IEndpoint ClientEndpoint;
         protected IRemoteHypermediaNavigator RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteHypermediaNavigator>();
         protected IServiceBusSession ServerBusSession => ServerEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
+        protected ILocalHypermediaNavigator LocalNavigator => ServerEndpoint.ServiceLocator.Resolve<ILocalHypermediaNavigator>();
 
         [SetUp] public async Task Setup()
         {

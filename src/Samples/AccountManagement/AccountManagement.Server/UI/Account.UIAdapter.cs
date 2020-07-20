@@ -14,11 +14,11 @@ namespace AccountManagement.UI
     static class AccountUIAdapter
     {
         public static void Login(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
-            (AccountResource.Command.LogIn logIn, ILocalHypermediaNavigator bus) =>
+            (AccountResource.Command.LogIn logIn, ILocalHypermediaNavigator navigator) =>
             {
                 var email = Email.Parse(logIn.Email);
 
-                if(bus.Execute(InternalApi.Queries.TryGetByEmail(email)) is Some<Account> account)
+                if(navigator.Execute(InternalApi.Queries.TryGetByEmail(email)) is Some<Account> account)
                 {
                     return account.Value.Login(logIn.Password) switch
                     {
@@ -33,12 +33,12 @@ namespace AccountManagement.UI
             });
 
         internal static void ChangePassword(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
-            (AccountResource.Command.ChangePassword command, ILocalHypermediaNavigator bus) =>
-                bus.Execute(InternalApi.Queries.GetForUpdate(command.AccountId)).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
+            (AccountResource.Command.ChangePassword command, ILocalHypermediaNavigator navigator) =>
+                navigator.Execute(InternalApi.Queries.GetForUpdate(command.AccountId)).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
 
         internal static void ChangeEmail(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommand(
-            (AccountResource.Command.ChangeEmail command, ILocalHypermediaNavigator bus) =>
-                bus.Execute(InternalApi.Queries.GetForUpdate(command.AccountId)).ChangeEmail(Email.Parse(command.Email)));
+            (AccountResource.Command.ChangeEmail command, ILocalHypermediaNavigator navigator) =>
+                navigator.Execute(InternalApi.Queries.GetForUpdate(command.AccountId)).ChangeEmail(Email.Parse(command.Email)));
 
         internal static void Register(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForCommandWithResult(
             (AccountResource.Command.Register command, ILocalHypermediaNavigator bus) =>
@@ -53,7 +53,7 @@ namespace AccountManagement.UI
             });
 
         internal static void GetById(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) => registrar.ForQuery(
-            (MessageTypes.Remotable.NonTransactional.Queries.EntityLink<AccountResource> accountQuery, ILocalHypermediaNavigator bus)
-                => new AccountResource(bus.Execute(InternalApi.AccountQueryModel.Queries.Get(accountQuery.EntityId))));
+            (MessageTypes.Remotable.NonTransactional.Queries.EntityLink<AccountResource> accountQuery, ILocalHypermediaNavigator navigator)
+                => new AccountResource(navigator.Execute(InternalApi.AccountQueryModel.Queries.Get(accountQuery.EntityId))));
     }
 }

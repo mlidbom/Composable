@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Messaging.Hypermedia;
 using Composable.System.Threading;
 using JetBrains.Annotations;
 
-namespace Composable.Messaging.Buses
+namespace Composable.Messaging.Hypermedia
 {
     //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
     [UsedImplicitly] class RemoteApiBrowserSession : IRemoteHypermediaNavigator

@@ -3,12 +3,12 @@
 #For PersistenceLayer: MsSql is Microsoft Sql Server, PgSql is PostgreSql, MySql is hopefully obvious , Orcl is Oracle Database, DB2 is IBM DB2
 #For DIContainer: Com is Composable, Sim is SimpleInjector, Win is Windsor
 
-#MsSql:Com
+MsSql:Com
 Memory:Com
-#MySql:Com
-#PgSql:Com
-#Orcl:Com
-#DB2:Com
+MySql:Com
+PgSql:Com
+Orcl:Com
+DB2:Com
 
 #MsSql:Sim
 Memory:Sim

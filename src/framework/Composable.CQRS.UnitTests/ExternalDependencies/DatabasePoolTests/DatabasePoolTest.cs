@@ -72,7 +72,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 
         static void UseComposableDB2Connection(string connectionStringFor, Action<IDbConnection> func) =>
             new ComposableDB2ConnectionProvider(connectionStringFor).UseConnection(conn => func(conn.Connection));
-        
+
         public DatabasePoolTest(string _) : base(_) {}
     }
 }

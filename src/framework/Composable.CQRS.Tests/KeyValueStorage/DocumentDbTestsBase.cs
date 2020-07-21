@@ -8,8 +8,8 @@ using NCrunch.Framework;
 
 namespace Composable.Tests.KeyValueStorage
 {
-    [ConfigurationBasedDuplicateByDimensions]
-    class DocumentDbTestsBase
+    //[ConfigurationBasedDuplicateByDimensions]
+    class DocumentDbTestsBase : DuplicateByPluggableComponentTest
     {
         protected IDocumentDb CreateStore() => TestWiringHelper.DocumentDb(ServiceLocator);
         protected IServiceLocator ServiceLocator { get; private set; }
@@ -39,5 +39,6 @@ namespace Composable.Tests.KeyValueStorage
         {
             ServiceLocator.ExecuteInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader()));
         }
+        public DocumentDbTestsBase([NotNull] string _) : base(_) {}
     }
 }

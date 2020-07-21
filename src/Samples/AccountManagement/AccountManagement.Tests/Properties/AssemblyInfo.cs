@@ -2,4 +2,4 @@
 using Composable.Testing;
 using NCrunch.Framework;
 
-[assembly:ConfigurationBasedDuplicateByDimensions]
+//[assembly:ConfigurationBasedDuplicateByDimensions]

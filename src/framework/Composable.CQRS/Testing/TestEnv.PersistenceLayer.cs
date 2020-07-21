@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Composable.DependencyInjection;
+using Composable.System;
 using Composable.System.Configuration;
 using Composable.System.Reflection;
 using NCrunch.Framework;
+using NUnit.Framework;
+using NUnit.Framework.Internal;
 
 namespace Composable.Testing
 {
@@ -12,34 +17,14 @@ namespace Composable.Testing
         ///<summary>Persistence layer members</summary>
         internal static class PersistenceLayer
         {
-            public static DependencyInjection.PersistenceLayer Current
-            {
-                get
-                {
-                    if(IsRunningUnderNCrunch) return GetNCrunchProvider();
-
-                    return GetConfigurationFileSpecifiedProvider();
-                }
-            }
-
-            static DependencyInjection.PersistenceLayer GetConfigurationFileSpecifiedProvider()
-            {
-                const string composableTestingPersistenceLayerParameterName = "Composable.Testing.PersistenceLayer";
-
-                var configurationReader = new AppSettingsJsonConfigurationParameterProvider();
-                var configurationValue = configurationReader.GetString(composableTestingPersistenceLayerParameterName);
-
-                if(!Enum.TryParse(configurationValue, out DependencyInjection.PersistenceLayer persistenceLayer))
-                {
-                    throw new Exception($"The configuration parameter:{composableTestingPersistenceLayerParameterName} has an invalid value: {configurationValue}. It must be one of the values in: {typeof(DependencyInjection.PersistenceLayer).GetFullNameCompilable()}.");
-                }
-                return persistenceLayer;
-            }
+            public static DependencyInjection.PersistenceLayer Current => GetNCrunchProvider();
 
             static DependencyInjection.PersistenceLayer GetNCrunchProvider()
             {
-                var dimensionValues = NCrunchEnvironment.GetDuplicatedDimension().Split(":");
-                var storageProviderName = dimensionValues[0];
+                var testName = TestContext.CurrentContext.Test.FullName;
+                var match = FindDimensions.Match(testName);
+
+                var storageProviderName = match.Groups[1].Value;
                 if(!Enum.TryParse(storageProviderName, out DependencyInjection.PersistenceLayer provider))
                 {
                     throw new Exception($"Failed to parse PersistenceLayerProvider from test environment. Value was: {storageProviderName}");
@@ -69,24 +54,23 @@ namespace Composable.Testing
             }
         }
 
+        static readonly Regex FindDimensions = new Regex(@"\(""(.*)\:(.*)""\)", RegexOptions.Compiled);
         internal static class DIContainer
         {
-            internal static DependencyInjection.DIContainer Current
-            {
-                get
-                {
-                    {
-                        var duplicatedDimension = NCrunchEnvironment.GetDuplicatedDimension();
-                        var dimensionValues = duplicatedDimension.Split(":");
-                        var containerName = dimensionValues[1];
-                        if(!Enum.TryParse(containerName, out DependencyInjection.DIContainer provider))
-                        {
-                            throw new Exception($"Failed to parse DIContainer from test environment. Value was: {containerName}");
-                        }
+            internal static DependencyInjection.DIContainer Current => GetNCrunchConfiguredDiContainer();
 
-                        return provider;
-                    }
+            static DependencyInjection.DIContainer GetNCrunchConfiguredDiContainer()
+            {
+                var testName = TestContext.CurrentContext.Test.FullName;
+                var match = FindDimensions.Match(testName);
+
+                var containerName = match.Groups[2].Value;
+                if (!Enum.TryParse(containerName, out DependencyInjection.DIContainer provider))
+                {
+                    throw new Exception($"Failed to parse DIContainer from test environment. Value was: {containerName}");
                 }
+
+                return provider;
             }
         }
     }

@@ -15,7 +15,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
-    [TestFixture, Performance, Serial] public class PerformanceTestBase
+    [Performance, Serial] public class PerformanceTestBase : DuplicateByPluggableComponentTest
     {
         protected ITestingEndpointHost Host;
         protected IEndpoint ServerEndpoint;
@@ -52,5 +52,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         protected class MyRemoteQuery : MessageTypes.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
         protected class MyLocalQuery : MessageTypes.StrictlyLocal.Queries.Query<MyQueryResult> {}
         protected class MyQueryResult {}
+
+        public PerformanceTestBase(string _) : base(_) {}
     }
 }

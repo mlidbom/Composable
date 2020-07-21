@@ -19,8 +19,8 @@ using NCrunch.Framework;
 
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
-    [ConfigurationBasedDuplicateByDimensions]
-    public class DatabasePoolTest
+    //[ConfigurationBasedDuplicateByDimensions]
+    public class DatabasePoolTest : DuplicateByPluggableComponentTest
     {
         internal static DatabasePool CreatePool() =>
             TestEnv.PersistenceLayer.Current switch
@@ -72,5 +72,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 
         static void UseComposableDB2Connection(string connectionStringFor, Action<IDbConnection> func) =>
             new ComposableDB2ConnectionProvider(connectionStringFor).UseConnection(conn => func(conn.Connection));
+        
+        public DatabasePoolTest(string _) : base(_) {}
     }
 }

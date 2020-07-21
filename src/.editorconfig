@@ -44,3 +44,6 @@ dotnet_diagnostic.CA2000.severity = silent
 
 # CA1801: Review unused parameters
 dotnet_diagnostic.CA1801.severity = suggestion
+
+# CA1724: The type name Commands conflicts in whole or in part with the namespace name 'NUnit.Framework.Internal.Commands'. Change either name to eliminate the conflict.
+dotnet_diagnostic.CA1724.severity = suggestion

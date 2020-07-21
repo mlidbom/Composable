@@ -14,6 +14,7 @@ using Composable.System.Transactions;
 using Composable.Testing;
 using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
 using FluentAssertions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 // ReSharper disable AccessToDisposedClosure
@@ -22,8 +23,7 @@ using NUnit.Framework;
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     //Urgent: Create powershell script that adds all the windows defender exclusions needed to keep visual studio and ncrunch running along happily with all of these different databases on all of these different machines.
-    [ConfigurationBasedDuplicateByDimensions]
-    [TestFixture]
+    //[ConfigurationBasedDuplicateByDimensions]
     public class EventMigrationTest : EventMigrationTestBase
     {
         [Test]
@@ -617,5 +617,6 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             EventMigrationTestBase.AssertStreamsAreIdentical(firstProcessHistory, secondProcessHistory, "Both process histories should be identical");
         }
+        public EventMigrationTest([NotNull] string _) : base(_) {}
     }
 }

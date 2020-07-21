@@ -8,6 +8,7 @@ using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.MsSql.DependencyInjection;
 using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.System;
+using Composable.Testing;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;
@@ -15,7 +16,7 @@ using NUnit.Framework;
 namespace Composable.Tests.Messaging.ServiceBusSpecification
 {
     using Composable.System;
-    public class When_scheduling_commands_to_be_sent_in_the_future
+    public class When_scheduling_commands_to_be_sent_in_the_future : DuplicateByPluggableComponentTest
     {
         IUtcTimeTimeSource _timeSource;
         IThreadGate _receivedCommandGate;
@@ -71,5 +72,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         }
 
         class ScheduledCommand : MessageTypes.Remotable.ExactlyOnce.Command {}
+
+        public When_scheduling_commands_to_be_sent_in_the_future(string _) : base(_) {}
     }
 }

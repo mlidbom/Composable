@@ -1,5 +1,6 @@
 ﻿using AccountManagement.UserStories.Scenarios;
 using FluentAssertions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace AccountManagement.UserStories
@@ -19,5 +20,7 @@ namespace AccountManagement.UserStories
 
         [Test] public void Logging_in_with_the_old_password_fails() =>
             Scenario.Login(_changePasswordScenario.Account.Email, _changePasswordScenario.OldPassword).Execute().Succeeded.Should().Be(false);
+
+        public _031_After_a_user_changes_their_password([NotNull] string _) : base(_) {}
     }
 }

@@ -58,5 +58,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             MyCreateAggregateCommandHandlerThreadGate.AwaitQueueLengthEqualTo(1)
                                     .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
         }
+
+        public Parallelism_policies(string _) : base(_) {}
     }
 }

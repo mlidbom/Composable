@@ -15,7 +15,7 @@ using Composable.Testing;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
-    [TestFixture, Performance, Serial] public class RemoteQueryPerformanceTests : PerformanceTestBase
+    [Performance, Serial] public class RemoteQueryPerformanceTests : PerformanceTestBase
     {
         [Test, Serial] public void SingleThreaded_Runs_100_local_requests_making_one_remote_query_each_in_50_milliseconds() =>
             RunScenario(threaded: false, requests: 100.IfInstrumentedDivideBy(1.3), queriesPerRequest: 1, maxTotal: 50.Milliseconds());
@@ -86,5 +86,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 
             await TimeAsserter.ExecuteAsync(RunScenario, maxTotal: maxTotal);
         }
+
+        public RemoteQueryPerformanceTests(string _) : base(_) {}
     }
 }

@@ -12,6 +12,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.Persistence.MsSql.DependencyInjection;
 using Composable.Persistence.MsSql.Messaging.Buses;
+using Composable.Testing;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;
@@ -23,7 +24,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 {
     using Composable.System;
 
-    [TestFixture]public class Experiment_with_unifying_events_and_commands_test
+    public class Experiment_with_unifying_events_and_commands_test : DuplicateByPluggableComponentTest
     {
         ITestingEndpointHost _host;
 
@@ -195,5 +196,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public GetUserQuery UserLink { get; private set; }
             public RegisterUserResult(Guid userId) => UserLink = new GetUserQuery(userId);
         }
+
+        public Experiment_with_unifying_events_and_commands_test(string _) : base(_) {}
     }
 }

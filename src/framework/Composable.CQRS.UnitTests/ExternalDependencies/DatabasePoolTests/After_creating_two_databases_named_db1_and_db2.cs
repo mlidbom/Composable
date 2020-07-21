@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
-    [TestFixture] public class After_creating_two_databases_named_db1_and_db2 : DatabasePoolTest
+    public class After_creating_two_databases_named_db1_and_db2 : DatabasePoolTest
     {
         DatabasePool _manager;
         const string Db1 = "LocalDBManagerTests_After_creating_connection_Db1";
@@ -81,5 +81,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     .Where(exceptionExpression: exception => exception.Message.ToLowerInvariant()
                                                                       .Contains("disposed"));
         }
+
+        public After_creating_two_databases_named_db1_and_db2(string _) : base(_) {}
     }
 }

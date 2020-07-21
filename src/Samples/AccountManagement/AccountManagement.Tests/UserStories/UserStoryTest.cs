@@ -5,11 +5,13 @@ using AccountManagement.UserStories.Scenarios;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Persistence.MsSql.Messaging.Buses;
+using Composable.Testing;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace AccountManagement.UserStories
 {
-    [TestFixture] public abstract class UserStoryTest
+    public class UserStoryTest : DuplicateByPluggableComponentTest
     {
         protected ITestingEndpointHost Host;
         IEndpoint _clientEndpoint;
@@ -24,5 +26,7 @@ namespace AccountManagement.UserStories
         }
 
         [TearDown] public void Teardown() => Host.Dispose();
+
+        public UserStoryTest([NotNull] string _) : base(_) {}
     }
 }

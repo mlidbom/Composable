@@ -24,9 +24,8 @@ namespace Composable.Tests.CQRS
         }
     }
 
-    [ConfigurationBasedDuplicateByDimensions]
-    [TestFixture]
-    public class EventStoreTests
+    //[ConfigurationBasedDuplicateByDimensions]
+    public class EventStoreTests : DuplicateByPluggableComponentTest
     {
         IEventStore EventStore => _serviceLocator.EventStore();
 
@@ -197,5 +196,6 @@ namespace Composable.Tests.CQRS
 
             Assert.That(firstRead, Is.SameAs(secondRead));
         }
+        public EventStoreTests(string _) : base(_) {}
     }
 }

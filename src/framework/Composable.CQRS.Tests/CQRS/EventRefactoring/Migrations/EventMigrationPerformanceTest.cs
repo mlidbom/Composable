@@ -14,11 +14,12 @@ using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.System;
 using Composable.Testing;
+using JetBrains.Annotations;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
-    [ConfigurationBasedDuplicateByDimensions]
-    [TestFixture, Performance, LongRunning, Serial]
+    //[ConfigurationBasedDuplicateByDimensions]
+    [Performance, LongRunning, Serial]
     public class EventMigrationPerformanceTest : EventMigrationTestBase
     {
         List<AggregateEvent> _history;
@@ -114,5 +115,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 maxCachedLoadTime: TestEnv.PersistenceLayer.ValueFor(msSql: 5, mySql: 5, pgSql: 5, orcl: 5, inMem: 5, db2:5).Milliseconds().IfInstrumentedMultiplyBy(2.5),
                                                       eventMigrations);
         }
+
+        public EventMigrationPerformanceTest([NotNull] string _) : base(_) {}
     }
 }

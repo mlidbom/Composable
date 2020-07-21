@@ -17,6 +17,8 @@ using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 using Composable.System;
+using Composable.Testing;
+
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable InconsistentNaming for testing
 
@@ -24,7 +26,7 @@ using Composable.System;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
-    public class Fixture
+    public class Fixture : DuplicateByPluggableComponentTest
     {
         internal ITestingEndpointHost Host;
         internal IThreadGate CommandHandlerThreadGate;
@@ -200,5 +202,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             internal static MyAtMostOnceCommandWithResult Create() => new MyAtMostOnceCommandWithResult {MessageId = Guid.NewGuid()};
         }
         protected class MyCommandResult {}
+
+        public Fixture(string _) : base(_) {}
     }
 }

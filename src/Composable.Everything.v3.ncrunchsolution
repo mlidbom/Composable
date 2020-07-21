@@ -115,7 +115,7 @@
       <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-58</Value>
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-9</Value>
       <Value>System\Threading\TaskRunner.cs:framework\Composable.CQRS\Composable.CQRS.csproj-25</Value>
-      <Value>Messaging\ServiceBusSpecification\Given_a_backend_endpoint_with_a_command_event_and_query_handler\_Fixture.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-98</Value>
+      <Value>Messaging\ServiceBusSpecification\Given_a_backend_endpoint_with_a_command_event_and_query_handler\_Fixture.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-100</Value>
       <Value>CQRS\EventRefactoring\Migrations\EventMigrationTestBase.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-41</Value>
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-58</Value>
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-20</Value>

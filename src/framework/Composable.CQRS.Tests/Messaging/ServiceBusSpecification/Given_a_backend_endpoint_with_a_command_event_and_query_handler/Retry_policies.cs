@@ -28,5 +28,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Test] public void Command_handler_is_tried_5_times() => MyCreateAggregateCommandHandlerThreadGate.Passed.Should().Be(expected: 5);
 
         [Test] public void ExactlyOnce_Event_raised_in_handler_reaches_local_handler_5_times() => MyLocalAggregateEventHandlerThreadGate.Passed.Should().Be(expected: 5);
+
+        public Retry_policies_AtMostOnceCommand_when_command_handler_fails(string _) : base(_) {}
     }
 }

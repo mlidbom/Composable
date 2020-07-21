@@ -10,19 +10,19 @@ using Composable.Testing;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
-    [TestFixture, Performance, Serial] public class Local_Query_performance_tests : PerformanceTestBase
+    [Performance, Serial] public class Local_Query_performance_tests : PerformanceTestBase
     {
         [Test, Serial] public void Runs_10_000__MultiThreaded_local_requests_making_a_single_local_query_each_in_25_milliseconds() =>
             RunScenario(threaded: true, requests: 10_000.IfInstrumentedDivideBy(12), queriesPerRequest: 1, maxTotal: 25.Milliseconds());
 
-        [Test, Serial] public void Runs_10_000_SingleThreaded_local_requests_making_a_single_local_query_in_50_milliseconds() =>
-            RunScenario(threaded: false, requests: 10_000.IfInstrumentedDivideBy(6), queriesPerRequest: 1, maxTotal: 50.Milliseconds());
+        [Test, Serial] public void Runs_10_000_SingleThreaded_local_requests_making_a_single_local_query_in_100_milliseconds() =>
+            RunScenario(threaded: false, requests: 10_000.IfInstrumentedDivideBy(6), queriesPerRequest: 1, maxTotal: 100.Milliseconds());
 
-        [Test, Serial] public void Runs_10_000__MultiThreaded_local_requests_making_10_local_queries_each_in_70_milliseconds() =>
-            RunScenario(threaded: true, requests: 10_000.IfInstrumentedDivideBy(11), queriesPerRequest: 10, maxTotal: 70.Milliseconds());
+        [Test, Serial] public void Runs_10_000__MultiThreaded_local_requests_making_10_local_queries_each_in_130_milliseconds() =>
+            RunScenario(threaded: true, requests: 10_000.IfInstrumentedDivideBy(11), queriesPerRequest: 10, maxTotal: 130.Milliseconds());
 
         [Test, Serial] public void Runs_1_000__SingleThreaded_local_requests_making_10_local_queries_each_in_20_milliseconds() =>
-            RunScenario(threaded: false, requests: 1_000.IfInstrumentedDivideBy(5), queriesPerRequest: 10, maxTotal: 20.Milliseconds());
+            RunScenario(threaded: false, requests: 1_000.IfInstrumentedDivideBy(5), queriesPerRequest: 10, maxTotal: 30.Milliseconds());
 
         void RunScenario(bool threaded, int requests, int queriesPerRequest, TimeSpan maxTotal)
         {
@@ -49,6 +49,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
                 TimeAsserter.Execute(RunRequest, iterations: requests, maxTotal: maxTotal);
             }
         }
+
+        public Local_Query_performance_tests(string _) : base(_) {}
     }
 }
 

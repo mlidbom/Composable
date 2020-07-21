@@ -12,6 +12,15 @@
         <TestName>Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql.EventStoreUpdaterTests.Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed</TestName>
         <DuplicatedDimension>InMemory</DuplicatedDimension>
       </NamedTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Composable.Tests.KeyValueStorage.DocumentDbTestsBase("Memory:Com")</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Composable.Tests.KeyValueStorage.DocumentDbTestsBase("Memory:Sim")</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Composable.Tests.KeyValueStorage.DocumentDbTestsBase("Memory:Win")</FixtureName>
+      </FixtureTestSelector>
     </IgnoredTests>
   </Settings>
 </ProjectConfiguration>

@@ -20,5 +20,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
             Task.WaitAll(result1, result2);
         }
+
+        public Query_policies(string _) : base(_) {}
     }
 }

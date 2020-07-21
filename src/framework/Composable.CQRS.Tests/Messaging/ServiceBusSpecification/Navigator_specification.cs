@@ -9,6 +9,7 @@ using Composable.Messaging.Hypermedia;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.MsSql.DependencyInjection;
 using Composable.Persistence.MsSql.Messaging.Buses;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -16,7 +17,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification
 {
-    [TestFixture] public class Navigator_specification
+    public class Navigator_specification : DuplicateByPluggableComponentTest
     {
 
         ITestingEndpointHost _host;
@@ -125,5 +126,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
         }
 
         class UserApiStartPageQuery : MessageTypes.Remotable.NonTransactional.Queries.Query<UserApiStartPage> {}
+        public Navigator_specification(string _) : base(_) {}
     }
 }

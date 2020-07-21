@@ -52,5 +52,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         readonly IntentionalException _thrownException = new IntentionalException();
         class IntentionalException : Exception {}
+
+        public Fixture_tests(string _) : base(_) {}
     }
 }

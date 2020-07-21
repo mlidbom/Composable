@@ -13,12 +13,12 @@ using FluentAssertions;
 using NUnit.Framework;
 using Composable.System;
 using Composable.Testing;
+using JetBrains.Annotations;
 
 // ReSharper disable AccessToDisposedClosure
 
 namespace Composable.Tests.KeyValueStorage
 {
-    [TestFixture]
     class DocumentDbTests : DocumentDbTestsBase
     {
         [Test]
@@ -782,5 +782,6 @@ namespace Composable.Tests.KeyValueStorage
                                        .Should()
                                        .Be(1));
         }
+        public DocumentDbTests([NotNull] string _) : base(_) {}
     }
 }

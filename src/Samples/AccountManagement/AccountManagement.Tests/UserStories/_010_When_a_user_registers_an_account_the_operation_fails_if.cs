@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.System.Linq;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace AccountManagement.UserStories
@@ -18,5 +19,7 @@ namespace AccountManagement.UserStories
 
         [Test] public void AccountId_is_empty()
             => Scenario.Register.WithAccountId(Guid.Empty).ExecutingShouldThrow<Exception>();
+
+        public _010_When_a_user_registers_an_account_the_operation_fails_if([NotNull] string _) : base(_) {}
     }
 }

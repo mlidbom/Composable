@@ -42,5 +42,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                                    .Should()
                                                    .Be(false, "event should not reach handler");
         }
+
+        public Exacly_once_guarantee_tests(string _) : base(_) {}
     }
 }

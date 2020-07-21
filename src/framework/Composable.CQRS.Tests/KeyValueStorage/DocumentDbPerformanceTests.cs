@@ -2,13 +2,14 @@
 using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions.Extensions;
+using JetBrains.Annotations;
 using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.KeyValueStorage
 {
     [Performance, LongRunning, Serial]
-    [TestFixture] class DocumentDbPerformanceTests : DocumentDbTestsBase
+    class DocumentDbPerformanceTests : DocumentDbTestsBase
     {
         [Test] public void Saves_100_documents_in_milliseconds_msSql_75_MySql_300_InMemory_8_PgSql_100_Orcl_100_DB2_300()
         {
@@ -35,5 +36,7 @@ namespace Composable.Tests.KeyValueStorage
                 );
             });
         }
+
+        public DocumentDbPerformanceTests([NotNull] string _) : base(_) {}
     }
 }

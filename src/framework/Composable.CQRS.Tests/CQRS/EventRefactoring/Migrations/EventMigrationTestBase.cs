@@ -17,14 +17,14 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using Composable.System;
 using Composable.Testing;
+using JetBrains.Annotations;
 
 // ReSharper disable AccessToModifiedClosure
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
-    [TestFixture]
     //refactor: this test. It is too monolithic and hard to read and extend.
-    public abstract class EventMigrationTestBase
+    public abstract class EventMigrationTestBase : DuplicateByPluggableComponentTest
     {
         internal void RunMigrationTest(params MigrationScenario[] scenarios)
         {
@@ -244,5 +244,6 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 throw;
             }
         }
+        protected EventMigrationTestBase([NotNull] string _) : base(_) {}
     }
 }

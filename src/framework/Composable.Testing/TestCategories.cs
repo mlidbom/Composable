@@ -29,12 +29,12 @@ namespace Composable.Testing
     {
         public ConfigurationBasedDuplicateByDimensionsAttribute() : base(CreateDimensions()) {}
 
-        const string NCrunchPersistenceLayers = "NCrunchDuplicateByDimensions";
-        static string[] CreateDimensions()
+        const string NCrunchDuplicateByDimensions = "NCrunchDuplicateByDimensions";
+        public static string[] CreateDimensions()
         {
             try
             {
-                return File.ReadAllLines(NCrunchPersistenceLayers)
+                return File.ReadAllLines(NCrunchDuplicateByDimensions)
                            .Select(@this => @this.Trim())
                            .Where(line => !string.IsNullOrEmpty(line))
                            .Where(line => !line.StartsWith("#", StringComparison.InvariantCulture))

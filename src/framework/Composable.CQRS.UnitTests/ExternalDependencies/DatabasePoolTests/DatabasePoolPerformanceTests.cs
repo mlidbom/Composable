@@ -18,7 +18,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
     //Urgent: Consider whether these tests should run all the time. Don't they sort of mess up the performance of the pool by involving more databases than necessary, growing the connection pools, trashing cache locality etc?
     //Urgent: Review usage of Serial attribute. Remember: This stops all other tests from running!
-    [TestFixture, Performance, Serial]
+    [Performance, Serial]
     public class DatabasePoolPerformanceTests : DatabasePoolTest
     {
         [OneTimeSetUp]public void WarmUpCache()
@@ -162,5 +162,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                maxTotal: TestEnv.PersistenceLayer.ValueFor(msSql:5, mySql: 30, pgSql:1, orcl:10, db2: 50).Milliseconds()
            );
         }
+
+        public DatabasePoolPerformanceTests(string _) : base(_) {}
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AccountManagement.Domain.Registration;
 using AccountManagement.UserStories.Scenarios;
 using FluentAssertions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace AccountManagement.UserStories
@@ -30,5 +31,7 @@ namespace AccountManagement.UserStories
             Scenario.Register.WithEmail(_changeEmailScenario.NewEmail).Execute()
                     .Result.Status
                     .Should().Be(RegistrationAttemptStatus.EmailAlreadyRegistered);
+
+        public _041_After_a_user_changes_their_email([NotNull] string _) : base(_) {}
     }
 }

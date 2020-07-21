@@ -46,7 +46,7 @@ namespace AccountManagement
             internal static IReadOnlyList<StringTestData> InvalidEmailsTestData =>
                 new List<StringTestData>
                 {
-                    new StringTestData(null, "Is null null"),
+                    new StringTestData(null, "Is null"),
                     new StringTestData(string.Empty, "Is empty"),
                     new StringTestData("test.com", "Missing @ character"),
                     new StringTestData("test@test.com ", "Missing domain"),

@@ -13,18 +13,18 @@ namespace Composable.Testing
         public DuplicateByPluggableComponentTest(string _) {}
     }
 
-    class PluggableComponentsTestFixtureSource : IEnumerable<string>
+     class PluggableComponentsTestFixtureSource : IEnumerable<string>
     {
         static readonly List<string> Dimensions = CreateDimensions().ToList();
         public IEnumerator<string> GetEnumerator() => Dimensions.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        const string NCrunchDuplicateByDimensions = "TestUsingPluggableComponentCombinations";
+        const string TestUsingPluggableComponentCombinations = "TestUsingPluggableComponentCombinations";
         static string[] CreateDimensions()
         {
             try
             {
-                return File.ReadAllLines(NCrunchDuplicateByDimensions)
+                return File.ReadAllLines(TestUsingPluggableComponentCombinations)
                            .Select(@this => @this.Trim())
                            .Where(line => !string.IsNullOrEmpty(line))
                            .Where(line => !line.StartsWith("#", StringComparison.InvariantCulture))

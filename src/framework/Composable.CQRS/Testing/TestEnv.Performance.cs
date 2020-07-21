@@ -35,8 +35,8 @@ namespace Composable.Testing
                 return time.Total > 1.Milliseconds();
             }
 
-            public static readonly double MachineSlowness = DetectEnvironmentPerformanceAdjustment();
-            public const string MachineSlownessEnvironmentVariable = "COMPOSABLE_MACHINE_SLOWNESS";
+            static readonly double MachineSlowness = DetectEnvironmentPerformanceAdjustment();
+            const string MachineSlownessEnvironmentVariable = "COMPOSABLE_MACHINE_SLOWNESS";
             static double DetectEnvironmentPerformanceAdjustment()
             {
                 var environmentOverride = Environment.GetEnvironmentVariable(MachineSlownessEnvironmentVariable);

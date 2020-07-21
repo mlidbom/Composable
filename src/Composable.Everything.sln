@@ -35,8 +35,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F37276A7-E72D-49E1-9F74-06134C77B5FA}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		NCrunchPersistenceProviders.csv = NCrunchPersistenceProviders.csv
-		NCrunchPersistenceProviders.csv.example = NCrunchPersistenceProviders.csv.example
+		NCrunchPersistenceProviders = NCrunchPersistenceProviders
+		NCrunchPersistenceProviders.example = NCrunchPersistenceProviders.example
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject

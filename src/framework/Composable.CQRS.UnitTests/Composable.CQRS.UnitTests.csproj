@@ -61,16 +61,13 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="NCrunchPersistenceProviders">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="System\Threading\Tasks\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\..\NCrunchPersistenceProviders.csv" Link="NCrunchPersistenceProviders.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

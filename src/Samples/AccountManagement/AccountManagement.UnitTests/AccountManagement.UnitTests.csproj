@@ -14,12 +14,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\NCrunchPersistenceProviders.csv" Link="NCrunchPersistenceProviders.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0">
@@ -33,6 +27,12 @@
     <ProjectReference Include="..\..\..\framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
     <ProjectReference Include="..\AccountManagement.API\AccountManagement.API.csproj" />
     <ProjectReference Include="..\AccountManagement.Server\AccountManagement.Server.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="NCrunchPersistenceProviders">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

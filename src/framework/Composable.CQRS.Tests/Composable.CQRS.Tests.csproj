@@ -24,12 +24,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\NCrunchPersistenceProviders.csv" Link="NCrunchPersistenceProviders.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
     <PackageReference Include="NetMQ" Version="4.0.0.207" />
@@ -62,6 +56,9 @@
 
   <ItemGroup>
     <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="NCrunchPersistenceProviders">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

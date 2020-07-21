@@ -28,21 +28,22 @@ namespace Composable.Testing
     {
         public ConfigurationBasedDuplicateByDimensionsAttribute(bool excludeMemory = false) : base(CreateDimensions(excludeMemory)) {}
 
-        const string NCrunchPersistenceProvidersCsv = "NCrunchPersistenceProviders.csv";
+        const string NCrunchPersistenceProviders = "NCrunchPersistenceProviders";
         static string[] CreateDimensions(bool excludeMemory)
         {
             try
             {
-                if(!File.Exists(NCrunchPersistenceProvidersCsv)) throw new Exception($@"
-Please create the solutions item file {NCrunchPersistenceProvidersCsv} and populate it with a comma separated list of the persistence layers that you want NCrunch to run tests with. 
+                if(!File.Exists(NCrunchPersistenceProviders)) throw new Exception($@"
+Please create the solutions item file {NCrunchPersistenceProviders} and place each of the persistence layers that you want NCrunch to run tests with on a separate line.
+Comment out the once you don't want using a # character at the beginning of the line.
 You find the providers in:{typeof(PersistenceLayer).FullName}.
-There is also an example file right next to it that you can copy and edit: {NCrunchPersistenceProvidersCsv}.example
-Once this is done you might also need to restart NCrunch for it to notice.
+There is also an example file right next to it that you can copy and edit: {NCrunchPersistenceProviders}.example
+Once this is done you might also need to rebuild, and/or restart NCrunch for it to notice.
 ");
 
-                return File.ReadAllText(NCrunchPersistenceProvidersCsv)
-                           .Split(",")
+                return File.ReadAllLines(NCrunchPersistenceProviders)
                            .Select(@this => @this.Trim())
+                           .Where(line => !line.StartsWith("#", StringComparison.InvariantCulture))
                            .Where(provider => !excludeMemory || provider.ToUpperInvariant() != nameof(PersistenceLayer.Memory).ToUpperInvariant())
                            .ToArray();
             }

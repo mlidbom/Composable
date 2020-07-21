@@ -8,7 +8,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class Outbox
     {
-        internal class HandlerStorage
+        internal class Router
         {
             bool _handlerHasBeenResolved;
             readonly ITypeMapper _typeMapper;
@@ -16,7 +16,7 @@ namespace Composable.Messaging.Buses.Implementation
             readonly Dictionary<TypeId, InboxConnection> _queryHandlerMap = new Dictionary<TypeId, InboxConnection>();
             readonly List<(TypeId EventType, InboxConnection Connection)> _eventHandlerRegistrations = new List<(TypeId EventType, InboxConnection Connection)>();
 
-            public HandlerStorage(ITypeMapper typeMapper) => _typeMapper = typeMapper;
+            public Router(ITypeMapper typeMapper) => _typeMapper = typeMapper;
 
             internal void AddRegistrations(InboxConnection inboxConnection, ISet<TypeId> handledTypeIds)
             {
@@ -46,7 +46,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
 
             //performance: Use static type and indexing trick to improve performance
-            internal InboxConnection GetCommandHandlerEndpoint(MessageTypes.Remotable.ICommand command)
+            internal InboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command)
             {
                 _handlerHasBeenResolved = true;
                 var commandTypeId = _typeMapper.GetId(command.GetType());
@@ -60,7 +60,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
 
             //performance: Use static type and indexing trick to improve performance
-            internal InboxConnection GetQueryHandlerEndpoint(MessageTypes.IQuery query)
+            internal InboxConnection ConnectionToHandlerFor(MessageTypes.IQuery query)
             {
                 _handlerHasBeenResolved = true;
                 var queryTypeId = _typeMapper.GetId(query.GetType());
@@ -74,7 +74,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
 
             //performance: Use static type and indexing trick to improve performance
-            internal IReadOnlyList<InboxConnection> GetEventHandlerEndpoints(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
+            internal IReadOnlyList<InboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
             {
                 _handlerHasBeenResolved = true;
                 var typedEventHandlerRegistrations = _eventHandlerRegistrations

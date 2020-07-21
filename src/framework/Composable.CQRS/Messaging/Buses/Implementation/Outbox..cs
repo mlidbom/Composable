@@ -17,10 +17,10 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class State
         {
-            public State(IGlobalBusStateTracker globalBusStateTracker, HandlerStorage handlerStorage, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, Outbox.IMessageStorage storage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public State(IGlobalBusStateTracker globalBusStateTracker, Router router, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, Outbox.IMessageStorage storage, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 GlobalBusStateTracker = globalBusStateTracker;
-                HandlerStorage = handlerStorage;
+                Router = router;
                 Configuration = configuration;
                 TimeSource = timeSource;
                 Storage = storage;
@@ -31,7 +31,7 @@ namespace Composable.Messaging.Buses.Implementation
             internal bool Running;
             public readonly IGlobalBusStateTracker GlobalBusStateTracker;
             internal readonly Dictionary<EndpointId, IInboxConnection> InboxConnections = new Dictionary<EndpointId, IInboxConnection>();
-            internal readonly HandlerStorage HandlerStorage;
+            internal readonly Router Router;
             internal NetMQPoller? Poller;
             public IUtcTimeTimeSource TimeSource { get; }
             public Outbox.IMessageStorage Storage { get; }
@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses.Implementation
             _taskRunner = taskRunner;
             _state = new OptimizedThreadShared<State>(new State(
                                                           globalBusStateTracker,
-                                                          new HandlerStorage(typeMapper),
+                                                          new Router(typeMapper),
                                                           configuration,
                                                           timeSource,
                                                           messageStorage,
@@ -65,7 +65,7 @@ namespace Composable.Messaging.Buses.Implementation
             _state.WithExclusiveAccess(@this =>
             {
                 @this.InboxConnections.Add(clientConnection.EndpointInformation.Id, clientConnection);
-                @this.HandlerStorage.AddRegistrations(clientConnection, clientConnection.EndpointInformation.HandledMessageTypes);
+                @this.Router.AddRegistrations(clientConnection, clientConnection.EndpointInformation.HandledMessageTypes);
             });
         }
 
@@ -100,15 +100,14 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void PublishIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent) => _state.WithExclusiveAccess(state =>
         {
-            var connections = state.HandlerStorage.GetEventHandlerEndpoints(exactlyOnceEvent)
+            var connections = state.Router.SubscriberConnectionsFor(exactlyOnceEvent)
                                    .Where(connection => connection.EndpointInformation.Id != state.Configuration.Id)
                                    .ToArray();//We dispatch events to ourselves synchronously so don't go doing it again here.;
 
             //Urgent: bug. Our traceability thinking does not allow just discarding this message.But removing this if statement breaks a lot of tests that uses endpoint wiring but do not start an endpoint.
             if(connections.Length != 0)//Don't waste time if there are no receivers
             {
-                var eventHandlerEndpointIds = connections.Select(connection => connection.EndpointInformation.Id).ToArray();
-                state.Storage.SaveMessage(exactlyOnceEvent, eventHandlerEndpointIds);
+                state.Storage.SaveMessage(exactlyOnceEvent, connections.Select(connection => connection.EndpointInformation.Id).ToArray());
                 //Urgent: We should track a Task result here and record the message as being received on success and handle failure.
                 connections.ForEach(receiver => receiver.SendIfTransactionCommits(exactlyOnceEvent));
             }
@@ -116,7 +115,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void SendIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand) => _state.WithExclusiveAccess(state =>
         {
-            var connection = state.HandlerStorage.GetCommandHandlerEndpoint(exactlyOnceCommand);
+            var connection = state.Router.ConnectionToHandlerFor(exactlyOnceCommand);
             state.Storage.SaveMessage(exactlyOnceCommand, connection.EndpointInformation.Id);
             //Urgent: We should track a Task result here and record the message as being received on success and handle failure.
             connection.SendIfTransactionCommits(exactlyOnceCommand);
@@ -124,21 +123,21 @@ namespace Composable.Messaging.Buses.Implementation
 
         public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand)
         {
-            IInboxConnection connection = _state.WithExclusiveAccess(state => state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand));
+            IInboxConnection connection = _state.WithExclusiveAccess(state => state.Router.ConnectionToHandlerFor(atMostOnceCommand));
 
             await connection.PostAsync(atMostOnceCommand).NoMarshalling();
         }
 
         public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand)
         {
-            IInboxConnection connection = _state.WithExclusiveAccess(state => state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand));
+            IInboxConnection connection = _state.WithExclusiveAccess(state => state.Router.ConnectionToHandlerFor(atMostOnceCommand));
 
             return await connection.PostAsync(atMostOnceCommand).NoMarshalling();
         }
 
         public async Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
         {
-            var connection = _state.WithExclusiveAccess(state => state.HandlerStorage.GetQueryHandlerEndpoint(query));
+            var connection = _state.WithExclusiveAccess(state => state.Router.ConnectionToHandlerFor(query));
 
             return await connection.GetAsync(query).NoMarshalling();
         }

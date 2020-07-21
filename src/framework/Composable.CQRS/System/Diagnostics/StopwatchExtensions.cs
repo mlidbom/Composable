@@ -75,7 +75,7 @@ namespace Composable.System.Diagnostics
         public static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle] Action action, int iterations = 1, int maxDegreeOfParallelism = -1) => MachineWideSingleThreaded.Execute(() =>
         {
             maxDegreeOfParallelism = maxDegreeOfParallelism == -1
-                                         ? Math.Max(Environment.ProcessorCount, 8) / 2
+                                         ? Math.Max(Environment.ProcessorCount / 2, 4)
                                          : maxDegreeOfParallelism;
 
             TimeSpan TimedAction() => TimeExecution(action);

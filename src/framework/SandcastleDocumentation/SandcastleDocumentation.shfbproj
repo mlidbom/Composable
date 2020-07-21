@@ -141,4 +141,7 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'docs' ">
     <OutputPath>bin\docs\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug-Memory-MSSql' ">
+    <OutputPath>bin\Debug-Memory-MSSql\</OutputPath>
+  </PropertyGroup>
 </Project>

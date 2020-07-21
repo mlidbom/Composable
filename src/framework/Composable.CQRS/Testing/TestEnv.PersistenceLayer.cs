@@ -11,17 +11,15 @@ namespace Composable.Testing
         ///<summary>Persistence layer members</summary>
         internal static class PersistenceLayer
         {
-            public static DependencyInjection.PersistenceLayer Current => GetNCrunchProvider();
-
-            static DependencyInjection.PersistenceLayer GetNCrunchProvider()
+            public static DependencyInjection.PersistenceLayer Current
             {
-                var storageProviderName = FindDimensions.Match(GetTestName()).Groups[1].Value;
-                if(!Enum.TryParse(storageProviderName, out DependencyInjection.PersistenceLayer provider))
+                get
                 {
+                    var storageProviderName = FindDimensions.Match(GetTestName()).Groups[1].Value;
+                    if(Enum.TryParse(storageProviderName, out DependencyInjection.PersistenceLayer provider)) return provider;
+
                     throw new Exception($"Failed to parse PersistenceLayerProvider from test environment. Value was: {storageProviderName}");
                 }
-
-                return provider;
             }
 
             public static TValue ValueFor<TValue>(TValue msSql= default, TValue mySql = default, TValue inMem = default, TValue pgSql = default, TValue orcl = default, TValue db2 = default)
@@ -62,17 +60,18 @@ namespace Composable.Testing
         static readonly Regex FindDimensions = new Regex(@"\(""(.*)\:(.*)""\)", RegexOptions.Compiled);
         internal static class DIContainer
         {
-            internal static DependencyInjection.DIContainer Current => GetNCrunchConfiguredDiContainer();
-
-            static DependencyInjection.DIContainer GetNCrunchConfiguredDiContainer()
+            internal static DependencyInjection.DIContainer Current
             {
-                var containerName = FindDimensions.Match(GetTestName()).Groups[2].Value;
-                if (!Enum.TryParse(containerName, out DependencyInjection.DIContainer provider))
+                get
                 {
-                    throw new Exception($"Failed to parse DIContainer from test environment. Value was: {containerName}");
-                }
+                    var containerName = FindDimensions.Match(GetTestName()).Groups[2].Value;
+                    if (!Enum.TryParse(containerName, out DependencyInjection.DIContainer provider))
+                    {
+                        throw new Exception($"Failed to parse DIContainer from test environment. Value was: {containerName}");
+                    }
 
-                return provider;
+                    return provider;
+                }
             }
         }
     }

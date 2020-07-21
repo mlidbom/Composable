@@ -30,6 +30,7 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+    <PackageReference Include="NCrunch.Framework" Version="4.0.0.1" />
     <PackageReference Include="NetMQ" Version="4.0.0.207" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0">
@@ -51,12 +52,6 @@
     <ProjectReference Include="..\Composable.Testing\Composable.Testing.csproj" />
   </ItemGroup>
   
-  <ItemGroup>
-    <Reference Include="NCrunch.Framework">
-      <HintPath>..\..\tmp-bin-folder-removeme\NCrunch.Framework.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

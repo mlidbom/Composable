@@ -32,6 +32,7 @@
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+    <PackageReference Include="NCrunch.Framework" Version="4.0.0.1" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0">
       <PrivateAssets>all</PrivateAssets>
@@ -45,12 +46,6 @@
     <ProjectReference Include="..\AccountManagement.API\AccountManagement.API.csproj" />
     <ProjectReference Include="..\AccountManagement.Server\AccountManagement.Server.csproj" />
     <ProjectReference Include="..\AccountManagement.UnitTests\AccountManagement.UnitTests.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="NCrunch.Framework">
-      <HintPath>..\..\..\tmp-bin-folder-removeme\NCrunch.Framework.dll</HintPath>
-    </Reference>
   </ItemGroup>
   
   <ItemGroup>

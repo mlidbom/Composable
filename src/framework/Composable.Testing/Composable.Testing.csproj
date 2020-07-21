@@ -43,11 +43,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="NCrunch.Framework">
-      <HintPath>..\..\tmp-bin-folder-removeme\NCrunch.Framework.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   
 </Project>

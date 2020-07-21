@@ -427,8 +427,8 @@ namespace Composable.Tests.CQRS
 
             UseInTransactionalScope(session => session.Save(user));
 
-            var threadedIterations = 5;
-            var delayEachTransactionBy = 50.Milliseconds();
+            var threadedIterations = 20;
+            var delayEachTransactionBy = 1.Milliseconds();
 
             void ReadUserHistory()
             {
@@ -439,18 +439,15 @@ namespace Composable.Tests.CQRS
                                         });
             }
 
-            ReadUserHistory();//one warmup to get consistent times later.
-            var timeForSingleTransactionalRead = (int)StopwatchExtensions.TimeExecution(ReadUserHistory).TotalMilliseconds;
 
-            var approximateSinglethreadedExecutionTimeInMilliseconds = threadedIterations * timeForSingleTransactionalRead;
+            var singleThreadedExecutionTime = StopwatchExtensions.TimeExecution(ReadUserHistory, iterations: threadedIterations).Total;
 
             var timingsSummary = TimeAsserter.ExecuteThreaded(
                 action: ReadUserHistory,
                 iterations: threadedIterations,
-                maxTotal: (approximateSinglethreadedExecutionTimeInMilliseconds / 2).Milliseconds(),
-                description: $"If access is serialized the time will be approximately {approximateSinglethreadedExecutionTimeInMilliseconds} milliseconds. If parallelized it should be far below this value.");
-
-            timingsSummary.Average.Should().BeLessThan(delayEachTransactionBy);
+                maxTotal: singleThreadedExecutionTime / 2,
+                maxDegreeOfParallelism: 5,
+                description: $"If access is serialized the time will be approximately {singleThreadedExecutionTime} milliseconds. If parallelized it should be far below this value.");
 
             timingsSummary.IndividualExecutionTimes.Sum().Should().BeGreaterThan(timingsSummary.Total, "If the sum elapsed time of the parts that run in parallel is not greater than the clock time passed parallelism is not taking place.");
         }

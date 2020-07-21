@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Composable.DependencyInjection;
-using Composable.Messaging.Buses;
-using Composable.Persistence.Common.DependencyInjection;
-using Composable.Persistence.InMemory.DependencyInjection;
-using Composable.Persistence.MsSql.DependencyInjection;
-using Composable.Persistence.MsSql.Messaging.Buses;
+﻿using System.Collections.Generic;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using FluentAssertions;
@@ -103,8 +96,6 @@ namespace Composable.Tests.Serialization
         ITypeMapper _renamedTypesMap;
         RenamingSupportingJsonSerializer _originalTypesSerializer;
         RenamingSupportingJsonSerializer _renamedTypesSerializer;
-        ITestingEndpointHost _originalHost;
-        ITestingEndpointHost _renamedHost;
 
         static class Ids
         {
@@ -116,39 +107,24 @@ namespace Composable.Tests.Serialization
 
         [OneTimeSetUp] public void SetupTask()
         {
-            _originalHost = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
-            _renamedHost = TestingEndpointHost.Create(DependencyInjectionContainer.Create);
+            _originaltypesMap = new TypeMapper();
+            _renamedTypesMap = new TypeMapper();
 
-            _originaltypesMap = _originalHost.RegisterTestingEndpoint(
-                setup: builder =>
-                {
-                    builder.RegisterInMemoryPersistenceLayer();
-                    builder.TypeMapper
+
+            ((ITypeMappingRegistar)_originaltypesMap)
                            .Map<OriginalTypes.TypeA>(Ids.TypeA)
                            .Map<OriginalTypes.TypeB>(Ids.TypeB)
                            .Map<OriginalTypes.TypeA.TypeAA>(Ids.TypeAA)
                            .Map<OriginalTypes.TypeB.TypeBB>(Ids.TypeBB);
-                }).ServiceLocator.Resolve<ITypeMapper>();
 
-            _renamedTypesMap = _originalHost.RegisterTestingEndpoint(
-                setup: builder =>
-                {
-                    builder.RegisterInMemoryPersistenceLayer();
-                    builder.TypeMapper
-                           .Map<RenamedTypes.TypeA>(Ids.TypeA)
-                           .Map<RenamedTypes.TypeB>(Ids.TypeB)
-                           .Map<RenamedTypes.TypeA.TypeAA>(Ids.TypeAA)
-                           .Map<RenamedTypes.TypeB.TypeBB>(Ids.TypeBB);
-                }).ServiceLocator.Resolve<ITypeMapper>();
+            ((ITypeMappingRegistar)_renamedTypesMap)
+                                                                    .Map<RenamedTypes.TypeA>(Ids.TypeA)
+                                                                    .Map<RenamedTypes.TypeB>(Ids.TypeB)
+                                                                    .Map<RenamedTypes.TypeA.TypeAA>(Ids.TypeAA)
+                                                                    .Map<RenamedTypes.TypeB.TypeBB>(Ids.TypeBB);
 
             _originalTypesSerializer = new RenamingSupportingJsonSerializer(JsonSettings.JsonSerializerSettings, _originaltypesMap);
             _renamedTypesSerializer = new RenamingSupportingJsonSerializer(JsonSettings.JsonSerializerSettings, _renamedTypesMap);
-        }
-
-        [OneTimeTearDown] public void TearDownTask()
-        {
-            _originalHost.Dispose();
-            _renamedHost.Dispose();
         }
 
         [Test] public void Roundtrips_polymorphic_types()

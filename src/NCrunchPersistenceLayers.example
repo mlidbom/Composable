@@ -1,7 +1,25 @@
- #Comment out the providers you do not want by adding a # character in front of it.
- MsSql
- Memory
- MySql
- PgSql
- Orcl
- DB2
+#When running tests under NCrunch all tests that uses dependency injection and persistence will be executed once for every configured value in this file.
+#Format is PersistenceLayer:DIContainer. Comment out the ones you do not want with #. Empty/Whitespace lines are ignored
+#For PersistenceLayer: MsSql is Microsoft Sql Server, PgSql is PostgreSql, MySql is hopefully obvious , Orcl is Oracle Database, DB2 is IBM DB2
+#For DIContainer: Com is Composable, Sim is SimpleInjector, Win is Windsor
+
+MsSql:Com
+Memory:Com
+MySql:Com
+PgSql:Com
+Orcl:Com
+DB2:Com
+
+MsSql:Sim
+Memory:Sim
+MySql:Sim
+PgSql:Sim
+Orcl:Sim
+DB2:Sim
+
+MsSql:Win
+Memory:Win
+MySql:Win
+PgSql:Win
+Orcl:Win
+DB2:Win

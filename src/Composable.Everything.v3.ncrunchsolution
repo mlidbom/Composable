@@ -103,7 +103,7 @@
       <Value>Messaging\Buses\Implementation\Inbox.cs:framework\Composable.CQRS\Composable.CQRS.csproj-73</Value>
       <Value>CQRS\EventRefactoring\Migrations\EventMigrationTest.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-220</Value>
       <Value>Persistence\PgSql\SystemExtensions\PgSqlConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-20</Value>
-      <Value>DependencyInjection\DependencyInjectionContainer.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-14</Value>
+      <Value>DependencyInjection\DependencyInjectionContainer.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-17</Value>
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-22</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-122</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-48</Value>

@@ -38,6 +38,11 @@ namespace Composable.DependencyInjection
         DB2
     }
 
+    public enum DIContainer
+    {
+        Com, Sim, Win
+    }
+
     enum Lifestyle
     {
         Singleton,

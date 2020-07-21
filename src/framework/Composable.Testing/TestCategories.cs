@@ -36,10 +36,8 @@ namespace Composable.Testing
             {
                 return File.ReadAllLines(NCrunchPersistenceLayers)
                            .Select(@this => @this.Trim())
+                           .Where(line => !string.IsNullOrEmpty(line))
                            .Where(line => !line.StartsWith("#", StringComparison.InvariantCulture))
-                           .Select(layerString =>Enum.TryParse<PersistenceLayer>(layerString, ignoreCase: true, out PersistenceLayer layer)
-                                                     ? layer.ToString()
-                                                     : $"Invalid value: {layerString} found in {NCrunchPersistenceLayers} valid values are: {string.Join(",", Enum.GetValues(typeof(PersistenceLayer)).Cast<PersistenceLayer>().Select( value => value.ToString()))} " )
                            .ToArray();
             }
             catch(Exception e)

@@ -38,7 +38,8 @@ namespace Composable.Testing
 
             static DependencyInjection.PersistenceLayer GetNCrunchProvider()
             {
-                var storageProviderName = NCrunchEnvironment.GetDuplicatedDimension();
+                var dimensionValues = NCrunchEnvironment.GetDuplicatedDimension().Split(":");
+                var storageProviderName = dimensionValues[0];
                 if(!Enum.TryParse(storageProviderName, out DependencyInjection.PersistenceLayer provider))
                 {
                     throw new Exception($"Failed to parse PersistenceLayerProvider from test environment. Value was: {storageProviderName}");
@@ -65,6 +66,27 @@ namespace Composable.Testing
                 if(!Equals(value, default(TValue))) return value;
 
                 throw  new Exception($"Value missing for {provider}");
+            }
+        }
+
+        internal static class DIContainer
+        {
+            internal static DependencyInjection.DIContainer Current
+            {
+                get
+                {
+                    {
+                        var duplicatedDimension = NCrunchEnvironment.GetDuplicatedDimension();
+                        var dimensionValues = duplicatedDimension.Split(":");
+                        var containerName = dimensionValues[1];
+                        if(!Enum.TryParse(containerName, out DependencyInjection.DIContainer provider))
+                        {
+                            throw new Exception($"Failed to parse DIContainer from test environment. Value was: {containerName}");
+                        }
+
+                        return provider;
+                    }
+                }
             }
         }
     }

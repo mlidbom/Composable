@@ -1,6 +1,9 @@
 ﻿using System;
+using Composable.DependencyInjection.SimpleInjector;
+using Composable.DependencyInjection.Windsor;
 using Composable.Messaging.Buses;
 using Composable.Persistence.Common.DependencyInjection;
+using Composable.Testing;
 using JetBrains.Annotations;
 
 namespace Composable.DependencyInjection
@@ -25,9 +28,14 @@ namespace Composable.DependencyInjection
 
         public static IDependencyInjectionContainer Create(IRunMode runMode)
         {
-            //IDependencyInjectionContainer container = new SimpleInjectorDependencyInjectionContainer(runMode);
-            //IDependencyInjectionContainer container = new WindsorDependencyInjectionContainer(runMode);
-            IDependencyInjectionContainer container = new ComposableDependencyInjectionContainer(runMode);
+            IDependencyInjectionContainer container = TestEnv.DIContainer.Current switch
+            {
+                DIContainer.Com => new ComposableDependencyInjectionContainer(runMode),
+                DIContainer.Sim => new SimpleInjectorDependencyInjectionContainer(runMode),
+                DIContainer.Win => new WindsorDependencyInjectionContainer(runMode),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
             container.Register(Singleton.For<IServiceLocator>().CreatedBy(() => container.CreateServiceLocator()));
             return container;
         }

@@ -97,7 +97,7 @@ namespace Composable.Messaging.Buses.Implementation
                             {
                                 if(dispatchResult.IsFaulted)
                                 {
-                                    var failureResponse = transportMessage.CreateFailureResponse(dispatchResult.Exception);
+                                    var failureResponse = transportMessage.CreateFailureResponse(Contract.ReturnNotNull(dispatchResult.Exception));
                                     _responseQueue.Enqueue(failureResponse);
                                 } else
                                 {
@@ -124,6 +124,7 @@ namespace Composable.Messaging.Buses.Implementation
                         }, TaskScheduler.Default);
                     }
                 }
+                // ReSharper disable once FunctionNeverReturns
             }
 
             void SendResponseMessage(object sender, NetMQQueueEventArgs<NetMQMessage> e)

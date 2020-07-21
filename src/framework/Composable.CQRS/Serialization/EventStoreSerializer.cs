@@ -46,7 +46,7 @@ namespace Composable.Serialization
         string ReplaceTypeNamesWithTypeIds(Match match)
         {
             var type = Type.GetType(match.Groups[1].Value);
-            var typeId = _typeMapper.GetId(type);
+            var typeId = _typeMapper.GetId(type!);
             return $@"""$type"": ""{typeId.GuidValue}""";
         }
 

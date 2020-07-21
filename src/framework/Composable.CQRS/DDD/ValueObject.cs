@@ -16,7 +16,7 @@ namespace Composable.DDD
     public abstract class ValueObject<T> : IEquatable<T> where T : ValueObject<T>
     {
         /// <see cref="object.Equals(object)"/>
-        public override bool Equals(object obj) => obj is T other && Equals(other);
+        public override bool Equals(object? obj) => obj is T other && Equals(other);
 
         /// <see cref="object.GetHashCode"/>
         public override int GetHashCode()
@@ -35,10 +35,10 @@ namespace Composable.DDD
 
                 if (value is IEnumerable enumerableValue && !(value is string))
                 {
-                    var value1Array = enumerableValue.Cast<object>().Where(me => !(me is null)).ToArray();
+                    var value1Array = enumerableValue.Cast<object?>().Where(me => !(me is null)).ToArray();
                     foreach(var something in value1Array)
                     {
-                        hashCode = hashCode * multiplier + something.GetHashCode();
+                        hashCode = hashCode * multiplier + something!.GetHashCode();
                     }
                 }
                 else if(!(value is null))
@@ -49,7 +49,7 @@ namespace Composable.DDD
         }
 
         /// <see cref="object.Equals(object)"/>
-        public virtual bool Equals(T other)
+        public virtual bool Equals(T? other)
         {
             if(other is null)
                 return false;
@@ -101,7 +101,7 @@ namespace Composable.DDD
 
 
         ///<summary>Compares the objects for equality using value semantics</summary>
-        public static bool operator ==(ValueObject<T> lhs, ValueObject<T> rhs)
+        public static bool operator ==(ValueObject<T>? lhs, ValueObject<T>? rhs)
         {
             if(ReferenceEquals(lhs, rhs))
             {

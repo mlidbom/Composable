@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Contracts;
 using Composable.Serialization;
@@ -42,7 +43,7 @@ namespace Composable.Testing.Databases
                 }
             }
 
-            internal bool TryReserve(string reservationName, Guid poolId, TimeSpan reservationLength, out Database reserved)
+            internal bool TryReserve(string reservationName, Guid poolId, TimeSpan reservationLength, [NotNullWhen(true)]out Database? reserved)
             {
                 CollectGarbage();
 

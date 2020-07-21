@@ -25,7 +25,7 @@ namespace Composable.Persistence.Oracle.SystemExtensions
         //urgent: Create a version of this for the other persistence layers. It's crazy helpful.
         public static OracleCommand LogCommand(this OracleCommand @this)
         {
-            SafeConsole.WriteLine($"####################################### Logging command###############################################");
+            SafeConsole.WriteLine("####################################### Logging command###############################################");
             SafeConsole.WriteLine($@"{nameof(@this.CommandText)}:
 {@this.CommandText}");
 

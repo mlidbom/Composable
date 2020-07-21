@@ -224,7 +224,7 @@ namespace Composable.Persistence.DocumentDb
 
         void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment)
         {
-            using(var transactionScope = new TransactionScope(_participatingIn))
+            using(var transactionScope = new TransactionScope(_participatingIn!))
             {
                 Log.Debug($"{_id} saving changes. Unit of work: {1}");
                 _handledDocuments.ForEach(p => p.Value.CommitChangesToBackingStore());

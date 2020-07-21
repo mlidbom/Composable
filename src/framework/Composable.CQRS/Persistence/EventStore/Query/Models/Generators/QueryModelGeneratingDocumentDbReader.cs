@@ -92,12 +92,12 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
             {
                 return GetGeneratorsForDocumentType<TDocument>()
                     .Select(generator => generator.TryGenerate((Guid)key))
-                    .SingleOrDefault();
+                    .Single();
             }
 
             return VersionedGeneratorsForDocumentType<TDocument>()
                     .Select(generator => generator.TryGenerate((Guid)key, version))
-                    .SingleOrDefault();
+                    .Single();
         }
 
         bool HandlesDocumentType<TDocument>(bool requireVersioningSupport) => requireVersioningSupport

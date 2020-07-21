@@ -30,7 +30,7 @@ namespace Composable.Persistence.EventStore
             _eventStoreEventPublisher = eventStoreEventPublisher;
             _store = store;
             _aggregateTypeValidator = aggregateTypeValidator;
-            TimeSource = timeSource ?? DateTimeNowTimeSource.Instance;
+            TimeSource = timeSource;
         }
 
         public TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored

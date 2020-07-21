@@ -136,7 +136,6 @@
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-68</Value>
       <Value>Messaging\Hypermedia\NavigationSpecification.cs:framework\Composable.CQRS\Composable.CQRS.csproj-28</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-27</Value>
-      <Value>System\OptimizedLazy.cs:framework\Composable.CQRS\Composable.CQRS.csproj-20</Value>
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-47</Value>
       <Value>Persistence\Oracle\DependencyInjection\OraclePersistenceLayerRegistrar.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-32</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-24</Value>

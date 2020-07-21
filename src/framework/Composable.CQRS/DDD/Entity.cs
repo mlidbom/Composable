@@ -57,7 +57,7 @@ namespace Composable.DDD
         public override int GetHashCode() => Id.GetHashCode();
 
         ///<summary>True if both instances have the same ID</summary>
-        public static bool operator ==(Entity<TEntity, TKey> lhs, Entity<TEntity, TKey> rhs)
+        public static bool operator ==(Entity<TEntity, TKey>? lhs, Entity<TEntity, TKey>? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -101,7 +101,7 @@ namespace Composable.DDD
         }
 
         ///<summary>True if both instances have the same ID</summary>
-        public static bool operator ==(Entity<TEntity> lhs, Entity<TEntity> rhs)
+        public static bool operator ==(Entity<TEntity>? lhs, Entity<TEntity>? rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {

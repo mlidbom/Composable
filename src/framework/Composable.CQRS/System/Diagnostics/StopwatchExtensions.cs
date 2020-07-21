@@ -129,7 +129,7 @@ Individual execution times
     Sum:     {Format(IndividualExecutionTimes.Sum())}
 ";
 
-            string Format(TimeSpan? average) => average?.ToString(@"ss\.ffffff", CultureInfo.InvariantCulture) ?? "";
+            static string Format(TimeSpan? average) => average?.ToString(@"ss\.ffffff", CultureInfo.InvariantCulture) ?? "";
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Composable.Persistence.DB2.SystemExtensions
         //urgent: Create a version of this for the other persistence layers. It's crazy helpful.
         public static DB2Command LogCommand(this DB2Command @this)
         {
-            SafeConsole.WriteLine($"####################################### Logging command###############################################");
+            SafeConsole.WriteLine("####################################### Logging command###############################################");
             SafeConsole.WriteLine($@"{nameof(@this.CommandText)}:
 {@this.CommandText}");
 

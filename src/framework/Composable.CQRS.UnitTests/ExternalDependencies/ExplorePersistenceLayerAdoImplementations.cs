@@ -42,7 +42,7 @@ namespace Composable.Tests.ExternalDependencies
             var result = msSqlConnection.UseCommand(
                 action: command => command.SetCommandText(commandText: "select @parm")
                                           .AddNullableParameter(name: "parm", SqlDbType.Decimal, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToSqlDecimal())
-                                          .ExecuteReaderAndSelect(@select: @this => @this.GetSqlDecimal(i: 0))
+                                          .ExecuteReaderAndSelect(@this => @this.GetSqlDecimal(i: 0))
                                           .Single());
 
             Console.WriteLine(result.ToString());
@@ -56,7 +56,7 @@ namespace Composable.Tests.ExternalDependencies
             var result = mySqlConnection.UseCommand(
                 action: command => command.SetCommandText($"select cast(cast(@parm as {Event.ReadOrderType}) as char(39))")
                                           .AddNullableParameter(name: "parm", MySqlDbType.VarChar, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToString())
-                                          .ExecuteReaderAndSelect(@select: @this => @this.GetString(i: 0))
+                                          .ExecuteReaderAndSelect(@this => @this.GetString(i: 0))
                                           .Single());
 
             Console.WriteLine(result);
@@ -70,7 +70,7 @@ namespace Composable.Tests.ExternalDependencies
             var result = pgSqlConnection.UseCommand(
                 action: command => command.SetCommandText($"select cast(cast(@parm as {Event.ReadOrderType}) as char(39))")
                                           .AddNullableParameter(name: "parm", NpgsqlDbType.Varchar, ReadOrder.Parse($"{long.MaxValue}.{long.MaxValue}").ToString())
-                                          .ExecuteReaderAndSelect(@select: @this => @this.GetString(ordinal: 0))
+                                          .ExecuteReaderAndSelect(@this => @this.GetString(ordinal: 0))
                                           .Single());
 
             Console.WriteLine(result);
@@ -84,7 +84,7 @@ namespace Composable.Tests.ExternalDependencies
             var result2 = orclConnection.UseCommand(
                 action: command => command.SetCommandText(commandText: "select :parm from dual")
                                           .AddNullableParameter(name: "parm", OracleDbType.Decimal, OracleDecimal.Parse(numStr: "1"))
-                                          .ExecuteReaderAndSelect(@select: @this => @this.GetOracleDecimal(i: 0))
+                                          .ExecuteReaderAndSelect(@this => @this.GetOracleDecimal(i: 0))
                                           .Single());
 
             Console.WriteLine(result2);
@@ -99,7 +99,7 @@ namespace Composable.Tests.ExternalDependencies
             var result2 = ComposableDB2Connection.UseCommand(
                 action: command => command.SetCommandText(commandText: "select cast(@parm as decimal(31,19)) from sysibm.sysdummy1")
                                           .AddParameter(name: "@parm", DB2Type.Decimal, DB2Decimal.Parse("1"))
-                                          .ExecuteReaderAndSelect(@select: @this => @this.GetDB2Decimal(i: 0))
+                                          .ExecuteReaderAndSelect(@this => @this.GetDB2Decimal(i: 0))
                                           .Single());
 
             Console.WriteLine(result2);

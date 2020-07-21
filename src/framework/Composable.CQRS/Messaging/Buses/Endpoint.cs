@@ -45,7 +45,7 @@ namespace Composable.Messaging.Buses
                         IOutbox interProcessTransport,
                         EndpointConfiguration configuration)
         {
-            Assert.Argument.Assert(serviceLocator != null, configuration != null);
+            Contract.ArgumentNotNull(serviceLocator, nameof(serviceLocator), configuration, nameof(configuration));
             ServiceLocator = serviceLocator;
             _globalStateTracker = globalStateTracker;
             _transport = transport;

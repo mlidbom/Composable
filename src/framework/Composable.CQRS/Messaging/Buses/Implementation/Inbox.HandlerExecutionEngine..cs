@@ -39,6 +39,7 @@ namespace Composable.Messaging.Buses.Implementation
                     var task = _coordinator.AwaitExecutableHandlerExecutionTask(_dispatchingRules);
                     task.Execute();
                 }
+                // ReSharper disable once FunctionNeverReturns
             }
 
             public void Start()

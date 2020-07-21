@@ -12,18 +12,12 @@ namespace Composable.System
         {
             get
             {
-                if(_value == null)
-                {
-                    lock(_lock)
-                    {
-                        if(_value == null)
-                        {
-                            _value = _factory();
-                        }
-                    }
-                }
+                if(_value != null) return _value;
 
-                return _value;
+                lock(_lock)
+                {
+                    return _value ??= _factory();
+                }
             }
         }
 

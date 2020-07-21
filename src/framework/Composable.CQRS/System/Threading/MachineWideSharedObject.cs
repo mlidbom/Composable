@@ -24,6 +24,7 @@ namespace Composable.System.Threading
         readonly MachineWideSingleThreaded _synchronizer;
         bool _disposed;
 
+        // ReSharper disable once StaticMemberInGenericType
         static readonly OptimizedThreadShared<Dictionary<string, MemoryMappedFile>> Cache = new OptimizedThreadShared<Dictionary<string, MemoryMappedFile>>(new Dictionary<string, MemoryMappedFile>());
 
         internal static MachineWideSharedObject<TObject> For(string name, bool usePersistentFile = false, long capacity = 1000_000) => new MachineWideSharedObject<TObject>(name, usePersistentFile, capacity);

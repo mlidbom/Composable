@@ -203,18 +203,14 @@ namespace Composable.Testing.Performance
         {
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)
             {
-                string maxTotalReport = maxTotal == null
-                                         ? ""
-                                         : $" {Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {format(maxTotal)}";
+                string maxTotalReport = $" {Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {format(maxTotal)}";
 
                 throw new TimeOutException($"{nameof(maxTotal)}: {format(maxTotal!.Value)} exceeded. Was: {format(executionSummary.Total)} {maxTotalReport}");
             }
 
             if(maxAverage.HasValue && executionSummary.Average > maxAverage.Value)
             {
-                string maxAverageReport = maxAverage == null
-                                           ? ""
-                                           : $" {Percent(executionSummary.Average, maxAverage.Value)} of {nameof(maxAverage)}: {format(maxAverage)}";
+                string maxAverageReport = $" {Percent(executionSummary.Average, maxAverage.Value)} of {nameof(maxAverage)}: {format(maxAverage)}";
 
                 throw new TimeOutException($"{nameof(maxAverage)}: {format(maxAverage!.Value)} exceeded. Was: {format(executionSummary.Average)} {maxAverageReport}");
             }

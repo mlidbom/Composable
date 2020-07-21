@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 
+// ReSharper disable once CheckNamespace
 namespace AccountManagement
 {
     static class TestData

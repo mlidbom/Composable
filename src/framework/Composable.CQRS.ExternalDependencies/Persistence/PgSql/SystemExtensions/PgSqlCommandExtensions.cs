@@ -21,7 +21,7 @@ namespace Composable.Persistence.PgSql.SystemExtensions
         {
             using var reader = @this.ExecuteReader();
             var result = new List<T>();
-            reader.ForEachSuccessfulRead(row => result.Add(@select(row)));
+            reader.ForEachSuccessfulRead(row => result.Add(select(row)));
             return result;
         }
     }

@@ -51,6 +51,7 @@ namespace Composable.Testing.Databases
 
         public string ConnectionStringFor(string reservationName) => _guard.Update(() =>
         {
+            // ReSharper disable once InconsistentlySynchronizedField
             Contract.Assert.That(!_disposed, "!_disposed");
 
             var reservedDatabase = _transientCache.SingleOrDefault(db => db.ReservationName == reservationName);

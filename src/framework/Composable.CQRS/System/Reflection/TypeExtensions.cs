@@ -13,7 +13,7 @@ namespace Composable.System.Reflection
         /// ///<returns>true if <paramref name="me"/> implements the interface: <typeparamref name="TImplemented"/>. By definition true if <paramref name="me"/> == <typeparamref name="TImplemented"/>.</returns>
         public static bool Implements<TImplemented>(this Type me)
         {
-            Assert.Argument.Assert(me != null);
+            Contract.ArgumentNotNull(me, nameof(me));
 
             if (!typeof(TImplemented).IsInterface)
             {
@@ -109,7 +109,7 @@ namespace Composable.System.Reflection
 
         public static string GetFullNameCompilable(this Type @this)
         {
-            if(!@this.IsConstructedGenericType) return @this.FullName.ReplaceInvariant("+", ".");
+            if(!@this.IsConstructedGenericType) return @this.FullName!.ReplaceInvariant("+", ".");
 
             var typeArguments = @this.GenericTypeArguments;
             // ReSharper disable once PossibleNullReferenceException

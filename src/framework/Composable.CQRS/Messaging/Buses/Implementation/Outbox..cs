@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
-using Composable.Logging;
-using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
-using Composable.SystemExtensions.Threading;
 using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation
@@ -69,7 +65,7 @@ namespace Composable.Messaging.Buses.Implementation
             _state.WithExclusiveAccess(@this =>
             {
                 @this.InboxConnections.Add(clientConnection.EndpointInformation.Id, clientConnection);
-                @this.HandlerStorage.AddRegistrations(clientConnection.EndpointInformation.Id, clientConnection.EndpointInformation.HandledMessageTypes);
+                @this.HandlerStorage.AddRegistrations(clientConnection, clientConnection.EndpointInformation.HandledMessageTypes);
             });
         }
 
@@ -104,15 +100,14 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent) => _state.WithExclusiveAccess(state =>
         {
-            var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(exactlyOnceEvent)
-                                               .Where(id => id != state.Configuration.Id)
-                                               .ToArray();//We dispatch events to ourself synchronously so don't go doing it again here.;
+            var connections = state.HandlerStorage.GetEventHandlerEndpoints(exactlyOnceEvent)
+                                   .Where(connection => connection.EndpointInformation.Id != state.Configuration.Id)
+                                   .ToArray();//We dispatch events to ourselves synchronously so don't go doing it again here.;
 
             //Urgent: bug. Our traceability thinking does not allow just discarding this message.But removing this if statement breaks a lot of tests that uses endpoint wiring but do not start an endpoint.
-            if(eventHandlerEndpointIds.Length != 0)//Don't waste time if there are no receivers
+            if(connections.Length != 0)//Don't waste time if there are no receivers
             {
-                var connections = eventHandlerEndpointIds.Select(endpointId => state.InboxConnections[endpointId])
-                                                         .ToArray();
+                var eventHandlerEndpointIds = connections.Select(connection => connection.EndpointInformation.Id).ToArray();
                 state.Storage.SaveMessage(exactlyOnceEvent, eventHandlerEndpointIds);
                 connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(exactlyOnceEvent));
             }
@@ -120,41 +115,28 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand) => _state.WithExclusiveAccess(state =>
         {
-            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(exactlyOnceCommand);
-            var connection = state.InboxConnections[endPointId];
-            state.Storage.SaveMessage(exactlyOnceCommand, endPointId);
+            var connection = state.HandlerStorage.GetCommandHandlerEndpoint(exactlyOnceCommand);
+            state.Storage.SaveMessage(exactlyOnceCommand, connection.EndpointInformation.Id);
             connection.DispatchIfTransactionCommits(exactlyOnceCommand);
         });
 
         public async Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand)
         {
-            IInboxConnection connection = _state.WithExclusiveAccess(state =>
-            {
-                var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand);
-                return state.InboxConnections[endPointId];
-            });
+            IInboxConnection connection = _state.WithExclusiveAccess(state => state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand));
 
             await connection.DispatchAsync(atMostOnceCommand).NoMarshalling();
         }
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand)
         {
-            IInboxConnection connection = _state.WithExclusiveAccess(state =>
-            {
-                var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand);
-                return state.InboxConnections[endPointId];
-            });
+            IInboxConnection connection = _state.WithExclusiveAccess(state => state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand));
 
             return await connection.DispatchAsync(atMostOnceCommand).NoMarshalling();
         }
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
         {
-            var connection = _state.WithExclusiveAccess(state =>
-            {
-                var endPointId = state.HandlerStorage.GetQueryHandlerEndpoint(query);
-                return state.InboxConnections[endPointId];
-            });
+            var connection = _state.WithExclusiveAccess(state => state.HandlerStorage.GetQueryHandlerEndpoint(query));
 
             return await connection.DispatchAsync(query).NoMarshalling();
         }

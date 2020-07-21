@@ -12,14 +12,15 @@ namespace Composable.Messaging.Buses.Implementation
         {
             bool _handlerHasBeenResolved;
             readonly ITypeMapper _typeMapper;
-            readonly Dictionary<TypeId, EndpointId> _commandHandlerMap = new Dictionary<TypeId, EndpointId>();
-            readonly Dictionary<TypeId, EndpointId> _queryHandlerMap = new Dictionary<TypeId, EndpointId>();
-            readonly List<(TypeId EventType, EndpointId EndPointId)> _eventHandlerRegistrations = new List<(TypeId EventType, EndpointId EndPointId)>();
+            readonly Dictionary<TypeId, InboxConnection> _commandHandlerMap = new Dictionary<TypeId, InboxConnection>();
+            readonly Dictionary<TypeId, InboxConnection> _queryHandlerMap = new Dictionary<TypeId, InboxConnection>();
+            readonly List<(TypeId EventType, InboxConnection Connection)> _eventHandlerRegistrations = new List<(TypeId EventType, InboxConnection Connection)>();
 
             public HandlerStorage(ITypeMapper typeMapper) => _typeMapper = typeMapper;
 
-            internal void AddRegistrations(EndpointId endpointId, ISet<TypeId> handledTypeIds)
+            internal void AddRegistrations(InboxConnection inboxConnection, ISet<TypeId> handledTypeIds)
             {
+                var endpointId = inboxConnection.EndpointInformation.Id;
                 Assert.Argument.NotNull(endpointId, handledTypeIds);
                 Assert.State.Assert(!_handlerHasBeenResolved);//Our collections are safe for multithreaded read, but not for read/write. So ensure that no-one tries to change them after we start reading from them.
 
@@ -29,13 +30,13 @@ namespace Composable.Messaging.Buses.Implementation
                     {
                         if(IsRemoteEvent(type))
                         {
-                            _eventHandlerRegistrations.Add((_typeMapper.GetId(type), endpointId));
+                            _eventHandlerRegistrations.Add((_typeMapper.GetId(type), inboxConnection));
                         } else if(IsRemoteCommand(type))
                         {
-                            _commandHandlerMap.Add(_typeMapper.GetId(type), endpointId);
+                            _commandHandlerMap.Add(_typeMapper.GetId(type), inboxConnection);
                         } else if(IsRemoteQuery(type))
                         {
-                            _queryHandlerMap.Add(_typeMapper.GetId(type), endpointId);
+                            _queryHandlerMap.Add(_typeMapper.GetId(type), inboxConnection);
                         } else
                         {
                             throw new Exception($"Type {typeId} is neither a remote command, event or query.");
@@ -45,7 +46,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
 
             //performance: Use static type and indexing trick to improve performance
-            internal EndpointId GetCommandHandlerEndpoint(MessageTypes.Remotable.ICommand command)
+            internal InboxConnection GetCommandHandlerEndpoint(MessageTypes.Remotable.ICommand command)
             {
                 _handlerHasBeenResolved = true;
                 var commandTypeId = _typeMapper.GetId(command.GetType());
@@ -59,7 +60,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
 
             //performance: Use static type and indexing trick to improve performance
-            internal EndpointId GetQueryHandlerEndpoint(MessageTypes.IQuery query)
+            internal InboxConnection GetQueryHandlerEndpoint(MessageTypes.IQuery query)
             {
                 _handlerHasBeenResolved = true;
                 var queryTypeId = _typeMapper.GetId(query.GetType());
@@ -73,7 +74,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
 
             //performance: Use static type and indexing trick to improve performance
-            internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
+            internal IReadOnlyList<InboxConnection> GetEventHandlerEndpoints(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
             {
                 _handlerHasBeenResolved = true;
                 var typedEventHandlerRegistrations = _eventHandlerRegistrations
@@ -81,12 +82,12 @@ namespace Composable.Messaging.Buses.Implementation
                                                      .Select(me => new
                                                                    {
                                                                        EventType = _typeMapper.GetType(me.EventType),
-                                                                       me.EndPointId
+                                                                       me.Connection
                                                                    }).ToList();
 
                 return typedEventHandlerRegistrations
                        .Where(@this => @this.EventType.IsInstanceOfType(@event))
-                       .Select(@this => @this.EndPointId)
+                       .Select(@this => @this.Connection)
                        .ToList();
             }
 

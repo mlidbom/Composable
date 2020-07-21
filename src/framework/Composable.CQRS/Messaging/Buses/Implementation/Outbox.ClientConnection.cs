@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class Outbox
     {
-        class InboxConnection : IInboxConnection
+        internal class InboxConnection : IInboxConnection
         {
             internal MessageTypes.Internal.EndpointInformation EndpointInformation { get; private set; }
             readonly ITypeMapper _typeMapper;

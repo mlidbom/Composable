@@ -32,7 +32,7 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime);
         }
 
-        [Test, Serial] public void Constructs_1_000_000_instances_3_times_faster_than_via_new_constraint_constructor_time()
+        [Test, Serial] public void Constructs_1_000_000_instances_2_times_faster_than_via_new_constraint_constructor_time()
         {
             var constructions = 1_000_000.IfInstrumentedDivideBy(10);
 
@@ -42,7 +42,7 @@ namespace Composable.Tests.System.Reflection
 
 
             var defaultConstructor = StopwatchExtensions.TimeExecution(NewConstraint, constructions).Total;
-            var maxTime = defaultConstructor.DivideBy(3);
+            var maxTime = defaultConstructor.DivideBy(2);
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.IfInstrumentedMultiplyBy(4));
         }
 

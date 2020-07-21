@@ -6,10 +6,10 @@ namespace AccountManagement.UnitTests.Emails
 {
     [TestFixture] public class When_creating_a_new_email
     {
-        [TestFixture] public class An_InvalidEmailException_containing_the_email_is_thrown_if_email_
+        [TestFixture] public class An_InvalidEmailException_containing_the_email_is_thrown_if_email
         {
-            [Test, TestCaseSource(typeof(TestData.Emails), nameof(TestData.Emails.InvalidEmails))]
-            public void In_each_of_these_cases_and_the_message_contains_the_email(string invalidEmail)
+            [Test, TestCaseSource(typeof(TestData.Emails), nameof(TestData.Emails.InvalidEmailsTestData))]
+            public void _(string invalidEmail)//The _ name is a hack that colludes with the test data source to manage to get the ReSharper, VS, and NCrunch test runners to all show a descriptive name based on the test source data for each case
             {
                 var invalidEmailException = Assert.Throws<InvalidEmailException>(() => Email.Parse(invalidEmail));
 

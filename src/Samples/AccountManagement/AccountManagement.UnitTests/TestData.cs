@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework;
@@ -44,31 +43,18 @@ namespace AccountManagement
 
             internal static string CreateUnusedEmail() => $"test.test@test{Interlocked.Increment(ref _registeredAccounts)}.se";
 
-            internal static IEnumerable<string> InvalidEmails => new []
-                                                                 {
-                                                                     null, //"Is_null"),
-                                                                     string.Empty, //"Is empty"),
-                                                                     "test.com", //"Missing @ character"),
-                                                                     "test@test.com ", //"Ends with space"),
-                                                                     "te st@test.com", //"Contains space"),
-                                                                     "test@test", //"Missing domain"),
-                                                                     "test@test..com", //"Contains .."),
-                                                                     "test@.test.com", //"Contains @."),
-                                                                     "test.@test.com", //"Contains .@")
-                                                                 };
-
             internal static IReadOnlyList<StringTestData> InvalidEmailsTestData =>
                 new List<StringTestData>
                 {
-                    new StringTestData(null, "Is_null"),
-                    new StringTestData(string.Empty, "Is_empty"),
-                    new StringTestData("test.com", "Missing_@_character"),
-                    new StringTestData("test@test.com ", "Ends_with_space"),
-                    new StringTestData("te st@test.com", "Contains_space"),
-                    new StringTestData("test@test", "Missing_domain"),
-                    new StringTestData("test@test..com", "Contains_double_dots"),
-                    new StringTestData("test@.test.com", "Contains_@_followed_by_dot"),
-                    new StringTestData("test.@test.com", "Contains_dot_followed_by_@")
+                    new StringTestData(null, "Is null null"),
+                    new StringTestData(string.Empty, "Is empty"),
+                    new StringTestData("test.com", "Missing @ character"),
+                    new StringTestData("test@test.com ", "Missing domain"),
+                    new StringTestData("te st@test.com", "Contains space"),
+                    new StringTestData("test@test", "Missing domain"),
+                    new StringTestData("test@test..com", "Contains \"..\""),
+                    new StringTestData("test@.test.com", "Contains \"@.\""),
+                    new StringTestData("test.@test.com", "Contains \".@\"")
                 };
 
 
@@ -86,7 +72,7 @@ namespace AccountManagement
                 public TestData(TData data, string description) : base(data)
                 {
                     Data = data;
-                    SetName($"{description} ==  \"{data?.ToString() ?? "NULL"}\"");
+                    SetName($"_({description} ==  \"{data?.ToString() ?? "NULL"}\")");
                 }
             }
         }

@@ -22,7 +22,7 @@ namespace Composable.Messaging
             if(message is MessageTypes.Remotable.IAtMostOnceMessage atMostOnce && atMostOnce.MessageId == Guid.Empty) throw new Exception($"{nameof(MessageTypes.Remotable.IAtMostOnceMessage.MessageId)} was Guid.Empty for message of type: {message.GetType().FullName}");
         }
 
-        internal static void AssertValidToSendLocal(MessageTypes.IMessage message)
+        internal static void AssertValidToExecuteLocally(MessageTypes.IMessage message)
         {
             CommonAssertions(message);
 

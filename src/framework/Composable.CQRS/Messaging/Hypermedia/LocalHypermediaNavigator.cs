@@ -46,7 +46,7 @@ namespace Composable.Messaging.Hypermedia
         void CommonAssertion(MessageTypes.IMessage message)
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
-            MessageInspector.AssertValidToSendLocal(message);
+            MessageInspector.AssertValidToExecuteLocally(message);
         }
     }
 }

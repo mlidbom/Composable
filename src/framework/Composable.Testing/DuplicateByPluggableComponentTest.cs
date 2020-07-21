@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 
 namespace Composable.Testing
 {
@@ -14,14 +13,14 @@ namespace Composable.Testing
         public DuplicateByPluggableComponentTest(string _) {}
     }
 
-    public class PluggableComponentsTestFixtureSource : IEnumerable<string>
+    class PluggableComponentsTestFixtureSource : IEnumerable<string>
     {
         static readonly List<string> Dimensions = CreateDimensions().ToList();
         public IEnumerator<string> GetEnumerator() => Dimensions.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         const string NCrunchDuplicateByDimensions = "TestUsingPluggableComponentCombinations";
-        public static string[] CreateDimensions()
+        static string[] CreateDimensions()
         {
             try
             {

@@ -1,8 +1,4 @@
-﻿using System;
-using Composable.Testing;
-using NCrunch.Framework;
-
-namespace Composable.DependencyInjection
+﻿namespace Composable.DependencyInjection
 {
     class RunMode : IRunMode
     {

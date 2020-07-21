@@ -35,9 +35,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F37276A7-E72D-49E1-9F74-06134C77B5FA}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		NCrunchDuplicateByDimensions = NCrunchDuplicateByDimensions
-		NCrunchDuplicateByDimensions.example = NCrunchDuplicateByDimensions.example
 		..\README.md = ..\README.md
+		TestUsingPluggableComponentCombinations = TestUsingPluggableComponentCombinations
+		TestUsingPluggableComponentCombinations.example = TestUsingPluggableComponentCombinations.example
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Domain.Events", "Samples\AccountManagement\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj", "{1D6122CA-D55B-44C1-B313-0BC0D6F39A59}"

@@ -28,21 +28,21 @@ namespace Composable.Messaging.Buses.Implementation
             readonly ITaskRunner _taskRunner;
             readonly IRemotableMessageSerializer _serializer;
 
-            public void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(
+            public void SendIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(
                 () =>
                 {
                     var message = TransportMessage.OutGoing.Create(@event, _typeMapper, _serializer);
                     _state.WithExclusiveAccess(state => DispatchMessage(state, message));
                 });
 
-            public void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(
+            public void SendIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(
                 () =>
                 {
                     var message = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
                     _state.WithExclusiveAccess(state => DispatchMessage(state, message));
                 });
 
-            public async Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command)
+            public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command)
             {
                 var taskCompletionSource = new AsyncTaskCompletionSource<Func<object>>();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
@@ -56,7 +56,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return (TCommandResult)(await taskCompletionSource.Task.NoMarshalling()).Invoke();
             }
 
-            public async Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
+            public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
             {
                 var taskCompletionSource = new AsyncTaskCompletionSource();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
@@ -70,7 +70,7 @@ namespace Composable.Messaging.Buses.Implementation
                 await taskCompletionSource.Task.NoMarshalling();
             }
 
-            public async Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
+            public async Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
             {
                 var taskCompletionSource = new AsyncTaskCompletionSource<Func<object>>();
                 var outGoingMessage = TransportMessage.OutGoing.Create(query, _typeMapper, _serializer);
@@ -96,7 +96,7 @@ namespace Composable.Messaging.Buses.Implementation
                 @this.DispatchQueue.Enqueue(outGoingMessage);
             }
 
-            internal async Task Init() { EndpointInformation = await DispatchAsync(new MessageTypes.Internal.EndpointInformationQuery()).NoMarshalling(); }
+            internal async Task Init() { EndpointInformation = await GetAsync(new MessageTypes.Internal.EndpointInformationQuery()).NoMarshalling(); }
 
 #pragma warning disable 8618 //Refactor: This really should not be suppressed. We do have a bad design that might cause null reference exceptions here if Init has not been called.
             internal InboxConnection(IGlobalBusStateTracker globalBusStateTracker,
@@ -199,6 +199,7 @@ namespace Composable.Messaging.Buses.Implementation
                                 failureResponse2.SetException(new MessageDispatchingFailedException(response.Body ?? "Got no exception text from remote end."));
                                 break;
                             case TransportMessage.Response.ResponseType.Received:
+                                //Urgent: This looks like the job of the outbox to me, not the connection.
                                 Assert.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
                                 _taskRunner.RunAndSurfaceExceptions(() => state.Storage.MarkAsReceived(response, EndpointInformation.Id));
                                 break;

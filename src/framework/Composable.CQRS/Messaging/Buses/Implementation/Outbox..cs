@@ -98,7 +98,7 @@ namespace Composable.Messaging.Buses.Implementation
             state.Poller = null;
         });
 
-        public void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent) => _state.WithExclusiveAccess(state =>
+        public void PublishIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent) => _state.WithExclusiveAccess(state =>
         {
             var connections = state.HandlerStorage.GetEventHandlerEndpoints(exactlyOnceEvent)
                                    .Where(connection => connection.EndpointInformation.Id != state.Configuration.Id)
@@ -109,36 +109,38 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 var eventHandlerEndpointIds = connections.Select(connection => connection.EndpointInformation.Id).ToArray();
                 state.Storage.SaveMessage(exactlyOnceEvent, eventHandlerEndpointIds);
-                connections.ForEach(receiver => receiver.DispatchIfTransactionCommits(exactlyOnceEvent));
+                //Urgent: We should track a Task result here and record the message as being received on success and handle failure.
+                connections.ForEach(receiver => receiver.SendIfTransactionCommits(exactlyOnceEvent));
             }
         });
 
-        public void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand) => _state.WithExclusiveAccess(state =>
+        public void SendIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand) => _state.WithExclusiveAccess(state =>
         {
             var connection = state.HandlerStorage.GetCommandHandlerEndpoint(exactlyOnceCommand);
             state.Storage.SaveMessage(exactlyOnceCommand, connection.EndpointInformation.Id);
-            connection.DispatchIfTransactionCommits(exactlyOnceCommand);
+            //Urgent: We should track a Task result here and record the message as being received on success and handle failure.
+            connection.SendIfTransactionCommits(exactlyOnceCommand);
         });
 
-        public async Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand)
+        public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand)
         {
             IInboxConnection connection = _state.WithExclusiveAccess(state => state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand));
 
-            await connection.DispatchAsync(atMostOnceCommand).NoMarshalling();
+            await connection.PostAsync(atMostOnceCommand).NoMarshalling();
         }
 
-        public async Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand)
+        public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand)
         {
             IInboxConnection connection = _state.WithExclusiveAccess(state => state.HandlerStorage.GetCommandHandlerEndpoint(atMostOnceCommand));
 
-            return await connection.DispatchAsync(atMostOnceCommand).NoMarshalling();
+            return await connection.PostAsync(atMostOnceCommand).NoMarshalling();
         }
 
-        public async Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
+        public async Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
         {
             var connection = _state.WithExclusiveAccess(state => state.HandlerStorage.GetQueryHandlerEndpoint(query));
 
-            return await connection.DispatchAsync(query).NoMarshalling();
+            return await connection.GetAsync(query).NoMarshalling();
         }
 
         public void Dispose() => _state.WithExclusiveAccess(state =>

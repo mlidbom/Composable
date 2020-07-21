@@ -24,24 +24,24 @@ namespace Composable.Messaging.Buses.Implementation
         Task StartAsync();
         Task ConnectAsync(EndPointAddress remoteEndpoint);
 
-        void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
-        void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);
+        void PublishIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
+        void SendIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);
 
         //Urgent: These hypermedia client methods should be moved to another abstraction that does not need persistence etc. A client, not an endpoint.
-        Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand);
-        Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand);
-        Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
+        Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand);
+        Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand);
+        Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
     }
 
     interface IInboxConnection : IDisposable
     {
-        void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
-        void DispatchIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand command);
+        void SendIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
+        void SendIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand command);
 
         //Urgent: These hypermedia client methods should be moved to another abstraction that does not need persistence etc. A client, not an endpoint.
-        Task DispatchAsync(MessageTypes.Remotable.AtMostOnce.ICommand command);
-        Task<TCommandResult> DispatchAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command);
-        Task<TQueryResult> DispatchAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
+        Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command);
+        Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command);
+        Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
     }
 
     interface IEndpointRegistry

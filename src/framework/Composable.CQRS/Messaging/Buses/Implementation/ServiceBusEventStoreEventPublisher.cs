@@ -18,7 +18,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             MessageInspector.AssertValidToSendRemote(@event);
             _handlerRegistry.CreateEventDispatcher().Dispatch(@event);
-            _transport.DispatchIfTransactionCommits(@event);
+            _transport.PublishIfTransactionCommits(@event);
         }
     }
 }

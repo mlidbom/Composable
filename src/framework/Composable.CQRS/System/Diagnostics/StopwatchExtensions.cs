@@ -78,13 +78,22 @@ namespace Composable.System.Diagnostics
                                          ? Math.Max(Environment.ProcessorCount / 2, 4)
                                          : maxDegreeOfParallelism;
 
+            maxDegreeOfParallelism = Math.Min(maxDegreeOfParallelism, iterations);
+
             TimeSpan TimedAction() => TimeExecution(action);
             var individual = new ConcurrentStack<TimeSpan>();
+
+            //Try to ensure that the thread pool has sufficient free threads so the timing is not way off because of starting new threads.
+            Task.WaitAll(1.Through(maxDegreeOfParallelism + 2).Select(index => TaskExtensions.StartLongRunning(() => Thread.Sleep(1.Milliseconds()))).ToArray());
 
             var total = TimeExecution(
                 () => Parallel.For(fromInclusive: 0,
                                    toExclusive: iterations,
-                                   body: index => individual.Push(TimedAction()),
+                                   body: index =>
+                                   {
+                                       var timing = TimedAction();
+                                       individual.Push(timing);
+                                   },
                                    parallelOptions: new ParallelOptions
                                                     {
                                                         MaxDegreeOfParallelism = maxDegreeOfParallelism

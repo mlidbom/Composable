@@ -6,6 +6,7 @@ using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.System.Linq;
 using Composable.System.Transactions;
+using Composable.Testing;
 using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
@@ -23,8 +24,7 @@ namespace Composable.Tests.CQRS
         }
     }
 
-    //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.Memory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl), nameof(PersistenceLayer.DB2))]
+    [ConfigurationBasedDuplicateByDimensions]
     [TestFixture]
     public class EventStoreTests
     {

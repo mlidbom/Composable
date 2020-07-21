@@ -41,7 +41,7 @@ namespace Composable.Testing
                 var storageProviderName = NCrunchEnvironment.GetDuplicatedDimension();
                 if(!Enum.TryParse(storageProviderName, out DependencyInjection.PersistenceLayer provider))
                 {
-                    throw new Exception("Failed to parse PersistenceLayerProvider from test environment");
+                    throw new Exception($"Failed to parse PersistenceLayerProvider from test environment. Value was: {storageProviderName}");
                 }
 
                 return provider;

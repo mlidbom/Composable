@@ -19,7 +19,7 @@ using NCrunch.Framework;
 
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
-    [DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl), nameof(PersistenceLayer.DB2))]
+    [ConfigurationBasedDuplicateByDimensions(excludeMemory: true)]
     public class DatabasePoolTest
     {
         internal static DatabasePool CreatePool() =>

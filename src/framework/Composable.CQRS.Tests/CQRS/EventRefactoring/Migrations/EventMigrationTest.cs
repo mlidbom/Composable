@@ -11,6 +11,7 @@ using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Transactions;
+using Composable.Testing;
 using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
 using FluentAssertions;
 using NUnit.Framework;
@@ -21,8 +22,7 @@ using NUnit.Framework;
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     //Urgent: Create powershell script that adds all the windows defender exclusions needed to keep visual studio and ncrunch running along happily with all of these different databases on all of these different machines.
-    //urgent: Remove this attribute once whole assembly runs all persistence layers.
-    [NCrunch.Framework.DuplicateByDimensions(nameof(PersistenceLayer.MsSql), nameof(PersistenceLayer.Memory), nameof(PersistenceLayer.MySql), nameof(PersistenceLayer.PgSql), nameof(PersistenceLayer.Orcl), nameof(PersistenceLayer.DB2))]
+    [ConfigurationBasedDuplicateByDimensions]
     [TestFixture]
     public class EventMigrationTest : EventMigrationTestBase
     {

@@ -19,7 +19,7 @@ using NCrunch.Framework;
 
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
-    [ConfigurationBasedDuplicateByDimensions(excludeMemory: true)]
+    [ConfigurationBasedDuplicateByDimensions]
     public class DatabasePoolTest
     {
         internal static DatabasePool CreatePool() =>

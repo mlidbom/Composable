@@ -15,40 +15,60 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 
         [SetUp] public void SetupTask()
         {
-            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) Assert.Ignore();
+            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) return;
             _manager = CreatePool();
         }
 
         [Test] public void Connection_to_Db1_can_be_opened_and_used()
-            => UseConnection(Db1,
-                             _manager,
-                             connection =>
-                             {
-                                 using var command = connection.CreateCommand();
-                                 command.CommandText = LayerSpecificCommandText();
-                                 command.ExecuteScalar().Should().Be(1);
-                             });
+        {
+            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) return;
+
+            UseConnection(Db1,
+                          _manager,
+                          connection =>
+                          {
+                              using var command = connection.CreateCommand();
+                              command.CommandText = LayerSpecificCommandText();
+                              command.ExecuteScalar().Should().Be(1);
+                          });
+        }
 
         [Test] public void Connection_to_Db2_can_be_opened_and_used()
-            => UseConnection(Db2,
-                             _manager,
-                             connection =>
-                             {
-                                 using var command = connection.CreateCommand();
-                                 command.CommandText = LayerSpecificCommandText();
-                                 command.ExecuteScalar().Should().Be(1);
-                             });
+        {
+            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) return;
+
+            UseConnection(Db2,
+                          _manager,
+                          connection =>
+                          {
+                              using var command = connection.CreateCommand();
+                              command.CommandText = LayerSpecificCommandText();
+                              command.ExecuteScalar().Should().Be(1);
+                          });
+        }
 
         static string LayerSpecificCommandText() => TestEnv.PersistenceLayer.ValueFor(msSql:"select 1", mySql:"select 1", pgSql: "select 1", orcl: "select 1 from dual", db2:"select 1 from sysibm.sysdummy1");
 
         [Test] public void The_same_connection_string_is_returned_by_each_call_to_CreateOrGetLocalDb_Db1()
-            => _manager.ConnectionStringFor(Db1).Should().Be(_manager.ConnectionStringFor(Db1));
+        {
+            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) return;
+
+            _manager.ConnectionStringFor(Db1).Should().Be(_manager.ConnectionStringFor(Db1));
+        }
 
         [Test] public void The_same_connection_string_is_returned_by_each_call_to_CreateOrGetLocalDb_Db2()
-            => _manager.ConnectionStringFor(Db2).Should().Be(_manager.ConnectionStringFor(Db2));
+        {
+            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) return;
+
+            _manager.ConnectionStringFor(Db2).Should().Be(_manager.ConnectionStringFor(Db2));
+        }
 
         [Test] public void The_Db1_connectionstring_is_different_from_the_Db2_connection_string()
-            => _manager.ConnectionStringFor(Db1).Should().NotBe(_manager.ConnectionStringFor(Db2));
+        {
+            if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) return;
+
+            _manager.ConnectionStringFor(Db1).Should().NotBe(_manager.ConnectionStringFor(Db2));
+        }
 
         [TearDown] public void TearDownTask()
         {

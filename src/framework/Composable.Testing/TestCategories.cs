@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Composable.DependencyInjection;
@@ -26,25 +27,19 @@ namespace Composable.Testing
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Assembly)]
     public class ConfigurationBasedDuplicateByDimensionsAttribute : NCrunch.Framework.DuplicateByDimensionsAttribute
     {
-        public ConfigurationBasedDuplicateByDimensionsAttribute(bool excludeMemory = false) : base(CreateDimensions(excludeMemory)) {}
+        public ConfigurationBasedDuplicateByDimensionsAttribute() : base(CreateDimensions()) {}
 
         const string NCrunchPersistenceLayers = "NCrunchPersistenceLayers";
-        static string[] CreateDimensions(bool excludeMemory)
+        static string[] CreateDimensions()
         {
             try
             {
-                if(!File.Exists(NCrunchPersistenceLayers)) throw new Exception($@"
-Please create the solutions item file {NCrunchPersistenceLayers} and place each of the persistence layers that you want NCrunch to run tests with on a separate line.
-Comment out the once you don't want using a # character at the beginning of the line.
-You find the providers in:{typeof(PersistenceLayer).FullName}.
-There is also an example file right next to it that you can copy and edit: {NCrunchPersistenceLayers}.example
-Once this is done you might also need to rebuild, and/or restart NCrunch for it to notice.
-");
-
                 return File.ReadAllLines(NCrunchPersistenceLayers)
                            .Select(@this => @this.Trim())
                            .Where(line => !line.StartsWith("#", StringComparison.InvariantCulture))
-                           .Where(provider => !excludeMemory || provider.ToUpperInvariant() != nameof(PersistenceLayer.Memory).ToUpperInvariant())
+                           .Select(layerString =>Enum.TryParse<PersistenceLayer>(layerString, ignoreCase: true, out PersistenceLayer layer)
+                                                     ? layer.ToString()
+                                                     : $"Invalid value: {layerString} found in {NCrunchPersistenceLayers} valid values are: {string.Join(",", Enum.GetValues(typeof(PersistenceLayer)).Cast<PersistenceLayer>().Select( value => value.ToString()))} " )
                            .ToArray();
             }
             catch(Exception e)

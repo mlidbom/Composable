@@ -68,7 +68,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\NCrunchPersistenceLayers" Link="NCrunchPersistenceLayers">
+    <None Include="..\..\NCrunchDuplicateByDimensions" Link="NCrunchDuplicateByDimensions">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

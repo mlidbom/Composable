@@ -29,7 +29,7 @@ namespace Composable.Testing
     {
         public ConfigurationBasedDuplicateByDimensionsAttribute() : base(CreateDimensions()) {}
 
-        const string NCrunchPersistenceLayers = "NCrunchPersistenceLayers";
+        const string NCrunchPersistenceLayers = "NCrunchDuplicateByDimensions";
         static string[] CreateDimensions()
         {
             try

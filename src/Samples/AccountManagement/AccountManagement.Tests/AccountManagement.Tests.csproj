@@ -22,6 +22,12 @@
     <PlatformTarget>x64</PlatformTarget>
     <DefineConstants>TRACE;PL_ALL</DefineConstants>
   </PropertyGroup>
+    
+  <ItemGroup>
+    <None Include="..\..\..\NCrunchPersistenceLayers" Link="NCrunchPersistenceLayers">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
@@ -49,9 +55,6 @@
   
   <ItemGroup>
     <None Update="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="NCrunchPersistenceProviders">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

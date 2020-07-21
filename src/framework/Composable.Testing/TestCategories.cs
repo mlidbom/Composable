@@ -28,20 +28,20 @@ namespace Composable.Testing
     {
         public ConfigurationBasedDuplicateByDimensionsAttribute(bool excludeMemory = false) : base(CreateDimensions(excludeMemory)) {}
 
-        const string NCrunchPersistenceProviders = "NCrunchPersistenceProviders";
+        const string NCrunchPersistenceLayers = "NCrunchPersistenceLayers";
         static string[] CreateDimensions(bool excludeMemory)
         {
             try
             {
-                if(!File.Exists(NCrunchPersistenceProviders)) throw new Exception($@"
-Please create the solutions item file {NCrunchPersistenceProviders} and place each of the persistence layers that you want NCrunch to run tests with on a separate line.
+                if(!File.Exists(NCrunchPersistenceLayers)) throw new Exception($@"
+Please create the solutions item file {NCrunchPersistenceLayers} and place each of the persistence layers that you want NCrunch to run tests with on a separate line.
 Comment out the once you don't want using a # character at the beginning of the line.
 You find the providers in:{typeof(PersistenceLayer).FullName}.
-There is also an example file right next to it that you can copy and edit: {NCrunchPersistenceProviders}.example
+There is also an example file right next to it that you can copy and edit: {NCrunchPersistenceLayers}.example
 Once this is done you might also need to rebuild, and/or restart NCrunch for it to notice.
 ");
 
-                return File.ReadAllLines(NCrunchPersistenceProviders)
+                return File.ReadAllLines(NCrunchPersistenceLayers)
                            .Select(@this => @this.Trim())
                            .Where(line => !line.StartsWith("#", StringComparison.InvariantCulture))
                            .Where(provider => !excludeMemory || provider.ToUpperInvariant() != nameof(PersistenceLayer.Memory).ToUpperInvariant())

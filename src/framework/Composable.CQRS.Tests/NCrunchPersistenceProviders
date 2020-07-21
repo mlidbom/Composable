@@ -1,7 +1,0 @@
- #Comment out the providers you do not want by adding a # character in front of it.
- MsSql
- Memory
- MySql
- PgSql
- Orcl
- DB2

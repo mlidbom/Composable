@@ -61,13 +61,16 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="NCrunchPersistenceProviders">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="System\Threading\Tasks\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\NCrunchPersistenceLayers" Link="NCrunchPersistenceLayers">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

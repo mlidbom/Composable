@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
-using Composable.DependencyInjection;
 using Composable.System;
-using Composable.System.Configuration;
-using Composable.System.Reflection;
-using NCrunch.Framework;
-using NUnit.Framework;
-using NUnit.Framework.Internal;
 
 namespace Composable.Testing
 {
@@ -21,10 +15,7 @@ namespace Composable.Testing
 
             static DependencyInjection.PersistenceLayer GetNCrunchProvider()
             {
-                var testName = TestContext.CurrentContext.Test.FullName;
-                var match = FindDimensions.Match(testName);
-
-                var storageProviderName = match.Groups[1].Value;
+                var storageProviderName = FindDimensions.Match(GetTestName()).Groups[1].Value;
                 if(!Enum.TryParse(storageProviderName, out DependencyInjection.PersistenceLayer provider))
                 {
                     throw new Exception($"Failed to parse PersistenceLayerProvider from test environment. Value was: {storageProviderName}");
@@ -54,6 +45,20 @@ namespace Composable.Testing
             }
         }
 
+        static string GetTestName()
+        {
+            //We do not want to reference NUnit so dig this data out through reflection. When running tests NUnit will be there.
+            var currentContext = TestContextType.GetProperty("CurrentContext")!.GetMethod!.Invoke(null, null)!;
+            var test = currentContext.GetType().GetProperty("Test")!.GetMethod!.Invoke(currentContext, null)!;
+            var testName = (string)test.GetType().GetProperty("FullName")!.GetMethod!.Invoke(test, null)!;
+            return testName;
+        }
+
+        static readonly Type TestContextType = AppDomain.CurrentDomain
+                                                        .GetAssemblies()
+                                                        .Single(ass => ass.GetName().FullName.ContainsInvariant("nunit.framework"))
+                                                        .GetType("NUnit.Framework.TestContext")!;
+
         static readonly Regex FindDimensions = new Regex(@"\(""(.*)\:(.*)""\)", RegexOptions.Compiled);
         internal static class DIContainer
         {
@@ -61,10 +66,7 @@ namespace Composable.Testing
 
             static DependencyInjection.DIContainer GetNCrunchConfiguredDiContainer()
             {
-                var testName = TestContext.CurrentContext.Test.FullName;
-                var match = FindDimensions.Match(testName);
-
-                var containerName = match.Groups[2].Value;
+                var containerName = FindDimensions.Match(GetTestName()).Groups[2].Value;
                 if (!Enum.TryParse(containerName, out DependencyInjection.DIContainer provider))
                 {
                     throw new Exception($"Failed to parse DIContainer from test environment. Value was: {containerName}");

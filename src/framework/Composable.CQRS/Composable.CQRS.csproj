@@ -42,8 +42,4 @@
     <PackageReference Include="System.Threading.AccessControl" Version="4.7.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Testing\Performance\" />
-  </ItemGroup>
-
 </Project>

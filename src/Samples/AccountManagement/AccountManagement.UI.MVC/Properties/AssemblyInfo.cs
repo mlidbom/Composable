@@ -1,1 +1,1 @@
-﻿[assembly:NUnit.Framework.NonTestAssembly]
+﻿

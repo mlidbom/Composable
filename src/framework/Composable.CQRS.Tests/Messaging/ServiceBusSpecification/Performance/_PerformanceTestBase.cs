@@ -50,7 +50,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         [TearDown] public void TearDown() { Host.Dispose(); }
 
         protected class MyRemoteQuery : MessageTypes.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
-        protected class MyLocalQuery : MessageTypes.StrictlyLocal.Queries.Query<MyQueryResult> {}
+        protected class MyLocalQuery : MessageTypes.StrictlyLocal.Queries.Query<MyLocalQuery, MyQueryResult> {}
         protected class MyQueryResult {}
 
         public PerformanceTestBase(string _) : base(_) {}

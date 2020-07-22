@@ -65,11 +65,12 @@ namespace Composable.Tests.Serialization.BinarySerializeds
             Console.WriteLine($"Binary: {binarySerializationTime.TotalMilliseconds}, JSon: {jsonSerializationTime.TotalMilliseconds}");
         }
 
-        [Test] public void _005_Constructs_1_00_000_instances_within_10_percent_of_default_constructor_time()
+        [Test] public void _005_Constructs_1_00_000_instances_within_20_percent_of_default_constructor_time()
         {
+            var margin = 1.20;
             var constructions = 1_00_000.IfInstrumentedDivideBy(4.7);
             var defaultConstructor = RunScenario(DefaultConstructor, constructions);
-            var maxTime = defaultConstructor.MultiplyBy(1.10);
+            var maxTime = defaultConstructor.MultiplyBy(margin);
             RunScenario(DynamicModuleConstruct, constructions, maxTotal: maxTime );
         }
 

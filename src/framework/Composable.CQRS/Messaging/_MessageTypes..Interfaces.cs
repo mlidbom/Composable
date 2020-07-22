@@ -41,7 +41,9 @@ namespace Composable.Messaging
             public interface IEvent : MessageTypes.IEvent, StrictlyLocal.IMessage { }
             public interface ICommand : MessageTypes.ICommand, IRequireTransactionalSender, StrictlyLocal.IMessage { }
             public interface ICommand<TResult> : MessageTypes.ICommand<TResult>, IRequireTransactionalSender, StrictlyLocal.ICommand, StrictlyLocal.IMessage  { }
-            public interface IQuery<TResult> : MessageTypes.IQuery<TResult>, StrictlyLocal.IMessage { }
+            public interface IQuery<TQuery, TResult> : MessageTypes.IQuery<TResult>, StrictlyLocal.IMessage
+            where TQuery : IQuery<TQuery, TResult>
+            { }
         }
 
         public static partial class Remotable

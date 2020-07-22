@@ -58,7 +58,7 @@ namespace Composable.Messaging.Buses.Implementation
         Func<MessageTypes.IQuery, object> GetQueryHandler(Type commandType);
         IReadOnlyList<Action<MessageTypes.IEvent>> GetEventHandlers(Type eventType);
 
-        Func<MessageTypes.IQuery<TResult>, TResult> GetQueryHandler<TResult>(MessageTypes.IQuery<TResult> query);
+        Func<MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>, TResult> GetQueryHandler<TQuery, TResult>(MessageTypes.StrictlyLocal.IQuery<TQuery, TResult> query) where TQuery : MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>;
 
         Func<MessageTypes.ICommand<TResult>, TResult> GetCommandHandler<TResult>(MessageTypes.ICommand<TResult> command);
 

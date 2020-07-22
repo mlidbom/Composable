@@ -10,7 +10,7 @@ namespace Composable.Persistence.DocumentDb
     {
         public partial class QueryApi
         {
-            public class GetDocumentForUpdate<TDocument> : MessageTypes.StrictlyLocal.Queries.Query<TDocument>
+            public class GetDocumentForUpdate<TDocument> : MessageTypes.StrictlyLocal.Queries.Query<GetDocumentForUpdate<TDocument>, TDocument>
             {
                 [JsonConstructor] internal GetDocumentForUpdate(Guid id) => Id = id;
                 [JsonProperty] Guid Id { get; set; }
@@ -19,7 +19,7 @@ namespace Composable.Persistence.DocumentDb
                     (GetDocumentForUpdate<TDocument> query, IDocumentDbUpdater updater) => updater.GetForUpdate<TDocument>(query.Id));
             }
 
-            public class TryGetDocument<TDocument> : MessageTypes.StrictlyLocal.Queries.Query<Option<TDocument>>
+            public class TryGetDocument<TDocument> : MessageTypes.StrictlyLocal.Queries.Query<TryGetDocument<TDocument>, Option<TDocument>>
             {
                 [JsonConstructor] internal TryGetDocument(string id) => Id = id;
                 [JsonProperty] string Id { get; set; }
@@ -28,7 +28,7 @@ namespace Composable.Persistence.DocumentDb
                     (TryGetDocument<TDocument> query, IDocumentDbReader updater) => updater.TryGet<TDocument>(query.Id, out var document) ? Option.Some(document) : Option.None<TDocument>());
             }
 
-            public class GetReadonlyCopyOfDocument<TDocument> : MessageTypes.StrictlyLocal.Queries.Query<TDocument>
+            public class GetReadonlyCopyOfDocument<TDocument> : MessageTypes.StrictlyLocal.Queries.Query<GetReadonlyCopyOfDocument<TDocument>, TDocument>
             {
                 [JsonConstructor] internal GetReadonlyCopyOfDocument(Guid id) => Id = id;
                 [JsonProperty] Guid Id { get; set; }

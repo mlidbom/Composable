@@ -18,10 +18,10 @@ namespace Composable.Messaging
             public static class Queries
             {
 #pragma warning disable CA1724 //Class name conflicts with namespace name.
-                public abstract class Query<TResult> : StrictlyLocal.IQuery<TResult> {}
+                public abstract class Query<TQuery, TResult> : StrictlyLocal.IQuery<TQuery, TResult> where TQuery : Query<TQuery, TResult> {}
 #pragma warning restore CA1724 //
 
-                public class EntityLink<TResult> : StrictlyLocal.Queries.Query<TResult> where TResult : IHasPersistentIdentity<Guid>
+                public sealed class EntityLink<TResult> : StrictlyLocal.Queries.Query<EntityLink<TResult>, TResult> where TResult : IHasPersistentIdentity<Guid>
                 {
                     [JsonConstructor] public EntityLink(Guid entityId) => EntityId = entityId;
                     public Guid EntityId { get; private set; }

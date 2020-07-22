@@ -1,5 +1,6 @@
 ﻿using Composable.Messaging.Buses.Implementation;
 using Composable.SystemExtensions.Threading;
+using NotImplementedException = System.NotImplementedException;
 
 namespace Composable.Messaging.Hypermedia
 {
@@ -30,7 +31,7 @@ namespace Composable.Messaging.Hypermedia
             commandHandler.Invoke(command);
         }
 
-        public TResult Execute<TResult>(MessageTypes.StrictlyLocal.IQuery<TResult> query)
+        public TResult Execute<TQuery, TResult>(MessageTypes.StrictlyLocal.IQuery<TQuery, TResult> query) where TQuery : MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>
         {
             CommonAssertion(query);
 

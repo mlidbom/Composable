@@ -16,10 +16,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
             RunScenario(threaded: true, requests: 10_000.IfInstrumentedDivideBy(12), queriesPerRequest: 1, maxTotal: 13.Milliseconds());
 
         [Test, Serial] public void Runs_10_000_SingleThreaded_local_requests_making_a_single_local_query_each_in_50_milliseconds() =>
-            RunScenario(threaded: false, requests: 10_000.IfInstrumentedDivideBy(6), queriesPerRequest: 1, maxTotal: 33.Milliseconds());
+            RunScenario(threaded: false, requests: 10_000.IfInstrumentedDivideBy(5), queriesPerRequest: 1, maxTotal: 33.Milliseconds());
 
         [Test, Serial] public void Runs_10_000__MultiThreaded_local_requests_making_10_local_queries_each_in_15_milliseconds() =>
-            RunScenario(threaded: true, requests: 10_000.IfInstrumentedDivideBy(11), queriesPerRequest: 10, maxTotal: 15.Milliseconds());
+            RunScenario(threaded: true, requests: 10_000.IfInstrumentedDivideBy(12), queriesPerRequest: 10, maxTotal: 15.Milliseconds());
 
         [Test, Serial] public void Runs_10_000__SingleThreaded_local_requests_making_10_local_queries_each_in_120_milliseconds() =>
             RunScenario(threaded: false, requests: 10_000.IfInstrumentedDivideBy(5), queriesPerRequest: 10, maxTotal: 120.Milliseconds());

@@ -56,7 +56,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : MessageTypes.ICommand<TResult>
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler)
         {
             MessageInspector.AssertValid<TCommand>();
             lock(_lock)
@@ -112,37 +112,14 @@ namespace Composable.Messaging.Buses.Implementation
             return _eventHandlers.Where(@this => @this.Key.IsAssignableFrom(eventType)).SelectMany(@this => @this.Value).ToList();
         }
 
-        //static class StaticQueryHandlerCache<TQuery, TResult> where TQuery : MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>
-        //{
-        //    internal static Func<MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>, TResult>? Value { get; set; }
-        //}
-
         public Func<MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>, TResult> GetQueryHandler<TQuery, TResult>(MessageTypes.StrictlyLocal.IQuery<TQuery, TResult> query) where TQuery : MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>
         {
-            try
+            if(_queryHandlers.TryGetValue(query.GetType(), out var handler))
             {
-                //if(typeof(TQuery) == query.GetType())
-                //{
-                    //var cached = StaticQueryHandlerCache<TQuery, TResult>.Value;
-                    //if(cached != null)
-                    //{
-                    //    return cached;
-                    //}
-                //}
-
-                var typeUnsafeQuery = _queryHandlers[query.GetType()].HandlerMethod;
-
-                //if(typeof(TQuery) == query.GetType())
-                //{
-                //    return StaticQueryHandlerCache<TQuery, TResult>.Value = actualQuery => (TResult)typeUnsafeQuery(actualQuery);
-                //}
-
-                return actualQuery => (TResult)typeUnsafeQuery(actualQuery);
+                return actualQuery => (TResult)handler.HandlerMethod(actualQuery);
             }
-            catch(KeyNotFoundException)
-            {
-                throw new NoHandlerException(query.GetType());
-            }
+
+            throw new NoHandlerException(query.GetType());
         }
 
         public Func<MessageTypes.ICommand<TResult>, TResult> GetCommandHandler<TResult>(MessageTypes.ICommand<TResult> command)

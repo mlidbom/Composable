@@ -179,36 +179,16 @@ namespace Composable.Messaging.Buses.Implementation
 
         class CommandHandlerWithResultRegistration<TCommand, TResult> : HandlerWithResultRegistration
         {
-            public CommandHandlerWithResultRegistration(Func<TCommand, TResult> handlerMethod) : base(typeof(TResult),
-                                                                                                      command =>
-                                                                                                      {
-                                                                                                          var result = handlerMethod((TCommand)command);
-                                                                                                          // ReSharper disable once CompareNonConstrainedGenericWithNull (null is never OK, but defaults might possibly be fine for structs.)
-                                                                                                          // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                                                                                                          if(result == null)
-                                                                                                          {
-                                                                                                              throw new Exception("You cannot return null from a command handler");
-                                                                                                          }
-
-                                                                                                          return result;
-                                                                                                      }) {}
+            public CommandHandlerWithResultRegistration(Func<TCommand, TResult> handlerMethod)
+                : base(typeof(TResult),
+                       command => handlerMethod((TCommand)command) ?? throw new Exception("You cannot return null from a command handler")) {}
         }
 
         class QueryHandlerRegistration<TQuery, TResult> : HandlerWithResultRegistration
         {
-            public QueryHandlerRegistration(Func<TQuery, TResult> handlerMethod) : base(typeof(TResult),
-                                                                                        command =>
-                                                                                        {
-                                                                                            var result = handlerMethod((TQuery)command);
-                                                                                            // ReSharper disable once CompareNonConstrainedGenericWithNull (null is never OK, but defaults might possibly be fine for structs.)
-                                                                                            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                                                                                            if(result == null)
-                                                                                            {
-                                                                                                throw new Exception("You cannot return null from a query handler");
-                                                                                            }
-
-                                                                                            return result;
-                                                                                        }) {}
+            public QueryHandlerRegistration(Func<TQuery, TResult> handlerMethod)
+                : base(typeof(TResult),
+                       command => handlerMethod((TQuery)command) ?? throw new Exception("You cannot return null from a query handler")) {}
         }
     }
 }

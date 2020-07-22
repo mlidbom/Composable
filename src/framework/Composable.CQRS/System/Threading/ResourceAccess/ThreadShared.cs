@@ -41,11 +41,11 @@ namespace Composable.System.Threading.ResourceAccess
         public void WithExclusiveAccess(Action<TResource> func) => ResourceGuard.WithExclusiveLock(_lock, () => func(_resource));
     }
 
-    class AwaitableOptimizedThreadShared<TShared>
+    class OptimizedAwaitableThreadShared<TShared>
     {
         readonly object _lock = new object();
         readonly TShared _shared;
-        public AwaitableOptimizedThreadShared(TShared shared) => _shared = shared;
+        public OptimizedAwaitableThreadShared(TShared shared) => _shared = shared;
 
         public TResult Read<TResult>(Func<TShared, TResult> read)
         {

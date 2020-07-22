@@ -8,19 +8,18 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class GlobalBusStateTracker : IGlobalBusStateTracker
     {
-        readonly AwaitableOptimizedThreadShared<NonThreadSafeImplementation> _implementation = new AwaitableOptimizedThreadShared<NonThreadSafeImplementation>(new NonThreadSafeImplementation());
+        readonly OptimizedAwaitableThreadShared<NonThreadSafeImplementation> _implementation = new OptimizedAwaitableThreadShared<NonThreadSafeImplementation>(new NonThreadSafeImplementation());
 
         public IReadOnlyList<Exception> GetExceptions() => _implementation.Update(implementation => implementation.GetExceptions());
 
         //performance: Do we care about queries here? Could we exclude them and lessen the contention a lot?
         public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage) => _implementation.Update(implementation => implementation.SendingMessageOnTransport(transportMessage));
 
-        public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride)
-        {
+        public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) =>
             _implementation.Await(implementation => implementation.InflightMessages.Count == 0);
-        }
 
-        public void DoneWith(Guid messageId, Exception? exception) => _implementation.Update(implementation => implementation.DoneWith(messageId, exception));
+        public void DoneWith(Guid messageId, Exception? exception) =>
+            _implementation.Update(implementation => implementation.DoneWith(messageId, exception));
 
         class InFlightMessage
         {

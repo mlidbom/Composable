@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses.Implementation
                 readonly IMessageStorage _messageStorage;
                 readonly IServiceLocator _serviceLocator;
                 readonly IMessageHandlerRegistry _messageHandlerRegistry;
-                readonly AwaitableOptimizedThreadShared<NonThreadsafeImplementation> _implementation;
+                readonly OptimizedAwaitableThreadShared<NonThreadsafeImplementation> _implementation;
 
                 public Coordinator(IGlobalBusStateTracker globalStateTracker, ITaskRunner taskRunner, IMessageStorage messageStorage, IServiceLocator serviceLocator, IMessageHandlerRegistry messageHandlerRegistry)
                 {
@@ -29,7 +29,7 @@ namespace Composable.Messaging.Buses.Implementation
                     _messageStorage = messageStorage;
                     _serviceLocator = serviceLocator;
                     _messageHandlerRegistry = messageHandlerRegistry;
-                    _implementation = new AwaitableOptimizedThreadShared<NonThreadsafeImplementation>(new NonThreadsafeImplementation(globalStateTracker));
+                    _implementation = new OptimizedAwaitableThreadShared<NonThreadsafeImplementation>(new NonThreadsafeImplementation(globalStateTracker));
                 }
 
                 internal HandlerExecutionTask AwaitExecutableHandlerExecutionTask(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Refactoring.Naming;
@@ -32,11 +33,10 @@ namespace Composable.Messaging.Buses.Implementation
                 _persistenceLayer.SaveMessage(outboxMessageWithReceivers);
             }
 
-            public void MarkAsReceived(TransportMessage.Response.Incoming response, EndpointId endpointId)
+            public void MarkAsReceived(Guid messageId, EndpointId receiverId)
             {
-                var endpointIdGuidValue = endpointId.GuidValue;
-                var responseRespondingToMessageId = response.RespondingToMessageId;
-                var affectedRows = _persistenceLayer.MarkAsReceived(responseRespondingToMessageId, endpointIdGuidValue);
+                var endpointIdGuidValue = receiverId.GuidValue;
+                var affectedRows = _persistenceLayer.MarkAsReceived(messageId, endpointIdGuidValue);
                 Assert.Result.Assert(affectedRows == 1);
             }
 

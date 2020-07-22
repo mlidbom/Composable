@@ -24,8 +24,8 @@ namespace Composable.Messaging.Buses.Implementation
         Task StartAsync();
         Task ConnectAsync(EndPointAddress remoteEndpoint);
 
-        void PublishIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
-        void SendIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);
+        void PublishTransactionally(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
+        void SendTransactionally(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);
 
         //Urgent: These hypermedia client methods should be moved to another abstraction that does not need persistence etc. A client, not an endpoint.
         Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand);
@@ -35,8 +35,8 @@ namespace Composable.Messaging.Buses.Implementation
 
     interface IInboxConnection : IDisposable
     {
-        void Send(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
-        void Send(MessageTypes.Remotable.ExactlyOnce.ICommand command);
+        Task SendAsync(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
+        Task SendAsync(MessageTypes.Remotable.ExactlyOnce.ICommand command);
 
         //Urgent: These hypermedia client methods should be moved to another abstraction that does not need persistence etc. A client, not an endpoint.
         Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command);

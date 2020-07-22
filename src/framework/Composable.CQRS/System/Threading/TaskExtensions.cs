@@ -66,7 +66,9 @@ namespace Composable.System.Threading
             throw new Exception("Impossible!");
         }
 
-        internal static Task ContinueOnDefaultScheduler(this Task @this, Action<Task> continuation, TaskContinuationOptions options = TaskContinuationOptions.None) => @this.ContinueWith(continuation, CancellationToken.None, options, TaskScheduler.Default);
+        internal static Task ContinueAsynchronouslyOnDefaultScheduler(this Task @this, Action<Task> continuation, TaskContinuationOptions options = TaskContinuationOptions.RunContinuationsAsynchronously) => @this.ContinueWith(continuation, CancellationToken.None, options, TaskScheduler.Default);
+
+        internal static Task ContinueAsynchronouslyOnDefaultScheduler<TResult>(this Task<TResult> @this, Action<Task<TResult>> continuation, TaskContinuationOptions options = TaskContinuationOptions.RunContinuationsAsynchronously) => @this.ContinueWith(continuation, CancellationToken.None, options, TaskScheduler.Default);
 
         public static Task StartLongRunning(Action action) => Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
     }

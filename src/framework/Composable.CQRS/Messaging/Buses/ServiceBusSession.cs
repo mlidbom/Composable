@@ -23,7 +23,7 @@ namespace Composable.Messaging.Buses
         public void Send(MessageTypes.Remotable.ExactlyOnce.ICommand command)
         {
            RunAssertions(command);
-            _transport.SendIfTransactionCommits(command);
+            _transport.SendTransactionally(command);
         }
 
         public void ScheduleSend(DateTime sendAt, MessageTypes.Remotable.ExactlyOnce.ICommand command)

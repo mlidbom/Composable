@@ -89,7 +89,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                         var dispatchTask = _handlerExecutionEngine.Enqueue(transportMessage);
 
-                        dispatchTask.ContinueWith(dispatchResult =>
+                        dispatchTask.ContinueAsynchronouslyOnDefaultScheduler(dispatchResult =>
                         {
                             //refactor: Consider moving these responsibilities into the message class or other class. Probably create more subtypes so that no type checking is required. See also: HandlerExecutionEngine.Coordinator and [.HandlerExecutionTask]
                             var message = transportMessage.DeserializeMessageAndCacheForNextCall();
@@ -121,7 +121,7 @@ namespace Composable.Messaging.Buses.Implementation
                                     }
                                 }
                             }
-                        }, TaskScheduler.Default);
+                        });
                     }
                 }
                 // ReSharper disable once FunctionNeverReturns

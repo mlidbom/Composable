@@ -94,8 +94,8 @@ namespace Composable.Messaging.Buses
                 Singleton.For<Outbox.IMessageStorage>()
                          .CreatedBy((IServiceBusPersistenceLayer.IOutboxPersistenceLayer persistenceLayer, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
                                         => new Outbox.MessageStorage(persistenceLayer, typeMapper, serializer)),
-                Singleton.For<IOutbox>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, Outbox.IMessageStorage messageStorage)
-                                                       => new Outbox(_globalStateTracker, timeSource, messageStorage, _typeMapper, configuration, taskRunner, serializer)),
+                Singleton.For<IOutbox>().CreatedBy((IUtcTimeTimeSource timeSource, RealEndpointConfiguration configuration, IRemotableMessageSerializer serializer, Outbox.IMessageStorage messageStorage)
+                                                       => new Outbox(_globalStateTracker, timeSource, messageStorage, _typeMapper, configuration, serializer)),
 
 
                 Singleton.For<IGlobalBusStateTracker>().CreatedBy(() => _globalStateTracker),

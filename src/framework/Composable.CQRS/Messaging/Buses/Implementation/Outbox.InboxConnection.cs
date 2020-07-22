@@ -23,19 +23,34 @@ namespace Composable.Messaging.Buses.Implementation
             readonly IThreadShared<InboxConnectionState> _state;
             internal MessageTypes.Internal.EndpointInformation EndpointInformation { get; private set; }
             readonly ITypeMapper _typeMapper;
-            readonly ITaskRunner _taskRunner;
             readonly IRemotableMessageSerializer _serializer;
 
-            public void Send(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
+            public async Task SendAsync(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
             {
-                var message = TransportMessage.OutGoing.Create(@event, _typeMapper, _serializer);
-                _state.WithExclusiveAccess(state => SendMessage(state, message));
+                var taskCompletionSource = new AsyncTaskCompletionSource();
+                var outGoingMessage = TransportMessage.OutGoing.Create(@event, _typeMapper, _serializer);
+
+                _state.WithExclusiveAccess(state =>
+                {
+                    state.ExpectedCompletionTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+                    SendMessage(state, outGoingMessage);
+                });
+
+                await taskCompletionSource.Task.NoMarshalling();
             }
 
-            public void Send(MessageTypes.Remotable.ExactlyOnce.ICommand command)
+            public async Task SendAsync(MessageTypes.Remotable.ExactlyOnce.ICommand command)
             {
-                var message = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
-                _state.WithExclusiveAccess(state => SendMessage(state, message));
+                var taskCompletionSource = new AsyncTaskCompletionSource();
+                var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
+
+                _state.WithExclusiveAccess(state =>
+                {
+                    state.ExpectedCompletionTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
+                    SendMessage(state, outGoingMessage);
+                });
+
+                await taskCompletionSource.Task.NoMarshalling();
             }
 
             public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command)
@@ -102,12 +117,10 @@ namespace Composable.Messaging.Buses.Implementation
                                      IUtcTimeTimeSource timeSource,
                                      Outbox.IMessageStorage messageStorage,
                                      ITypeMapper typeMapper,
-                                     ITaskRunner taskRunner,
                                      IRemotableMessageSerializer serializer)
             {
                 _serializer = serializer;
                 _typeMapper = typeMapper;
-                _taskRunner = taskRunner;
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
                 _state = new OptimizedThreadShared<InboxConnectionState>(new InboxConnectionState(timeSource, messageStorage, new DealerSocket(), globalBusStateTracker));
@@ -169,7 +182,7 @@ namespace Composable.Messaging.Buses.Implementation
             //Runs on poller thread so NO BLOCKING HERE!
             void ReceiveResponse(object sender, NetMQSocketEventArgs e)
             {
-                var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, _typeMapper, 100);
+                var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, _typeMapper, _serializer, 100);
 
                 _state.WithExclusiveAccess(state =>
                 {
@@ -177,25 +190,22 @@ namespace Composable.Messaging.Buses.Implementation
                     {
                         switch(response.ResponseType)
                         {
-                            case TransportMessage.Response.ResponseType.SuccessWithData:
-                                state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId)
-                                     .SetResult(() => Assert.Result.NotNull(response.DeserializeResult(_serializer)));
-                                break;
+                            case TransportMessage.Response.ResponseType.Received:
                             case TransportMessage.Response.ResponseType.Success:
-                                state.ExpectedCompletionTasks.GetAndRemove(response.RespondingToMessageId).SetResult();
+                                var successResponse = state.ExpectedCompletionTasks.GetAndRemove(response.RespondingToMessageId);
+                                successResponse.SetResult();
                                 break;
-                            case TransportMessage.Response.ResponseType.FailureExpectedReturnValue:
-                                var failureResponse = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
-                                failureResponse.SetException(new MessageDispatchingFailedException(response.Body ?? "Got no exception text from remote end."));
+                            case TransportMessage.Response.ResponseType.SuccessWithData:
+                                var successResponseWithData = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
+                                successResponseWithData.SetResult(response.DeserializeResult);
                                 break;
                             case TransportMessage.Response.ResponseType.Failure:
-                                var failureResponse2 = state.ExpectedCompletionTasks.GetAndRemove(response.RespondingToMessageId);
-                                failureResponse2.SetException(new MessageDispatchingFailedException(response.Body ?? "Got no exception text from remote end."));
+                                var failureResponse = state.ExpectedCompletionTasks.GetAndRemove(response.RespondingToMessageId);
+                                failureResponse.SetException(new MessageDispatchingFailedException(response.Body ?? "Got no exception text from remote end."));
                                 break;
-                            case TransportMessage.Response.ResponseType.Received:
-                                //Urgent: This looks like the job of the outbox to me, not the connection.
-                                Assert.Result.Assert(state.PendingDeliveryNotifications.Remove(response.RespondingToMessageId));
-                                _taskRunner.RunAndSurfaceExceptions(() => state.Storage.MarkAsReceived(response, EndpointInformation.Id));
+                            case TransportMessage.Response.ResponseType.FailureExpectedReturnValue:
+                                var failureResponseExpectingData = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
+                                failureResponseExpectingData.SetException(new MessageDispatchingFailedException(response.Body ?? "Got no exception text from remote end."));
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();

@@ -26,7 +26,7 @@ namespace Composable.Messaging.Buses.Implementation
             readonly IGlobalBusStateTracker _globalBusStateTracker;
             readonly NetMQQueue<TransportMessage.OutGoing> _sendQueue = new NetMQQueue<TransportMessage.OutGoing>();
             // ReSharper disable once InconsistentNaming we use this naming variation to try and make it extra clear that this must only ever be accessed from the poller thread.
-            readonly DealerSocket _socket_PollerThreadOnly;
+            readonly IDisposable _socketDisposable;
 
             public async Task SendAsync(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
             {
@@ -97,35 +97,39 @@ namespace Composable.Messaging.Buses.Implementation
                 _serializer = serializer;
                 _typeMapper = typeMapper;
                 _globalBusStateTracker = globalBusStateTracker;
-                _socket_PollerThreadOnly = new DealerSocket();
+                var socket = new DealerSocket();
+                _socketDisposable = (IDisposable)socket;//Getting rid of the type means we don't need to worry about usage from the wrong threads.
                 _state = new OptimizedThreadShared<InboxConnectionState>(new InboxConnectionState());
 
                 poller.Add(_sendQueue);
 
-                _sendQueue.ReceiveReady += SendQueuedMessages_PollerThread;
+                SendMessagesReceivedOnQueueThroughSocket_PollerThread(socket);
 
                 //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
-                _socket_PollerThreadOnly.Options.SendHighWatermark = int.MaxValue;
-                _socket_PollerThreadOnly.Options.ReceiveHighWatermark = int.MaxValue;
+                socket.Options.SendHighWatermark = int.MaxValue;
+                socket.Options.ReceiveHighWatermark = int.MaxValue;
 
                 //We guarantee delivery upon restart in other ways. When we shut down, just do it.
-                _socket_PollerThreadOnly.Options.Linger = 0.Milliseconds();
+                socket.Options.Linger = 0.Milliseconds();
 
-                _socket_PollerThreadOnly.ReceiveReady += ReceiveResponse_PollerThread;
+                socket.ReceiveReady += ReceiveResponse_PollerThread;
 
-                _socket_PollerThreadOnly.Connect(serverEndpoint);
-                poller.Add(_socket_PollerThreadOnly);
+                socket.Connect(serverEndpoint);
+                poller.Add(socket);
             }
 
-            void SendQueuedMessages_PollerThread(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> netMQQueueEventArgs)
+            void SendMessagesReceivedOnQueueThroughSocket_PollerThread(DealerSocket socket)
             {
-                while(netMQQueueEventArgs.Queue.TryDequeue(out var message, TimeSpan.Zero)) _socket_PollerThreadOnly.Send(message);
+                _sendQueue.ReceiveReady += (sender, netMQQueueEventArgs) =>
+                {
+                    while(netMQQueueEventArgs.Queue.TryDequeue(out var message, TimeSpan.Zero)) socket.Send(message);
+                };
             }
 
             public void Dispose()
             {
                 _sendQueue.Dispose();
-                _socket_PollerThreadOnly.Dispose();
+                _socketDisposable.Dispose();
             }
 
             class InboxConnectionState

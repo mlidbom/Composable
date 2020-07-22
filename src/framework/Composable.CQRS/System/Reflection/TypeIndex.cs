@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Composable.DependencyInjection;
 // ReSharper disable StaticMemberInGenericType
@@ -9,7 +10,7 @@ namespace Composable.System.Reflection
     {
         static readonly object Lock = new object();
         internal static int ServiceCount { get; private set; }
-        static ImmutableDictionary<Type, int> _map = ImmutableDictionary<Type, int>.Empty;
+        static IReadOnlyDictionary<Type, int> _map = new Dictionary<Type, int>();
 
         static Type[] _backMap = Array.Empty<Type>();
 
@@ -27,7 +28,7 @@ namespace Composable.System.Reflection
                 Array.Copy(_backMap, newBackMap, _backMap.Length);
                 newBackMap[^1] = type;
                 _backMap = newBackMap;
-                _map = _map.Add(type, ServiceCount++);
+                _map = new Dictionary<Type, int>(_map) {{type, ServiceCount++}};
                 return ServiceCount - 1;
             }
         }

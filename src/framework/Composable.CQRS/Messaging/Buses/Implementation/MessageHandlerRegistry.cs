@@ -6,6 +6,7 @@ using Composable.Messaging.Events;
 using Composable.Refactoring.Naming;
 using Composable.System.Linq;
 using Composable.System.Reflection;
+using NUnit.Framework;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -13,11 +14,11 @@ namespace Composable.Messaging.Buses.Implementation
     class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry
     {
         readonly ITypeMapper _typeMapper;
-        ImmutableDictionary<Type, Action<object>> _commandHandlers = ImmutableDictionary<Type, Action<object>>.Empty;
-        ImmutableDictionary<Type, ImmutableList<Action<MessageTypes.IEvent>>> _eventHandlers = ImmutableDictionary<Type, ImmutableList<Action<MessageTypes.IEvent>>>.Empty;
-        ImmutableDictionary<Type, HandlerWithResultRegistration> _queryHandlers = ImmutableDictionary<Type, HandlerWithResultRegistration>.Empty;
-        ImmutableDictionary<Type, HandlerWithResultRegistration> _commandHandlersReturningResults = ImmutableDictionary<Type, HandlerWithResultRegistration>.Empty;
-        ImmutableList<EventHandlerRegistration> _eventHandlerRegistrations = ImmutableList<EventHandlerRegistration>.Empty;
+        IReadOnlyDictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
+        IReadOnlyDictionary<Type, IReadOnlyList<Action<MessageTypes.IEvent>>> _eventHandlers = new Dictionary<Type, IReadOnlyList<Action<MessageTypes.IEvent>>>();
+        IReadOnlyDictionary<Type, HandlerWithResultRegistration> _queryHandlers = new Dictionary<Type, HandlerWithResultRegistration>();
+        IReadOnlyDictionary<Type, HandlerWithResultRegistration> _commandHandlersReturningResults = new Dictionary<Type, HandlerWithResultRegistration>();
+        IReadOnlyList<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
 
         readonly object _lock = new object();
 
@@ -29,12 +30,22 @@ namespace Composable.Messaging.Buses.Implementation
             lock(_lock)
             {
                 _eventHandlers.TryGetValue(typeof(TEvent), out var currentEventSubscribers);
-                currentEventSubscribers ??= ImmutableList<Action<MessageTypes.IEvent>>.Empty;
-                currentEventSubscribers = currentEventSubscribers.Add(@event => handler((TEvent)@event));
 
-                _eventHandlers = _eventHandlers.SetItem(typeof(TEvent), currentEventSubscribers);
 
-                _eventHandlerRegistrations = _eventHandlerRegistrations.Add(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
+                currentEventSubscribers ??= new List<Action<MessageTypes.IEvent>>();
+
+                _eventHandlers = new Dictionary<Type, IReadOnlyList<Action<MessageTypes.IEvent>>>(_eventHandlers)
+                                 {
+                                     [typeof(TEvent)] = new List<Action<MessageTypes.IEvent>>(currentEventSubscribers)
+                                                        {
+                                                            @event => handler((TEvent)@event)
+                                                        }
+                                 };
+
+                _eventHandlerRegistrations = new List<EventHandlerRegistration>(_eventHandlerRegistrations)
+                                             {
+                                                 new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler))
+                                             };
                 return this;
             }
         }
@@ -50,7 +61,10 @@ namespace Composable.Messaging.Buses.Implementation
 
             lock(_lock)
             {
-                _commandHandlers = _commandHandlers.Add(typeof(TCommand), command => handler((TCommand)command));
+                _commandHandlers = new Dictionary<Type, Action<object>>(_commandHandlers)
+                                   {
+                                       {typeof(TCommand), command => handler((TCommand)command)}
+                                   };
                 return this;
             }
         }
@@ -60,7 +74,10 @@ namespace Composable.Messaging.Buses.Implementation
             MessageInspector.AssertValid<TCommand>();
             lock(_lock)
             {
-                _commandHandlersReturningResults = _commandHandlersReturningResults.Add(typeof(TCommand), new CommandHandlerWithResultRegistration<TCommand, TResult>(handler));
+                _commandHandlersReturningResults = new Dictionary<Type, HandlerWithResultRegistration>(_commandHandlersReturningResults)
+                                                   {
+                                                       {typeof(TCommand), new CommandHandlerWithResultRegistration<TCommand, TResult>(handler)}
+                                                   };
                 return this;
             }
         }
@@ -70,7 +87,10 @@ namespace Composable.Messaging.Buses.Implementation
             MessageInspector.AssertValid<TQuery>();
             lock(_lock)
             {
-                _queryHandlers = _queryHandlers.Add(typeof(TQuery), new QueryHandlerRegistration<TQuery, TResult>(handler));
+                _queryHandlers = new Dictionary<Type, HandlerWithResultRegistration>(_queryHandlers)
+                                 {
+                                     {typeof(TQuery), new QueryHandlerRegistration<TQuery, TResult>(handler)}
+                                 };
                 return this;
             }
         }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Composable.Refactoring.Naming;
+using Composable.System.Collections.Collections;
+using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -12,10 +14,10 @@ namespace Composable.Messaging.Buses.Implementation
         {
             readonly object _lock = new object();
             readonly ITypeMapper _typeMapper;
-            ImmutableDictionary<Type, IInboxConnection> _commandHandlerRoutes = ImmutableDictionary<Type, IInboxConnection>.Empty;
-            ImmutableDictionary<Type, IInboxConnection> _queryHandlerRoutes = ImmutableDictionary<Type, IInboxConnection>.Empty;
-            ImmutableList<(Type EventType, IInboxConnection Connection)> _eventSubscriberRoutes = ImmutableList<(Type EventType, IInboxConnection Connection)>.Empty;
-            ImmutableDictionary<Type, ImmutableArray<IInboxConnection>> _eventSubscriberRouteCache = ImmutableDictionary<Type, ImmutableArray<IInboxConnection>>.Empty;
+            IReadOnlyDictionary<Type, IInboxConnection> _commandHandlerRoutes = new Dictionary<Type, IInboxConnection>();
+            IReadOnlyDictionary<Type, IInboxConnection> _queryHandlerRoutes = new Dictionary<Type, IInboxConnection>();
+            IReadOnlyList<(Type EventType, IInboxConnection Connection)> _eventSubscriberRoutes = new List<(Type EventType, IInboxConnection Connection)>();
+            IReadOnlyDictionary<Type, IReadOnlyList<IInboxConnection>> _eventSubscriberRouteCache = new Dictionary<Type, IReadOnlyList<IInboxConnection>>();
 
             public Router(ITypeMapper typeMapper) => _typeMapper = typeMapper;
 
@@ -48,12 +50,16 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     if(eventSubscribers.Count > 0)
                     {
-                        _eventSubscriberRoutes = _eventSubscriberRoutes.AddRange(eventSubscribers);
-                        _eventSubscriberRouteCache = ImmutableDictionary<Type, ImmutableArray<IInboxConnection>>.Empty;
+                        _eventSubscriberRoutes = new List<(Type EventType, IInboxConnection Connection)>(_eventSubscriberRoutes)
+                           .Mutate(@this => @this.AddRange(eventSubscribers));
+                        _eventSubscriberRouteCache = new Dictionary<Type, IReadOnlyList<IInboxConnection>>();
                     }
 
-                    _commandHandlerRoutes = _commandHandlerRoutes.AddRange(commandHandlerRoutes);
-                    _queryHandlerRoutes = _queryHandlerRoutes.AddRange(queryHandlerRoutes);
+                    _commandHandlerRoutes = new Dictionary<Type, IInboxConnection>(_commandHandlerRoutes)
+                       .Mutate(@this => @this.AddRange(commandHandlerRoutes));
+
+                    _queryHandlerRoutes = new Dictionary<Type, IInboxConnection>(_queryHandlerRoutes)
+                       .Mutate(@this => @this.AddRange(queryHandlerRoutes));
                 }
             }
 
@@ -72,13 +78,16 @@ namespace Composable.Messaging.Buses.Implementation
                 if(_eventSubscriberRouteCache.TryGetValue(@event.GetType(), out var connection)) return connection;
 
                 var subscriberConnections = _eventSubscriberRoutes
-                      .Where(route => route.EventType.IsInstanceOfType(@event))
-                      .Select(route => route.Connection)
-                      .ToImmutableArray();
+                                           .Where(route => route.EventType.IsInstanceOfType(@event))
+                                           .Select(route => route.Connection)
+                                           .ToImmutableArray();
 
                 lock(_lock)
                 {
-                    _eventSubscriberRouteCache = _eventSubscriberRouteCache.Add(@event.GetType(), subscriberConnections);
+                    _eventSubscriberRouteCache = new Dictionary<Type, IReadOnlyList<IInboxConnection>>(_eventSubscriberRouteCache)
+                                                 {
+                                                     {@event.GetType(), subscriberConnections}
+                                                 };
                     return subscriberConnections;
                 }
             }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
-using Composable.GenericAbstractions.Time;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System.Linq;
@@ -19,12 +18,11 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class State
         {
-            public State(IGlobalBusStateTracker globalBusStateTracker, Router router, RealEndpointConfiguration configuration, IUtcTimeTimeSource timeSource, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public State(IGlobalBusStateTracker globalBusStateTracker, Router router, RealEndpointConfiguration configuration, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
                 GlobalBusStateTracker = globalBusStateTracker;
                 Router = router;
                 Configuration = configuration;
-                TimeSource = timeSource;
                 TypeMapper = typeMapper;
                 Serializer = serializer;
             }
@@ -34,7 +32,6 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly Dictionary<EndpointId, IInboxConnection> InboxConnections = new Dictionary<EndpointId, IInboxConnection>();
             internal readonly Router Router;
             internal NetMQPoller? Poller;
-            public IUtcTimeTimeSource TimeSource { get; }
             public ITypeMapper TypeMapper { get; }
             public IRemotableMessageSerializer Serializer { get; }
             public readonly RealEndpointConfiguration Configuration;
@@ -43,21 +40,20 @@ namespace Composable.Messaging.Buses.Implementation
         readonly IThreadShared<State> _state;
         readonly Outbox.IMessageStorage _storage;
 
-        public Outbox(IGlobalBusStateTracker globalBusStateTracker, IUtcTimeTimeSource timeSource, Outbox.IMessageStorage messageStorage, ITypeMapper typeMapper, RealEndpointConfiguration configuration, IRemotableMessageSerializer serializer)
+        public Outbox(IGlobalBusStateTracker globalBusStateTracker, Outbox.IMessageStorage messageStorage, ITypeMapper typeMapper, RealEndpointConfiguration configuration, IRemotableMessageSerializer serializer)
         {
             _storage = messageStorage;
             _state = new OptimizedThreadShared<State>(new State(
                                                           globalBusStateTracker,
                                                           new Router(typeMapper),
                                                           configuration,
-                                                          timeSource,
                                                           typeMapper,
                                                           serializer));
         }
 
         public async Task ConnectAsync(EndPointAddress remoteEndpoint)
         {
-            var clientConnection = _state.WithExclusiveAccess(@this => new InboxConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller!, @this.TimeSource, _storage, @this.TypeMapper, @this.Serializer));
+            var clientConnection = _state.WithExclusiveAccess(@this => new InboxConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller!, @this.TypeMapper, @this.Serializer));
 
             await clientConnection.Init().NoMarshalling();
 

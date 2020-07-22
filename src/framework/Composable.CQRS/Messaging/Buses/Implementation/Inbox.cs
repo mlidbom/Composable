@@ -106,7 +106,7 @@ namespace Composable.Messaging.Buses.Implementation
                                     {
                                         if(message is MessageTypes.IHasReturnValue)
                                         {
-                                            var successResponse = transportMessage.CreateSuccessResponseWithData(dispatchResult.Result);
+                                            var successResponse = transportMessage.CreateSuccessResponseWithData(Contract.ReturnNotNull(dispatchResult.Result));
                                             _responseQueue.Enqueue(successResponse);
                                         } else
                                         {

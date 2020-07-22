@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Composable.Contracts;
-using Composable.GenericAbstractions.Time;
 using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
@@ -89,8 +88,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _state.WithExclusiveAccess(state =>
                 {
                     state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-                    state.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
-                    state.SendQueue.Enqueue(outGoingMessage);
+                    SendMessage(state, outGoingMessage);
                 });
 
                 return (TQueryResult)(await taskCompletionSource.Task.NoMarshalling()).Invoke();
@@ -98,11 +96,6 @@ namespace Composable.Messaging.Buses.Implementation
 
             static void SendMessage(InboxConnectionState @this, TransportMessage.OutGoing outGoingMessage)
             {
-                if(outGoingMessage.IsExactlyOnceDeliveryMessage)
-                {
-                    @this.PendingDeliveryNotifications.Add(outGoingMessage.MessageId, @this.TimeSource.UtcNow);
-                }
-
                 @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
                 @this.SendQueue.Enqueue(outGoingMessage);
             }
@@ -114,8 +107,6 @@ namespace Composable.Messaging.Buses.Implementation
 #pragma warning restore 8618
                                      EndPointAddress serverEndpoint,
                                      NetMQPoller poller,
-                                     IUtcTimeTimeSource timeSource,
-                                     Outbox.IMessageStorage messageStorage,
                                      ITypeMapper typeMapper,
                                      IRemotableMessageSerializer serializer)
             {
@@ -123,7 +114,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _typeMapper = typeMapper;
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
-                _state = new OptimizedThreadShared<InboxConnectionState>(new InboxConnectionState(timeSource, messageStorage, new DealerSocket(), globalBusStateTracker));
+                _state = new OptimizedThreadShared<InboxConnectionState>(new InboxConnectionState(new DealerSocket(), globalBusStateTracker));
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
                 _state.WithExclusiveAccess(state =>
@@ -158,17 +149,12 @@ namespace Composable.Messaging.Buses.Implementation
                 internal readonly IGlobalBusStateTracker GlobalBusStateTracker;
                 internal readonly Dictionary<Guid, AsyncTaskCompletionSource<Func<object>>> ExpectedResponseTasks = new Dictionary<Guid, AsyncTaskCompletionSource<Func<object>>>();
                 internal readonly Dictionary<Guid, AsyncTaskCompletionSource> ExpectedCompletionTasks = new Dictionary<Guid, AsyncTaskCompletionSource>();
-                internal readonly Dictionary<Guid, DateTime> PendingDeliveryNotifications = new Dictionary<Guid, DateTime>();
                 internal readonly DealerSocket Socket;
                 internal readonly NetMQQueue<TransportMessage.OutGoing> SendQueue = new NetMQQueue<TransportMessage.OutGoing>();
-                internal IUtcTimeTimeSource TimeSource { get; private set; }
-                internal Outbox.IMessageStorage Storage { get; private set; }
 
-                public InboxConnectionState(IUtcTimeTimeSource timeSource, Outbox.IMessageStorage storage, DealerSocket socket, IGlobalBusStateTracker globalBusStateTracker)
+                public InboxConnectionState(DealerSocket socket, IGlobalBusStateTracker globalBusStateTracker)
                 {
                     Socket = socket;
-                    TimeSource = timeSource;
-                    Storage = storage;
                     GlobalBusStateTracker = globalBusStateTracker;
                 }
 
@@ -182,7 +168,7 @@ namespace Composable.Messaging.Buses.Implementation
             //Runs on poller thread so NO BLOCKING HERE!
             void ReceiveResponse(object sender, NetMQSocketEventArgs e)
             {
-                var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, _typeMapper, _serializer, 100);
+                var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, _typeMapper, _serializer, batchMaximum: 100);
 
                 _state.WithExclusiveAccess(state =>
                 {

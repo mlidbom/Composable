@@ -89,7 +89,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public NetMQMessage CreateFailureResponse(AggregateException exception) => Response.Create.Failure(this, exception);
 
-            public NetMQMessage CreateSuccessResponseWithData(object? response) => Response.Create.SuccessWithData(this, response, _serializer, _typeMapper);
+            public NetMQMessage CreateSuccessResponseWithData(object response) => Response.Create.SuccessWithData(this, response, _serializer, _typeMapper);
 
             public NetMQMessage CreateSuccessResponse() => Response.Create.Success(this);
 
@@ -149,7 +149,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             internal static class Create
             {
-                public static NetMQMessage SuccessWithData(TransportMessage.InComing incoming, object? response, IRemotableMessageSerializer serializer, ITypeMapper typeMapper)
+                public static NetMQMessage SuccessWithData(TransportMessage.InComing incoming, object response, IRemotableMessageSerializer serializer, ITypeMapper typeMapper)
                 {
                     var responseMessage = new NetMQMessage();
 
@@ -157,16 +157,10 @@ namespace Composable.Messaging.Buses.Implementation
                     responseMessage.Append(incoming.MessageId);
                     responseMessage.Append((int)ResponseType.SuccessWithData);
 
-                    if(response != null)
-                    {
-                        var guidValue = typeMapper.GetId(response.GetType()).GuidValue;
-                        responseMessage.Append(guidValue);
-                        responseMessage.Append(serializer.SerializeResponse(response));
-                    } else
-                    {
-                        responseMessage.Append(Constants.NullString);
-                        responseMessage.Append(Constants.NullString);
-                    }
+                    var guidValue = typeMapper.GetId(response.GetType()).GuidValue;
+                       responseMessage.Append(guidValue);
+                       responseMessage.Append(serializer.SerializeResponse(response));
+
                     return responseMessage;
                 }
 

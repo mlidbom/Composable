@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Refactoring.Naming;
@@ -9,6 +10,7 @@ using Composable.Serialization;
 using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
+using Composable.SystemExtensions.TransactionsCE;
 using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation
@@ -107,9 +109,10 @@ namespace Composable.Messaging.Buses.Implementation
             //Urgent: bug. Our traceability thinking does not allow just discarding this message.But removing this if statement breaks a lot of tests that uses endpoint wiring but do not start an endpoint.
             if(connections.Length != 0)//Don't waste time if there are no receivers
             {
-                state.Storage.SaveMessage(exactlyOnceEvent, connections.Select(connection => connection.EndpointInformation.Id).ToArray());
+                var eventHandlerEndpointIds = connections.Select(connection => connection.EndpointInformation.Id).ToArray();
+                state.Storage.SaveMessage(exactlyOnceEvent, eventHandlerEndpointIds);
                 //Urgent: We should track a Task result here and record the message as being received on success and handle failure.
-                connections.ForEach(receiver => receiver.SendIfTransactionCommits(exactlyOnceEvent));
+                Transaction.Current.OnCommittedSuccessfully(() => connections.ForEach(subscriberConnection => subscriberConnection.Send(exactlyOnceEvent)));
             }
         });
 
@@ -118,7 +121,7 @@ namespace Composable.Messaging.Buses.Implementation
             var connection = state.Router.ConnectionToHandlerFor(exactlyOnceCommand);
             state.Storage.SaveMessage(exactlyOnceCommand, connection.EndpointInformation.Id);
             //Urgent: We should track a Task result here and record the message as being received on success and handle failure.
-            connection.SendIfTransactionCommits(exactlyOnceCommand);
+            Transaction.Current.OnCommittedSuccessfully(() => connection.Send(exactlyOnceCommand));
         });
 
         public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand)

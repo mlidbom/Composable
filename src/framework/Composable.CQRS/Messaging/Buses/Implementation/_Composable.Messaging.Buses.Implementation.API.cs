@@ -35,8 +35,8 @@ namespace Composable.Messaging.Buses.Implementation
 
     interface IInboxConnection : IDisposable
     {
-        void SendIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
-        void SendIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand command);
+        void Send(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
+        void Send(MessageTypes.Remotable.ExactlyOnce.ICommand command);
 
         //Urgent: These hypermedia client methods should be moved to another abstraction that does not need persistence etc. A client, not an endpoint.
         Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command);

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Transactions;
 using Composable.Contracts;
-using Composable.GenericAbstractions;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
@@ -13,7 +11,6 @@ using Composable.System.Collections.Collections;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Threading.Tasks;
-using Composable.SystemExtensions.TransactionsCE;
 using NetMQ;
 using NetMQ.Sockets;
 
@@ -28,19 +25,17 @@ namespace Composable.Messaging.Buses.Implementation
             readonly ITaskRunner _taskRunner;
             readonly IRemotableMessageSerializer _serializer;
 
-            public void SendIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.IEvent @event) => Transaction.Current.OnCommittedSuccessfully(
-                () =>
-                {
-                    var message = TransportMessage.OutGoing.Create(@event, _typeMapper, _serializer);
-                    _state.WithExclusiveAccess(state => DispatchMessage(state, message));
-                });
+            public void Send(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
+            {
+                var message = TransportMessage.OutGoing.Create(@event, _typeMapper, _serializer);
+                _state.WithExclusiveAccess(state => DispatchMessage(state, message));
+            }
 
-            public void SendIfTransactionCommits(MessageTypes.Remotable.ExactlyOnce.ICommand command) => Transaction.Current.OnCommittedSuccessfully(
-                () =>
-                {
-                    var message = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
-                    _state.WithExclusiveAccess(state => DispatchMessage(state, message));
-                });
+            public void Send(MessageTypes.Remotable.ExactlyOnce.ICommand command)
+            {
+                var message = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
+                _state.WithExclusiveAccess(state => DispatchMessage(state, message));
+            }
 
             public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command)
             {

@@ -100,7 +100,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                                        .ToArray()); //We dispatch events to ourselves synchronously so don't go doing it again here.;
 
             //Urgent: bug. Our traceability thinking does not allow just discarding this message.But removing this if statement breaks a lot of tests that uses endpoint wiring but do not start an endpoint.
-            if(connections.Length != 0) //Don't waste time if there are no receivers
+            if(connections.Length != 0)
             {
                 var eventHandlerEndpointIds = connections.Select(connection => connection.EndpointInformation.Id).ToArray();
                 _storage.SaveMessage(exactlyOnceEvent, eventHandlerEndpointIds);

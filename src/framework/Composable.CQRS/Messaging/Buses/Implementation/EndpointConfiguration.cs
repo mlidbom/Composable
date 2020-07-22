@@ -7,14 +7,10 @@ namespace Composable.Messaging.Buses.Implementation
     {
         internal readonly IRunMode Mode;
 
-        string ConfigurationParameterName(string name) => $"HostedEndpoint.{Name}.{name}";
-
         internal string Name { get; }
         internal EndpointId Id { get; }
-        internal string ConnectionStringName => ConfigurationParameterName("ConnectionString");
+        internal string ConnectionStringName { get; }
         internal bool IsPureClientEndpoint { get; }
-
-        internal bool HasMessageHandlers => !IsPureClientEndpoint;
 
 
         internal EndpointConfiguration(string name, EndpointId id, IRunMode mode, bool isPureClientEndpoint)
@@ -23,6 +19,7 @@ namespace Composable.Messaging.Buses.Implementation
             Name = name;
             Id = id;
             IsPureClientEndpoint = isPureClientEndpoint;
+            ConnectionStringName = $"HostedEndpoint.{Name}.ConnectionString";
         }
     }
 
@@ -34,27 +31,23 @@ namespace Composable.Messaging.Buses.Implementation
         {
             _conf = conf;
             _configurationParameterProvider = configurationParameterProvider;
-        }
 
-        internal string Address
-        {
-            get
+            if(_conf.Mode.IsTesting)
             {
-                if(_conf.Mode.IsTesting)
+                Address = "tcp://localhost:0";
+            } else
+            {
+                if(IsPureClientEndpoint)
                 {
-                    return "tcp://localhost:0";
+                    Address = "invalid";
                 } else
                 {
-                    if(IsPureClientEndpoint)
-                    {
-                        return "invalid";
-                    } else
-                    {
-                        return $"tcp://localhost:{EndpointConfigurationValue("Port")}";
-                    }
+                    Address = $"tcp://localhost:{EndpointConfigurationValue("Port")}";
                 }
             }
         }
+
+        internal string Address { get; }
 
         internal string Name => _conf.Name;
         internal EndpointId Id => _conf.Id;

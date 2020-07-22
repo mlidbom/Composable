@@ -20,7 +20,7 @@ namespace Composable.Messaging.Buses.Implementation
         internal class InboxConnection : IInboxConnection
         {
             readonly IThreadShared<InboxConnectionState> _state;
-            internal MessageTypes.Internal.EndpointInformation EndpointInformation { get; private set; }
+            public MessageTypes.Internal.EndpointInformation EndpointInformation { get; private set; }
             readonly ITypeMapper _typeMapper;
             readonly IRemotableMessageSerializer _serializer;
 

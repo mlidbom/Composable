@@ -35,6 +35,7 @@ namespace Composable.Messaging.Buses.Implementation
 
     interface IInboxConnection : IDisposable
     {
+        MessageTypes.Internal.EndpointInformation EndpointInformation { get; }
         Task SendAsync(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
         Task SendAsync(MessageTypes.Remotable.ExactlyOnce.ICommand command);
 
@@ -51,8 +52,6 @@ namespace Composable.Messaging.Buses.Implementation
 
     interface IMessageHandlerRegistry
     {
-        IReadOnlyList<Type> GetTypesNeedingMappings();
-
         Action<object> GetCommandHandler(MessageTypes.ICommand message);
 
         Func<MessageTypes.ICommand, object> GetCommandHandler(Type commandType);

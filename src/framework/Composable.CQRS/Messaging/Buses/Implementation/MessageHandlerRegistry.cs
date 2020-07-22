@@ -70,23 +70,6 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        public IReadOnlyList<Type> GetTypesNeedingMappings()
-        {
-            var handledTypes = _commandHandlers.Keys
-                                               .Concat(_commandHandlersReturningResults.Keys)
-                                               .Concat(_queryHandlers.Keys)
-                                               .Concat(_eventHandlerRegistrations.Select(reg => reg.Type))
-                                               .Where(messageType => messageType.Implements<MessageTypes.Remotable.IMessage>())
-                                               .ToSet();
-
-            var remoteResultTypes = _commandHandlersReturningResults.Concat(_queryHandlers)
-                                                                    .Where(handler => handler.Key.Implements<MessageTypes.Remotable.IMessage>())
-                                                                    .Select(handler => handler.Value.ReturnValueType)
-                                                                    .ToList();
-
-            return handledTypes.Concat(remoteResultTypes).ToList();
-        }
-
         Action<object> IMessageHandlerRegistry.GetCommandHandler(MessageTypes.ICommand message)
         {
             if(TryGetCommandHandler(message, out var handler))

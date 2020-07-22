@@ -12,18 +12,18 @@ namespace Composable.Messaging.Buses.Implementation
         {
             readonly object _lock = new object();
             readonly ITypeMapper _typeMapper;
-            ImmutableDictionary<Type, InboxConnection> _commandHandlerRoutes = ImmutableDictionary<Type, InboxConnection>.Empty;
-            ImmutableDictionary<Type, InboxConnection> _queryHandlerRoutes = ImmutableDictionary<Type, InboxConnection>.Empty;
-            ImmutableList<(Type EventType, InboxConnection Connection)> _eventSubscriberRoutes = ImmutableList<(Type EventType, InboxConnection Connection)>.Empty;
-            ImmutableDictionary<Type, ImmutableArray<InboxConnection>> _eventSubscriberRouteCache = ImmutableDictionary<Type, ImmutableArray<InboxConnection>>.Empty;
+            ImmutableDictionary<Type, IInboxConnection> _commandHandlerRoutes = ImmutableDictionary<Type, IInboxConnection>.Empty;
+            ImmutableDictionary<Type, IInboxConnection> _queryHandlerRoutes = ImmutableDictionary<Type, IInboxConnection>.Empty;
+            ImmutableList<(Type EventType, IInboxConnection Connection)> _eventSubscriberRoutes = ImmutableList<(Type EventType, IInboxConnection Connection)>.Empty;
+            ImmutableDictionary<Type, ImmutableArray<IInboxConnection>> _eventSubscriberRouteCache = ImmutableDictionary<Type, ImmutableArray<IInboxConnection>>.Empty;
 
             public Router(ITypeMapper typeMapper) => _typeMapper = typeMapper;
 
-            internal void AddRegistrations(InboxConnection inboxConnection, ISet<TypeId> handledTypeIds)
+            internal void AddRegistrations(IInboxConnection inboxConnection, ISet<TypeId> handledTypeIds)
             {
-                var eventSubscribers = new List<(Type EventType, InboxConnection Connection)>();
-                var commandHandlerRoutes = new Dictionary<Type, InboxConnection>();
-                var queryHandlerRoutes = new Dictionary<Type, InboxConnection>();
+                var eventSubscribers = new List<(Type EventType, IInboxConnection Connection)>();
+                var commandHandlerRoutes = new Dictionary<Type, IInboxConnection>();
+                var queryHandlerRoutes = new Dictionary<Type, IInboxConnection>();
                 foreach(var typeId in handledTypeIds)
                 {
                     if(_typeMapper.TryGetType(typeId, out var messageType))
@@ -49,7 +49,7 @@ namespace Composable.Messaging.Buses.Implementation
                     if(eventSubscribers.Count > 0)
                     {
                         _eventSubscriberRoutes = _eventSubscriberRoutes.AddRange(eventSubscribers);
-                        _eventSubscriberRouteCache = ImmutableDictionary<Type, ImmutableArray<InboxConnection>>.Empty;
+                        _eventSubscriberRouteCache = ImmutableDictionary<Type, ImmutableArray<IInboxConnection>>.Empty;
                     }
 
                     _commandHandlerRoutes = _commandHandlerRoutes.AddRange(commandHandlerRoutes);
@@ -57,17 +57,17 @@ namespace Composable.Messaging.Buses.Implementation
                 }
             }
 
-            internal InboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command) =>
+            internal IInboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command) =>
                 _commandHandlerRoutes.TryGetValue(command.GetType(), out var connection)
                     ? connection
                     : throw new NoHandlerForMessageTypeException(command.GetType());
 
-            internal InboxConnection ConnectionToHandlerFor(MessageTypes.IQuery query) =>
+            internal IInboxConnection ConnectionToHandlerFor(MessageTypes.IQuery query) =>
                 _queryHandlerRoutes.TryGetValue(query.GetType(), out var connection)
                     ? connection
                     : throw new NoHandlerForMessageTypeException(query.GetType());
 
-            internal IReadOnlyList<InboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
+            internal IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
             {
                 if(_eventSubscriberRouteCache.TryGetValue(@event.GetType(), out var connection)) return connection;
 

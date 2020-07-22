@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Composable.GenericAbstractions;
 using Composable.Messaging.Events;
 using Composable.Refactoring.Naming;
-using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Reflection;
 

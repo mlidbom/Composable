@@ -28,13 +28,13 @@ namespace Composable.Messaging.Buses.Implementation
             public void Send(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
             {
                 var message = TransportMessage.OutGoing.Create(@event, _typeMapper, _serializer);
-                _state.WithExclusiveAccess(state => DispatchMessage(state, message));
+                _state.WithExclusiveAccess(state => SendMessage(state, message));
             }
 
             public void Send(MessageTypes.Remotable.ExactlyOnce.ICommand command)
             {
                 var message = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
-                _state.WithExclusiveAccess(state => DispatchMessage(state, message));
+                _state.WithExclusiveAccess(state => SendMessage(state, message));
             }
 
             public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command)
@@ -45,7 +45,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _state.WithExclusiveAccess(state =>
                 {
                     state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-                    DispatchMessage(state, outGoingMessage);
+                    SendMessage(state, outGoingMessage);
                 });
 
                 return (TCommandResult)(await taskCompletionSource.Task.NoMarshalling()).Invoke();
@@ -59,7 +59,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _state.WithExclusiveAccess(state =>
                 {
                     state.ExpectedCompletionTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
-                    DispatchMessage(state, outGoingMessage);
+                    SendMessage(state, outGoingMessage);
                 });
 
                 await taskCompletionSource.Task.NoMarshalling();
@@ -74,13 +74,13 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
                     state.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
-                    state.DispatchQueue.Enqueue(outGoingMessage);
+                    state.SendQueue.Enqueue(outGoingMessage);
                 });
 
                 return (TQueryResult)(await taskCompletionSource.Task.NoMarshalling()).Invoke();
             }
 
-            static void DispatchMessage(InboxConnectionState @this, TransportMessage.OutGoing outGoingMessage)
+            static void SendMessage(InboxConnectionState @this, TransportMessage.OutGoing outGoingMessage)
             {
                 if(outGoingMessage.IsExactlyOnceDeliveryMessage)
                 {
@@ -88,7 +88,7 @@ namespace Composable.Messaging.Buses.Implementation
                 }
 
                 @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage);
-                @this.DispatchQueue.Enqueue(outGoingMessage);
+                @this.SendQueue.Enqueue(outGoingMessage);
             }
 
             internal async Task Init() { EndpointInformation = await GetAsync(new MessageTypes.Internal.EndpointInformationQuery()).NoMarshalling(); }
@@ -114,9 +114,9 @@ namespace Composable.Messaging.Buses.Implementation
 
                 _state.WithExclusiveAccess(state =>
                 {
-                    poller.Add(state.DispatchQueue);
+                    poller.Add(state.SendQueue);
 
-                    state.DispatchQueue.ReceiveReady += DispatchQueuedMessages;
+                    state.SendQueue.ReceiveReady += SendQueuedMessages;
 
                     //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
                     state.Socket.Options.SendHighWatermark = int.MaxValue;
@@ -132,7 +132,7 @@ namespace Composable.Messaging.Buses.Implementation
                 });
             }
 
-            void DispatchQueuedMessages(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> netMQQueueEventArgs) => _state.WithExclusiveAccess(state =>
+            void SendQueuedMessages(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> netMQQueueEventArgs) => _state.WithExclusiveAccess(state =>
             {
                 while(netMQQueueEventArgs.Queue.TryDequeue(out var message, TimeSpan.Zero)) state.Socket.Send(message);
             });
@@ -146,7 +146,7 @@ namespace Composable.Messaging.Buses.Implementation
                 internal readonly Dictionary<Guid, AsyncTaskCompletionSource> ExpectedCompletionTasks = new Dictionary<Guid, AsyncTaskCompletionSource>();
                 internal readonly Dictionary<Guid, DateTime> PendingDeliveryNotifications = new Dictionary<Guid, DateTime>();
                 internal readonly DealerSocket Socket;
-                internal readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
+                internal readonly NetMQQueue<TransportMessage.OutGoing> SendQueue = new NetMQQueue<TransportMessage.OutGoing>();
                 internal IUtcTimeTimeSource TimeSource { get; private set; }
                 internal Outbox.IMessageStorage Storage { get; private set; }
 
@@ -161,7 +161,7 @@ namespace Composable.Messaging.Buses.Implementation
                 public void Dispose()
                 {
                     Socket.Dispose();
-                    DispatchQueue.Dispose();
+                    SendQueue.Dispose();
                 }
             }
 

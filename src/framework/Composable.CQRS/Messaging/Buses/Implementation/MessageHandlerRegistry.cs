@@ -102,6 +102,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public Func<MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>, TResult> GetQueryHandler<TQuery, TResult>(MessageTypes.StrictlyLocal.IQuery<TQuery, TResult> query) where TQuery : MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>
         {
+            //Urgent: If we don't actually use the TQuery type parameter to do static caching here, remove it.
             if(_queryHandlers.TryGetValue(query.GetType(), out var handler))
             {
                 return actualQuery => (TResult)handler.HandlerMethod(actualQuery);

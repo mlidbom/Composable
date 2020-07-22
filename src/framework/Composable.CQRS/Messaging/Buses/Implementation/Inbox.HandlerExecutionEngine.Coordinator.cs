@@ -103,6 +103,9 @@ namespace Composable.Messaging.Buses.Implementation
                             case TransportMessage.TransportMessageType.ExactlyOnceEvent:
                                 _executingExactlyOnceEvents.Add(dispatchable.TransportMessage);
                                 break;
+                            case TransportMessage.TransportMessageType.AtMostOnceCommandWithReturnValue:
+                                _executingAtMostOnceCommands.Add(dispatchable.TransportMessage);
+                                break;
                             case TransportMessage.TransportMessageType.AtMostOnceCommand:
                                 _executingAtMostOnceCommands.Add(dispatchable.TransportMessage);
                                 break;
@@ -128,6 +131,9 @@ namespace Composable.Messaging.Buses.Implementation
                         {
                             case TransportMessage.TransportMessageType.ExactlyOnceEvent:
                                 _executingExactlyOnceEvents.Remove(doneExecuting.TransportMessage);
+                                break;
+                            case TransportMessage.TransportMessageType.AtMostOnceCommandWithReturnValue:
+                                _executingAtMostOnceCommands.Remove(doneExecuting.TransportMessage);
                                 break;
                             case TransportMessage.TransportMessageType.AtMostOnceCommand:
                                 _executingAtMostOnceCommands.Remove(doneExecuting.TransportMessage);

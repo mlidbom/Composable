@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Composable.GenericAbstractions;
 using Composable.Messaging.Events;
 using Composable.Refactoring.Naming;
 using Composable.System.Collections.Collections;
@@ -89,20 +90,9 @@ namespace Composable.Messaging.Buses.Implementation
         bool TryGetCommandHandler(MessageTypes.ICommand message, out Action<object> handler) =>
             _commandHandlers.TryGetValue(message.GetType(), out handler);
 
-        public Func<MessageTypes.ICommand, object> GetCommandHandler(Type commandType)
-        {
-            if(_commandHandlers.TryGetValue(commandType, out var handler))
-            {
-                //Refactor: This seems a questionable place to handle the fact that only some commands return results.
-                return command =>
-                {
-                    handler(command);
-                    return null!;
-                };
-            }
+        public Func<MessageTypes.ICommand, object> GetCommandHandlerWithReturnValue(Type commandType) => _commandHandlersReturningResults[commandType].HandlerMethod;
 
-            return _commandHandlersReturningResults[commandType].HandlerMethod;
-        }
+        public Action<MessageTypes.ICommand> GetCommandHandler(Type commandType) => _commandHandlers[commandType];
 
         public Func<MessageTypes.IQuery, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType].HandlerMethod;
 
@@ -124,15 +114,12 @@ namespace Composable.Messaging.Buses.Implementation
 
         public Func<MessageTypes.ICommand<TResult>, TResult> GetCommandHandler<TResult>(MessageTypes.ICommand<TResult> command)
         {
-            try
+            if(_commandHandlersReturningResults.TryGetValue(command.GetType(), out var handler))
             {
-                var typeUnsafeHandler = _commandHandlersReturningResults[command.GetType()].HandlerMethod;
-                return actualCommand => (TResult)typeUnsafeHandler(command);
+                return actualQuery => (TResult)handler.HandlerMethod(actualQuery);
             }
-            catch(KeyNotFoundException)
-            {
-                throw new NoHandlerException(command.GetType());
-            }
+
+            throw new NoHandlerException(command.GetType());
         }
 
         IEventDispatcher<MessageTypes.IEvent> IMessageHandlerRegistry.CreateEventDispatcher()

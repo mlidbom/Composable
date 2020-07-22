@@ -22,7 +22,7 @@ namespace Composable.Messaging
 
         /// <summary>Instructs the receiver to perform an action.</summary>
         public interface ICommand : IRequireTransactionalReceiver { }
-        public interface ICommand<TResult> : ICommand, IHasReturnValue{ }
+        public interface ICommand<out TResult> : ICommand, IHasReturnValue{ }
 
         public interface IQuery : IForbidTransactionalRemoteSender, IHasReturnValue { }
 
@@ -60,7 +60,7 @@ namespace Composable.Messaging
             public interface IEvent : Remotable.IMessage, MessageTypes.IEvent {}
             public interface IRequireRemoteResponse : Remotable.IMessage {}
             public interface ICommand : MessageTypes.ICommand, Remotable.IMessage { }
-            public interface ICommand<TResult> : ICommand, MessageTypes.ICommand<TResult>, IRequireRemoteResponse { }
+            public interface ICommand<out TResult> : ICommand, MessageTypes.ICommand<TResult>, IRequireRemoteResponse { }
 
             public static partial class NonTransactional
             {
@@ -73,7 +73,7 @@ namespace Composable.Messaging
             {
                 //todo: dangerous: Validate the design of implementing classes. A default constructor should result in DeduplicationId being Guid.Empty
                 public interface ICommand : IAtMostOnceMessage, Remotable.ICommand, IRequireRemoteResponse, IForbidTransactionalRemoteSender { }
-                public interface ICommand<TResult> : AtMostOnce.ICommand, Remotable.ICommand<TResult> { }
+                public interface ICommand<out TResult> : AtMostOnce.ICommand, Remotable.ICommand<TResult> { }
             }
 
             public static partial class ExactlyOnce

@@ -54,7 +54,8 @@ namespace Composable.Messaging.Buses.Implementation
     {
         Action<object> GetCommandHandler(MessageTypes.ICommand message);
 
-        Func<MessageTypes.ICommand, object> GetCommandHandler(Type commandType);
+        Action<MessageTypes.ICommand> GetCommandHandler(Type commandType);
+        Func<MessageTypes.ICommand, object> GetCommandHandlerWithReturnValue(Type commandType);
         Func<MessageTypes.IQuery, object> GetQueryHandler(Type commandType);
         IReadOnlyList<Action<MessageTypes.IEvent>> GetEventHandlers(Type eventType);
 

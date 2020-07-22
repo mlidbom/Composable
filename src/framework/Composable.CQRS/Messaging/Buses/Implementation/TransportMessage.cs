@@ -14,6 +14,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             ExactlyOnceEvent,
             AtMostOnceCommand,
+            AtMostOnceCommandWithReturnValue,
             ExactlyOnceCommand,
             NonTransactionalQuery
         }
@@ -77,6 +78,8 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(typeof(MessageTypes.Remotable.NonTransactional.IQuery).IsAssignableFrom(messageType))
                     return TransportMessageType.NonTransactionalQuery;
+                if(typeof(MessageTypes.Remotable.AtMostOnce.ICommand<object>).IsAssignableFrom(messageType))
+                    return TransportMessageType.AtMostOnceCommandWithReturnValue;
                 if(typeof(MessageTypes.Remotable.AtMostOnce.ICommand).IsAssignableFrom(messageType))
                     return TransportMessageType.AtMostOnceCommand;
                 else if(typeof(MessageTypes.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(messageType))

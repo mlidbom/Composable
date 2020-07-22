@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
+using Composable.GenericAbstractions;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Threading;
@@ -102,15 +103,22 @@ namespace Composable.Messaging.Buses.Implementation
                                 eventHandlers.ForEach(handler => handler((MessageTypes.Remotable.ExactlyOnce.IEvent)message));
                                 return null;
                             },
+                            Implementation.TransportMessage.TransportMessageType.AtMostOnceCommandWithReturnValue => message =>
+                            {
+                                var commandHandler = _handlerRegistry.GetCommandHandlerWithReturnValue(message.GetType());
+                                return commandHandler((MessageTypes.Remotable.AtMostOnce.ICommand)message);
+                            },
                             Implementation.TransportMessage.TransportMessageType.AtMostOnceCommand => message =>
                             {
                                 var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
-                                return commandHandler((MessageTypes.Remotable.AtMostOnce.ICommand)message);
+                                commandHandler((MessageTypes.Remotable.AtMostOnce.ICommand)message);
+                                return Unit.Instance; //Todo:Properly handle commands with and without return values
                             },
                             Implementation.TransportMessage.TransportMessageType.ExactlyOnceCommand => message =>
                             {
                                 var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
-                                return commandHandler((MessageTypes.Remotable.ExactlyOnce.ICommand)message);
+                                commandHandler((MessageTypes.Remotable.ExactlyOnce.ICommand)message);
+                                return Unit.Instance;//Todo:Properly handle commands with and without return values
                             },
                             Implementation.TransportMessage.TransportMessageType.NonTransactionalQuery => actualMessage =>
                             {

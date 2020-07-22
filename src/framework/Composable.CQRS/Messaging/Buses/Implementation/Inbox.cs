@@ -48,11 +48,11 @@ namespace Composable.Messaging.Buses.Implementation
                 _serverSocket.Options.Linger = 0.Milliseconds();
 
                 Address = new EndPointAddress(_serverSocket.BindAndReturnActualAddress(address));
-                _serverSocket.ReceiveReady += HandleIncomingMessage;
+                _serverSocket.ReceiveReady += HandleIncomingMessage_PollerThread;
 
                 _responseQueue = new NetMQQueue<NetMQMessage>();
 
-                _responseQueue.ReceiveReady += SendResponseMessage;
+                _responseQueue.ReceiveReady += SendResponseMessage_PollerThread;
 
                 _cancellationTokenSource = new CancellationTokenSource();
                 _poller = new NetMQPoller {_serverSocket, _responseQueue};
@@ -127,7 +127,7 @@ namespace Composable.Messaging.Buses.Implementation
                 // ReSharper disable once FunctionNeverReturns
             }
 
-            void SendResponseMessage(object sender, NetMQQueueEventArgs<NetMQMessage> e)
+            void SendResponseMessage_PollerThread(object sender, NetMQQueueEventArgs<NetMQMessage> e)
             {
                 while(e.Queue.TryDequeue(out var response, TimeSpan.Zero))
                 {
@@ -135,7 +135,7 @@ namespace Composable.Messaging.Buses.Implementation
                 }
             }
 
-            void HandleIncomingMessage(object sender, NetMQSocketEventArgs e)
+            void HandleIncomingMessage_PollerThread(object sender, NetMQSocketEventArgs e)
             {
                 Assert.Argument.Assert(e.IsReadyToReceive);
                 var batch = TransportMessage.InComing.ReceiveBatch(_serverSocket, _typeMapper, _serializer);

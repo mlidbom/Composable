@@ -32,8 +32,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
         [Test, Serial] public async Task Async_Runs_100_local_requests_making_one_async_remote_query_each_in_10_milliseconds() =>
             await RunAsyncScenario(requests: 100.IfInstrumentedDivideBy(2.0), queriesPerRequest: 1, maxTotal: 10.Milliseconds());
 
-        [Test, Serial] public async Task Async_Runs_10_local_requests_making_10_async_remote_queries_each_in_10_milliseconds() =>
-            await RunAsyncScenario(requests: 10.IfInstrumentedDivideBy(3.0), queriesPerRequest: 10, maxTotal: 10.Milliseconds());
+        [Test, Serial] public async Task Async_Runs_10_local_requests_making_10_async_remote_queries_each_in_5_milliseconds() =>
+            await RunAsyncScenario(requests: 10.IfInstrumentedDivideBy(3.0), queriesPerRequest: 10, maxTotal: 5.Milliseconds());
 
 
         void RunScenario(bool threaded, int requests, int queriesPerRequest, TimeSpan maxTotal)

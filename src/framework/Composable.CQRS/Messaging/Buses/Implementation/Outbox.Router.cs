@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
-using Composable.Contracts;
 using Composable.Refactoring.Naming;
 
 namespace Composable.Messaging.Buses.Implementation
@@ -10,85 +10,77 @@ namespace Composable.Messaging.Buses.Implementation
     {
         internal class Router
         {
-            bool _handlerHasBeenResolved;
+            readonly object _lock = new object();
             readonly ITypeMapper _typeMapper;
-            readonly Dictionary<TypeId, InboxConnection> _commandHandlerMap = new Dictionary<TypeId, InboxConnection>();
-            readonly Dictionary<TypeId, InboxConnection> _queryHandlerMap = new Dictionary<TypeId, InboxConnection>();
-            readonly List<(TypeId EventType, InboxConnection Connection)> _eventHandlerRegistrations = new List<(TypeId EventType, InboxConnection Connection)>();
+            ImmutableDictionary<Type, InboxConnection> _commandHandlerRoutes = ImmutableDictionary<Type, InboxConnection>.Empty;
+            ImmutableDictionary<Type, InboxConnection> _queryHandlerRoutes = ImmutableDictionary<Type, InboxConnection>.Empty;
+            ImmutableList<(Type EventType, InboxConnection Connection)> _eventSubscriberRoutes = ImmutableList<(Type EventType, InboxConnection Connection)>.Empty;
+            ImmutableDictionary<Type, ImmutableArray<InboxConnection>> _eventSubscriberRouteCache = ImmutableDictionary<Type, ImmutableArray<InboxConnection>>.Empty;
 
             public Router(ITypeMapper typeMapper) => _typeMapper = typeMapper;
 
             internal void AddRegistrations(InboxConnection inboxConnection, ISet<TypeId> handledTypeIds)
             {
-                var endpointId = inboxConnection.EndpointInformation.Id;
-                Assert.Argument.NotNull(endpointId, handledTypeIds);
-                Assert.State.Assert(!_handlerHasBeenResolved);//Our collections are safe for multithreaded read, but not for read/write. So ensure that no-one tries to change them after we start reading from them.
-
+                var eventSubscribers = new List<(Type EventType, InboxConnection Connection)>();
+                var commandHandlerRoutes = new Dictionary<Type, InboxConnection>();
+                var queryHandlerRoutes = new Dictionary<Type, InboxConnection>();
                 foreach(var typeId in handledTypeIds)
                 {
-                    if(_typeMapper.TryGetType(typeId, out var type))
+                    if(_typeMapper.TryGetType(typeId, out var messageType))
                     {
-                        if(IsRemoteEvent(type))
+                        if(IsRemoteEvent(messageType))
                         {
-                            _eventHandlerRegistrations.Add((_typeMapper.GetId(type), inboxConnection));
-                        } else if(IsRemoteCommand(type))
+                            eventSubscribers.Add((messageType, inboxConnection));
+                        } else if(IsRemoteCommand(messageType))
                         {
-                            _commandHandlerMap.Add(_typeMapper.GetId(type), inboxConnection);
-                        } else if(IsRemoteQuery(type))
+                            commandHandlerRoutes.Add(messageType, inboxConnection);
+                        } else if(IsRemoteQuery(messageType))
                         {
-                            _queryHandlerMap.Add(_typeMapper.GetId(type), inboxConnection);
+                            queryHandlerRoutes.Add(messageType, inboxConnection);
                         } else
                         {
                             throw new Exception($"Type {typeId} is neither a remote command, event or query.");
                         }
                     }
                 }
-            }
 
-            //performance: Use static type and indexing trick to improve performance
-            internal InboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command)
-            {
-                _handlerHasBeenResolved = true;
-                var commandTypeId = _typeMapper.GetId(command.GetType());
-
-                if(!_commandHandlerMap.TryGetValue(commandTypeId, out var endpointId))
+                lock(_lock)
                 {
-                    throw new NoHandlerForMessageTypeException(command.GetType());
-                }
+                    if(eventSubscribers.Count > 0)
+                    {
+                        _eventSubscriberRoutes = _eventSubscriberRoutes.AddRange(eventSubscribers);
+                        _eventSubscriberRouteCache = ImmutableDictionary<Type, ImmutableArray<InboxConnection>>.Empty;
+                    }
 
-                return endpointId;
+                    _commandHandlerRoutes = _commandHandlerRoutes.AddRange(commandHandlerRoutes);
+                    _queryHandlerRoutes = _queryHandlerRoutes.AddRange(queryHandlerRoutes);
+                }
             }
 
-            //performance: Use static type and indexing trick to improve performance
-            internal InboxConnection ConnectionToHandlerFor(MessageTypes.IQuery query)
-            {
-                _handlerHasBeenResolved = true;
-                var queryTypeId = _typeMapper.GetId(query.GetType());
+            internal InboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command) =>
+                _commandHandlerRoutes.TryGetValue(command.GetType(), out var connection)
+                    ? connection
+                    : throw new NoHandlerForMessageTypeException(command.GetType());
 
-                if(!_queryHandlerMap.TryGetValue(queryTypeId, out var endpointId))
-                {
-                    throw new NoHandlerForMessageTypeException(query.GetType());
-                }
+            internal InboxConnection ConnectionToHandlerFor(MessageTypes.IQuery query) =>
+                _queryHandlerRoutes.TryGetValue(query.GetType(), out var connection)
+                    ? connection
+                    : throw new NoHandlerForMessageTypeException(query.GetType());
 
-                return endpointId;
-            }
-
-            //performance: Use static type and indexing trick to improve performance
             internal IReadOnlyList<InboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
             {
-                _handlerHasBeenResolved = true;
-                var typedEventHandlerRegistrations = _eventHandlerRegistrations
-                                                     .Where(me => _typeMapper.TryGetType(me.EventType, out var _))
-                                                     .Select(me => new
-                                                                   {
-                                                                       EventType = _typeMapper.GetType(me.EventType),
-                                                                       me.Connection
-                                                                   }).ToList();
+                if(_eventSubscriberRouteCache.TryGetValue(@event.GetType(), out var connection)) return connection;
 
-                return typedEventHandlerRegistrations
-                       .Where(@this => @this.EventType.IsInstanceOfType(@event))
-                       .Select(@this => @this.Connection)
-                       .ToList();
+                var subscriberConnections = _eventSubscriberRoutes
+                      .Where(route => route.EventType.IsInstanceOfType(@event))
+                      .Select(route => route.Connection)
+                      .ToImmutableArray();
+
+                lock(_lock)
+                {
+                    _eventSubscriberRouteCache = _eventSubscriberRouteCache.Add(@event.GetType(), subscriberConnections);
+                    return subscriberConnections;
+                }
             }
 
             static bool IsRemoteCommand(Type type) => typeof(MessageTypes.Remotable.ICommand).IsAssignableFrom(type);

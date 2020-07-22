@@ -104,7 +104,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 var eventHandlerEndpointIds = connections.Select(connection => connection.EndpointInformation.Id).ToArray();
                 _storage.SaveMessage(exactlyOnceEvent, eventHandlerEndpointIds);
-                //Urgent: We should track a Task result here and record the message as being received on success and handle failure.
+
                 Transaction.Current.OnCommittedSuccessfully(() => connections.ForEach(subscriberConnection =>
                 {
                     subscriberConnection.SendAsync(exactlyOnceEvent)

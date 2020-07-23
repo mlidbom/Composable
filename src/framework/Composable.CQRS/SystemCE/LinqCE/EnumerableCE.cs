@@ -1,24 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Composable.Contracts;
-
-// ReSharper disable MemberCanBePrivate.Global
 
 namespace Composable.SystemCE.LinqCE
 {
-
-
     /// <summary/>
-    static class EnumerableCE
+    static partial class EnumerableCE
     {
-        static class EmptySequence<T>
-        {
-            public static readonly IEnumerable<T> Instance = Array.Empty<T>();
-        }
-
-        /// <summary>Returns an empty array of type T. Does not allocate any memory unless this is the first time it is called for T. </summary>
-        public static IEnumerable<T> Empty<T>() => EmptySequence<T>.Instance;
-
         /// <summary>
         /// Creates an enumerable consisting of the passed parameter values is order.
         /// </summary>
@@ -31,65 +20,90 @@ namespace Composable.SystemCE.LinqCE
             return values;
         }
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1>() => Create(typeof(T1));
+        /// <summary>
+        /// Adds <paramref name="instances"/> to the end of <paramref name="source"/>
+        /// </summary>
+        public static IEnumerable<T> Append<T>(this IEnumerable<T> source, params T[] instances)
+        {
+            Contract.ArgumentNotNull(source, nameof(source), instances, nameof(instances));
+            return source.Concat(instances);
+        }
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2>() => OfTypes<T1>().Append(typeof(T2));
+        /// <summary>
+        /// <para>The inversion of Enumerable.Any() .</para>
+        /// <para>Returns true if <paramref name="me"/> contains no elements.</para>
+        /// </summary>
+        /// <returns>true if <paramref name="me"/> contains no objects. Otherwise false.</returns>
+        public static bool None<T>(this IEnumerable<T> me)
+        {
+            Contract.ArgumentNotNull(me, nameof(me));
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3>() => OfTypes<T1, T2>().Append(typeof(T3));
+            return !me.Any();
+        }
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4>() => OfTypes<T1, T2, T3>().Append(typeof(T4));
+        //Add these so that we don't waste effort enumerating these types to check if any entries exist.
+        public static bool None<T>(this List<T> me) => me.Count == 0;
+        public static bool None<T>(this IList<T> me) => me.Count == 0;
+        public static bool None<T>(this IReadOnlyList<T> me) => me.Count == 0;
+        public static bool None<T>(this T[] me) => me.Length == 0;
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5>() => OfTypes<T1, T2, T3, T4>().Append(typeof(T5));
+        /// <summary>
+        /// <para>The inversion of Enumerable.Any() .</para>
+        /// <para>Returns true if <paramref name="me"/> contains no elements.</para>
+        /// </summary>
+        /// <returns>true if <paramref name="me"/> contains no objects. Otherwise false.</returns>
+        public static bool None<T>(this IEnumerable<T> me, Func<T,bool> condition)
+        {
+            Contract.ArgumentNotNull(me, nameof(me), condition, nameof(condition));
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6>() => OfTypes<T1, T2, T3, T4, T5>().Append(typeof(T6));
+            return !me.Any(condition);
+        }
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7>() => OfTypes<T1, T2, T3, T4, T5, T6>().Append(typeof(T7));
+        /// <summary>
+        /// Chops an IEnumerable up into <paramref name="size"/> sized chunks.
+        /// </summary>
+        public static IEnumerable<IEnumerable<T>> ChopIntoSizesOf<T>(this IEnumerable<T> me, int size)
+        {
+            Contract.ArgumentNotNull(me, nameof(me));
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8>() => OfTypes<T1, T2, T3, T4, T5, T6, T7>().Append(typeof(T8));
+            // ReSharper disable once GenericEnumeratorNotDisposed ReSharper is plain wrong again.
+            using var enumerator = me.GetEnumerator();
+            var yielded = size;
+            while(yielded == size)
+            {
+                yielded = 0;
+                var next = new T[size];
+                while(yielded < size && enumerator.MoveNext())
+                {
+                    next[yielded++] = enumerator.Current;
+                }
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9>() => OfTypes<T1, T2, T3, T4, T5, T6, T7, T8>().Append(typeof(T9));
+                if(yielded == 0)
+                {
+                    yield break;
+                }
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>() => OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9>().Append(typeof(T10));
+                yield return yielded == size ? next : next.Take(yielded);
+            }
+        }
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>() => OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>().Append(typeof(T11));
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>() => OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>().Append(typeof(T12));
+        /// <summary>
+        /// Acting on an <see cref="IEnumerable{T}"/> <paramref name="me"/> where T is an <see cref="IEnumerable{TChild}"/>
+        /// returns an <see cref="IEnumerable{TChild}"/> aggregating all the TChild instances
+        /// 
+        /// Using SelectMany(x=>x) is ugly and unintuitive.
+        /// This method provides an intuitively named alternative.
+        /// </summary>
+        /// <typeparam name="T">A type implementing <see cref="IEnumerable{TChild}"/></typeparam>
+        /// <typeparam name="TChild">The type contained in the nested enumerables.</typeparam>
+        /// <param name="me">the collection to act upon</param>
+        /// <returns>All the objects in all the nested collections </returns>
+        public static IEnumerable<TChild> Flatten<T, TChild>(this IEnumerable<T> me) where T : IEnumerable<TChild>
+        {
+            Contract.ArgumentNotNull(me, nameof(me));
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>() => OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>().Append(typeof(T13));
-
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>() => OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>().Append(typeof(T14));
-
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>() => OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>().Append(typeof(T15));
-
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>() => OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>().Append(typeof(T16));
-
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>() => OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>().Append(typeof(T17));
-
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>() => OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17>().Append(typeof(T18));
-
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>() => OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>().Append(typeof(T19));
-
-        // ReSharper disable once UnusedMember.Global
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
-        public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>() => OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>().Append(typeof(T20));
+            return me.SelectMany(obj => obj);
+        }
     }
 }

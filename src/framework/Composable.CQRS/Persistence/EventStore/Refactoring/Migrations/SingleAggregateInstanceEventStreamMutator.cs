@@ -89,7 +89,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
             if(events.None())
             {
-                return EnumerableCE.Empty<AggregateEvent>().ToArray();
+                return Enumerable.Empty<AggregateEvent>().ToArray();
             }
 
             var mutator = Create(events.First(), eventMigrations, eventsAddedCallback);

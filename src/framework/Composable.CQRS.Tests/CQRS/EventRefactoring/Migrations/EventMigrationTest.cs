@@ -408,7 +408,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 historyAfterPersistingAndReloading = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
 
-                migrations = EnumerableCE.Empty<IEventMigration>().ToList();
+                migrations = Enumerable.Empty<IEventMigration>().ToList();
                 serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).Publish(new E8(), new E9()));
                 historyAfterPersistingAndReloading = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 var expectedAfterReplacingE2WithE6AndRaisingE8E9 = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E5, E6, E3, E4, E6, E7, E8, E9>()).History;

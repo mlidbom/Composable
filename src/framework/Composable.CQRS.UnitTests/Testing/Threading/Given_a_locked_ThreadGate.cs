@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Composable.SystemCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.Testing.Threading;
 using FluentAssertions;

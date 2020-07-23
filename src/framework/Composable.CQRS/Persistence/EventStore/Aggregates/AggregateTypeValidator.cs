@@ -5,7 +5,7 @@ using System.Reflection;
 using Composable.Messaging;
 using Composable.Refactoring.Naming;
 using Composable.SystemCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
 using JetBrains.Annotations;
 
@@ -18,7 +18,7 @@ namespace Composable.Persistence.EventStore.Aggregates
     {
         public static void AssertStaticStructureIsValid()
         {
-            List<Type> typesToInspect = Seq.OfTypes<TDomainClass, TEventImplementation, TEvent>().ToList();
+            List<Type> typesToInspect = EnumerableCE.OfTypes<TDomainClass, TEventImplementation, TEvent>().ToList();
 
             typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(typeof(TDomainClass)));
             typesToInspect.AddRange(GetAllInheritingClassesOrInterfaces(typeof(TEventImplementation)));

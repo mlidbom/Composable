@@ -8,7 +8,7 @@ using Composable.Contracts;
 using Composable.Logging;
 using Composable.Persistence;
 using Composable.SystemCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;

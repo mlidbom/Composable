@@ -6,7 +6,8 @@ using System.Transactions;
 using Composable.Contracts;
 using Composable.DDD;
 using Composable.Logging;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.CollectionsCE;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Persistence.DocumentDb

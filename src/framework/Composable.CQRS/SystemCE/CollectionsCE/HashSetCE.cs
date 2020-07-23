@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using Composable.Contracts;
+using Composable.SystemCE.LinqCE;
 
-namespace Composable.SystemCE.Linq
+namespace Composable.SystemCE.CollectionsCE
 {
     /// <summary>A collection of extensions to work with <see cref="HashSet{T}"/></summary>
-    static class HashSetExtensions
+    static class HashSetCE
     {
         /// <returns>A set containing all the items in <paramref name="me"/></returns>
         public static HashSet<T> ToSet<T>(this IEnumerable<T> me)

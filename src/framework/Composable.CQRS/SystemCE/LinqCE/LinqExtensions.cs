@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 
-namespace Composable.SystemCE.Linq
+namespace Composable.SystemCE.LinqCE
 {
     /// <summary/>
     static class LinqExtensions

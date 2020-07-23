@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Wrappers;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 
 namespace Composable.GenericAbstractions.Hierarchies
 {
@@ -62,7 +62,7 @@ namespace Composable.GenericAbstractions.Hierarchies
         public static IEnumerable<T> Flatten<T>(this T root) where T : IHierarchy<T>
         {
             Contract.ArgumentNotNull(root, nameof(root));
-            return Seq.Create(root).FlattenHierarchy(me => me.Children);
+            return EnumerableCE.Create(root).FlattenHierarchy(me => me.Children);
         }
 
 

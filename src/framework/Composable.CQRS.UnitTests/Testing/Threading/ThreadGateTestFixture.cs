@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.SystemCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.Testing.Threading;
 using FluentAssertions;
 

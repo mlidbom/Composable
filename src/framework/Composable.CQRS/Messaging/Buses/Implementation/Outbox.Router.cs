@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Composable.Refactoring.Naming;
 using Composable.SystemCE.CollectionsCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 
 namespace Composable.Messaging.Buses.Implementation
 {

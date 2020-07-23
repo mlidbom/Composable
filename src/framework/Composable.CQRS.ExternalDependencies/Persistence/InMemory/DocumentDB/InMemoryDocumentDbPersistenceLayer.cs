@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Persistence.DocumentDb;
 using Composable.SystemCE.CollectionsCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using DocumentRow = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.WriteRow;
 namespace Composable.Persistence.InMemory.DocumentDB
 {

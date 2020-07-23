@@ -6,7 +6,8 @@ using Composable.DDD;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.Persistence.DocumentDb;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.CollectionsCE;
+using Composable.SystemCE.LinqCE;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using NUnit.Framework;
@@ -776,7 +777,7 @@ namespace Composable.Tests.KeyValueStorage
 
             InsertUsersInOtherDocumentDb(userId);
 
-            UseInScope(reader => reader.GetAll<User>(Seq.Create(userId))
+            UseInScope(reader => reader.GetAll<User>(EnumerableCE.Create(userId))
                                        .Count()
                                        .Should()
                                        .Be(1));

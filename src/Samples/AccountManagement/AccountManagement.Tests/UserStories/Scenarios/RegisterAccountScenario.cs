@@ -2,7 +2,7 @@ using System;
 using AccountManagement.API;
 using AccountManagement.Domain.Registration;
 using Composable.Messaging.Buses;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 
 namespace AccountManagement.UserStories.Scenarios
 {

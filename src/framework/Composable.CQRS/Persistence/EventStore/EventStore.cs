@@ -10,7 +10,7 @@ using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.SystemCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
 

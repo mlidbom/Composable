@@ -110,7 +110,7 @@ EXCEPTION: {exception}
         }
 
         [StringFormatMethod(formatParameterName:"message")]
-        public void DebugFormat(string message, params object[] arguments) => StringEx.FormatInvariant(message, arguments);
+        public void DebugFormat(string message, params object[] arguments) => StringCE.FormatInvariant(message, arguments);
 
         static readonly JsonSerializerSettings ExceptionSerializationSettings =
             new JsonSerializerSettings

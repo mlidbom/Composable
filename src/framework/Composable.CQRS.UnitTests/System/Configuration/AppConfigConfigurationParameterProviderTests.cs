@@ -1,5 +1,5 @@
 ﻿using System;
-using Composable.SystemCE.Configuration;
+using Composable.SystemCE.ConfigurationCE;
 using FluentAssertions;
 using NUnit.Framework;
 

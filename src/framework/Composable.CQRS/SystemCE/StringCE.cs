@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 namespace Composable.SystemCE
 {
     ///<summary>Contains extensions on <see cref="string"/></summary>
-    static class StringEx
+    static class StringCE
     {
         ///<summary>returns true if me is null, empty or only whitespace</summary>
         [ContractAnnotation("null => true")]

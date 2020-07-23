@@ -5,7 +5,7 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.Serialization;
 using Composable.SystemCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using JetBrains.Annotations;
 
 namespace Composable.Testing.Databases

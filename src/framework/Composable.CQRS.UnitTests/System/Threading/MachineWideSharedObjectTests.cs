@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Composable.Serialization;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.Testing.Threading;
 using FluentAssertions;
@@ -118,7 +118,7 @@ namespace Composable.Tests.System.Threading
             var conflictingGetCopySectionSameInstance = GatedCodeSection.WithTimeout(100.Milliseconds());
             var conflictingGetCopySectionOtherInstance = GatedCodeSection.WithTimeout(100.Milliseconds());
 
-            var conflictingGates = Seq.Create(conflictingUpdateSectionSameInstance,
+            var conflictingGates = EnumerableCE.Create(conflictingUpdateSectionSameInstance,
                                               conflictingUpdateSectionOtherInstance,
                                               conflictingGetCopySectionSameInstance,
                                               conflictingGetCopySectionOtherInstance).ToList();

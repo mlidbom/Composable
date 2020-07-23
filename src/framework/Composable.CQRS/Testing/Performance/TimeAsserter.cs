@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Logging;
 using Composable.SystemCE;
-using Composable.SystemCE.Diagnostics;
+using Composable.SystemCE.DiagnosticsCE;
 using Composable.SystemCE.ThreadingCE;
 using JetBrains.Annotations;
 
@@ -17,7 +17,7 @@ namespace Composable.Testing.Performance
         const int MaxTriesLimit = 10;
         const int MaxTriesDefault = 4;
 
-        public static async Task<StopwatchExtensions.TimedExecutionSummary> ExecuteAsync
+        public static async Task<StopwatchCE.TimedExecutionSummary> ExecuteAsync
             ([InstantHandle]Func<Task> action,
              int iterations = 1,
              TimeSpan? maxAverage = null,
@@ -41,10 +41,10 @@ namespace Composable.Testing.Performance
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                StopwatchExtensions.TimedExecutionSummary executionSummary;
+                StopwatchCE.TimedExecutionSummary executionSummary;
                 try
                 {
-                    executionSummary = await StopwatchExtensions.TimeExecutionAsync(action: action, iterations: iterations).NoMarshalling();
+                    executionSummary = await StopwatchCE.TimeExecutionAsync(action: action, iterations: iterations).NoMarshalling();
                 }
                 finally
                 {
@@ -72,7 +72,7 @@ namespace Composable.Testing.Performance
             throw new Exception("Unreachable");
         }
 
-        public static StopwatchExtensions.TimedExecutionSummary Execute
+        public static StopwatchCE.TimedExecutionSummary Execute
             ([InstantHandle]Action action,
              int iterations = 1,
              TimeSpan? maxAverage = null,
@@ -96,10 +96,10 @@ namespace Composable.Testing.Performance
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                StopwatchExtensions.TimedExecutionSummary executionSummary;
+                StopwatchCE.TimedExecutionSummary executionSummary;
                 try
                 {
-                    executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
+                    executionSummary = StopwatchCE.TimeExecution(action: action, iterations: iterations);
                 }
                 finally
                 {
@@ -127,7 +127,7 @@ namespace Composable.Testing.Performance
             throw new Exception("Unreachable");
         }
 
-        public static StopwatchExtensions.TimedThreadedExecutionSummary ExecuteThreaded
+        public static StopwatchCE.TimedThreadedExecutionSummary ExecuteThreaded
             ([InstantHandle]Action action,
              int iterations = 1,
              TimeSpan? maxAverage = null,
@@ -150,7 +150,7 @@ namespace Composable.Testing.Performance
 
             string Format(TimeSpan? date) => date?.ToStringInvariant(timeFormat) ?? "";
 
-            void PrintResults(StopwatchExtensions.TimedThreadedExecutionSummary executionSummary)
+            void PrintResults(StopwatchCE.TimedThreadedExecutionSummary executionSummary)
             {
                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
 
@@ -168,10 +168,10 @@ namespace Composable.Testing.Performance
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                StopwatchExtensions.TimedThreadedExecutionSummary executionSummary;
+                StopwatchCE.TimedThreadedExecutionSummary executionSummary;
                 try
                 {
-                    executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, maxDegreeOfParallelism: maxDegreeOfParallelism);
+                    executionSummary = StopwatchCE.TimeExecutionThreaded(action: action, iterations: iterations, maxDegreeOfParallelism: maxDegreeOfParallelism);
                 }
                 finally
                 {
@@ -199,7 +199,7 @@ namespace Composable.Testing.Performance
         }
 
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-        static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchExtensions.TimedExecutionSummary executionSummary, [InstantHandle]Func<TimeSpan?, string> format)
+        static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchCE.TimedExecutionSummary executionSummary, [InstantHandle]Func<TimeSpan?, string> format)
         {
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)
             {
@@ -224,7 +224,7 @@ namespace Composable.Testing.Performance
         static string Percent(TimeSpan percent, TimeSpan of) => $"{(int)((percent.TotalMilliseconds / of.TotalMilliseconds) * 100)}%";
 
         static void PrintSummary
-            (int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal, string description, [InstantHandle]Func<TimeSpan?, string> format, StopwatchExtensions.TimedExecutionSummary executionSummary)
+            (int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal, string description, [InstantHandle]Func<TimeSpan?, string> format, StopwatchCE.TimedExecutionSummary executionSummary)
         {
             string maxAverageReport = maxAverage == null
                                        ? ""

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.SystemCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 
 namespace Composable.Persistence.DocumentDb
 {
@@ -74,7 +74,7 @@ namespace Composable.Persistence.DocumentDb
                     }
                     else if(ScheduledForUpdate)
                     {
-                        _backingStore.Update(Seq.Create(new KeyValuePair<string, object>(Key.Id, Document!)), _persistentValues);
+                        _backingStore.Update(EnumerableCE.Create(new KeyValuePair<string, object>(Key.Id, Document!)), _persistentValues);
                     }
                 }
             }

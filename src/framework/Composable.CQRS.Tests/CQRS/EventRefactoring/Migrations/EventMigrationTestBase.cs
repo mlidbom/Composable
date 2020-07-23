@@ -12,7 +12,7 @@ using Composable.Persistence.MsSql.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.SystemCE;
 using Composable.SystemCE.CollectionsCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;

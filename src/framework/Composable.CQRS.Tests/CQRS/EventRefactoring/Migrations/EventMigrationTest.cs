@@ -9,7 +9,7 @@ using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.SystemCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.TransactionsCE;
 using Composable.Testing;
 using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
@@ -32,8 +32,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             this.Invoking(
                 _ => RunMigrationTest(
                     new MigrationScenario(
-                        Seq.OfTypes<Ec1, E1, Ef, Ef>(),
-                        Seq.OfTypes<Ec1, Ef, E2, Ef>())))
+                        EnumerableCE.OfTypes<Ec1, E1, Ef, Ef>(),
+                        EnumerableCE.OfTypes<Ec1, Ef, E2, Ef>())))
                 .Should().Throw<Exception>();
         }
 
@@ -41,8 +41,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Replacing_E1_with_E2()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef, Ef>(),
-            Seq.OfTypes<Ec1, E2, Ef, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E2, Ef, Ef>(),
             Replace<E1>.With<E2>()));
         }
 
@@ -50,8 +50,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Replacing_E1_with_E2_at_end_of_stream()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1>(),
-            Seq.OfTypes<Ec1, E2>(),
+            EnumerableCE.OfTypes<Ec1, E1>(),
+            EnumerableCE.OfTypes<Ec1, E2>(),
             Replace<E1>.With<E2>()));
         }
 
@@ -59,8 +59,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Replacing_E1_with_E2_E3_at_end_of_stream()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1>(),
-            Seq.OfTypes<Ec1, E2, E3>(),
+            EnumerableCE.OfTypes<Ec1, E1>(),
+            EnumerableCE.OfTypes<Ec1, E2, E3>(),
             Replace<E1>.With<E2, E3>()));
         }
 
@@ -68,8 +68,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Replacing_E1_with_E2_E3()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef>(),
-            Seq.OfTypes<Ec1, E2, E3, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E2, E3, Ef>(),
             Replace<E1>.With<E2, E3>()));
         }
 
@@ -77,8 +77,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Replacing_E1_with_E2_E3_2()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef, Ef, Ef, Ef>(),
-            Seq.OfTypes<Ec1, E2, E3, Ef, Ef, Ef, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef, Ef, Ef, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E2, E3, Ef, Ef, Ef, Ef>(),
             Replace<E1>.With<E2, E3>()));
         }
 
@@ -86,8 +86,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Replacing_E1_with_E2_then_irrelevant_migration()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef>(),
-            Seq.OfTypes<Ec1, E2, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E2, Ef>(),
             Replace<E1>.With<E2>(),
             Replace<E1>.With<E5>()));
         }
@@ -96,8 +96,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Replacing_E1_with_E2_E3_then_an_unrelated_migration_v2()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef>(),
-            Seq.OfTypes<Ec1, E2, E3, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E2, E3, Ef>(),
             Replace<E1>.With<E2, E3>(),
             Replace<E1>.With<E5>()));
         }
@@ -106,8 +106,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Replacing_E1_with_E2_E3_then_E2_with_E4()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef>(),
-            Seq.OfTypes<Ec1, E4, E3, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E4, E3, Ef>(),
             Replace<E1>.With<E2, E3>(),//Ec1, E2, E3, Ef
             Replace<E2>.With<E4>())); //Ec1, E4, E3, Ef
         }
@@ -116,8 +116,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Inserting_E3_before_E1()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef>(),
-            Seq.OfTypes<Ec1, E3, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E3, E1, Ef>(),
             Before<E1>.Insert<E3>()));
         }
 
@@ -125,8 +125,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Inserting_E3_E4_before_E1()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef>(),
-            Seq.OfTypes<Ec1, E3, E4, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E3, E4, E1, Ef>(),
             Before<E1>.Insert<E3, E4>()));
         }
 
@@ -134,8 +134,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Inserting_E2_before_E1_then_E3_before_E2()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef>(),
-            Seq.OfTypes<Ec1, E3, E2, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E3, E2, E1, Ef>(),
             Before<E1>.Insert<E2>(),
             Before<E2>.Insert<E3>()));
         }
@@ -144,8 +144,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Inserting_E3_E4_before_E1_then_E5_before_E3()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1>(),
-            Seq.OfTypes<Ec1, E5, E3, E4, E1>(),
+            EnumerableCE.OfTypes<Ec1, E1>(),
+            EnumerableCE.OfTypes<Ec1, E5, E3, E4, E1>(),
             Before<E1>.Insert<E3, E4>(),//Ec1, E3, E4, E1
             Before<E3>.Insert<E5>())); //Ec1, E5, E3, E4, E1;
         }
@@ -154,8 +154,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Given_Ec1_E1_Ef_Inserting_E3_E4_before_E1_then_E5_before_E4()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef>(),
-            Seq.OfTypes<Ec1, E3, E5, E4, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E3, E5, E4, E1, Ef>(),
             Before<E1>.Insert<E3, E4>(), //Ec1, E3, E4, E1, Ef
             Before<E4>.Insert<E5>())); //Ec1, E3, E5, E4, E1, Ef
         }
@@ -164,8 +164,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Given_Ec1_E1_Inserting_E2_before_E1_then_E3_before_E2()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1>(),
-            Seq.OfTypes<Ec1, E3, E2, E1>(),
+            EnumerableCE.OfTypes<Ec1, E1>(),
+            EnumerableCE.OfTypes<Ec1, E3, E2, E1>(),
             Before<E1>.Insert<E2>(), //Ec1, E2, E1
             Before<E2>.Insert<E3>())); //Ec1, E3, E2, E1
         }
@@ -174,8 +174,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Given_Ec1_E1_Inserting_E3_E2_before_E1_then_E4_before_E3_then_E5_before_E4()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1>(),
-            Seq.OfTypes<Ec1, E5, E4, E3, E2, E1>(),
+            EnumerableCE.OfTypes<Ec1, E1>(),
+            EnumerableCE.OfTypes<Ec1, E5, E4, E3, E2, E1>(),
             Before<E1>.Insert<E3, E2>(), //Ec1, E3, E2, E1
             Before<E3>.Insert<E4>(), //Ec1, E4, E3, E2, E1
             Before<E4>.Insert<E5>())); //Ec1, E5, E4, E3, E2, E1
@@ -185,8 +185,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Inserting_E3_E4_before_E1_then_E5_before_E4_then_replace_E4_with_E6()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef>(),
-            Seq.OfTypes<Ec1, E6, E5, E4, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E6, E5, E4, E1, Ef>(),
             Before<E1>.Insert<E3, E4>(), //Ec1, E3, E4, E1, Ef
             Before<E4>.Insert<E5>(), //Ec1, E3, E5, E4, E1, Ef
             Replace<E3>.With<E6>())); //Ec1, E6, E5, E4, E1, Ef
@@ -196,8 +196,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Inserting_E3_E4_before_E1_then_E5_before_E4_then_replace_E4_with_E6_then_replace_Ef_with_E7_then_insert_E8_after_E7()
         {
             RunMigrationTest(new MigrationScenario
-                (Seq.OfTypes<Ec1, E1, Ef>(),
-                Seq.OfTypes<Ec1, E6, E5, E4, E1, E7, E8>(),
+                (EnumerableCE.OfTypes<Ec1, E1, Ef>(),
+                EnumerableCE.OfTypes<Ec1, E6, E5, E4, E1, E7, E8>(),
                 Before<E1>.Insert<E3, E4>(), //Ec1, E3, E4, E1, Ef
                 Before<E4>.Insert<E5>(), //Ec1, E3, E5, E4, E1, Ef
                 Replace<E3>.With<E6>(), //Ec1, E6, E5, E4, E1, Ef
@@ -209,8 +209,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Inserting_E3_E4_before_E1_then_E5_before_E3_2()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef, Ef>(),
-            Seq.OfTypes<Ec1, E5, E3, E4, E1, Ef, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E5, E3, E4, E1, Ef, Ef>(),
             Before<E1>.Insert<E3, E4>(), //Ec1, E3, E4, E1, Ef, Ef
             Before<E3>.Insert<E5>())); //Ec1, E5, E3, E4, E1, Ef, Ef
         }
@@ -219,8 +219,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Inserting_E3_E4_before_E1_then_E5_before_E4_2()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef, Ef>(),
-            Seq.OfTypes<Ec1, E3, E5, E4, E1, Ef, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E3, E5, E4, E1, Ef, Ef>(),
             Before<E1>.Insert<E3, E4>(),//Ec1, E3, E4 E1, Ef, Ef
             Before<E4>.Insert<E5>())); //Ec1, E3, E5, E4, E1, Ef, Ef
         }
@@ -229,8 +229,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Inserting_E2_after_E1()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1, Ef, Ef>(),
-            Seq.OfTypes<Ec1, E1, E2, Ef, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, Ef, Ef>(),
+            EnumerableCE.OfTypes<Ec1, E1, E2, Ef, Ef>(),
             After<E1>.Insert<E2>()));
 
         }
@@ -239,8 +239,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         public void Inserting_E2_after_E1_at_end_of_stream()
         {
             RunMigrationTest(new MigrationScenario(
-            Seq.OfTypes<Ec1, E1>(),
-            Seq.OfTypes<Ec1, E1, E2>(),
+            EnumerableCE.OfTypes<Ec1, E1>(),
+            EnumerableCE.OfTypes<Ec1, E1, E2>(),
             After<E1>.Insert<E2>()));
         }
 
@@ -251,8 +251,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 me =>
                 RunMigrationTest(
                     new MigrationScenario(
-                        Seq.OfTypes<Ec1, E1>(),
-                        Seq.OfTypes<Ec1, E2, E3, E1>(),
+                        EnumerableCE.OfTypes<Ec1, E1>(),
+                        EnumerableCE.OfTypes<Ec1, E2, E3, E1>(),
                         Before<E1>.Insert<E2>(),
                         After<E2>.Insert<E3>())))
                 .Should().Throw<NonIdempotentMigrationDetectedException>();
@@ -274,7 +274,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime(DateTime.Parse("2001-01-01 12:00"));
 
-                var aggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1, E2, E3, E4>());
+                var aggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E1, E2, E3, E4>());
                 var initialHistory = aggregate.History;
 
                 IEventStoreUpdater Session() => serviceLocator.Resolve<IEventStoreUpdater>();
@@ -290,12 +290,12 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 AssertStreamsAreIdentical(initialHistory, firstSavedHistory, "first saved history");
 
-                migrations = Seq.Create(Replace<E1>.With<E5>()).ToList();
+                migrations = EnumerableCE.Create(Replace<E1>.With<E5>()).ToList();
                 ClearCache(serviceLocator);
 
                 var migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 var expectedAfterReplacingE1WithE5 =
-                    TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E2, E3, E4>()).History;
+                    TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E5, E2, E3, E4>()).History;
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: migratedHistory, descriptionOfHistory: "migrated history");
 
                 var historyAfterPersistingButBeforeReload = serviceLocator.ExecuteInIsolatedScope(
@@ -310,12 +310,12 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 var historyAfterPersistingAndReloading = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
 
-                migrations = Seq.Create(Replace<E2>.With<E6>()).ToList();
+                migrations = EnumerableCE.Create(Replace<E2>.With<E6>()).ToList();
 
                 toDispose.Add(serviceLocator = serviceLocator.Clone());
 
                 migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
-                var expectedAfterReplacingE2WithE6 = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E6, E3, E4>()).History;
+                var expectedAfterReplacingE2WithE6 = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E5, E6, E3, E4>()).History;
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: migratedHistory, descriptionOfHistory: "migrated history");
 
                 historyAfterPersistingButBeforeReload = serviceLocator.ExecuteInIsolatedScope(
@@ -352,7 +352,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime(DateTime.Parse("2001-01-01 12:00"));
 
-                var aggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1, E2, E3, E4>());
+                var aggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E1, E2, E3, E4>());
                 var initialHistory = aggregate.History;
 
                 IEventStoreUpdater Session() => serviceLocator.Resolve<IEventStoreUpdater>();
@@ -368,12 +368,12 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 AssertStreamsAreIdentical(initialHistory, firstSavedHistory, "first saved history");
 
-                migrations = Seq.Create(Replace<E1>.With<E5>()).ToList();
+                migrations = EnumerableCE.Create(Replace<E1>.With<E5>()).ToList();
                 ClearCache(serviceLocator);
 
                 var migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 var expectedAfterReplacingE1WithE5 =
-                    TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E2, E3, E4>()).History;
+                    TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E5, E2, E3, E4>()).History;
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: migratedHistory, descriptionOfHistory: "migrated history");
 
                 var historyAfterPersistingButBeforeReload = serviceLocator.ExecuteInIsolatedScope(
@@ -390,11 +390,11 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).Publish(new E6(), new E7()));
 
-                migrations = Seq.Create(Replace<E2>.With<E6>()).ToList();
+                migrations = EnumerableCE.Create(Replace<E2>.With<E6>()).ToList();
                 toDispose.Add(serviceLocator = serviceLocator.Clone());
 
                 migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
-                var expectedAfterReplacingE2WithE6 = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E6, E3, E4, E6, E7>()).History;
+                var expectedAfterReplacingE2WithE6 = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E5, E6, E3, E4, E6, E7>()).History;
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: migratedHistory, descriptionOfHistory: "migrated history");
 
                 historyAfterPersistingButBeforeReload = serviceLocator.ExecuteInIsolatedScope(
@@ -408,10 +408,10 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 historyAfterPersistingAndReloading = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
 
-                migrations = Seq.Empty<IEventMigration>().ToList();
+                migrations = EnumerableCE.Empty<IEventMigration>().ToList();
                 serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).Publish(new E8(), new E9()));
                 historyAfterPersistingAndReloading = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
-                var expectedAfterReplacingE2WithE6AndRaisingE8E9 = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E6, E3, E4, E6, E7, E8, E9>()).History;
+                var expectedAfterReplacingE2WithE6AndRaisingE8E9 = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E5, E6, E3, E4, E6, E7, E8, E9>()).History;
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6AndRaisingE8E9, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
 
             }
@@ -438,24 +438,24 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime(DateTime.Parse("2001-01-01 12:00"));
 
-                var initialAggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1>());
+                var initialAggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E1>());
 
                 IEventStoreUpdater Session() => serviceLocator.Resolve<IEventStoreUpdater>();
                 IEventStore EventStore() => serviceLocator.Resolve<IEventStore>();
 
                 serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Save(initialAggregate));
 
-                migrations = Seq.Create(Replace<E1>.With<E5>()).ToList();
+                migrations = EnumerableCE.Create(Replace<E1>.With<E5>()).ToList();
 
                 serviceLocator.ExecuteInIsolatedScope(() => EventStore().PersistMigrations());
 
-                migrations = Seq.Create<IEventMigration>().ToList();
+                migrations = EnumerableCE.Create<IEventMigration>().ToList();
 
                 serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id).Publish(new E2()));
 
                 var aggregate = serviceLocator.ExecuteTransactionInIsolatedScope(() => Session().Get<TestAggregate>(id));
 
-                var expected = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E2>()).History;
+                var expected = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E5, E2>()).History;
                 AssertStreamsAreIdentical(expected: expected, migratedHistory: aggregate.History, descriptionOfHistory: "migrated history");
 
                 var completeEventHistory =serviceLocator.ExecuteInIsolatedScope(() => EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateEvent>().ToList();
@@ -475,8 +475,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         [Test]
         public void Inserting_E2_Before_E1_Persisting_and_then_Inserting_E3_before_E1()
         {
-            var firstMigration = Seq.Create(Before<E1>.Insert<E2>()).ToArray();
-            var secondMigration = Seq.Create(Before<E1>.Insert<E3>()).ToArray();
+            var firstMigration = EnumerableCE.Create(Before<E1>.Insert<E2>()).ToArray();
+            var secondMigration = EnumerableCE.Create(Before<E1>.Insert<E3>()).ToArray();
             IReadOnlyList<IEventMigration> migrations = new List<IEventMigration>();
 
             var toDispose = StrictAggregateDisposable.Create();
@@ -487,9 +487,9 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime(DateTime.Parse("2001-01-01 12:00"));
 
                 var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
-                var initialAggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1>());
-                var expectedHistoryAfterFirstMigration = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E2, E1>()).History;
-                var expectedHistoryAfterSecondMigration = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E2, E3, E1>()).History;
+                var initialAggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E1>());
+                var expectedHistoryAfterFirstMigration = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E2, E1>()).History;
+                var expectedHistoryAfterSecondMigration = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E2, E3, E1>()).History;
 
                 IEventStoreUpdater Session() => serviceLocator.Resolve<IEventStoreUpdater>();
                 IEventStore EventStore() => serviceLocator.Resolve<IEventStore>();
@@ -522,8 +522,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         [Test]
         public void Inserting_E2_After_E1_Persisting_and_then_Inserting_E3_after_E1()
         {
-            var firstMigration = Seq.Create(After<E1>.Insert<E2>()).ToArray();
-            var secondMigration = Seq.Create(After<E1>.Insert<E3>()).ToArray();
+            var firstMigration = EnumerableCE.Create(After<E1>.Insert<E2>()).ToArray();
+            var secondMigration = EnumerableCE.Create(After<E1>.Insert<E3>()).ToArray();
             IReadOnlyList<IEventMigration> migrations = new List<IEventMigration>();
 
             var toDispose = StrictAggregateDisposable.Create();
@@ -534,9 +534,9 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime(DateTime.Parse("2001-01-01 12:00"));
 
                 var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
-                var initialAggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1>());
-                var expectedHistoryAfterFirstMigration = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1, E2>()).History;
-                var expectedHistoryAfterSecondMigration = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1, E3, E2>()).History;
+                var initialAggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E1>());
+                var expectedHistoryAfterFirstMigration = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E1, E2>()).History;
+                var expectedHistoryAfterSecondMigration = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E1, E3, E2>()).History;
 
                 IEventStoreUpdater Session() => serviceLocator.Resolve<IEventStoreUpdater>();
                 IEventStore EventStore() => serviceLocator.Resolve<IEventStore>();
@@ -571,15 +571,15 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         {
             RunMigrationTest(
                 new MigrationScenario(
-                    Seq.OfTypes<Ec1, E1>(),
-                    Seq.OfTypes<Ec1, E2, E1>(),
+                    EnumerableCE.OfTypes<Ec1, E1>(),
+                    EnumerableCE.OfTypes<Ec1, E2, E1>(),
                     Before<E1>.Insert<E2>()));
         }
 
         [Test]
         public void Persisting_migrations_and_then_updating_the_aggregate_from_another_processes_EventStore_results_in_both_processes_seeing_identical_histories()
         {
-            var actualMigrations = Seq.Create(Replace<E1>.With<E2>()).ToArray();
+            var actualMigrations = EnumerableCE.Create(Replace<E1>.With<E2>()).ToArray();
             IReadOnlyList<IEventMigration> migrations = new List<IEventMigration>();
 
             // ReSharper disable once AccessToModifiedClosure this is exactly what we wish to achieve here...
@@ -596,7 +596,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             var aggregate = TestAggregate.FromEvents(
                 serviceLocator.Resolve<IUtcTimeTimeSource>(),
                 id,
-                Seq.OfTypes<Ec1, E1, E2, E3, E4>());
+                EnumerableCE.OfTypes<Ec1, E1, E2, E3, E4>());
 
             otherProcessServiceLocator.ExecuteTransactionInIsolatedScope(() => OtherEventStoreSession().Save(aggregate));
             migrations = actualMigrations;

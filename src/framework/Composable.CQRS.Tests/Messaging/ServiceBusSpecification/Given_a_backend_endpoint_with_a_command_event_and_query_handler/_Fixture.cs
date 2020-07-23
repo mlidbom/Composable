@@ -12,7 +12,7 @@ using Composable.Persistence.EventStore.Aggregates;
 using Composable.Persistence.MsSql.DependencyInjection;
 using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.SystemCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using JetBrains.Annotations;

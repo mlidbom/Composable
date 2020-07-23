@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.DependencyInjection;
 using Composable.SystemCE;
-using Composable.SystemCE.Diagnostics;
+using Composable.SystemCE.DiagnosticsCE;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using NCrunch.Framework;
@@ -41,11 +41,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 
             if(threaded)
             {
-                StopwatchExtensions.TimeExecutionThreaded(RunRequest, iterations: requests);
+                StopwatchCE.TimeExecutionThreaded(RunRequest, iterations: requests);
                 TimeAsserter.ExecuteThreaded(RunRequest, iterations: requests, maxTotal: maxTotal);
             } else
             {
-                StopwatchExtensions.TimeExecution(RunRequest, iterations: requests);
+                StopwatchCE.TimeExecution(RunRequest, iterations: requests);
                 TimeAsserter.Execute(RunRequest, iterations: requests, maxTotal: maxTotal);
             }
         }

@@ -6,7 +6,7 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.DDD;
 using Composable.SystemCE.CollectionsCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 
 namespace Composable.Persistence.DocumentDb
 {

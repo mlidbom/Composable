@@ -6,7 +6,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.SystemCE;
 using Composable.SystemCE.CollectionsCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;

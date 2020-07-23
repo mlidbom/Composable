@@ -16,7 +16,7 @@ namespace Composable.Logging
             }
         }
 
-        [StringFormatMethod("queuedMessageInformation")] internal static void WriteLine(string message, params object[] args) { WriteLine(StringEx.FormatInvariant(message, args)); }
+        [StringFormatMethod("queuedMessageInformation")] internal static void WriteLine(string message, params object[] args) { WriteLine(StringCE.FormatInvariant(message, args)); }
 
         internal static void WriteLine() => WriteLine("");
 
@@ -28,6 +28,6 @@ namespace Composable.Logging
             }
         }
 
-        [StringFormatMethod("queuedMessageInformation")] internal static void Write(string message, params object[] args) { Write(StringEx.FormatInvariant(message, args)); }
+        [StringFormatMethod("queuedMessageInformation")] internal static void Write(string message, params object[] args) { Write(StringCE.FormatInvariant(message, args)); }
     }
 }

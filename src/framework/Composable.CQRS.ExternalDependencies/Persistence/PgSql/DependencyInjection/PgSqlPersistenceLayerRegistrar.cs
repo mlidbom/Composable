@@ -10,7 +10,7 @@ using Composable.Persistence.PgSql.Messaging.Buses.Implementation;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.Persistence.PgSql.Testing.Databases;
 using Composable.Refactoring.Naming;
-using Composable.SystemCE.Configuration;
+using Composable.SystemCE.ConfigurationCE;
 
 namespace Composable.Persistence.PgSql.DependencyInjection
 {

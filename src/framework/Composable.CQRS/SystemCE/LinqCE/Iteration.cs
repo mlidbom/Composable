@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Composable.Contracts;
 using JetBrains.Annotations;
 
-namespace Composable.SystemCE.Linq
+namespace Composable.SystemCE.LinqCE
 {
     /// <summary/>
     public static class Iteration

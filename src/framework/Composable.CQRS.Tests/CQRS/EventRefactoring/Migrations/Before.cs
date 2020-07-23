@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
@@ -12,8 +12,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
     {
         readonly IEnumerable<Type> _insert;
 
-        public static Before<TEvent> Insert<T1>() => new Before<TEvent>(Seq.OfTypes<T1>());
-        public static Before<TEvent> Insert<T1, T2>() => new Before<TEvent>(Seq.OfTypes<T1, T2>());
+        public static Before<TEvent> Insert<T1>() => new Before<TEvent>(EnumerableCE.OfTypes<T1>());
+        public static Before<TEvent> Insert<T1, T2>() => new Before<TEvent>(EnumerableCE.OfTypes<T1, T2>());
 
         Before(IEnumerable<Type> insert) : base(Guid.Parse("0533D2E4-DE78-4751-8CAE-3343726D635B"), "Before", "Long description of Before") => _insert = insert;
 

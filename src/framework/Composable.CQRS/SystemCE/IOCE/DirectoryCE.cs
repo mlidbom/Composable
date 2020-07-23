@@ -3,10 +3,10 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Hierarchies;
 
-namespace Composable.SystemCE.IO
+namespace Composable.SystemCE.IOCE
 {
     /// <summary/>
-    static class DirectoryExtensions
+    static class DirectoryCE
     {
         /// <summary>
         /// Called on <paramref name="path"/> return a DirectoryInfo instance

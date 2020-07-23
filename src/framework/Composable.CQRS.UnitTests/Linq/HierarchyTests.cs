@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.GenericAbstractions.Hierarchies;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using NUnit.Framework;
 
 namespace Composable.Tests.Linq
@@ -48,7 +48,7 @@ namespace Composable.Tests.Linq
                                                }
                             };
 
-            var flattened = Seq.Create(root1, root2).FlattenHierarchy(root => root.Children);
+            var flattened = EnumerableCE.Create(root1, root2).FlattenHierarchy(root => root.Children);
             Assert.That(flattened.Count(), Is.EqualTo(10)); //Ensures no duplicates
             Assert.That(flattened.Distinct().Count(), Is.EqualTo(10)); //Ensures all objects are there.
         }

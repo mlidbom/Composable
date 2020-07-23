@@ -2,7 +2,7 @@ using System;
 using System.Linq.Expressions;
 using Composable.Contracts;
 
-namespace Composable.SystemCE.Linq
+namespace Composable.SystemCE.LinqCE
 {
     ///<summary>Extracts member names from expressions</summary>
     static class ExpressionUtil

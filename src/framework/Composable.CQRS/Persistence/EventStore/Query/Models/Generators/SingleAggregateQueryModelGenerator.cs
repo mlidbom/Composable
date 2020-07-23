@@ -2,7 +2,7 @@
 using System.Linq;
 using Composable.Functional;
 using Composable.Messaging.Events;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
 using JetBrains.Annotations;
 

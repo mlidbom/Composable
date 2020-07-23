@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.TransactionsCE;
 using IBM.Data.DB2.Core;
 

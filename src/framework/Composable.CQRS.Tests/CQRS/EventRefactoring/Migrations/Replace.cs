@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
@@ -12,8 +12,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
     {
         readonly Migrator _migratorSingleton;
 
-        public static Replace<TEvent> With<T1>() => new Replace<TEvent>(Seq.OfTypes<T1>());
-        public static Replace<TEvent> With<T1, T2>() => new Replace<TEvent>(Seq.OfTypes<T1, T2>());
+        public static Replace<TEvent> With<T1>() => new Replace<TEvent>(EnumerableCE.OfTypes<T1>());
+        public static Replace<TEvent> With<T1, T2>() => new Replace<TEvent>(EnumerableCE.OfTypes<T1, T2>());
 
         Replace(IEnumerable<Type> replaceWith) : base(Guid.Parse("9B51F7BC-D9B3-43C7-A183-76CA5E662091"), "Replace", "Long description of Replace") => _migratorSingleton = new Migrator(replaceWith);
 

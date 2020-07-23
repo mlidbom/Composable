@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 
 // ReSharper disable ForCanBeConvertedToForeach
 
@@ -72,7 +72,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         public IEnumerable<AggregateEvent> EndOfAggregate()
         {
-            return Seq.Create(new EndOfAggregateHistoryEventPlaceHolder(_aggregateId, _aggregateVersion))
+            return EnumerableCE.Create(new EndOfAggregateHistoryEventPlaceHolder(_aggregateId, _aggregateVersion))
                 .SelectMany(Mutate)
                 .Where(@event => @event.GetType() != typeof(EndOfAggregateHistoryEventPlaceHolder));
         }
@@ -89,7 +89,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
             if(events.None())
             {
-                return Seq.Empty<AggregateEvent>().ToArray();
+                return EnumerableCE.Empty<AggregateEvent>().ToArray();
             }
 
             var mutator = Create(events.First(), eventMigrations, eventsAddedCallback);

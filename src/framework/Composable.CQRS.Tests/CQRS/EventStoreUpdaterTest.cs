@@ -11,8 +11,8 @@ using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.SystemCE;
-using Composable.SystemCE.Diagnostics;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.DiagnosticsCE;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.TransactionsCE;
 using Composable.Testing;
@@ -439,7 +439,7 @@ namespace Composable.Tests.CQRS
             }
 
 
-            var singleThreadedExecutionTime = StopwatchExtensions.TimeExecution(ReadUserHistory, iterations: threadedIterations).Total;
+            var singleThreadedExecutionTime = StopwatchCE.TimeExecution(ReadUserHistory, iterations: threadedIterations).Total;
 
             var timingsSummary = TimeAsserter.ExecuteThreaded(
                 action: ReadUserHistory,
@@ -643,7 +643,7 @@ namespace Composable.Tests.CQRS
 
             var taskException = ExceptionCE.TryCatch(() => Task.WaitAll(tasks)) as AggregateException;//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized. Or a deadlock will be thrown if the locking is not done correctly.
 
-            if(bothTasksCompletedException != null || taskException != null || bothTasksReadUserException != null)throw new AggregateException(Seq.Create(bothTasksCompletedException).Append(bothTasksReadUserException).Concat(taskException.InnerExceptions).Where(@this => @this != null));
+            if(bothTasksCompletedException != null || taskException != null || bothTasksReadUserException != null)throw new AggregateException(EnumerableCE.Create(bothTasksCompletedException).Append(bothTasksReadUserException).Concat(taskException.InnerExceptions).Where(@this => @this != null));
 
             UseInScope(
                 session =>

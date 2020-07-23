@@ -1,6 +1,6 @@
 ﻿using System;
 using Composable.SystemCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -24,7 +24,7 @@ namespace Composable.Tests.SystemExtensions
         [Test]
         public void GetAllExceptionsInStackShouldReturnAllNestedExceptionsInOrderFromRootToMostNestedException()
         {
-            var expected = Seq.Create(_secondNestingException, _firstNestingException, _originalException);
+            var expected = EnumerableCE.Create(_secondNestingException, _firstNestingException, _originalException);
 
             var actual = _secondNestingException.GetAllExceptionsInStack();
 

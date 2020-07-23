@@ -6,9 +6,8 @@ using IBM.Data.DB2.Core;
 using System.Threading.Tasks;
 using Composable.Logging;
 using Composable.SystemCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
-using ObjectExtensions = Composable.SystemCE.Linq.ObjectExtensions;
 
 namespace Composable.Persistence.DB2.SystemExtensions
 {

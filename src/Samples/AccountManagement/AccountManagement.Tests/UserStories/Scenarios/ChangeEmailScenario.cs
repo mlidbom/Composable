@@ -3,7 +3,7 @@ using AccountManagement.Domain;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 
 namespace AccountManagement.UserStories.Scenarios
 {

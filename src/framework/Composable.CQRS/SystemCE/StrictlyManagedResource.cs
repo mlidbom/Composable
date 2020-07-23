@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using Composable.Logging;
-using Composable.SystemCE.Configuration;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.ConfigurationCE;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
 
 namespace Composable.SystemCE

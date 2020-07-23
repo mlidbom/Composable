@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection.SimpleInjector;
 using Composable.DependencyInjection.Windsor;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 
 namespace Composable.DependencyInjection.Testing
 {
     static class TestingExtensions
     {
-       static readonly IReadOnlyList<Type> TypesThatAreFacadesForTheContainer = Seq.OfTypes<IDependencyInjectionContainer, IServiceLocator, SimpleInjectorDependencyInjectionContainer, WindsorDependencyInjectionContainer>()
+       static readonly IReadOnlyList<Type> TypesThatAreFacadesForTheContainer = EnumerableCE.OfTypes<IDependencyInjectionContainer, IServiceLocator, SimpleInjectorDependencyInjectionContainer, WindsorDependencyInjectionContainer>()
                                                          .ToList();
 
         public static IServiceLocator Clone(this IServiceLocator @this)

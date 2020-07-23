@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.Contracts;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.SystemCE.Reactive

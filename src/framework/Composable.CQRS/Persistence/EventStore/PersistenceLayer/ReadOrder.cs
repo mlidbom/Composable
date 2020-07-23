@@ -3,7 +3,7 @@ using System.Data.SqlTypes;
 using System.Globalization;
 using System.Linq;
 using Composable.Contracts;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 
 namespace Composable.Persistence.EventStore.PersistenceLayer
 {

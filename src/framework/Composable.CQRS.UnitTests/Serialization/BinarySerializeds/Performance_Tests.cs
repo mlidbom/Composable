@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Composable.Serialization;
 using Composable.SystemCE;
-using Composable.SystemCE.Diagnostics;
+using Composable.SystemCE.DiagnosticsCE;
 using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
@@ -90,7 +90,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
                 return TimeAsserter.Execute(action, iterations: iterations, maxTotal: maxTotal).Total;
             } else
             {
-                return StopwatchExtensions.TimeExecution(action, iterations: iterations).Total;
+                return StopwatchCE.TimeExecution(action, iterations: iterations).Total;
             }
         }
 

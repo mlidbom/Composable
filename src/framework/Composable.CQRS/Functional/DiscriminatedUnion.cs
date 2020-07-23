@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.SystemCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 
 namespace Composable.Functional
 {
@@ -28,7 +28,7 @@ namespace Composable.Functional
         where TOption1 : TInheritor
         where TOption2 : TInheritor
     {
-        static readonly IReadOnlyList<Type> AllowedTypes = Seq.OfTypes<TOption1, TOption2>().ToList();
+        static readonly IReadOnlyList<Type> AllowedTypes = EnumerableCE.OfTypes<TOption1, TOption2>().ToList();
         protected DiscriminatedUnion() => DistriminatedUnion.AssertValidType(this, AllowedTypes);
     }
 
@@ -38,7 +38,7 @@ namespace Composable.Functional
         where TOption2 : TInheritor
         where TOption3 : TInheritor
     {
-        static readonly IReadOnlyList<Type> AllowedTypes = Seq.OfTypes<TOption1, TOption2, TOption3>().ToList();
+        static readonly IReadOnlyList<Type> AllowedTypes = EnumerableCE.OfTypes<TOption1, TOption2, TOption3>().ToList();
         protected DiscriminatedUnion() => DistriminatedUnion.AssertValidType(this, AllowedTypes);
     }
 
@@ -49,7 +49,7 @@ namespace Composable.Functional
         where TOption3 : TInheritor
         where TOption4 : TInheritor
     {
-        static readonly IReadOnlyList<Type> AllowedTypes = Seq.OfTypes<TOption1, TOption2, TOption3, TOption4>().ToList();
+        static readonly IReadOnlyList<Type> AllowedTypes = EnumerableCE.OfTypes<TOption1, TOption2, TOption3, TOption4>().ToList();
         protected DiscriminatedUnion() => DistriminatedUnion.AssertValidType(this, AllowedTypes);
     }
 
@@ -61,7 +61,7 @@ namespace Composable.Functional
         where TOption4 : TInheritor
         where TOption5 : TInheritor
     {
-        static readonly IReadOnlyList<Type> AllowedTypes = Seq.OfTypes<TOption1, TOption2, TOption3, TOption4, TOption5>().ToList();
+        static readonly IReadOnlyList<Type> AllowedTypes = EnumerableCE.OfTypes<TOption1, TOption2, TOption3, TOption4, TOption5>().ToList();
         protected DiscriminatedUnion() => DistriminatedUnion.AssertValidType(this, AllowedTypes);
     }
 
@@ -74,7 +74,7 @@ namespace Composable.Functional
         where TOption5 : TInheritor
         where TOption6 : TInheritor
     {
-        static readonly IReadOnlyList<Type> AllowedTypes = Seq.OfTypes<TOption1, TOption2, TOption3, TOption4, TOption5>().ToList();
+        static readonly IReadOnlyList<Type> AllowedTypes = EnumerableCE.OfTypes<TOption1, TOption2, TOption3, TOption4, TOption5>().ToList();
         protected DiscriminatedUnion() => DistriminatedUnion.AssertValidType(this, AllowedTypes);
     }
 }

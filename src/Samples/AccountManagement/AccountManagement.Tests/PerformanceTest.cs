@@ -10,7 +10,7 @@ using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.MsSql.Messaging.Buses;
-using Composable.SystemCE.Diagnostics;
+using Composable.SystemCE.DiagnosticsCE;
 using Composable.Testing.Performance;
 using FluentAssertions.Extensions;
 using NUnit.Framework;
@@ -33,7 +33,7 @@ namespace AccountManagement
             _scenarioApi = new AccountScenarioApi(_clientEndpoint);
             await _host.StartAsync();
             //Warmup
-            StopwatchExtensions.TimeExecutionThreaded(() => _scenarioApi.Register.Execute(), iterations: 100, maxDegreeOfParallelism: 10);
+            StopwatchCE.TimeExecutionThreaded(() => _scenarioApi.Register.Execute(), iterations: 100, maxDegreeOfParallelism: 10);
         }
 
         [Test, Ignore("Only intended to be executed manually")] public void _1_threads_create_1000_accounts_in_5_second() =>

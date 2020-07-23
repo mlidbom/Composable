@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Composable.SystemCE.Configuration;
+using Composable.SystemCE.ConfigurationCE;
 
 namespace Composable.Messaging.Buses.Implementation
 {

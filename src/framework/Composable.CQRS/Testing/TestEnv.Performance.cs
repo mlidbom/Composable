@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using Composable.SystemCE;
-using Composable.SystemCE.Diagnostics;
+using Composable.SystemCE.DiagnosticsCE;
 
 namespace Composable.Testing
 {
@@ -22,7 +22,7 @@ namespace Composable.Testing
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if(!IsRunningUnderNCrunch) return false;
 
-                var time = StopwatchExtensions.TimeExecution(() =>
+                var time = StopwatchCE.TimeExecution(() =>
                                                              {
                                                                  for(int i = 0; i < 100; i++)
                                                                  {

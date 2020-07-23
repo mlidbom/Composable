@@ -4,7 +4,7 @@ using System.Linq;
 using System.Transactions;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.SystemCE.CollectionsCE;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;

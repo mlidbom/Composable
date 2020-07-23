@@ -4,7 +4,7 @@ using System.Transactions;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.TransactionsCE;
 using Composable.Testing;
 using FluentAssertions;

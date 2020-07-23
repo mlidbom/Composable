@@ -4,12 +4,12 @@ using Composable.Contracts;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace Composable.SystemCE.Linq
+namespace Composable.SystemCE.LinqCE
 {
 
 
     /// <summary/>
-    static class Seq
+    static class EnumerableCE
     {
         static class EmptySequence<T>
         {

@@ -1,6 +1,6 @@
 ﻿using System;
 using Composable.SystemCE;
-using Composable.SystemCE.Diagnostics;
+using Composable.SystemCE.DiagnosticsCE;
 using Composable.SystemCE.ReflectionCE;
 using Composable.Testing;
 using Composable.Testing.Performance;
@@ -23,11 +23,11 @@ namespace Composable.Tests.System.Reflection
             var constructions = 1_000_000.IfInstrumentedDivideBy(4.7);
 
             //warmup
-            StopwatchExtensions.TimeExecution(DefaultConstructor, constructions);
-            StopwatchExtensions.TimeExecution(DynamicModuleConstruct, constructions);
+            StopwatchCE.TimeExecution(DefaultConstructor, constructions);
+            StopwatchCE.TimeExecution(DynamicModuleConstruct, constructions);
 
 
-            var defaultConstructor = StopwatchExtensions.TimeExecution(DefaultConstructor, constructions).Total;
+            var defaultConstructor = StopwatchCE.TimeExecution(DefaultConstructor, constructions).Total;
             var maxTime = defaultConstructor.MultiplyBy(1.50);
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime);
         }
@@ -37,11 +37,11 @@ namespace Composable.Tests.System.Reflection
             var constructions = 1_000_000.IfInstrumentedDivideBy(10);
 
             //warmup
-            StopwatchExtensions.TimeExecution(NewConstraint, constructions);
-            StopwatchExtensions.TimeExecution(DynamicModuleConstruct, constructions);
+            StopwatchCE.TimeExecution(NewConstraint, constructions);
+            StopwatchCE.TimeExecution(DynamicModuleConstruct, constructions);
 
 
-            var defaultConstructor = StopwatchExtensions.TimeExecution(NewConstraint, constructions).Total;
+            var defaultConstructor = StopwatchCE.TimeExecution(NewConstraint, constructions).Total;
             var maxTime = defaultConstructor.DivideBy(2);
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.IfInstrumentedMultiplyBy(4));
         }
@@ -51,11 +51,11 @@ namespace Composable.Tests.System.Reflection
             var constructions = 1_000_000.IfInstrumentedDivideBy(10);
 
             //warmup
-            StopwatchExtensions.TimeExecution(ActivatorCreateInstance, constructions);
-            StopwatchExtensions.TimeExecution(DynamicModuleConstruct, constructions);
+            StopwatchCE.TimeExecution(ActivatorCreateInstance, constructions);
+            StopwatchCE.TimeExecution(DynamicModuleConstruct, constructions);
 
 
-            var defaultConstructor = StopwatchExtensions.TimeExecution(ActivatorCreateInstance, constructions).Total;
+            var defaultConstructor = StopwatchCE.TimeExecution(ActivatorCreateInstance, constructions).Total;
             var maxTime = defaultConstructor.DivideBy(2);
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.IfInstrumentedMultiplyBy(4.2));
         }

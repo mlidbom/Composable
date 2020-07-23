@@ -6,16 +6,16 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using JetBrains.Annotations;
 
-namespace Composable.SystemCE.Diagnostics
+namespace Composable.SystemCE.DiagnosticsCE
 {
     ///<summary>Extensions to the Stopwatch class and related functionality.</summary>
-    public static class StopwatchExtensions
+    public static class StopwatchCE
     {
-        static readonly MachineWideSingleThreaded MachineWideSingleThreaded = MachineWideSingleThreaded.For(typeof(StopwatchExtensions));
+        static readonly MachineWideSingleThreaded MachineWideSingleThreaded = MachineWideSingleThreaded.For(typeof(StopwatchCE));
 
         ///<summary>Measures how long it takes to execute <paramref name="action"/></summary>
         internal static TimeSpan TimeExecution([InstantHandle]Action action) => new Stopwatch().TimeExecution(action);

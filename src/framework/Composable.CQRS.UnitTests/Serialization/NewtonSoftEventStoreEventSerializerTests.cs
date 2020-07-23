@@ -8,8 +8,8 @@ using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.SystemCE;
-using Composable.SystemCE.Diagnostics;
-using Composable.SystemCE.Linq;
+using Composable.SystemCE.DiagnosticsCE;
+using Composable.SystemCE.LinqCE;
 using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
@@ -136,7 +136,7 @@ namespace Composable.Tests.Serialization
             _eventSerializer.Deserialize(typeof(TestEvent), _eventSerializer.Serialize(events.First()));
             JsonConvert.DeserializeObject<TestEvent>(JsonConvert.SerializeObject(events.First(), settings), settings);
 
-            var defaultSerializerPerformanceNumbers = StopwatchExtensions.TimeExecution(() =>
+            var defaultSerializerPerformanceNumbers = StopwatchCE.TimeExecution(() =>
                                                                                         {
                                                                                             var eventJson = events.Select(@this => JsonConvert.SerializeObject(@this, settings))
                                                                                                                   .ToList();

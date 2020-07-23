@@ -53,8 +53,11 @@ namespace Composable.Messaging.Buses.Implementation
                         _eventSubscriberRouteCache = new Dictionary<Type, IReadOnlyList<IInboxConnection>>();
                     }
 
-                    _commandHandlerRoutes = _commandHandlerRoutes.AddRangeToCopy(commandHandlerRoutes);
-                    _queryHandlerRoutes = _queryHandlerRoutes.AddRangeToCopy(queryHandlerRoutes);
+                    if(commandHandlerRoutes.Count > 0)
+                        _commandHandlerRoutes = _commandHandlerRoutes.AddRangeToCopy(commandHandlerRoutes);
+
+                    if(queryHandlerRoutes.Count > 0)
+                        _queryHandlerRoutes = _queryHandlerRoutes.AddRangeToCopy(queryHandlerRoutes);
                 }
             }
 

@@ -7,7 +7,7 @@ using Composable.Contracts;
 namespace Composable.SystemCE
 {
     ///<summary>Extensions for working with extensions</summary>
-    static class ExceptionExtensions
+    static class ExceptionCE
     {
         ///<summary>Flattens the exception.InnerException hierarchy into a sequence.</summary>
          public static IEnumerable<Exception> GetAllExceptionsInStack(this Exception exception)

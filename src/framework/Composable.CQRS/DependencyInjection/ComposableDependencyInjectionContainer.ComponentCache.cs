@@ -104,7 +104,7 @@ namespace Composable.DependencyInjection
         static void DisposeComponents(IEnumerable<IDisposable> disposables)
         {
             var exceptions = disposables
-                            .Select(disposable => ExceptionExtensions.TryCatch(disposable.Dispose))
+                            .Select(disposable => ExceptionCE.TryCatch(disposable.Dispose))
                             .Where(exception => exception != null)
                             .ToList();
 

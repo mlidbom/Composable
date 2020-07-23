@@ -636,13 +636,13 @@ namespace Composable.Tests.CQRS
 
             Thread.Sleep(100.Milliseconds());
 
-            var bothTasksReadUserException = ExceptionExtensions.TryCatch(() => hasFetchedUser.Passed.Should().Be(1, "Only one thread should have been able to fetch the aggregate"));
+            var bothTasksReadUserException = ExceptionCE.TryCatch(() => hasFetchedUser.Passed.Should().Be(1, "Only one thread should have been able to fetch the aggregate"));
 
-            var bothTasksCompletedException = ExceptionExtensions.TryCatch(() => changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction."));
+            var bothTasksCompletedException = ExceptionCE.TryCatch(() => changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction."));
 
             changeEmailSection.Open();
 
-            var taskException = ExceptionExtensions.TryCatch(() => Task.WaitAll(tasks)) as AggregateException;//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized. Or a deadlock will be thrown if the locking is not done correctly.
+            var taskException = ExceptionCE.TryCatch(() => Task.WaitAll(tasks)) as AggregateException;//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized. Or a deadlock will be thrown if the locking is not done correctly.
 
             if(bothTasksCompletedException != null || taskException != null || bothTasksReadUserException != null)throw new AggregateException(Seq.Create(bothTasksCompletedException).Append(bothTasksReadUserException).Concat(taskException.InnerExceptions).Where(@this => @this != null));
 

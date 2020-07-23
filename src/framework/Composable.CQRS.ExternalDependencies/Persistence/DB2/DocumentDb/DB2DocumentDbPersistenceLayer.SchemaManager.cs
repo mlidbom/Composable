@@ -1,5 +1,5 @@
 ﻿using Composable.Persistence.DB2.SystemExtensions;
-using Composable.SystemCE.Transactions;
+using Composable.SystemCE.TransactionsCE;
 using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 // ReSharper disable StringLiteralTypo
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
-using Composable.SystemCE.Collections;
+using Composable.SystemCE.CollectionsCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using JetBrains.Annotations;
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Composable.SystemCE.Collections;
+using Composable.SystemCE.CollectionsCE;
 
 namespace Composable.SystemCE
 {    public class StrictAggregateDisposable : StrictlyManagedResourceBase<StrictAggregateDisposable>

@@ -1,5 +1,5 @@
 ﻿using Composable.Persistence.PgSql.SystemExtensions;
-using Composable.SystemCE.Transactions;
+using Composable.SystemCE.TransactionsCE;
 using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
 namespace Composable.Persistence.PgSql.DocumentDb

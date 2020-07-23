@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Contracts;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 
 namespace Composable.Messaging.Buses.Implementation
 {

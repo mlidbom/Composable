@@ -6,7 +6,7 @@ using Composable.Messaging;
 using Composable.Refactoring.Naming;
 using Composable.SystemCE;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Aggregates

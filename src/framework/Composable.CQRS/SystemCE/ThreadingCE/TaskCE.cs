@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Composable.SystemCE.ThreadingCE
 {
-    static class TaskExtensions
+    static class TaskCE
     {
         ///<summary>
         /// Abbreviated version of ConfigureAwait(continueOnCapturedContext: false)

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using Composable.Contracts;
 using Composable.SystemCE;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 
 namespace Composable.DependencyInjection
 {
@@ -32,7 +32,7 @@ namespace Composable.DependencyInjection
 
                 _scopeCache.Value = _rootCache.CreateScopeCache();
 
-                return Disposable.Create(EndScope);
+                return DisposableCE.Create(EndScope);
             }
 
             void EndScope()

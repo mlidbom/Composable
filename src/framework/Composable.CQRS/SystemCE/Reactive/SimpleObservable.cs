@@ -23,7 +23,7 @@ namespace Composable.SystemCE.Reactive
         public IDisposable Subscribe(IObserver<TEvent> observer)
         {
             _observerCollection.WithExclusiveAccess(@this =>  @this.Add(observer));
-            return Disposable.Create(() => _observerCollection.WithExclusiveAccess(@this => @this.Remove(observer)));
+            return DisposableCE.Create(() => _observerCollection.WithExclusiveAccess(@this => @this.Remove(observer)));
         }
     }
 }

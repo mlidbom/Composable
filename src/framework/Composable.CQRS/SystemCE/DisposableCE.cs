@@ -4,12 +4,12 @@ using Composable.Contracts;
 namespace Composable.SystemCE
 {
     ///<summary>Simple utility class that calls the supplied action when the instance is disposed. Gets rid of the need to create a ton of small classes to do cleanup.</summary>
-    class Disposable : IDisposable
+    class DisposableCE : IDisposable
     {
         readonly Action _action;
 
         ///<summary>Constructs an instance that will call <param name="action"> when disposed.</param></summary>
-        Disposable(Action action)
+        DisposableCE(Action action)
         {
             Assert.Argument.NotNull(action);
             _action = action;
@@ -22,6 +22,6 @@ namespace Composable.SystemCE
         }
 
         ///<summary>Constructs an object that will call <param name="action"> when disposed.</param></summary>
-        public static IDisposable Create(Action action) => new Disposable(action);
+        public static IDisposable Create(Action action) => new DisposableCE(action);
     }
 }

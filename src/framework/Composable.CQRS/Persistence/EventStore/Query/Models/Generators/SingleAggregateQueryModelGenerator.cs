@@ -3,7 +3,7 @@ using System.Linq;
 using Composable.Functional;
 using Composable.Messaging.Events;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Query.Models.Generators

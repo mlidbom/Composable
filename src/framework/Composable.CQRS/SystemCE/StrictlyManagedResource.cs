@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Composable.Logging;
 using Composable.SystemCE.Configuration;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 
 namespace Composable.SystemCE
 {

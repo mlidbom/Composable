@@ -57,7 +57,7 @@ namespace Composable.Persistence.DocumentDb
                     return;
                 }
                 IsCommitting = true;
-                using(Disposable.Create(() => IsCommitting = false))//Reset IsCommitting to false once we are done committing.
+                using(DisposableCE.Create(() => IsCommitting = false))//Reset IsCommitting to false once we are done committing.
                 {
                     if(ScheduledForAdding)
                     {

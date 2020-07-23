@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.SystemCE.Collections;
+using Composable.SystemCE.CollectionsCE;
 
 namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {

@@ -40,7 +40,7 @@ namespace Composable.Testing.Databases
             static int IdFromName(string name)
             {
                 var nameIndex = name.ReplaceInvariant(PoolDatabaseNamePrefix, "");
-                return IntEx.ParseInvariant(nameIndex);
+                return IntCE.ParseInvariant(nameIndex);
             }
 
             internal Database Release()

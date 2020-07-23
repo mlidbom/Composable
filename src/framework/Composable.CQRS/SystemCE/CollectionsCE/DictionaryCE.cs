@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using Composable.Contracts;
 
-namespace Composable.SystemCE.Collections
+namespace Composable.SystemCE.CollectionsCE
 {
     ///<summary>Helpers for working with dictionaries</summary>
-    static class DictionaryExtensions
+    static class DictionaryCE
     {
         /// <summary>
         /// If <paramref name="key"/> exists in me <paramref name="me"/> it is returned.

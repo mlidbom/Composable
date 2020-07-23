@@ -5,7 +5,7 @@ using System.Globalization;
 namespace Composable.SystemCE
 {
     /// <summary>A collection of extensions to work with timespans</summary>
-    static class TimeSpanEx
+    static partial class TimeSpanCE
     {
         /// <summary>Returns a TimeSpan <paramref name="this"/> milliseconds long.</summary>
         public static TimeSpan Milliseconds(this int @this) => TimeSpan.FromMilliseconds(@this);

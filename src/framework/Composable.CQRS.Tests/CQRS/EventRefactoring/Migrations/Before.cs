@@ -4,7 +4,7 @@ using System.Linq;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {

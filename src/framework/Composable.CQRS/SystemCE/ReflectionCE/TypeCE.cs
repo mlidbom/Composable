@@ -4,10 +4,10 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.SystemCE.Linq;
 
-namespace Composable.SystemCE.Reflection
+namespace Composable.SystemCE.ReflectionCE
 {
     /// <summary>A collection of extensions to work with <see cref="Type"/></summary>
-    static class TypeExtensions
+    static class TypeCE
     {
         /// ///<returns>true if <paramref name="me"/> implements the interface: <typeparamref name="TImplemented"/>. By definition true if <paramref name="me"/> == <typeparamref name="TImplemented"/>.</returns>
         public static bool Implements<TImplemented>(this Type me)
@@ -119,7 +119,7 @@ namespace Composable.SystemCE.Reflection
             return name;
         }
 
-        ///<summary>Thrown if there is more than one type that matches the string passed to <see cref="TypeExtensions.AsType"/></summary>
+        ///<summary>Thrown if there is more than one type that matches the string passed to <see cref="TypeCE.AsType"/></summary>
         public class MultipleMatchingTypesException : Exception
         {
             internal MultipleMatchingTypesException(string typeName): base(typeName)
@@ -127,7 +127,7 @@ namespace Composable.SystemCE.Reflection
             }
         }
 
-        ///<summary>Thrown if there is no type that matches the string passed to <see cref="TypeExtensions.AsType"/> is found</summary>
+        ///<summary>Thrown if there is no type that matches the string passed to <see cref="TypeCE.AsType"/> is found</summary>
         public class FailedToFindTypeException : Exception
         {
             internal FailedToFindTypeException(string typeName): base(typeName)

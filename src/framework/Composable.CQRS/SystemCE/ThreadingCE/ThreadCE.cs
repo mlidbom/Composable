@@ -2,7 +2,7 @@
 
 namespace Composable.SystemCE.ThreadingCE
 {
-    static class ThreadExtensions
+    static class ThreadCE
     {
         public static void InterruptAndJoin(this Thread @this)
         {

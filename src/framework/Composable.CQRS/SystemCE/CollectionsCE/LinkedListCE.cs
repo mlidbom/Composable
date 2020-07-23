@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 
-namespace Composable.SystemCE.Collections
+namespace Composable.SystemCE.CollectionsCE
 {
     ///<summary>Adds some convenience features to linked list</summary>
-    static class LinkedListExtensions
+    static class LinkedListCE
     {
         ///<summary>Enumerates this and all following nodes.</summary>
         static IEnumerable<LinkedListNode<T>> NodesFrom<T>(this LinkedListNode<T> @this)

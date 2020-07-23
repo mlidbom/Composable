@@ -109,7 +109,7 @@ namespace Composable.Messaging
                     /// <summary>Implements <see cref="ICreateMyOwnResultQuery{TResult}"/> by calling the default constructor on <typeparamref name="TResult"/></summary>
                     public class NewableResultLink<TResult> : Query<TResult>, ICreateMyOwnResultQuery<TResult>
                     {
-                        static readonly Func<TResult> Constructor = SystemCE.Reflection.Constructor.For<TResult>.DefaultConstructor.Instance;
+                        static readonly Func<TResult> Constructor = SystemCE.ReflectionCE.Constructor.For<TResult>.DefaultConstructor.Instance;
                         public TResult CreateResult() => Constructor();
                     }
                 }

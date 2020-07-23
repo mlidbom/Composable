@@ -5,7 +5,7 @@ using System.Linq;
 namespace Composable.SystemCE
 {
     ///<summary>Methods like Sum,Min,Average etc for IEnumerable&lt;TimeSpan&gt;</summary>
-    static class TimeSpanEnumerableExtensions
+    static partial class TimeSpanCE
     {
         ///<summary>Returns the smallest timespans</summary>
         public static TimeSpan Min(this IEnumerable<TimeSpan> @this)

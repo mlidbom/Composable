@@ -2,7 +2,7 @@
 using System.Reflection;
 using Composable.SystemCE;
 using Composable.SystemCE.Diagnostics;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;

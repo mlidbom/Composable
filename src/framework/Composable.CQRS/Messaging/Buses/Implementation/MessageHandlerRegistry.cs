@@ -5,7 +5,7 @@ using System.Linq;
 using Composable.Messaging.Events;
 using Composable.Refactoring.Naming;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 using NUnit.Framework;
 
 namespace Composable.Messaging.Buses.Implementation

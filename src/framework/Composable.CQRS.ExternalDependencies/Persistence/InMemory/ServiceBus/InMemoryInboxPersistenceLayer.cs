@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Messaging.Buses.Implementation;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
-using Composable.SystemCE.Transactions;
+using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Persistence.InMemory.ServiceBus
 {

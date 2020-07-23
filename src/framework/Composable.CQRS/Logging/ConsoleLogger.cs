@@ -6,7 +6,7 @@ using System.Reflection;
 using Composable.Persistence.EventStore;
 using Composable.Serialization;
 using Composable.SystemCE;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;

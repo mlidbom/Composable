@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Persistence.DocumentDb;
-using Composable.SystemCE.Collections;
+using Composable.SystemCE.CollectionsCE;
 using Composable.SystemCE.Linq;
 using DocumentRow = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.WriteRow;
 namespace Composable.Persistence.InMemory.DocumentDB

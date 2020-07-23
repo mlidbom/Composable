@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Composable.Refactoring.Naming;
-using Composable.SystemCE.Collections;
+using Composable.SystemCE.CollectionsCE;
 using Composable.SystemCE.Linq;
 
 namespace Composable.Messaging.Buses.Implementation

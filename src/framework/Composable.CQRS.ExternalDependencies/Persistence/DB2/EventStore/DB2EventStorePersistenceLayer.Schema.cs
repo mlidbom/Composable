@@ -2,7 +2,7 @@
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.DB2.SystemExtensions;
-using Composable.SystemCE.Transactions;
+using Composable.SystemCE.TransactionsCE;
 using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
 using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 

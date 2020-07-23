@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Composable.GenericAbstractions;
 
-namespace Composable.SystemCE.ThreadingCE.Tasks
+namespace Composable.SystemCE.ThreadingCE.TasksCE
 {
     class AsyncTaskCompletionSource<TResult> : TaskCompletionSource<TResult>
     {

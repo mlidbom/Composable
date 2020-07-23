@@ -10,7 +10,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.SystemCE;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Transactions;
+using Composable.SystemCE.TransactionsCE;
 using Composable.Testing;
 using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
 using FluentAssertions;

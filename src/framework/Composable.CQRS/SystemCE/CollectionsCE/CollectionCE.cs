@@ -4,10 +4,10 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.SystemCE.Linq;
 
-namespace Composable.SystemCE.Collections
+namespace Composable.SystemCE.CollectionsCE
 {
     ///<summary>Extensions on <see cref="ICollection{T}"/></summary>
-    static class CollectionExtensions
+    static class CollectionCE
     {
         ///<summary>Remove entries matching the condition from the collection.</summary>
         public static IReadOnlyList<T> RemoveWhere<T>(this ICollection<T> me, Func<T, bool> condition)

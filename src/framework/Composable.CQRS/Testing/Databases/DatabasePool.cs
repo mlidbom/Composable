@@ -9,11 +9,10 @@ using Composable.Logging;
 using Composable.Persistence;
 using Composable.SystemCE;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
-using Composable.SystemCE.Transactions;
-using TaskExtensions = Composable.SystemCE.ThreadingCE.TaskExtensions;
+using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Testing.Databases
 {
@@ -187,7 +186,7 @@ namespace Composable.Testing.Databases
 
             Task[] tasks = 1.Through(NumberOfDatabases)
                             .Select(index => machineWide.Insert())
-                            .Select(db => TaskExtensions.StartLongRunning(() => EnsureDatabaseExistsAndIsEmpty(db)))
+                            .Select(db => TaskCE.StartLongRunning(() => EnsureDatabaseExistsAndIsEmpty(db)))
                             .ToArray();
 
             Task.WaitAll(tasks);

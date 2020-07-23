@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Composable.Persistence.EventStore.PersistenceLayer;
-using Composable.SystemCE.Collections;
+using Composable.SystemCE.CollectionsCE;
 using Composable.SystemCE.Linq;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
-using Composable.SystemCE.Transactions;
+using Composable.SystemCE.TransactionsCE;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.InMemory.EventStore

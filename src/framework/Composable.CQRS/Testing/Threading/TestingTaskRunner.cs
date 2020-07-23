@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Composable.SystemCE.Linq;
-using TaskExtensions = Composable.SystemCE.ThreadingCE.TaskExtensions;
+using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Testing.Threading
 {
@@ -28,7 +28,7 @@ namespace Composable.Testing.Threading
         public TestingTaskRunner Start(IEnumerable<Action> tasks) => Start(tasks.ToArray());
         public TestingTaskRunner Start(params Action[] tasks)
         {
-            tasks.ForEach(task => _monitoredTasks.Add(TaskExtensions.StartLongRunning(task)));
+            tasks.ForEach(task => _monitoredTasks.Add(TaskCE.StartLongRunning(task)));
             return this;
         }
 

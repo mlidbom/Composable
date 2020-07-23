@@ -7,7 +7,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
 using Composable.SystemCE.Linq;
 using Composable.SystemCE.Reactive;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Persistence.EventStore

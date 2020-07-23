@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.SystemCE;
-using Composable.SystemCE.Collections;
+using Composable.SystemCE.CollectionsCE;
 using Composable.SystemCE.Linq;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
-using Composable.SystemCE.Transactions;
+using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Messaging.Buses.Implementation
 {

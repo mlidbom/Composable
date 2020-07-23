@@ -8,7 +8,7 @@ using Composable.Serialization;
 using Composable.SystemCE;
 using Composable.SystemCE.Diagnostics;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 
 // ReSharper disable UnusedMember.Global
 

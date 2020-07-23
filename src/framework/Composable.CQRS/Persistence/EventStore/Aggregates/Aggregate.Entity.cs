@@ -2,7 +2,7 @@
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Aggregates

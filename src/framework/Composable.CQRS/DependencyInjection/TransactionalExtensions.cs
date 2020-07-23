@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.SystemCE.ThreadingCE;
-using Composable.SystemCE.Transactions;
+using Composable.SystemCE.TransactionsCE;
 using JetBrains.Annotations;
 
 namespace Composable.DependencyInjection

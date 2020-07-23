@@ -6,7 +6,7 @@ using System.Text;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.Refactoring.Naming

@@ -14,7 +14,7 @@ using Composable.SystemCE;
 using Composable.SystemCE.Diagnostics;
 using Composable.SystemCE.Linq;
 using Composable.SystemCE.ThreadingCE;
-using Composable.SystemCE.Transactions;
+using Composable.SystemCE.TransactionsCE;
 using Composable.Testing;
 using Composable.Testing.Performance;
 using Composable.Testing.Threading;

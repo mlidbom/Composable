@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Composable.SystemCE.Reflection
+namespace Composable.SystemCE.ReflectionCE
 {
     static partial class Constructor
     {

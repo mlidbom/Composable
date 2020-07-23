@@ -1,7 +1,7 @@
 ﻿using Composable.Contracts;
 using Composable.Messaging.Events;
 using Composable.Persistence.EventStore.Aggregates;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {

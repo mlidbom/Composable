@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using System.Reflection;
 
-namespace Composable.SystemCE.Reflection
+namespace Composable.SystemCE.ReflectionCE
 {
-    static class AssemblyExtensions
+    static class AssemblyCE
     {
         internal static bool IsKnownThirdPartyLibrary(this Assembly @this)
         {

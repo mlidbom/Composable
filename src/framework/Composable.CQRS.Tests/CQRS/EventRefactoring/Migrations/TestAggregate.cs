@@ -5,7 +5,7 @@ using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 using JetBrains.Annotations;
 // ReSharper disable ClassNeverInstantiated.Global
 

@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Composable.Contracts;
 
-namespace Composable.SystemCE.Reflection
+namespace Composable.SystemCE.ReflectionCE
 {
     ///<summary>Provides high performance access to object fields and properties.</summary>
     static class MemberAccessorHelper

@@ -11,7 +11,7 @@ using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Persistence.MsSql.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.SystemCE;
-using Composable.SystemCE.Collections;
+using Composable.SystemCE.CollectionsCE;
 using Composable.SystemCE.Linq;
 using FluentAssertions;
 using Newtonsoft.Json;

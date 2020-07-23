@@ -4,7 +4,7 @@ using Composable.DependencyInjection;
 
 // ReSharper disable StaticMemberInGenericType
 
-namespace Composable.SystemCE.Reflection
+namespace Composable.SystemCE.ReflectionCE
 {
     class TypeIndex<TInheritor> where TInheritor : TypeIndex<TInheritor>
     {

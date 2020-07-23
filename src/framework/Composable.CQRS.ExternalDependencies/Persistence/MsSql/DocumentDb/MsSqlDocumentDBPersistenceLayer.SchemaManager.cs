@@ -1,5 +1,5 @@
 ﻿using Composable.Persistence.MsSql.SystemExtensions;
-using Composable.SystemCE.Transactions;
+using Composable.SystemCE.TransactionsCE;
 using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
 namespace Composable.Persistence.MsSql.DocumentDb

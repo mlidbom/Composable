@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Messaging.Buses.Implementation;
-using Composable.SystemCE.Collections;
+using Composable.SystemCE.CollectionsCE;
 using Composable.SystemCE.Linq;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
-using Composable.SystemCE.Transactions;
+using Composable.SystemCE.TransactionsCE;
 using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageWithReceivers;
 
 namespace Composable.Persistence.InMemory.ServiceBus

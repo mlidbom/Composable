@@ -5,7 +5,7 @@ using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Transactions;
+using Composable.SystemCE.TransactionsCE;
 using Composable.Testing;
 using FluentAssertions;
 using NCrunch.Framework;

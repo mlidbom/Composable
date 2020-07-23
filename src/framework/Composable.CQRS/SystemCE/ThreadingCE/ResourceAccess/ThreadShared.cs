@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using Composable.SystemCE.Reflection;
+using Composable.SystemCE.ReflectionCE;
 using JetBrains.Annotations;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess

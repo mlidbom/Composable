@@ -1,6 +1,6 @@
 using System.Threading;
 
-namespace Composable.SystemExtensions.Threading
+namespace Composable.SystemCE.ThreadingCE
 {
     ///<summary>Ensures that guarded components are used within one thread only.</summary>
     class SingleThreadUseGuard : UsageGuard

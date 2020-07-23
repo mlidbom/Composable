@@ -2,7 +2,7 @@
 using System.Threading;
 using Composable.Contracts;
 
-namespace Composable.SystemExtensions.Threading
+namespace Composable.SystemCE.ThreadingCE
 {
     ///<summary>Thrown if the <see cref="SingleThreadUseGuard"/> detects a thread change.</summary>
     class MultiThreadedUseException : InvalidOperationException

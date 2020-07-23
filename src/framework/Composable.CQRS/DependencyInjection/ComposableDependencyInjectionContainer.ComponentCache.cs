@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.System.Linq;
-using Composable.SystemExtensions;
+using Composable.SystemCE;
 
 namespace Composable.DependencyInjection
 {

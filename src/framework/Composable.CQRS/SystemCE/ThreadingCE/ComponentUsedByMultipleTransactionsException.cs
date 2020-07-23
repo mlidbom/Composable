@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.SystemExtensions.Threading
+namespace Composable.SystemCE.ThreadingCE
 {
     public class ComponentUsedByMultipleTransactionsException : Exception
     {

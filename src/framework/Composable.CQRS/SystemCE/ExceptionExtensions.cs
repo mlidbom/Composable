@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Contracts;
 
-namespace Composable.SystemExtensions
+namespace Composable.SystemCE
 {
     ///<summary>Extensions for working with extensions</summary>
     static class ExceptionExtensions

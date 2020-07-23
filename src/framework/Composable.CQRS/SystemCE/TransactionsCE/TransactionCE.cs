@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Transactions;
 
-namespace Composable.SystemExtensions.TransactionsCE
+namespace Composable.SystemCE.TransactionsCE
 {
     static class TransactionCE
     {

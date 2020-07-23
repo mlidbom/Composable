@@ -1,5 +1,5 @@
 ﻿using System;
-using Composable.SystemExtensions.Threading;
+using Composable.SystemCE.ThreadingCE;
 using NUnit.Framework;
 
 namespace Composable.Tests.SystemExtensions.Threading

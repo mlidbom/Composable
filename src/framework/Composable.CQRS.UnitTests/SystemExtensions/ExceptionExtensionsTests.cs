@@ -1,6 +1,6 @@
 ﻿using System;
 using Composable.System.Linq;
-using Composable.SystemExtensions;
+using Composable.SystemCE;
 using FluentAssertions;
 using NUnit.Framework;
 

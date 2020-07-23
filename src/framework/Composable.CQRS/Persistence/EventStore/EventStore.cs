@@ -11,7 +11,7 @@ using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System;
 using Composable.System.Linq;
-using Composable.SystemExtensions.Threading;
+using Composable.SystemCE.ThreadingCE;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
 
 namespace Composable.Persistence.EventStore

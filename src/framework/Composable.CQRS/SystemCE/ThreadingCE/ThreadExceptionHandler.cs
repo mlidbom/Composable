@@ -2,7 +2,7 @@
 using System.Threading;
 using Composable.Logging;
 
-namespace Composable.SystemExtensions.Threading
+namespace Composable.SystemCE.ThreadingCE
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     class ThreadExceptionHandler

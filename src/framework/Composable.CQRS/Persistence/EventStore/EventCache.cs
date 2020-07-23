@@ -6,8 +6,7 @@ using Composable.Contracts;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.System;
 using Composable.System.Threading.ResourceAccess;
-using Composable.SystemExtensions.TransactionsCE;
-
+using Composable.SystemCE.TransactionsCE;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Composable.Persistence.EventStore

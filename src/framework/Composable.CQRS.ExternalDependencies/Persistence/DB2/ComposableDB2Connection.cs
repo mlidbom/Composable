@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.System.Linq;
-using Composable.SystemExtensions.TransactionsCE;
+using Composable.SystemCE.TransactionsCE;
 using IBM.Data.DB2.Core;
 
 namespace Composable.Persistence.DB2

@@ -7,9 +7,9 @@
       <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-65</Value>
       <Value>System\Threading\ResourceAccess\ResourceGuardExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-101</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer..cs:framework\Composable.CQRS\Composable.CQRS.csproj-62</Value>
-      <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-43</Value>
+      <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-42</Value>
       <Value>Messaging\Buses\ServerEndpointBuilder.cs:framework\Composable.CQRS\Composable.CQRS.csproj-39</Value>
-      <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-36</Value>
+      <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-35</Value>
       <Value>DependencyInjection\ComponentRegistrationExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-9</Value>
       <Value>DependencyInjection\ComponentRegistrationExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-16</Value>
       <Value>DependencyInjection\ComponentRegistrationExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-17</Value>
@@ -111,7 +111,7 @@
       <Value>TestWiringHelper.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-51</Value>
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-18</Value>
       <Value>Logging\ExceptionLogger.cs:framework\Composable.CQRS\Composable.CQRS.csproj-25</Value>
-      <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-58</Value>
+      <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-57</Value>
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-9</Value>
       <Value>System\Threading\TaskRunner.cs:framework\Composable.CQRS\Composable.CQRS.csproj-25</Value>
       <Value>Messaging\ServiceBusSpecification\Given_a_backend_endpoint_with_a_command_event_and_query_handler\_Fixture.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-100</Value>

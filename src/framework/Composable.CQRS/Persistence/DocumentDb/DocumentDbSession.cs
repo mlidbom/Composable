@@ -7,7 +7,7 @@ using Composable.Contracts;
 using Composable.DDD;
 using Composable.Logging;
 using Composable.System.Linq;
-using Composable.SystemExtensions.Threading;
+using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Persistence.DocumentDb
 {

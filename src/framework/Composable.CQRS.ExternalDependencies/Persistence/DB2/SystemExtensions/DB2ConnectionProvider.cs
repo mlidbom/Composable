@@ -10,7 +10,7 @@ using Composable.System.Diagnostics;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
-using Composable.SystemExtensions.TransactionsCE;
+using Composable.SystemCE.TransactionsCE;
 using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Composable.Persistence.DB2.SystemExtensions

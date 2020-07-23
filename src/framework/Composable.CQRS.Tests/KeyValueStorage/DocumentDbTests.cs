@@ -7,11 +7,11 @@ using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.Persistence.DocumentDb;
 using Composable.System.Linq;
-using Composable.SystemExtensions.Threading;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using NUnit.Framework;
 using Composable.System;
+using Composable.SystemCE.ThreadingCE;
 using Composable.Testing;
 using JetBrains.Annotations;
 

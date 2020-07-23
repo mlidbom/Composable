@@ -9,7 +9,7 @@ using Composable.Serialization;
 using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
-using Composable.SystemExtensions.TransactionsCE;
+using Composable.SystemCE.TransactionsCE;
 using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation

@@ -8,7 +8,6 @@ using Composable.Logging;
 using Composable.Messaging.Buses.Implementation;
 using Composable.System.Linq;
 using Composable.System.Threading;
-using Composable.SystemExtensions;
 
 namespace Composable.Messaging.Buses
 {

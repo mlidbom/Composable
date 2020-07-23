@@ -7,7 +7,7 @@ using Composable.System;
 using Composable.System.Collections;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
-using Composable.SystemExtensions.TransactionsCE;
+using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Persistence.PgSql.SystemExtensions
 {

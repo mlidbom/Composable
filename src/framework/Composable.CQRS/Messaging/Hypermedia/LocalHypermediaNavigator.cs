@@ -1,5 +1,5 @@
 ﻿using Composable.Messaging.Buses.Implementation;
-using Composable.SystemExtensions.Threading;
+using Composable.SystemCE.ThreadingCE;
 using NotImplementedException = System.NotImplementedException;
 
 namespace Composable.Messaging.Hypermedia

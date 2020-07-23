@@ -8,7 +8,7 @@ using Composable.Messaging.Buses.Implementation;
 using Composable.System.Linq;
 using Composable.System.Reactive;
 using Composable.System.Reflection;
-using Composable.SystemExtensions.Threading;
+using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Persistence.EventStore
 {

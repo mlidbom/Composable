@@ -5,7 +5,7 @@ using System.Linq;
 using Composable.DDD;
 using Composable.Functional;
 using Composable.Persistence.DocumentDb;
-using Composable.SystemExtensions.Threading;
+using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Persistence.EventStore.Query.Models.Generators
 {

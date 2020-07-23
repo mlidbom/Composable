@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Messaging.Hypermedia;
-using Composable.SystemExtensions.Threading;
+using Composable.SystemCE.ThreadingCE;
 using JetBrains.Annotations;
 
 namespace Composable.Messaging.Buses

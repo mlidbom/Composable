@@ -12,7 +12,7 @@ using Composable.Serialization;
 using Composable.System;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
-using Composable.SystemExtensions.Threading;
+using Composable.SystemCE.ThreadingCE;
 using NetMQ;
 using NetMQ.Sockets;
 

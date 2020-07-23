@@ -1,4 +1,4 @@
-﻿namespace Composable.SystemExtensions.Threading {
+﻿namespace Composable.SystemCE.ThreadingCE {
     class CombinationUsageGuard : ISingleContextUseGuard
     {
         readonly ISingleContextUseGuard[] _usageGuards;

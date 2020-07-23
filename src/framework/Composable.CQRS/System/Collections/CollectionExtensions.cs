@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using System.Linq;
 using Composable.Contracts;
 using Composable.System.Linq;
 
-namespace Composable.System.Collections.Collections
+namespace Composable.System.Collections
 {
     ///<summary>Extensions on <see cref="ICollection{T}"/></summary>
     static class CollectionExtensions

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.EventStore.PersistenceLayer;
-using Composable.System.Collections.Collections;
+using Composable.System.Collections;
 using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore.Refactoring.Migrations

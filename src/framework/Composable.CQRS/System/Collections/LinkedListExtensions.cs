@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using System.Linq;
 using Composable.Contracts;
 
-namespace Composable.System.Collections.Collections
+namespace Composable.System.Collections
 {
     ///<summary>Adds some convenience features to linked list</summary>
     static class LinkedListExtensions

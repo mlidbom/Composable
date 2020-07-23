@@ -6,7 +6,7 @@ using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.System;
-using Composable.System.Collections.Collections;
+using Composable.System.Collections;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Threading.Tasks;

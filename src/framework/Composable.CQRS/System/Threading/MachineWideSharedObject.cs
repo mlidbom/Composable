@@ -5,7 +5,7 @@ using System.IO.MemoryMappedFiles;
 using Composable.Contracts;
 using Composable.Persistence;
 using Composable.Serialization;
-using Composable.System.Collections.Collections;
+using Composable.System.Collections;
 using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.System.Threading

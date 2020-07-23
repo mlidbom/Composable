@@ -5,7 +5,7 @@ using IBM.Data.DB2.Core;
 using System.Transactions;
 using Composable.Logging;
 using Composable.System;
-using Composable.System.Collections.Collections;
+using Composable.System.Collections;
 using Composable.System.Diagnostics;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;

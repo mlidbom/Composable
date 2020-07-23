@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Messaging.Buses.Implementation;
-using Composable.System.Collections.Collections;
+using Composable.System.Collections;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;

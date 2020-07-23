@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Transactions;
 using Composable.System;
-using Composable.System.Collections.Collections;
+using Composable.System.Collections;
 using Composable.System.Threading.ResourceAccess;
 using Composable.SystemExtensions.TransactionsCE;
 

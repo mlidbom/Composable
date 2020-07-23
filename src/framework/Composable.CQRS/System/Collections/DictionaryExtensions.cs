@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-
 using Composable.Contracts;
 
-namespace Composable.System.Collections.Collections
+namespace Composable.System.Collections
 {
     ///<summary>Helpers for working with dictionaries</summary>
     static class DictionaryExtensions

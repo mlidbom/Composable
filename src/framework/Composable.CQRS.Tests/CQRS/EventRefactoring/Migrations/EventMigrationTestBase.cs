@@ -10,12 +10,12 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Persistence.MsSql.EventStore;
 using Composable.Refactoring.Naming;
-using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Composable.System;
+using Composable.System.Collections;
 using Composable.Testing;
 using JetBrains.Annotations;
 

@@ -34,18 +34,9 @@ namespace Composable.Messaging.Buses.Implementation
 
                 currentEventSubscribers ??= new List<Action<MessageTypes.IEvent>>();
 
-                _eventHandlers = new Dictionary<Type, IReadOnlyList<Action<MessageTypes.IEvent>>>(_eventHandlers)
-                                 {
-                                     [typeof(TEvent)] = new List<Action<MessageTypes.IEvent>>(currentEventSubscribers)
-                                                        {
-                                                            @event => handler((TEvent)@event)
-                                                        }
-                                 };
+                _eventHandlers = _eventHandlers.AddToCopy(typeof(TEvent), currentEventSubscribers.AddToCopy(@event => handler((TEvent)@event)));
 
-                _eventHandlerRegistrations = new List<EventHandlerRegistration>(_eventHandlerRegistrations)
-                                             {
-                                                 new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler))
-                                             };
+                _eventHandlerRegistrations = _eventHandlerRegistrations.AddToCopy(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
                 return this;
             }
         }
@@ -61,10 +52,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             lock(_lock)
             {
-                _commandHandlers = new Dictionary<Type, Action<object>>(_commandHandlers)
-                                   {
-                                       {typeof(TCommand), command => handler((TCommand)command)}
-                                   };
+                _commandHandlers = _commandHandlers.AddToCopy(typeof(TCommand), command => handler((TCommand)command));
                 return this;
             }
         }
@@ -74,10 +62,7 @@ namespace Composable.Messaging.Buses.Implementation
             MessageInspector.AssertValid<TCommand>();
             lock(_lock)
             {
-                _commandHandlersReturningResults = new Dictionary<Type, HandlerWithResultRegistration>(_commandHandlersReturningResults)
-                                                   {
-                                                       {typeof(TCommand), new CommandHandlerWithResultRegistration<TCommand, TResult>(handler)}
-                                                   };
+                _commandHandlersReturningResults = _commandHandlersReturningResults.AddToCopy(typeof(TCommand), new CommandHandlerWithResultRegistration<TCommand, TResult>(handler));
                 return this;
             }
         }
@@ -87,10 +72,7 @@ namespace Composable.Messaging.Buses.Implementation
             MessageInspector.AssertValid<TQuery>();
             lock(_lock)
             {
-                _queryHandlers = new Dictionary<Type, HandlerWithResultRegistration>(_queryHandlers)
-                                 {
-                                     {typeof(TQuery), new QueryHandlerRegistration<TQuery, TResult>(handler)}
-                                 };
+                _queryHandlers = _queryHandlers.AddToCopy(typeof(TQuery), new QueryHandlerRegistration<TQuery, TResult>(handler));
                 return this;
             }
         }

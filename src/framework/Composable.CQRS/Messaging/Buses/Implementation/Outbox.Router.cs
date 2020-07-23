@@ -49,16 +49,12 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     if(eventSubscribers.Count > 0)
                     {
-                        _eventSubscriberRoutes = new List<(Type EventType, IInboxConnection Connection)>(_eventSubscriberRoutes)
-                           .Mutate(@this => @this.AddRange(eventSubscribers));
+                        _eventSubscriberRoutes = _eventSubscriberRoutes.AddRangeToCopy(eventSubscribers);
                         _eventSubscriberRouteCache = new Dictionary<Type, IReadOnlyList<IInboxConnection>>();
                     }
 
-                    _commandHandlerRoutes = new Dictionary<Type, IInboxConnection>(_commandHandlerRoutes)
-                       .Mutate(@this => @this.AddRange(commandHandlerRoutes));
-
-                    _queryHandlerRoutes = new Dictionary<Type, IInboxConnection>(_queryHandlerRoutes)
-                       .Mutate(@this => @this.AddRange(queryHandlerRoutes));
+                    _commandHandlerRoutes = _commandHandlerRoutes.AddRangeToCopy(commandHandlerRoutes);
+                    _queryHandlerRoutes = _queryHandlerRoutes.AddRangeToCopy(queryHandlerRoutes);
                 }
             }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.DependencyInjection;
+using Composable.SystemCE.CollectionsCE.GenericCE;
 
 // ReSharper disable StaticMemberInGenericType
 
@@ -24,11 +25,8 @@ namespace Composable.SystemCE.ReflectionCE
                 if(_map.TryGetValue(type, out var value2))
                     return value2;
 
-                var newBackMap = new Type[_backMap.Length + 1];
-                Array.Copy(_backMap, newBackMap, _backMap.Length);
-                newBackMap[^1] = type;
-                _backMap = newBackMap;
-                _map = new Dictionary<Type, int>(_map) {{type, ServiceCount++}};
+                _backMap = _backMap.AddToCopy(type);
+                _map = _map.AddToCopy(type, ServiceCount++);
                 return ServiceCount - 1;
             }
         }

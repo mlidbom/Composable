@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Composable.System.Threading;
+using Composable.SystemCE.Reflection.Threading;
 using NUnit.Framework;
 
 namespace Composable.Tests.System.Threading

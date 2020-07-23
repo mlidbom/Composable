@@ -4,12 +4,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
-using Composable.System;
-using Composable.System.Collections;
-using Composable.System.Linq;
-using Composable.System.Threading;
-using Composable.System.Threading.ResourceAccess;
-using Composable.System.Transactions;
+using Composable.SystemCE;
+using Composable.SystemCE.Collections;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.Transactions;
 
 namespace Composable.Messaging.Buses.Implementation
 {

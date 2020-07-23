@@ -4,10 +4,10 @@ using System.Linq;
 using Oracle.ManagedDataAccess.Client;
 using System.Threading.Tasks;
 using Composable.Logging;
-using Composable.System;
-using Composable.System.Linq;
-using Composable.System.Reflection;
-using Composable.System.Threading;
+using Composable.SystemCE;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection.Threading;
+using ObjectExtensions = Composable.SystemCE.Linq.ObjectExtensions;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {

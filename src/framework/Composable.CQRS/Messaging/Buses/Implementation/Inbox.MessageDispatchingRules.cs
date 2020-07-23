@@ -1,4 +1,4 @@
-﻿using Composable.System.Linq;
+﻿using Composable.SystemCE.Linq;
 
 namespace Composable.Messaging.Buses.Implementation
 {

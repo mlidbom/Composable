@@ -2,8 +2,8 @@
 using System.Linq;
 using Composable.Functional;
 using Composable.Messaging.Events;
-using Composable.System.Linq;
-using Composable.System.Reflection;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection;
 using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Query.Models.Generators

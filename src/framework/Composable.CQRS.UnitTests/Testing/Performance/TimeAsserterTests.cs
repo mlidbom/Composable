@@ -1,7 +1,7 @@
-﻿using Composable.Testing.Performance;
+﻿using Composable.SystemCE;
+using Composable.Testing.Performance;
 using FluentAssertions;
 using NUnit.Framework;
-using Composable.System;
 using Composable.Testing;
 
 namespace Composable.Tests.Testing.Performance

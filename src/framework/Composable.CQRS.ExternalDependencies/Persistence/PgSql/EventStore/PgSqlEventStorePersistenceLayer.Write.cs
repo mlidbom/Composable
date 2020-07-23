@@ -7,7 +7,7 @@ using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.PgSql.SystemExtensions;
-using Composable.System;
+using Composable.SystemCE;
 using Npgsql;
 using NpgsqlTypes;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;

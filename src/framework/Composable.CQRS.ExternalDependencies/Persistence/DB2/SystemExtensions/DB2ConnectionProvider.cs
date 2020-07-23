@@ -4,12 +4,10 @@ using System.Threading.Tasks;
 using IBM.Data.DB2.Core;
 using System.Transactions;
 using Composable.Logging;
-using Composable.System;
-using Composable.System.Collections;
-using Composable.System.Diagnostics;
-using Composable.System.Threading;
-using Composable.System.Threading.ResourceAccess;
-using Composable.System.Transactions;
+using Composable.SystemCE;
+using Composable.SystemCE.Collections;
+using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 using IsolationLevel = System.Data.IsolationLevel;
 

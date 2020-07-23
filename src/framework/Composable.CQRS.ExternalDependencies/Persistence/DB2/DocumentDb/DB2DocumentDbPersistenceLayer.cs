@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DB2.SystemExtensions;
-using Composable.System;
+using Composable.SystemCE;
 using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
 namespace Composable.Persistence.DB2.DocumentDb

@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.MsSql.SystemExtensions;
-using Composable.System;
+using Composable.SystemCE;
 using Composable.Testing.Databases;
 
 namespace Composable.Persistence.MsSql.Testing.Databases

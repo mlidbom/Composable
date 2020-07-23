@@ -7,12 +7,12 @@ using Composable.GenericAbstractions.Time;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
-using Composable.System.Linq;
+using Composable.SystemCE;
+using Composable.SystemCE.Linq;
 using Composable.Testing.Performance;
 using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
 using NCrunch.Framework;
 using NUnit.Framework;
-using Composable.System;
 using Composable.Testing;
 using JetBrains.Annotations;
 

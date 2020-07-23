@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
-using Composable.System.Threading;
+using Composable.SystemCE.Reflection.Threading;
 
 namespace Composable.Messaging.Buses.Implementation
 {

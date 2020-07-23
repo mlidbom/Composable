@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.Serialization;
-using Composable.System;
-using Composable.System.Diagnostics;
+using Composable.SystemCE;
+using Composable.SystemCE.Diagnostics;
 using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
@@ -16,8 +16,6 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Serialization.BinarySerializeds
 {
-    using Composable.System;
-
     [TestFixture, Performance, Serial] public class Performance_tests
     {
         HasAllPropertyTypes _instance;

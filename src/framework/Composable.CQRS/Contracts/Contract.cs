@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
-using Composable.System;
+using Composable.SystemCE;
 using JetBrains.Annotations;
 using NotNull = global::System.Diagnostics.CodeAnalysis.NotNullAttribute;
 // ReSharper disable UnusedParameter.Global

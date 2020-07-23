@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Transactions;
 using Composable.Messaging.Buses.Implementation;
-using Composable.System.Linq;
+using Composable.SystemCE.Linq;
 
 namespace Composable.Messaging
 {

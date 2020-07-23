@@ -6,7 +6,7 @@ using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
-using Composable.System;
+using Composable.SystemCE;
 using MySql.Data.MySqlClient;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
 using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;

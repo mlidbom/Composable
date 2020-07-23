@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.MySql.SystemExtensions;
-using Composable.System;
+using Composable.SystemCE;
 
 namespace Composable.Persistence.MySql.DocumentDb
 {

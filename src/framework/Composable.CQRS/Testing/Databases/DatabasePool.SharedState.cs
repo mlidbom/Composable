@@ -4,8 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Contracts;
 using Composable.Serialization;
-using Composable.System;
-using Composable.System.Linq;
+using Composable.SystemCE;
+using Composable.SystemCE.Linq;
 using JetBrains.Annotations;
 
 namespace Composable.Testing.Databases

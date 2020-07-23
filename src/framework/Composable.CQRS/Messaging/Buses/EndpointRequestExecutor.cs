@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Messaging.Hypermedia;
-using Composable.System.Threading;
+using Composable.SystemCE.Reflection.Threading;
 
 namespace Composable.Messaging.Buses
 {

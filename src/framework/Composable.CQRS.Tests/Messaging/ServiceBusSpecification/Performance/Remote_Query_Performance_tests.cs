@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Hypermedia;
-using Composable.System.Diagnostics;
-using Composable.System.Linq;
+using Composable.SystemCE;
+using Composable.SystemCE.Diagnostics;
+using Composable.SystemCE.Linq;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
-using Composable.System;
 using Composable.Testing;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance

@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using Composable.Serialization;
-using Composable.System.Reflection;
+using Composable.SystemCE.Reflection;
 using Newtonsoft.Json;
 
 namespace Composable.DDD

@@ -8,10 +8,7 @@ using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
 using Composable.Persistence.DB2.SystemExtensions;
-using Composable.System;
-using Composable.System.Diagnostics;
-using Composable.System.Linq;
-using Composable.System.Threading.ResourceAccess;
+using Composable.SystemCE;
 using Composable.Testing.Databases;
 
 namespace Composable.Persistence.DB2.Testing.Databases

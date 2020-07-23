@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Composable.System.Linq;
 using Composable.SystemCE;
+using Composable.SystemCE.Linq;
 
 namespace Composable.DependencyInjection
 {

@@ -10,7 +10,7 @@ using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.MsSql.Messaging.Buses;
-using Composable.System.Diagnostics;
+using Composable.SystemCE.Diagnostics;
 using Composable.Testing.Performance;
 using FluentAssertions.Extensions;
 using NUnit.Framework;

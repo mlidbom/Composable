@@ -1,8 +1,8 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
+using Composable.SystemCE;
 using FluentAssertions;
 using NUnit.Framework;
-using Composable.System;
 
 namespace Composable.Tests.GenericAbstractions.Time
 {

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Npgsql;
 using System.Transactions;
-using Composable.System;
-using Composable.System.Collections;
-using Composable.System.Threading;
-using Composable.System.Threading.ResourceAccess;
+using Composable.SystemCE;
+using Composable.SystemCE.Collections;
+using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Persistence.PgSql.SystemExtensions

@@ -2,7 +2,7 @@
 using System.Transactions;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.System.Transactions;
+using Composable.SystemCE.Transactions;
 using Composable.Testing;
 using Composable.Testing.Threading;
 using FluentAssertions;

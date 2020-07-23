@@ -8,7 +8,7 @@ using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MsSql.SystemExtensions;
-using Composable.System;
+using Composable.SystemCE;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
 using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
 using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;

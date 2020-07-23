@@ -4,8 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Persistence.EventStore.PersistenceLayer;
-using Composable.System;
-using Composable.System.Threading.ResourceAccess;
+using Composable.SystemCE;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 using Microsoft.Extensions.Caching.Memory;
 

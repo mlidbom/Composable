@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.System.Linq;
-using Composable.System.Reflection;
-using Composable.System.Threading.ResourceAccess;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
 
 namespace Composable.Refactoring.Naming
 {

@@ -2,11 +2,12 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Composable.System.Threading.ResourceAccess;
+using Composable.SystemCE;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
 using FluentAssertions;
 using NUnit.Framework;
 using Assert = NUnit.Framework.Assert;
-using Composable.System;
+
 // ReSharper disable AccessToDisposedClosure
 
 namespace Composable.Tests.System.Threading.ResourceAccess

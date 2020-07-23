@@ -11,12 +11,12 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.Persistence.MsSql.DependencyInjection;
 using Composable.Persistence.MsSql.Messaging.Buses;
-using Composable.System.Linq;
+using Composable.SystemCE;
+using Composable.SystemCE.Linq;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
-using Composable.System;
 using Composable.Testing;
 
 // ReSharper disable ClassNeverInstantiated.Global

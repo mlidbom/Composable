@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Composable.System.Linq;
-using TaskExtensions = Composable.System.Threading.TaskExtensions;
+using Composable.SystemCE.Linq;
+using TaskExtensions = Composable.SystemCE.Reflection.Threading.TaskExtensions;
 
 namespace Composable.Testing.Threading
 {

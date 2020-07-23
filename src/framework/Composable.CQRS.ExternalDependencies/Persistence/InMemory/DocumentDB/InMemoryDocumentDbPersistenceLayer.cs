@@ -4,8 +4,8 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Persistence.DocumentDb;
-using Composable.System.Collections;
-using Composable.System.Linq;
+using Composable.SystemCE.Collections;
+using Composable.SystemCE.Linq;
 using DocumentRow = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.WriteRow;
 namespace Composable.Persistence.InMemory.DocumentDB
 {

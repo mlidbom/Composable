@@ -16,7 +16,6 @@ using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.Persistence.Oracle.Testing.Databases;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.Persistence.PgSql.Testing.Databases;
-using Composable.System.Threading;
 using FluentAssertions;
 using IBM.Data.DB2.Core;
 using IBM.Data.DB2Types;

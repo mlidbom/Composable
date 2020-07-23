@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Messaging.Events;
-using Composable.System.Reflection;
+using Composable.SystemCE.Reflection;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {

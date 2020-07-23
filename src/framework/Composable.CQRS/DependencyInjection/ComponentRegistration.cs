@@ -5,10 +5,10 @@ using Composable.Contracts;
 using Composable.Logging;
 using Composable.Persistence.EventStore;
 using Composable.Serialization;
-using Composable.System;
-using Composable.System.Diagnostics;
-using Composable.System.Linq;
-using Composable.System.Reflection;
+using Composable.SystemCE;
+using Composable.SystemCE.Diagnostics;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection;
 
 // ReSharper disable UnusedMember.Global
 

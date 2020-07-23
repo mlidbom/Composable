@@ -1,7 +1,7 @@
 using System;
 using IBM.Data.DB2.Core;
 using System.Threading.Tasks;
-using Composable.System.Threading;
+using Composable.SystemCE.Reflection.Threading;
 
 namespace Composable.Persistence.DB2.SystemExtensions
 {

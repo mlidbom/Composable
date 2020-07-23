@@ -5,11 +5,11 @@ using Composable.Contracts;
 using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
-using Composable.System;
-using Composable.System.Collections;
-using Composable.System.Threading;
-using Composable.System.Threading.ResourceAccess;
-using Composable.System.Threading.Tasks;
+using Composable.SystemCE;
+using Composable.SystemCE.Collections;
+using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.Reflection.Threading.Tasks;
 using NetMQ;
 using NetMQ.Sockets;
 

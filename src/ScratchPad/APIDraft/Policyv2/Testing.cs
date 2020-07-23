@@ -9,8 +9,6 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Messaging.APIDraft.Policyv2
 {
-    using Composable.System;
-
     public class Testing
     {
         public void Test()

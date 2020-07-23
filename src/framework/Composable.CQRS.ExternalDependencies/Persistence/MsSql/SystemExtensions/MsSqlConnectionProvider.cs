@@ -2,8 +2,8 @@ using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Transactions;
-using Composable.System;
-using Composable.System.Threading;
+using Composable.SystemCE;
+using Composable.SystemCE.Reflection.Threading;
 
 namespace Composable.Persistence.MsSql.SystemExtensions
 {

@@ -1,6 +1,6 @@
 using System;
 using Composable.DependencyInjection;
-using Composable.System;
+using Composable.SystemCE;
 
 namespace Composable.Messaging.Buses
 {

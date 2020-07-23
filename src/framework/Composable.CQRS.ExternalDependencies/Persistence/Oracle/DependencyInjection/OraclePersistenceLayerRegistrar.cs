@@ -10,7 +10,7 @@ using Composable.Persistence.Oracle.Messaging.Buses.Implementation;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.Persistence.Oracle.Testing.Databases;
 using Composable.Refactoring.Naming;
-using Composable.System.Configuration;
+using Composable.SystemCE.Configuration;
 
 namespace Composable.Persistence.Oracle.DependencyInjection
 {

@@ -1,4 +1,4 @@
-﻿using Composable.System.Reflection;
+﻿using Composable.SystemCE.Reflection;
 
 namespace Composable.DependencyInjection
 {

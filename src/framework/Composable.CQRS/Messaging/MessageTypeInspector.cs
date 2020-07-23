@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Composable.System.Reflection;
+using Composable.SystemCE.Reflection;
 
 namespace Composable.Messaging
 {

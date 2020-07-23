@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Composable.System.Threading;
+using Composable.SystemCE.Reflection.Threading;
 using Npgsql;
 
 namespace Composable.Persistence.PgSql.SystemExtensions

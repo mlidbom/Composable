@@ -1,5 +1,5 @@
 ﻿using Composable.DependencyInjection;
-using Composable.System.Configuration;
+using Composable.SystemCE.Configuration;
 
 namespace Composable.Messaging.Buses.Implementation
 {

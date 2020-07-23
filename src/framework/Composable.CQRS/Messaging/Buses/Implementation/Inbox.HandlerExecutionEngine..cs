@@ -4,8 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Logging;
-using Composable.System.Linq;
-using Composable.System.Threading;
+using Composable.SystemCE.Reflection.Threading;
 using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Messaging.Buses.Implementation

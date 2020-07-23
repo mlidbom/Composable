@@ -1,6 +1,6 @@
 using System;
 using System.Data;
-using Composable.System.Linq;
+using Composable.SystemCE.Linq;
 using Npgsql;
 using NpgsqlTypes;
 

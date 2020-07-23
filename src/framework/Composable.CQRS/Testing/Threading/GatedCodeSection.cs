@@ -1,6 +1,6 @@
 ﻿using System;
-using Composable.System;
-using Composable.System.Threading.ResourceAccess;
+using Composable.SystemCE;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
 
 namespace Composable.Testing.Threading
 {

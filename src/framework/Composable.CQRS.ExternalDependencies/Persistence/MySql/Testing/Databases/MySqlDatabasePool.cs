@@ -4,9 +4,8 @@ using MySql.Data.MySqlClient;
 using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.MySql.SystemExtensions;
-using Composable.System;
-using Composable.System.Linq;
-using Composable.System.Threading.ResourceAccess;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
 using Composable.Testing.Databases;
 
 namespace Composable.Persistence.MySql.Testing.Databases

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection.SimpleInjector;
 using Composable.DependencyInjection.Windsor;
-using Composable.System.Linq;
+using Composable.SystemCE.Linq;
 
 namespace Composable.DependencyInjection.Testing
 {

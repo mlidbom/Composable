@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.GenericAbstractions.Hierarchies;
-using Composable.System.Linq;
+using Composable.SystemCE.Linq;
 using NUnit.Framework;
 
 namespace Composable.Tests.Linq

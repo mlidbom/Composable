@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Wrappers;
-using Composable.System.Linq;
+using Composable.SystemCE.Linq;
 
 namespace Composable.GenericAbstractions.Hierarchies
 {

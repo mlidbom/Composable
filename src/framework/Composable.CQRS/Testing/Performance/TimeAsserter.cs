@@ -3,9 +3,9 @@ using System.Globalization;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Logging;
-using Composable.System;
-using Composable.System.Diagnostics;
-using Composable.System.Threading;
+using Composable.SystemCE;
+using Composable.SystemCE.Diagnostics;
+using Composable.SystemCE.Reflection.Threading;
 using JetBrains.Annotations;
 
 namespace Composable.Testing.Performance

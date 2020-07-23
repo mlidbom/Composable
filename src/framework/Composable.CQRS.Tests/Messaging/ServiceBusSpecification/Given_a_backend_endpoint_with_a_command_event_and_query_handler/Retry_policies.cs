@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Transactions;
 using Composable.Messaging.Buses;
-using Composable.System;
+using Composable.SystemCE;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;

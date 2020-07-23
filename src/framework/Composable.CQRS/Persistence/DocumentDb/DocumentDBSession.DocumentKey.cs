@@ -1,5 +1,5 @@
 ﻿using System;
-using Composable.System;
+using Composable.SystemCE;
 
 namespace Composable.Persistence.DocumentDb
 {

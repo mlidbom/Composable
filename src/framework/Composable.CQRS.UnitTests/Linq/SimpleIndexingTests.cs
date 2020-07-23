@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.System.Linq;
+using Composable.SystemCE.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using Npgsql;
 using System.Threading.Tasks;
-using Composable.System.Linq;
-using Composable.System.Threading;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection.Threading;
 
 namespace Composable.Persistence.PgSql.SystemExtensions
 {

@@ -7,9 +7,9 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
-using Composable.System;
-using Composable.System.Diagnostics;
-using Composable.System.Linq;
+using Composable.SystemCE;
+using Composable.SystemCE.Diagnostics;
+using Composable.SystemCE.Linq;
 using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
@@ -20,8 +20,6 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Serialization
 {
-    using Composable.System;
-
     [TestFixture]
     public class NewtonSoftEventStoreEventSerializerTests
     {

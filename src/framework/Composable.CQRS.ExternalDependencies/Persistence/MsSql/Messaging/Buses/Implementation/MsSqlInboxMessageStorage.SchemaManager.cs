@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.MsSql.SystemExtensions;
-using Composable.System.Threading;
+using Composable.SystemCE.Reflection.Threading;
 using Message =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.MsSql.Messaging.Buses.Implementation

@@ -1,4 +1,4 @@
-﻿using Composable.System.Linq;
+﻿using Composable.SystemCE.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 

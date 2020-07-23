@@ -4,8 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using Composable.Contracts;
-using Composable.System;
-using Composable.System.Reflection;
+using Composable.SystemCE;
+using Composable.SystemCE.Reflection;
 
 namespace Composable.DependencyInjection
 {

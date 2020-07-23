@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
+using Composable.SystemCE.Reactive;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.Tests.CQRS
 {
-    using Composable.System.Reactive;
-
     [TestFixture]
     public class AggregateTests
     {
@@ -59,13 +58,13 @@ namespace Composable.Tests.CQRS
             var aggregate = new CascadingEventsAggregate();
             var receivedEvents = new List<IAggregateEvent>();
             using(((IEventStored)aggregate).EventStream.Subscribe(@event =>
-                                                  {
-                                                      receivedEvents.Add(@event);
-                                                      aggregate.TriggeringEventApplied.Should()
-                                                               .BeTrue();
-                                                      aggregate.TriggeredEventApplied.Should()
-                                                               .BeTrue();
-                                                  }))
+                                                 {
+                                                     receivedEvents.Add(@event);
+                                                     aggregate.TriggeringEventApplied.Should()
+                                                              .BeTrue();
+                                                     aggregate.TriggeredEventApplied.Should()
+                                                              .BeTrue();
+                                                 }))
             {
                 aggregate.RaiseTriggeringEvent();
             }

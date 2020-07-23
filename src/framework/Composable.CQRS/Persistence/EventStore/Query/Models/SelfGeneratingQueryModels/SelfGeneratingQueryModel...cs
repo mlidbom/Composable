@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.DDD;
 using Composable.Messaging.Events;
-using Composable.System.Linq;
+using Composable.SystemCE.Linq;
 
 namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels
 {

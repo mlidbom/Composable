@@ -6,7 +6,7 @@ using Composable.DependencyInjection;
 using Composable.Logging;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Refactoring.Naming;
-using Composable.System.Linq;
+using Composable.SystemCE.Linq;
 
 namespace Composable.Messaging.Buses
 {

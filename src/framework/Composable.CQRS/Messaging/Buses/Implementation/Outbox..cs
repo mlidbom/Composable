@@ -6,9 +6,9 @@ using System.Transactions;
 using Composable.Contracts;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
-using Composable.System.Linq;
-using Composable.System.Threading;
-using Composable.System.Threading.ResourceAccess;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 using NetMQ;
 

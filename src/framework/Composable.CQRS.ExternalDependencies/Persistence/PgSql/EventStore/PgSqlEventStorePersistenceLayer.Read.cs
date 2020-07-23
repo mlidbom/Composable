@@ -6,7 +6,6 @@ using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.PgSql.SystemExtensions;
-using Composable.System;
 using Npgsql;
 using NpgsqlTypes;
 using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;

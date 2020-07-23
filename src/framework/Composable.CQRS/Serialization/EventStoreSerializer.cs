@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
-using Composable.System;
+using Composable.SystemCE;
 using Newtonsoft.Json;
 
 namespace Composable.Serialization

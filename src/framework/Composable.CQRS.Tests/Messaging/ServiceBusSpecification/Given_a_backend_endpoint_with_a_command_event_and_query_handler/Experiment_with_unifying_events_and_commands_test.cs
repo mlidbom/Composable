@@ -12,6 +12,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.Persistence.MsSql.DependencyInjection;
 using Composable.Persistence.MsSql.Messaging.Buses;
+using Composable.SystemCE;
 using Composable.Testing;
 using Composable.Testing.Threading;
 using FluentAssertions;
@@ -22,8 +23,6 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
-    using Composable.System;
-
     public class Experiment_with_unifying_events_and_commands_test : DuplicateByPluggableComponentTest
     {
         ITestingEndpointHost _host;

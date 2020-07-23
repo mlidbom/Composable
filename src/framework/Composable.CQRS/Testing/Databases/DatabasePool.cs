@@ -7,13 +7,13 @@ using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
 using Composable.Persistence;
-using Composable.System;
-using Composable.System.Linq;
-using Composable.System.Reflection;
-using Composable.System.Threading;
-using Composable.System.Threading.ResourceAccess;
-using Composable.System.Transactions;
-using TaskExtensions = Composable.System.Threading.TaskExtensions;
+using Composable.SystemCE;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection;
+using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.Transactions;
+using TaskExtensions = Composable.SystemCE.Reflection.Threading.TaskExtensions;
 
 namespace Composable.Testing.Databases
 {

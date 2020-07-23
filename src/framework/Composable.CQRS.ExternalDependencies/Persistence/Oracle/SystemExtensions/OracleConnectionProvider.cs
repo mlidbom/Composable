@@ -3,9 +3,8 @@ using System.Threading.Tasks;
 using Oracle.ManagedDataAccess.Client;
 using System.Transactions;
 using Composable.Logging;
-using Composable.System;
-using Composable.System.Diagnostics;
-using Composable.System.Threading;
+using Composable.SystemCE;
+using Composable.SystemCE.Reflection.Threading;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {

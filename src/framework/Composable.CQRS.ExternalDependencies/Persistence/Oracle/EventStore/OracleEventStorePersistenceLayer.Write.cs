@@ -6,7 +6,7 @@ using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.Oracle.SystemExtensions;
-using Composable.System;
+using Composable.SystemCE;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;

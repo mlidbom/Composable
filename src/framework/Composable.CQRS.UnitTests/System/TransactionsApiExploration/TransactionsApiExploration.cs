@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Transactions;
-using Composable.System.Transactions;
+using Composable.SystemCE.Transactions;
 using Composable.Testing;
 using Composable.Testing.Transactions;
 using FluentAssertions;

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Composable.System.Collections;
+using Composable.SystemCE.Collections;
 using NUnit.Framework;
 
 namespace Composable.Tests.System.Collections.Generic

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using Composable.System;
-using Composable.System.Threading;
+using Composable.SystemCE;
+using Composable.SystemCE.Reflection.Threading;
 
 namespace Composable.Persistence
 {

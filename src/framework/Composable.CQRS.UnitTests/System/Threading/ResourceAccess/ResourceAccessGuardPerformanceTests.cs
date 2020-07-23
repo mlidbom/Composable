@@ -1,7 +1,7 @@
-using Composable.System.Threading.ResourceAccess;
+using Composable.SystemCE;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
 using Composable.Testing.Performance;
 using Xunit;
-using Composable.System;
 using Composable.Testing;
 using NCrunch.Framework;
 

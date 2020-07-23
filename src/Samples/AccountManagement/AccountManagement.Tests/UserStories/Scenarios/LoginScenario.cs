@@ -1,6 +1,6 @@
 ﻿using AccountManagement.API;
 using Composable.Messaging.Buses;
-using Composable.System.Linq;
+using Composable.SystemCE.Linq;
 
 namespace AccountManagement.UserStories.Scenarios
 {

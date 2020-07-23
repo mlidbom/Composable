@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.Serialization;
-using Composable.System;
+using Composable.SystemCE;
 using JetBrains.Annotations;
 
 namespace Composable.Testing.Databases

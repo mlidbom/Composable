@@ -6,7 +6,7 @@ using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.Persistence.PgSql.SystemExtensions;
-using Composable.System;
+using Composable.SystemCE;
 using Composable.Testing;
 using Composable.Testing.Databases;
 using Composable.Testing.Performance;

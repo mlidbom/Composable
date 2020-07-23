@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using Composable.System;
+using Composable.SystemCE;
 using JetBrains.Annotations;
 
 namespace Composable.Contracts

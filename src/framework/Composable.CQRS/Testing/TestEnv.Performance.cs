@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
-using Composable.System;
-using Composable.System.Diagnostics;
+using Composable.SystemCE;
+using Composable.SystemCE.Diagnostics;
 
 namespace Composable.Testing
 {

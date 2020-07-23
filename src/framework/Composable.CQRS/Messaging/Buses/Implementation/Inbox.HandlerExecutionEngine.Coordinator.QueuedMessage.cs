@@ -2,10 +2,9 @@
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions;
-using Composable.System;
-using Composable.System.Linq;
-using Composable.System.Threading;
-using Composable.System.Threading.Tasks;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.Reflection.Threading.Tasks;
 
 namespace Composable.Messaging.Buses.Implementation
 {

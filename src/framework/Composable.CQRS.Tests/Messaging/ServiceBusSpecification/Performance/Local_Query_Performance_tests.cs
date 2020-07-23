@@ -1,11 +1,11 @@
 ﻿using System;
 using Composable.DependencyInjection;
-using Composable.System.Diagnostics;
+using Composable.SystemCE;
+using Composable.SystemCE.Diagnostics;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
-using Composable.System;
 using Composable.Testing;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance

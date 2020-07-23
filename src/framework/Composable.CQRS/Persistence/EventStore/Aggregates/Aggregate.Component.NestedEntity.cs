@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
-using Composable.System.Reflection;
+using Composable.SystemCE.Reflection;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {

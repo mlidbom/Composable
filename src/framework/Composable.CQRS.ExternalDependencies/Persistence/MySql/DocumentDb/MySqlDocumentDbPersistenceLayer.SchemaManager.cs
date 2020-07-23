@@ -1,5 +1,5 @@
 ﻿using Composable.Persistence.MySql.SystemExtensions;
-using Composable.System.Transactions;
+using Composable.SystemCE.Transactions;
 using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
 namespace Composable.Persistence.MySql.DocumentDb

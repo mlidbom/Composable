@@ -8,9 +8,9 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
-using Composable.System;
-using Composable.System.Configuration;
-using Composable.System.Threading;
+using Composable.SystemCE;
+using Composable.SystemCE.Configuration;
+using Composable.SystemCE.Reflection.Threading;
 
 // ReSharper disable ImplicitlyCapturedClosure it is very much intentional :)
 

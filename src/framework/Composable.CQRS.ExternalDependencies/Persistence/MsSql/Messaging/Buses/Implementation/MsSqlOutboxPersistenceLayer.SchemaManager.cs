@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Composable.Persistence.MsSql.SystemExtensions;
-using Composable.System.Threading;
+using Composable.SystemCE.Reflection.Threading;
 using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
 using D = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageDispatchingTableSchemaStrings;
 

@@ -10,7 +10,7 @@ using Composable.Persistence.DB2.Messaging.Buses.Implementation;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.Persistence.DB2.Testing.Databases;
 using Composable.Refactoring.Naming;
-using Composable.System.Configuration;
+using Composable.SystemCE.Configuration;
 
 namespace Composable.Persistence.DB2.DependencyInjection
 {

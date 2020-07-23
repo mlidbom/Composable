@@ -5,8 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Contracts;
 using Composable.DDD;
-using Composable.System.Collections;
-using Composable.System.Linq;
+using Composable.SystemCE.Collections;
+using Composable.SystemCE.Linq;
 
 namespace Composable.Persistence.DocumentDb
 {

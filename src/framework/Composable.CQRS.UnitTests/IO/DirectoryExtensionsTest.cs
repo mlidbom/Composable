@@ -2,8 +2,8 @@ using System;
 using System.IO;
 using System.Linq;
 using Composable.Logging;
-using Composable.System.IO;
-using Composable.System.Linq;
+using Composable.SystemCE.IO;
+using Composable.SystemCE.Linq;
 using NUnit.Framework;
 
 namespace Composable.Tests.IO

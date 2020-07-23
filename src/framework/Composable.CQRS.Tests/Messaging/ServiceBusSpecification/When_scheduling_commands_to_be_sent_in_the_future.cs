@@ -7,7 +7,7 @@ using Composable.Messaging.Buses;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.MsSql.DependencyInjection;
 using Composable.Persistence.MsSql.Messaging.Buses;
-using Composable.System;
+using Composable.SystemCE;
 using Composable.Testing;
 using Composable.Testing.Threading;
 using FluentAssertions;
@@ -15,7 +15,6 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification
 {
-    using Composable.System;
     public class When_scheduling_commands_to_be_sent_in_the_future : DuplicateByPluggableComponentTest
     {
         IUtcTimeTimeSource _timeSource;

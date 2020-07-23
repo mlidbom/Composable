@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Composable.Persistence.EventStore;
-using Composable.System.Linq;
+using Composable.SystemCE.Linq;
 
 namespace Composable.Tests.CQRS
 {

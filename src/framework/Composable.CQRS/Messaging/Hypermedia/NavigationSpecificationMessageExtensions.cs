@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Composable.System.Threading;
+using Composable.SystemCE.Reflection.Threading;
 
 namespace Composable.Messaging.Hypermedia
 {

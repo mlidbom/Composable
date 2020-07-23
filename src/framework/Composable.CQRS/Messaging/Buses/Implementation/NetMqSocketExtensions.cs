@@ -1,4 +1,4 @@
-﻿using Composable.System;
+﻿using Composable.SystemCE;
 using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation

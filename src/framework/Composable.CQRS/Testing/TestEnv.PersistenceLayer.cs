@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Composable.System;
+using Composable.SystemCE;
 
 namespace Composable.Testing
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.SqlTypes;
 using Composable.Persistence.EventStore;
-using Composable.System.Linq;
+using Composable.SystemCE.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;

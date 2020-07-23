@@ -1,6 +1,6 @@
 ﻿using System.Data.SqlClient;
 using System.Linq;
-using Composable.System;
+using Composable.SystemCE;
 using IBM.Data.DB2.Core;
 using MySql.Data.MySqlClient;
 using Npgsql;

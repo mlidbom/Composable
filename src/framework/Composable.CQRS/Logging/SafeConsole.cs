@@ -1,5 +1,5 @@
 ﻿using System;
-using Composable.System;
+using Composable.SystemCE;
 using JetBrains.Annotations;
 
 namespace Composable.Logging

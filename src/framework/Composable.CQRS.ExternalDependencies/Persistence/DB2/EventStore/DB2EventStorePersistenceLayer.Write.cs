@@ -6,7 +6,7 @@ using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.DB2.SystemExtensions;
-using Composable.System;
+using Composable.SystemCE;
 using IBM.Data.DB2.Core;
 using IBM.Data.DB2Types;
 using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;

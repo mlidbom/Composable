@@ -4,8 +4,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using Composable.Messaging.Events;
 using Composable.Refactoring.Naming;
-using Composable.System.Linq;
-using Composable.System.Reflection;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection;
 using NUnit.Framework;
 
 namespace Composable.Messaging.Buses.Implementation

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.System;
-using Composable.System.Linq;
+using Composable.SystemCE;
+using Composable.SystemCE.Linq;
 
 namespace Composable.Functional
 {

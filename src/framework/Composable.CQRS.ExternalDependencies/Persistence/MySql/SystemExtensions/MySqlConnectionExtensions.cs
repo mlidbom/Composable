@@ -1,7 +1,7 @@
 using System;
 using MySql.Data.MySqlClient;
 using System.Threading.Tasks;
-using Composable.System.Threading;
+using Composable.SystemCE.Reflection.Threading;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {

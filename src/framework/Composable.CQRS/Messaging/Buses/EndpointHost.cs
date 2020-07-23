@@ -6,8 +6,8 @@ using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Logging;
 using Composable.Messaging.Buses.Implementation;
-using Composable.System.Linq;
-using Composable.System.Threading;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection.Threading;
 
 namespace Composable.Messaging.Buses
 {

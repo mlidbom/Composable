@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Composable.System.Threading;
+using Composable.SystemCE.Reflection.Threading;
 using IBM.Data.DB2.Core;
 
 namespace Composable.Persistence.DB2.SystemExtensions

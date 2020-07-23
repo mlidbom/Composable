@@ -10,7 +10,7 @@ using Composable.Persistence.MsSql.Messaging.Buses.Implementation;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.Persistence.MsSql.Testing.Databases;
 using Composable.Refactoring.Naming;
-using Composable.System.Configuration;
+using Composable.SystemCE.Configuration;
 
 namespace Composable.Persistence.MsSql.DependencyInjection
 {

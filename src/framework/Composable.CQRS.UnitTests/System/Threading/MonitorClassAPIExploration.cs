@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading;
+using Composable.SystemCE;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
-using Composable.System;
+
 // ReSharper disable ImplicitlyCapturedClosure
 
 namespace Composable.Tests.System.Threading

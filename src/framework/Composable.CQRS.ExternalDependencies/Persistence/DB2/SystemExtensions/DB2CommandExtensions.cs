@@ -5,10 +5,10 @@ using System.Linq;
 using IBM.Data.DB2.Core;
 using System.Threading.Tasks;
 using Composable.Logging;
-using Composable.System;
-using Composable.System.Linq;
-using Composable.System.Reflection;
-using Composable.System.Threading;
+using Composable.SystemCE;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection.Threading;
+using ObjectExtensions = Composable.SystemCE.Linq.ObjectExtensions;
 
 namespace Composable.Persistence.DB2.SystemExtensions
 {
@@ -23,10 +23,10 @@ namespace Composable.Persistence.DB2.SystemExtensions
         public static DB2Command AppendCommandText(this DB2Command @this, string append) => @this.Mutate(me => me.CommandText += append);
         public static DB2Command SetCommandText(this DB2Command @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
         public static DB2Command SetStoredProcedure(this DB2Command @this, string storedProcedure) => @this.Mutate(me =>
-        {
-            me.CommandType = CommandType.StoredProcedure;
-            me.CommandText = storedProcedure;
-        });
+                                                                                                                              {
+                                                                                                                                  me.CommandType = CommandType.StoredProcedure;
+                                                                                                                                  me.CommandText = storedProcedure;
+                                                                                                                              });
 
         //urgent: Create a version of this for the other persistence layers. It's crazy helpful.
         public static DB2Command LogCommand(this DB2Command @this)

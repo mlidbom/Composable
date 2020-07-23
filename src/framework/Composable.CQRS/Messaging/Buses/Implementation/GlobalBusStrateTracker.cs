@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.System.Collections;
-using Composable.System.Threading.ResourceAccess;
+using Composable.SystemCE.Collections;
+using Composable.SystemCE.Reflection.Threading.ResourceAccess;
 
 namespace Composable.Messaging.Buses.Implementation
 {

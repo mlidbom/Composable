@@ -4,9 +4,9 @@ using System.Linq;
 using System.Reflection;
 using Composable.Messaging;
 using Composable.Refactoring.Naming;
-using Composable.System;
-using Composable.System.Linq;
-using Composable.System.Reflection;
+using Composable.SystemCE;
+using Composable.SystemCE.Linq;
+using Composable.SystemCE.Reflection;
 using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Aggregates

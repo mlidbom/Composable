@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Composable.Contracts;
 
-namespace Composable.SystemCE.CollectionsCE
+namespace Composable.SystemCE.CollectionsCE.GenericCE
 {
     ///<summary>Helpers for working with dictionaries</summary>
     static class DictionaryCE

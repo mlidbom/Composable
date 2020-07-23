@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Composable.Messaging.Events;
 using Composable.Refactoring.Naming;
-using Composable.SystemCE.CollectionsCE;
+using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
 using NUnit.Framework;

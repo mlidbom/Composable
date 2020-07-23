@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.SystemCE.CollectionsCE;
+using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.Messaging.Buses.Implementation

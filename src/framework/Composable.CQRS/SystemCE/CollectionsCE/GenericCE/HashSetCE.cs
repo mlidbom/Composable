@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.SystemCE.LinqCE;
 
-namespace Composable.SystemCE.CollectionsCE
+namespace Composable.SystemCE.CollectionsCE.GenericCE
 {
     /// <summary>A collection of extensions to work with <see cref="HashSet{T}"/></summary>
     static class HashSetCE

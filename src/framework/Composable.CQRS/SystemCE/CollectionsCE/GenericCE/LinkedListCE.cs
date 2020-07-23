@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 
-namespace Composable.SystemCE.CollectionsCE
+namespace Composable.SystemCE.CollectionsCE.GenericCE
 {
     ///<summary>Adds some convenience features to linked list</summary>
     static class LinkedListCE

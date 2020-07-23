@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
-using Composable.SystemCE.CollectionsCE;
+using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 

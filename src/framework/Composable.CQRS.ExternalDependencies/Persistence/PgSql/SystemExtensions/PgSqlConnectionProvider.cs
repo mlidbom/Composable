@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Npgsql;
 using System.Transactions;
 using Composable.SystemCE;
-using Composable.SystemCE.CollectionsCE;
+using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;

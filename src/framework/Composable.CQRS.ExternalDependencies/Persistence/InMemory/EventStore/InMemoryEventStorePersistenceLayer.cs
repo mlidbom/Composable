@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Composable.Persistence.EventStore.PersistenceLayer;
-using Composable.SystemCE.CollectionsCE;
+using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;

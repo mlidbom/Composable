@@ -6,7 +6,7 @@ using Composable.DDD;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.Persistence.DocumentDb;
-using Composable.SystemCE.CollectionsCE;
+using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.LinqCE;
 using Composable.Testing.Performance;
 using FluentAssertions;

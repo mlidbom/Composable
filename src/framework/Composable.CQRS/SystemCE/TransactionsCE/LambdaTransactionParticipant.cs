@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Transactions;
-using Composable.SystemCE.CollectionsCE;
+using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using NotImplementedException = System.NotImplementedException;
 #pragma warning disable CA1033 // Interface methods should be callable by child types

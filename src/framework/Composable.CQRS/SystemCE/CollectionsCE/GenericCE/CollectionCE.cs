@@ -4,7 +4,7 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.SystemCE.LinqCE;
 
-namespace Composable.SystemCE.CollectionsCE
+namespace Composable.SystemCE.CollectionsCE.GenericCE
 {
     ///<summary>Extensions on <see cref="ICollection{T}"/></summary>
     static class CollectionCE

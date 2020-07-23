@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using AccountManagement.API;
 using AccountManagement.Extensions;
-using Composable.SystemCE.ComponentModel.DataAnnotations;
+using Composable.SystemCE.ComponentModelCE.DataAnnotationsCE;
 
 namespace AccountManagement.Domain.Passwords
 {

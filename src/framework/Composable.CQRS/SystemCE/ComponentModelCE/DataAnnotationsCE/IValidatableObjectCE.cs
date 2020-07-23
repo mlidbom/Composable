@@ -5,10 +5,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using Composable.Contracts;
 
-namespace Composable.SystemCE.ComponentModel.DataAnnotations
+namespace Composable.SystemCE.ComponentModelCE.DataAnnotationsCE
 {
     ///<summary>Extensions for <see cref="IValidatableObject"/> intended to make type safe implementations easy.</summary>
-    public static class ValidateableObjectExtensions
+    public static class IValidatableObjectCE
     {
         static string ExtractMemberName(Expression<Func<object>> accessor)
         {

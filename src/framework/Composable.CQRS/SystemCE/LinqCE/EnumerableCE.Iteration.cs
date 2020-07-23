@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace Composable.SystemCE.LinqCE
 {
     /// <summary/>
-    public static class Iteration
+    public static partial class EnumerableCE
     {
         /// <summary>
         /// Executes <paramref name="action"/> for each element in the sequence <paramref name="source"/>.

@@ -6,7 +6,7 @@ using Composable.Contracts;
 namespace Composable.SystemCE.LinqCE
 {
     /// <summary/>
-    static partial class EnumerableCE
+    public static partial class EnumerableCE
     {
         /// <summary>
         /// Creates an enumerable consisting of the passed parameter values is order.

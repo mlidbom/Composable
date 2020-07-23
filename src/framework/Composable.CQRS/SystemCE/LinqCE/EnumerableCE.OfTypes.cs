@@ -6,10 +6,8 @@ using Composable.Contracts;
 
 namespace Composable.SystemCE.LinqCE
 {
-
-
     /// <summary/>
-    static partial class EnumerableCE
+    public static partial class EnumerableCE
     {
         ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
         public static IEnumerable<Type> OfTypes<T1>() => Create(typeof(T1));

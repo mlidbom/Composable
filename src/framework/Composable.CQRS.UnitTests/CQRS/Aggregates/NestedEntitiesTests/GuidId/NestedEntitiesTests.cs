@@ -1,6 +1,6 @@
 ﻿using System;
 using Composable.Persistence.EventStore;
-using Composable.SystemCE.Reactive;
+using Composable.SystemCE.ReactiveCE;
 using Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.Domain;
 using Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.Domain.Events;
 using Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId.QueryModels;

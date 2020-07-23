@@ -4,23 +4,29 @@ using System.Collections.Generic;
 namespace Composable.SystemCE.LinqCE
 {
     /// <summary/>
-    static class Number
+    public static partial class EnumerableCE
     {
         /// <summary>
         /// Represents a sequence first yielding <see cref="StartValue"/> and then infinitely yielding the last value plus <see cref="StepSize"/>
         /// </summary>
-        public readonly struct IterationSpecification
+        public readonly struct IterationSpecification : IEquatable<IterationSpecification>
         {
-            public IterationSpecification(int startValue, int stepSize)
+            internal IterationSpecification(int startValue, int stepSize)
             {
                 StartValue = startValue;
                 StepSize = stepSize;
             }
             /// <summary/>
-            public readonly int StartValue;
+            internal readonly int StartValue;
 
             /// <summary/>
-            public readonly int StepSize;
+            internal readonly int StepSize;
+
+            public bool Equals(IterationSpecification other) => StartValue == other.StartValue && StepSize == other.StepSize;
+            public override bool Equals(object? obj) => obj is IterationSpecification other && Equals(other);
+            public override int GetHashCode() => HashCode.Combine(StartValue, StepSize);
+            public static bool operator ==(IterationSpecification left, IterationSpecification right) => left.Equals(right);
+            public static bool operator !=(IterationSpecification left, IterationSpecification right) => !left.Equals(right);
         }
 
         /// <summary>

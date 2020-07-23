@@ -6,7 +6,7 @@ using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
 using Composable.SystemCE.LinqCE;
-using Composable.SystemCE.Reactive;
+using Composable.SystemCE.ReactiveCE;
 using Composable.SystemCE.ReflectionCE;
 using Composable.SystemCE.ThreadingCE;
 

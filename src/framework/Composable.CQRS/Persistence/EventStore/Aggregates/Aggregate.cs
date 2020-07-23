@@ -5,7 +5,7 @@ using Composable.DDD;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 using Composable.SystemCE.LinqCE;
-using Composable.SystemCE.Reactive;
+using Composable.SystemCE.ReactiveCE;
 
 #pragma warning disable CA1033 // Interface methods should be callable by child types
 

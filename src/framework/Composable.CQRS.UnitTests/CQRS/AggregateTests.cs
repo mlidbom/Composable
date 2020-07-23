@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
-using Composable.SystemCE.Reactive;
+using Composable.SystemCE.ReactiveCE;
 using FluentAssertions;
 using NUnit.Framework;
 

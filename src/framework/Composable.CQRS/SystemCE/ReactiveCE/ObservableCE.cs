@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.SystemCE.Reactive
+namespace Composable.SystemCE.ReactiveCE
 {
     static class ObservableCE
     {

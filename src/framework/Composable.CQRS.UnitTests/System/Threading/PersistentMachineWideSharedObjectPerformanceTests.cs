@@ -1,6 +1,6 @@
 ﻿using System;
 using Composable.SystemCE;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;

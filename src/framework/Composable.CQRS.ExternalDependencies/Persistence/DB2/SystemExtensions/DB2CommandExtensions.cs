@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Composable.Logging;
 using Composable.SystemCE;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 using ObjectExtensions = Composable.SystemCE.Linq.ObjectExtensions;
 
 namespace Composable.Persistence.DB2.SystemExtensions

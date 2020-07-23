@@ -1,7 +1,7 @@
 using System;
 using Oracle.ManagedDataAccess.Client;
 using System.Threading.Tasks;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {

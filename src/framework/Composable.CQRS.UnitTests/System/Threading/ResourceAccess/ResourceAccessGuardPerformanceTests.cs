@@ -1,5 +1,5 @@
 using Composable.SystemCE;
-using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.Testing.Performance;
 using Xunit;
 using Composable.Testing;

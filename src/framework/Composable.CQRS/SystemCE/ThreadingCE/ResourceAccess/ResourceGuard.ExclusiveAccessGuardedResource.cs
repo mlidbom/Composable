@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-namespace Composable.SystemCE.Reflection.Threading.ResourceAccess
+namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
     static partial class ResourceGuard
     {

@@ -4,7 +4,7 @@ using Oracle.ManagedDataAccess.Client;
 using System.Transactions;
 using Composable.Logging;
 using Composable.SystemCE;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {

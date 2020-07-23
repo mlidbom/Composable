@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 
-namespace Composable.SystemCE.Reflection.Threading.ResourceAccess
+namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
     public class AwaitingExclusiveResourceLockTimeoutException : Exception, IDisposable
     {

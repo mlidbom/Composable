@@ -98,8 +98,8 @@
       <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-116</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-22</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-9</Value>
-      <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine..cs:framework\Composable.CQRS\Composable.CQRS.csproj-37</Value>
-      <Value>Messaging\Buses\Implementation\Inbox.cs:framework\Composable.CQRS\Composable.CQRS.csproj-72</Value>
+      <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine..cs:framework\Composable.CQRS\Composable.CQRS.csproj-36</Value>
+      <Value>Messaging\Buses\Implementation\Inbox.cs:framework\Composable.CQRS\Composable.CQRS.csproj-71</Value>
       <Value>CQRS\EventRefactoring\Migrations\EventMigrationTest.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-220</Value>
       <Value>Persistence\PgSql\SystemExtensions\PgSqlConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-20</Value>
       <Value>DependencyInjection\DependencyInjectionContainer.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-17</Value>

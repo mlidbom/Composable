@@ -5,7 +5,7 @@ using System.Transactions;
 using Composable.Contracts;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.SystemCE;
-using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 using Microsoft.Extensions.Caching.Memory;
 

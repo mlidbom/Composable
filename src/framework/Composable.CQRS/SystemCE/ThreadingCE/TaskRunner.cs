@@ -6,7 +6,7 @@ using Composable.Logging;
 using Composable.SystemCE.Linq;
 using JetBrains.Annotations;
 
-namespace Composable.SystemCE.Reflection.Threading
+namespace Composable.SystemCE.ThreadingCE
 {
     interface ITaskRunner
     {

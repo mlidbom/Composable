@@ -10,10 +10,10 @@ using Composable.Persistence;
 using Composable.SystemCE;
 using Composable.SystemCE.Linq;
 using Composable.SystemCE.Reflection;
-using Composable.SystemCE.Reflection.Threading;
-using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.Transactions;
-using TaskExtensions = Composable.SystemCE.Reflection.Threading.TaskExtensions;
+using TaskExtensions = Composable.SystemCE.ThreadingCE.TaskExtensions;
 
 namespace Composable.Testing.Databases
 {

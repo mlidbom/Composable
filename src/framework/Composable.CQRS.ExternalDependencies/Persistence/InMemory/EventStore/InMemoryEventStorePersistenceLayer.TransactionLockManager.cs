@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Transactions;
 using Composable.SystemCE;
 using Composable.SystemCE.Collections;
-using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Persistence.InMemory.EventStore

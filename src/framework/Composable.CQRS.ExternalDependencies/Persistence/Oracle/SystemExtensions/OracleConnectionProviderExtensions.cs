@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 using Oracle.ManagedDataAccess.Client;
 
 namespace Composable.Persistence.Oracle.SystemExtensions

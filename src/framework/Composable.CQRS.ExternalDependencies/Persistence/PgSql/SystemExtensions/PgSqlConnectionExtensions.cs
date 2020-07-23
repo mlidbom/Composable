@@ -1,7 +1,7 @@
 using System;
 using Npgsql;
 using System.Threading.Tasks;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Persistence.PgSql.SystemExtensions
 {

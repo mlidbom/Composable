@@ -5,7 +5,7 @@ using Composable.Contracts;
 using Composable.Logging;
 using Composable.SystemCE;
 using Composable.SystemCE.Diagnostics;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 using JetBrains.Annotations;
 
 namespace Composable.Testing.Performance

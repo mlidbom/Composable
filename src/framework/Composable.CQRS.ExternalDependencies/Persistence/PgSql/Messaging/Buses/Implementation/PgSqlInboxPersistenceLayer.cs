@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.PgSql.SystemExtensions;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 using Schema =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation

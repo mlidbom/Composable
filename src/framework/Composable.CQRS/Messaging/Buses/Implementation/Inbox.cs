@@ -10,7 +10,6 @@ using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.SystemCE;
-using Composable.SystemCE.Reflection.Threading;
 using Composable.SystemCE.ThreadingCE;
 using NetMQ;
 using NetMQ.Sockets;

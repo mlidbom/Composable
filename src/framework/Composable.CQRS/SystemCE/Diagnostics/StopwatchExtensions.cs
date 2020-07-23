@@ -7,9 +7,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 using JetBrains.Annotations;
-using TaskExtensions = Composable.SystemCE.Reflection.Threading.TaskExtensions;
+using TaskExtensions = Composable.SystemCE.ThreadingCE.TaskExtensions;
 
 namespace Composable.SystemCE.Diagnostics
 {

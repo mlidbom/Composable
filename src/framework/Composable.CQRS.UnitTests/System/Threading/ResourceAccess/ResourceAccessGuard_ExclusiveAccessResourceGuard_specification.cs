@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.SystemCE;
-using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using FluentAssertions;
 using NUnit.Framework;
 using Assert = NUnit.Framework.Assert;

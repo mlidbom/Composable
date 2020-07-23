@@ -4,10 +4,10 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
 using Composable.SystemCE.Collections;
-using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using JetBrains.Annotations;
 
-namespace Composable.SystemCE.Reflection.Threading
+namespace Composable.SystemCE.ThreadingCE
 {
     class MachineWideSingleThreaded
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.SystemCE.Reflection.Threading.ResourceAccess
+namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
     static partial class ResourceGuard
     {

@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace Composable.SystemCE.Reflection.Threading
+namespace Composable.SystemCE.ThreadingCE
 {
     static class ThreadExtensions
     {

@@ -4,7 +4,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Composable.SystemCE.Reflection.Threading
+namespace Composable.SystemCE.ThreadingCE
 {
     static class TaskExtensions
     {

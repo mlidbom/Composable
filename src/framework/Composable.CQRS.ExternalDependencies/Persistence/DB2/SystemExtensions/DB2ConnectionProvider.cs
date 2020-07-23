@@ -6,8 +6,8 @@ using System.Transactions;
 using Composable.Logging;
 using Composable.SystemCE;
 using Composable.SystemCE.Collections;
-using Composable.SystemCE.Reflection.Threading;
-using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 using IsolationLevel = System.Data.IsolationLevel;
 

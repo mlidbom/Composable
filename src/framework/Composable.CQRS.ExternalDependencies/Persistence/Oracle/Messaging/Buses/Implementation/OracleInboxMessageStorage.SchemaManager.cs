@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.Oracle.SystemExtensions;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 using Message =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation

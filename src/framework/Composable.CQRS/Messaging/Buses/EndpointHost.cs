@@ -7,7 +7,7 @@ using Composable.DependencyInjection;
 using Composable.Logging;
 using Composable.Messaging.Buses.Implementation;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Messaging.Buses
 {

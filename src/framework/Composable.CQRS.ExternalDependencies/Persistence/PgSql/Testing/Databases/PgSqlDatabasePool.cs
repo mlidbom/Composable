@@ -6,7 +6,7 @@ using Castle.Core.Internal;
 using Composable.Contracts;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.Testing.Databases;
 #pragma warning disable CA1308 // Normalize strings to uppercase
 

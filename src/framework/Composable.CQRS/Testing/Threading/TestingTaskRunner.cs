@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Composable.SystemCE.Linq;
-using TaskExtensions = Composable.SystemCE.Reflection.Threading.TaskExtensions;
+using TaskExtensions = Composable.SystemCE.ThreadingCE.TaskExtensions;
 
 namespace Composable.Testing.Threading
 {

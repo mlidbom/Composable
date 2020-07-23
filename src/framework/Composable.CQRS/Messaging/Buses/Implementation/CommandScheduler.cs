@@ -7,8 +7,8 @@ using Composable.Logging;
 using Composable.SystemCE;
 using Composable.SystemCE.Collections;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection.Threading;
-using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.Transactions;
 
 namespace Composable.Messaging.Buses.Implementation

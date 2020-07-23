@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using System.Transactions;
 using Composable.SystemCE;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {

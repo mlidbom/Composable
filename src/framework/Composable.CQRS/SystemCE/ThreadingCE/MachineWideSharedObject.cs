@@ -6,9 +6,9 @@ using Composable.Contracts;
 using Composable.Persistence;
 using Composable.Serialization;
 using Composable.SystemCE.Collections;
-using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
-namespace Composable.SystemCE.Reflection.Threading
+namespace Composable.SystemCE.ThreadingCE
 {
     class MachineWideSharedObject
     {

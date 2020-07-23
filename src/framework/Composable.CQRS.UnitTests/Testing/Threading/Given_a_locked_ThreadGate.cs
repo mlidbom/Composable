@@ -2,7 +2,7 @@
 using System.Threading;
 using Composable.SystemCE;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.Linq;
-using Composable.SystemCE.Reflection.Threading.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.Testing.Databases;
 
 namespace Composable.Persistence.Oracle.Testing.Databases

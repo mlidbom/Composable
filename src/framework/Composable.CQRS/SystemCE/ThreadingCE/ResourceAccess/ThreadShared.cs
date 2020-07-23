@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading;
+using Composable.SystemCE.Reflection;
 using JetBrains.Annotations;
 
-namespace Composable.SystemCE.Reflection.Threading.ResourceAccess
+namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
     interface IThreadShared<out TResource>
     {

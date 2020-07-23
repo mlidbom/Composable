@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.MySql.SystemExtensions;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 using T =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.MySql.Messaging.Buses.Implementation

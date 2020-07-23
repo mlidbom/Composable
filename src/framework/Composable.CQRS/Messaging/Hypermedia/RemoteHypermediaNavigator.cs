@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
-using Composable.SystemCE.Reflection.Threading;
+using Composable.SystemCE.ThreadingCE;
 using JetBrains.Annotations;
 
 namespace Composable.Messaging.Hypermedia

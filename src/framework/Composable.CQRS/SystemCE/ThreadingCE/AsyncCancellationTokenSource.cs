@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Composable.SystemCE.Reflection.Threading
+namespace Composable.SystemCE.ThreadingCE
 {
     //Hack to implement the suggested framework fix from here: https://github.com/dotnet/runtime/issues/23405 so that calling cancel on a CancellationTokenSource does not call registrations synchronously.
     public sealed class AsyncCancellationTokenSource : IDisposable

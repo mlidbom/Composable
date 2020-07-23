@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Persistence.DocumentDb;
@@ -27,7 +26,7 @@ namespace Composable.Persistence.InMemory.DocumentDB
             }
         }
 
-        public bool TryGet(string idString, IImmutableSet<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out IDocumentDbPersistenceLayer.ReadRow? value)
+        public bool TryGet(string idString, IReadonlySetCEx<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out IDocumentDbPersistenceLayer.ReadRow? value)
         {
             lock (_lockObject)
             {
@@ -56,17 +55,17 @@ namespace Composable.Persistence.InMemory.DocumentDB
             {
                 foreach(var row in toUpdate)
                 {
-                    if (!TryGet(row.Id, new []{ row.TypeId }.ToImmutableHashSet(), useUpdateLock: false, out var existing)) throw new NoSuchDocumentException(row.Id, row.TypeId);
+                    if (!TryGet(row.Id, new []{ row.TypeId }.ToSetCE(), useUpdateLock: false, out var existing)) throw new NoSuchDocumentException(row.Id, row.TypeId);
                     if (existing.SerializedDocument != row.SerializedDocument)
                     {
-                        Remove(row.Id, new []{ row.TypeId }.ToImmutableHashSet());
+                        Remove(row.Id, new []{ row.TypeId }.ToSetCE());
                         Add(row);
                     }
                 }
             }
         }
 
-        public int Remove(string idstring, IImmutableSet<Guid> acceptableTypes)
+        public int Remove(string idstring, IReadonlySetCEx<Guid> acceptableTypes)
         {
             lock (_lockObject)
             {
@@ -78,7 +77,7 @@ namespace Composable.Persistence.InMemory.DocumentDB
             }
         }
 
-        public IEnumerable<Guid> GetAllIds(IImmutableSet<Guid> acceptableTypes)
+        public IEnumerable<Guid> GetAllIds(IReadonlySetCEx<Guid> acceptableTypes)
         {
             var typeIds = new HashSet<Guid>(acceptableTypes);
             lock (_lockObject)
@@ -98,7 +97,7 @@ namespace Composable.Persistence.InMemory.DocumentDB
             }
         }
 
-        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IEnumerable<Guid> ids, IImmutableSet<Guid> acceptableTypes)
+        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IEnumerable<Guid> ids, IReadonlySetCEx<Guid> acceptableTypes)
         {
             lock (_lockObject)
             {
@@ -110,7 +109,7 @@ namespace Composable.Persistence.InMemory.DocumentDB
             }
         }
 
-        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IImmutableSet<Guid> acceptableTypes)
+        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IReadonlySetCEx<Guid> acceptableTypes)
         {
             var typeIds = new HashSet<Guid>(acceptableTypes);
             lock (_lockObject)
@@ -123,6 +122,6 @@ namespace Composable.Persistence.InMemory.DocumentDB
             }
         }
 
-        bool Contains(Guid type, string id) => TryGet(id, new[]{ type }.ToImmutableHashSet(), false, out _);
+        bool Contains(Guid type, string id) => TryGet(id, new[]{ type }.ToSetCE(), false, out _);
     }
 }

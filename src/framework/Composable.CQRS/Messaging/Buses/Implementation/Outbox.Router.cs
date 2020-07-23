@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Composable.Refactoring.Naming;
 using Composable.SystemCE.CollectionsCE.GenericCE;
@@ -80,7 +79,7 @@ namespace Composable.Messaging.Buses.Implementation
                 var subscriberConnections = _eventSubscriberRoutes
                                            .Where(route => route.EventType.IsInstanceOfType(@event))
                                            .Select(route => route.Connection)
-                                           .ToImmutableArray();
+                                           .ToArray();
 
                 lock(_lock)
                 {

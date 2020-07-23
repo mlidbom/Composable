@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
@@ -117,8 +116,8 @@ namespace Composable.Persistence.DocumentDb
         [return:NotNull]TDocument Deserialize<TDocument>(IDocumentDbPersistenceLayer.ReadRow stored) =>
             (TDocument)_serializer.Deserialize(GetTypeFromId(new TypeId(stored.TypeId)), stored.SerializedDocument);
 
-        IImmutableSet<Guid> AcceptableTypeIds<T>() => AcceptableTypeIds(typeof(T));
-        IImmutableSet<Guid> AcceptableTypeIds(Type type) => _typeMapper.GetIdForTypesAssignableTo(type).Select(typeId => typeId.GuidValue).ToImmutableHashSet();
+        IReadonlySetCEx<Guid> AcceptableTypeIds<T>() => AcceptableTypeIds(typeof(T));
+        IReadonlySetCEx<Guid> AcceptableTypeIds(Type type) => _typeMapper.GetIdForTypesAssignableTo(type).Select(typeId => typeId.GuidValue).ToSetCE();
 
         Type GetTypeFromId(TypeId id) => _typeMapper.GetType(id);
     }

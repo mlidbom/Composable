@@ -29,5 +29,7 @@ namespace Composable.SystemCE.CollectionsCE.GenericCE
             Contract.ArgumentNotNull(me, nameof(me),toAdd, nameof(toAdd));
             toAdd.ForEach(me.Add);
         }
+
+        public static HashSetCEx<TItem> ToSetCE<TItem>(this IEnumerable<TItem> @this) => new HashSetCEx<TItem>(@this);
     }
 }

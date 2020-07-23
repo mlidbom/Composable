@@ -34,7 +34,6 @@
     <PackageReference Include="Npgsql" Version="4.1.4" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.80" />
     <PackageReference Include="SimpleInjector" Version="5.0.3" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
   </ItemGroup>
    

@@ -1,20 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Composable.SystemCE.CollectionsCE.GenericCE;
 
 namespace Composable.Persistence.DocumentDb
 {
     interface IDocumentDbPersistenceLayer
     {
         void Update(IReadOnlyList<WriteRow> toUpdate);
-        bool TryGet(string idString, IImmutableSet<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out ReadRow? document);
+        bool TryGet(string idString, IReadonlySetCEx<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out ReadRow? document);
         void Add(WriteRow row);
-        int Remove(string idString, IImmutableSet<Guid> acceptableTypes);
+        int Remove(string idString, IReadonlySetCEx<Guid> acceptableTypes);
         //Urgent: This whole Guid vs string thing must be removed.
-        IEnumerable<Guid> GetAllIds(IImmutableSet<Guid> acceptableTypes);
-        IReadOnlyList<ReadRow> GetAll(IEnumerable<Guid> ids, IImmutableSet<Guid> acceptableTypes);
-        IReadOnlyList<ReadRow> GetAll(IImmutableSet<Guid> acceptableTypes);
+        IEnumerable<Guid> GetAllIds(IReadonlySetCEx<Guid> acceptableTypes);
+        IReadOnlyList<ReadRow> GetAll(IEnumerable<Guid> ids, IReadonlySetCEx<Guid> acceptableTypes);
+        IReadOnlyList<ReadRow> GetAll(IReadonlySetCEx<Guid> acceptableTypes);
 
         class ReadRow
         {

@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.SystemCE;
+using Composable.SystemCE.CollectionsCE.GenericCE;
 using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
 namespace Composable.Persistence.DB2.DocumentDb
@@ -43,7 +43,7 @@ namespace Composable.Persistence.DB2.DocumentDb
             });
         }
 
-        public bool TryGet(string idString, IImmutableSet<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out IDocumentDbPersistenceLayer.ReadRow? document)
+        public bool TryGet(string idString, IReadonlySetCEx<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out IDocumentDbPersistenceLayer.ReadRow? document)
         {
             EnsureInitialized();
 
@@ -93,7 +93,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             }
         }
 
-        public int Remove(string idString, IImmutableSet<Guid> acceptableTypes)
+        public int Remove(string idString, IReadonlySetCEx<Guid> acceptableTypes)
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(
@@ -103,7 +103,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                            .ExecuteNonQuery());
         }
 
-        public IEnumerable<Guid> GetAllIds(IImmutableSet<Guid> acceptableTypes)
+        public IEnumerable<Guid> GetAllIds(IReadonlySetCEx<Guid> acceptableTypes)
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(
@@ -111,7 +111,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                                   .ExecuteReaderAndSelect(reader => Guid.Parse(reader.GetString(0)))); //bug: Huh, we store string but require them to be Guid!?
         }
 
-        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IEnumerable<Guid> ids, IImmutableSet<Guid> acceptableTypes)
+        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IEnumerable<Guid> ids, IReadonlySetCEx<Guid> acceptableTypes)
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(
@@ -120,7 +120,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuidFromString(2), reader.GetString(1))));
         }
 
-        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IImmutableSet<Guid> acceptableTypes)
+        public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IReadonlySetCEx<Guid> acceptableTypes)
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(

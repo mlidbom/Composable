@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.DependencyInjection;
-using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.ThreadingCE;
 
 // ReSharper disable StaticMemberInGenericType

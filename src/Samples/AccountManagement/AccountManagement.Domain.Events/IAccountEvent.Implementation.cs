@@ -2,7 +2,6 @@
 using AccountManagement.Domain.Passwords;
 using Composable.Contracts;
 using Composable.Persistence.EventStore;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 // ReSharper disable MemberHidesStaticFromOuterClass

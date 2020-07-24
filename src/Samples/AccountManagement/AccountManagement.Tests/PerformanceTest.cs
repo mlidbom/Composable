@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using AccountManagement.API;
-using AccountManagement.Domain;
 using AccountManagement.Domain.Registration;
 using AccountManagement.UserStories.Scenarios;
 using Composable.DependencyInjection;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.SystemCE.DiagnosticsCE;
 using Composable.Testing.Performance;
 using FluentAssertions.Extensions;

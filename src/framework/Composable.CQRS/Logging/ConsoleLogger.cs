@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Composable.Persistence.EventStore;
 using Composable.Serialization;
 using Composable.SystemCE;
 using Composable.SystemCE.ReflectionCE;

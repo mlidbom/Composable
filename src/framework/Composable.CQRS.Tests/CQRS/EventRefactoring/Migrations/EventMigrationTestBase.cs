@@ -8,7 +8,6 @@ using Composable.Logging;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
-using Composable.Persistence.MsSql.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.SystemCE;
 using Composable.SystemCE.CollectionsCE.GenericCE;

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using AccountManagement.API.ValidationAttributes;
+﻿using AccountManagement.API.ValidationAttributes;
 using AccountManagement.UnitTests.UI.Commands.UserCommands;
 using FluentAssertions;
 using JetBrains.Annotations;

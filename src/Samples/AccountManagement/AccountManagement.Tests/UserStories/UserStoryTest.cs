@@ -1,10 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AccountManagement.API;
 using AccountManagement.UserStories.Scenarios;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
-using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.Testing;
 using JetBrains.Annotations;
 using NUnit.Framework;

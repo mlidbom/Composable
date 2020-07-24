@@ -8,11 +8,9 @@ using Composable.DependencyInjection.Testing;
 using Composable.Persistence.DocumentDb;
 using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.LinqCE;
-using Composable.Testing.Performance;
 using FluentAssertions;
 using NUnit.Framework;
 using Composable.SystemCE.ThreadingCE;
-using Composable.Testing;
 using JetBrains.Annotations;
 
 // ReSharper disable AccessToDisposedClosure

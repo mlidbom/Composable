@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Oracle.ManagedDataAccess.Client;
-using System.Linq;
-using System.Threading.Tasks;
-using Composable.Contracts;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;

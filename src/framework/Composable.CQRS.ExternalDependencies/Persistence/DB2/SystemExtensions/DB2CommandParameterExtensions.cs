@@ -1,7 +1,6 @@
 using System;
 using System.Data;
 using IBM.Data.DB2.Core;
-using IBM.Data.DB2Types;
 
 namespace Composable.Persistence.DB2.SystemExtensions
 {

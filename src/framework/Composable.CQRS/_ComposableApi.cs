@@ -1,5 +1,4 @@
-﻿using Composable.Messaging;
-using Composable.Persistence.DocumentDb;
+﻿using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
 // ReSharper disable MemberCanBeMadeStatic.Global we want composable fluent APIs. No statics please.
 

@@ -1,5 +1,4 @@
-﻿using Composable.Messaging.Buses;
-using Composable.Messaging.Buses.Implementation;
+﻿using Composable.Messaging.Buses.Implementation;
 using NetMQ;
 
 namespace Composable.Messaging.NetMQCE

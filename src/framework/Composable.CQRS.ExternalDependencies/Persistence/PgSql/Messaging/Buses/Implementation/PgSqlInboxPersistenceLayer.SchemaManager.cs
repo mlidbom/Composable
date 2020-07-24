@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.SystemCE.ThreadingCE;
 using Message =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;

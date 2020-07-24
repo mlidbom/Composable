@@ -5,7 +5,6 @@ using Composable.Contracts;
 using Composable.DDD;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Messaging.Hypermedia;
 using Composable.Refactoring.Naming;
 using Newtonsoft.Json;
 

@@ -4,7 +4,6 @@ using Composable.Persistence.DocumentDb;
 using Composable.Testing;
 using JetBrains.Annotations;
 using NUnit.Framework;
-using NCrunch.Framework;
 
 namespace Composable.Tests.KeyValueStorage
 {

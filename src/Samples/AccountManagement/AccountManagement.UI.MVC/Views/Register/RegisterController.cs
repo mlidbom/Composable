@@ -1,8 +1,6 @@
 ﻿using System;
 using AccountManagement.API;
 using AccountManagement.Domain.Registration;
-using Composable.Messaging;
-using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;

@@ -2,13 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
-using Composable.Messaging;
 using Composable.Messaging.Hypermedia;
 using Composable.SystemCE;
 using Composable.SystemCE.DiagnosticsCE;
 using Composable.SystemCE.LinqCE;
 using Composable.Testing.Performance;
-using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.Testing;

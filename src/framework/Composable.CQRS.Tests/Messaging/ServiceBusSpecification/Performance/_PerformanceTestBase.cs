@@ -5,8 +5,6 @@ using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
 using Composable.Persistence.Common.DependencyInjection;
-using Composable.Persistence.MsSql.DependencyInjection;
-using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.Testing;
 using NCrunch.Framework;
 using NUnit.Framework;

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Composable.SystemCE;
 using Composable.SystemCE.LinqCE;
 using Composable.Testing.Threading;
-using FluentAssertions;
 
 namespace Composable.Tests.Testing.Threading
 {

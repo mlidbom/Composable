@@ -1,6 +1,5 @@
 ﻿using System;
 using Composable.DDD;
-using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Refactoring.Naming;
 using Newtonsoft.Json;

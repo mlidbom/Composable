@@ -5,7 +5,6 @@ using Composable.SystemCE;
 using Composable.SystemCE.DiagnosticsCE;
 using Composable.Testing;
 using Composable.Testing.Performance;
-using FluentAssertions;
 using NCrunch.Framework;
 using Newtonsoft.Json;
 using NUnit.Framework;

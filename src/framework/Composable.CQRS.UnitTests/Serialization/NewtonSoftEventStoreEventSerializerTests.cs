@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Linq;
-using Composable.DependencyInjection;
 using Composable.Logging;
-using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.SystemCE;

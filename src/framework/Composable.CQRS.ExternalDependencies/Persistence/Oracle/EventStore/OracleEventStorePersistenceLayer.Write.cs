@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using Composable.Contracts;
 using Composable.Persistence.Common.EventStore;
@@ -9,7 +8,6 @@ using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
-using ReadOrder = Composable.Persistence.EventStore.PersistenceLayer.ReadOrder;
 using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
 using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 

@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using FluentAssertions;
-using NUnit.Framework;
 
 // ReSharper disable All
 #pragma warning disable //Review OK: This is API experimental code that is never ever used.

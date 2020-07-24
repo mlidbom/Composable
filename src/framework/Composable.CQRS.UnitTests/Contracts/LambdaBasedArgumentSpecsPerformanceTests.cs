@@ -1,7 +1,6 @@
 using Composable.Contracts;
 using Composable.SystemCE;
 using Composable.Testing.Performance;
-using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.Testing;

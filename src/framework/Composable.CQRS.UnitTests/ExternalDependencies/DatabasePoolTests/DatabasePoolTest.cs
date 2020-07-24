@@ -13,8 +13,6 @@ using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.Persistence.PgSql.Testing.Databases;
 using Composable.Testing;
 using Composable.Testing.Databases;
-using Composable.Testing.Performance;
-using NCrunch.Framework;
 
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {

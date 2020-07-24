@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IBM.Data.DB2.Core;
 using System.Transactions;
-using Composable.Logging;
 using Composable.SystemCE;
 using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
-using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Composable.Persistence.DB2.SystemExtensions
 {

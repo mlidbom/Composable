@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Transactions;
-using JetBrains.Annotations;
 
 namespace Composable.Testing.Threading
 {

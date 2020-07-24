@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Oracle.ManagedDataAccess.Client;
 using System.Transactions;
-using Composable.Logging;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
 

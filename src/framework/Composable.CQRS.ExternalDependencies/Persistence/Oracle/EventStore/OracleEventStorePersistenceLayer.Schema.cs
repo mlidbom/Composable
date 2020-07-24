@@ -1,6 +1,4 @@
-﻿using Composable.Persistence.Common.EventStore;
-using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.PersistenceLayer;
+﻿using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.TransactionsCE;
 using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;

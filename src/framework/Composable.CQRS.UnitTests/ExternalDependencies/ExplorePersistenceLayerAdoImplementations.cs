@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
-using System.Threading;
-using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.DB2;
 using Composable.Persistence.DB2.SystemExtensions;
-using Composable.Persistence.DB2.Testing.Databases;
-using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.Persistence.MySql.Testing.Databases;

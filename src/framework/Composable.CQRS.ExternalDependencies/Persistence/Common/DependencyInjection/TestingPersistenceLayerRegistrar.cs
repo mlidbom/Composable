@@ -8,7 +8,6 @@ using Composable.Persistence.MsSql.DependencyInjection;
 using Composable.Persistence.Oracle.DependencyInjection;
 using Composable.Persistence.PgSql.DependencyInjection;
 using Composable.Testing;
-using Composable.Testing.Performance;
 
 namespace Composable.Persistence.Common.DependencyInjection
 {

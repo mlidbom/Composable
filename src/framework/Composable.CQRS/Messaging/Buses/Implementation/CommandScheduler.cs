@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
-using Composable.Logging;
 using Composable.SystemCE;
 using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.LinqCE;

@@ -8,11 +8,9 @@ using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.SystemCE;
 using Composable.Testing;
-using Composable.Testing.Databases;
 using Composable.Testing.Performance;
 using NCrunch.Framework;
 using NUnit.Framework;
-using Oracle.ManagedDataAccess.Types;
 
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {

@@ -1,9 +1,7 @@
-﻿using System;
-using AccountManagement.API;
+﻿using AccountManagement.API;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
-using Composable.Refactoring.Naming;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

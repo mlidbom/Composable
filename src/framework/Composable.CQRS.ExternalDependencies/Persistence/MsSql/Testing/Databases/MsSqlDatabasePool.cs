@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using Composable.Contracts;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.SystemCE;
 using Composable.Testing.Databases;

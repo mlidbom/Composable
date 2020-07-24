@@ -3,7 +3,6 @@ using Composable.DependencyInjection;
 using Composable.SystemCE;
 using Composable.SystemCE.DiagnosticsCE;
 using Composable.Testing.Performance;
-using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.Testing;

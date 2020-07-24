@@ -4,7 +4,6 @@ using System.Linq;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
-using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.SystemCE;

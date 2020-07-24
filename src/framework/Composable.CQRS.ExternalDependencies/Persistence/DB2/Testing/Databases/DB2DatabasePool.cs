@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Data;
 using IBM.Data.DB2.Core;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Transactions;
-using Composable.Contracts;
 using Composable.Logging;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.SystemCE;

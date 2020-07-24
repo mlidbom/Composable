@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Composable.Contracts;
 using Composable.Messaging.NetMQCE;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;

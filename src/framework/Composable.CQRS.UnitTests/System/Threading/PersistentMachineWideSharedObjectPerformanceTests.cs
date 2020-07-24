@@ -3,7 +3,6 @@ using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.Testing;
 using Composable.Testing.Performance;
-using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
 

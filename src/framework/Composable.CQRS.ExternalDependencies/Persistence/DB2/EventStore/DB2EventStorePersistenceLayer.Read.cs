@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using Composable.Persistence.Common.EventStore;
-using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.DB2.SystemExtensions;
 using IBM.Data.DB2.Core;

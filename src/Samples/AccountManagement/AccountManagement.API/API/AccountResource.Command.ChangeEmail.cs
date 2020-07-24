@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
 using Composable.Messaging;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace AccountManagement.API

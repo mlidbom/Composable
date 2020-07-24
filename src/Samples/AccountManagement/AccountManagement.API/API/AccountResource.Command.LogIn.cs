@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
 using Composable.Messaging;
-using Newtonsoft.Json;
 
 // ReSharper disable MemberCanBeMadeStatic.Global
 

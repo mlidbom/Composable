@@ -9,7 +9,6 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
-using Composable.Persistence.InMemory.EventStore;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 

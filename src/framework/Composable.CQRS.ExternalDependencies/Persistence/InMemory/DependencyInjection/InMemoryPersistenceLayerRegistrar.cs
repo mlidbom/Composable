@@ -2,7 +2,6 @@
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.DocumentDb;
-using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.InMemory.DocumentDB;
 using Composable.Persistence.InMemory.EventStore;

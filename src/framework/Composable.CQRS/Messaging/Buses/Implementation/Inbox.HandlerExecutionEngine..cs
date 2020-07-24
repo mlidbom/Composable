@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
-using Composable.Logging;
 using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Messaging.Buses.Implementation

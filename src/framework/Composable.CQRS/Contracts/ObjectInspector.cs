@@ -1,4 +1,4 @@
-﻿using System;
+﻿
 
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable UnusedMember.Global

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Messaging.Hypermedia;
 using Composable.SystemCE.ThreadingCE;
 using JetBrains.Annotations;
 

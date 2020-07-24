@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.Persistence.Common.EventStore;
-using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
 using MySql.Data.MySqlClient;
-using MySql.Data.Types;
 using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
 using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 

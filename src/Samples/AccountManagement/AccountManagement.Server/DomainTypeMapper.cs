@@ -1,4 +1,3 @@
-using Composable.Messaging;
 using Composable.Refactoring.Naming;
 
 namespace AccountManagement

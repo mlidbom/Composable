@@ -1,11 +1,8 @@
-﻿using System;
-using Composable.Contracts;
-using Composable.DependencyInjection;
+﻿using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Messaging.Hypermedia;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.Aggregates;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.SystemCE;

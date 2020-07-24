@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Composable.Refactoring.Naming;
-using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Messaging.Buses.Implementation

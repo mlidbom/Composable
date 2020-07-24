@@ -6,8 +6,6 @@ using AccountManagement.UI.QueryModels;
 using Composable.Messaging.Buses;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.MsSql.DependencyInjection;
-using Composable.Persistence.MsSql.Messaging.Buses;
 
 namespace AccountManagement
 {

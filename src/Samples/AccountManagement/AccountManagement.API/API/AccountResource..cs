@@ -1,7 +1,6 @@
 ﻿using AccountManagement.Domain;
 using AccountManagement.Domain.Passwords;
 using Composable.DDD;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace AccountManagement.API

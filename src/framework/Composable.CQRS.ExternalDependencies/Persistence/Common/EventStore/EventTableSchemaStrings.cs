@@ -1,5 +1,4 @@
-﻿using System;
-using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+﻿using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
 using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.Common.EventStore

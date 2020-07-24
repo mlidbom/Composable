@@ -8,7 +8,6 @@ using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.TransactionsCE;
 using Composable.Testing;
 using FluentAssertions;
-using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.CQRS

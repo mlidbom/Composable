@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Composable.Messaging.Events;
 using Composable.SystemCE.ReflectionCE;
 

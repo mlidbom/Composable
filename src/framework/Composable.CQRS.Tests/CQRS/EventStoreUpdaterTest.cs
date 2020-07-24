@@ -21,7 +21,6 @@ using Composable.Testing.Threading;
 using Composable.Testing.Transactions;
 using FluentAssertions;
 using JetBrains.Annotations;
-using NCrunch.Framework;
 using NUnit.Framework;
 // ReSharper disable AccessToDisposedClosure
 

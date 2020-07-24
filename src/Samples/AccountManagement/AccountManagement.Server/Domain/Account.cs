@@ -6,7 +6,6 @@ using AccountManagement.Domain.Registration;
 using Composable.Contracts;
 using Composable.Functional;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
 using Composable.Persistence.EventStore.Aggregates;
 

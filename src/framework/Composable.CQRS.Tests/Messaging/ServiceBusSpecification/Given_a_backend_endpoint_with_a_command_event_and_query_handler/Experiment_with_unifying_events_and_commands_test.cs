@@ -10,8 +10,6 @@ using Composable.Messaging.Hypermedia;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Aggregates;
-using Composable.Persistence.MsSql.DependencyInjection;
-using Composable.Persistence.MsSql.Messaging.Buses;
 using Composable.SystemCE;
 using Composable.Testing;
 using Composable.Testing.Threading;

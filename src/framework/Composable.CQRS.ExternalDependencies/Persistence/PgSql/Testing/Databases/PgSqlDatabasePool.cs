@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
 using Npgsql;
-using System.Linq;
 using Castle.Core.Internal;
-using Composable.Contracts;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;

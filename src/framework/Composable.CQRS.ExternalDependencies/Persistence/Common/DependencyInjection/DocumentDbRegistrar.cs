@@ -3,7 +3,6 @@ using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.DocumentDb;
-using Composable.Persistence.InMemory.DocumentDB;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 

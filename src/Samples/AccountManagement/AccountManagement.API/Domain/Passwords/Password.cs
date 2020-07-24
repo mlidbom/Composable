@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace AccountManagement.Domain.Passwords

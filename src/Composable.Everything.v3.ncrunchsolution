@@ -57,7 +57,7 @@
       <Value>DependencyInjection\ComposableDependencyInjectionContainer..cs:framework\Composable.CQRS\Composable.CQRS.csproj-48</Value>
       <Value>Testing\Threading\ThreadGate.cs:framework\Composable.CQRS\Composable.CQRS.csproj-45</Value>
       <Value>Persistence\MsSql\DependencyInjection\MsSqlPersistenceLayerRegistrar.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-32</Value>
-      <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-27</Value>
+      <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-21</Value>
       <Value>Persistence\MsSql\Testing\Databases\MsSqlDatabasePool.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-53</Value>
       <Value>Persistence\MsSql\Testing\Databases\MsSqlDatabaseHelpers.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-54</Value>
       <Value>Persistence\MySql\DependencyInjection\MySqlPersistenceLayerRegistrar.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-31</Value>
@@ -105,7 +105,7 @@
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-90</Value>
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-24</Value>
       <Value>Persistence\Oracle\EventStore\OracleEventStoreConnectionManager.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-30</Value>
-      <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-37</Value>
+      <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-31</Value>
       <Value>Persistence\DB2\EventStore\DB2EventStoreConnectionManager.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-30</Value>
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-69</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-66</Value>

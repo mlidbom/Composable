@@ -9,21 +9,15 @@ namespace Composable.Messaging.Buses
     public static class EndpointRequestExecutor
     {
         //Manual request implementions passed a bus to do their job.
-        public static TResult ExecuteServerRequest<TResult>(this IEndpoint @this, Func<IServiceBusSession, TResult> request) =>
-            @this.ServiceLocator.ExecuteInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IServiceBusSession>()));
 
-
+        //todo: does it really make sense to "inject" server actions in this way? Should we not simply register a handler in the bus and invoke that handler. This seems to be sort of like mocking. Testing in a fantasy world instead of in a realistic context.
         public static void ExecuteServerRequestInTransaction(this IEndpoint @this, Action<IServiceBusSession> request) => @this.ServiceLocator.ExecuteTransactionInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IServiceBusSession>()));
 
-
-        public static async Task<TResult> ExecuteServerRequestAsync<TResult>(this IEndpoint endpoint, Func<IServiceBusSession, Task<TResult>> request) =>
-            await endpoint.ServiceLocator.ExecuteInIsolatedScopeAsync(async () => await request(endpoint.ServiceLocator.Resolve<IServiceBusSession>()).NoMarshalling()).NoMarshalling();
-
-
+        //todo: Why would we run a "Server request" without a transaction??
         public static void ExecuteServerRequest(this IEndpoint @this, Action<IServiceBusSession> request) => @this.ServiceLocator.ExecuteInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IServiceBusSession>()));
 
 
-        //Urgent: Most of these ExecuteClientRequests are very suspect. Are they really endpoint actions or something about pure clients?
+        //Urgent: Most of these ExecuteClientRequests are very suspect. Are they really endpoint actions or something about pure clients? What is a "client endpoint"?
         public static void ExecuteClientRequest(this IEndpoint @this, Action<IRemoteHypermediaNavigator> request) => @this.ServiceLocator.ExecuteInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IRemoteHypermediaNavigator>()));
         public static TResult ExecuteClientRequest<TResult>(this IEndpoint @this, Func<IRemoteHypermediaNavigator, TResult> request) => @this.ServiceLocator.ExecuteInIsolatedScope(() => request(@this.ServiceLocator.Resolve<IRemoteHypermediaNavigator>()));
         public static async Task<TResult> ExecuteClientRequestAsync<TResult>(this IEndpoint @this, Func<IRemoteHypermediaNavigator, Task<TResult>> request) =>

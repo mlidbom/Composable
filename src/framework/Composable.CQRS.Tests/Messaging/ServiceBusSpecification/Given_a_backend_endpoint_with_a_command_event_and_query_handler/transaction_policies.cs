@@ -24,7 +24,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Test] public void Command_handler_with_result_runs_in_transaction_with_isolation_level_Serializable()
         {
-            var commandResult = ClientEndpoint.ExecuteClientRequest(session => session.Post(MyAtMostOnceCommandWithResult.Create()));
+            var commandResult = ClientEndpoint.ExecuteClientRequest(navigator => navigator.Post(MyAtMostOnceCommandWithResult.Create()));
 
             commandResult.Should().NotBe(null);
 

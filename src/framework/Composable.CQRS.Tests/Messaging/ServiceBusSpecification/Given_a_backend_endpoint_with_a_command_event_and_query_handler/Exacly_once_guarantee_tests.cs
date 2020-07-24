@@ -30,7 +30,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             var exceptionMessage = "82369B6E-80D4-4E64-92B6-A564A7195CC5";
             MyCreateAggregateCommandHandlerThreadGate.FailTransactionOnPreparePostPassThrough(new Exception(exceptionMessage));
 
-            var (backendException, frontEndException) = Host.AssertThatRunningScenarioThrowsBackendAndClientException<TransactionAbortedException>(() => ClientEndpoint.ExecuteServerRequest(session => RemoteNavigator.Post(MyCreateAggregateCommand.Create())));
+            var (backendException, frontEndException) = Host.AssertThatRunningScenarioThrowsBackendAndClientException<TransactionAbortedException>(() => ClientEndpoint.ExecuteClientRequest(navigator => navigator.Post(MyCreateAggregateCommand.Create())));
 
             backendException.InnerException.Message.Should().Contain(exceptionMessage);
             frontEndException.Message.Should().Contain(exceptionMessage);

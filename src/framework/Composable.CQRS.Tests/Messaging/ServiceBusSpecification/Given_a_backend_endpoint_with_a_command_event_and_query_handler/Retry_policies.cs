@@ -15,7 +15,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             var exceptionMessage = "82369B6E-80D4-4E64-92B6-A564A7195CC5";
             MyCreateAggregateCommandHandlerThreadGate.FailTransactionOnPreparePostPassThrough(new Exception(exceptionMessage));
 
-            Host.AssertThatRunningScenarioThrowsBackendAndClientException<TransactionAbortedException>(action: () => ClientEndpoint.ExecuteServerRequest(request: session => RemoteNavigator.Post(MyCreateAggregateCommand.Create())));
+            Host.AssertThatRunningScenarioThrowsBackendAndClientException<TransactionAbortedException>(action: () => ClientEndpoint.ExecuteClientRequest(navigator => navigator.Post(MyCreateAggregateCommand.Create())));
         }
 
         [Test] public void ExactlyOnce_Event_raised_in_handler_does_not_reach_remote_handler()

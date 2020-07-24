@@ -36,12 +36,12 @@ namespace Composable.Messaging.Buses.Implementation
         readonly IThreadShared<State> _state;
         readonly Outbox.IMessageStorage _storage;
         readonly RealEndpointConfiguration _configuration;
-        readonly Router _router;
+        readonly ITransport _transport;
 
-        public Outbox(IGlobalBusStateTracker globalBusStateTracker, Outbox.IMessageStorage messageStorage, ITypeMapper typeMapper, RealEndpointConfiguration configuration, IRemotableMessageSerializer serializer)
+        public Outbox(IGlobalBusStateTracker globalBusStateTracker, ITransport transport, Outbox.IMessageStorage messageStorage, ITypeMapper typeMapper, RealEndpointConfiguration configuration, IRemotableMessageSerializer serializer)
         {
             _storage = messageStorage;
-            _router = new Router(typeMapper);
+            _transport = transport;
             _configuration = configuration;
             _state = new OptimizedThreadShared<State>(new State(globalBusStateTracker, typeMapper, serializer));
         }
@@ -54,7 +54,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             _state.WithExclusiveAccess(@this => @this.InboxConnections.Add(clientConnection.EndpointInformation.Id, clientConnection));
 
-            _router.AddRegistrations(clientConnection, clientConnection.EndpointInformation.HandledMessageTypes);
+            _transport.AddRegistrations(clientConnection, clientConnection.EndpointInformation.HandledMessageTypes);
         }
 
         public async Task StartAsync()
@@ -88,7 +88,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void PublishTransactionally(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent)
         {
-            var connections  = _router.SubscriberConnectionsFor(exactlyOnceEvent)
+            var connections  = _transport.SubscriberConnectionsFor(exactlyOnceEvent)
                                   .Where(connection => connection.EndpointInformation.Id != _configuration.Id)
                                   .ToArray(); //We dispatch events to ourselves synchronously so don't go doing it again here.;
 
@@ -108,30 +108,12 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void SendTransactionally(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand)
         {
-            var connection = _router.ConnectionToHandlerFor(exactlyOnceCommand);
+            var connection = _transport.ConnectionToHandlerFor(exactlyOnceCommand);
 
             _storage.SaveMessage(exactlyOnceCommand, connection.EndpointInformation.Id);
 
             Transaction.Current.OnCommittedSuccessfully(() => connection.SendAsync(exactlyOnceCommand)
                                                                         .ContinueAsynchronouslyOnDefaultScheduler(task => HandleDeliveryTaskResults(task, connection.EndpointInformation.Id , exactlyOnceCommand.MessageId)));
-        }
-
-        public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand)
-        {
-            var connection = _router.ConnectionToHandlerFor(atMostOnceCommand);
-            await connection.PostAsync(atMostOnceCommand).NoMarshalling();
-        }
-
-        public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand)
-        {
-            var connection = _router.ConnectionToHandlerFor(atMostOnceCommand);
-            return await connection.PostAsync(atMostOnceCommand).NoMarshalling();
-        }
-
-        public async Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
-        {
-            var connection = _router.ConnectionToHandlerFor(query);
-            return await connection.GetAsync(query).NoMarshalling();
         }
 
         public void Dispose() => _state.WithExclusiveAccess(state =>

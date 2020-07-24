@@ -8,9 +8,9 @@ namespace Composable.Messaging.Hypermedia
     //Todo: Build a pipeline to handle things like command validation, caching layers etc. Don't explicitly check for rules and optimization here with duplication across the class.
     [UsedImplicitly] class RemoteHypermediaNavigator : IRemoteHypermediaNavigator
     {
-        readonly IOutbox _transport;
+        readonly ITransport _transport;
 
-        public RemoteHypermediaNavigator(IOutbox transport) => _transport = transport;
+        public RemoteHypermediaNavigator(ITransport transport) => _transport = transport;
 
         public void Post(MessageTypes.Remotable.AtMostOnce.ICommand command) => PostAsync(command).WaitUnwrappingException();
 

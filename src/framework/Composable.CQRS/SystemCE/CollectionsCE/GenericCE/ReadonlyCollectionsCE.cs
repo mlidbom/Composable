@@ -7,21 +7,13 @@ namespace Composable.SystemCE.CollectionsCE.GenericCE
     static class ReadonlyCollectionsCE
     {
         public static Dictionary<TKey, TValue> AddToCopy<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> @this, TKey key, TValue value) =>
-            new Dictionary<TKey, TValue>(@this)
-            {
-                {key, value}
-            };
+            new Dictionary<TKey, TValue>(@this) {{key, value}};
 
-        public static Dictionary<TKey, TValue> AddRangeToCopy<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> @this, IDictionary<TKey, TValue> range) =>
-            new Dictionary<TKey, TValue>(@this)
-               .Mutate(me => me.AddRange(range));
-
+        public static Dictionary<TKey, TValue> AddRangeToCopy<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> @this, IEnumerable<KeyValuePair<TKey, TValue>> range) =>
+            new Dictionary<TKey, TValue>(@this).Mutate(me => me.AddRange(range));
 
         public static List<T> AddToCopy<T>(this IReadOnlyList<T> @this, T item) =>
-            new List<T>(@this)
-            {
-                item
-            };
+            new List<T>(@this) {item};
 
         public static List<T> AddRangeToCopy<T>(this IReadOnlyList<T> @this, IEnumerable<T> items) =>
             new List<T>(@this).Mutate(me => me.AddRange(items));

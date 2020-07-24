@@ -6,7 +6,7 @@ using Composable.Refactoring.Naming;
 using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
-using NUnit.Framework;
+using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -30,13 +30,10 @@ namespace Composable.Messaging.Buses.Implementation
             lock(_lock)
             {
                 _eventHandlers.TryGetValue(typeof(TEvent), out var currentEventSubscribers);
-
-
                 currentEventSubscribers ??= new List<Action<MessageTypes.IEvent>>();
 
-                _eventHandlers = _eventHandlers.AddToCopy(typeof(TEvent), currentEventSubscribers.AddToCopy(@event => handler((TEvent)@event)));
-
-                _eventHandlerRegistrations = _eventHandlerRegistrations.AddToCopy(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
+                ThreadSafe.AddToCopyAndReplace(ref _eventHandlers, typeof(TEvent), currentEventSubscribers.AddToCopy(@event => handler((TEvent)@event)));
+                ThreadSafe.AddToCopyAndReplace(ref _eventHandlerRegistrations, new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
                 return this;
             }
         }
@@ -52,7 +49,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             lock(_lock)
             {
-                _commandHandlers = _commandHandlers.AddToCopy(typeof(TCommand), command => handler((TCommand)command));
+                ThreadSafe.AddToCopyAndReplace(ref _commandHandlers, typeof(TCommand), command => handler((TCommand)command));
                 return this;
             }
         }
@@ -62,7 +59,7 @@ namespace Composable.Messaging.Buses.Implementation
             MessageInspector.AssertValid<TCommand>();
             lock(_lock)
             {
-                _commandHandlersReturningResults = _commandHandlersReturningResults.AddToCopy(typeof(TCommand), new CommandHandlerWithResultRegistration<TCommand, TResult>(handler));
+                ThreadSafe.AddToCopyAndReplace(ref _commandHandlersReturningResults, typeof(TCommand), new CommandHandlerWithResultRegistration<TCommand, TResult>(handler));
                 return this;
             }
         }
@@ -72,7 +69,7 @@ namespace Composable.Messaging.Buses.Implementation
             MessageInspector.AssertValid<TQuery>();
             lock(_lock)
             {
-                _queryHandlers = _queryHandlers.AddToCopy(typeof(TQuery), new QueryHandlerRegistration<TQuery, TResult>(handler));
+                ThreadSafe.AddToCopyAndReplace(ref _queryHandlers, typeof(TQuery), new QueryHandlerRegistration<TQuery, TResult>(handler));
                 return this;
             }
         }

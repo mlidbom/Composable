@@ -94,8 +94,8 @@ namespace Composable.Messaging.Buses
                 Singleton.For<Outbox.IMessageStorage>()
                          .CreatedBy((IServiceBusPersistenceLayer.IOutboxPersistenceLayer persistenceLayer, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
                                         => new Outbox.MessageStorage(persistenceLayer, typeMapper, serializer)),
-                Singleton.For<IOutbox>().CreatedBy((RealEndpointConfiguration configuration, IRemotableMessageSerializer serializer, Outbox.IMessageStorage messageStorage)
-                                                       => new Outbox(_globalStateTracker, messageStorage, _typeMapper, configuration, serializer)),
+                Singleton.For<IOutbox>().CreatedBy((RealEndpointConfiguration configuration, ITransport transport, IRemotableMessageSerializer serializer, Outbox.IMessageStorage messageStorage)
+                                                       => new Outbox(_globalStateTracker, transport, messageStorage, _typeMapper, configuration, serializer)),
 
 
                 Singleton.For<IGlobalBusStateTracker>().CreatedBy(() => _globalStateTracker),
@@ -104,7 +104,8 @@ namespace Composable.Messaging.Buses
 
                 Singleton.For<IRemotableMessageSerializer>().CreatedBy((ITypeMapper typeMapper) => new RemotableMessageSerializer(typeMapper)),
                 Singleton.For<IEventStoreEventPublisher>().CreatedBy((IOutbox outbox, IMessageHandlerRegistry messageHandlerRegistry) => new ServiceBusEventStoreEventPublisher(outbox, messageHandlerRegistry)),
-                Scoped.For<IRemoteHypermediaNavigator>().CreatedBy((IOutbox outbox) => new RemoteHypermediaNavigator(outbox)),
+                Singleton.For<ITransport>().CreatedBy((ITypeMapper typeMapper) => new Transport(typeMapper)),
+                Scoped.For<IRemoteHypermediaNavigator>().CreatedBy((ITransport transport) => new RemoteHypermediaNavigator(transport)),
                 Singleton.For<RealEndpointConfiguration>().CreatedBy((EndpointConfiguration conf, IConfigurationParameterProvider configurationParameterProvider) => new RealEndpointConfiguration(conf, configurationParameterProvider)));
 
 

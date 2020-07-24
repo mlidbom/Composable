@@ -26,8 +26,15 @@ namespace Composable.Messaging.Buses.Implementation
 
         void PublishTransactionally(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
         void SendTransactionally(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);
+    }
 
-        //Urgent: These hypermedia client methods should be moved to another abstraction that does not need persistence etc. A client, not an endpoint.
+    interface ITransport
+    {
+        void AddRegistrations(IInboxConnection inboxConnection, ISet<TypeId> handledTypeIds);
+        IInboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command);
+        IInboxConnection ConnectionToHandlerFor(MessageTypes.IQuery query);
+        IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
+
         Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand);
         Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand);
         Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
@@ -39,7 +46,6 @@ namespace Composable.Messaging.Buses.Implementation
         Task SendAsync(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
         Task SendAsync(MessageTypes.Remotable.ExactlyOnce.ICommand command);
 
-        //Urgent: These hypermedia client methods should be moved to another abstraction that does not need persistence etc. A client, not an endpoint.
         Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command);
         Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command);
         Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);

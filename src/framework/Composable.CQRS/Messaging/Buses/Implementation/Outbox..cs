@@ -10,11 +10,11 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class Outbox : IOutbox
     {
-        readonly Outbox.IMessageStorage _storage;
+        readonly IMessageStorage _storage;
         readonly RealEndpointConfiguration _configuration;
         readonly ITransport _transport;
 
-        public Outbox(ITransport transport, Outbox.IMessageStorage messageStorage, RealEndpointConfiguration configuration)
+        public Outbox(ITransport transport, IMessageStorage messageStorage, RealEndpointConfiguration configuration)
         {
             _storage = messageStorage;
             _transport = transport;
@@ -23,9 +23,9 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void PublishTransactionally(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent)
         {
-            var connections  = _transport.SubscriberConnectionsFor(exactlyOnceEvent)
-                                  .Where(connection => connection.EndpointInformation.Id != _configuration.Id)
-                                  .ToArray(); //We dispatch events to ourselves synchronously so don't go doing it again here.;
+            var connections = _transport.SubscriberConnectionsFor(exactlyOnceEvent)
+                                        .Where(connection => connection.EndpointInformation.Id != _configuration.Id)
+                                        .ToArray(); //We dispatch events to ourselves synchronously so don't go doing it again here.;
 
             //Urgent: bug. Our traceability thinking does not allow just discarding this message.But removing this if statement breaks a lot of tests that uses endpoint wiring but do not start an endpoint.
             if(connections.Length != 0)
@@ -36,7 +36,7 @@ namespace Composable.Messaging.Buses.Implementation
                 Transaction.Current.OnCommittedSuccessfully(() => connections.ForEach(subscriberConnection =>
                 {
                     subscriberConnection.SendAsync(exactlyOnceEvent)
-                                        .ContinueAsynchronouslyOnDefaultScheduler(task => HandleDeliveryTaskResults(task, subscriberConnection.EndpointInformation.Id , exactlyOnceEvent.MessageId));
+                                        .ContinueAsynchronouslyOnDefaultScheduler(task => HandleDeliveryTaskResults(task, subscriberConnection.EndpointInformation.Id, exactlyOnceEvent.MessageId));
                 }));
             }
         }
@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses.Implementation
             _storage.SaveMessage(exactlyOnceCommand, connection.EndpointInformation.Id);
 
             Transaction.Current.OnCommittedSuccessfully(() => connection.SendAsync(exactlyOnceCommand)
-                                                                        .ContinueAsynchronouslyOnDefaultScheduler(task => HandleDeliveryTaskResults(task, connection.EndpointInformation.Id , exactlyOnceCommand.MessageId)));
+                                                                        .ContinueAsynchronouslyOnDefaultScheduler(task => HandleDeliveryTaskResults(task, connection.EndpointInformation.Id, exactlyOnceCommand.MessageId)));
         }
 
         void HandleDeliveryTaskResults(Task completedSendTask, EndpointId receiverId, Guid messageId)
@@ -64,12 +64,8 @@ namespace Composable.Messaging.Buses.Implementation
 
         public async Task StartAsync()
         {
-
-           var startingStorage = _configuration.IsPureClientEndpoint
-                                  ? Task.CompletedTask
-                                  : _storage.StartAsync();
-
-           await startingStorage.NoMarshalling();
+            if(!_configuration.IsPureClientEndpoint)
+                await _storage.StartAsync().NoMarshalling();
         }
     }
 }

@@ -19,8 +19,7 @@ namespace Composable.Messaging.Buses
             GlobalBusStateTracker = new GlobalBusStateTracker();
         }
 
-        public IEnumerable<EndPointAddress> ServerEndpoints => Endpoints.Where(endpoint => endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledRemoteMessageTypeIds().Any())
-                                                                        .Where(@this => !(@this.Address is null))
+        public IEnumerable<EndPointAddress> ServerEndpoints => Endpoints.Where(@this => !(@this.Address is null))
                                                                         .Select(@this => @this.Address!)
                                                                         .ToList();
 

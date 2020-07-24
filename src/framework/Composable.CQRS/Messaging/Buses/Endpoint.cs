@@ -16,14 +16,16 @@ namespace Composable.Messaging.Buses
         {
             readonly CommandScheduler _commandScheduler;
             public readonly IInbox Inbox;
+            readonly IOutbox _outbox;
 
-            public ServerComponents(CommandScheduler commandScheduler, IInbox inbox)
+            public ServerComponents(CommandScheduler commandScheduler, IInbox inbox, IOutbox outbox)
             {
                 _commandScheduler = commandScheduler;
                 Inbox = inbox;
+                _outbox = outbox;
             }
 
-            public async Task InitAsync() => await Task.WhenAll(Inbox.StartAsync(), _commandScheduler.StartAsync()).NoMarshalling();
+            public async Task InitAsync() => await Task.WhenAll(Inbox.StartAsync(), _commandScheduler.StartAsync(), _outbox.StartAsync()).NoMarshalling();
             public void Stop()
             {
                 _commandScheduler.Stop();
@@ -42,7 +44,6 @@ namespace Composable.Messaging.Buses
                         IGlobalBusStateTracker globalStateTracker,
                         ITransport transport,
                         IEndpointRegistry endpointRegistry,
-                        IOutbox outbox,
                         EndpointConfiguration configuration)
         {
             Contract.ArgumentNotNull(serviceLocator, nameof(serviceLocator), configuration, nameof(configuration));
@@ -51,7 +52,6 @@ namespace Composable.Messaging.Buses
             _transport = transport;
             _configuration = configuration;
             _endpointRegistry = endpointRegistry;
-            _outbox = outbox;
         }
         public EndpointId Id => _configuration.Id;
         public IServiceLocator ServiceLocator { get; }
@@ -60,7 +60,6 @@ namespace Composable.Messaging.Buses
         readonly IGlobalBusStateTracker _globalStateTracker;
         readonly ITransport _transport;
         readonly IEndpointRegistry _endpointRegistry;
-        readonly IOutbox _outbox;
 
         ServerComponents? _serverComponents;
 
@@ -70,20 +69,14 @@ namespace Composable.Messaging.Buses
 
             RunSanityChecks();
 
-            var initTasks = new List<Task>
-                            {
-                                _outbox.StartAsync()
-                            };
-
             //todo: find cleaner way of handling what an endpoint supports
             if(!_configuration.IsPureClientEndpoint)
             {
-                _serverComponents = new ServerComponents(ServiceLocator.Resolve<CommandScheduler>(), ServiceLocator.Resolve<IInbox>());
+                _serverComponents = new ServerComponents(ServiceLocator.Resolve<CommandScheduler>(), ServiceLocator.Resolve<IInbox>(), ServiceLocator.Resolve<IOutbox>());
 
-                initTasks.Add(_serverComponents.InitAsync());
+                await _serverComponents.InitAsync().NoMarshalling();
             }
 
-            await Task.WhenAll(initTasks).NoMarshalling();
 
             IsRunning = true;
         }

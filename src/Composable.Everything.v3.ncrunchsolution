@@ -41,7 +41,7 @@
       <Value>DependencyInjection\ComponentRegistrationExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-85</Value>
       <Value>DependencyInjection\ComponentRegistrationExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-86</Value>
       <Value>DependencyInjection\ComponentRegistrationExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-87</Value>
-      <Value>Messaging\Buses\TestingEndpointHostBase.cs:framework\Composable.CQRS\Composable.CQRS.csproj-32</Value>
+      <Value>Messaging\Buses\TestingEndpointHostBase.cs:framework\Composable.CQRS\Composable.CQRS.csproj-31</Value>
       <Value>Persistence\MySql\SystemExtensions\MySqlConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-9</Value>
       <Value>Persistence\MySql\SystemExtensions\MySqlConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-20</Value>
       <Value>Persistence\MsSql\SystemExtensions\MsSqlConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-39</Value>

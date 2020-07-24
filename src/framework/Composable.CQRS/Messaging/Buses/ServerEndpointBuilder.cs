@@ -101,9 +101,6 @@ namespace Composable.Messaging.Buses
                 Scoped.For<IRemoteHypermediaNavigator>().CreatedBy((ITransport transport) => new RemoteHypermediaNavigator(transport))
 
             );
-            _container.Register(
-
-            );
 
             if(!Configuration.IsPureClientEndpoint)
             {

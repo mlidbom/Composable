@@ -65,7 +65,6 @@ namespace Composable.Messaging.Buses
         IEndpoint RegisterClientEndpoint(Action<IEndpointBuilder> setup);
         Task StartAsync();
         void Start();
-        void Stop();
     }
 
     public interface ITestingEndpointHost : IEndpointHost

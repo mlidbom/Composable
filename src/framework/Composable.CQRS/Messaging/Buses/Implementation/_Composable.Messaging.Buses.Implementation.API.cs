@@ -20,19 +20,17 @@ namespace Composable.Messaging.Buses.Implementation
 
     interface IOutbox
     {
-        void Stop();
         Task StartAsync();
-        Task ConnectAsync(EndPointAddress remoteEndpoint);
-
         void PublishTransactionally(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
         void SendTransactionally(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);
     }
 
     interface ITransport
     {
-        void AddRegistrations(IInboxConnection inboxConnection, ISet<TypeId> handledTypeIds);
+        Task ConnectAsync(EndPointAddress remoteEndpoint);
+        void Stop();
+
         IInboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command);
-        IInboxConnection ConnectionToHandlerFor(MessageTypes.IQuery query);
         IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
 
         Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand);

@@ -40,9 +40,9 @@ namespace Composable.Messaging.Buses
         public bool IsRunning { get; private set; }
         public Endpoint(IServiceLocator serviceLocator,
                         IGlobalBusStateTracker globalStateTracker,
-                        IOutbox transport,
+                        ITransport transport,
                         IEndpointRegistry endpointRegistry,
-                        IOutbox interProcessTransport,
+                        IOutbox outbox,
                         EndpointConfiguration configuration)
         {
             Contract.ArgumentNotNull(serviceLocator, nameof(serviceLocator), configuration, nameof(configuration));
@@ -51,16 +51,16 @@ namespace Composable.Messaging.Buses
             _transport = transport;
             _configuration = configuration;
             _endpointRegistry = endpointRegistry;
-            _interProcessTransport = interProcessTransport;
+            _outbox = outbox;
         }
         public EndpointId Id => _configuration.Id;
         public IServiceLocator ServiceLocator { get; }
 
         public EndPointAddress? Address => _serverComponents?.Inbox.Address;
         readonly IGlobalBusStateTracker _globalStateTracker;
-        readonly IOutbox _transport;
+        readonly ITransport _transport;
         readonly IEndpointRegistry _endpointRegistry;
-        readonly IOutbox _interProcessTransport;
+        readonly IOutbox _outbox;
 
         ServerComponents? _serverComponents;
 
@@ -72,7 +72,7 @@ namespace Composable.Messaging.Buses
 
             var initTasks = new List<Task>
                             {
-                                _transport.StartAsync()
+                                _outbox.StartAsync()
                             };
 
             //todo: find cleaner way of handling what an endpoint supports
@@ -95,7 +95,7 @@ namespace Composable.Messaging.Buses
             {
                 serverEndpoints.Add(_serverComponents.Inbox.Address); //Yes, we do connect to ourselves. Scheduled commands need to dispatch over the remote protocol to get the delivery guarantees...
             }
-            await Task.WhenAll(serverEndpoints.Select(address => _interProcessTransport.ConnectAsync(address))).NoMarshalling();
+            await Task.WhenAll(serverEndpoints.Select(address => _transport.ConnectAsync(address))).NoMarshalling();
         }
 
         static void RunSanityChecks()

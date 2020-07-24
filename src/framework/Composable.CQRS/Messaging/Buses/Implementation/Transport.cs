@@ -2,23 +2,64 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Composable.Contracts;
 using Composable.Refactoring.Naming;
+using Composable.Serialization;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
+using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation
 {
     class Transport : ITransport, IDisposable
     {
         readonly object _lock = new object();
+        readonly IGlobalBusStateTracker _globalBusStateTracker;
         readonly ITypeMapper _typeMapper;
+
+        bool _running;
+        IReadOnlyDictionary<EndpointId, IInboxConnection> _inboxConnections = new Dictionary<EndpointId, IInboxConnection>();
+        NetMQPoller? _poller;
+        readonly IRemotableMessageSerializer _serializer;
+
         IReadOnlyDictionary<Type, IInboxConnection> _commandHandlerRoutes = new Dictionary<Type, IInboxConnection>();
         IReadOnlyDictionary<Type, IInboxConnection> _queryHandlerRoutes = new Dictionary<Type, IInboxConnection>();
         IReadOnlyList<(Type EventType, IInboxConnection Connection)> _eventSubscriberRoutes = new List<(Type EventType, IInboxConnection Connection)>();
         IReadOnlyDictionary<Type, IReadOnlyList<IInboxConnection>> _eventSubscriberRouteCache = new Dictionary<Type, IReadOnlyList<IInboxConnection>>();
 
-        public Transport(ITypeMapper typeMapper) => _typeMapper = typeMapper;
+        public Transport(IGlobalBusStateTracker globalBusStateTracker, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+        {
+            _serializer = serializer;
+            _globalBusStateTracker = globalBusStateTracker;
+            _typeMapper = typeMapper;
 
-        public void AddRegistrations(IInboxConnection inboxConnection, ISet<TypeId> handledTypeIds)
+            _poller = new NetMQPoller();
+            _poller.RunAsync($"{nameof(Outbox)}_{nameof(NetMQPoller)}");
+            _running = true;
+        }
+
+        public async Task ConnectAsync(EndPointAddress remoteEndpoint)
+        {
+            var clientConnection =  new Outbox.InboxConnection(_globalBusStateTracker, remoteEndpoint, _poller!, _typeMapper, _serializer);
+
+            await clientConnection.Init().NoMarshalling();
+
+            ThreadSafe.AddToCopyAndReplace(ref _inboxConnections, clientConnection.EndpointInformation.Id, clientConnection);
+
+            AddRegistrations(clientConnection, clientConnection.EndpointInformation.HandledMessageTypes);
+        }
+
+        public void Stop()
+        {
+            Assert.State.Assert(_running, _poller != null, _poller.IsRunning);
+            _running = false;
+            _poller.StopAsync();
+            _poller.Dispose();
+            _inboxConnections.Values.ForEach(socket => socket.Dispose());
+            _poller = null;
+        }
+
+        void AddRegistrations(IInboxConnection inboxConnection, ISet<TypeId> handledTypeIds)
         {
             var eventSubscribers = new List<(Type EventType, IInboxConnection Connection)>();
             var commandHandlerRoutes = new Dictionary<Type, IInboxConnection>();
@@ -82,7 +123,7 @@ namespace Composable.Messaging.Buses.Implementation
                 ? connection
                 : throw new NoHandlerForMessageTypeException(command.GetType());
 
-        public IInboxConnection ConnectionToHandlerFor(MessageTypes.IQuery query) =>
+        IInboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.NonTransactional.IQuery query) =>
             _queryHandlerRoutes.TryGetValue(query.GetType(), out var connection)
                 ? connection
                 : throw new NoHandlerForMessageTypeException(query.GetType());
@@ -107,7 +148,10 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Dispose()
         {
-
+            if(_running)
+            {
+                Stop();
+            }
         }
     }
 }

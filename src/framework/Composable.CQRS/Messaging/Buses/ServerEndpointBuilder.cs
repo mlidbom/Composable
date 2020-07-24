@@ -36,7 +36,7 @@ namespace Composable.Messaging.Buses
             var serviceLocator = _container.CreateServiceLocator();
             var endpoint = new Endpoint(serviceLocator,
                                         serviceLocator.Resolve<IGlobalBusStateTracker>(),
-                                        serviceLocator.Resolve<IOutbox>(),
+                                        serviceLocator.Resolve<ITransport>(),
                                         serviceLocator.Resolve<IEndpointRegistry>(),
                                         serviceLocator.Resolve<IOutbox>(),
                                         Configuration);
@@ -91,8 +91,8 @@ namespace Composable.Messaging.Buses
                 Singleton.For<Outbox.IMessageStorage>()
                          .CreatedBy((IServiceBusPersistenceLayer.IOutboxPersistenceLayer persistenceLayer, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
                                         => new Outbox.MessageStorage(persistenceLayer, typeMapper, serializer)),
-                Singleton.For<IOutbox>().CreatedBy((RealEndpointConfiguration configuration, ITransport transport, IRemotableMessageSerializer serializer, Outbox.IMessageStorage messageStorage)
-                                                       => new Outbox(_globalStateTracker, transport, messageStorage, _typeMapper, configuration, serializer)),
+                Singleton.For<IOutbox>().CreatedBy((RealEndpointConfiguration configuration, ITransport transport, Outbox.IMessageStorage messageStorage)
+                                                       => new Outbox(transport, messageStorage, configuration)),
 
 
                 Singleton.For<IGlobalBusStateTracker>().CreatedBy(() => _globalStateTracker),
@@ -100,15 +100,19 @@ namespace Composable.Messaging.Buses
 
 
                 Singleton.For<IRemotableMessageSerializer>().CreatedBy((ITypeMapper typeMapper) => new RemotableMessageSerializer(typeMapper)),
-                Singleton.For<IEventStoreEventPublisher>().CreatedBy((IOutbox outbox, IMessageHandlerRegistry messageHandlerRegistry) => new ServiceBusEventStoreEventPublisher(outbox, messageHandlerRegistry)),
-                Singleton.For<ITransport>().CreatedBy((ITypeMapper typeMapper) => new Transport(typeMapper)),
+                Singleton.For<IEventStoreEventPublisher>().CreatedBy((IOutbox outbox, IMessageHandlerRegistry messageHandlerRegistry) 
+                                                                         => new ServiceBusEventStoreEventPublisher(outbox, messageHandlerRegistry)),
+                Singleton.For<ITransport>().CreatedBy((IGlobalBusStateTracker globalBusStateTracker, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+                                                          => new Transport(globalBusStateTracker, typeMapper, serializer)),
                 Scoped.For<IRemoteHypermediaNavigator>().CreatedBy((ITransport transport) => new RemoteHypermediaNavigator(transport)),
-                Singleton.For<RealEndpointConfiguration>().CreatedBy((EndpointConfiguration conf, IConfigurationParameterProvider configurationParameterProvider) => new RealEndpointConfiguration(conf, configurationParameterProvider)));
+                Singleton.For<RealEndpointConfiguration>().CreatedBy((EndpointConfiguration conf, IConfigurationParameterProvider configurationParameterProvider) 
+                                                                         => new RealEndpointConfiguration(conf, configurationParameterProvider)));
 
 
             _container.Register(
                 Singleton.For<Inbox.IMessageStorage>().CreatedBy((IServiceBusPersistenceLayer.IInboxPersistenceLayer persistenceLayer) => new InboxMessageStorage(persistenceLayer)),
-                Singleton.For<IInbox>().CreatedBy((IServiceLocator serviceLocator, RealEndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, Inbox.IMessageStorage messageStorage) => new Inbox(serviceLocator, _globalStateTracker, _registry, endpointConfiguration, messageStorage, _typeMapper, taskRunner, serializer)),
+                Singleton.For<IInbox>().CreatedBy((IServiceLocator serviceLocator, RealEndpointConfiguration endpointConfiguration, ITaskRunner taskRunner, IRemotableMessageSerializer serializer, Inbox.IMessageStorage messageStorage)
+                                                      => new Inbox(serviceLocator, _globalStateTracker, _registry, endpointConfiguration, messageStorage, _typeMapper, taskRunner, serializer)),
                 Singleton.For<CommandScheduler>().CreatedBy((IOutbox transport, IUtcTimeTimeSource timeSource, ITaskRunner taskRunner) => new CommandScheduler(transport, timeSource, taskRunner)),
                 Scoped.For<IServiceBusSession>().CreatedBy((IOutbox outbox, CommandScheduler commandScheduler) => new ServiceBusSession(outbox, commandScheduler)),
                 Scoped.For<ILocalHypermediaNavigator>().CreatedBy((IMessageHandlerRegistry messageHandlerRegistry) => new LocalHypermediaNavigator(messageHandlerRegistry))

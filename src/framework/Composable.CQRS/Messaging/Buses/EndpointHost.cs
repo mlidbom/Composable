@@ -66,13 +66,6 @@ namespace Composable.Messaging.Buses
 
         public void Start() => StartAsync().WaitUnwrappingException();
 
-        public void Stop() => _log.ExceptionsAndRethrow(() =>
-        {
-            Assert.State.Assert(_isStarted);
-            _isStarted = false;
-            Endpoints.Where(endpoint => endpoint.IsRunning).ForEach(endpoint => endpoint.Stop());
-        });
-
         protected virtual void Dispose(bool disposing) => _log.ExceptionsAndRethrow(() =>
         {
             if(!_disposed)
@@ -80,7 +73,10 @@ namespace Composable.Messaging.Buses
                 _disposed = true;
                 if(_isStarted)
                 {
-                    Stop();
+
+                    Assert.State.Assert(_isStarted);
+                    _isStarted = false;
+                    Endpoints.Where(endpoint => endpoint.IsRunning).ForEach(endpoint => endpoint.Stop());
                 }
 
                 Endpoints.ForEach(endpoint => endpoint.Dispose());

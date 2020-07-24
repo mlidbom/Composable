@@ -1,90 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
-using Composable.Contracts;
-using Composable.Refactoring.Naming;
-using Composable.Serialization;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
-using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
-using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    partial class Outbox : IOutbox, IDisposable
+    partial class Outbox : IOutbox
     {
-        class State
-        {
-            public State(IGlobalBusStateTracker globalBusStateTracker, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
-            {
-                GlobalBusStateTracker = globalBusStateTracker;
-                TypeMapper = typeMapper;
-                Serializer = serializer;
-            }
-
-            internal bool Running;
-            public readonly IGlobalBusStateTracker GlobalBusStateTracker;
-            internal readonly Dictionary<EndpointId, IInboxConnection> InboxConnections = new Dictionary<EndpointId, IInboxConnection>();
-            internal NetMQPoller? Poller;
-            public ITypeMapper TypeMapper { get; }
-            public IRemotableMessageSerializer Serializer { get; }
-        }
-
-        readonly IThreadShared<State> _state;
         readonly Outbox.IMessageStorage _storage;
         readonly RealEndpointConfiguration _configuration;
         readonly ITransport _transport;
 
-        public Outbox(IGlobalBusStateTracker globalBusStateTracker, ITransport transport, Outbox.IMessageStorage messageStorage, ITypeMapper typeMapper, RealEndpointConfiguration configuration, IRemotableMessageSerializer serializer)
+        public Outbox(ITransport transport, Outbox.IMessageStorage messageStorage, RealEndpointConfiguration configuration)
         {
             _storage = messageStorage;
             _transport = transport;
             _configuration = configuration;
-            _state = new OptimizedThreadShared<State>(new State(globalBusStateTracker, typeMapper, serializer));
         }
-
-        public async Task ConnectAsync(EndPointAddress remoteEndpoint)
-        {
-            var clientConnection = _state.WithExclusiveAccess(@this => new InboxConnection(@this.GlobalBusStateTracker, remoteEndpoint, @this.Poller!, @this.TypeMapper, @this.Serializer));
-
-            await clientConnection.Init().NoMarshalling();
-
-            _state.WithExclusiveAccess(@this => @this.InboxConnections.Add(clientConnection.EndpointInformation.Id, clientConnection));
-
-            _transport.AddRegistrations(clientConnection, clientConnection.EndpointInformation.HandledMessageTypes);
-        }
-
-        public async Task StartAsync()
-        {
-            Task startingStorage = _state.WithExclusiveAccess(state =>
-            {
-                Assert.State.Assert(!state.Running);
-                state.Running = true;
-
-                startingStorage = _configuration.IsPureClientEndpoint
-                                       ? Task.CompletedTask
-                                       : _storage.StartAsync();
-
-                state.Poller = new NetMQPoller();
-                state.Poller.RunAsync($"{nameof(Outbox)}_{nameof(state.Poller)}");
-                return startingStorage;
-            });
-
-            await startingStorage.NoMarshalling();
-        }
-
-        public void Stop() => _state.WithExclusiveAccess(state =>
-        {
-            Assert.State.Assert(state.Running, state.Poller != null, state.Poller.IsRunning);
-            state.Running = false;
-            state.Poller.StopAsync();
-            state.Poller.Dispose();
-            state.InboxConnections.Values.ForEach(socket => socket.Dispose());
-            state.Poller = null;
-        });
 
         public void PublishTransactionally(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent)
         {
@@ -116,14 +51,6 @@ namespace Composable.Messaging.Buses.Implementation
                                                                         .ContinueAsynchronouslyOnDefaultScheduler(task => HandleDeliveryTaskResults(task, connection.EndpointInformation.Id , exactlyOnceCommand.MessageId)));
         }
 
-        public void Dispose() => _state.WithExclusiveAccess(state =>
-        {
-            if(state.Running)
-            {
-                Stop();
-            }
-        });
-
         void HandleDeliveryTaskResults(Task completedSendTask, EndpointId receiverId, Guid messageId)
         {
             if(completedSendTask.IsFaulted)
@@ -133,6 +60,16 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 _storage.MarkAsReceived(messageId, receiverId);
             }
+        }
+
+        public async Task StartAsync()
+        {
+
+           var startingStorage = _configuration.IsPureClientEndpoint
+                                  ? Task.CompletedTask
+                                  : _storage.StartAsync();
+
+           await startingStorage.NoMarshalling();
         }
     }
 }

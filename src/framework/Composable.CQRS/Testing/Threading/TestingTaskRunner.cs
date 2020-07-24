@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Composable.Contracts;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 
@@ -46,7 +47,7 @@ namespace Composable.Testing.Threading
             if(!Task.WaitAll(_monitoredTasks.ToArray(), timeout: _timeout))
             {
                 var exceptions = _monitoredTasks.Where(@this => @this.IsFaulted)
-                                       .Select(@this => @this.Exception)
+                                       .Select(@this => Contract.ReturnNotNull(@this.Exception))
                                        .ToList();
 
                 if(exceptions.Any())

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Composable.Contracts
 {
     public interface IInspectedValue<out TValue> : IInspectedValue
@@ -11,7 +13,7 @@ namespace Composable.Contracts
         public TValue Value { get; private set; }
 
         ///<summary>Standard constructor</summary>
-        internal InspectedValue(InspectionType type, TValue value, string name = "") : base(type, name) => Value = value;
+        internal InspectedValue(InspectionType type, [MaybeNull]TValue value, string name = "") : base(type, name) => Value = value;
     }
 
 

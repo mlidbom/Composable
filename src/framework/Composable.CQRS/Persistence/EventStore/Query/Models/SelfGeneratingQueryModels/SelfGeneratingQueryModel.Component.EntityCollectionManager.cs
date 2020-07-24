@@ -18,6 +18,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                  TEntityEvent,
                                                  TEntityCreatedEvent,
                                                  TEntityEventIdGetterSetter> : IQueryModelEntityCollectionManager<TEntity, TEntityId>
+                where TEntityId : notnull
                 where TEntityEvent : class, TAggregateEvent
                 where TEntityCreatedEvent : TEntityEvent
                 where TEntity : Component<TEntity, TEntityEvent>
@@ -25,7 +26,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
             {
                 protected static readonly TEntityEventIdGetterSetter IdGetter = Constructor.For<TEntityEventIdGetterSetter>.DefaultConstructor.Instance();
 
-                protected readonly QueryModelEntityCollection<TEntity, TEntityId> ManagedEntities;
+                protected QueryModelEntityCollection<TEntity, TEntityId> ManagedEntities { get; }
                 protected QueryModelEntityCollectionManager(TParent parent, IEventHandlerRegistrar<TEntityEvent> appliersRegistrar)
                 {
                     ManagedEntities = new QueryModelEntityCollection<TEntity, TEntityId>();

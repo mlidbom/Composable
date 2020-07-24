@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.Contracts;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 // ReSharper disable ImpureMethodCallOnReadonlyValueField
@@ -19,7 +20,7 @@ namespace Composable
             GuidValue = guidValue;
         }
 
-        public override bool Equals(object other) => other is TypeId otherTypeId && otherTypeId.GuidValue.Equals(GuidValue);
+        public override bool Equals(object? other) => other is TypeId otherTypeId && otherTypeId.GuidValue.Equals(GuidValue);
         public override int GetHashCode() => GuidValue.GetHashCode();
 
         public static bool operator ==(TypeId left, TypeId right) => Equals(left, right);

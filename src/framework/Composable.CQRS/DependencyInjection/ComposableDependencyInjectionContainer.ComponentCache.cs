@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.SystemCE;
 using Composable.SystemCE.LinqCE;
+using Contract = Composable.Contracts.Contract;
 
 namespace Composable.DependencyInjection
 {
@@ -105,7 +107,8 @@ namespace Composable.DependencyInjection
         {
             var exceptions = disposables
                             .Select(disposable => ExceptionCE.TryCatch(disposable.Dispose))
-                            .Where(exception => exception != null)
+                            .Where(me => me != null)
+                            .Select(Contract.ReturnNotNull)
                             .ToList();
 
             if(exceptions.Any())

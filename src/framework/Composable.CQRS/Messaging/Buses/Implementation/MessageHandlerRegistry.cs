@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Messaging.Events;
 using Composable.Refactoring.Naming;
@@ -84,7 +85,7 @@ namespace Composable.Messaging.Buses.Implementation
             throw new NoHandlerException(message.GetType());
         }
 
-        bool TryGetCommandHandler(MessageTypes.ICommand message, out Action<object> handler) =>
+        bool TryGetCommandHandler(MessageTypes.ICommand message, [MaybeNullWhen(false)]out Action<object> handler) =>
             _commandHandlers.TryGetValue(message.GetType(), out handler);
 
         public Func<MessageTypes.ICommand, object> GetCommandHandlerWithReturnValue(Type commandType) => _commandHandlersReturningResults[commandType].HandlerMethod;

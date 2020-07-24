@@ -13,12 +13,12 @@ namespace Composable.SystemCE
          public static IEnumerable<Exception> GetAllExceptionsInStack(this Exception exception)
         {
             Contract.ArgumentNotNull(exception, nameof(exception));
-
-             do
+            Exception? current = exception;
+             while (current != null)
              {
-                 yield return exception;
-                 exception = exception.InnerException;
-             } while (exception != null);
+                 yield return current;
+                 current = current.InnerException;
+             }
         }
 
         ///<summary>Returns the deepest nested inner exception that was the root cause of the current exception.</summary>

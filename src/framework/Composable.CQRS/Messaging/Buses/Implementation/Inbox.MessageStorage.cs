@@ -23,7 +23,7 @@ namespace Composable.Messaging.Buses.Implementation
         public void RecordException(TransportMessage.InComing message, Exception exception)
         {
             var affectedRows = _persistenceLayer.RecordException(message.MessageId,
-                                                                 exception.StackTrace,
+                                                                 exception.StackTrace ?? string.Empty,
                                                                  exception.Message,
                                                                  exception.GetType().GetFullNameCompilable());
 

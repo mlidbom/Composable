@@ -31,7 +31,7 @@ namespace Composable.Persistence.EventStore.Aggregates
             if(illegalMembers.Any())
             {
                 // ReSharper disable once PossibleNullReferenceException
-                var brokenMembers = illegalMembers.Select(illegal => $"{illegal.DeclaringType.FullName}.{illegal.Name}").Distinct().OrderBy(me => me).Join(Environment.NewLine);
+                var brokenMembers = illegalMembers.Select(illegal => $"{illegal.DeclaringType?.FullName ?? "No declaring type or unnamed declaring type"}.{illegal.Name}").Distinct().OrderBy(me => me).Join(Environment.NewLine);
                 var message = $@"Types used by aggregate contains types that have public setters or public  fields. This is a dangerous design. 
 If you ever mutate an event or an aggregate except by raising events your state is likely to become currupt in our caches etc. 
 List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine}{Environment.NewLine}";
@@ -56,7 +56,7 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
             var totalMutableProperties = publicFields.Concat(publicProperties).ToList();
             // ReSharper disable once AssignNullToNotNullAttribute
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-            totalMutableProperties = totalMutableProperties.Where(member => member.DeclaringType.GetCustomAttribute<AllowPublicSettersAttribute>() == null).ToList();
+            totalMutableProperties = totalMutableProperties.Where(member => member.DeclaringType?.GetCustomAttribute<AllowPublicSettersAttribute>() == null).ToList();
 
             return totalMutableProperties;
         }

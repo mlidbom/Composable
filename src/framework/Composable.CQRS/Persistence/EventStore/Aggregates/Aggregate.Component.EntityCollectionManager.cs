@@ -25,6 +25,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                                                                                    TEntityEvent,
                                                                                    TEntityEventImplementation,
                                                                                    TEntityCreatedEvent>
+                where TEntityId : notnull
                 where TEntityEvent : class, TAggregateEvent
                 where TEntityCreatedEvent : TEntityEvent
                 where TEntityEventImplementation : TEntityEvent, TAggregateEventImplementation
@@ -33,7 +34,7 @@ namespace Composable.Persistence.EventStore.Aggregates
             {
                 protected static readonly TEntityEventIdGetterSetter IdGetter = Constructor.For<TEntityEventIdGetterSetter>.DefaultConstructor.Instance();
 
-                protected readonly EntityCollection<TEntity, TEntityId> ManagedEntities;
+                protected EntityCollection<TEntity, TEntityId> ManagedEntities { get; }
                 readonly Action<TEntityEventImplementation> _raiseEventThroughParent;
                 protected EntityCollectionManager
                     (TParent parent,

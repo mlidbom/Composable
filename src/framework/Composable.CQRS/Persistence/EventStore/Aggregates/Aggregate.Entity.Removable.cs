@@ -20,6 +20,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                                                                        TEntityEvent,
                                                                        TEntityCreatedEvent,
                                                                        TEntityEventIdGetterSetter>
+            where TEntityId : notnull
             where TEntityEvent : class, TAggregateEvent
             where TEntityEventImplementation : TAggregateEventImplementation, TEntityEvent
             where TEntityCreatedEvent : TEntityEvent

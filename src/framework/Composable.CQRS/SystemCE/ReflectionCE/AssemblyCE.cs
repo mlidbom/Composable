@@ -7,7 +7,7 @@ namespace Composable.SystemCE.ReflectionCE
     {
         internal static bool IsKnownThirdPartyLibrary(this Assembly @this)
         {
-            var name = @this.GetName().Name;
+            var name = @this.GetName().Name ?? "";
 
             if(ExactNamesForKnownThirdPartyLibraryAssemblies.Contains(name)) return true;
 

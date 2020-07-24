@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Composable.Contracts;
 
 namespace Composable.SystemCE.LinqCE
 {
@@ -27,5 +28,7 @@ namespace Composable.SystemCE.LinqCE
         }
 
         public static TResult MapTo<TValue, TResult>(this TValue @this, Func<TValue, TResult> transform) => transform(@this);
+
+        public static string ToStringNotNull(this object @this) => Contract.ReturnNotNull(@this.ToString());
     }
 }

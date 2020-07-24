@@ -25,6 +25,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                     TEntityId,
                                     TEntityEvent,
                                     TEventEntityIdGetter>
+                where TEntityId : notnull
                 where TEventEntityIdGetter : IGetAggregateEntityEventEntityId<TEntityEvent, TEntityId>
             {
                 protected SlavedNestedEntity(TComponent parent) : this(parent.RegisterEventAppliers()) { }

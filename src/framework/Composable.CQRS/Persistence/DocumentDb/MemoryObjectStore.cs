@@ -56,7 +56,7 @@ namespace Composable.Persistence.DocumentDb
             return false;
         }
 
-        protected static string GetIdString(object id) => id.ToString().ToUpperInvariant().TrimEnd(' ');
+        protected static string GetIdString(object id) => Contract.ReturnNotNull(id).ToStringNotNull().ToUpperInvariant().TrimEnd(' ');
 
         public virtual void Add<T>(object id, T value)
         {

@@ -138,7 +138,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
 
             //Runs on poller thread so NO BLOCKING HERE!
-            void ReceiveResponse_PollerThread(object sender, NetMQSocketEventArgs e)
+            void ReceiveResponse_PollerThread(object? sender, NetMQSocketEventArgs e)
             {
                 var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, _typeMapper, _serializer, batchMaximum: 100);
 

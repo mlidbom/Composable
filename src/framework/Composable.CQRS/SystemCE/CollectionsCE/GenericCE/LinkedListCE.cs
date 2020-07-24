@@ -32,7 +32,7 @@ namespace Composable.SystemCE.CollectionsCE.GenericCE
 
             foreach(var item in items)
             {
-                @this.List.AddBefore(@this, item);
+                @this.List!.AddBefore(@this, item);
             }
         }
 
@@ -53,9 +53,9 @@ namespace Composable.SystemCE.CollectionsCE.GenericCE
 
             foreach(var newItem in newItemsReversed)
             {
-                current = @this.List.AddAfter(@this, newItem);
+                current = @this.List!.AddAfter(@this, newItem);
             }
-            @this.List.Remove(@this);
+            @this.List!.Remove(@this);
             return Assert.Result.NotNull(current);
         }
     }

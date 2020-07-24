@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Contracts;
 using Composable.SystemCE.LinqCE;
@@ -9,6 +10,9 @@ namespace Composable.SystemCE.ReflectionCE
     /// <summary>A collection of extensions to work with <see cref="Type"/></summary>
     static class TypeCE
     {
+        public static string FullNameNotNull(this Type @this) => Contract.ReturnNotNull(@this.FullName);
+        public static Type DeclaringTypeNotNull(this Type @this) => Contract.ReturnNotNull(@this.DeclaringType);
+
         /// ///<returns>true if <paramref name="me"/> implements the interface: <typeparamref name="TImplemented"/>. By definition true if <paramref name="me"/> == <typeparamref name="TImplemented"/>.</returns>
         public static bool Implements<TImplemented>(this Type me)
         {
@@ -68,7 +72,7 @@ namespace Composable.SystemCE.ReflectionCE
         }
 
         ///<summary>Finds the class that the string represents within any loaded assembly. Calling with "MyNameSpace.MyObject" would return the same type as typeof(MyNameSpace.MyObject) etc.</summary>
-        public static bool TryGetType(this string valueType, out Type type)
+        public static bool TryGetType(this string valueType, [MaybeNullWhen(false)]out Type type)
         {
             lock (TypeMap)
             {
@@ -78,9 +82,10 @@ namespace Composable.SystemCE.ReflectionCE
                 }
 
                 var types = AppDomain.CurrentDomain.GetAssemblies()
-                    .Select(assembly => assembly.GetType(valueType))
-                    .Where(t => t != null)
-                    .ToArray();
+                                     .Select(assembly => assembly.GetType(valueType))
+                                     .Where(t => t != null)
+                                     .Select(Contract.ReturnNotNull)
+                                     .ToArray();
                 if (types.None())
                 {
                     return false;
@@ -99,10 +104,11 @@ namespace Composable.SystemCE.ReflectionCE
 
         public static IEnumerable<Type> ClassInheritanceChain(this Type me)
         {
-            while (me != null)
+            Type? current = me;
+            while(current != null)
             {
-                yield return me;
-                me = me.BaseType;
+                yield return current;
+                current = current.BaseType;
             }
         }
 

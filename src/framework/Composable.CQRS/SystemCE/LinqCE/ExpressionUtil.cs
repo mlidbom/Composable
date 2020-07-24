@@ -66,8 +66,7 @@ namespace Composable.SystemCE.LinqCE
                                        ? (MemberExpression)unaryExpression.Operand
                                        : (MemberExpression)lambda.Body;
 
-            // ReSharper disable once PossibleNullReferenceException
-            return $"{memberExpression.Member.DeclaringType.FullName}.{memberExpression.Member.Name}";
+            return $"{memberExpression.Member.DeclaringType!.FullName}.{memberExpression.Member.Name}";
         }
     }
 }

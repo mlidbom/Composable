@@ -19,6 +19,7 @@ namespace Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryMode
                                                TEntityCreatedEvent,
                                                TEventEntityIdGetter> : NestedComponent<TEntity,
                                                                                  TEntityEvent>
+                where TEntityId : notnull
                 where TEntityEvent : class, TComponentEvent
                 where TEntityCreatedEvent : TEntityEvent
                 where TEntity : NestedEntity<TEntity,

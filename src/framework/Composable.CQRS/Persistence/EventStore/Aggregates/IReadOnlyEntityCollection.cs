@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
@@ -6,7 +7,7 @@ namespace Composable.Persistence.EventStore.Aggregates
     {
         IReadOnlyList<TEntity> InCreationOrder { get; }
         // ReSharper disable once UnusedMember.Global todo:write test
-        bool TryGet(TEntityId id, out TEntity component);
+        bool TryGet(TEntityId id, [MaybeNullWhen(false)]out TEntity component);
         bool Exists(TEntityId id);
         TEntity Get(TEntityId id);
         TEntity this[TEntityId id] { get; }

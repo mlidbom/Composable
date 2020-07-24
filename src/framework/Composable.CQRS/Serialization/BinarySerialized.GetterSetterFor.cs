@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Composable.Contracts;
+
 // ReSharper disable ForCanBeConvertedToForeach we do optimizations here...
 
 namespace Composable.Serialization
@@ -104,7 +106,7 @@ namespace Composable.Serialization
             {
                 public StringGetterSetter(GetterFunction getter, SetterFunction setter) : base(getter, setter) {}
 
-                internal override void Serialize(TInheritor inheritor, BinaryWriter writer) => writer.Write(Getter(inheritor));
+                internal override void Serialize(TInheritor inheritor, BinaryWriter writer) => writer.Write(Contract.ReturnNotNull(Getter(inheritor)));
                 internal override void Deserialize(TInheritor inheritor, BinaryReader reader) => Setter(inheritor, reader.ReadString());
             }
 

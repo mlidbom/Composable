@@ -14,10 +14,10 @@ namespace Composable.SystemCE.ThreadingCE
         internal static void AddRangeToCopyAndReplace<T>(ref IReadOnlyList<T> original, IEnumerable<T> item) =>
             original = original.AddRangeToCopy(item);
 
-        internal static void AddToCopyAndReplace<TKey, TValue>(ref IReadOnlyDictionary<TKey, TValue> original, TKey key, TValue value) =>
+        internal static void AddToCopyAndReplace<TKey, TValue>(ref IReadOnlyDictionary<TKey, TValue> original, TKey key, TValue value) where TKey : notnull =>
             original = original.AddToCopy(key, value);
 
-        internal static void AddRangeToCopyAndReplace<TKey, TValue>(ref IReadOnlyDictionary<TKey, TValue> original, IEnumerable<KeyValuePair<TKey, TValue>> additions) =>
+        internal static void AddRangeToCopyAndReplace<TKey, TValue>(ref IReadOnlyDictionary<TKey, TValue> original, IEnumerable<KeyValuePair<TKey, TValue>> additions) where TKey : notnull =>
             original = original.AddRangeToCopy(additions);
     }
 }

@@ -8,6 +8,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.SystemCE.CollectionsCE.GenericCE;
+using Composable.SystemCE.LinqCE;
 
 namespace Composable.Persistence.DocumentDb
 {
@@ -56,7 +57,7 @@ namespace Composable.Persistence.DocumentDb
             persistentValues.GetOrAddDefault(value.GetType())[idString] = serializedDocument;
         }
 
-        internal static string GetIdString(object id) => id.ToString().ToUpperInvariant().TrimEnd(' ');
+        internal static string GetIdString(object id) => id.ToStringNotNull().ToUpperInvariant().TrimEnd(' ');
 
         public void Remove(object id, Type documentType)
         {

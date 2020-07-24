@@ -124,7 +124,7 @@ namespace Composable.DDD
             catch (Exception)
             {
                 // ReSharper disable once AssignNullToNotNullAttribute
-                return GetType().FullName;
+                return GetType().FullNameNotNull();
             }
         }
     }

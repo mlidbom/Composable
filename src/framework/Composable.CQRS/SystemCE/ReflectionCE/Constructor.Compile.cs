@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using Composable.Contracts;
 
 namespace Composable.SystemCE.ReflectionCE
 {
@@ -51,7 +52,7 @@ namespace Composable.SystemCE.ReflectionCE
                     var instanceType = delegateTypeGenericArgumentTypes[^1];
                     var constructorArgumentTypes = delegateTypeGenericArgumentTypes.Length > 1 ? delegateTypeGenericArgumentTypes.Take(delegateTypeGenericArgumentTypes.Length - 1).ToArray() : Type.EmptyTypes;
 
-                    ConstructorInfo constructor = instanceType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, types: constructorArgumentTypes, modifiers: null);
+                    ConstructorInfo constructor = Contract.ReturnNotNull(instanceType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, types: constructorArgumentTypes, modifiers: null));
                     if (constructor == null)
                     {
                         throw new Exception($"Expected to find a constructor with the signature: [private|protected|public] {instanceType.GetFullNameCompilable()}({DescribeParameterList(constructorArgumentTypes)})");
@@ -70,7 +71,7 @@ namespace Composable.SystemCE.ReflectionCE
 
                 static string DescribeParameterList(IEnumerable<Type> parameterTypes)
                 {
-                    return parameterTypes.Select(parameterType => parameterType.FullName).Join(", ");
+                    return parameterTypes.Select(parameterType => parameterType.FullNameNotNull()).Join(", ");
                 }
             }
         }

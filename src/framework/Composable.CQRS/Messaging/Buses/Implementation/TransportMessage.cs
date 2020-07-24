@@ -193,7 +193,7 @@ namespace Composable.Messaging.Buses.Implementation
                         response.Append((int)ResponseType.Failure);
                     }
 
-                    response.Append(failure.InnerExceptions.Count == 1 ? failure.InnerException.ToString() : failure.ToString());
+                    response.Append(failure.InnerExceptions.Count == 1 ? failure.InnerException?.ToString() ?? "" : failure.ToString());
 
                     return response;
                 }

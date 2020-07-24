@@ -31,7 +31,7 @@ namespace Composable.Persistence
             return WithMachineWideLock.Execute(() =>
             {
                 var path = Environment.GetEnvironmentVariable("COMPOSABLE_TEMP_DRIVE");
-                if(path.IsNullEmptyOrWhiteSpace())
+                if(path == null || path.IsNullEmptyOrWhiteSpace())
                 {
                     path = DefaultPath;
                 }

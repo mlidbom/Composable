@@ -29,6 +29,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                                                TEntityEventIdGetterSetter> : NestedComponent<TEntity,
                                                                                  TEntityEventImplementation,
                                                                                  TEntityEvent>
+                where TEntityId : notnull
                 where TEntityEvent : class, TComponentEvent
                 where TEntityEventImplementation : TComponentEventImplementation, TEntityEvent
                 where TEntity : SlavedNestedEntity<TEntity,

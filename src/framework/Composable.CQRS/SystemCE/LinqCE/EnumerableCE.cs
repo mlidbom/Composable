@@ -8,6 +8,8 @@ namespace Composable.SystemCE.LinqCE
     /// <summary/>
     public static partial class EnumerableCE
     {
+        internal static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> @this) => @this.Where(current => !Equals(current, default)).Select(Contract.ReturnNotNull);
+
         /// <summary>
         /// Creates an enumerable consisting of the passed parameter values is order.
         /// </summary>

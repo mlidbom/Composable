@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Composable.Contracts;
 
 namespace Composable.SystemCE.CollectionsCE.GenericCE
@@ -11,7 +12,7 @@ namespace Composable.SystemCE.CollectionsCE.GenericCE
         /// If <paramref name="key"/> exists in me <paramref name="me"/> it is returned.
         /// If not <paramref name="constructor"/> is used to create a new value that is inserted into <paramref name="me"/> and returned.
         /// </summary>
-        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key, Func<TValue> constructor)
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key, Func<TValue> constructor) where TKey : notnull
         {
             Contract.ArgumentNotNull(me, nameof(me), key, nameof(key), constructor, nameof(constructor));
 
@@ -28,7 +29,7 @@ namespace Composable.SystemCE.CollectionsCE.GenericCE
         /// <summary>
         /// If <paramref name="key"/> exists in me <paramref name="me"/> it is returned if not it is inserted from the default constructor and returned.
         /// </summary>
-        public static TValue GetOrAddDefault<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key) where TValue : new()
+        public static TValue GetOrAddDefault<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key) where TValue : new() where TKey : notnull
         {
             Contract.ArgumentNotNull(me, nameof(me), key, nameof(key));
             //Originally written to delegate to the above method. Believe it or not this causes a performance decrease that is actually significant in tight loops.
@@ -43,14 +44,14 @@ namespace Composable.SystemCE.CollectionsCE.GenericCE
         }
 
 
-        public static TValue GetAndRemove<TKey, TValue>(this IDictionary<TKey, TValue> @this, TKey key)
+        public static TValue GetAndRemove<TKey, TValue>(this IDictionary<TKey, TValue> @this, TKey key) where TKey : notnull
         {
             var value = @this[key];
             @this.Remove(key);
             return value;
         }
 
-        public static bool TryGetAndRemove<TKey, TValue>(this IDictionary<TKey, TValue> @this, TKey key, out TValue value)
+        public static bool TryGetAndRemove<TKey, TValue>(this IDictionary<TKey, TValue> @this, TKey key, [MaybeNullWhen(false)]out TValue value) where TKey : notnull
         {
             if(@this.TryGetValue(key, out value))
             {

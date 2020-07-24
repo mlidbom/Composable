@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -28,9 +29,9 @@ namespace Composable.Contracts
         }
 
         ///<summary>Extracts the returned field,property,argument value from a lambda</summary>
-        public static TValue ExtractValue<TValue>(Expression<Func<TValue>> fetchValue) => (TValue)GetExpressionValue(fetchValue.Body);
+        [return:MaybeNull]public static TValue ExtractValue<TValue>(Expression<Func<TValue>> fetchValue) => (TValue)GetExpressionValue(fetchValue.Body);
 
-        static object GetExpressionValue(Expression expression)
+        static object? GetExpressionValue(Expression expression)
         {
             // ReSharper disable once SwitchStatementMissingSomeCases
             switch (expression.NodeType)

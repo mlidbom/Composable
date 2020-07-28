@@ -12,8 +12,8 @@ namespace Composable.SystemCE.ThreadingCE.TasksCE
 
         public Task<TResult> Task => _completionSource.Task;
 
-        public void SetResultAsync(TResult result) => _completionSource.SetResult(result);
-        public void SetExceptionAsync(Exception exception) => _completionSource.SetException(exception);
+        public void ScheduleContinuation(TResult result) => _completionSource.SetResult(result);
+        public void ScheduleException(Exception exception) => _completionSource.SetException(exception);
     }
 
     class AsyncTaskCompletionSource
@@ -21,8 +21,8 @@ namespace Composable.SystemCE.ThreadingCE.TasksCE
         readonly AsyncTaskCompletionSource<Unit> _completionSource;
         public Task Task => _completionSource.Task;
 
-        public void SetResultAsync() => _completionSource.SetResultAsync(Unit.Instance);
-        public void SetExceptionAsync(Exception exception) => _completionSource.SetExceptionAsync(exception);
+        public void ScheduleContinuation() => _completionSource.ScheduleContinuation(Unit.Instance);
+        public void ScheduleException(Exception exception) => _completionSource.ScheduleException(exception);
 
         public AsyncTaskCompletionSource() => _completionSource = new AsyncTaskCompletionSource<Unit>();
     }

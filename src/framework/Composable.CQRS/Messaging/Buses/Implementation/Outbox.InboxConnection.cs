@@ -151,19 +151,19 @@ namespace Composable.Messaging.Buses.Implementation
                             case TransportMessage.Response.ResponseType.Received:
                             case TransportMessage.Response.ResponseType.Success:
                                 var successResponse = state.ExpectedCompletionTasks.GetAndRemove(response.RespondingToMessageId);
-                                successResponse.SetResultAsync();
+                                successResponse.ScheduleContinuation();
                                 break;
                             case TransportMessage.Response.ResponseType.SuccessWithData:
                                 var successResponseWithData = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
-                                successResponseWithData.SetResultAsync(response.DeserializeResult);
+                                successResponseWithData.ScheduleContinuation(response.DeserializeResult);
                                 break;
                             case TransportMessage.Response.ResponseType.Failure:
                                 var failureResponse = state.ExpectedCompletionTasks.GetAndRemove(response.RespondingToMessageId);
-                                failureResponse.SetExceptionAsync(new MessageDispatchingFailedException(response.Body ?? "Got no exception text from remote end."));
+                                failureResponse.ScheduleException(new MessageDispatchingFailedException(response.Body ?? "Got no exception text from remote end."));
                                 break;
                             case TransportMessage.Response.ResponseType.FailureExpectedReturnValue:
                                 var failureResponseExpectingData = state.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
-                                failureResponseExpectingData.SetExceptionAsync(new MessageDispatchingFailedException(response.Body ?? "Got no exception text from remote end."));
+                                failureResponseExpectingData.ScheduleException(new MessageDispatchingFailedException(response.Body ?? "Got no exception text from remote end."));
                                 break;
                             default:
                                 throw new ArgumentOutOfRangeException();

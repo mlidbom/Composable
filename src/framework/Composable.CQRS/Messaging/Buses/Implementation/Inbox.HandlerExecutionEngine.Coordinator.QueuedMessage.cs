@@ -53,7 +53,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                      })
                                                      : _serviceLocator.ExecuteInIsolatedScope(() => _messageTask(message));
 
-                                    _taskCompletionSource.SetResult(result);
+                                    _taskCompletionSource.SetResultAsync(result);
                                     _coordinator.Succeeded(this);
                                     return;
                                 }
@@ -71,7 +71,7 @@ namespace Composable.Messaging.Buses.Implementation
                                             _messageStorage.MarkAsFailed(TransportMessage);
                                         }
 
-                                        _taskCompletionSource.SetException(exception);
+                                        _taskCompletionSource.SetExceptionAsync(exception);
                                         _coordinator.Failed(this, exception);
                                         return;
                                     }

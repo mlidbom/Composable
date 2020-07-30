@@ -27,7 +27,6 @@ namespace Composable.Persistence.DB2.SystemExtensions
                                                                                                                                   me.CommandText = storedProcedure;
                                                                                                                               });
 
-        //urgent: Create a version of this for the other persistence layers. It's crazy helpful.
         public static DB2Command LogCommand(this DB2Command @this)
         {
             SafeConsole.WriteLine("####################################### Logging command###############################################");

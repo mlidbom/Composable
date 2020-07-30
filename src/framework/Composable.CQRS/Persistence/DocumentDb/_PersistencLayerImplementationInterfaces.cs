@@ -11,7 +11,7 @@ namespace Composable.Persistence.DocumentDb
         bool TryGet(string idString, IReadonlySetCEx<Guid> acceptableTypeIds, bool useUpdateLock, [NotNullWhen(true)] out ReadRow? document);
         void Add(WriteRow row);
         int Remove(string idString, IReadonlySetCEx<Guid> acceptableTypes);
-        //Urgent: This whole Guid vs string thing must be removed.
+        //Urgent: This whole Guid vs string thing must be fixed.
         IEnumerable<Guid> GetAllIds(IReadonlySetCEx<Guid> acceptableTypes);
         IReadOnlyList<ReadRow> GetAll(IEnumerable<Guid> ids, IReadonlySetCEx<Guid> acceptableTypes);
         IReadOnlyList<ReadRow> GetAll(IReadonlySetCEx<Guid> acceptableTypes);

@@ -13,9 +13,8 @@ namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation
         {
             public static async Task EnsureTablesExistAsync(IOracleConnectionProvider connectionFactory)
             {
-                //Urgent: Figure out the syntax for the commented out parts.
                 await connectionFactory.UseCommandAsync(
-                    command => command.SetCommandText($@"
+                                            command => command.SetCommandText($@"
 declare existing_table_count integer;
 begin
     select count(*) into existing_table_count from user_tables where table_name='{Message.TableName}';
@@ -52,7 +51,7 @@ begin
         end if;
     end;
 ")
-                                      .ExecuteNonQueryAsync()).NoMarshalling();
+                                                              .ExecuteNonQueryAsync()).NoMarshalling();
             }
         }
     }

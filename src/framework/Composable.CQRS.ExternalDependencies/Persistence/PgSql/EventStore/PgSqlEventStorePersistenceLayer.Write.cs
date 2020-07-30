@@ -14,6 +14,7 @@ using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaSt
 
 namespace Composable.Persistence.PgSql.EventStore
 {
+    //Performance: explore PgSql alternatives to commented out MSSql hints throughout the persistence layer.
     partial class PgSqlEventStorePersistenceLayer
     {
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)

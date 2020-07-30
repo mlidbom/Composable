@@ -14,6 +14,7 @@ using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaSt
 
 namespace Composable.Persistence.DB2.EventStore
 {
+    //Performance: explore db2 alternatives to commented out MSSql hints throughout the persistence layer.
     partial class DB2EventStorePersistenceLayer
     {
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
@@ -26,7 +27,6 @@ namespace Composable.Persistence.DB2.EventStore
                     {
                         connection.UseCommand(
                             command => command.SetCommandText(
-                                                   //urgent: explore db2 alternatives to commented out hints .
                                                    $@"
 BEGIN
     IF (@{Event.InsertedVersion} = 1) THEN
@@ -82,8 +82,6 @@ END;";
 
         public EventNeighborhood LoadEventNeighborHood(Guid eventId)
         {
-            //urgent: Find DB2 equivalent
-            //var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "";
 
             var selectStatement = $@"
@@ -130,7 +128,6 @@ where {Event.EventId} = @{Event.EventId}";
             _connectionManager.UseCommand(
                 command =>
                 {
-                    //urgent: Find equivalent to rowlock hint.
                     command.SetCommandText($"DELETE FROM {Event.TableName} /*With(ROWLOCK)*/ WHERE {Event.AggregateId} = @{Event.AggregateId}")
                            .AddParameter(Event.AggregateId, aggregateId)
                            .ExecuteNonQuery();

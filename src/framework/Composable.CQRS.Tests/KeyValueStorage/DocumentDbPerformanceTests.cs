@@ -26,9 +26,9 @@ namespace Composable.Tests.KeyValueStorage
                 //Warm up caches etc
                 SaveOneNewUserInTransaction();
 
-                //Urgent: Fix the MySql opening connection slowness problem and up the number for MySql in this test
-                //Urgent: Look at why DB2 is so slow here.
-                //Urgent: See if using stored procedures and/or prepared statements speeds this up.
+                //Performance: Fix the MySql opening connection slowness problem and up the number for MySql in this test
+                //Performance: Look at why DB2 is so slow here.
+                //Performance: See if using stored procedures and/or prepared statements speeds this up.
                 TimeAsserter.Execute(
                     action: SaveOneNewUserInTransaction,
                     iterations: 100,

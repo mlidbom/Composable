@@ -36,7 +36,7 @@ namespace Composable.Persistence.DB2.SystemExtensions
             return connection;
         }
 
-        //Urgent: Since the DB2 connection pooling is way slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
+        //Performance: Since the DB2 connection pooling is slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
         ComposableDB2Connection GetConnectionFromPool()
         {
             var connectionString = GetConnectionString();

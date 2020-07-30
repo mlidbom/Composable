@@ -27,9 +27,8 @@ namespace Composable.Persistence.MsSql.EventStore
                     {
                         connection.UseCommand(
                             command => command.SetCommandText(
-                                                   //urgent: ensure that READCOMMITTED is really sane here and add comment.
                                                    $@"
-INSERT {Event.TableName} With(READCOMMITTED, ROWLOCK) 
+INSERT {Event.TableName} With(READCOMMITTED, ROWLOCK) --We are inserting append-only data so using READCOMMITTED to lessen the risk of lock problems should be perfectly safe.
 (       {Event.AggregateId},  {Event.InsertedVersion},  {Event.EffectiveVersion},  {Event.ReadOrder},  {Event.EventType},  {Event.EventId},  {Event.UtcTimeStamp},  {Event.Event},  {Event.TargetEvent}, {Event.RefactoringType}) 
 VALUES(@{Event.AggregateId}, @{Event.InsertedVersion}, @{Event.EffectiveVersion}, @{Event.ReadOrder}, @{Event.EventType}, @{Event.EventId}, @{Event.UtcTimeStamp}, @{Event.Event}, @{Event.TargetEvent},@{Event.RefactoringType})
 

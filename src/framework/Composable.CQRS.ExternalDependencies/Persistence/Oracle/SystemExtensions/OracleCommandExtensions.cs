@@ -21,7 +21,6 @@ namespace Composable.Persistence.Oracle.SystemExtensions
         public static OracleCommand AppendCommandText(this OracleCommand @this, string append) => @this.Mutate(me => me.CommandText += append);
         public static OracleCommand SetCommandText(this OracleCommand @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
 
-        //urgent: Create a version of this for the other persistence layers. It's crazy helpful.
         public static OracleCommand LogCommand(this OracleCommand @this)
         {
             SafeConsole.WriteLine("####################################### Logging command###############################################");

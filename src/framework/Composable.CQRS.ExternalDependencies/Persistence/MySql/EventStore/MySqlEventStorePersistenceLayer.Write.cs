@@ -13,6 +13,7 @@ using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaSt
 
 namespace Composable.Persistence.MySql.EventStore
 {
+    //Performance: explore MySql alternatives to commented out MSSql hints throughout the persistence layer.
     partial class MySqlEventStorePersistenceLayer
     {
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)
@@ -25,7 +26,6 @@ namespace Composable.Persistence.MySql.EventStore
                     {
                         connection.UseCommand(
                             command => command.SetCommandText(
-                                                   //urgent: explore mysql alternatives to commented out hints .
                                                    $@"
 INSERT {Event.TableName} /*With(READCOMMITTED, ROWLOCK)*/
 (       {Event.AggregateId},  {Event.InsertedVersion},  {Event.EffectiveVersion},  {Event.ReadOrder},  {Event.EventType},  {Event.EventId},  {Event.UtcTimeStamp},  {Event.Event},  {Event.TargetEvent}, {Event.RefactoringType}) 
@@ -72,7 +72,6 @@ END IF;
 
         public EventNeighborhood LoadEventNeighborHood(Guid eventId)
         {
-            //urgent: Find MySql equivalent
             //var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "";
 
@@ -110,7 +109,6 @@ where {Event.EventId} = @{Event.EventId}";
             _connectionManager.UseCommand(
                 command =>
                 {
-                    //urgent: Find equivalent to rowlock hint.
                     command.CommandText +=
                         $"DELETE FROM {Event.TableName} /*With(ROWLOCK)*/ WHERE {Event.AggregateId} = @{Event.AggregateId};";
                     command.Parameters.Add(new MySqlParameter(Event.AggregateId, MySqlDbType.Guid) { Value = aggregateId });

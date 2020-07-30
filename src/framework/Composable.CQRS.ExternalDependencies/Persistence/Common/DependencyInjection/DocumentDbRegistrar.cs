@@ -6,8 +6,6 @@ using Composable.Persistence.DocumentDb;
 using Composable.Refactoring.Naming;
 using Composable.Serialization;
 
-// ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
-
 namespace Composable.Persistence.Common.DependencyInjection
 {
     public static class DocumentDbRegistrar

@@ -33,7 +33,6 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
             var databaseName = db.Name.ToLowerInvariant();
-            //Urgent: Figure out PgSql equivalents and if they need to be specified
             //            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
             //            {
             //                createDatabaseCommand += $@"

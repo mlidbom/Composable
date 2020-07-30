@@ -32,7 +32,6 @@ namespace Composable.Persistence.MySql.Testing.Databases
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
             var databaseName = db.Name;
-            //Urgent: Figure out MySql equivalents and if they need to be specified
             //            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
             //            {
             //                createDatabaseCommand += $@"

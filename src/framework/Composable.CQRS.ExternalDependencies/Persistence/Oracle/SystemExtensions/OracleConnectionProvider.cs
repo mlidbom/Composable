@@ -32,7 +32,7 @@ namespace Composable.Persistence.Oracle.SystemExtensions
             return connection;
         }
 
-        //Urgent: Since the Oracle connection pooling is way slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
+        //Performance: Since the Oracle connection pooling is slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
         OracleConnection GetConnectionFromPool()
         {
             var connectionString = GetConnectionString();

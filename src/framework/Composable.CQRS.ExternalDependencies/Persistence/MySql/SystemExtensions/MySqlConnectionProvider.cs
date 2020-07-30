@@ -32,7 +32,7 @@ namespace Composable.Persistence.MySql.SystemExtensions
             return connection;
         }
 
-        //Urgent: Since the MySql connection pooling is way slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
+        //Performanc: Since MySql connection pooling is slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
         MySqlConnection GetConnectionFromPool()
         {
             var connectionString = GetConnectionString();

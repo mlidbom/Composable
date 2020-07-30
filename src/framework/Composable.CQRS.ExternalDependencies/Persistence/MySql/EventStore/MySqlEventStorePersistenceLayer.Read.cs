@@ -22,8 +22,6 @@ namespace Composable.Persistence.MySql.EventStore
         static string InternalSelect(bool takeWriteLock, int? top = null)
         {
             var topClause = top.HasValue ? $"TOP {top.Value} " : "";
-            //todo: Ensure that READCOMMITTED is truly sane here. If so add a comment describing why and why using it is a good idea.
-            //Urgent: Find mysql equivalents
             //var lockHint = takeWriteLock ? "With(UPDLOCK, READCOMMITTED, ROWLOCK)" : "With(READCOMMITTED, ROWLOCK)";
             var lockHint = "";
 

@@ -19,7 +19,6 @@ namespace Composable.Persistence.PgSql.EventStore
 
         static string CreateSelectClause() => InternalSelect();
 
-        //Urgent: Find PgSql equivalents
         //var lockHint = takeWriteLock ? "With(UPDLOCK, READCOMMITTED, ROWLOCK)" : "With(READCOMMITTED, ROWLOCK)";
         static string CreateLockHint(bool takeWriteLock) => takeWriteLock ? "FOR UPDATE" : "";
 
@@ -140,7 +139,6 @@ SELECT {Event.AggregateId}, {Event.EventType}
 FROM {Event.TableName} 
 WHERE {Event.EffectiveVersion} = 1 
 ORDER BY {Event.ReadOrder} ASC")
-                                                                            //Urgent: Check out how to deal with Guids
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: Guid.Parse(reader.GetString(0)), typeId: Guid.Parse(reader.GetString(1)))));
         }
     }

@@ -14,8 +14,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
-    //Urgent: Consider whether these tests should run all the time. Don't they sort of mess up the performance of the pool by involving more databases than necessary, growing the connection pools, trashing cache locality etc?
-    //Urgent: Review usage of Serial attribute. Remember: This stops all other tests from running!
+    //Performance: Review usage of Serial attribute. Remember: This stops all other tests from running!
     [Performance, Serial]
     public class DatabasePoolPerformanceTests : DatabasePoolTest
     {

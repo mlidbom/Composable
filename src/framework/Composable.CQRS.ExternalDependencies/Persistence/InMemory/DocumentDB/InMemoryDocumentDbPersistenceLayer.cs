@@ -8,7 +8,7 @@ using Composable.SystemCE.LinqCE;
 using DocumentRow = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.WriteRow;
 namespace Composable.Persistence.InMemory.DocumentDB
 {
-    //Urgent: Transactional locks and transactional overlay
+    //Performance: Write tests to expose lack of Transactional locks and transactional overlay and then implement it.
     class InMemoryDocumentDbPersistenceLayer : IDocumentDbPersistenceLayer
     {
         readonly Dictionary<string, List<DocumentRow>> _db = new Dictionary<string, List<DocumentRow>>(StringComparer.InvariantCultureIgnoreCase);

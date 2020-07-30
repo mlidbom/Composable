@@ -13,6 +13,7 @@ using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaSt
 
 namespace Composable.Persistence.Oracle.EventStore
 {
+    //Performance: explore Oracle alternatives to commented out MSSql hints throughout the persistence layer.
     partial class OracleEventStorePersistenceLayer
     {
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events)

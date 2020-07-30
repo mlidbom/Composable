@@ -13,7 +13,6 @@ namespace Composable.Persistence.MySql.Messaging.Buses.Implementation
         {
             public static async Task EnsureTablesExistAsync(IMySqlConnectionProvider connectionFactory)
             {
-                //Urgent: Figure out the syntax for the commented out parts.
                 await connectionFactory.ExecuteNonQueryAsync($@"
     CREATE TABLE IF NOT EXISTS {M.TableName}
     (

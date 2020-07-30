@@ -15,7 +15,6 @@ namespace Composable.Persistence.DB2.EventStore
 
         public DB2EventStorePersistenceLayer(DB2EventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
 
-        //urgent: In the case of persisting migrations we might actually change these rows. Is FOR READ ONLY still OK?  https://tinyurl.com/y2dv5noe
         static string CreateLockHint(bool takeWriteLock) => takeWriteLock ? "FOR READ ONLY WITH RS USE AND KEEP EXCLUSIVE LOCKS" : "";
 
         static string CreateSelectClause() =>
@@ -51,7 +50,6 @@ FROM {Event.TableName}
 
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
-            //Urgent: Not sure whether this version or the current version performs better. If we keep the current version, remove the AggregateLock table.: https://tinyurl.com/y2dv5noe
             if (takeWriteLock)
             {
                 _connectionManager.UseCommand(command => command.SetCommandText($"select {Event.AggregateId} from AggregateLock where AggregateId = @{Event.AggregateId} FOR READ ONLY WITH RS USE AND KEEP EXCLUSIVE LOCKS;")

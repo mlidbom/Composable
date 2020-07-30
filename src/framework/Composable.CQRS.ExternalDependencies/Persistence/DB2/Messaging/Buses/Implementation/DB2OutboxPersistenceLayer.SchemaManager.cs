@@ -13,9 +13,8 @@ namespace Composable.Persistence.DB2.Messaging.Buses.Implementation
         {
             public static async Task EnsureTablesExistAsync(IComposableDB2ConnectionProvider connectionFactory)
             {
-                //Urgent: Figure out the syntax for the commented out parts.
                 await connectionFactory.UseCommandAsync(
-                    command => command.SetCommandText($@"
+                                            command => command.SetCommandText($@"
 begin
     declare continue handler for sqlstate '42710' begin end; --Ignore error if table exists
 
@@ -49,7 +48,7 @@ begin
 
 end;
 ")
-                                      .ExecuteNonQueryAsync()).NoMarshalling();
+                                                              .ExecuteNonQueryAsync()).NoMarshalling();
             }
         }
     }

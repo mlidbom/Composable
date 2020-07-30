@@ -22,7 +22,10 @@ namespace Composable.Persistence.MsSql.SystemExtensions
             var connectionString = GetConnectionString();
             var connection = new SqlConnection(connectionString);
 
-            await syncOrAsync.Run(connection.Open, connection.OpenAsync).NoMarshalling();
+            await syncOrAsync.Run(
+                                  () => connection.Open(),
+                                  () => connection.OpenAsync())
+                             .NoMarshalling();
 
             return connection;
         }

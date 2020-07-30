@@ -10,8 +10,8 @@ namespace Composable.Persistence.DB2.Messaging.Buses.Implementation
 {
     partial class DB2OutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
-        readonly IComposableDB2ConnectionProvider _connectionFactory;
-        public DB2OutboxPersistenceLayer(IComposableDB2ConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        readonly IDB2ConnectionProvider _connectionFactory;
+        public DB2OutboxPersistenceLayer(IDB2ConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveMessage(IServiceBusPersistenceLayer.OutboxMessageWithReceivers messageWithReceivers)
         {

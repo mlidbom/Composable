@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Composable.Persistence.DB2.SystemExtensions
 {
-    interface IComposableDB2ConnectionProvider
+    interface IDB2ConnectionProvider
     {
         TResult UseConnection<TResult>(Func<ComposableDB2Connection, TResult> func);
         Task<TResult> UseConnectionAsync<TResult>(Func<ComposableDB2Connection,Task<TResult>> func);

@@ -1,10 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using Oracle.ManagedDataAccess.Client;
-using System.Transactions;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.TransactionsCE;
+using Oracle.ManagedDataAccess.Client;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {
@@ -13,54 +12,39 @@ namespace Composable.Persistence.Oracle.SystemExtensions
         readonly OptimizedLazy<string> _connectionString;
         string GetConnectionString() => _connectionString.Value;
 
-        public OracleConnectionProvider(string connectionString) : this(() => connectionString)
-        {}
+        public OracleConnectionProvider(string connectionString) : this(() => connectionString) {}
 
         public OracleConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
 
-        OracleConnection OpenConnection()
+        //Performance: Since Oracle connection pooling is slow we should do something about that here.
+        async Task<OracleConnection> OpenConnectionAsync(AsyncMode syncOrAsync)
         {
             using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
             var connectionString = GetConnectionString();
             var connection = new OracleConnection(connectionString);
-            connection.Open();
-            return connection;
-        }
 
-        //Performance: Since the Oracle connection pooling is slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
-        OracleConnection GetConnectionFromPool()
-        {
-            using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
-            var connectionString = GetConnectionString();
-            var connection = new OracleConnection(connectionString);
-            connection.Open();
+            await syncOrAsync.Run(
+                                  () => connection.Open(),
+                                  () => connection.OpenAsync())
+                             .NoMarshalling();
+
             return connection;
         }
 
         public TResult UseConnection<TResult>(Func<OracleConnection, TResult> func)
         {
-            using var connection = OpenConnection();
+            using var connection = OpenConnectionAsync(AsyncMode.Sync).GetAwaiterResult();
             return func(connection);
         }
 
-        public void UseConnection(Action<OracleConnection> action) => UseConnection(connection =>
-        {
-            action(connection);
-            return 1;
-        });
+        public void UseConnection(Action<OracleConnection> action) => UseConnection(action.AsFunc());
 
-        //Urgent: All variations, in all persistence layers, on these async methods should use OpenAsync method on the connection.
         public async Task<TResult> UseConnectionAsync<TResult>(Func<OracleConnection, Task<TResult>> func)
         {
-            await using var connection = OpenConnection();
+            await using var connection = await OpenConnectionAsync(AsyncMode.Async).NoMarshalling();
             return await func(connection).NoMarshalling();
         }
 
-
-        public async Task UseConnectionAsync(Func<OracleConnection, Task> action)
-        {
-            await using var connection = OpenConnection();
-            await action(connection).NoMarshalling();
-        }
+        public async Task UseConnectionAsync(Func<OracleConnection, Task> action) => await UseConnectionAsync(action.AsFunc()).NoMarshalling();
     }
 }

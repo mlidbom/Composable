@@ -10,14 +10,14 @@ using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Persistence.DB2.SystemExtensions
 {
-    class ComposableDB2ConnectionProvider : IComposableDB2ConnectionProvider
+    class DB2ConnectionProvider : IDB2ConnectionProvider
     {
         readonly OptimizedLazy<string> _connectionString;
         string GetConnectionString() => _connectionString.Value;
 
-        public ComposableDB2ConnectionProvider(string connectionString) : this(() => connectionString) {}
+        public DB2ConnectionProvider(string connectionString) : this(() => connectionString) {}
 
-        public ComposableDB2ConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
+        public DB2ConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
 
         readonly OptimizedThreadShared<Dictionary<string, Task<ComposableDB2Connection>>> _transactionConnections = new OptimizedThreadShared<Dictionary<string, Task<ComposableDB2Connection>>>(new Dictionary<string, Task<ComposableDB2Connection>>());
 

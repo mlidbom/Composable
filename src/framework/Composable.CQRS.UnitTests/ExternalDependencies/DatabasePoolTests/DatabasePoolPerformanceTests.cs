@@ -144,7 +144,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     useConnection = () => oracleConnectionProvider .UseConnection(_ => {});
                     break;
                 case PersistenceLayer.DB2:
-                    var composableDB2ConnectionProvider = new ComposableDB2ConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    var composableDB2ConnectionProvider = new DB2ConnectionProvider(manager.ConnectionStringFor(reservationName));
                     useConnection = () => composableDB2ConnectionProvider .UseConnection(_ => {});
                     break;
                 default:

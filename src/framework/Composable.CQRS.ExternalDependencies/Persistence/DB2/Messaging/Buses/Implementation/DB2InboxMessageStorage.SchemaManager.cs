@@ -10,7 +10,7 @@ namespace Composable.Persistence.DB2.Messaging.Buses.Implementation
         const string DB2GuidType = "CHAR(36)";
         static class SchemaManager
         {
-            public static async Task EnsureTablesExistAsync(IComposableDB2ConnectionProvider connectionFactory)
+            public static async Task EnsureTablesExistAsync(IDB2ConnectionProvider connectionFactory)
             {
                 await  connectionFactory.UseCommandAsync(
                     command => command.SetCommandText($@"

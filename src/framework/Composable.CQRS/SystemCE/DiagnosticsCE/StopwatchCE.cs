@@ -4,10 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Composable.Contracts;
-using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using JetBrains.Annotations;
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using Composable.Contracts;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 // ReSharper disable ImpureMethodCallOnReadonlyValueField

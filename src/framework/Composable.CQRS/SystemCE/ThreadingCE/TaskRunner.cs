@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using Composable.Logging;
-using Composable.SystemCE.LinqCE;
 using JetBrains.Annotations;
 
 namespace Composable.SystemCE.ThreadingCE

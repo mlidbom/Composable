@@ -364,6 +364,11 @@ AggregateIds:
         {
             var eventToReplace = _persistenceLayer.LoadEventNeighborHood(eventId);
 
+            //We are not making maximally efficient use of the space here. Since the replaced event is no longer in use we should theoretically be able to start the range at the previous events position.
+            //To make this possible without a collision on the unique index the replaced events read order would need to be moved out of the way somehow. Negating it seems easy but actually introduces risk of collisions.
+            //Replacing an event that had previously replaced another event event would be likely to result in trying to save the same negative (removed) read order again.
+            //Fixing this seems rather non-trivial, so for now we keep the read orders of replaced events in place and accept that we do not use the space optimally.
+            //Removing the unique constraint would work, but would make us more vulnerable to data corruption issues.
             SetManualReadOrders(newEvents: replacementEvents,
                                 rangeStart: eventToReplace.EffectiveReadOrder,
                                 rangeEnd: eventToReplace.NextEventReadOrder);

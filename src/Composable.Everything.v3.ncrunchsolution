@@ -90,7 +90,6 @@
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-9</Value>
       <Value>Messaging\ServiceBusSpecification\Given_a_backend_endpoint_with_a_command_event_and_query_handler\_Fixture.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-97</Value>
       <Value>CQRS\EventRefactoring\Migrations\EventMigrationTestBase.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-40</Value>
-      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-40</Value>
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-20</Value>
       <Value>Persistence\MySql\SystemExtensions\MySqlConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-14</Value>
       <Value>Persistence\MySql\SystemExtensions\MySqlConnectionExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-22</Value>
@@ -104,7 +103,6 @@
       <Value>Persistence\Oracle\EventStore\OracleEventStoreConnectionManager.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-30</Value>
       <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-31</Value>
       <Value>Persistence\DB2\EventStore\DB2EventStoreConnectionManager.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-30</Value>
-      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-55</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-62</Value>
       <Value>Messaging\Hypermedia\NavigationSpecification.cs:framework\Composable.CQRS\Composable.CQRS.csproj-28</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-27</Value>

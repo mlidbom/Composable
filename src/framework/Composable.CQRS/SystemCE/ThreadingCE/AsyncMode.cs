@@ -11,10 +11,10 @@ namespace Composable.SystemCE.ThreadingCE
 
     static class AsyncCe
     {
-        internal static Func<Task<TResult>> AsAsync<TResult>(this Func<TResult> func) =>
-            () =>
+        internal static Func<TParam, Task<TResult>> AsAsync<TParam, TResult>(this Func<TParam, TResult> func) =>
+            param =>
             {
-                var result = func();
+                var result = func(param);
                 return Task.FromResult(result);
             };
 

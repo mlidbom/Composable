@@ -83,7 +83,7 @@ namespace Composable.SystemCE.DiagnosticsCE
             TimeSpan TimedAction() => TimeExecution(action);
             var individual = new ConcurrentStack<TimeSpan>();
 
-            //Try to ensure that the thread pool has sufficient free threads so the timing is not way off because of starting new threads.
+            //Profiling shows that the max time for this line to execute is quite high. So it should be improving consistency of measurements significantly as compared to taking the hit during timing.
             ThreadPoolCE.TryToEnsureSufficientIdleThreadsToRunTasksConcurrently(maxDegreeOfParallelism + 2);
 
             var total = TimeExecution(

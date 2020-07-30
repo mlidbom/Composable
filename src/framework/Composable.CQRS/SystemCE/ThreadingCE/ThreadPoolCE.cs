@@ -12,14 +12,12 @@ namespace Composable.SystemCE.ThreadingCE
         {
             for(int tries = 1; Idle < threadCount && tries < 5; tries++)
             {
-                Console.WriteLine($"BEFORE:{tries}: #######Requested: {threadCount}, Idle: {Idle}, Live:{Live}, Executing:{Executing}, Queued:{Queued}");
                 var waitForAllThreadsToStart = new CountdownEvent(threadCount);
                 Task.WaitAll(1.Through(threadCount).Select(index => Task.Run(() =>
                 {
                     waitForAllThreadsToStart.Signal(1);
                     waitForAllThreadsToStart.Wait();
                 })).ToArray());
-                Console.WriteLine($"AFTER:{tries}: #######Requested: {threadCount}, Idle: {Idle}, Live:{Live}, Executing:{Executing}, Queued:{Queued}");
             }
         }
 

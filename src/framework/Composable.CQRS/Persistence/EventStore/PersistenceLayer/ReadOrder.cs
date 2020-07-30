@@ -2,33 +2,37 @@
 using System.Data.SqlTypes;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using Composable.Contracts;
 using Composable.SystemCE.LinqCE;
 
 namespace Composable.Persistence.EventStore.PersistenceLayer
 {
-    readonly struct ReadOrder : IComparable<ReadOrder>
+    readonly struct ReadOrder : IComparable<ReadOrder>, IEquatable<ReadOrder>
     {
-        //Urgent: Figure out what do do about this type. We are using something equivalent to Decimal(38,19) in all the persistence layers to save the ReadOrder so these properties should not be long nor exposed.
-        public long Order { get; }
-        public long OffSet { get; }
+        readonly BigInteger _order;
+        readonly BigInteger _offSet;
 
-        public override string ToString() => $"{Order}.{OffSet:D19}";
+        public override string ToString() => $"{_order}.{_offSet:D19}";
 
         public static readonly ReadOrder Zero = new ReadOrder(0, 0);
 
         internal static ReadOrder FromLong(long readOrder) => new ReadOrder(readOrder, 0);
 
-        ReadOrder(long order, long offSet)
+        static readonly BigInteger MaxOffset = BigInteger.Parse("1".PadRight(20, '0'), CultureInfo.InvariantCulture);
+
+        ReadOrder(BigInteger order, BigInteger offSet)
         {
             if(order < 0) throw new ArgumentException($"{nameof(order)} Must be >= 0");
             if(offSet < 0) throw new ArgumentException($"{nameof(offSet)} Must be >= 0");
 
-            Order = order;
-            OffSet = offSet;
+            _order = order;
+            _offSet = offSet;
         }
 
-        public SqlDecimal ToSqlDecimal() => SqlDecimal.ConvertToPrecScale(SqlDecimal.Parse(ToString()), 38, 19);
+        public SqlDecimal ToSqlDecimal() => ToCorrectPrecisionAndScale(SqlDecimal.Parse(ToString()));
+
+        public ReadOrder NextIntegerOrder => new ReadOrder(_order + 1, 0);
 
         public static ReadOrder Parse(string value, bool bypassScaleTest = false)
         {
@@ -44,40 +48,62 @@ namespace Composable.Persistence.EventStore.PersistenceLayer
                 if(offset.Length != 19) throw new ArgumentException($"Got number with {offset.Length} decimal numbers. It must be exactly 19", nameof(value));
             }
 
-            return new ReadOrder(Int64.Parse(order, CultureInfo.InvariantCulture), Int64.Parse(offset, CultureInfo.InvariantCulture));
+            return new ReadOrder(BigInteger.Parse(order, CultureInfo.InvariantCulture), BigInteger.Parse(offset.PadRight(19, '0'), CultureInfo.InvariantCulture));
         }
 
         public static ReadOrder FromSqlDecimal(SqlDecimal value) => Parse(value.ToString());
 
         public static ReadOrder[] CreateOrdersForEventsBetween(int numberOfEvents, ReadOrder rangeStart, ReadOrder rangeEnd)
         {
-            if(rangeEnd.Order - rangeStart.Order > 1)  throw new ArgumentException("We should only ever insert between two adjacent events.");
+            if(rangeEnd._order - rangeStart._order > 1)  throw new ArgumentException("We should only ever insert between two adjacent events.");
 
-            long rangeSize;
-            if(rangeEnd.Order > rangeStart.Order)
+            BigInteger rangeSize;
+            if(rangeEnd._order > rangeStart._order)
             {
-                rangeSize = Int64.MaxValue - rangeStart.OffSet;
+                rangeSize = (MaxOffset + rangeEnd._offSet) - rangeStart._offSet; //We are allowed to overflow onto the next Order value
             } else
             {
-                rangeSize = rangeEnd.OffSet - rangeStart.OffSet;
+                rangeSize = rangeEnd._offSet - rangeStart._offSet;
             }
 
             var increment = rangeSize / (numberOfEvents + 1);
             if(increment < 1)
-                throw new InvalidOperationException("Unable to fit events");
+                throw new ArgumentException("Range too small to fit events.");
 
-            var result = 1.Through(numberOfEvents).Select(index => new ReadOrder(rangeStart.Order, rangeStart.OffSet + index * increment)).ToArray();
+            var offSetsFromStartRange = 1.Through(numberOfEvents).Select(index => rangeStart._offSet + index * increment).ToArray();
+            var result = offSetsFromStartRange.Select(offset =>
+            {
+                if(offset < MaxOffset) //We are still between the range start and the next integer Order value
+                {
+                    return new ReadOrder(rangeStart._order, offset);
+                } else //Offset has overflowed to the next Order value
+                {
+                    var order = rangeStart._order + 1;
+                    offset = offset - MaxOffset;
+                    return new ReadOrder(order, offset);
+                }
+            }).ToArray();
 
-            Assert.Result.Assert(result[0] > rangeStart);
-            Assert.Result.Assert(result[^1] < rangeEnd);
+            Assert.Result.Assert(result.All(order => order > rangeStart)); //We are staying within the specified range
+            Assert.Result.Assert(result.All(order => order < rangeEnd)); //We are staying within the specified range
+            Assert.Result.Assert(result.Distinct().Count() == numberOfEvents); //Each ReadOrder is unique
+
             return result;
         }
 
+        static SqlDecimal ToCorrectPrecisionAndScale(SqlDecimal value) => SqlDecimal.ConvertToPrecScale(value, 38, 19);
+
+        public bool Equals(ReadOrder other) => _order.Equals(other._order) && _offSet.Equals(other._offSet);
+        public override bool Equals(object? obj) => obj is ReadOrder other && Equals(other);
+        public override int GetHashCode() => HashCode.Combine(_order, _offSet);
+        public static bool operator ==(ReadOrder left, ReadOrder right) => left.Equals(right);
+        public static bool operator !=(ReadOrder left, ReadOrder right) => !left.Equals(right);
+
         public int CompareTo(ReadOrder other)
         {
-            var orderComparison = Order.CompareTo(other.Order);
+            var orderComparison = _order.CompareTo(other._order);
             if(orderComparison != 0) return orderComparison;
-            return OffSet.CompareTo(other.OffSet);
+            return _offSet.CompareTo(other._offSet);
         }
 
         public static bool operator <(ReadOrder left, ReadOrder right) => left.CompareTo(right) < 0;

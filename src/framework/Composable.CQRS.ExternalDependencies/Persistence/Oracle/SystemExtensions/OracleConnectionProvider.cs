@@ -4,6 +4,7 @@ using Oracle.ManagedDataAccess.Client;
 using System.Transactions;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {
@@ -19,22 +20,17 @@ namespace Composable.Persistence.Oracle.SystemExtensions
 
         OracleConnection OpenConnection()
         {
-            var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier;
-            var connection = GetConnectionFromPool();
-
-            if(transactionInformationDistributedIdentifierBefore != null && transactionInformationDistributedIdentifierBefore.Value == Guid.Empty)
-            {
-                if(Transaction.Current!.TransactionInformation.DistributedIdentifier != Guid.Empty)
-                {
-                    throw new Exception("Opening connection escalated transaction to distributed. For now this is disallowed");
-                }
-            }
+            using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
+            var connectionString = GetConnectionString();
+            var connection = new OracleConnection(connectionString);
+            connection.Open();
             return connection;
         }
 
         //Performance: Since the Oracle connection pooling is slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
         OracleConnection GetConnectionFromPool()
         {
+            using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
             var connectionString = GetConnectionString();
             var connection = new OracleConnection(connectionString);
             connection.Open();

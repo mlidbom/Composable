@@ -22,23 +22,7 @@ namespace Composable.Persistence.DB2.SystemExtensions
 
         ComposableDB2Connection OpenConnection()
         {
-            var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier;
-            var connection = GetConnectionFromPool();
-
-            if(transactionInformationDistributedIdentifierBefore != null && transactionInformationDistributedIdentifierBefore.Value == Guid.Empty)
-            {
-                if(Transaction.Current!.TransactionInformation.DistributedIdentifier != Guid.Empty)
-                {
-                    throw new Exception("Opening connection escalated transaction to distributed. For now this is disallowed");
-                }
-            }
-
-            return connection;
-        }
-
-        //Performance: Since the DB2 connection pooling is slow we should do something about that here. Something like using Task to keep a pool of open connections on hand.
-        ComposableDB2Connection GetConnectionFromPool()
-        {
+            using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
             var connectionString = GetConnectionString();
             var connection = new ComposableDB2Connection(connectionString);
             connection.Open();

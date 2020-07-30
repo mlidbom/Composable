@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Transactions;
+using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.SystemCE.TransactionsCE
 {
@@ -27,6 +29,19 @@ namespace Composable.SystemCE.TransactionsCE
                     action();
                 }
             };
+        }
+
+        internal static IDisposable NoTransactionEscalationScope(string scopeDescription)
+        {
+            var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier ?? Guid.Empty;
+
+            return DisposableCE.Create(() =>
+            {
+                if(Transaction.Current != null && transactionInformationDistributedIdentifierBefore == Guid.Empty && Transaction.Current!.TransactionInformation.DistributedIdentifier != Guid.Empty)
+                {
+                    throw new Exception($"{scopeDescription} escalated transaction to distributed. For now this is disallowed");
+                }
+            });
         }
     }
 }

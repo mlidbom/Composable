@@ -25,27 +25,14 @@ namespace Composable.Persistence.PgSql.SystemExtensions
 
         NpgsqlConnection OpenConnection()
         {
-            var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier;
-            var connection = GetConnectionFromPool();
-
-            if(transactionInformationDistributedIdentifierBefore != null && transactionInformationDistributedIdentifierBefore.Value == Guid.Empty)
-            {
-                if(Transaction.Current!.TransactionInformation.DistributedIdentifier != Guid.Empty)
-                {
-                    throw new Exception("Opening connection escalated transaction to distributed. For now this is disallowed");
-                }
-            }
+            using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
+            var connectionString = GetConnectionString();
+            var connection = new NpgsqlConnection(connectionString);
+            connection.Open();
             return connection;
         }
 
         readonly OptimizedThreadShared<Dictionary<string, NpgsqlConnection>> _transactionConnections = new OptimizedThreadShared<Dictionary<string, NpgsqlConnection>>(new Dictionary<string, NpgsqlConnection>());
-        NpgsqlConnection GetConnectionFromPool()
-        {
-            var connectionString = GetConnectionString();
-            var connection = new NpgsqlConnection(connectionString);
-                connection.Open();
-                return connection;
-         }
 
         public TResult UseConnection<TResult>(Func<NpgsqlConnection, TResult> func)
         {

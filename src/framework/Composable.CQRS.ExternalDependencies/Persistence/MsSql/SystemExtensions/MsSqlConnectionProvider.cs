@@ -1,9 +1,9 @@
 using System;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using System.Transactions;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Persistence.MsSql.SystemExtensions
 {
@@ -12,31 +12,27 @@ namespace Composable.Persistence.MsSql.SystemExtensions
         readonly OptimizedLazy<string> _connectionString;
         string GetConnectionString() => _connectionString.Value;
 
-        public MsSqlConnectionProvider(string connectionString) : this(() => connectionString)
-        {}
+        public MsSqlConnectionProvider(string connectionString) : this(() => connectionString) {}
 
         public MsSqlConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
 
-        SqlConnection OpenConnection()
+        async Task<SqlConnection> OpenConnectionAsync(AsyncMode mode)
         {
-            var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier;
+            using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
             var connectionString = GetConnectionString();
             var connection = new SqlConnection(connectionString);
-            connection.Open();
-            if(transactionInformationDistributedIdentifierBefore != null && transactionInformationDistributedIdentifierBefore.Value == Guid.Empty)
-            {
-                if(Transaction.Current!.TransactionInformation.DistributedIdentifier != Guid.Empty)
-                {
-                    throw new Exception("Opening connection escalated transaction to distributed. For now this is disallowed");
-                }
-            }
+
+            if(mode == AsyncMode.Async)
+                await connection.OpenAsync().NoMarshalling();
+            else
+                connection.Open();
 
             return connection;
         }
 
         public TResult UseConnection<TResult>(Func<SqlConnection, TResult> func)
         {
-            using var connection = OpenConnection();
+            using var connection = OpenConnectionAsync(AsyncMode.Sync).GetAwaiter().GetResult();
             return func(connection);
         }
 
@@ -48,14 +44,13 @@ namespace Composable.Persistence.MsSql.SystemExtensions
 
         public async Task<TResult> UseConnectionAsync<TResult>(Func<SqlConnection, Task<TResult>> func)
         {
-            await using var connection = OpenConnection();
+            await using var connection = await OpenConnectionAsync(AsyncMode.Async).NoMarshalling();
             return await func(connection).NoMarshalling();
         }
 
-
         public async Task UseConnectionAsync(Func<SqlConnection, Task> action)
         {
-            await using var connection = OpenConnection();
+            await using var connection = await OpenConnectionAsync(AsyncMode.Async).NoMarshalling();
             await action(connection).NoMarshalling();
         }
     }

@@ -26,7 +26,7 @@ namespace Composable.Persistence.InMemory.EventStore
                 events[0].AggregateId,
                 () => _state.WithExclusiveAccess(state =>
                 {
-                    events.ForEach((@event, index) => @event.StorageInformation.ReadOrder ??= new ReadOrder(state.Events.Count + index + 1, offSet: 0));
+                    events.ForEach((@event, index) => @event.StorageInformation.ReadOrder ??= ReadOrder.FromLong(state.Events.Count + index + 1));
                     state.AddRange(events);
                 }));
 

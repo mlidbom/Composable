@@ -9,7 +9,7 @@
         public EventNeighborhood(ReadOrder effectiveReadOrder, ReadOrder? previousEventReadOrder, ReadOrder? nextEventReadOrder)
         {
             EffectiveReadOrder = effectiveReadOrder;
-            NextEventReadOrder = nextEventReadOrder ?? new ReadOrder(EffectiveReadOrder.Order + 1, offSet: 0);
+            NextEventReadOrder = nextEventReadOrder ?? ReadOrder.FromLong(EffectiveReadOrder.Order + 1);
             PreviousEventReadOrder = previousEventReadOrder ?? ReadOrder.Zero;
         }
     }

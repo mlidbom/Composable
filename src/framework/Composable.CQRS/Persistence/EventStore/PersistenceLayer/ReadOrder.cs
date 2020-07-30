@@ -9,16 +9,17 @@ namespace Composable.Persistence.EventStore.PersistenceLayer
 {
     readonly struct ReadOrder : IComparable<ReadOrder>
     {
+        //Urgent: Figure out what do do about this type. We are using something equivalent to Decimal(38,19) in all the persistence layers to save the ReadOrder so these properties should not be long nor exposed.
         public long Order { get; }
-
-        //Urgent: Figure out what do do about this type. We will probably be using Decimal(38,19) in all the persistence layers to save the readorder, so should this be long?
         public long OffSet { get; }
 
         public override string ToString() => $"{Order}.{OffSet:D19}";
 
         public static readonly ReadOrder Zero = new ReadOrder(0, 0);
 
-        internal ReadOrder(long order, long offSet)
+        internal static ReadOrder FromLong(long readOrder) => new ReadOrder(readOrder, 0);
+
+        ReadOrder(long order, long offSet)
         {
             if(order < 0) throw new ArgumentException($"{nameof(order)} Must be >= 0");
             if(offSet < 0) throw new ArgumentException($"{nameof(offSet)} Must be >= 0");

@@ -46,7 +46,7 @@ END IF;
                                               .AddDateTime2Parameter(Event.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddMediumTextParameter(Event.Event, data.EventJson)
 
-                                              .AddParameter(Event.ReadOrder, MySqlDbType.VarChar, data.StorageInformation.ReadOrder?.ToString() ?? new ReadOrder(0,0).ToString())
+                                              .AddParameter(Event.ReadOrder, MySqlDbType.VarChar, data.StorageInformation.ReadOrder?.ToString() ?? ReadOrder.Zero.ToString())
                                               .AddParameter(Event.EffectiveVersion, MySqlDbType.Int32, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(Event.TargetEvent, MySqlDbType.VarChar, data.StorageInformation.RefactoringInformation?.TargetEvent)
                                               .AddNullableParameter(Event.RefactoringType, MySqlDbType.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)

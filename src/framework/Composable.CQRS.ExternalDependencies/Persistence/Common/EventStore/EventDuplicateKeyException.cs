@@ -4,7 +4,7 @@ namespace Composable.Persistence.Common.EventStore
 {
     public class EventDuplicateKeyException : Exception
     {
-        //Urgent: Oracle exceptions has property: IsRecoverable. Research what this means and if there is something equivalent for the other providers and how this could be useful to us.
+        //Todo: Oracle exceptions has property: IsRecoverable. Research what this means and if there is something equivalent for the other providers and how this could be useful to us.
         public EventDuplicateKeyException(Exception sqlException) : base(
             @"
 A duplicate key exception occurred while persisting new events. 

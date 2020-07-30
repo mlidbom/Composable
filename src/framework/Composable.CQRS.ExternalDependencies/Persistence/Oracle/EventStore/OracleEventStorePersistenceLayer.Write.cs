@@ -56,7 +56,7 @@ END;
                                               .AddNullableParameter(Event.RefactoringType, OracleDbType.Byte, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
                                               .ExecuteNonQuery());
                     }
-                    catch(OracleException e) when (SqlExceptions.Oracle.IsPrimaryKeyViolationTODO(e))
+                    catch(OracleException e) when (SqlExceptions.Oracle.IsPrimaryKeyViolation_TODO(e))
                     {
                         //todo: Make sure we have test coverage for this.
                         throw new EventDuplicateKeyException(e);

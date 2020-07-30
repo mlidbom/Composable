@@ -7,6 +7,8 @@ using Composable.Persistence.DocumentDb;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.SystemCE;
 using Composable.SystemCE.CollectionsCE.GenericCE;
+using MySql.Data.MySqlClient;
+using Schema = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
 namespace Composable.Persistence.MySql.DocumentDb
 {
@@ -16,7 +18,6 @@ namespace Composable.Persistence.MySql.DocumentDb
         readonly SchemaManager _schemaManager;
         bool _initialized;
         readonly object _lockObject = new object();
-        const int UniqueConstraintViolationErrorNumber = 2627;
 
         internal MySqlDocumentDbPersistenceLayer(IMySqlConnectionProvider connectionProvider)
         {
@@ -32,11 +33,11 @@ namespace Composable.Persistence.MySql.DocumentDb
                 foreach(var writeRow in toUpdate)
                 {
                     connection.UseCommand(
-                        command => command.SetCommandText("UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId = @TypeId")
-                                          .AddVarcharParameter("Id", 500, writeRow.Id)
-                                          .AddDateTime2Parameter("Updated", writeRow.UpdateTime)
-                                          .AddParameter("TypeId", writeRow.TypeId)
-                                          .AddMediumTextParameter("Value", writeRow.SerializedDocument)
+                        command => command.SetCommandText($"UPDATE {Schema.TableName} SET {Schema.Value} = @{Schema.Value}, {Schema.Updated} = @{Schema.Updated} WHERE {Schema.Id} = @{Schema.Id} AND {Schema.ValueTypeId} = @{Schema.ValueTypeId}")
+                                          .AddVarcharParameter(Schema.Id, 500, writeRow.Id)
+                                          .AddDateTime2Parameter(Schema.Updated, writeRow.UpdateTime)
+                                          .AddParameter(Schema.ValueTypeId, writeRow.TypeId)
+                                          .AddMediumTextParameter(Schema.Value, writeRow.SerializedDocument)
                                           .ExecuteNonQuery());
                 }
             });
@@ -48,9 +49,9 @@ namespace Composable.Persistence.MySql.DocumentDb
 
             var documents = _connectionProvider.UseCommand(
                 command => command.SetCommandText($@"
-SELECT Value, ValueTypeId FROM Store {UseUpdateLock(useUpdateLock)} 
-WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
-                                  .AddVarcharParameter("Id", 500, idString)
+SELECT {Schema.Value}, {Schema.ValueTypeId} FROM {Schema.TableName} {UseUpdateLock(useUpdateLock)} 
+WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptableTypeIds)}")
+                                  .AddVarcharParameter(Schema.Id, 500, idString)
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(1), reader.GetString(0))));
             if(documents.Count < 1)
             {
@@ -71,24 +72,18 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
                 _connectionProvider.UseCommand(command =>
                 {
 
-                    command.SetCommandText(@"INSERT INTO Store(Id, ValueTypeId, Value, Created, Updated) VALUES(@Id, @ValueTypeId, @Value, @Created, @Updated)")
-                           .AddVarcharParameter("Id", 500, row.Id)
-                           .AddParameter("ValueTypeId", row.TypeId)
-                           .AddDateTime2Parameter("Created", row.UpdateTime)
-                           .AddDateTime2Parameter("Updated", row.UpdateTime)
-                           .AddMediumTextParameter("Value", row.SerializedDocument)
+                    command.SetCommandText($@"INSERT INTO {Schema.TableName}({Schema.Id}, {Schema.ValueTypeId}, {Schema.Value}, {Schema.Created}, {Schema.Updated}) VALUES(@{Schema.Id}, @{Schema.ValueTypeId}, @{Schema.Value}, @{Schema.Created}, @{Schema.Updated})")
+                           .AddVarcharParameter(Schema.Id, 500, row.Id)
+                           .AddParameter(Schema.ValueTypeId, row.TypeId)
+                           .AddDateTime2Parameter(Schema.Created, row.UpdateTime)
+                           .AddDateTime2Parameter(Schema.Updated, row.UpdateTime)
+                           .AddMediumTextParameter(Schema.Value, row.SerializedDocument)
                            .ExecuteNonQuery();
                 });
             }
-            //Urgent: This is not the type or ErrorNumber likely to be used by MySql. Should this be kept around? Even in the MSSql code? It is not tested!
-            catch(SqlException e)
+            catch(MySqlException exception)when(SqlExceptions.MySql.IsPrimaryKeyViolation(exception))
             {
-                if(e.Number == UniqueConstraintViolationErrorNumber)
-                {
-                    throw new AttemptToSaveAlreadyPersistedValueException(row.Id, row.SerializedDocument);
-                }
-
-                throw;
+                throw new AttemptToSaveAlreadyPersistedValueException(row.Id, row.SerializedDocument);
             }
         }
 
@@ -97,8 +92,8 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
             EnsureInitialized();
             return _connectionProvider.UseCommand(
                 command =>
-                    command.SetCommandText($@"DELETE FROM Store WHERE Id = @Id AND ValueTypeId  {TypeInClause(acceptableTypes)}")
-                           .AddVarcharParameter("Id", 500, idString)
+                    command.SetCommandText($@"DELETE FROM {Schema.TableName} WHERE {Schema.Id} = @{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptableTypes)}")
+                           .AddVarcharParameter(Schema.Id, 500, idString)
                            .ExecuteNonQuery());
         }
 
@@ -106,16 +101,16 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(
-                command => command.SetCommandText($@"SELECT Id FROM Store WHERE ValueTypeId  {TypeInClause(acceptableTypes)}")
-                                  .ExecuteReaderAndSelect(reader => Guid.Parse(reader.GetString(0)))); //bug: Huh, we store string but require them to be Guid!?
+                command => command.SetCommandText($@"SELECT {Schema.Id} FROM {Schema.TableName} WHERE {Schema.ValueTypeId} {TypeInClause(acceptableTypes)}")
+                                  .ExecuteReaderAndSelect(reader => Guid.Parse(reader.GetString(0))));
         }
 
         public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IEnumerable<Guid> ids, IReadonlySetCEx<Guid> acceptableTypes)
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(
-                command => command.SetCommandText($@"SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId {TypeInClause(acceptableTypes)} 
-                                   AND Id IN('" + ids.Select(id => id.ToString()).Join("','") + "')")
+                command => command.SetCommandText($@"SELECT {Schema.Id}, {Schema.Value}, {Schema.ValueTypeId} FROM {Schema.TableName} WHERE {Schema.ValueTypeId} {TypeInClause(acceptableTypes)} 
+                                   AND {Schema.Id} IN('" + ids.Select(id => id.ToString()).Join("','") + "')")
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
         }
 
@@ -123,7 +118,7 @@ WHERE Id=@Id AND ValueTypeId  {TypeInClause(acceptableTypeIds)}")
         {
             EnsureInitialized();
             return _connectionProvider.UseCommand(
-                command => command.SetCommandText($@" SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId  {TypeInClause(acceptableTypes)}")
+                command => command.SetCommandText($@"SELECT {Schema.Id}, {Schema.Value}, {Schema.ValueTypeId} FROM {Schema.TableName} WHERE {Schema.ValueTypeId} {TypeInClause(acceptableTypes)}")
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
         }
 

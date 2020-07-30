@@ -69,6 +69,6 @@ namespace Composable.SystemCE.ThreadingCE
 
         internal static Task ContinueAsynchronouslyOnDefaultScheduler<TResult>(this Task<TResult> @this, Action<Task<TResult>> continuation, TaskContinuationOptions options = TaskContinuationOptions.RunContinuationsAsynchronously) => @this.ContinueWith(continuation, CancellationToken.None, options, TaskScheduler.Default);
 
-        public static Task StartLongRunning(Action action) => Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        public static Task StartOnDedicatedThread(Action action) => Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
     }
 }

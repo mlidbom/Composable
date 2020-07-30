@@ -185,7 +185,7 @@ namespace Composable.Testing.Databases
 
             Task[] tasks = 1.Through(NumberOfDatabases)
                             .Select(index => machineWide.Insert())
-                            .Select(db => TaskCE.StartLongRunning(() => EnsureDatabaseExistsAndIsEmpty(db)))
+                            .Select(db => Task.Run(() => EnsureDatabaseExistsAndIsEmpty(db)))
                             .ToArray();
 
             Task.WaitAll(tasks);

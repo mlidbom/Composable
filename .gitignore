@@ -8,34 +8,25 @@ test-results
 *.user
 *TraceLog.xml
 *.resharper
+_Resharper.Caches*
 TestResult.xml
 *.VisualState.xml
 *.g.cs
 
 *.pidb
 *.userprefs
-_Resharper*
-CQRS/CQRS/__EmbeddedAssemblies/*.dll
-CQRS/CQRS/__EmbeddedAssemblies/*.pdb
 
-packages/*
-Samples/AccountManagement/packages/*
 !repositories.config
 _NCrunch_*
 *.favdoc
 *.orig
-Samples/AccountManagement/_NCrunch_Sample.AccountManagement
-.paket/paket.exe
-Samples/AccountManagement/.paket/paket.exe
 .vs/
-NuGetFeed/*
-!NuGetFeed/.keep
+
 project.lock.json
 SandcastleDocumentation/Help/
 **/.idea/workspace.xml
 **/.idea/tasks.xm
 nCrunchTemp*
-UpgradeLog*.htm
 /src/framework/docs/
 /src/framework/Documentation/Website/adoc-render-test/
 /src/NCrunchDuplicateByDimensions

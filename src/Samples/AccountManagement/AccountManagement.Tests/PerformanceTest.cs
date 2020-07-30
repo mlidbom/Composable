@@ -29,7 +29,7 @@ namespace AccountManagement
             _scenarioApi = new AccountScenarioApi(_clientEndpoint);
             await _host.StartAsync();
             //Warmup
-            StopwatchCE.TimeExecutionThreaded(() => _scenarioApi.Register.Execute(), iterations: 100, maxDegreeOfParallelism: 10);
+            StopwatchCE.TimeExecutionThreaded(() => _scenarioApi.Register.Execute(), iterations: 100);
         }
 
         [Test, Ignore("Only intended to be executed manually")] public void _1_threads_create_1000_accounts_in_5_second() =>

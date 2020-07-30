@@ -10,7 +10,7 @@ namespace Composable.SystemCE.ThreadingCE
     {
         internal static void TryToEnsureSufficientIdleThreadsToRunTasksConcurrently(int threadCount)
         {
-            for(int tries = 1; Idle < threadCount && tries < 5; tries++)
+            for(int tries = 1; Idle <= threadCount && tries < 5; tries++)
             {
                 var waitForAllThreadsToStart = new CountdownEvent(threadCount);
                 Task.WaitAll(1.Through(threadCount).Select(index => Task.Run(() =>

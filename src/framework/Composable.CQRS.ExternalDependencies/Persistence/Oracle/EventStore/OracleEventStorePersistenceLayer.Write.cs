@@ -26,7 +26,6 @@ namespace Composable.Persistence.Oracle.EventStore
                     {
                         connection.UseCommand(
                             command => command.SetCommandText(
-                                                   //urgent: explore oracle alternatives to commented out hints .
                                                    $@"
 BEGIN
     IF (:{Event.InsertedVersion} = 1) THEN
@@ -81,11 +80,10 @@ END;";
 
         public EventNeighborhood LoadEventNeighborHood(Guid eventId)
         {
-            //urgent: Find Oracle equivalent
             //var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "";
 
-            //Urgent: Using min and max instead of order by and top is far more clean. Do the same in the other persistence layer.s
+            //Urgent: Using min and max instead of order by and top is far more clean. Do the same in the other persistence layers
             var selectStatement = $@"
 SELECT  {Event.ReadOrder},        
         (select MAX({Event.ReadOrder}) from {Event.TableName} e1 where e1.{Event.ReadOrder} < {Event.TableName}.{Event.ReadOrder}) PreviousReadOrder,
@@ -119,7 +117,6 @@ where {Event.EventId} = :{Event.EventId}";
             _connectionManager.UseCommand(
                 command =>
                 {
-                    //urgent: Find equivalent to rowlock hint.
                     command.CommandText +=
                         $"DELETE FROM {Event.TableName} /*With(ROWLOCK)*/ WHERE {Event.AggregateId} = :{Event.AggregateId}";
                     command.Parameters.Add(new OracleParameter(Event.AggregateId, OracleDbType.Varchar2) { Value = aggregateId });

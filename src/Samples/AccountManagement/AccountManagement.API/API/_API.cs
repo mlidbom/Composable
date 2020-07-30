@@ -53,7 +53,6 @@ namespace AccountManagement.API
         ///<summary>This method ensures that the client endpoints has everything it needs to use the services in this API. Type mappings etc. Eventually we will probably be setting up pipeline components such as custom caches etc here.</summary>
         public static void RegisterWithClientEndpoint(IEndpointBuilder builder)
         {
-            //Urgent: This is silly. It's a client for crying out loud, why are we pretending it's a server and having it use a persistence layer?
             builder.RegisterInMemoryPersistenceLayer();
 
             AccountManagementApiTypeMapper.MapTypes(builder.TypeMapper);

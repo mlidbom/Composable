@@ -19,7 +19,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
-    //Urgent: Write tests that verify that none of the persistence layers lose precision in the persisted ReadOrder when persisting refactorings.
+    //Todo: Write tests that verify that none of the persistence layers lose precision in the persisted ReadOrder when persisting refactorings.
     //[ConfigurationBasedDuplicateByDimensions]
     public class EventMigrationTest : EventMigrationTestBase
     {

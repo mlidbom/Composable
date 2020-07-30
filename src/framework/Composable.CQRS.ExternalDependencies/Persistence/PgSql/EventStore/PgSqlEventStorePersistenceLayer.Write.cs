@@ -27,7 +27,6 @@ namespace Composable.Persistence.PgSql.EventStore
                     {
                         connection.UseCommand(
                             command => command.SetCommandText(
-                                                   //urgent: explore PgSql alternatives to commented out hints .
                                                    $@"
 {(data.AggregateVersion > 1 ? "" :$@"insert into {Lock.TableName}({Lock.AggregateId}) values(@{Lock.AggregateId});")}
 
@@ -112,7 +111,6 @@ where {Event.EventId} = @{Event.EventId}
             _connectionManager.UseCommand(
                 command =>
                 {
-                    //urgent: Find equivalent to rowlock hint.
                     command.CommandText +=
                         $"DELETE FROM {Event.TableName} /*With(ROWLOCK)*/ WHERE {Event.AggregateId} = @{Event.AggregateId};";
                     command.AddParameter(Event.AggregateId, aggregateId);

@@ -11,27 +11,25 @@ namespace Composable.SystemCE.ThreadingCE
     interface ITaskRunner
     {
         //Urgent: We cannot just ignore exceptions because we log them. Maybe calling component should be notified about them somehow and get to decide what to do?. Maybe return a Task that calling code is responsible for checking the result of sooner or later?
-        sealed void RunAndSurfaceExceptions(params Action[] tasks) => RunAndSurfaceExceptions((IEnumerable<Action>)tasks);
-        void RunAndSurfaceExceptions(IEnumerable<Action> tasks);
+        void RunAndSurfaceExceptions(string taskName, Action task);
     }
 
     [UsedImplicitly] class TaskRunner : ITaskRunner, IDisposable
     {
-        public void RunAndSurfaceExceptions(IEnumerable<Action> tasks) => tasks.ForEach(action =>
+        public void RunAndSurfaceExceptions(string taskName, Action task)
         {
-            Task.Run(() =>
+            TaskCE.Run(taskName, _cancellationTokenSource.Token, () =>
                      {
                          try
                          {
-                             action();
+                             task();
                          }
                          catch(Exception exception)
                          {
                              this.Log().Error(exception, "Exception thrown on background thread. ");
                          }
-                     },
-                     _cancellationTokenSource.Token);
-        });
+                     });
+        }
 
         readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 

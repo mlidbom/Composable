@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Composable.SystemCE.ThreadingCE
 {
     //Hack to implement the suggested framework fix from here: https://github.com/dotnet/runtime/issues/23405 so that calling cancel on a CancellationTokenSource does not call registrations synchronously.
-    public sealed class AsyncCancellationTokenSource : IDisposable
+    sealed class AsyncCancellationTokenSource : IDisposable
     {
         static readonly Func<CancellationTokenSource, IEnumerable> GetCallbackPartitionsAsObject = CreateCallbackPartitionsAccessor();
         readonly CancellationTokenSource _source;
@@ -23,11 +23,12 @@ namespace Composable.SystemCE.ThreadingCE
 
         public bool IsCancellationRequested => _source.IsCancellationRequested;
 
+        static readonly string CancelAsyncTaskName = $"{nameof(AsyncCancellationTokenSource)}_{nameof(CancelAsync)}";
         public Task CancelAsync()
         {
             if(HasOrHasHadCallbacks)
             {
-                return Task.Run(() => _source.Cancel());
+                return TaskCE.Run(CancelAsyncTaskName, () => _source.Cancel());
             } else
             {
                 _source.Cancel();

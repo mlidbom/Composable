@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.SystemCE;
+using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using FluentAssertions;
 using NUnit.Framework;
@@ -22,15 +23,14 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
             using var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
             using var otherThreadGotLock = new ManualResetEventSlim(false);
-            var otherThreadTask = Task.Run(
-                () =>
+            var otherThreadTask = TaskCE.Run(() =>
+            {
+                otherThreadIsWaitingForLock.Set();
+                using(resourceGuard.AwaitExclusiveLock())
                 {
-                    otherThreadIsWaitingForLock.Set();
-                    using(resourceGuard.AwaitExclusiveLock())
-                    {
-                        otherThreadGotLock.Set();
-                    }
-                });
+                    otherThreadGotLock.Set();
+                }
+            });
 
             otherThreadIsWaitingForLock.Wait();
             otherThreadGotLock.Wait(10.Milliseconds()).Should().BeFalse();
@@ -50,15 +50,15 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
             using var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
             using var otherThreadGotLock = new ManualResetEventSlim(false);
-            var otherThreadTask = Task.Run(
-                () =>
-                {
-                    otherThreadIsWaitingForLock.Set();
-                    using(resourceGuard.AwaitExclusiveLock())
-                    {
-                        otherThreadGotLock.Set();
-                    }
-                });
+            var otherThreadTask = TaskCE.Run("otherThreadTask",
+                                             () =>
+                                             {
+                                                 otherThreadIsWaitingForLock.Set();
+                                                 using(resourceGuard.AwaitExclusiveLock())
+                                                 {
+                                                     otherThreadGotLock.Set();
+                                                 }
+                                             });
 
             otherThreadIsWaitingForLock.Wait();
             otherThreadGotLock.Wait(10.Milliseconds()).Should().BeFalse();
@@ -75,16 +75,16 @@ namespace Composable.Tests.System.Threading.ResourceAccess
         [TestFixture] public class Given_a_timeout_of_10_milliseconds_an_exception_is_thrown_By_Get_within_15_milliseconds_if_lock_is_not_acquired
         {
             [Test] public void Exception_is_ObjectLockTimedOutException()
-                => RunScenario(ownerThreadWaitTime: 0.Milliseconds()).Should().BeOfType<AwaitingExclusiveResourceLockTimeoutException>();
+                => RunScenario(0.Milliseconds()).Should().BeOfType<AwaitingExclusiveResourceLockTimeoutException>();
 
             [Test] public void If_owner_thread_blocks_for_less_than_stackTrace_timeout_Exception_contains_owning_threads_stack_trace()
-                => RunScenario(ownerThreadWaitTime: 30.Milliseconds()).Message.Should().Contain(nameof(DisposeOwningThreadLock));
+                => RunScenario(30.Milliseconds()).Message.Should().Contain(nameof(DisposeOwningThreadLock));
 
             [Test] public void If_owner_thread_blocks_for_more_than_stacktrace_timeout__Exception_does_not_contain_owning_threads_stack_trace()
             {
                 AwaitingExclusiveResourceLockTimeoutException.TestingOnlyRunWithAlternativeTimeToWaitForOwningThreadStacktrace(
                     10.Milliseconds(),
-                    () => RunScenario(ownerThreadWaitTime: 20.Milliseconds()).Message.Should().NotContain(nameof(DisposeOwningThreadLock)));
+                    () => RunScenario(20.Milliseconds()).Message.Should().NotContain(nameof(DisposeOwningThreadLock)));
             }
 
             static void DisposeOwningThreadLock(IDisposable disposable) => disposable.Dispose();
@@ -96,16 +96,16 @@ namespace Composable.Tests.System.Threading.ResourceAccess
                 var exclusiveLock = resourceGuard.AwaitExclusiveLock(0.Milliseconds());
 
                 var thrownException = Assert.Throws<AggregateException>(
-                                                () => Task.Run(() => resourceGuard.AwaitExclusiveLock(15.Milliseconds()))
-                                                          .Wait())
+                                                 () => TaskCE.Run(() => resourceGuard.AwaitExclusiveLock(15.Milliseconds()))
+                                                             .Wait())
                                             .InnerExceptions.Single();
 
-                Task.Run(
-                    () =>
-                    {
-                        Thread.Sleep(ownerThreadWaitTime);
-                        DisposeOwningThreadLock(exclusiveLock);
-                    });
+                TaskCE.Run($"Wait_And_{nameof(DisposeOwningThreadLock)}",
+                           () =>
+                           {
+                               Thread.Sleep(ownerThreadWaitTime);
+                               DisposeOwningThreadLock(exclusiveLock);
+                           });
 
                 return thrownException;
             }

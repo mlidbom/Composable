@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Composable.SystemCE;
 using Composable.SystemCE.LinqCE;
+using Composable.SystemCE.ThreadingCE;
 using Composable.Testing.Threading;
 
 namespace Composable.Tests.Testing.Threading
@@ -50,14 +51,13 @@ namespace Composable.Tests.Testing.Threading
                              .ToList();
 
             _tasksPassingGate = EntrantEvents.Select(
-                                                 entrantEvent => Task.Factory.StartNew(
+                                                 entrantEvent => TaskCE.StartOnDedicatedThread(
                                                   () =>
                                                   {
                                                       entrantEvent.HasStarted.Set();
                                                       Gate.AwaitPassthrough();
                                                       entrantEvent.HasCompleted.Set();
-                                                  },
-                                                  TaskCreationOptions.LongRunning))
+                                                  }))
                                           .ToArray();
         }
 

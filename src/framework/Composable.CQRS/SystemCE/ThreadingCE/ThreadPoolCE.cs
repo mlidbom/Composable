@@ -8,12 +8,13 @@ namespace Composable.SystemCE.ThreadingCE
 {
     static class ThreadPoolCE
     {
+        static readonly string FakeTaskName = $"{nameof(ThreadPoolCE)}_{nameof(TryToEnsureSufficientIdleThreadsToRunTasksConcurrently)}";
         internal static void TryToEnsureSufficientIdleThreadsToRunTasksConcurrently(int threadCount)
         {
             for(int tries = 1; Idle <= threadCount && tries < 5; tries++)
             {
                 var waitForAllThreadsToStart = new CountdownEvent(threadCount);
-                Task.WaitAll(1.Through(threadCount).Select(index => Task.Run(() =>
+                Task.WaitAll(1.Through(threadCount).Select(index => TaskCE.Run(FakeTaskName, () =>
                 {
                     waitForAllThreadsToStart.Signal(1);
                     waitForAllThreadsToStart.Wait();

@@ -120,12 +120,13 @@ namespace Composable.Testing.Databases
             return this.ConnectionStringFor(reservedDatabase);
         });
 
+        static readonly string BackgroundResetDatabaseTaskName = $"{nameof(DatabasePool)}_{nameof(CleanDataBasesInBackgroundTasks)}";
         void CleanDataBasesInBackgroundTasks(SharedState machineWide)
         {
             machineWide.ReserveDatabasesForCleaning(_poolId)
                        .ForEach(reserved =>
                         {
-                            Task.Run(() =>
+                            TaskCE.Run(BackgroundResetDatabaseTaskName, () =>
                             {
                                 //We are being a bit tricky here. The databases are reserved by this instance so that when it is disposed so are their reservations.
                                 //That way we don't leave our reservations around when we don't have time to clean them before the test runner terminates.
@@ -174,6 +175,8 @@ namespace Composable.Testing.Databases
 
         void RebootPool() => MachineWideState.Update(RebootPool);
 
+
+        static readonly string EnsureDatabaseExistsAndIsEmptyTaskName = $"{nameof(DatabasePool)}.{nameof(RebootPool)}_{nameof(EnsureDatabaseExistsAndIsEmpty)}";
         void RebootPool(SharedState machineWide) => TransactionScopeCe.SuppressAmbient(() =>
         {
             Log.Warning("Rebooting database pool");
@@ -185,7 +188,7 @@ namespace Composable.Testing.Databases
 
             Task[] tasks = 1.Through(NumberOfDatabases)
                             .Select(index => machineWide.Insert())
-                            .Select(db => Task.Run(() => EnsureDatabaseExistsAndIsEmpty(db)))
+                            .Select(db => TaskCE.Run(EnsureDatabaseExistsAndIsEmptyTaskName, () => EnsureDatabaseExistsAndIsEmpty(db)))
                             .ToArray();
 
             Task.WaitAll(tasks);

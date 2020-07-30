@@ -70,5 +70,15 @@ namespace Composable.SystemCE.ThreadingCE
         internal static Task ContinueAsynchronouslyOnDefaultScheduler<TResult>(this Task<TResult> @this, Action<Task<TResult>> continuation, TaskContinuationOptions options = TaskContinuationOptions.RunContinuationsAsynchronously) => @this.ContinueWith(continuation, CancellationToken.None, options, TaskScheduler.Default);
 
         public static Task StartOnDedicatedThread(Action action) => Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+
+        ///<summary>Here just in order to collect all run methods here so that all task execution comes through this class and we can easily find them all and review them for why they don't pass a name for easier debugging. Any call to  <see cref="Task.Run(System.Action)"/> elsewhere is known to be a mistake to be replaced with a call to this method.</summary>
+        public static Task Run(Action action) => Task.Run(action);
+
+        ///<summary>Here just in order to collect all run methods here so that all task execution comes through this class and we can easily find them all and review them for why they don't pass a name for easier debugging. Any call to  <see cref="Task.Run(System.Action)"/> elsewhere is known to be a mistake to be replaced with a call to this method.</summary>
+        public static Task<TResult> Run<TResult>(Func<TResult> function) => Task.Run(function);
+
+        ///<summary>Using this instead of Task.Run can help debugging very much by providing a "name" for the task in the debugger views for Tasks</summary>
+        public static Task Run(string name, Action action) => Run(name, CancellationToken.None, action);
+        public static Task Run(string name, CancellationToken cancellationToken, Action action) => Task.Factory.StartNew(_ => action(), name, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);
     }
 }

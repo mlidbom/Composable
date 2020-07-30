@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.SystemCE;
+using Composable.SystemCE.ThreadingCE;
 using Composable.Testing.Transactions;
 
 namespace Composable.Testing.Threading
@@ -58,7 +59,7 @@ namespace Composable.Testing.Threading
         }
 
         public static Task<IThreadGate> ExecuteWithExclusiveLockWhenAsync(this IThreadGate @this, TimeSpan timeout, Func<bool> condition, Action action)
-            => Task.Run(() => @this.ExecuteWithExclusiveLockWhen(timeout, condition, action));
+            => TaskCE.Run(() => @this.ExecuteWithExclusiveLockWhen(timeout, condition, action));
 
         public static IThreadGate WithExclusiveLock(this IThreadGate @this, Action action) => @this.ExecuteWithExclusiveLockWhen(@this.DefaultTimeout, () => true, action);
     }

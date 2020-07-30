@@ -29,10 +29,11 @@ namespace Composable.Messaging.Buses.Implementation
                     internal Task<object?> Task => _taskCompletionSource.Task;
                     public Guid MessageId { get; }
 
+                    static readonly string ExecuteTaskName = $"{nameof(HandlerExecutionTask)}_{nameof(Execute)}";
                     public void Execute()
                     {
                         var message = TransportMessage.DeserializeMessageAndCacheForNextCall();
-                        _taskRunner.RunAndSurfaceExceptions(() =>
+                        _taskRunner.RunAndSurfaceExceptions(ExecuteTaskName, () =>
                         {
                             var retryPolicy = new DefaultRetryPolicy(message);
 

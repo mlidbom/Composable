@@ -578,7 +578,7 @@ namespace Composable.Tests.CQRS
             }
 
             var threads = 2;
-            var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(UpdateEmail)).ToArray();
+            var tasks = 1.Through(threads).Select(resetEvent => TaskCE.Run(nameof(UpdateEmail), UpdateEmail)).ToArray();
 
             getHistorySection.LetOneThreadPass();
             changeEmailSection.LetOneThreadEnterAndReachExit();
@@ -626,7 +626,7 @@ namespace Composable.Tests.CQRS
 
             var threads = 2;
 
-            var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(UpdateEmail)).ToArray();
+            var tasks = 1.Through(threads).Select(resetEvent => TaskCE.Run(nameof(UpdateEmail), UpdateEmail)).ToArray();
 
             changeEmailSection.EntranceGate.Open();
             changeEmailSection.EntranceGate.AwaitPassedThroughCountEqualTo(2);

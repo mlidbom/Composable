@@ -30,7 +30,7 @@ namespace Composable.SystemCE.ThreadingCE
         {
             get
             {
-                ThreadPool.GetMaxThreads(out var maxThreads, out var _);
+                ThreadPool.GetMaxThreads(out var maxThreads, out _);
                 return maxThreads;
             }
         }
@@ -39,7 +39,7 @@ namespace Composable.SystemCE.ThreadingCE
         {
             get
             {
-                ThreadPool.GetAvailableThreads(out var availableThreads, out var _);
+                ThreadPool.GetAvailableThreads(out var availableThreads, out _);
                 return availableThreads;
             }
         }

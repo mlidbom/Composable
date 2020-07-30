@@ -73,9 +73,8 @@ namespace Composable.SystemCE.DiagnosticsCE
 
         public static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle] Action action, int iterations = 1, int maxDegreeOfParallelism = -1) => MachineWideSingleThreaded.Execute(() =>
         {
-            bool manualMaxDegreeOfParallelism = maxDegreeOfParallelism != -1;
             maxDegreeOfParallelism = maxDegreeOfParallelism == -1
-                                         ? Math.Max(Environment.ProcessorCount, 4)
+                                         ? Math.Max(Environment.ProcessorCount / 2, 4)
                                          : maxDegreeOfParallelism;
 
             maxDegreeOfParallelism = Math.Min(maxDegreeOfParallelism, iterations);
@@ -84,11 +83,7 @@ namespace Composable.SystemCE.DiagnosticsCE
             var individual = new ConcurrentStack<TimeSpan>();
 
             //Profiling shows that the max time for this line to execute is quite high. So it should be improving consistency of measurements significantly as compared to taking the hit during timing.
-            ThreadPoolCE.TryToEnsureSufficientIdleThreadsToRunTasksConcurrently(maxDegreeOfParallelism + 2);
-
-            var parallelOptions = manualMaxDegreeOfParallelism
-                                      ? new ParallelOptions {MaxDegreeOfParallelism = maxDegreeOfParallelism}
-                                      : new ParallelOptions();
+            ThreadPoolCE.TryToEnsureSufficientIdleThreadsToRunTasksConcurrently(maxDegreeOfParallelism);
 
             var total = TimeExecution(
                 () => Parallel.For(fromInclusive: 0,
@@ -98,7 +93,7 @@ namespace Composable.SystemCE.DiagnosticsCE
                                        var timing = TimedAction();
                                        individual.Push(timing);
                                    },
-                                   parallelOptions: parallelOptions));
+                                   parallelOptions: new ParallelOptions {MaxDegreeOfParallelism = maxDegreeOfParallelism}));
 
             return new TimedThreadedExecutionSummary(iterations, individual.ToList(), total);
         });

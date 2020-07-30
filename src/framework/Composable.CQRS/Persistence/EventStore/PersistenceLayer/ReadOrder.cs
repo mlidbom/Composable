@@ -79,7 +79,7 @@ namespace Composable.Persistence.EventStore.PersistenceLayer
                 } else //Offset has overflowed to the next Order value
                 {
                     var order = rangeStart._order + 1;
-                    offset = offset - MaxOffset;
+                    offset -= MaxOffset;
                     return new ReadOrder(order, offset);
                 }
             }).ToArray();

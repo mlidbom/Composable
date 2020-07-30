@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Composable.Contracts;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using JetBrains.Annotations;
@@ -83,7 +84,7 @@ namespace Composable.SystemCE.DiagnosticsCE
             var individual = new ConcurrentStack<TimeSpan>();
 
             //Try to ensure that the thread pool has sufficient free threads so the timing is not way off because of starting new threads.
-            Task.WaitAll(1.Through(maxDegreeOfParallelism + 2).Select(index => TaskCE.StartLongRunning(() => Thread.Sleep(1.Milliseconds()))).ToArray());
+            ThreadPoolCE.TryToEnsureSufficientIdleThreadsToRunTasksConcurrently(maxDegreeOfParallelism + 2);
 
             var total = TimeExecution(
                 () => Parallel.For(fromInclusive: 0,

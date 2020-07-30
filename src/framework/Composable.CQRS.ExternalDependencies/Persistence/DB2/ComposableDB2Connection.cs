@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.SystemCE.LinqCE;
+using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.TransactionsCE;
 using IBM.Data.DB2.Core;
 
@@ -19,6 +20,12 @@ namespace Composable.Persistence.DB2
         public void Open()
         {
             _connection.Open();
+            EnsureParticipatingInAnyTransaction();
+        }
+
+        public async Task OpenAsync()
+        {
+            await _connection.OpenAsync().NoMarshalling();
             EnsureParticipatingInAnyTransaction();
         }
 

@@ -10,8 +10,8 @@ namespace Composable.Persistence.MySql.DocumentDb
         {
             readonly object _lockObject = new object();
             bool _initialized = false;
-            readonly IMySqlConnectionProvider _connectionProvider;
-            public SchemaManager(IMySqlConnectionProvider connectionProvider) => _connectionProvider = connectionProvider;
+            readonly IMySqlConnectionPool _connectionPool;
+            public SchemaManager(IMySqlConnectionPool connectionPool) => _connectionPool = connectionPool;
 
             internal void EnsureInitialized()
             {
@@ -21,7 +21,7 @@ namespace Composable.Persistence.MySql.DocumentDb
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            _connectionProvider.ExecuteNonQuery($@"
+                            _connectionPool.ExecuteNonQuery($@"
 CREATE TABLE IF NOT EXISTS {Document.TableName} 
 (
   {Document.Id}          VARCHAR(500) NOT NULL,

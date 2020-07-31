@@ -10,7 +10,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
 {
     sealed class OracleDatabasePool : DatabasePool
     {
-        readonly IOracleConnectionProvider _masterConnectionPool;
+        readonly IOracleConnectionPool _masterConnectionPool;
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_ORACLE_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
@@ -22,7 +22,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
                                       ?? "Data Source=127.0.0.1:1521/orclpdb; DBA Privilege=SYSDBA; User Id=sys; Password=Development!1;";
 
             _connectionStringBuilder = new OptimizedThreadShared<OracleConnectionStringBuilder>(new OracleConnectionStringBuilder(masterConnectionString));
-            _masterConnectionPool = OracleConnectionProvider.CreateInstance(masterConnectionString);
+            _masterConnectionPool = IOracleConnectionPool.CreateInstance(masterConnectionString);
         }
 
         protected override string ConnectionStringFor(Database db)
@@ -45,14 +45,14 @@ namespace Composable.Persistence.Oracle.Testing.Databases
             catch(OracleException exception) when(exception.Number == OracleInvalidUserNamePasswordCombinationErrorNumber)
             {
                 _masterConnectionPool.ExecuteScalar(DropUserIfExistsAndRecreate(db.Name.ToUpperInvariant()));
-                OracleConnectionProvider.CreateInstance(ConnectionStringFor(db)).UseConnection(_ => {}); //We just call this to ensure that we can actually connect.
+                IOracleConnectionPool.CreateInstance(ConnectionStringFor(db)).UseConnection(_ => {}); //We just call this to ensure that we can actually connect.
             }
         }
 
         protected override void ResetDatabase(Database db)
         {
-            OracleConnectionProvider.CreateInstance(ConnectionStringFor(db))
-                                    .UseCommand(command => command.SetCommandText(CleanSchema()).ExecuteNonQuery());
+            IOracleConnectionPool.CreateInstance(ConnectionStringFor(db))
+                                     .UseCommand(command => command.SetCommandText(CleanSchema()).ExecuteNonQuery());
         }
 
         static string DropUserIfExistsAndRecreate(string userName) => $@"

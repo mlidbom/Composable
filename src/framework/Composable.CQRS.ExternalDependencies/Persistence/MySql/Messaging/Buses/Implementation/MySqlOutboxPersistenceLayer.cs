@@ -11,8 +11,8 @@ namespace Composable.Persistence.MySql.Messaging.Buses.Implementation
 {
     partial class MySqlOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
-        readonly IMySqlConnectionProvider _connectionFactory;
-        public MySqlOutboxPersistenceLayer(IMySqlConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        readonly IMySqlConnectionPool _connectionFactory;
+        public MySqlOutboxPersistenceLayer(IMySqlConnectionPool connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveMessage(IServiceBusPersistenceLayer.OutboxMessageWithReceivers messageWithReceivers)
         {

@@ -12,8 +12,8 @@ namespace Composable.Persistence.Oracle.DocumentDb
         {
             readonly object _lockObject = new object();
             bool _initialized = false;
-            readonly IOracleConnectionProvider _connectionProvider;
-            public SchemaManager(IOracleConnectionProvider connectionProvider) => _connectionProvider = connectionProvider;
+            readonly IOracleConnectionPool _connectionPool;
+            public SchemaManager(IOracleConnectionPool connectionPool) => _connectionPool = connectionPool;
 
             internal void EnsureInitialized()
             {
@@ -23,7 +23,7 @@ namespace Composable.Persistence.Oracle.DocumentDb
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            _connectionProvider.ExecuteNonQuery($@"
+                            _connectionPool.ExecuteNonQuery($@"
 declare existing_table_count integer;
 begin
     select count(*) into existing_table_count from user_tables where table_name='{Document.TableName.ToUpperInvariant()}';

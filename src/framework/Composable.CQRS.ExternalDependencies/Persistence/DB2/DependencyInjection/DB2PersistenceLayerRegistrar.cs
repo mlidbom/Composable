@@ -29,13 +29,13 @@ namespace Composable.Persistence.DB2.DependencyInjection
 
                 container.Register(
                     Singleton.For<IDB2ConnectionPool>()
-                             .CreatedBy((DB2DatabasePool pool) => new DB2ConnectionPool(() => pool.ConnectionStringFor(connectionStringName)))
+                             .CreatedBy((DB2DatabasePool pool) => IDB2ConnectionPool.CreateInstance(() => pool.ConnectionStringFor(connectionStringName)))
                 );
             } else
             {
                 container.Register(
                     Singleton.For<IDB2ConnectionPool>()
-                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => DB2ConnectionPool.CreateInstance(configurationParameterProvider.GetString(connectionStringName)))
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => IDB2ConnectionPool.CreateInstance(configurationParameterProvider.GetString(connectionStringName)))
                              .DelegateToParentServiceLocatorWhenCloning());
             }
 

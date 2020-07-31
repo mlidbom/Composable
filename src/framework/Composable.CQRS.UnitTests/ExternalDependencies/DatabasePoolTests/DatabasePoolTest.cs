@@ -56,19 +56,19 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         static void UseMySqlConnection(string connectionStringFor, Action<IDbConnection> func) =>
-            MySqlConnectionProvider.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
+            IMySqlConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
 
         static void UsePgSqlConnection(string connectionStringFor, Action<IDbConnection> func) =>
             IPgSqlConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
 
         static void UseMsSqlConnection(string connectionStringFor, Action<IDbConnection> func) =>
-            MsSqlConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
+            IMsSqlConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
 
         static void UseOracleConnection(string connectionStringFor, Action<IDbConnection> func) =>
-            OracleConnectionProvider.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
+            IOracleConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
 
         static void UseComposableDB2Connection(string connectionStringFor, Action<IDbConnection> func) =>
-            DB2ConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
+            IDB2ConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
 
         public DatabasePoolTest(string _) : base(_) {}
     }

@@ -23,7 +23,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
             _masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
                                    ?? "SERVER=localhost;DATABASE=CDBPOOL;User ID=db2admin;Password=Development!1;";
 
-            _masterConnectionPool = DB2ConnectionPool.CreateInstance(_masterConnectionString);
+            _masterConnectionPool = IDB2ConnectionPool.CreateInstance(_masterConnectionString);
         }
 
         protected override string ConnectionStringFor(Database db)

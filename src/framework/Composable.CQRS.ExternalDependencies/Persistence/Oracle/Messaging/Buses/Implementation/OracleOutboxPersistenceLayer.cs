@@ -11,8 +11,8 @@ namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation
 {
     partial class OracleOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
-        readonly IOracleConnectionProvider _connectionFactory;
-        public OracleOutboxPersistenceLayer(IOracleConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        readonly IOracleConnectionPool _connectionFactory;
+        public OracleOutboxPersistenceLayer(IOracleConnectionPool connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveMessage(IServiceBusPersistenceLayer.OutboxMessageWithReceivers messageWithReceivers)
         {

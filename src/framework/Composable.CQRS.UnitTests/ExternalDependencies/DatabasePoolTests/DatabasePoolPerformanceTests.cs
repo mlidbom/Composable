@@ -126,13 +126,13 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
            switch(TestEnv.PersistenceLayer.Current)
             {
                 case PersistenceLayer.MsSql:
-                    var msSqlConnectionProvider = MsSqlConnectionPool.CreateInstance(manager.ConnectionStringFor(reservationName));
+                    var msSqlConnectionProvider = IMsSqlConnectionPool.CreateInstance(manager.ConnectionStringFor(reservationName));
                     useConnection = () => msSqlConnectionProvider.UseConnection(_ => {});
                     break;
                 case PersistenceLayer.Memory:
                     break;
                 case PersistenceLayer.MySql:
-                    var mySqlConnectionProvider = MySqlConnectionProvider.CreateInstance(manager.ConnectionStringFor(reservationName));
+                    var mySqlConnectionProvider = IMySqlConnectionPool.CreateInstance(manager.ConnectionStringFor(reservationName));
                     useConnection = () => mySqlConnectionProvider.UseConnection(_ => {});
                     break;
                 case PersistenceLayer.PgSql:
@@ -140,11 +140,11 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     useConnection = () => pgSqlConnectionProvider.UseConnection(_ => {});
                     break;
                 case PersistenceLayer.Orcl:
-                    var oracleConnectionProvider = OracleConnectionProvider.CreateInstance(manager.ConnectionStringFor(reservationName));
+                    var oracleConnectionProvider = IOracleConnectionPool.CreateInstance(manager.ConnectionStringFor(reservationName));
                     useConnection = () => oracleConnectionProvider .UseConnection(_ => {});
                     break;
                 case PersistenceLayer.DB2:
-                    var composableDB2ConnectionProvider = DB2ConnectionPool.CreateInstance(manager.ConnectionStringFor(reservationName));
+                    var composableDB2ConnectionProvider = IDB2ConnectionPool.CreateInstance(manager.ConnectionStringFor(reservationName));
                     useConnection = () => composableDB2ConnectionProvider.UseConnection(_ => {});
                     break;
                 default:

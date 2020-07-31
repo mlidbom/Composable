@@ -1,4 +1,5 @@
-﻿using Composable.DependencyInjection;
+﻿using System;
+using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.DocumentDb;
@@ -28,34 +29,34 @@ namespace Composable.Persistence.Oracle.DependencyInjection
                                             .DelegateToParentServiceLocatorWhenCloning());
 
                 container.Register(
-                    Singleton.For<IOracleConnectionProvider>()
-                             .CreatedBy((OracleDatabasePool pool) => new OracleConnectionProvider(() => pool.ConnectionStringFor(connectionStringName)))
+                    Singleton.For<IOracleConnectionPool>()
+                             .CreatedBy((OracleDatabasePool pool) => IOracleConnectionPool.CreateInstance(() => pool.ConnectionStringFor(connectionStringName)))
                 );
             } else
             {
                 container.Register(
-                    Singleton.For<IOracleConnectionProvider>()
-                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => OracleConnectionProvider.CreateInstance(configurationParameterProvider.GetString(connectionStringName)))
+                    Singleton.For<IOracleConnectionPool>()
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => IOracleConnectionPool.CreateInstance(configurationParameterProvider.GetString(connectionStringName)))
                              .DelegateToParentServiceLocatorWhenCloning());
             }
 
             //Service bus
             container.Register(
                 Singleton.For<IServiceBusPersistenceLayer.IOutboxPersistenceLayer>()
-                         .CreatedBy((IOracleConnectionProvider endpointSqlConnection) => new OracleOutboxPersistenceLayer(endpointSqlConnection)),
+                         .CreatedBy((IOracleConnectionPool endpointSqlConnection) => new OracleOutboxPersistenceLayer(endpointSqlConnection)),
                 Singleton.For<IServiceBusPersistenceLayer.IInboxPersistenceLayer>()
-                         .CreatedBy((IOracleConnectionProvider endpointSqlConnection) => new OracleInboxPersistenceLayer(endpointSqlConnection)));
+                         .CreatedBy((IOracleConnectionPool endpointSqlConnection) => new OracleInboxPersistenceLayer(endpointSqlConnection)));
 
             //DocumentDB
             container.Register(
                 Singleton.For<IDocumentDbPersistenceLayer>()
-                         .CreatedBy((IOracleConnectionProvider connectionProvider) => new OracleDocumentDbPersistenceLayer(connectionProvider)));
+                         .CreatedBy((IOracleConnectionPool connectionProvider) => new OracleDocumentDbPersistenceLayer(connectionProvider)));
 
 
             //Event store
             container.Register(
                 Singleton.For<OracleEventStoreConnectionManager>()
-                         .CreatedBy((IOracleConnectionProvider sqlConnectionProvider) => new OracleEventStoreConnectionManager(sqlConnectionProvider)),
+                         .CreatedBy((IOracleConnectionPool sqlConnectionProvider) => new OracleEventStoreConnectionManager(sqlConnectionProvider)),
                 Singleton.For<IEventStorePersistenceLayer>()
                          .CreatedBy((OracleEventStoreConnectionManager connectionManager, ITypeMapper typeMapper) => new OracleEventStorePersistenceLayer(connectionManager)));
         }

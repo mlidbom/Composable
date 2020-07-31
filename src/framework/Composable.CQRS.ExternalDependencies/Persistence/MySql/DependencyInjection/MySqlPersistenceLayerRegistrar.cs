@@ -1,4 +1,5 @@
-﻿using Composable.DependencyInjection;
+﻿using System;
+using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.DocumentDb;
@@ -28,34 +29,34 @@ namespace Composable.Persistence.MySql.DependencyInjection
                                             .DelegateToParentServiceLocatorWhenCloning());
 
                 container.Register(
-                    Singleton.For<IMySqlConnectionProvider>()
-                             .CreatedBy((MySqlDatabasePool pool) => new MySqlConnectionProvider(() => pool.ConnectionStringFor(connectionStringName)))
+                    Singleton.For<IMySqlConnectionPool>()
+                             .CreatedBy((MySqlDatabasePool pool) => IMySqlConnectionPool.CreateInstance(() => pool.ConnectionStringFor(connectionStringName)))
                 );
             } else
             {
                 container.Register(
-                    Singleton.For<IMySqlConnectionProvider>()
-                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => MySqlConnectionProvider.CreateInstance(configurationParameterProvider.GetString(connectionStringName)))
+                    Singleton.For<IMySqlConnectionPool>()
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => IMySqlConnectionPool.CreateInstance(configurationParameterProvider.GetString(connectionStringName)))
                              .DelegateToParentServiceLocatorWhenCloning());
             }
 
             //Service bus
             container.Register(
                 Singleton.For<IServiceBusPersistenceLayer.IOutboxPersistenceLayer>()
-                         .CreatedBy((IMySqlConnectionProvider endpointSqlConnection) => new MySqlOutboxPersistenceLayer(endpointSqlConnection)),
+                         .CreatedBy((IMySqlConnectionPool endpointSqlConnection) => new MySqlOutboxPersistenceLayer(endpointSqlConnection)),
                 Singleton.For<IServiceBusPersistenceLayer.IInboxPersistenceLayer>()
-                         .CreatedBy((IMySqlConnectionProvider endpointSqlConnection) => new MySqlInboxPersistenceLayer(endpointSqlConnection)));
+                         .CreatedBy((IMySqlConnectionPool endpointSqlConnection) => new MySqlInboxPersistenceLayer(endpointSqlConnection)));
 
             //DocumentDB
             container.Register(
                 Singleton.For<IDocumentDbPersistenceLayer>()
-                         .CreatedBy((IMySqlConnectionProvider connectionProvider) => new MySqlDocumentDbPersistenceLayer(connectionProvider)));
+                         .CreatedBy((IMySqlConnectionPool connectionProvider) => new MySqlDocumentDbPersistenceLayer(connectionProvider)));
 
 
             //Event store
             container.Register(
                 Singleton.For<MySqlEventStoreConnectionManager>()
-                         .CreatedBy((IMySqlConnectionProvider sqlConnectionProvider) => new MySqlEventStoreConnectionManager(sqlConnectionProvider)),
+                         .CreatedBy((IMySqlConnectionPool sqlConnectionProvider) => new MySqlEventStoreConnectionManager(sqlConnectionProvider)),
                 Singleton.For<IEventStorePersistenceLayer>()
                          .CreatedBy((MySqlEventStoreConnectionManager connectionManager, ITypeMapper typeMapper) => new MySqlEventStorePersistenceLayer(connectionManager)));
         }

@@ -18,7 +18,7 @@ namespace Composable.Persistence.MsSql.Testing.Databases
             _masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
                                    ?? "Data Source=localhost;Initial Catalog=master;Integrated Security=True;";
 
-            _masterConnectionPool = MsSqlConnectionPool.CreateInstance(_masterConnectionString);
+            _masterConnectionPool = IMsSqlConnectionPool.CreateInstance(_masterConnectionString);
         }
 
         protected override string ConnectionStringFor(Database db)
@@ -50,8 +50,8 @@ ALTER DATABASE[{databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
         }
 
         protected override void ResetDatabase(Database db) =>
-            MsSqlConnectionPool.CreateInstance(ConnectionStringFor(db))
-                                   .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel());
+            IMsSqlConnectionPool.CreateInstance(ConnectionStringFor(db))
+                                .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel());
 
         protected void ResetConnectionPool(Database db)
         {

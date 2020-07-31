@@ -1,4 +1,5 @@
-﻿using Composable.DependencyInjection;
+﻿using System;
+using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.DocumentDb;
@@ -30,13 +31,13 @@ namespace Composable.Persistence.MsSql.DependencyInjection
 
                 container.Register(
                     Singleton.For<IMsSqlConnectionPool>()
-                             .CreatedBy((MsSqlDatabasePool pool) => new MsSqlConnectionPool(() => pool.ConnectionStringFor(connectionStringName)))
+                             .CreatedBy((MsSqlDatabasePool pool) => IMsSqlConnectionPool.CreateInstance(() => pool.ConnectionStringFor(connectionStringName)))
                 );
             } else
             {
                 container.Register(
                     Singleton.For<IMsSqlConnectionPool>()
-                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => MsSqlConnectionPool.CreateInstance(configurationParameterProvider.GetString(connectionStringName)))
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => IMsSqlConnectionPool.CreateInstance(configurationParameterProvider.GetString(connectionStringName)))
                              .DelegateToParentServiceLocatorWhenCloning());
             }
 

@@ -1,15 +1,14 @@
 using System;
 using System.Threading.Tasks;
-using Oracle.ManagedDataAccess.Client;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {
     interface IOracleConnectionProvider
     {
-        TResult UseConnection<TResult>(Func<OracleConnection, TResult> func);
-        Task<TResult> UseConnectionAsync<TResult>(Func<OracleConnection,Task<TResult>> func);
+        TResult UseConnection<TResult>(Func<ComposableOracleConnection, TResult> func);
+        Task<TResult> UseConnectionAsync<TResult>(Func<ComposableOracleConnection,Task<TResult>> func);
 
-        void UseConnection(Action<OracleConnection> action);
-        Task UseConnectionAsync(Func<OracleConnection, Task> action);
+        void UseConnection(Action<ComposableOracleConnection> action);
+        Task UseConnectionAsync(Func<ComposableOracleConnection, Task> action);
     }
 }

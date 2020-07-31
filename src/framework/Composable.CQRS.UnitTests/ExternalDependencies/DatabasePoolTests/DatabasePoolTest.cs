@@ -65,7 +65,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
             new MsSqlConnectionProvider(connectionStringFor).UseConnection(conn => func(conn.Connection));
 
         static void UseOracleConnection(string connectionStringFor, Action<IDbConnection> func) =>
-            new OracleConnectionProvider(connectionStringFor).UseConnection(func);
+            new OracleConnectionProvider(connectionStringFor).UseConnection(conn => func(conn.Connection));
 
         static void UseComposableDB2Connection(string connectionStringFor, Action<IDbConnection> func) =>
             new DB2ConnectionProvider(connectionStringFor).UseConnection(conn => func(conn.Connection));

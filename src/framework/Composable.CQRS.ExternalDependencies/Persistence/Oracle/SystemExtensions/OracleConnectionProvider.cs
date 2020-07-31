@@ -1,50 +1,37 @@
 using System;
 using System.Threading.Tasks;
+using Composable.Persistence.Common;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
-using Composable.SystemCE.TransactionsCE;
-using Oracle.ManagedDataAccess.Client;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {
     class OracleConnectionProvider : IOracleConnectionProvider
     {
-        readonly OptimizedLazy<string> _connectionString;
-        string GetConnectionString() => _connectionString.Value;
+        readonly OptimizedLazy<DbConnectionPool<ComposableOracleConnection>> _pool;
+        DbConnectionPool<ComposableOracleConnection> Pool => _pool.Value;
 
         public OracleConnectionProvider(string connectionString) : this(() => connectionString) {}
 
-        public OracleConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
-
-        //Performance: Since Oracle connection pooling is slow we should do something about that here.
-        async Task<OracleConnection> OpenConnectionAsync(AsyncMode syncOrAsync)
+        public OracleConnectionProvider(Func<string> getConnectionString)
         {
-            using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
-            var connectionString = GetConnectionString();
-            var connection = new OracleConnection(connectionString);
-
-            await syncOrAsync.Run(
-                                  () => connection.Open(),
-                                  async () => await connection.OpenAsync().NoMarshalling())
-                             .NoMarshalling();
-
-            return connection;
+            _pool = new OptimizedLazy<DbConnectionPool<ComposableOracleConnection>>(
+                () =>
+                {
+                    var connectionString = getConnectionString();
+                    return DbConnectionPool<ComposableOracleConnection>.ForConnectionString(
+                        connectionString,
+                        PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction,
+                        ComposableOracleConnection.Create);
+                });
         }
 
-        public TResult UseConnection<TResult>(Func<OracleConnection, TResult> func)
-        {
-            using var connection = OpenConnectionAsync(AsyncMode.Sync).AwaiterResult();
-            return func(connection);
-        }
+        public TResult UseConnection<TResult>(Func<ComposableOracleConnection, TResult> func) => Pool.UseConnection(func);
 
-        public void UseConnection(Action<OracleConnection> action) => UseConnection(action.AsFunc());
+        public void UseConnection(Action<ComposableOracleConnection> action) => Pool.UseConnection(action);
 
-        public async Task<TResult> UseConnectionAsync<TResult>(Func<OracleConnection, Task<TResult>> func)
-        {
-            await using var connection = await OpenConnectionAsync(AsyncMode.Async).NoMarshalling();
-            return await func(connection).NoMarshalling();
-        }
+        public async Task UseConnectionAsync(Func<ComposableOracleConnection, Task> action) => await Pool.UseConnectionAsync(action).NoMarshalling();
 
-        public async Task UseConnectionAsync(Func<OracleConnection, Task> action) => await UseConnectionAsync(action.AsFunc()).NoMarshalling();
+        public async Task<TResult> UseConnectionAsync<TResult>(Func<ComposableOracleConnection, Task<TResult>> func) => await Pool.UseConnectionAsync(func).NoMarshalling();
     }
 }

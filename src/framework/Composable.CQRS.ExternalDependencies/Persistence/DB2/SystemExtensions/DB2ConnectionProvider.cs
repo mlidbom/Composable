@@ -7,6 +7,7 @@ using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
+using IBM.Data.DB2.Core;
 
 namespace Composable.Persistence.DB2.SystemExtensions
 {
@@ -67,6 +68,7 @@ namespace Composable.Persistence.DB2.SystemExtensions
             }
         }
 
+        //Performance: Since DB2 connection pooling is slow we should do something about that here.
         async Task<ComposableDB2Connection> OpenConnectionAsync(AsyncMode syncOrAsync)
         {
             using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");

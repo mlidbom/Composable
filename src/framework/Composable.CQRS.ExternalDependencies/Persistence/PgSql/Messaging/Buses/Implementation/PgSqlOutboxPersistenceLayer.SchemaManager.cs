@@ -11,7 +11,7 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
         const string PgSqlGuidType = "CHAR(36)";
         static class SchemaManager
         {
-            public static async Task EnsureTablesExistAsync(INpgsqlConnectionProvider connectionFactory)
+            public static async Task EnsureTablesExistAsync(IPgSqlConnectionPool connectionFactory)
             {
 
 

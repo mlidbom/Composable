@@ -136,7 +136,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     useConnection = () => mySqlConnectionProvider.UseConnection(_ => {});
                     break;
                 case PersistenceLayer.PgSql:
-                    var pgSqlConnectionProvider = new PgSqlConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    var pgSqlConnectionProvider = IPgSqlConnectionPool.CreateInstance(manager.ConnectionStringFor(reservationName));
                     useConnection = () => pgSqlConnectionProvider.UseConnection(_ => {});
                     break;
                 case PersistenceLayer.Orcl:

@@ -7,27 +7,30 @@ using Npgsql;
 
 namespace Composable.Persistence.PgSql
 {
-    class ComposableNpgsqlConnection : IPoolableConnection, IComposableDbConnection<NpgsqlCommand>
+    interface IComposableNpgsqlConnection : IPoolableConnection, IComposableDbConnection<NpgsqlCommand>
     {
-        IDbConnection IComposableDbConnection.Connection => Connection;
-        internal NpgsqlConnection Connection { get; }
+        internal static IComposableNpgsqlConnection Create(string connString) => new ComposableNpgsqlConnection(connString);
 
-        public ComposableNpgsqlConnection(string connectionString) => Connection = new NpgsqlConnection(connectionString);
+        class ComposableNpgsqlConnection : IComposableNpgsqlConnection
+        {
+            IDbConnection IComposableDbConnection.Connection => Connection;
+            internal NpgsqlConnection Connection { get; }
 
-        internal static ComposableNpgsqlConnection Create(string connString) => new ComposableNpgsqlConnection(connString);
+            public ComposableNpgsqlConnection(string connectionString) => Connection = new NpgsqlConnection(connectionString);
 
-        async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
-            await syncOrAsync.Run(
-                                  () => Connection.Open(),
-                                  () => Connection.OpenAsync())
-                             .NoMarshalling();
+            async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
+                await syncOrAsync.Run(
+                                      () => Connection.Open(),
+                                      () => Connection.OpenAsync())
+                                 .NoMarshalling();
 
-        DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
-        public NpgsqlCommand CreateCommand() => Connection.CreateCommand();
+            DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
+            public NpgsqlCommand CreateCommand() => Connection.CreateCommand();
 
-        public void Dispose() => Connection.Dispose();
+            public void Dispose() => Connection.Dispose();
 
-        public ValueTask DisposeAsync() => Connection.DisposeAsync();
+            public ValueTask DisposeAsync() => Connection.DisposeAsync();
+        }
     }
 }
 

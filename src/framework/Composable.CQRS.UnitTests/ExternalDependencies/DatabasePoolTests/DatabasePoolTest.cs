@@ -59,7 +59,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
             MySqlConnectionProvider.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
 
         static void UsePgSqlConnection(string connectionStringFor, Action<IDbConnection> func) =>
-            new PgSqlConnectionProvider(connectionStringFor).UseConnection(conn => func(conn.Connection));
+            IPgSqlConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
 
         static void UseMsSqlConnection(string connectionStringFor, Action<IDbConnection> func) =>
             MsSqlConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));

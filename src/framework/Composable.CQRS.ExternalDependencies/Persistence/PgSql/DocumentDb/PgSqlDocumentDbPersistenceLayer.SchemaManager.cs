@@ -10,8 +10,8 @@ namespace Composable.Persistence.PgSql.DocumentDb
         {
             readonly object _lockObject = new object();
             bool _initialized = false;
-            readonly INpgsqlConnectionProvider _connectionProvider;
-            public SchemaManager(INpgsqlConnectionProvider connectionProvider) => _connectionProvider = connectionProvider;
+            readonly IPgSqlConnectionPool _connectionPool;
+            public SchemaManager(IPgSqlConnectionPool connectionPool) => _connectionPool = connectionPool;
 
             internal void EnsureInitialized()
             {
@@ -21,7 +21,7 @@ namespace Composable.Persistence.PgSql.DocumentDb
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            _connectionProvider.ExecuteNonQuery($@"
+                            _connectionPool.ExecuteNonQuery($@"
 CREATE TABLE IF NOT EXISTS {Document.TableName} 
 (
     {Document.Id}          VARCHAR(500) NOT NULL,

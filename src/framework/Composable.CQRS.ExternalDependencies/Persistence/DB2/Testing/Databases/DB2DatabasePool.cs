@@ -47,18 +47,19 @@ namespace Composable.Persistence.DB2.Testing.Databases
             if(Transaction.Current != null) throw new Exception("This code should never run in a transaction");
 
             //Splitting this into one call to get the drop statements and another to execute them seems to perform about three times faster than doing everything on the server as an SP. It also eliminated the deadlocks we were getting.
-            var dropStatements = _masterConnectionProvider.UseCommand(command => command.SetCommandText(GetRemovalStatementsSql)
-                                                                                        .AddParameter(SchemaParameterName, DB2Type.VarChar, db.Name.ToUpperInvariant())
-                                                                                        .ExecuteReaderAndSelect(reader =>
-                                                                                                                    new
-                                                                                                                    {
-                                                                                                                        CreateTime = reader.GetDateTime(0),
-                                                                                                                        DropStatement = reader.GetString(1)
-                                                                                                                    })
-                                                                                        .OrderByDescending(me => me.CreateTime)
-                                                                                        .Select(me => me.DropStatement)
-                                                                                        .Where(me => !me.IsNullEmptyOrWhiteSpace())
-                                                                                        .Join($";{Environment.NewLine}")).Trim();
+            var dropStatements = _masterConnectionProvider.UseCommand(
+                command => command.SetCommandText(GetRemovalStatementsSql)
+                                  .AddParameter(SchemaParameterName, DB2Type.VarChar, db.Name.ToUpperInvariant())
+                                  .ExecuteReaderAndSelect(reader =>
+                                                              new
+                                                              {
+                                                                  CreateTime = reader.GetDateTime(0),
+                                                                  DropStatement = reader.GetString(1)
+                                                              })
+                                  .OrderByDescending(me => me.CreateTime)
+                                  .Select(me => me.DropStatement)
+                                  .Where(me => !me.IsNullEmptyOrWhiteSpace())
+                                  .Join($";{Environment.NewLine}")).Trim();
 
             if(dropStatements.Length > 0)
             {
@@ -81,7 +82,6 @@ namespace Composable.Persistence.DB2.Testing.Databases
             }
         }
 
-
         const string SchemaParameterName = "Schema";
         static readonly string GetRemovalStatementsSql = $@"
 
@@ -100,42 +100,42 @@ FROM SYSCAT.TABLES WHERE TABSCHEMA = @{SchemaParameterName}
 FOR READ ONLY WITH UR
 ";
 
-/*--Currently we don't use these object types and adding them above makes ResetDB significantly slower.
-        static readonly string GetUnusedRemovalStatements = $@"
-SELECT CREATE_TIME, 
-    'DROP ' || CASE TYPE
-        WHEN 'A' THEN 'ALIAS'
-        WHEN 'H' THEN 'TABLE'
-        WHEN 'N' THEN 'NICKNAME'
-        WHEN 'S' THEN 'TABLE'
-        WHEN 'T' THEN 'TABLE'
-        WHEN 'U' THEN 'TABLE'
-        WHEN 'V' THEN 'VIEW'
-        WHEN 'W' THEN 'VIEW'
-    END || ' ' || TRIM(TABSCHEMA) || '.' || TRIM(TABNAME) AS DDL
-FROM SYSCAT.TABLES WHERE TABSCHEMA = @{SchemaParameterName}
-    UNION
-    SELECT CREATE_TIME,
-        'DROP TRIGGER ' || TRIM(TRIGSCHEMA) || '.' || TRIM(TRIGNAME) AS DDL
-    FROM SYSCAT.TRIGGERS WHERE TRIGSCHEMA = @
-{SchemaParameterName}
-    UNION
-    SELECT CREATE_TIME,
-        'DROP ' || CASE ROUTINETYPE
-            WHEN 'F' THEN 'SPECIFIC FUNCTION'
-            WHEN 'M' THEN 'SPECIFIC METHOD'
-            WHEN 'P' THEN 'SPECIFIC PROCEDURE'
-        END || ' ' || TRIM(ROUTINESCHEMA) || '.' || TRIM(SPECIFICNAME) AS DDL
-    FROM SYSCAT.ROUTINES WHERE ROUTINESCHEMA = @{SchemaParameterName}
-    UNION
-    SELECT CREATE_TIME,
-        'DROP TYPE ' || TRIM(TYPESCHEMA) || '.' || TRIM(TYPENAME) AS DDL
-    FROM SYSCAT.DATATYPES WHERE TYPESCHEMA = @{SchemaParameterName}
-    UNION
-    SELECT CREATE_TIME, 
-        'DROP SEQUENCE ' || TRIM(SEQSCHEMA) || '.' || TRIM(SEQNAME) AS DDL
-    FROM SYSCAT.SEQUENCES WHERE SEQTYPE <> 'I' AND SEQSCHEMA = @{SchemaParameterName}";
-
-*/
+        /*--Currently we don't use these object types and adding them above makes ResetDB significantly slower.
+                static readonly string GetUnusedRemovalStatements = $@"
+        SELECT CREATE_TIME, 
+            'DROP ' || CASE TYPE
+                WHEN 'A' THEN 'ALIAS'
+                WHEN 'H' THEN 'TABLE'
+                WHEN 'N' THEN 'NICKNAME'
+                WHEN 'S' THEN 'TABLE'
+                WHEN 'T' THEN 'TABLE'
+                WHEN 'U' THEN 'TABLE'
+                WHEN 'V' THEN 'VIEW'
+                WHEN 'W' THEN 'VIEW'
+            END || ' ' || TRIM(TABSCHEMA) || '.' || TRIM(TABNAME) AS DDL
+        FROM SYSCAT.TABLES WHERE TABSCHEMA = @{SchemaParameterName}
+            UNION
+            SELECT CREATE_TIME,
+                'DROP TRIGGER ' || TRIM(TRIGSCHEMA) || '.' || TRIM(TRIGNAME) AS DDL
+            FROM SYSCAT.TRIGGERS WHERE TRIGSCHEMA = @
+        {SchemaParameterName}
+            UNION
+            SELECT CREATE_TIME,
+                'DROP ' || CASE ROUTINETYPE
+                    WHEN 'F' THEN 'SPECIFIC FUNCTION'
+                    WHEN 'M' THEN 'SPECIFIC METHOD'
+                    WHEN 'P' THEN 'SPECIFIC PROCEDURE'
+                END || ' ' || TRIM(ROUTINESCHEMA) || '.' || TRIM(SPECIFICNAME) AS DDL
+            FROM SYSCAT.ROUTINES WHERE ROUTINESCHEMA = @{SchemaParameterName}
+            UNION
+            SELECT CREATE_TIME,
+                'DROP TYPE ' || TRIM(TYPESCHEMA) || '.' || TRIM(TYPENAME) AS DDL
+            FROM SYSCAT.DATATYPES WHERE TYPESCHEMA = @{SchemaParameterName}
+            UNION
+            SELECT CREATE_TIME, 
+                'DROP SEQUENCE ' || TRIM(SEQSCHEMA) || '.' || TRIM(SEQNAME) AS DDL
+            FROM SYSCAT.SEQUENCES WHERE SEQTYPE <> 'I' AND SEQSCHEMA = @{SchemaParameterName}";
+        
+        */
     }
 }

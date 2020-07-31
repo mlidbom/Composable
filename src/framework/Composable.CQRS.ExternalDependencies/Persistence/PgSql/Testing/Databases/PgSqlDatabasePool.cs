@@ -56,7 +56,8 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         }
 
         protected override void ResetDatabase(Database db) =>
-            new PgSqlConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery(@"
+            new PgSqlConnectionProvider(ConnectionStringFor(db)).UseCommand(
+                command => command.SetCommandText(@"
 DO $$
 DECLARE
         dbRecord RECORD;
@@ -73,7 +74,7 @@ BEGIN
 	GRANT ALL ON SCHEMA public TO PUBLIC;
 	GRANT ALL ON SCHEMA public TO postgres;
 
-END; $$;");
+END; $$;").ExecuteNonQuery());
 
         void ResetConnectionPool(Database db)
         {

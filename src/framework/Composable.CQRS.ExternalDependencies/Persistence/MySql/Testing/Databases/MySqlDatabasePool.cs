@@ -32,27 +32,19 @@ namespace Composable.Persistence.MySql.Testing.Databases
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
             var databaseName = db.Name;
-            //            if(!_databaseRootFolderOverride.IsNullEmptyOrWhiteSpace())
-            //            {
-            //                createDatabaseCommand += $@"
-            //ON      ( NAME = {databaseName}_data, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.mdf')
-            //LOG ON  ( NAME = {databaseName}_log, FILENAME = '{_databaseRootFolderOverride}\{databaseName}.ldf');";
-            //            }
-
-            //            createDatabaseCommand += $@"
-            //ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;
-            //ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
             ResetConnectionPool(db);
-            _masterConnectionProvider?.ExecuteNonQuery($@"
+            _masterConnectionProvider.ExecuteNonQuery($@"
 DROP DATABASE IF EXISTS {databaseName};
 CREATE DATABASE {databaseName};");
         }
 
         protected override void ResetDatabase(Database db) =>
-            new MySqlConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery($@"
+            new MySqlConnectionProvider(ConnectionStringFor(db))
+               .UseCommand(
+                    command => command.SetCommandText($@"
 DROP DATABASE {db.Name};
-CREATE DATABASE {db.Name};");
+CREATE DATABASE {db.Name};").ExecuteNonQuery());
 
         void ResetConnectionPool(Database db)
         {

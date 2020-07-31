@@ -48,7 +48,11 @@ namespace Composable.Persistence.Oracle.Testing.Databases
             }
         }
 
-        protected override void ResetDatabase(Database db) { new OracleConnectionProvider(ConnectionStringFor(db)).ExecuteNonQuery(CleanSchema()); }
+        protected override void ResetDatabase(Database db)
+        {
+            new OracleConnectionProvider(ConnectionStringFor(db))
+               .UseCommand(command => command.SetCommandText(CleanSchema()).ExecuteNonQuery());
+        }
 
         static string DropUserIfExistsAndRecreate(string userName) => $@"
 declare user_to_drop_exists integer;

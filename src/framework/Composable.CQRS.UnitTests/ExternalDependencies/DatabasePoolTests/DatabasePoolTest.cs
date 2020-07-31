@@ -56,7 +56,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         static void UseMySqlConnection(string connectionStringFor, Action<IDbConnection> func) =>
-            new MySqlConnectionProvider(connectionStringFor).UseConnection(func);
+            new MySqlConnectionProvider(connectionStringFor).UseConnection(conn => func(conn.Connection));
 
         static void UsePgSqlConnection(string connectionStringFor, Action<IDbConnection> func) =>
             new PgSqlConnectionProvider(connectionStringFor).UseConnection(conn => func(conn.Connection));

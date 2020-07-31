@@ -6,10 +6,10 @@ namespace Composable.Persistence.MySql.SystemExtensions
 {
     interface IMySqlConnectionProvider
     {
-        TResult UseConnection<TResult>(Func<MySqlConnection, TResult> func);
-        Task<TResult> UseConnectionAsync<TResult>(Func<MySqlConnection,Task<TResult>> func);
+        TResult UseConnection<TResult>(Func<ComposableMySqlConnection, TResult> func);
+        Task<TResult> UseConnectionAsync<TResult>(Func<ComposableMySqlConnection,Task<TResult>> func);
 
-        void UseConnection(Action<MySqlConnection> action);
-        Task UseConnectionAsync(Func<MySqlConnection, Task> action);
+        void UseConnection(Action<ComposableMySqlConnection> action);
+        Task UseConnectionAsync(Func<ComposableMySqlConnection, Task> action);
     }
 }

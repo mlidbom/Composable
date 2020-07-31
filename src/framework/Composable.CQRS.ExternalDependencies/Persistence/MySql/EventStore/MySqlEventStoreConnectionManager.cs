@@ -11,7 +11,7 @@ namespace Composable.Persistence.MySql.EventStore
         readonly IMySqlConnectionProvider _connectionProvider;
         public MySqlEventStoreConnectionManager(IMySqlConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
 
-        public void UseConnection([InstantHandle] Action<MySqlConnection> action)
+        public void UseConnection([InstantHandle] Action<ComposableMySqlConnection> action)
         {
             AssertTransactionPolicy(false);
             _connectionProvider.UseConnection(action);

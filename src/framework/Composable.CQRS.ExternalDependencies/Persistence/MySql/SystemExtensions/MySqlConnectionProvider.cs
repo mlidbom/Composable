@@ -1,50 +1,37 @@
 using System;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Composable.Persistence.Common;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
-using Composable.SystemCE.TransactionsCE;
-using MySql.Data.MySqlClient;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {
     class MySqlConnectionProvider : IMySqlConnectionProvider
     {
-        readonly OptimizedLazy<string> _connectionString;
-        string GetConnectionString() => _connectionString.Value;
+        readonly OptimizedLazy<DbConnectionPool<ComposableMySqlConnection>> _pool;
+        DbConnectionPool<ComposableMySqlConnection> Pool => _pool.Value;
 
         public MySqlConnectionProvider(string connectionString) : this(() => connectionString) {}
 
-        public MySqlConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
-
-        async Task<MySqlConnection> OpenConnectionAsync(AsyncMode syncOrAsync)
+        public MySqlConnectionProvider(Func<string> getConnectionString)
         {
-            using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
-            var connectionString = GetConnectionString();
-            var connection = new MySqlConnection(connectionString);
-
-            await syncOrAsync.Run(
-                                  () => connection.Open(),
-                                  async () => await connection.OpenAsync().NoMarshalling())
-                             .NoMarshalling();
-
-            return connection;
+            _pool = new OptimizedLazy<DbConnectionPool<ComposableMySqlConnection>>(
+                () =>
+                {
+                    var connectionString = getConnectionString();
+                    return DbConnectionPool<ComposableMySqlConnection>.ForConnectionString(
+                        connectionString,
+                        PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction,
+                        ComposableMySqlConnection.Create);
+                });
         }
 
-        public TResult UseConnection<TResult>(Func<MySqlConnection, TResult> func)
-        {
-            using var connection = OpenConnectionAsync(AsyncMode.Sync).AwaiterResult();
-            return func(connection);
-        }
+        public TResult UseConnection<TResult>(Func<ComposableMySqlConnection, TResult> func) => Pool.UseConnection(func);
 
-        public void UseConnection(Action<MySqlConnection> action) => UseConnection(action.AsFunc());
+        public void UseConnection(Action<ComposableMySqlConnection> action) => Pool.UseConnection(action);
 
-        public async Task<TResult> UseConnectionAsync<TResult>(Func<MySqlConnection, Task<TResult>> func)
-        {
-            await using var connection = await OpenConnectionAsync(AsyncMode.Async).NoMarshalling();
-            return await func(connection).NoMarshalling();
-        }
+        public async Task UseConnectionAsync(Func<ComposableMySqlConnection, Task> action) => await Pool.UseConnectionAsync(action).NoMarshalling();
 
-        public async Task UseConnectionAsync(Func<MySqlConnection, Task> action) => await UseConnectionAsync(action.AsFunc()).NoMarshalling();
+        public async Task<TResult> UseConnectionAsync<TResult>(Func<ComposableMySqlConnection, Task<TResult>> func) => await Pool.UseConnectionAsync(func).NoMarshalling();
     }
 }

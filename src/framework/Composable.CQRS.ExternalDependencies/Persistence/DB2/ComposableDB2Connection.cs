@@ -24,18 +24,6 @@ namespace Composable.Persistence.DB2
         internal static IComposableDB2Connection Create(string connString) => new ComposableDB2Connection(connString);
         ComposableDB2Connection(string connectionString) => Connection = new DB2Connection(connectionString);
 
-        public void Open()
-        {
-            Connection.Open();
-            EnsureParticipatingInAnyTransaction();
-        }
-
-        public async Task OpenAsync()
-        {
-            await Connection.OpenAsync().NoMarshalling();
-            EnsureParticipatingInAnyTransaction();
-        }
-
         async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
             await syncOrAsync.Run(
                                   () => Connection.Open(),
@@ -79,26 +67,26 @@ namespace Composable.Persistence.DB2
         {
             _db2Transaction?.Dispose();
             _db2Transaction = null;
-            _participatingIn = null;
+            _participatingInLocalIdentifier = null;
             enlistment.Done();
         }
 
 
-        Transaction? _participatingIn;
+        string? _participatingInLocalIdentifier;
         void EnsureParticipatingInAnyTransaction()
         {
-            var ambientTransaction = Transaction.Current;
-            if(ambientTransaction != null)
+            var ambientTransactionLocalIdentifier = Transaction.Current?.TransactionInformation.LocalIdentifier;
+            if(ambientTransactionLocalIdentifier != null)
             {
-                if(_participatingIn == null)
+                if(_participatingInLocalIdentifier == null)
                 {
-                    _participatingIn = ambientTransaction;
-                    ambientTransaction.EnlistVolatile(this, EnlistmentOptions.EnlistDuringPrepareRequired);
+                    _participatingInLocalIdentifier = ambientTransactionLocalIdentifier;
+                    Transaction.Current!.EnlistVolatile(this, EnlistmentOptions.EnlistDuringPrepareRequired);
                     _db2Transaction = Connection.BeginTransaction(Transaction.Current.IsolationLevel.ToDataIsolationLevel());
                 }
-                else if(_participatingIn != ambientTransaction)
+                else if(_participatingInLocalIdentifier != ambientTransactionLocalIdentifier)
                 {
-                    throw new Exception($"Somehow switched to a new transaction. Original: {_participatingIn.TransactionInformation.LocalIdentifier} new: {ambientTransaction.TransactionInformation.LocalIdentifier}");
+                    throw new Exception($"Somehow switched to a new transaction. Original: {_participatingInLocalIdentifier} new: {ambientTransactionLocalIdentifier}");
                 }
             }
         }

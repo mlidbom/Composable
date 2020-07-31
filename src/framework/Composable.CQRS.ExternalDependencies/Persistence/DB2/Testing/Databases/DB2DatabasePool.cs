@@ -29,8 +29,6 @@ namespace Composable.Persistence.DB2.Testing.Databases
         protected override string ConnectionStringFor(Database db)
             => _masterConnectionString + $"CurrentSchema={db.Name.ToUpperInvariant()};";
 
-        protected override void InitReboot() {}
-
         const string ObjectAlreadyExists = "42710";
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {

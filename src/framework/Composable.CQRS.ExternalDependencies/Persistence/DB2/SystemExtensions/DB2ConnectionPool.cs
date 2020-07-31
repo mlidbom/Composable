@@ -25,7 +25,7 @@ namespace Composable.Persistence.DB2.SystemExtensions
                         return DbConnectionPool<IComposableDB2Connection, DB2Command>.ForConnectionString(
                             connectionString,
                             PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction,
-                            connString => IComposableDB2Connection.Create(connString));
+                            IComposableDB2Connection.Create);
                     });
             }
             public Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<IComposableDB2Connection, Task<TResult>> func) =>

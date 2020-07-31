@@ -25,7 +25,7 @@ namespace Composable.Persistence.MySql.SystemExtensions
                         return DbConnectionPool<IComposableMySqlConnection, MySqlCommand>.ForConnectionString(
                             connectionString,
                             PoolableConnectionFlags.Defaults,
-                            connString => IComposableMySqlConnection.Create(connString));
+                            IComposableMySqlConnection.Create);
                     });
             }
 

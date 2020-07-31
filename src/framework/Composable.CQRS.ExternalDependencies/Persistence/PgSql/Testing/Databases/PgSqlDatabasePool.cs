@@ -29,8 +29,6 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         protected override string ConnectionStringFor(Database db)
             => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => me.Database = db.Name.ToLowerInvariant()).ConnectionString);
 
-        protected override void InitReboot() {}
-
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
             var databaseName = db.Name.ToLowerInvariant();

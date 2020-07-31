@@ -62,8 +62,8 @@
       <Value>CQRS\EventRefactoring\Migrations\EventMigrationTest.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-217</Value>
       <Value>DependencyInjection\DependencyInjectionContainer.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-17</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-122</Value>
-      <Value>TestWiringHelper.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-51</Value>
-      <Value>Logging\ExceptionLogger.cs:framework\Composable.CQRS\Composable.CQRS.csproj-25</Value>
+      <Value>TestWiringHelper.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-46</Value>
+      <Value>Logging\ExceptionLogger.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
       <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-57</Value>
       <Value>Messaging\ServiceBusSpecification\Given_a_backend_endpoint_with_a_command_event_and_query_handler\_Fixture.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-97</Value>
       <Value>CQRS\EventRefactoring\Migrations\EventMigrationTestBase.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-40</Value>
@@ -79,7 +79,7 @@
       <Value>SystemCE\OptimizedLazy.cs:framework\Composable.CQRS\Composable.CQRS.csproj-18</Value>
       <Value>Messaging\Buses\Endpoint.cs:framework\Composable.CQRS\Composable.CQRS.csproj-75</Value>
       <Value>Messaging\Buses\Endpoint.cs:framework\Composable.CQRS\Composable.CQRS.csproj-26</Value>
-      <Value>Testing\Databases\DatabasePool.cs:framework\Composable.CQRS\Composable.CQRS.csproj-49</Value>
+      <Value>Testing\Databases\DatabasePool.cs:framework\Composable.CQRS\Composable.CQRS.csproj-48</Value>
       <Value>SystemCE\TransactionsCE\TransactionScopeCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-30</Value>
       <Value>SystemCE\ThreadingCE\ThreadExceptionHandler.cs:framework\Composable.CQRS\Composable.CQRS.csproj-17</Value>
       <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-62</Value>
@@ -97,7 +97,6 @@
       <Value>Messaging\Buses\Implementation\Inbox.MessageStorage.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
       <Value>SystemCE\ThreadingCE\AsyncMode.cs:framework\Composable.CQRS\Composable.CQRS.csproj-34</Value>
       <Value>Persistence\Common\IDbConnectionPool.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-15</Value>
-      <Value>Persistence\Common\DBConnectionPool.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-53</Value>
     </HotSpotsLineExclusionList>
     <InstrumentationMode>Optimised</InstrumentationMode>
     <SlidingBuildDelayInMilliseconds>1000</SlidingBuildDelayInMilliseconds>

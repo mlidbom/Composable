@@ -26,7 +26,7 @@ namespace Composable.Persistence.MsSql.SystemExtensions
                         return DbConnectionPool<IComposableMsSqlConnection, SqlCommand>.ForConnectionString(
                             connectionString,
                             PoolableConnectionFlags.Defaults,
-                            connString => IComposableMsSqlConnection.Create(connString));
+                            IComposableMsSqlConnection.Create);
                     });
             }
 

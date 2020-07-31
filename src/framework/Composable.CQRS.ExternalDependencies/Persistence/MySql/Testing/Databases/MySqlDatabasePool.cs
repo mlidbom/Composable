@@ -28,8 +28,6 @@ namespace Composable.Persistence.MySql.Testing.Databases
         protected override string ConnectionStringFor(Database db)
             => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => me.Database = db.Name).ConnectionString);
 
-        protected override void InitReboot() { }
-
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
             var databaseName = db.Name;
@@ -40,12 +38,14 @@ DROP DATABASE IF EXISTS {databaseName};
 CREATE DATABASE {databaseName};");
         }
 
-        protected override void ResetDatabase(Database db) =>
+        protected override void ResetDatabase(Database db)
+        {
             IMySqlConnectionPool.CreateInstance(ConnectionStringFor(db))
-                                    .UseCommand(
-                                         command => command.SetCommandText($@"
+                                .UseCommand(
+                                     command => command.SetCommandText($@"
 DROP DATABASE {db.Name};
 CREATE DATABASE {db.Name};").ExecuteNonQuery());
+        }
 
         void ResetConnectionPool(Database db)
         {

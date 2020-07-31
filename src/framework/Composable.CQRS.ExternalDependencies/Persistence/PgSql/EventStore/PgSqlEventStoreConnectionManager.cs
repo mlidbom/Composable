@@ -11,7 +11,7 @@ namespace Composable.Persistence.PgSql.EventStore
         readonly INpgsqlConnectionProvider _connectionProvider;
         public PgSqlEventStoreConnectionManager(INpgsqlConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
 
-        public void UseConnection([InstantHandle] Action<NpgsqlConnection> action)
+        public void UseConnection([InstantHandle] Action<ComposableNpgsqlConnection> action)
         {
             AssertTransactionPolicy(false);
             _connectionProvider.UseConnection(action);

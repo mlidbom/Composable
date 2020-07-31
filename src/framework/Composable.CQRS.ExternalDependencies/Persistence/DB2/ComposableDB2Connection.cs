@@ -11,9 +11,11 @@ using IBM.Data.DB2.Core;
 
 namespace Composable.Persistence.DB2
 {
-    class ComposableDB2Connection : IEnlistmentNotification, IPoolableConnection
+    class ComposableDB2Connection : IEnlistmentNotification, IPoolableConnection, IComposableDbConnection<DB2Command>
     {
         DB2Transaction? _db2Transaction;
+
+        IDbConnection IComposableDbConnection.Connection => Connection;
         public DB2Connection Connection { get; }
 
         public ComposableDB2Connection(string connectionString) => Connection = new DB2Connection(connectionString);
@@ -37,6 +39,8 @@ namespace Composable.Persistence.DB2
                                   () => Connection.Open(),
                                   () => Connection.OpenAsync())
                              .NoMarshalling();
+
+        IDbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
 
         public DB2Command CreateCommand()
         {

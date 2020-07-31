@@ -6,10 +6,10 @@ namespace Composable.Persistence.PgSql.SystemExtensions
 {
     interface INpgsqlConnectionProvider
     {
-        TResult UseConnection<TResult>(Func<NpgsqlConnection, TResult> func);
-        Task<TResult> UseConnectionAsync<TResult>(Func<NpgsqlConnection,Task<TResult>> func);
+        TResult UseConnection<TResult>(Func<ComposableNpgsqlConnection, TResult> func);
+        Task<TResult> UseConnectionAsync<TResult>(Func<ComposableNpgsqlConnection,Task<TResult>> func);
 
-        void UseConnection(Action<NpgsqlConnection> action);
-        Task UseConnectionAsync(Func<NpgsqlConnection, Task> action);
+        void UseConnection(Action<ComposableNpgsqlConnection> action);
+        Task UseConnectionAsync(Func<ComposableNpgsqlConnection, Task> action);
     }
 }

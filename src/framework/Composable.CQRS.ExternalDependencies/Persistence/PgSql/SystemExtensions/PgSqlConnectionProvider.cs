@@ -1,87 +1,38 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Transactions;
+using Composable.Persistence.Common;
+using Composable.Persistence.DB2;
 using Composable.SystemCE;
-using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.ThreadingCE;
-using Composable.SystemCE.ThreadingCE.ResourceAccess;
-using Composable.SystemCE.TransactionsCE;
-using Npgsql;
 
 namespace Composable.Persistence.PgSql.SystemExtensions
 {
     class PgSqlConnectionProvider : INpgsqlConnectionProvider
     {
-        readonly OptimizedLazy<string> _connectionString;
-        string GetConnectionString() => _connectionString.Value;
+        readonly OptimizedLazy<DbConnectionPool<ComposableNpgsqlConnection>> _pool;
+        DbConnectionPool<ComposableNpgsqlConnection> Pool => _pool.Value;
 
         public PgSqlConnectionProvider(string connectionString) : this(() => connectionString) {}
 
-        public PgSqlConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
-
-        readonly OptimizedThreadShared<Dictionary<string, Task<NpgsqlConnection>>> _transactionConnections = new OptimizedThreadShared<Dictionary<string, Task<NpgsqlConnection>>>(new Dictionary<string, Task<NpgsqlConnection>>());
-
-        public TResult UseConnection<TResult>(Func<NpgsqlConnection, TResult> func) => UseConnectionAsync(AsyncMode.Sync, func.AsAsync()).AwaiterResult();
-
-        public void UseConnection(Action<NpgsqlConnection> action) => UseConnectionAsync(AsyncMode.Sync, action.AsFunc().AsAsync()).AwaiterResult();
-
-        public async Task UseConnectionAsync(Func<NpgsqlConnection, Task> action) => await UseConnectionAsync(AsyncMode.Async, action.AsFunc()).NoMarshalling();
-
-        public async Task<TResult> UseConnectionAsync<TResult>(Func<NpgsqlConnection, Task<TResult>> func) => await UseConnectionAsync(AsyncMode.Async, func).NoMarshalling();
-
-        async Task<TResult> UseConnectionAsync<TResult>(AsyncMode syncOrAsync, Func<NpgsqlConnection, Task<TResult>> func)
+        public PgSqlConnectionProvider(Func<string> getConnectionString)
         {
-            Task<NpgsqlConnection> getConnectionTask;
-            var inTransaction = Transaction.Current != null;
-            if(!inTransaction)
-            {
-                getConnectionTask = syncOrAsync.Run(OpenConnectionAsync);
-            } else
-            {
-                //PostgreSql has two problems with opening multiple connection within the same transaction:
-                //1: It causes the transaction to escalate to distributed.
-                //2: The other connections are unable to read data inserted by the first connection causing all sorts of havoc.
-                //Thus we must ensure that the same connection is used throughout a transaction.
-                getConnectionTask = _transactionConnections.WithExclusiveAccess(@this => @this.GetOrAdd(Transaction.Current!.TransactionInformation.LocalIdentifier,
-                                                                                                     () =>
-                                                                                                     {
-                                                                                                         var transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
-                                                                                                         var createConnectionTask = syncOrAsync.Run(OpenConnectionAsync);
-                                                                                                         Transaction.Current.OnCompleted(() => _transactionConnections.WithExclusiveAccess(me =>
-                                                                                                         {
-                                                                                                             createConnectionTask.Result.Dispose();
-                                                                                                             me.Remove(transactionId);
-                                                                                                         }));
-                                                                                                         return createConnectionTask;
-                                                                                                     }));
-            }
-
-            var connection = await getConnectionTask.NoMarshalling();
-            if(inTransaction)
-            {
-                return await func(connection).NoMarshalling();
-            } else
-            {
-
-                await using(connection)
+            _pool = new OptimizedLazy<DbConnectionPool<ComposableNpgsqlConnection>>(
+                () =>
                 {
-                    return await func(connection).NoMarshalling();
-                }
-            }
+                    var connectionString = getConnectionString();
+                    return DbConnectionPool<ComposableNpgsqlConnection>.ForConnectionString(
+                        connectionString,
+                        PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction,
+                        ComposableNpgsqlConnection.Create);
+                });
         }
 
-        //Performance: Since Npgsql connection pooling is slow we should do something about that here.
-        async Task<NpgsqlConnection> OpenConnectionAsync(AsyncMode syncOrAsync)
-        {
-            using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
-            var connectionString = GetConnectionString();
-            var connection = new NpgsqlConnection(connectionString);
-            await syncOrAsync.Run(
-                                  () => connection.Open(),
-                                  async () => await connection.OpenAsync().NoMarshalling())
-                             .NoMarshalling();
-            return connection;
-        }
+        public TResult UseConnection<TResult>(Func<ComposableNpgsqlConnection, TResult> func) => Pool.UseConnection(func);
+
+        public void UseConnection(Action<ComposableNpgsqlConnection> action) => Pool.UseConnection(action);
+
+        public async Task UseConnectionAsync(Func<ComposableNpgsqlConnection, Task> action) => await Pool.UseConnectionAsync(action).NoMarshalling();
+
+        public async Task<TResult> UseConnectionAsync<TResult>(Func<ComposableNpgsqlConnection, Task<TResult>> func) => await Pool.UseConnectionAsync(func).NoMarshalling();
     }
 }

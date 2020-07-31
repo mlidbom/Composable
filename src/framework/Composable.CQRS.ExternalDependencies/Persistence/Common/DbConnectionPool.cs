@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Persistence.DB2;
@@ -17,11 +18,20 @@ namespace Composable.Persistence.Common
         MustUseSameConnectionThroughoutATransaction = 1
     }
 
+    interface IComposableDbConnection
+    {
+        IDbCommand CreateCommand();
+        //Urgent: Remove this as soon as all persistence layers implement this interface so we can migrate to using CreateCommand.
+        IDbConnection Connection { get; }
+    }
+
+    interface IComposableDbConnection<out TCommand> : IComposableDbConnection where TCommand : IDbCommand
+    {
+        new TCommand CreateCommand();
+    }
+
     interface IPoolableConnection : IDisposable, IAsyncDisposable
     {
-        void Open();
-        Task OpenAsync();
-
         Task OpenAsyncFlex(AsyncMode syncOrAsync);
     }
 

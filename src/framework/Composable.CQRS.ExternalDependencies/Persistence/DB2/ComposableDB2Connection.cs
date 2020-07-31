@@ -12,84 +12,81 @@ using IBM.Data.DB2.Core;
 
 namespace Composable.Persistence.DB2
 {
-    interface IComposableDB2Connection : IPoolableConnection, IComposableDbConnection<DB2Command> {}
-
-    class ComposableDB2Connection : IEnlistmentNotification, IComposableDB2Connection
+    interface IComposableDB2Connection : IPoolableConnection, IComposableDbConnection<DB2Command>
     {
-        DB2Transaction? _db2Transaction;
-
-        IDbConnection IComposableDbConnection.Connection => Connection;
-        public DB2Connection Connection { get; }
-
         internal static IComposableDB2Connection Create(string connString) => new ComposableDB2Connection(connString);
-        ComposableDB2Connection(string connectionString) => Connection = new DB2Connection(connectionString);
 
-        async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
-            await syncOrAsync.Run(
-                                  () => Connection.Open(),
-                                  () => Connection.OpenAsync())
-                             .NoMarshalling();
-
-        DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
-
-        public DB2Command CreateCommand()
+        sealed class ComposableDB2Connection : IEnlistmentNotification, IComposableDB2Connection
         {
-            Assert.State.Assert(Connection.IsOpen);
-            EnsureParticipatingInAnyTransaction();
-            return Connection.CreateCommand().Mutate(@this => @this.Transaction = _db2Transaction);
-        }
+            DB2Transaction? _db2Transaction;
 
-        public void Dispose()
-        {
-            Connection.Dispose();
-            _db2Transaction?.Dispose();
-        }
+            DB2Connection Connection { get; }
 
-        public ValueTask DisposeAsync() => Connection.DisposeAsync();
+            internal ComposableDB2Connection(string connectionString) => Connection = new DB2Connection(connectionString);
 
-        void IEnlistmentNotification.Commit(Enlistment enlistment)
-        {
-            _db2Transaction!.Commit();
-            DoneWithTransaction(enlistment);
-        }
+            async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
+                await syncOrAsync.Run(
+                    () => Connection.Open(),
+                    () => Connection.OpenAsync()).NoMarshalling();
 
-        void IEnlistmentNotification.Rollback(Enlistment enlistment)
-        {
-            _db2Transaction!.Rollback();
-            DoneWithTransaction(enlistment);
-        }
+            DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
 
-        void IEnlistmentNotification.InDoubt(Enlistment enlistment) => DoneWithTransaction(enlistment);
-
-        void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment) => preparingEnlistment.Prepared();
-
-        void DoneWithTransaction(Enlistment enlistment)
-        {
-            _db2Transaction?.Dispose();
-            _db2Transaction = null;
-            _participatingInLocalIdentifier = null;
-            enlistment.Done();
-        }
-
-
-        string? _participatingInLocalIdentifier;
-        void EnsureParticipatingInAnyTransaction()
-        {
-            var ambientTransactionLocalIdentifier = Transaction.Current?.TransactionInformation.LocalIdentifier;
-            if(ambientTransactionLocalIdentifier != null)
+            public DB2Command CreateCommand()
             {
-                if(_participatingInLocalIdentifier == null)
+                Assert.State.Assert(Connection.IsOpen);
+                EnsureParticipatingInAnyTransaction();
+                return Connection.CreateCommand().Mutate(@this => @this.Transaction = _db2Transaction);
+            }
+
+            public void Dispose()
+            {
+                Connection.Dispose();
+                _db2Transaction?.Dispose();
+            }
+
+            public ValueTask DisposeAsync() => Connection.DisposeAsync();
+
+            void IEnlistmentNotification.Commit(Enlistment enlistment)
+            {
+                _db2Transaction!.Commit();
+                DoneWithTransaction(enlistment);
+            }
+
+            void IEnlistmentNotification.Rollback(Enlistment enlistment)
+            {
+                _db2Transaction!.Rollback();
+                DoneWithTransaction(enlistment);
+            }
+
+            void IEnlistmentNotification.InDoubt(Enlistment enlistment) => DoneWithTransaction(enlistment);
+
+            void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment) => preparingEnlistment.Prepared();
+
+            void DoneWithTransaction(Enlistment enlistment)
+            {
+                _db2Transaction?.Dispose();
+                _db2Transaction = null;
+                _participatingInLocalIdentifier = null;
+                enlistment.Done();
+            }
+
+            string? _participatingInLocalIdentifier;
+            void EnsureParticipatingInAnyTransaction()
+            {
+                var ambientTransactionLocalIdentifier = Transaction.Current?.TransactionInformation.LocalIdentifier;
+                if(ambientTransactionLocalIdentifier != null)
                 {
-                    _participatingInLocalIdentifier = ambientTransactionLocalIdentifier;
-                    Transaction.Current!.EnlistVolatile(this, EnlistmentOptions.EnlistDuringPrepareRequired);
-                    _db2Transaction = Connection.BeginTransaction(Transaction.Current.IsolationLevel.ToDataIsolationLevel());
-                }
-                else if(_participatingInLocalIdentifier != ambientTransactionLocalIdentifier)
-                {
-                    throw new Exception($"Somehow switched to a new transaction. Original: {_participatingInLocalIdentifier} new: {ambientTransactionLocalIdentifier}");
+                    if(_participatingInLocalIdentifier == null)
+                    {
+                        _participatingInLocalIdentifier = ambientTransactionLocalIdentifier;
+                        Transaction.Current!.EnlistVolatile(this, EnlistmentOptions.EnlistDuringPrepareRequired);
+                        _db2Transaction = Connection.BeginTransaction(Transaction.Current.IsolationLevel.ToDataIsolationLevel());
+                    } else if(_participatingInLocalIdentifier != ambientTransactionLocalIdentifier)
+                    {
+                        throw new Exception($"Somehow switched to a new transaction. Original: {_participatingInLocalIdentifier} new: {ambientTransactionLocalIdentifier}");
+                    }
                 }
             }
         }
     }
 }
-

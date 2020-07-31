@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using Composable.DependencyInjection;
+using Composable.Persistence.Common;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.Persistence.DB2.Testing.Databases;
 using Composable.Persistence.MySql.SystemExtensions;
@@ -31,7 +32,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-        internal static void UseConnection(string connectionString, DatabasePool pool, Action<IDbConnection> func)
+        internal static void UseConnection(string connectionString, DatabasePool pool, Action<IComposableDbConnection> func)
         {
             switch(TestEnv.PersistenceLayer.Current)
             {
@@ -55,20 +56,20 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
             }
         }
 
-        static void UseMySqlConnection(string connectionStringFor, Action<IDbConnection> func) =>
-            IMySqlConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
+        static void UseMySqlConnection(string connectionStringFor, Action<IComposableDbConnection> func) =>
+            IMySqlConnectionPool.CreateInstance(connectionStringFor).UseConnection(func);
 
-        static void UsePgSqlConnection(string connectionStringFor, Action<IDbConnection> func) =>
-            IPgSqlConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
+        static void UsePgSqlConnection(string connectionStringFor, Action<IComposableDbConnection> func) =>
+            IPgSqlConnectionPool.CreateInstance(connectionStringFor).UseConnection(func);
 
-        static void UseMsSqlConnection(string connectionStringFor, Action<IDbConnection> func) =>
-            IMsSqlConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
+        static void UseMsSqlConnection(string connectionStringFor, Action<IComposableDbConnection> func) =>
+            IMsSqlConnectionPool.CreateInstance(connectionStringFor).UseConnection(func);
 
-        static void UseOracleConnection(string connectionStringFor, Action<IDbConnection> func) =>
-            IOracleConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
+        static void UseOracleConnection(string connectionStringFor, Action<IComposableDbConnection> func) =>
+            IOracleConnectionPool.CreateInstance(connectionStringFor).UseConnection(func);
 
-        static void UseComposableDB2Connection(string connectionStringFor, Action<IDbConnection> func) =>
-            IDB2ConnectionPool.CreateInstance(connectionStringFor).UseConnection(conn => func(conn.Connection));
+        static void UseComposableDB2Connection(string connectionStringFor, Action<IComposableDbConnection> func) =>
+            IDB2ConnectionPool.CreateInstance(connectionStringFor).UseConnection(func);
 
         public DatabasePoolTest(string _) : base(_) {}
     }

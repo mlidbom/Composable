@@ -7,29 +7,27 @@ using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Persistence.MsSql
 {
-    interface IComposableMsSqlConnection : IPoolableConnection, IComposableDbConnection<SqlCommand> {}
-
-    class ComposableMsSqlConnection : IComposableMsSqlConnection
+    interface IComposableMsSqlConnection : IPoolableConnection, IComposableDbConnection<SqlCommand>
     {
-        IDbConnection IComposableDbConnection.Connection => Connection;
-        internal SqlConnection Connection { get; }
-
-        public ComposableMsSqlConnection(string connectionString) => Connection = new SqlConnection(connectionString);
-
         internal static IComposableMsSqlConnection Create(string connString) => new ComposableMsSqlConnection(connString);
 
-        async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
-            await syncOrAsync.Run(
-                                  () => Connection.Open(),
-                                  () => Connection.OpenAsync())
-                             .NoMarshalling();
+        sealed class ComposableMsSqlConnection : IComposableMsSqlConnection
+        {
+            SqlConnection Connection { get; }
 
-        DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
-        public SqlCommand CreateCommand() => Connection.CreateCommand();
+            internal ComposableMsSqlConnection(string connectionString) => Connection = new SqlConnection(connectionString);
 
-        public void Dispose() => Connection.Dispose();
+            async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
+                await syncOrAsync.Run(
+                    () => Connection.Open(),
+                    () => Connection.OpenAsync()).NoMarshalling();
 
-        public ValueTask DisposeAsync() => Connection.DisposeAsync();
+            DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
+            public SqlCommand CreateCommand() => Connection.CreateCommand();
+
+            public void Dispose() => Connection.Dispose();
+
+            public ValueTask DisposeAsync() => Connection.DisposeAsync();
+        }
     }
 }
-

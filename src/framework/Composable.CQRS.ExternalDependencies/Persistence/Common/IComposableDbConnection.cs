@@ -14,9 +14,6 @@ namespace Composable.Persistence.Common
     interface IComposableDbConnection
     {
         DbCommand CreateCommand();
-
-        //Urgent: Remove this as soon as all persistence layers implement this interface so we can migrate to using CreateCommand.
-        IDbConnection Connection { get; }
     }
 
     interface IComposableDbConnection<out TCommand> : IComposableDbConnection

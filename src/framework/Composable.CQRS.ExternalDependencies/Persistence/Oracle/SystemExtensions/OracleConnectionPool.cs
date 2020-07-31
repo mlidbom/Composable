@@ -25,7 +25,7 @@ namespace Composable.Persistence.Oracle.SystemExtensions
                         return DbConnectionPool<IComposableOracleConnection, OracleCommand>.ForConnectionString(
                             connectionString,
                             PoolableConnectionFlags.Defaults,
-                            ComposableOracleConnection.Create);
+                            IComposableOracleConnection.Create);
                     });
             }
 

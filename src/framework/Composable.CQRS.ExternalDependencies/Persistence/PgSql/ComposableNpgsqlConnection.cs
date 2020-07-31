@@ -11,18 +11,16 @@ namespace Composable.Persistence.PgSql
     {
         internal static IComposableNpgsqlConnection Create(string connString) => new ComposableNpgsqlConnection(connString);
 
-        class ComposableNpgsqlConnection : IComposableNpgsqlConnection
+        sealed class ComposableNpgsqlConnection : IComposableNpgsqlConnection
         {
-            IDbConnection IComposableDbConnection.Connection => Connection;
-            internal NpgsqlConnection Connection { get; }
+            NpgsqlConnection Connection { get; }
 
             public ComposableNpgsqlConnection(string connectionString) => Connection = new NpgsqlConnection(connectionString);
 
             async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
                 await syncOrAsync.Run(
-                                      () => Connection.Open(),
-                                      () => Connection.OpenAsync())
-                                 .NoMarshalling();
+                    () => Connection.Open(),
+                    () => Connection.OpenAsync()).NoMarshalling();
 
             DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
             public NpgsqlCommand CreateCommand() => Connection.CreateCommand();
@@ -33,4 +31,3 @@ namespace Composable.Persistence.PgSql
         }
     }
 }
-

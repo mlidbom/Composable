@@ -1,7 +1,9 @@
 using System;
+using System.Data;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
+using Composable.Persistence.Common;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.TransactionsCE;
@@ -9,57 +11,63 @@ using IBM.Data.DB2.Core;
 
 namespace Composable.Persistence.DB2
 {
-    class ComposableDB2Connection : IDisposable, IAsyncDisposable, IEnlistmentNotification
+    class ComposableDB2Connection : IEnlistmentNotification, IPoolableConnection
     {
-        readonly DB2Connection _connection;
         DB2Transaction? _db2Transaction;
-        public ComposableDB2Connection(string connectionString) => _connection = new DB2Connection(connectionString);
+        public DB2Connection Connection { get; }
 
-        internal DB2Connection Connection => _connection;
+        public ComposableDB2Connection(string connectionString) => Connection = new DB2Connection(connectionString);
 
         public void Open()
         {
-            _connection.Open();
+            Connection.Open();
             EnsureParticipatingInAnyTransaction();
         }
 
         public async Task OpenAsync()
         {
-            await _connection.OpenAsync().NoMarshalling();
+            await Connection.OpenAsync().NoMarshalling();
             EnsureParticipatingInAnyTransaction();
         }
 
+        internal static ComposableDB2Connection Create(string connString) => new ComposableDB2Connection(connString);
+
+        async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
+            await syncOrAsync.Run(
+                                  () => Connection.Open(),
+                                  () => Connection.OpenAsync())
+                             .NoMarshalling();
+
         public DB2Command CreateCommand()
         {
-            Assert.State.Assert(_connection.IsOpen);
+            Assert.State.Assert(Connection.IsOpen);
             EnsureParticipatingInAnyTransaction();
-            return _connection.CreateCommand().Mutate(@this => @this.Transaction = _db2Transaction);
+            return Connection.CreateCommand().Mutate(@this => @this.Transaction = _db2Transaction);
         }
 
         public void Dispose()
         {
-            _connection.Dispose();
+            Connection.Dispose();
             _db2Transaction?.Dispose();
         }
 
-        public ValueTask DisposeAsync() => _connection.DisposeAsync();
+        public ValueTask DisposeAsync() => Connection.DisposeAsync();
 
-
-        public void Commit(Enlistment enlistment)
+        void IEnlistmentNotification.Commit(Enlistment enlistment)
         {
             _db2Transaction!.Commit();
             DoneWithTransaction(enlistment);
         }
 
-        public void Rollback(Enlistment enlistment)
+        void IEnlistmentNotification.Rollback(Enlistment enlistment)
         {
             _db2Transaction!.Rollback();
             DoneWithTransaction(enlistment);
         }
 
-        public void InDoubt(Enlistment enlistment) => DoneWithTransaction(enlistment);
+        void IEnlistmentNotification.InDoubt(Enlistment enlistment) => DoneWithTransaction(enlistment);
 
-        public void Prepare(PreparingEnlistment preparingEnlistment) => preparingEnlistment.Prepared();
+        void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment) => preparingEnlistment.Prepared();
 
         void DoneWithTransaction(Enlistment enlistment)
         {
@@ -80,7 +88,7 @@ namespace Composable.Persistence.DB2
                 {
                     _participatingIn = ambientTransaction;
                     ambientTransaction.EnlistVolatile(this, EnlistmentOptions.EnlistDuringPrepareRequired);
-                    _db2Transaction = _connection.BeginTransaction(Transaction.Current.IsolationLevel.ToDataIsolationLevel());
+                    _db2Transaction = Connection.BeginTransaction(Transaction.Current.IsolationLevel.ToDataIsolationLevel());
                 }
                 else if(_participatingIn != ambientTransaction)
                 {

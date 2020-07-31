@@ -13,9 +13,9 @@ namespace Composable.SystemCE.ReflectionCE
                 internal static readonly Func<TInstance> Instance = Compile.ForReturnType<TInstance>().DefaultConstructor();
             }
 
-            internal static class WithArgument<TArgument1>
+            internal static class WithArguments<TArgument1>
             {
-                internal static readonly Func<TArgument1, TInstance> Instance = Compile.ForReturnType<TInstance>().WithArgument<TArgument1>();
+                internal static readonly Func<TArgument1, TInstance> Instance = Compile.ForReturnType<TInstance>().WithArguments<TArgument1>();
             }
 
             internal static class WithArguments<TArgument1, TArgument2>

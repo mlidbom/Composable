@@ -107,11 +107,9 @@
       <Value>SystemCE\TransactionsCE\TransactionScopeCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-30</Value>
       <Value>SystemCE\ThreadingCE\ThreadExceptionHandler.cs:framework\Composable.CQRS\Composable.CQRS.csproj-17</Value>
       <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-62</Value>
-      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-24</Value>
-      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-38</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-36</Value>
       <Value>SystemCE\ThreadingCE\TaskCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-81</Value>
-      <Value>SystemCE\ThreadingCE\AsyncMode.cs:framework\Composable.CQRS\Composable.CQRS.csproj-56</Value>
+      <Value>SystemCE\ThreadingCE\AsyncMode.cs:framework\Composable.CQRS\Composable.CQRS.csproj-67</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-12</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-22</Value>
       <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProviderExtensions.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-20</Value>
@@ -119,10 +117,9 @@
       <Value>SystemCE\ThreadingCE\ResourceAccess\ThreadShared.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-35</Value>
       <Value>Persistence\DB2\DependencyInjection\DB2PersistenceLayerRegistrar.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-31</Value>
-      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-16</Value>
       <Value>SystemCE\ThreadingCE\AsyncMode.cs:framework\Composable.CQRS\Composable.CQRS.csproj-31</Value>
       <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-47</Value>
-      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-28</Value>
+      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-32</Value>
       <Value>DependencyInjection\TransactionalExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-30</Value>
       <Value>SystemCE\TransactionsCE\TransactionScopeCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-21</Value>
       <Value>SystemCE\ThreadingCE\TaskRunner.cs:framework\Composable.CQRS\Composable.CQRS.csproj-22</Value>
@@ -130,6 +127,7 @@
       <Value>SystemCE\ThreadingCE\ResourceAccess\ResourceGuardExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-60</Value>
       <Value>SystemCE\ThreadingCE\ResourceAccess\ResourceGuard.ExclusiveAccessGuardedResource.cs:framework\Composable.CQRS\Composable.CQRS.csproj-86</Value>
       <Value>Messaging\Buses\Implementation\Inbox.MessageStorage.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
+      <Value>SystemCE\ThreadingCE\AsyncMode.cs:framework\Composable.CQRS\Composable.CQRS.csproj-34</Value>
     </HotSpotsLineExclusionList>
     <InstrumentationMode>Optimised</InstrumentationMode>
     <SlidingBuildDelayInMilliseconds>1000</SlidingBuildDelayInMilliseconds>

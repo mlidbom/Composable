@@ -1,6 +1,7 @@
 using System.Data.Common;
 using System.Threading.Tasks;
 using Composable.Persistence.Common;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using Oracle.ManagedDataAccess.Client;
 
@@ -22,12 +23,9 @@ namespace Composable.Persistence.Oracle
                     () => Connection.OpenAsync()).NoMarshalling();
 
             DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
-            public OracleCommand CreateCommand()
-            {
-                var command = Connection.CreateCommand();
-                command.BindByName = true;
-                return command;
-            }
+
+            public OracleCommand CreateCommand() =>
+                Connection.CreateCommand().Mutate(@this => @this.BindByName = true);
 
             public void Dispose() => Connection.Dispose();
 

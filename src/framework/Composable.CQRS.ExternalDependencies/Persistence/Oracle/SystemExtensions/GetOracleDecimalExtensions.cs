@@ -3,7 +3,7 @@ using Oracle.ManagedDataAccess.Types;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {
-    public static class GetOracleDecimalExtensions
+    static class GetOracleDecimalExtensions
     {
         //OracleDecimal does maintain the full precision, but when all 19 numbers are not required to display accurately it omits all the trailing zeroes.
         internal static ReadOrder ToReadOrder(this OracleDecimal oracleDecimal) =>

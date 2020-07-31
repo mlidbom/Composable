@@ -140,7 +140,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     useConnection = () => pgSqlConnectionProvider.UseConnection(_ => {});
                     break;
                 case PersistenceLayer.Orcl:
-                    var oracleConnectionProvider = new OracleConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    var oracleConnectionProvider = OracleConnectionProvider.CreateInstance(manager.ConnectionStringFor(reservationName));
                     useConnection = () => oracleConnectionProvider .UseConnection(_ => {});
                     break;
                 case PersistenceLayer.DB2:

@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Composable.Persistence.Common;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.ThreadingCE;
 using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;

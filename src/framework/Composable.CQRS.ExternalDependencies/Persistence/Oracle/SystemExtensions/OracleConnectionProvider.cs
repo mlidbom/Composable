@@ -7,32 +7,31 @@ using Oracle.ManagedDataAccess.Client;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {
+    interface IOracleConnectionProvider : IDbConnectionPool<IComposableOracleConnection, OracleCommand> {}
+
     class OracleConnectionProvider : IOracleConnectionProvider
     {
-        readonly OptimizedLazy<IDbConnectionPool<ComposableOracleConnection, OracleCommand>> _pool;
-        IDbConnectionPool<ComposableOracleConnection, OracleCommand> Pool => _pool.Value;
+        readonly OptimizedLazy<IDbConnectionPool<IComposableOracleConnection, OracleCommand>> _pool;
 
-        public OracleConnectionProvider(string connectionString) : this(() => connectionString) {}
+        public static IOracleConnectionProvider CreateInstance(string connectionString) => new OracleConnectionProvider(connectionString);
+        IDbConnectionPool<IComposableOracleConnection, OracleCommand> Pool => _pool.Value;
+
+        OracleConnectionProvider(string connectionString) : this(() => connectionString) {}
 
         public OracleConnectionProvider(Func<string> getConnectionString)
         {
-            _pool = new OptimizedLazy<IDbConnectionPool<ComposableOracleConnection, OracleCommand>>(
+            _pool = new OptimizedLazy<IDbConnectionPool<IComposableOracleConnection, OracleCommand>>(
                 () =>
                 {
                     var connectionString = getConnectionString();
-                    return DbConnectionPool<ComposableOracleConnection, OracleCommand>.ForConnectionString(
+                    return DbConnectionPool<IComposableOracleConnection, OracleCommand>.ForConnectionString(
                         connectionString,
                         PoolableConnectionFlags.Defaults,
                         ComposableOracleConnection.Create);
                 });
         }
 
-        public TResult UseConnection<TResult>(Func<ComposableOracleConnection, TResult> func) => Pool.UseConnection(func);
-
-        public void UseConnection(Action<ComposableOracleConnection> action) => Pool.UseConnection(action);
-
-        public async Task UseConnectionAsync(Func<ComposableOracleConnection, Task> action) => await Pool.UseConnectionAsync(action).NoMarshalling();
-
-        public async Task<TResult> UseConnectionAsync<TResult>(Func<ComposableOracleConnection, Task<TResult>> func) => await Pool.UseConnectionAsync(func).NoMarshalling();
+        public Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<IComposableOracleConnection, Task<TResult>> func) =>
+            Pool.UseConnectionAsyncFlex(syncOrAsync, func);
     }
 }

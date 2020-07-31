@@ -11,7 +11,7 @@ namespace Composable.Persistence.Oracle.EventStore
         readonly IOracleConnectionProvider _connectionProvider;
         public OracleEventStoreConnectionManager(IOracleConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
 
-        public void UseConnection([InstantHandle] Action<ComposableOracleConnection> action)
+        public void UseConnection([InstantHandle] Action<IComposableOracleConnection> action)
         {
             AssertTransactionPolicy(false);
             _connectionProvider.UseConnection(action);

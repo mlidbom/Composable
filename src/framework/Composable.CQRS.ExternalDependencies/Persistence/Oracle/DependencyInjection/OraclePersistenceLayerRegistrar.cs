@@ -35,7 +35,7 @@ namespace Composable.Persistence.Oracle.DependencyInjection
             {
                 container.Register(
                     Singleton.For<IOracleConnectionProvider>()
-                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => new OracleConnectionProvider(configurationParameterProvider.GetString(connectionStringName)))
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => OracleConnectionProvider.CreateInstance(configurationParameterProvider.GetString(connectionStringName)))
                              .DelegateToParentServiceLocatorWhenCloning());
             }
 

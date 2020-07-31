@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.Common;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.SystemCE.ThreadingCE;
 using Schema =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
@@ -10,8 +11,8 @@ namespace Composable.Persistence.DB2.Messaging.Buses.Implementation
 {
     partial class DB2InboxPersistenceLayer : IServiceBusPersistenceLayer.IInboxPersistenceLayer
     {
-        readonly IDB2ConnectionProvider _connectionFactory;
-        public DB2InboxPersistenceLayer(IDB2ConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        readonly IDB2ConnectionPool _connectionFactory;
+        public DB2InboxPersistenceLayer(IDB2ConnectionPool connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveMessage(Guid messageId, Guid typeId, string serializedMessage)
         {

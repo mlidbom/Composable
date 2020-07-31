@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.Common;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.SystemCE.LinqCE;
 using MessageTable = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
@@ -10,8 +11,8 @@ namespace Composable.Persistence.DB2.Messaging.Buses.Implementation
 {
     partial class DB2OutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
-        readonly IDB2ConnectionProvider _connectionFactory;
-        public DB2OutboxPersistenceLayer(IDB2ConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        readonly IDB2ConnectionPool _connectionFactory;
+        public DB2OutboxPersistenceLayer(IDB2ConnectionPool connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveMessage(IServiceBusPersistenceLayer.OutboxMessageWithReceivers messageWithReceivers)
         {

@@ -1,4 +1,5 @@
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Composable.Persistence.Common;
 using Composable.SystemCE.ThreadingCE;
@@ -19,7 +20,7 @@ namespace Composable.Persistence.Oracle
             await syncOrAsync.Run(() => Connection.Open(),
                                   () => Connection.OpenAsync()).NoMarshalling();
 
-        IDbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
+        DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
         public OracleCommand CreateCommand() => Connection.CreateCommand();
 
         public void Dispose() => Connection.Dispose();

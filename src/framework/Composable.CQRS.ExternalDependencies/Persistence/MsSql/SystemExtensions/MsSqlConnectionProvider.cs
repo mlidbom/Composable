@@ -1,4 +1,5 @@
 using System;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Composable.Persistence.Common;
 using Composable.SystemCE;
@@ -8,20 +9,20 @@ namespace Composable.Persistence.MsSql.SystemExtensions
 {
     class MsSqlConnectionProvider : IMsSqlConnectionProvider
     {
-        readonly OptimizedLazy<DbConnectionPool<ComposableMsSqlConnection>> _pool;
-        DbConnectionPool<ComposableMsSqlConnection> Pool => _pool.Value;
+        readonly OptimizedLazy<IDbConnectionPool<ComposableMsSqlConnection, SqlCommand>> _pool;
+        IDbConnectionPool<ComposableMsSqlConnection, SqlCommand> Pool => _pool.Value;
 
         public MsSqlConnectionProvider(string connectionString) : this(() => connectionString) {}
 
         public MsSqlConnectionProvider(Func<string> getConnectionString)
         {
-            _pool = new OptimizedLazy<DbConnectionPool<ComposableMsSqlConnection>>(
+            _pool = new OptimizedLazy<IDbConnectionPool<ComposableMsSqlConnection, SqlCommand>>(
                 () =>
                 {
                     var connectionString = getConnectionString();
-                    return DbConnectionPool<ComposableMsSqlConnection>.ForConnectionString(
+                    return DbConnectionPool<ComposableMsSqlConnection, SqlCommand>.ForConnectionString(
                         connectionString,
-                        PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction,
+                        PoolableConnectionFlags.Defaults,
                         ComposableMsSqlConnection.Create);
                 });
         }

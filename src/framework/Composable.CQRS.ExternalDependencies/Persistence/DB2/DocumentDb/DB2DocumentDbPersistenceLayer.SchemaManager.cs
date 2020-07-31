@@ -1,4 +1,5 @@
-﻿using Composable.Persistence.DB2.SystemExtensions;
+﻿using Composable.Persistence.Common;
+using Composable.Persistence.DB2.SystemExtensions;
 using Composable.SystemCE.TransactionsCE;
 using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 // ReSharper disable StringLiteralTypo
@@ -13,8 +14,8 @@ namespace Composable.Persistence.DB2.DocumentDb
         {
             readonly object _lockObject = new object();
             bool _initialized = false;
-            readonly IDB2ConnectionProvider _connectionProvider;
-            public SchemaManager(IDB2ConnectionProvider connectionProvider) => _connectionProvider = connectionProvider;
+            readonly IDB2ConnectionPool _connectionPool;
+            public SchemaManager(IDB2ConnectionPool connectionPool) => _connectionPool = connectionPool;
 
             internal void EnsureInitialized()
             {
@@ -24,7 +25,7 @@ namespace Composable.Persistence.DB2.DocumentDb
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            _connectionProvider.UseCommand(cmd => cmd.SetCommandText($@"
+                            _connectionPool.UseCommand(cmd => cmd.SetCommandText($@"
 begin
     declare continue handler for sqlstate '42710' begin end; --Ignore error if table exists
         

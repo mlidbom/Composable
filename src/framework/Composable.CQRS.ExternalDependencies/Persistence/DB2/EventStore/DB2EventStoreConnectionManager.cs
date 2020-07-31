@@ -8,27 +8,27 @@ namespace Composable.Persistence.DB2.EventStore
 {
     class DB2EventStoreConnectionManager
     {
-        readonly IDB2ConnectionProvider _connectionProvider;
-        public DB2EventStoreConnectionManager(IDB2ConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
+        readonly IDB2ConnectionPool _connectionPool;
+        public DB2EventStoreConnectionManager(IDB2ConnectionPool sqlConnectionPool) => _connectionPool = sqlConnectionPool;
 
-        public void UseConnection([InstantHandle] Action<ComposableDB2Connection> action)
+        public void UseConnection([InstantHandle] Action<IComposableDB2Connection> action)
         {
             AssertTransactionPolicy(false);
-            _connectionProvider.UseConnection(action);
+            _connectionPool.UseConnection(action);
         }
 
         public void UseCommand([InstantHandle]Action<DB2Command> action) => UseCommand(false, action);
         public void UseCommand(bool suppressTransactionWarning, [InstantHandle] Action<DB2Command> action)
         {
             AssertTransactionPolicy(suppressTransactionWarning);
-            _connectionProvider.UseCommand(action);
+            _connectionPool.UseCommand(action);
         }
 
         public TResult UseCommand<TResult>([InstantHandle]Func<DB2Command, TResult> action) => UseCommand(false, action);
         public TResult UseCommand<TResult>(bool suppressTransactionWarning, [InstantHandle] Func<DB2Command, TResult> action)
         {
             AssertTransactionPolicy(suppressTransactionWarning);
-            return _connectionProvider.UseCommand(action);
+            return _connectionPool.UseCommand(action);
         }
 
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local

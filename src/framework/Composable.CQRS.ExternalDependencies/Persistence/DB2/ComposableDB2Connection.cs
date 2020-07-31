@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
@@ -11,14 +12,17 @@ using IBM.Data.DB2.Core;
 
 namespace Composable.Persistence.DB2
 {
-    class ComposableDB2Connection : IEnlistmentNotification, IPoolableConnection, IComposableDbConnection<DB2Command>
+    interface IComposableDB2Connection : IPoolableConnection, IComposableDbConnection<DB2Command> {}
+
+    class ComposableDB2Connection : IEnlistmentNotification, IComposableDB2Connection
     {
         DB2Transaction? _db2Transaction;
 
         IDbConnection IComposableDbConnection.Connection => Connection;
         public DB2Connection Connection { get; }
 
-        public ComposableDB2Connection(string connectionString) => Connection = new DB2Connection(connectionString);
+        internal static IComposableDB2Connection Create(string connString) => new ComposableDB2Connection(connString);
+        ComposableDB2Connection(string connectionString) => Connection = new DB2Connection(connectionString);
 
         public void Open()
         {
@@ -32,15 +36,13 @@ namespace Composable.Persistence.DB2
             EnsureParticipatingInAnyTransaction();
         }
 
-        internal static ComposableDB2Connection Create(string connString) => new ComposableDB2Connection(connString);
-
         async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
             await syncOrAsync.Run(
                                   () => Connection.Open(),
                                   () => Connection.OpenAsync())
                              .NoMarshalling();
 
-        IDbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
+        DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
 
         public DB2Command CreateCommand()
         {

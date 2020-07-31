@@ -3,25 +3,26 @@ using System.Threading.Tasks;
 using Composable.Persistence.Common;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
+using MySql.Data.MySqlClient;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {
     class MySqlConnectionProvider : IMySqlConnectionProvider
     {
-        readonly OptimizedLazy<DbConnectionPool<ComposableMySqlConnection>> _pool;
-        DbConnectionPool<ComposableMySqlConnection> Pool => _pool.Value;
+        readonly OptimizedLazy<IDbConnectionPool<ComposableMySqlConnection, MySqlCommand>> _pool;
+        IDbConnectionPool<ComposableMySqlConnection, MySqlCommand> Pool => _pool.Value;
 
         public MySqlConnectionProvider(string connectionString) : this(() => connectionString) {}
 
         public MySqlConnectionProvider(Func<string> getConnectionString)
         {
-            _pool = new OptimizedLazy<DbConnectionPool<ComposableMySqlConnection>>(
+            _pool = new OptimizedLazy<IDbConnectionPool<ComposableMySqlConnection, MySqlCommand>>(
                 () =>
                 {
                     var connectionString = getConnectionString();
-                    return DbConnectionPool<ComposableMySqlConnection>.ForConnectionString(
+                    return DbConnectionPool<ComposableMySqlConnection, MySqlCommand>.ForConnectionString(
                         connectionString,
-                        PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction,
+                        PoolableConnectionFlags.Defaults,
                         ComposableMySqlConnection.Create);
                 });
         }

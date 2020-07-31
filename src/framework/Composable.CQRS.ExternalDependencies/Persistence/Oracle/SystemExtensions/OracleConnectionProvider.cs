@@ -3,25 +3,26 @@ using System.Threading.Tasks;
 using Composable.Persistence.Common;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
+using Oracle.ManagedDataAccess.Client;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {
     class OracleConnectionProvider : IOracleConnectionProvider
     {
-        readonly OptimizedLazy<DbConnectionPool<ComposableOracleConnection>> _pool;
-        DbConnectionPool<ComposableOracleConnection> Pool => _pool.Value;
+        readonly OptimizedLazy<IDbConnectionPool<ComposableOracleConnection, OracleCommand>> _pool;
+        IDbConnectionPool<ComposableOracleConnection, OracleCommand> Pool => _pool.Value;
 
         public OracleConnectionProvider(string connectionString) : this(() => connectionString) {}
 
         public OracleConnectionProvider(Func<string> getConnectionString)
         {
-            _pool = new OptimizedLazy<DbConnectionPool<ComposableOracleConnection>>(
+            _pool = new OptimizedLazy<IDbConnectionPool<ComposableOracleConnection, OracleCommand>>(
                 () =>
                 {
                     var connectionString = getConnectionString();
-                    return DbConnectionPool<ComposableOracleConnection>.ForConnectionString(
+                    return DbConnectionPool<ComposableOracleConnection, OracleCommand>.ForConnectionString(
                         connectionString,
-                        PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction,
+                        PoolableConnectionFlags.Defaults,
                         ComposableOracleConnection.Create);
                 });
         }

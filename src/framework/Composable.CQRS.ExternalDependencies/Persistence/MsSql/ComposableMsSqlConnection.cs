@@ -1,4 +1,5 @@
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Composable.Persistence.Common;
@@ -21,7 +22,7 @@ namespace Composable.Persistence.MsSql
                                   () => Connection.OpenAsync())
                              .NoMarshalling();
 
-        IDbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
+        DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
         public SqlCommand CreateCommand() => Connection.CreateCommand();
 
         public void Dispose() => Connection.Dispose();

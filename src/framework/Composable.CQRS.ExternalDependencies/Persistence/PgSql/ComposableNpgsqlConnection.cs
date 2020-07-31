@@ -1,4 +1,5 @@
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Composable.Persistence.Common;
 using Composable.SystemCE.ThreadingCE;
@@ -21,7 +22,7 @@ namespace Composable.Persistence.PgSql
                                   () => Connection.OpenAsync())
                              .NoMarshalling();
 
-        IDbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
+        DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
         public NpgsqlCommand CreateCommand() => Connection.CreateCommand();
 
         public void Dispose() => Connection.Dispose();

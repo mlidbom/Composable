@@ -48,7 +48,7 @@ exec sp_executesql @sql";
             cmd.ExecuteNonQuery();
         }
 
-        internal static void DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(this SqlConnection connection)
+        internal static void DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(this ComposableMsSqlConnection connection)
         {
             using var cmd = connection.CreateCommand();
             cmd.CommandText = DropAllObjectsStatement + SetReadCommittedSnapshotOnStatement;

@@ -1,49 +1,37 @@
 using System;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Composable.Persistence.Common;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
-using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Persistence.MsSql.SystemExtensions
 {
     class MsSqlConnectionProvider : IMsSqlConnectionProvider
     {
-        readonly OptimizedLazy<string> _connectionString;
-        string GetConnectionString() => _connectionString.Value;
+        readonly OptimizedLazy<DbConnectionPool<ComposableMsSqlConnection>> _pool;
+        DbConnectionPool<ComposableMsSqlConnection> Pool => _pool.Value;
 
         public MsSqlConnectionProvider(string connectionString) : this(() => connectionString) {}
 
-        public MsSqlConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
-
-        async Task<SqlConnection> OpenConnectionAsync(AsyncMode syncOrAsync)
+        public MsSqlConnectionProvider(Func<string> getConnectionString)
         {
-            using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
-            var connectionString = GetConnectionString();
-            var connection = new SqlConnection(connectionString);
-
-            await syncOrAsync.Run(
-                                  () => connection.Open(),
-                                  async () => await connection.OpenAsync().NoMarshalling())
-                             .NoMarshalling();
-
-            return connection;
+            _pool = new OptimizedLazy<DbConnectionPool<ComposableMsSqlConnection>>(
+                () =>
+                {
+                    var connectionString = getConnectionString();
+                    return DbConnectionPool<ComposableMsSqlConnection>.ForConnectionString(
+                        connectionString,
+                        PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction,
+                        ComposableMsSqlConnection.Create);
+                });
         }
 
-        public TResult UseConnection<TResult>(Func<SqlConnection, TResult> func)
-        {
-            using var connection = OpenConnectionAsync(AsyncMode.Sync).AwaiterResult();
-            return func(connection);
-        }
+        public TResult UseConnection<TResult>(Func<ComposableMsSqlConnection, TResult> func) => Pool.UseConnection(func);
 
-        public void UseConnection(Action<SqlConnection> action) => UseConnection(action.AsFunc());
+        public void UseConnection(Action<ComposableMsSqlConnection> action) => Pool.UseConnection(action);
 
-        public async Task<TResult> UseConnectionAsync<TResult>(Func<SqlConnection, Task<TResult>> func)
-        {
-            await using var connection = await OpenConnectionAsync(AsyncMode.Async).NoMarshalling();
-            return await func(connection).NoMarshalling();
-        }
+        public async Task UseConnectionAsync(Func<ComposableMsSqlConnection, Task> action) => await Pool.UseConnectionAsync(action).NoMarshalling();
 
-        public async Task UseConnectionAsync(Func<SqlConnection, Task> action) => await UseConnectionAsync(action.AsFunc()).NoMarshalling();
+        public async Task<TResult> UseConnectionAsync<TResult>(Func<ComposableMsSqlConnection, Task<TResult>> func) => await Pool.UseConnectionAsync(func).NoMarshalling();
     }
 }

@@ -11,7 +11,7 @@ namespace Composable.Persistence.MsSql.EventStore
         readonly IMsSqlConnectionProvider _connectionProvider;
         public MsSqlEventStoreConnectionManager(IMsSqlConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
 
-        public void UseConnection([InstantHandle] Action<SqlConnection> action)
+        public void UseConnection([InstantHandle] Action<ComposableMsSqlConnection> action)
         {
             AssertTransactionPolicy(false);
             _connectionProvider.UseConnection(action);

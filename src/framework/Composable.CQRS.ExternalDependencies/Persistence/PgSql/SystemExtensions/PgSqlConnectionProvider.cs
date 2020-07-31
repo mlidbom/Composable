@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Composable.Persistence.Common;
-using Composable.Persistence.DB2;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
 

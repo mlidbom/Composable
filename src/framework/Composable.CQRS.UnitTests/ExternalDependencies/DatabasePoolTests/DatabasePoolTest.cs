@@ -62,7 +62,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
             new PgSqlConnectionProvider(connectionStringFor).UseConnection(conn => func(conn.Connection));
 
         static void UseMsSqlConnection(string connectionStringFor, Action<IDbConnection> func) =>
-            new MsSqlConnectionProvider(connectionStringFor).UseConnection(func);
+            new MsSqlConnectionProvider(connectionStringFor).UseConnection(conn => func(conn.Connection));
 
         static void UseOracleConnection(string connectionStringFor, Action<IDbConnection> func) =>
             new OracleConnectionProvider(connectionStringFor).UseConnection(func);

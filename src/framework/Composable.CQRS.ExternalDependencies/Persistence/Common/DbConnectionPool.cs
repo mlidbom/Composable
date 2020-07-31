@@ -62,20 +62,20 @@ namespace Composable.Persistence.Common
         }
 
         public TResult UseConnection<TResult>(Func<TConnection, TResult> func) =>
-            UseConnectionAsync(AsyncMode.Sync, func.AsAsync()).AwaiterResult();
+            UseConnectionAsyncFlex(AsyncMode.Sync, func.AsAsync()).AwaiterResult();
 
         public void UseConnection(Action<TConnection> action) =>
-            UseConnectionAsync(AsyncMode.Sync, action.AsFunc().AsAsync()).AwaiterResult();
+            UseConnectionAsyncFlex(AsyncMode.Sync, action.AsFunc().AsAsync()).AwaiterResult();
 
         public async Task UseConnectionAsync(Func<TConnection, Task> action) =>
-            await UseConnectionAsync(AsyncMode.Async, action.AsFunc()).NoMarshalling();
+            await UseConnectionAsyncFlex(AsyncMode.Async, action.AsFunc()).NoMarshalling();
 
         public async Task<TResult> UseConnectionAsync<TResult>(Func<TConnection, Task<TResult>> func) =>
-            await UseConnectionAsync(AsyncMode.Async, func).NoMarshalling();
+            await UseConnectionAsyncFlex(AsyncMode.Async, func).NoMarshalling();
 
-        protected abstract Task<TResult> UseConnectionAsync<TResult>(AsyncMode syncOrAsync, Func<TConnection, Task<TResult>> func);
+        protected abstract Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<TConnection, Task<TResult>> func);
 
-        async Task<TConnection> OpenConnectionAsync(AsyncMode syncOrAsync)
+        async Task<TConnection> OpenConnectionAsyncFlex(AsyncMode syncOrAsync)
         {
             using var escalationForbidden = TransactionCE.NoTransactionEscalationScope($"Opening {typeof(TConnection)}");
             var connection = _createConnection(_connectionString);
@@ -86,23 +86,27 @@ namespace Composable.Persistence.Common
         class DefaultDbConnectionPool : DbConnectionPool<TConnection>
         {
             public DefaultDbConnectionPool(string connectionString, Func<string, TConnection> createConnection) : base(connectionString, createConnection) {}
-            protected override Task<TResult> UseConnectionAsync<TResult>(AsyncMode syncOrAsync, Func<TConnection, Task<TResult>> func) => throw new NotImplementedException();
+            protected override async Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<TConnection, Task<TResult>> func)
+            {
+                await using var connection = await syncOrAsync.Run(OpenConnectionAsyncFlex).NoMarshalling();
+                return await func(connection).NoMarshalling();
+            }
         }
 
-        class TransactionAffinityDbConnectionPool : DbConnectionPool<TConnection>
+        class TransactionAffinityDbConnectionPool : DefaultDbConnectionPool
         {
             readonly OptimizedThreadShared<Dictionary<string, Task<TConnection>>> _transactionConnections =
                 new OptimizedThreadShared<Dictionary<string, Task<TConnection>>>(new Dictionary<string, Task<TConnection>>());
 
             public TransactionAffinityDbConnectionPool(string connectionString, Func<string, TConnection> createConnection):base(connectionString, createConnection) {  }
 
-            protected override async Task<TResult> UseConnectionAsync<TResult>(AsyncMode syncOrAsync, Func<TConnection, Task<TResult>> func)
+            protected override async Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<TConnection, Task<TResult>> func)
             {
                 Task<TConnection> getConnectionTask;
                 var inTransaction = Transaction.Current != null;
                 if(!inTransaction)
                 {
-                    getConnectionTask = syncOrAsync.Run(OpenConnectionAsync);
+                    getConnectionTask = syncOrAsync.Run(OpenConnectionAsyncFlex);
                 } else
                 {
                     //TConnection requires that the same connection is used throughout a transaction
@@ -110,7 +114,7 @@ namespace Composable.Persistence.Common
                                                                                                             () =>
                                                                                                             {
                                                                                                                 var transactionLocalIdentifier = Transaction.Current.TransactionInformation.LocalIdentifier;
-                                                                                                                var createConnectionTask = syncOrAsync.Run(OpenConnectionAsync);
+                                                                                                                var createConnectionTask = syncOrAsync.Run(OpenConnectionAsyncFlex);
                                                                                                                 Transaction.Current.OnCompleted(() => _transactionConnections.WithExclusiveAccess(transactionConnectionsAfterTransaction =>
                                                                                                                 {
                                                                                                                     createConnectionTask.Result.Dispose();

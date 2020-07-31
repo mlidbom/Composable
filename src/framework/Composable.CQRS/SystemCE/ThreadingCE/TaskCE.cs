@@ -81,9 +81,9 @@ namespace Composable.SystemCE.ThreadingCE
         public static Task Run(string name, Action action) => Run(name, CancellationToken.None, action);
         public static Task Run(string name, CancellationToken cancellationToken, Action action) => Task.Factory.StartNew(_ => action(), name, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);
 
-        internal static TResult GetAwaiterResult<TResult>(this Task<TResult> @this) => @this.GetAwaiter().GetResult();
+        internal static TResult AwaiterResult<TResult>(this Task<TResult> @this) => @this.GetAwaiter().GetResult();
 
-        internal static void GetAwaiterResult(this Task @this) => @this.GetAwaiter().GetResult();
+        internal static void AwaiterResult(this Task @this) => @this.GetAwaiter().GetResult();
 
 
         static readonly object DummyObject = new object();

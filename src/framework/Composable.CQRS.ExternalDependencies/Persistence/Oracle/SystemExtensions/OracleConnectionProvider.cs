@@ -25,7 +25,7 @@ namespace Composable.Persistence.Oracle.SystemExtensions
 
             await syncOrAsync.Run(
                                   () => connection.Open(),
-                                  () => connection.OpenAsync())
+                                  async () => await connection.OpenAsync().NoMarshalling())
                              .NoMarshalling();
 
             return connection;
@@ -33,7 +33,7 @@ namespace Composable.Persistence.Oracle.SystemExtensions
 
         public TResult UseConnection<TResult>(Func<OracleConnection, TResult> func)
         {
-            using var connection = OpenConnectionAsync(AsyncMode.Sync).GetAwaiterResult();
+            using var connection = OpenConnectionAsync(AsyncMode.Sync).AwaiterResult();
             return func(connection);
         }
 

@@ -24,7 +24,7 @@ namespace Composable.Persistence.MsSql.SystemExtensions
 
             await syncOrAsync.Run(
                                   () => connection.Open(),
-                                  () => connection.OpenAsync())
+                                  async () => await connection.OpenAsync().NoMarshalling())
                              .NoMarshalling();
 
             return connection;
@@ -32,7 +32,7 @@ namespace Composable.Persistence.MsSql.SystemExtensions
 
         public TResult UseConnection<TResult>(Func<SqlConnection, TResult> func)
         {
-            using var connection = OpenConnectionAsync(AsyncMode.Sync).GetAwaiterResult();
+            using var connection = OpenConnectionAsync(AsyncMode.Sync).AwaiterResult();
             return func(connection);
         }
 

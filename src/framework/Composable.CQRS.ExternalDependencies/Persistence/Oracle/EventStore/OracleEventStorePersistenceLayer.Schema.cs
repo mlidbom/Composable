@@ -1,7 +1,7 @@
 ﻿using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.TransactionsCE;
-using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Event = Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
 using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.Oracle.EventStore
@@ -11,11 +11,12 @@ namespace Composable.Persistence.Oracle.EventStore
         const string OracleGuidType = "CHAR(36)";
         bool _initialized;
 
-        public void SetupSchemaIfDatabaseUnInitialized() => TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
+        public void SetupSchemaIfDatabaseUnInitialized() => TransactionScopeCe.SuppressAmbient(() =>
         {
             if(!_initialized)
             {
-                _connectionManager.UseCommand(command => command.SetCommandText($@"
+                _connectionManager.UseCommand(suppressTransactionWarning: true,
+                                              command => command.SetCommandText($@"
 declare existing_table_count integer;
 begin
     select count(*) into existing_table_count from user_tables where table_name='{Event.TableName.ToUpperInvariant()}';

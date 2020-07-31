@@ -32,7 +32,7 @@ namespace Composable.SystemCE.ThreadingCE
                 return await asynchronous(mode).NoMarshalling();
             } else
             {
-                return asynchronous(mode).GetAwaiterResult();
+                return asynchronous(mode).AwaiterResult();
             }
         }
 

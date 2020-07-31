@@ -22,9 +22,9 @@ namespace Composable.Persistence.PgSql.SystemExtensions
 
         readonly OptimizedThreadShared<Dictionary<string, Task<NpgsqlConnection>>> _transactionConnections = new OptimizedThreadShared<Dictionary<string, Task<NpgsqlConnection>>>(new Dictionary<string, Task<NpgsqlConnection>>());
 
-        public TResult UseConnection<TResult>(Func<NpgsqlConnection, TResult> func) => UseConnectionAsync(AsyncMode.Sync, func.AsAsync()).GetAwaiterResult();
+        public TResult UseConnection<TResult>(Func<NpgsqlConnection, TResult> func) => UseConnectionAsync(AsyncMode.Sync, func.AsAsync()).AwaiterResult();
 
-        public void UseConnection(Action<NpgsqlConnection> action) => UseConnectionAsync(AsyncMode.Sync, action.AsFunc().AsAsync()).GetAwaiterResult();
+        public void UseConnection(Action<NpgsqlConnection> action) => UseConnectionAsync(AsyncMode.Sync, action.AsFunc().AsAsync()).AwaiterResult();
 
         public async Task UseConnectionAsync(Func<NpgsqlConnection, Task> action) => await UseConnectionAsync(AsyncMode.Async, action.AsFunc()).NoMarshalling();
 
@@ -71,6 +71,7 @@ namespace Composable.Persistence.PgSql.SystemExtensions
             }
         }
 
+        //Performance: Since Npgsql connection pooling is slow we should do something about that here.
         async Task<NpgsqlConnection> OpenConnectionAsync(AsyncMode syncOrAsync)
         {
             using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
@@ -78,7 +79,7 @@ namespace Composable.Persistence.PgSql.SystemExtensions
             var connection = new NpgsqlConnection(connectionString);
             await syncOrAsync.Run(
                                   () => connection.Open(),
-                                  () => connection.OpenAsync())
+                                  async () => await connection.OpenAsync().NoMarshalling())
                              .NoMarshalling();
             return connection;
         }

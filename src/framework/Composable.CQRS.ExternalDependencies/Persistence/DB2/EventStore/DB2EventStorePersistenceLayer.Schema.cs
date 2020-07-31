@@ -11,11 +11,11 @@ namespace Composable.Persistence.DB2.EventStore
         const string DB2GuidType = "CHAR(36)";
         bool _initialized;
 
-        public void SetupSchemaIfDatabaseUnInitialized() => TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
+        public void SetupSchemaIfDatabaseUnInitialized() => TransactionScopeCe.SuppressAmbient(() =>
         {
             if(!_initialized)
             {
-                _connectionManager.UseCommand(
+                _connectionManager.UseCommand(suppressTransactionWarning: true,
                     command => command.SetCommandText($@"
 begin
   declare continue handler for sqlstate '42710' begin end; --Ignore error if table exists

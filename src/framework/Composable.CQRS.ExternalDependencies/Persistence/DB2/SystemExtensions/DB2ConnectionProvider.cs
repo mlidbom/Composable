@@ -21,9 +21,9 @@ namespace Composable.Persistence.DB2.SystemExtensions
 
         readonly OptimizedThreadShared<Dictionary<string, Task<ComposableDB2Connection>>> _transactionConnections = new OptimizedThreadShared<Dictionary<string, Task<ComposableDB2Connection>>>(new Dictionary<string, Task<ComposableDB2Connection>>());
 
-        public TResult UseConnection<TResult>(Func<ComposableDB2Connection, TResult> func) => UseConnectionAsync(AsyncMode.Sync, func.AsAsync()).GetAwaiterResult();
+        public TResult UseConnection<TResult>(Func<ComposableDB2Connection, TResult> func) => UseConnectionAsync(AsyncMode.Sync, func.AsAsync()).AwaiterResult();
 
-        public void UseConnection(Action<ComposableDB2Connection> action) => UseConnectionAsync(AsyncMode.Sync, action.AsFunc().AsAsync()).GetAwaiterResult();
+        public void UseConnection(Action<ComposableDB2Connection> action) => UseConnectionAsync(AsyncMode.Sync, action.AsFunc().AsAsync()).AwaiterResult();
 
         public async Task UseConnectionAsync(Func<ComposableDB2Connection, Task> action) => await UseConnectionAsync(AsyncMode.Async, action.AsFunc()).NoMarshalling();
 

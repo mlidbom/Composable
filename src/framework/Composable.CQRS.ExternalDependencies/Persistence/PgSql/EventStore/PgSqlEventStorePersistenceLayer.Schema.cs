@@ -1,7 +1,7 @@
 ﻿using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.SystemCE.TransactionsCE;
-using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Event = Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
 using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.PgSql.EventStore
@@ -11,11 +11,12 @@ namespace Composable.Persistence.PgSql.EventStore
         const string PgSqlGuidType = "CHAR(36)";
         bool _initialized;
 
-        public void SetupSchemaIfDatabaseUnInitialized() => TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
+        public void SetupSchemaIfDatabaseUnInitialized() => TransactionScopeCe.SuppressAmbient(() =>
         {
             if(!_initialized)
             {
-                _connectionManager.UseCommand(command=> command.ExecuteNonQuery($@"
+                _connectionManager.UseCommand(suppressTransactionWarning: true,
+                                              command => command.ExecuteNonQuery($@"
 
 
     CREATE TABLE IF NOT EXISTS {Event.TableName}

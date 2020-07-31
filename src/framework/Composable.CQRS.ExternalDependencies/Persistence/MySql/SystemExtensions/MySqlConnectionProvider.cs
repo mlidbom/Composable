@@ -17,7 +17,6 @@ namespace Composable.Persistence.MySql.SystemExtensions
 
         public MySqlConnectionProvider(Func<string> connectionString) => _connectionString = new OptimizedLazy<string>(connectionString);
 
-        //Performance: Since MySql connection pooling is slow we should do something about that here.
         async Task<MySqlConnection> OpenConnectionAsync(AsyncMode syncOrAsync)
         {
             using var escalationForbidden = TransactionCE.NoTransactionEscalationScope("Opening connection");
@@ -26,7 +25,7 @@ namespace Composable.Persistence.MySql.SystemExtensions
 
             await syncOrAsync.Run(
                                   () => connection.Open(),
-                                  () => connection.OpenAsync())
+                                  async () => await connection.OpenAsync().NoMarshalling())
                              .NoMarshalling();
 
             return connection;
@@ -34,7 +33,7 @@ namespace Composable.Persistence.MySql.SystemExtensions
 
         public TResult UseConnection<TResult>(Func<MySqlConnection, TResult> func)
         {
-            using var connection = OpenConnectionAsync(AsyncMode.Sync).GetAwaiterResult();
+            using var connection = OpenConnectionAsync(AsyncMode.Sync).AwaiterResult();
             return func(connection);
         }
 

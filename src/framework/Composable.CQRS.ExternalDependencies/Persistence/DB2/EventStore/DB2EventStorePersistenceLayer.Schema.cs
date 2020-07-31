@@ -15,7 +15,8 @@ namespace Composable.Persistence.DB2.EventStore
         {
             if(!_initialized)
             {
-                _connectionManager.UseCommand(command => command.SetCommandText($@"
+                _connectionManager.UseCommand(
+                    command => command.SetCommandText($@"
 begin
   declare continue handler for sqlstate '42710' begin end; --Ignore error if table exists
         EXECUTE IMMEDIATE '

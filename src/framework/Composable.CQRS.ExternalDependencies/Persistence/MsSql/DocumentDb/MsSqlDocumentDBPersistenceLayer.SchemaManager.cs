@@ -10,8 +10,8 @@ namespace Composable.Persistence.MsSql.DocumentDb
         {
             readonly object _lockObject = new object();
             bool _initialized = false;
-            readonly IMsSqlConnectionProvider _connectionProvider;
-            public SchemaManager(IMsSqlConnectionProvider connectionProvider) => _connectionProvider = connectionProvider;
+            readonly IMsSqlConnectionPool _connectionPool;
+            public SchemaManager(IMsSqlConnectionPool connectionPool) => _connectionPool = connectionPool;
 
             internal void EnsureInitialized()
             {
@@ -21,7 +21,7 @@ namespace Composable.Persistence.MsSql.DocumentDb
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            _connectionProvider.ExecuteNonQuery($@"
+                            _connectionPool.ExecuteNonQuery($@"
 IF NOT EXISTS(select name from sys.tables where name = '{Document.TableName}')
 BEGIN 
     CREATE TABLE dbo.{Document.TableName}

@@ -9,7 +9,7 @@ namespace Composable.Persistence.MsSql.Testing.Databases
     class MsSqlDatabasePool : DatabasePool
     {
         readonly string _masterConnectionString;
-        readonly MsSqlConnectionProvider _masterConnectionProvider;
+        readonly IMsSqlConnectionPool _masterConnectionPool;
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MSSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
@@ -18,7 +18,7 @@ namespace Composable.Persistence.MsSql.Testing.Databases
             _masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
                                    ?? "Data Source=localhost;Initial Catalog=master;Integrated Security=True;";
 
-            _masterConnectionProvider = new MsSqlConnectionProvider(_masterConnectionString);
+            _masterConnectionPool = MsSqlConnectionPool.CreateInstance(_masterConnectionString);
         }
 
         protected override string ConnectionStringFor(Database db)
@@ -28,7 +28,7 @@ namespace Composable.Persistence.MsSql.Testing.Databases
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
             var databaseName = db.Name;
-            var exists = (string)_masterConnectionProvider.ExecuteScalar($"select name from sysdatabases where name = '{databaseName}'") == databaseName;
+            var exists = (string)_masterConnectionPool.ExecuteScalar($"select name from sysdatabases where name = '{databaseName}'") == databaseName;
             if(exists)
             {
                 ResetDatabase(db);
@@ -45,13 +45,13 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
 ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;
 ALTER DATABASE[{databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
-                _masterConnectionProvider!.ExecuteNonQuery(createDatabaseCommand);
+                _masterConnectionPool!.ExecuteNonQuery(createDatabaseCommand);
             }
         }
 
         protected override void ResetDatabase(Database db) =>
-            new MsSqlConnectionProvider(ConnectionStringFor(db))
-               .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel());
+            MsSqlConnectionPool.CreateInstance(ConnectionStringFor(db))
+                                   .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel());
 
         protected void ResetConnectionPool(Database db)
         {

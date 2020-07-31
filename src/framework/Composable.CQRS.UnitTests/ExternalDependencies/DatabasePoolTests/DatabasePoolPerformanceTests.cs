@@ -126,7 +126,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
            switch(TestEnv.PersistenceLayer.Current)
             {
                 case PersistenceLayer.MsSql:
-                    var msSqlConnectionProvider = new MsSqlConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    var msSqlConnectionProvider = MsSqlConnectionPool.CreateInstance(manager.ConnectionStringFor(reservationName));
                     useConnection = () => msSqlConnectionProvider.UseConnection(_ => {});
                     break;
                 case PersistenceLayer.Memory:

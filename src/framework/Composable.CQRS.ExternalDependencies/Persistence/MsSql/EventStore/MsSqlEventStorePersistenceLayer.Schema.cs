@@ -1,4 +1,5 @@
-﻿using Composable.Persistence.EventStore.PersistenceLayer;
+﻿using Composable.Persistence.Common;
+using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.SystemCE.TransactionsCE;
 using Event = Composable.Persistence.Common.EventStore.EventTableSchemaStrings;

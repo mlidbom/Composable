@@ -8,27 +8,27 @@ namespace Composable.Persistence.MsSql.EventStore
 {
     class MsSqlEventStoreConnectionManager
     {
-        readonly IMsSqlConnectionProvider _connectionProvider;
-        public MsSqlEventStoreConnectionManager(IMsSqlConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
+        readonly IMsSqlConnectionPool _connectionPool;
+        public MsSqlEventStoreConnectionManager(IMsSqlConnectionPool sqlConnectionPool) => _connectionPool = sqlConnectionPool;
 
-        public void UseConnection([InstantHandle] Action<ComposableMsSqlConnection> action)
+        public void UseConnection([InstantHandle] Action<IComposableMsSqlConnection> action)
         {
             AssertTransactionPolicy(false);
-            _connectionProvider.UseConnection(action);
+            _connectionPool.UseConnection(action);
         }
 
         public void UseCommand([InstantHandle]Action<SqlCommand> action) => UseCommand(false, action);
         public void UseCommand(bool suppressTransactionWarning, [InstantHandle] Action<SqlCommand> action)
         {
             AssertTransactionPolicy(suppressTransactionWarning);
-            _connectionProvider.UseCommand(action);
+            _connectionPool.UseCommand(action);
         }
 
         public TResult UseCommand<TResult>([InstantHandle]Func<SqlCommand, TResult> action) => UseCommand(false, action);
         public TResult UseCommand<TResult>(bool suppressTransactionWarning, [InstantHandle] Func<SqlCommand, TResult> action)
         {
             AssertTransactionPolicy(suppressTransactionWarning);
-            return _connectionProvider.UseCommand(action);
+            return _connectionPool.UseCommand(action);
         }
 
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local

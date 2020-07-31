@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
+using Composable.Persistence.Common;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;

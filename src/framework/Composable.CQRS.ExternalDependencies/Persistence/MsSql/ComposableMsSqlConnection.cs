@@ -7,14 +7,16 @@ using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.Persistence.MsSql
 {
-    class ComposableMsSqlConnection : IPoolableConnection, IComposableDbConnection<SqlCommand>
+    interface IComposableMsSqlConnection : IPoolableConnection, IComposableDbConnection<SqlCommand> {}
+
+    class ComposableMsSqlConnection : IComposableMsSqlConnection
     {
         IDbConnection IComposableDbConnection.Connection => Connection;
         internal SqlConnection Connection { get; }
 
         public ComposableMsSqlConnection(string connectionString) => Connection = new SqlConnection(connectionString);
 
-        internal static ComposableMsSqlConnection Create(string connString) => new ComposableMsSqlConnection(connString);
+        internal static IComposableMsSqlConnection Create(string connString) => new ComposableMsSqlConnection(connString);
 
         async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
             await syncOrAsync.Run(

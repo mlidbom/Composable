@@ -111,6 +111,10 @@
       <Value>SystemCE\ThreadingCE\ResourceAccess\ResourceGuard.ExclusiveAccessGuardedResource.cs:framework\Composable.CQRS\Composable.CQRS.csproj-86</Value>
       <Value>Messaging\Buses\Implementation\Inbox.MessageStorage.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
       <Value>SystemCE\ThreadingCE\AsyncMode.cs:framework\Composable.CQRS\Composable.CQRS.csproj-34</Value>
+      <Value>Persistence\Common\IDbConnectionPool.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-15</Value>
+      <Value>Persistence\Oracle\SystemExtensions\OracleConnectionProvider.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-29</Value>
+      <Value>Persistence\Common\DBConnectionPool.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-53</Value>
+      <Value>Persistence\DB2\SystemExtensions\DB2ConnectionPool.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-34</Value>
     </HotSpotsLineExclusionList>
     <InstrumentationMode>Optimised</InstrumentationMode>
     <SlidingBuildDelayInMilliseconds>1000</SlidingBuildDelayInMilliseconds>

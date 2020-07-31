@@ -1,29 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 using System.Transactions;
-using Composable.Persistence.DB2;
 using Composable.SystemCE.CollectionsCE.GenericCE;
-using Composable.SystemCE.ReflectionCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Persistence.Common
 {
-    [Flags] enum PoolableConnectionFlags
-    {
-        Defaults = 0,
-        MustUseSameConnectionThroughoutATransaction = 1
-    }
-
-    interface IPoolableConnection : IDisposable, IAsyncDisposable
-    {
-        Task OpenAsyncFlex(AsyncMode syncOrAsync);
-    }
-
     abstract class DbConnectionPool<TConnection, TCommand> : IDbConnectionPool<TConnection, TCommand>
         where TConnection : IPoolableConnection, IComposableDbConnection<TCommand>
         where TCommand : DbCommand
@@ -32,7 +18,7 @@ namespace Composable.Persistence.Common
             new OptimizedThreadShared<Dictionary<string, DbConnectionPool<TConnection, TCommand>>>(new Dictionary<string, DbConnectionPool<TConnection, TCommand>>());
 
         internal static IDbConnectionPool<TConnection, TCommand> ForConnectionString(string connectionString, PoolableConnectionFlags flags, Func<string, TConnection> createConnection) =>
-            Pools.WithExclusiveAccess(pools => pools.GetOrAdd(connectionString, () => Create(connectionString, flags, createConnection)));
+            Pools.WithExclusiveAccess(func: pools => pools.GetOrAdd(connectionString, constructor: () => Create(connectionString, flags, createConnection)));
 
         readonly string _connectionString;
         readonly Func<string, TConnection> _createConnection;
@@ -44,10 +30,7 @@ namespace Composable.Persistence.Common
 
         static DbConnectionPool<TConnection, TCommand> Create(string connectionString, PoolableConnectionFlags flags, Func<string, TConnection> createConnection)
         {
-            if(flags.HasFlag(PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction))
-            {
-                return new TransactionAffinityDbConnectionPool(connectionString, createConnection);
-            }
+            if(flags.HasFlag(PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction)) return new TransactionAffinityDbConnectionPool(connectionString, createConnection);
 
             return new DefaultDbConnectionPool(connectionString, createConnection);
         }
@@ -81,39 +64,35 @@ namespace Composable.Persistence.Common
 
             public override async Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<TConnection, Task<TResult>> func)
             {
+                var transactionLocalIdentifier = Transaction.Current?.TransactionInformation.LocalIdentifier;
+
                 Task<TConnection> getConnectionTask;
-                var inTransaction = Transaction.Current != null;
-                if(!inTransaction)
-                {
+                if(transactionLocalIdentifier == null)
                     getConnectionTask = syncOrAsync.Run(OpenConnectionAsyncFlex);
-                } else
-                {
+                else
                     //TConnection requires that the same connection is used throughout a transaction
-                    getConnectionTask = _transactionConnections.WithExclusiveAccess(transactionConnections => transactionConnections.GetOrAdd(Transaction.Current!.TransactionInformation.LocalIdentifier,
-                                                                                                                                              () =>
-                                                                                                                                              {
-                                                                                                                                                  var transactionLocalIdentifier = Transaction.Current.TransactionInformation.LocalIdentifier;
-                                                                                                                                                  var createConnectionTask = syncOrAsync.Run(OpenConnectionAsyncFlex);
-                                                                                                                                                  Transaction.Current.OnCompleted(() => _transactionConnections.WithExclusiveAccess(transactionConnectionsAfterTransaction =>
-                                                                                                                                                  {
-                                                                                                                                                      createConnectionTask.Result.Dispose();
-                                                                                                                                                      transactionConnectionsAfterTransaction.Remove(transactionLocalIdentifier);
-                                                                                                                                                  }));
-                                                                                                                                                  return createConnectionTask;
-                                                                                                                                              }));
-                }
+                    getConnectionTask = _transactionConnections.WithExclusiveAccess(
+                        func: transactionConnections => transactionConnections.GetOrAdd(
+                            Transaction.Current!.TransactionInformation.LocalIdentifier,
+                            constructor: () =>
+                            {
+                                var createConnectionTask = syncOrAsync.Run(OpenConnectionAsyncFlex);
+                                Transaction.Current.OnCompleted(action: () => _transactionConnections.WithExclusiveAccess(func: transactionConnectionsAfterTransaction =>
+                                {
+                                    createConnectionTask.Result.Dispose();
+                                    transactionConnectionsAfterTransaction.Remove(transactionLocalIdentifier);
+                                }));
+                                return createConnectionTask;
+                            }));
 
                 var connection = await getConnectionTask.NoMarshalling();
-                if(inTransaction)
-                {
+                if(transactionLocalIdentifier != null)
                     return await func(connection).NoMarshalling();
-                } else
-                {
+                else
                     await using(connection)
                     {
                         return await func(connection).NoMarshalling();
                     }
-                }
             }
         }
     }

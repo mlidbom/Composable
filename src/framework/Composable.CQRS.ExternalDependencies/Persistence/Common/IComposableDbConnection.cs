@@ -19,7 +19,8 @@ namespace Composable.Persistence.Common
         IDbConnection Connection { get; }
     }
 
-    interface IComposableDbConnection<out TCommand> : IComposableDbConnection where TCommand : DbCommand
+    interface IComposableDbConnection<out TCommand> : IComposableDbConnection
+        where TCommand : DbCommand
     {
         new TCommand CreateCommand();
 
@@ -77,6 +78,15 @@ namespace Composable.Persistence.Common
                 me.CommandText = storedProcedure;
             });
 
+        public static IReadOnlyList<T> ExecuteReaderAndSelect<T, TCommand, TReader>(this TCommand @this, Func<TReader, T> select)
+            where TCommand : DbCommand
+            where TReader : DbDataReader
+        {
+            using var reader = (TReader)@this.ExecuteReader();
+            var result = new List<T>();
+            reader.ForEachSuccessfulRead(row => result.Add(select(row)));
+            return result;
+        }
 
         static readonly IReadOnlyList<string> ParameterPrefixes = EnumerableCE.Create(@"@", @":").ToArray();
         public static TCommand LogCommand<TCommand>(this TCommand @this) where TCommand : DbCommand

@@ -7,14 +7,16 @@ using MySql.Data.MySqlClient;
 
 namespace Composable.Persistence.MySql
 {
-    class ComposableMySqlConnection : IPoolableConnection, IComposableDbConnection<MySqlCommand>
+    interface IComposableMySqlConnection : IPoolableConnection, IComposableDbConnection<MySqlCommand> {}
+
+    class ComposableMySqlConnection : IComposableMySqlConnection
     {
         IDbConnection IComposableDbConnection.Connection => Connection;
         internal MySqlConnection Connection { get; }
 
-        public ComposableMySqlConnection(string connectionString) => Connection = new MySqlConnection(connectionString);
+        ComposableMySqlConnection(string connectionString) => Connection = new MySqlConnection(connectionString);
 
-        internal static ComposableMySqlConnection Create(string connString) => new ComposableMySqlConnection(connString);
+        internal static IComposableMySqlConnection Create(string connString) => new ComposableMySqlConnection(connString);
 
         async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
             await syncOrAsync.Run(

@@ -132,7 +132,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                 case PersistenceLayer.Memory:
                     break;
                 case PersistenceLayer.MySql:
-                    var mySqlConnectionProvider = new MySqlConnectionProvider(manager.ConnectionStringFor(reservationName));
+                    var mySqlConnectionProvider = MySqlConnectionProvider.CreateInstance(manager.ConnectionStringFor(reservationName));
                     useConnection = () => mySqlConnectionProvider.UseConnection(_ => {});
                     break;
                 case PersistenceLayer.PgSql:

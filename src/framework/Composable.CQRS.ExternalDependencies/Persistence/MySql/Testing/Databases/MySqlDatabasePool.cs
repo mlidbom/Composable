@@ -1,4 +1,5 @@
 using System;
+using Composable.Persistence.Common;
 using MySql.Data.MySqlClient;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.SystemCE.LinqCE;
@@ -9,7 +10,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
 {
     sealed class MySqlDatabasePool : DatabasePool
     {
-        readonly MySqlConnectionProvider _masterConnectionProvider;
+        readonly IMySqlConnectionProvider _masterConnectionProvider;
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
@@ -20,7 +21,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
                                       ?? "Server=localhost;Database=mysql;Uid=root;Pwd=;";
 
-            _masterConnectionProvider = new MySqlConnectionProvider(masterConnectionString);
+            _masterConnectionProvider = MySqlConnectionProvider.CreateInstance(masterConnectionString);
             _connectionStringBuilder = new OptimizedThreadShared<MySqlConnectionStringBuilder>(new MySqlConnectionStringBuilder(masterConnectionString));
         }
 
@@ -40,9 +41,9 @@ CREATE DATABASE {databaseName};");
         }
 
         protected override void ResetDatabase(Database db) =>
-            new MySqlConnectionProvider(ConnectionStringFor(db))
-               .UseCommand(
-                    command => command.SetCommandText($@"
+            MySqlConnectionProvider.CreateInstance(ConnectionStringFor(db))
+                                   .UseCommand(
+                                        command => command.SetCommandText($@"
 DROP DATABASE {db.Name};
 CREATE DATABASE {db.Name};").ExecuteNonQuery());
 

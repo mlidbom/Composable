@@ -35,7 +35,7 @@ namespace Composable.Persistence.MySql.DependencyInjection
             {
                 container.Register(
                     Singleton.For<IMySqlConnectionProvider>()
-                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => new MySqlConnectionProvider(configurationParameterProvider.GetString(connectionStringName)))
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => MySqlConnectionProvider.CreateInstance(configurationParameterProvider.GetString(connectionStringName)))
                              .DelegateToParentServiceLocatorWhenCloning());
             }
 

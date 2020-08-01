@@ -29,14 +29,14 @@ namespace Composable.Persistence.MsSql.DependencyInjection
                                             .DelegateToParentServiceLocatorWhenCloning());
 
                 container.Register(
-                    Singleton.For<IMsSqlConnectionProvider>()
-                             .CreatedBy((MsSqlDatabasePool pool) => new MsSqlConnectionProvider(() => pool.ConnectionStringFor(connectionStringName)))
+                    Singleton.For<IMsSqlConnectionPool>()
+                             .CreatedBy((MsSqlDatabasePool pool) => IMsSqlConnectionPool.CreateInstance(() => pool.ConnectionStringFor(connectionStringName)))
                 );
             } else
             {
                 container.Register(
-                    Singleton.For<IMsSqlConnectionProvider>()
-                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => new MsSqlConnectionProvider(configurationParameterProvider.GetString(connectionStringName)))
+                    Singleton.For<IMsSqlConnectionPool>()
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => IMsSqlConnectionPool.CreateInstance(configurationParameterProvider.GetString(connectionStringName)))
                              .DelegateToParentServiceLocatorWhenCloning());
             }
 
@@ -44,19 +44,19 @@ namespace Composable.Persistence.MsSql.DependencyInjection
             //Service bus
             container.Register(
                 Singleton.For<IServiceBusPersistenceLayer.IOutboxPersistenceLayer>()
-                         .CreatedBy((IMsSqlConnectionProvider endpointSqlConnection) => new MsSqlOutboxPersistenceLayer(endpointSqlConnection)),
+                         .CreatedBy((IMsSqlConnectionPool endpointSqlConnection) => new MsSqlOutboxPersistenceLayer(endpointSqlConnection)),
                 Singleton.For<IServiceBusPersistenceLayer.IInboxPersistenceLayer>()
-                         .CreatedBy((IMsSqlConnectionProvider endpointSqlConnection) => new MsSqlInboxPersistenceLayer(endpointSqlConnection)));
+                         .CreatedBy((IMsSqlConnectionPool endpointSqlConnection) => new MsSqlInboxPersistenceLayer(endpointSqlConnection)));
 
             //DocumentDB
             container.Register(
                 Singleton.For<IDocumentDbPersistenceLayer>()
-                         .CreatedBy((IMsSqlConnectionProvider connectionProvider) => new MsSqlDocumentDbPersistenceLayer(connectionProvider)));
+                         .CreatedBy((IMsSqlConnectionPool connectionProvider) => new MsSqlDocumentDbPersistenceLayer(connectionProvider)));
 
             //Event store
             container.Register(
                 Singleton.For<MsSqlEventStoreConnectionManager>()
-                         .CreatedBy((IMsSqlConnectionProvider sqlConnectionProvider) => new MsSqlEventStoreConnectionManager(sqlConnectionProvider)),
+                         .CreatedBy((IMsSqlConnectionPool sqlConnectionProvider) => new MsSqlEventStoreConnectionManager(sqlConnectionProvider)),
                 Singleton.For<IEventStorePersistenceLayer>()
                          .CreatedBy((MsSqlEventStoreConnectionManager connectionManager, ITypeMapper typeMapper) => new MsSqlEventStorePersistenceLayer(connectionManager)));
         }

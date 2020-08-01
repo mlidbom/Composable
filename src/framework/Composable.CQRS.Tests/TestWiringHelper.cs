@@ -1,5 +1,6 @@
 using System;
 using Composable.DependencyInjection;
+using Composable.Logging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Persistence.DocumentDb;
@@ -37,24 +38,17 @@ namespace Composable.Tests
         internal static IDocumentDbSession DocumentDbSession(this IServiceLocator @this)
             => @this.Resolve<IDocumentDbSession>();
 
-        static void RegisterTestingDocumentDb(this IDependencyInjectionContainer @this)
-        {
-            @this.RegisterDocumentDb(DocumentDbConnectionStringName);
-        }
+        static void RegisterTestingDocumentDb(this IDependencyInjectionContainer @this) { @this.RegisterDocumentDb(DocumentDbConnectionStringName); }
 
-        static void RegisterTestingEventStore(this IDependencyInjectionContainer @this)
-        {
-            @this.RegisterEventStore(EventStoreConnectionStringName);
-        }
+        static void RegisterTestingEventStore(this IDependencyInjectionContainer @this) { @this.RegisterEventStore(EventStoreConnectionStringName); }
 
-        internal static IServiceLocator SetupTestingServiceLocator([InstantHandle]Action<IEndpointBuilder> configureContainer = null)
-        {
-            return DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
-                                                                               {
-                                                                                   container.Container.RegisterTestingDocumentDb();
-                                                                                   container.Container.RegisterTestingEventStore();
-                                                                                   configureContainer?.Invoke(container);
-                                                                               });
-        }
+        internal static IServiceLocator SetupTestingServiceLocator([InstantHandle] Action<IEndpointBuilder> configureContainer = null) =>
+            Logger.For(typeof(TestWiringHelper)).ExceptionsAndRethrow(() =>
+                                                                          DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
+                                                                          {
+                                                                              container.Container.RegisterTestingDocumentDb();
+                                                                              container.Container.RegisterTestingEventStore();
+                                                                              configureContainer?.Invoke(container);
+                                                                          }));
     }
 }

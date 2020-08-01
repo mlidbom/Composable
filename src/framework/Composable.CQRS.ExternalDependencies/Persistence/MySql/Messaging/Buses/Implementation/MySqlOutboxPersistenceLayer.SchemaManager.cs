@@ -11,7 +11,7 @@ namespace Composable.Persistence.MySql.Messaging.Buses.Implementation
         const string MySqlGuidType = "CHAR(36)";
         static class SchemaManager
         {
-            public static async Task EnsureTablesExistAsync(IMySqlConnectionProvider connectionFactory)
+            public static async Task EnsureTablesExistAsync(IMySqlConnectionPool connectionFactory)
             {
                 await connectionFactory.ExecuteNonQueryAsync($@"
     CREATE TABLE IF NOT EXISTS {M.TableName}

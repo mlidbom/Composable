@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.SystemCE;
@@ -13,21 +14,21 @@ namespace Composable.Persistence.MySql.DocumentDb
 {
     partial class MySqlDocumentDbPersistenceLayer : IDocumentDbPersistenceLayer
     {
-        readonly IMySqlConnectionProvider _connectionProvider;
+        readonly IMySqlConnectionPool _connectionPool;
         readonly SchemaManager _schemaManager;
         bool _initialized;
         readonly object _lockObject = new object();
 
-        internal MySqlDocumentDbPersistenceLayer(IMySqlConnectionProvider connectionProvider)
+        internal MySqlDocumentDbPersistenceLayer(IMySqlConnectionPool connectionPool)
         {
-            _schemaManager = new SchemaManager(connectionProvider);
-            _connectionProvider = connectionProvider;
+            _schemaManager = new SchemaManager(connectionPool);
+            _connectionPool = connectionPool;
         }
 
         public void Update(IReadOnlyList<IDocumentDbPersistenceLayer.WriteRow> toUpdate)
         {
             EnsureInitialized();
-            _connectionProvider.UseConnection(connection =>
+            _connectionPool.UseConnection(connection =>
             {
                 foreach(var writeRow in toUpdate)
                 {
@@ -46,7 +47,7 @@ namespace Composable.Persistence.MySql.DocumentDb
         {
             EnsureInitialized();
 
-            var documents = _connectionProvider.UseCommand(
+            var documents = _connectionPool.UseCommand(
                 command => command.SetCommandText($@"
 SELECT {Schema.Value}, {Schema.ValueTypeId} FROM {Schema.TableName} {UseUpdateLock(useUpdateLock)} 
 WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptableTypeIds)}")
@@ -68,7 +69,7 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
             EnsureInitialized();
             try
             {
-                _connectionProvider.UseCommand(command =>
+                _connectionPool.UseCommand(command =>
                 {
 
                     command.SetCommandText($@"INSERT INTO {Schema.TableName}({Schema.Id}, {Schema.ValueTypeId}, {Schema.Value}, {Schema.Created}, {Schema.Updated}) VALUES(@{Schema.Id}, @{Schema.ValueTypeId}, @{Schema.Value}, @{Schema.Created}, @{Schema.Updated})")
@@ -89,7 +90,7 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
         public int Remove(string idString, IReadonlySetCEx<Guid> acceptableTypes)
         {
             EnsureInitialized();
-            return _connectionProvider.UseCommand(
+            return _connectionPool.UseCommand(
                 command =>
                     command.SetCommandText($@"DELETE FROM {Schema.TableName} WHERE {Schema.Id} = @{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptableTypes)}")
                            .AddVarcharParameter(Schema.Id, 500, idString)
@@ -99,7 +100,7 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
         public IEnumerable<Guid> GetAllIds(IReadonlySetCEx<Guid> acceptableTypes)
         {
             EnsureInitialized();
-            return _connectionProvider.UseCommand(
+            return _connectionPool.UseCommand(
                 command => command.SetCommandText($@"SELECT {Schema.Id} FROM {Schema.TableName} WHERE {Schema.ValueTypeId} {TypeInClause(acceptableTypes)}")
                                   .ExecuteReaderAndSelect(reader => Guid.Parse(reader.GetString(0))));
         }
@@ -107,7 +108,7 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
         public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IEnumerable<Guid> ids, IReadonlySetCEx<Guid> acceptableTypes)
         {
             EnsureInitialized();
-            return _connectionProvider.UseCommand(
+            return _connectionPool.UseCommand(
                 command => command.SetCommandText($@"SELECT {Schema.Id}, {Schema.Value}, {Schema.ValueTypeId} FROM {Schema.TableName} WHERE {Schema.ValueTypeId} {TypeInClause(acceptableTypes)} 
                                    AND {Schema.Id} IN('" + ids.Select(id => id.ToString()).Join("','") + "')")
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
@@ -116,7 +117,7 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
         public IReadOnlyList<IDocumentDbPersistenceLayer.ReadRow> GetAll(IReadonlySetCEx<Guid> acceptableTypes)
         {
             EnsureInitialized();
-            return _connectionProvider.UseCommand(
+            return _connectionPool.UseCommand(
                 command => command.SetCommandText($@"SELECT {Schema.Id}, {Schema.Value}, {Schema.ValueTypeId} FROM {Schema.TableName} WHERE {Schema.ValueTypeId} {TypeInClause(acceptableTypes)}")
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuid(2), reader.GetString(1))));
         }

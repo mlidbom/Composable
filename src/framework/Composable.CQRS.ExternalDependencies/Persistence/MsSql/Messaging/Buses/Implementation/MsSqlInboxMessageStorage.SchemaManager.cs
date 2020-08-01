@@ -9,7 +9,7 @@ namespace Composable.Persistence.MsSql.Messaging.Buses.Implementation
     {
         static class SchemaManager
         {
-            public static async Task EnsureTablesExistAsync(IMsSqlConnectionProvider connectionFactory)
+            public static async Task EnsureTablesExistAsync(IMsSqlConnectionPool connectionFactory)
             {
                 //Performance: Why is the MessageId not the primary key? Are we worried about performance loss because of fragmentation because of non-sequential Guids? Is there a (performant and truly reliable) sequential-guid-generator we could use? How does it not being the clustered index impact row vs page etc locking?
                 await  connectionFactory.ExecuteNonQueryAsync($@"

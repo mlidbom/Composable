@@ -36,6 +36,17 @@ namespace Composable.SystemCE.ThreadingCE
             }
         }
 
+        internal static async Task Run(this AsyncMode mode, Func<AsyncMode, Task> asynchronous)
+        {
+            if(mode == AsyncMode.Async)
+            {
+                await asynchronous(mode).NoMarshalling();
+            } else
+            {
+                asynchronous(mode).AwaiterResult();
+            }
+        }
+
         internal static async Task<TResult> Run<TResult>(this AsyncMode mode, Func<TResult> synchronous, Func<Task<TResult>> asynchronous)
         {
             if(mode == AsyncMode.Async)

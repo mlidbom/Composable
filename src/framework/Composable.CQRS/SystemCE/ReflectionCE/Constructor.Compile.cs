@@ -40,7 +40,7 @@ namespace Composable.SystemCE.ReflectionCE
                 internal Delegate WithArgumentTypes(Type argument1Type, Type argument2Type, Type argument3Type, Type argument4Type, Type argument5Type) => CompileForSignature(typeof(Func<,,,,>).MakeGenericType(argument1Type, argument2Type, argument3Type, argument4Type, argument5Type, _typeToConstruct));
 
                 internal Func<TInstance> DefaultConstructor() => (Func<TInstance>)CompileForSignature(typeof(Func<>).MakeGenericType(_typeToConstruct));
-                internal Func<TArgument1, TInstance> WithArgument<TArgument1>() => (Func<TArgument1, TInstance>)WithArgumentTypes(typeof(TArgument1));
+                internal Func<TArgument1, TInstance> WithArguments<TArgument1>() => (Func<TArgument1, TInstance>)WithArgumentTypes(typeof(TArgument1));
                 internal Func<TArgument1, TArgument2, TInstance> WithArguments<TArgument1, TArgument2>() => (Func<TArgument1, TArgument2, TInstance>)WithArgumentTypes(typeof(TArgument1), typeof(TArgument2));
                 internal Func<TArgument1, TArgument2, TArgument3, TInstance> WithArguments<TArgument1, TArgument2, TArgument3>() => (Func<TArgument1, TArgument2, TArgument3, TInstance>)WithArgumentTypes(typeof(TArgument1), typeof(TArgument2), typeof(TArgument3));
                 internal Func<TArgument1, TArgument2, TArgument3, TArgument4, TInstance> WithArguments<TArgument1, TArgument2, TArgument3, TArgument4>() => (Func<TArgument1, TArgument2, TArgument3, TArgument4, TInstance>)WithArgumentTypes(typeof(TArgument1), typeof(TArgument2), typeof(TArgument3), typeof(TArgument4));

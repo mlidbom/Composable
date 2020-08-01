@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.ThreadingCE;
 using Schema =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
@@ -10,8 +11,8 @@ namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation
 {
     partial class OracleInboxPersistenceLayer : IServiceBusPersistenceLayer.IInboxPersistenceLayer
     {
-        readonly IOracleConnectionProvider _connectionFactory;
-        public OracleInboxPersistenceLayer(IOracleConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        readonly IOracleConnectionPool _connectionFactory;
+        public OracleInboxPersistenceLayer(IOracleConnectionPool connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveMessage(Guid messageId, Guid typeId, string serializedMessage)
         {

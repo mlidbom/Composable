@@ -3,6 +3,7 @@ using IBM.Data.DB2.Core;
 using System.Linq;
 using System.Transactions;
 using Composable.Logging;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.SystemCE;
 using Composable.Testing.Databases;
@@ -11,7 +12,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
 {
     sealed class DB2DatabasePool : DatabasePool
     {
-        readonly DB2ConnectionProvider _masterConnectionProvider;
+        readonly IDB2ConnectionPool _masterConnectionPool;
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_DB2_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
@@ -22,20 +23,18 @@ namespace Composable.Persistence.DB2.Testing.Databases
             _masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
                                    ?? "SERVER=localhost;DATABASE=CDBPOOL;User ID=db2admin;Password=Development!1;";
 
-            _masterConnectionProvider = new DB2ConnectionProvider(_masterConnectionString);
+            _masterConnectionPool = IDB2ConnectionPool.CreateInstance(_masterConnectionString);
         }
 
         protected override string ConnectionStringFor(Database db)
             => _masterConnectionString + $"CurrentSchema={db.Name.ToUpperInvariant()};";
-
-        protected override void InitReboot() {}
 
         const string ObjectAlreadyExists = "42710";
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
             try
             {
-                _masterConnectionProvider.ExecuteNonQuery($@"CREATE SCHEMA ""{db.Name.ToUpperInvariant()}""");
+                _masterConnectionPool.ExecuteNonQuery($@"CREATE SCHEMA ""{db.Name.ToUpperInvariant()}""");
             }
             catch(DB2Exception exception) when(exception.Errors.Cast<DB2Error>().Any(error => error.SQLState == ObjectAlreadyExists)) {}
 
@@ -47,7 +46,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
             if(Transaction.Current != null) throw new Exception("This code should never run in a transaction");
 
             //Splitting this into one call to get the drop statements and another to execute them seems to perform about three times faster than doing everything on the server as an SP. It also eliminated the deadlocks we were getting.
-            var dropStatements = _masterConnectionProvider.UseCommand(
+            var dropStatements = _masterConnectionPool.UseCommand(
                 command => command.SetCommandText(GetRemovalStatementsSql)
                                   .AddParameter(SchemaParameterName, DB2Type.VarChar, db.Name.ToUpperInvariant())
                                   .ExecuteReaderAndSelect(reader =>
@@ -69,7 +68,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
                 {
                     try
                     {
-                        _masterConnectionProvider.ExecuteNonQuery(dropStatements);
+                        _masterConnectionPool.ExecuteNonQuery(dropStatements);
                         return;
                     }
                     catch(DB2Exception exception)when(SqlExceptions.DB2.IsDeadlockOrTimeOut(exception))

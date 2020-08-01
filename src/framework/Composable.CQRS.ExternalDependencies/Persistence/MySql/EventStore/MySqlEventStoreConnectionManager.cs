@@ -8,27 +8,27 @@ namespace Composable.Persistence.MySql.EventStore
 {
     class MySqlEventStoreConnectionManager
     {
-        readonly IMySqlConnectionProvider _connectionProvider;
-        public MySqlEventStoreConnectionManager(IMySqlConnectionProvider sqlConnectionProvider) => _connectionProvider = sqlConnectionProvider;
+        readonly IMySqlConnectionPool _connectionPool;
+        public MySqlEventStoreConnectionManager(IMySqlConnectionPool sqlConnectionPool) => _connectionPool = sqlConnectionPool;
 
-        public void UseConnection([InstantHandle] Action<MySqlConnection> action)
+        public void UseConnection([InstantHandle] Action<IComposableMySqlConnection> action)
         {
             AssertTransactionPolicy(false);
-            _connectionProvider.UseConnection(action);
+            _connectionPool.UseConnection(action);
         }
 
         public void UseCommand([InstantHandle]Action<MySqlCommand> action) => UseCommand(false, action);
         public void UseCommand(bool suppressTransactionWarning, [InstantHandle] Action<MySqlCommand> action)
         {
             AssertTransactionPolicy(suppressTransactionWarning);
-            _connectionProvider.UseCommand(action);
+            _connectionPool.UseCommand(action);
         }
 
         public TResult UseCommand<TResult>([InstantHandle]Func<MySqlCommand, TResult> action) => UseCommand(false, action);
         public TResult UseCommand<TResult>(bool suppressTransactionWarning, [InstantHandle] Func<MySqlCommand, TResult> action)
         {
             AssertTransactionPolicy(suppressTransactionWarning);
-            return _connectionProvider.UseCommand(action);
+            return _connectionPool.UseCommand(action);
         }
 
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local

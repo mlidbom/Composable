@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.SystemCE.ThreadingCE;
 using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
@@ -11,7 +12,7 @@ namespace Composable.Persistence.DB2.Messaging.Buses.Implementation
         const string DB2GuidType = "CHAR(36)";
         static class SchemaManager
         {
-            public static async Task EnsureTablesExistAsync(IDB2ConnectionProvider connectionFactory)
+            public static async Task EnsureTablesExistAsync(IDB2ConnectionPool connectionFactory)
             {
                 await connectionFactory.UseCommandAsync(
                                             command => command.SetCommandText($@"

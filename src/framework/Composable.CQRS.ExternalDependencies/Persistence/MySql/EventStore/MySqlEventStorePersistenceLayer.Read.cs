@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
 using MySql.Data.MySqlClient;

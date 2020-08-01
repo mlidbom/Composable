@@ -47,7 +47,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                           });
         }
 
-        static string LayerSpecificCommandText() => TestEnv.PersistenceLayer.ValueFor(msSql:"select 1", mySql:"select 1", pgSql: "select 1", orcl: "select 1 from dual", db2:"select 1 from sysibm.sysdummy1");
+        static string LayerSpecificCommandText() => TestEnv.PersistenceLayer.ValueFor(db2: "select 1 from sysibm.sysdummy1", msSql: "select 1", mySql: "select 1", orcl: "select 1 from dual", pgSql: "select 1");
 
         [Test] public void The_same_connection_string_is_returned_by_each_call_to_CreateOrGetLocalDb_Db1()
         {

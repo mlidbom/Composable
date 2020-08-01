@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.ThreadingCE;
 using Message =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
@@ -10,7 +11,7 @@ namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation
         const string OracleGuidType = "CHAR(36)";
         static class SchemaManager
         {
-            public static async Task EnsureTablesExistAsync(IOracleConnectionProvider connectionFactory)
+            public static async Task EnsureTablesExistAsync(IOracleConnectionPool connectionFactory)
             {
                 await  connectionFactory.UseCommandAsync(
                     command => command.SetCommandText($@"

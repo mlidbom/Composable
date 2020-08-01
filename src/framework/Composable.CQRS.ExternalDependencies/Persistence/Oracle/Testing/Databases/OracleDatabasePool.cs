@@ -1,4 +1,5 @@
 using System;
+using Composable.Persistence.Common.AdoCE;
 using Oracle.ManagedDataAccess.Client;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.LinqCE;
@@ -9,7 +10,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
 {
     sealed class OracleDatabasePool : DatabasePool
     {
-        readonly OracleConnectionProvider _masterConnectionProvider;
+        readonly IOracleConnectionPool _masterConnectionPool;
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_ORACLE_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
@@ -21,7 +22,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
                                       ?? "Data Source=127.0.0.1:1521/orclpdb; DBA Privilege=SYSDBA; User Id=sys; Password=Development!1;";
 
             _connectionStringBuilder = new OptimizedThreadShared<OracleConnectionStringBuilder>(new OracleConnectionStringBuilder(masterConnectionString));
-            _masterConnectionProvider = new OracleConnectionProvider(masterConnectionString);
+            _masterConnectionPool = IOracleConnectionPool.CreateInstance(masterConnectionString);
         }
 
         protected override string ConnectionStringFor(Database db)
@@ -32,8 +33,6 @@ namespace Composable.Persistence.Oracle.Testing.Databases
                 me.DBAPrivilege = "";
             }).ConnectionString);
 
-        protected override void InitReboot() {}
-
         const int OracleInvalidUserNamePasswordCombinationErrorNumber = 1017;
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
@@ -43,15 +42,15 @@ namespace Composable.Persistence.Oracle.Testing.Databases
             }
             catch(OracleException exception) when(exception.Number == OracleInvalidUserNamePasswordCombinationErrorNumber)
             {
-                _masterConnectionProvider.ExecuteScalar(DropUserIfExistsAndRecreate(db.Name.ToUpperInvariant()));
-                new OracleConnectionProvider(ConnectionStringFor(db)).UseConnection(_ => {}); //We just call this to ensure that we can actually connect.
+                _masterConnectionPool.ExecuteScalar(DropUserIfExistsAndRecreate(db.Name.ToUpperInvariant()));
+                IOracleConnectionPool.CreateInstance(ConnectionStringFor(db)).UseConnection(_ => {}); //We just call this to ensure that we can actually connect.
             }
         }
 
         protected override void ResetDatabase(Database db)
         {
-            new OracleConnectionProvider(ConnectionStringFor(db))
-               .UseCommand(command => command.SetCommandText(CleanSchema()).ExecuteNonQuery());
+            IOracleConnectionPool.CreateInstance(ConnectionStringFor(db))
+                                     .UseCommand(command => command.SetCommandText(CleanSchema()).ExecuteNonQuery());
         }
 
         static string DropUserIfExistsAndRecreate(string userName) => $@"

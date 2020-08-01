@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.LinqCE;
 using MessageTable = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
@@ -10,8 +11,8 @@ namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation
 {
     partial class OracleOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
-        readonly IOracleConnectionProvider _connectionFactory;
-        public OracleOutboxPersistenceLayer(IOracleConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        readonly IOracleConnectionPool _connectionFactory;
+        public OracleOutboxPersistenceLayer(IOracleConnectionPool connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveMessage(IServiceBusPersistenceLayer.OutboxMessageWithReceivers messageWithReceivers)
         {

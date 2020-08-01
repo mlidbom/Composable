@@ -1,6 +1,7 @@
 using System;
 using Npgsql;
 using Castle.Core.Internal;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
@@ -11,7 +12,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
 {
     sealed class PgSqlDatabasePool : DatabasePool
     {
-        readonly PgSqlConnectionProvider _masterConnectionProvider;
+        readonly IPgSqlConnectionPool _masterConnectionPool;
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_PGSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
         readonly OptimizedThreadShared<NpgsqlConnectionStringBuilder> _connectionStringBuilder;
@@ -21,14 +22,12 @@ namespace Composable.Persistence.PgSql.Testing.Databases
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
                                       ?? "Host=localhost;Database=postgres;Username=postgres;Password=Development!1;";
 
-            _masterConnectionProvider = new PgSqlConnectionProvider(masterConnectionString);
+            _masterConnectionPool = IPgSqlConnectionPool.CreateInstance(masterConnectionString);
             _connectionStringBuilder = new OptimizedThreadShared<NpgsqlConnectionStringBuilder>(new NpgsqlConnectionStringBuilder(masterConnectionString));
         }
 
         protected override string ConnectionStringFor(Database db)
             => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => me.Database = db.Name.ToLowerInvariant()).ConnectionString);
-
-        protected override void InitReboot() {}
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
@@ -45,18 +44,18 @@ namespace Composable.Persistence.PgSql.Testing.Databases
             //ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
             ResetConnectionPool(db);
-            var exists = (string)_masterConnectionProvider.ExecuteScalar($"SELECT datname FROM pg_database WHERE datname = '{databaseName.ToLowerInvariant()}'");
+            var exists = (string)_masterConnectionPool.ExecuteScalar($"SELECT datname FROM pg_database WHERE datname = '{databaseName.ToLowerInvariant()}'");
             if (!exists.IsNullOrEmpty())
             {
                 ResetDatabase(db);
             } else
             {
-                _masterConnectionProvider?.ExecuteNonQuery($@"CREATE DATABASE {databaseName};");
+                _masterConnectionPool?.ExecuteNonQuery($@"CREATE DATABASE {databaseName};");
             }
         }
 
         protected override void ResetDatabase(Database db) =>
-            new PgSqlConnectionProvider(ConnectionStringFor(db)).UseCommand(
+            IPgSqlConnectionPool.CreateInstance(ConnectionStringFor(db)).UseCommand(
                 command => command.SetCommandText(@"
 DO $$
 DECLARE

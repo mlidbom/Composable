@@ -28,34 +28,34 @@ namespace Composable.Persistence.DB2.DependencyInjection
                                             .DelegateToParentServiceLocatorWhenCloning());
 
                 container.Register(
-                    Singleton.For<IDB2ConnectionProvider>()
-                             .CreatedBy((DB2DatabasePool pool) => new DB2ConnectionProvider(() => pool.ConnectionStringFor(connectionStringName)))
+                    Singleton.For<IDB2ConnectionPool>()
+                             .CreatedBy((DB2DatabasePool pool) => IDB2ConnectionPool.CreateInstance(() => pool.ConnectionStringFor(connectionStringName)))
                 );
             } else
             {
                 container.Register(
-                    Singleton.For<IDB2ConnectionProvider>()
-                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => new DB2ConnectionProvider(configurationParameterProvider.GetString(connectionStringName)))
+                    Singleton.For<IDB2ConnectionPool>()
+                             .CreatedBy((IConfigurationParameterProvider configurationParameterProvider) => IDB2ConnectionPool.CreateInstance(configurationParameterProvider.GetString(connectionStringName)))
                              .DelegateToParentServiceLocatorWhenCloning());
             }
 
             //Service bus
             container.Register(
                 Singleton.For<IServiceBusPersistenceLayer.IOutboxPersistenceLayer>()
-                         .CreatedBy((IDB2ConnectionProvider endpointSqlConnection) => new DB2OutboxPersistenceLayer(endpointSqlConnection)),
+                         .CreatedBy((IDB2ConnectionPool endpointSqlConnection) => new DB2OutboxPersistenceLayer(endpointSqlConnection)),
                 Singleton.For<IServiceBusPersistenceLayer.IInboxPersistenceLayer>()
-                         .CreatedBy((IDB2ConnectionProvider endpointSqlConnection) => new DB2InboxPersistenceLayer(endpointSqlConnection)));
+                         .CreatedBy((IDB2ConnectionPool endpointSqlConnection) => new DB2InboxPersistenceLayer(endpointSqlConnection)));
 
             //DocumentDB
             container.Register(
                 Singleton.For<IDocumentDbPersistenceLayer>()
-                         .CreatedBy((IDB2ConnectionProvider connectionProvider) => new DB2DocumentDbPersistenceLayer(connectionProvider)));
+                         .CreatedBy((IDB2ConnectionPool connectionProvider) => new DB2DocumentDbPersistenceLayer(connectionProvider)));
 
 
             //Event store
             container.Register(
                 Singleton.For<DB2EventStoreConnectionManager>()
-                         .CreatedBy((IDB2ConnectionProvider sqlConnectionProvider) => new DB2EventStoreConnectionManager(sqlConnectionProvider)),
+                         .CreatedBy((IDB2ConnectionPool sqlConnectionProvider) => new DB2EventStoreConnectionManager(sqlConnectionProvider)),
                 Singleton.For<IEventStorePersistenceLayer>()
                          .CreatedBy((DB2EventStoreConnectionManager connectionManager, ITypeMapper typeMapper) => new DB2EventStorePersistenceLayer(connectionManager)));
         }

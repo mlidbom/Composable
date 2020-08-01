@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
 using Composable.Contracts;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.Common.EventStore;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MsSql.SystemExtensions;

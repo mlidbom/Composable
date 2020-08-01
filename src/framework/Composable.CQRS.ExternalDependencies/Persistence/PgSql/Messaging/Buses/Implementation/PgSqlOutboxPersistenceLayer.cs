@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.SystemCE.LinqCE;
 using NpgsqlTypes;
@@ -11,8 +12,8 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
 {
     partial class PgSqlOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
-        readonly INpgsqlConnectionProvider _connectionFactory;
-        public PgSqlOutboxPersistenceLayer(INpgsqlConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        readonly IPgSqlConnectionPool _connectionFactory;
+        public PgSqlOutboxPersistenceLayer(IPgSqlConnectionPool connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveMessage(IServiceBusPersistenceLayer.OutboxMessageWithReceivers messageWithReceivers)
         {

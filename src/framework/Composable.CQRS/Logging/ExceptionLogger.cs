@@ -19,6 +19,19 @@ namespace Composable.Logging
             }
         }
 
+        internal static TResult ExceptionsAndRethrow<TResult>(this ILogger log, Func<TResult> func)
+        {
+            try
+            {
+                return func();
+            }
+            catch(Exception e)
+            {
+                log.Error(e);
+                throw;
+            }
+        }
+
         internal static async Task ExceptionsAndRethrowAsync(this ILogger log, Func<Task> action)
         {
             try

@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Data.SqlClient;
 
 namespace Composable.Persistence.MsSql.Testing.Databases
 {
@@ -48,7 +47,7 @@ exec sp_executesql @sql";
             cmd.ExecuteNonQuery();
         }
 
-        internal static void DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(this SqlConnection connection)
+        internal static void DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(this IComposableMsSqlConnection connection)
         {
             using var cmd = connection.CreateCommand();
             cmd.CommandText = DropAllObjectsStatement + SetReadCommittedSnapshotOnStatement;

@@ -24,7 +24,7 @@ namespace Composable.Tests.System.Reflection
 #pragma warning restore IDE0060 // Remove unused parameter
         }
 
-        [Test, Serial] public void Can_create_instance() => Constructor.For<Simple>.WithArgument<string>.Instance(_argument).Should().NotBe(null);
+        [Test, Serial] public void Can_create_instance() => Constructor.For<Simple>.WithArguments<string>.Instance(_argument).Should().NotBe(null);
 
         [Test, Serial] public void _005_Constructs_1_00_000_instances_within_60_percent_of_normal_constructor_call()
         {
@@ -54,7 +54,7 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.IfInstrumentedMultiplyBy(25), timeFormat: "ss\\.ffff");
         }
 
-        static void DynamicModuleConstruct() => Constructor.For<Simple>.WithArgument<string>.Instance(_argument);
+        static void DynamicModuleConstruct() => Constructor.For<Simple>.WithArguments<string>.Instance(_argument);
 
         // ReSharper disable once ObjectCreationAsStatement
         static void DefaultConstructor() => FakeActivator.CreateWithDefaultConstructor();

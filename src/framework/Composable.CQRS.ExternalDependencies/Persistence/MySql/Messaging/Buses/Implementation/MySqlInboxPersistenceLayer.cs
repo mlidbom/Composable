@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.SystemCE.ThreadingCE;
 using Schema =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
@@ -10,8 +11,8 @@ namespace Composable.Persistence.MySql.Messaging.Buses.Implementation
 {
     partial class MySqlInboxPersistenceLayer : IServiceBusPersistenceLayer.IInboxPersistenceLayer
     {
-        readonly IMySqlConnectionProvider _connectionFactory;
-        public MySqlInboxPersistenceLayer(IMySqlConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        readonly IMySqlConnectionPool _connectionFactory;
+        public MySqlInboxPersistenceLayer(IMySqlConnectionPool connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveMessage(Guid messageId, Guid typeId, string serializedMessage)
         {

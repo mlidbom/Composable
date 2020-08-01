@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.MySql.SystemExtensions;
 using Composable.SystemCE.LinqCE;
 using MessageTable = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessagesDatabaseSchemaStrings;
@@ -10,8 +11,8 @@ namespace Composable.Persistence.MySql.Messaging.Buses.Implementation
 {
     partial class MySqlOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
-        readonly IMySqlConnectionProvider _connectionFactory;
-        public MySqlOutboxPersistenceLayer(IMySqlConnectionProvider connectionFactory) => _connectionFactory = connectionFactory;
+        readonly IMySqlConnectionPool _connectionFactory;
+        public MySqlOutboxPersistenceLayer(IMySqlConnectionPool connectionFactory) => _connectionFactory = connectionFactory;
 
         public void SaveMessage(IServiceBusPersistenceLayer.OutboxMessageWithReceivers messageWithReceivers)
         {

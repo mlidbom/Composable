@@ -1,5 +1,4 @@
-﻿using System;
-using Composable.DependencyInjection;
+﻿using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.DocumentDb;

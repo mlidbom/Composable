@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Composable.Persistence.Common;
 using Composable.Persistence.Common.AdoCE;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;

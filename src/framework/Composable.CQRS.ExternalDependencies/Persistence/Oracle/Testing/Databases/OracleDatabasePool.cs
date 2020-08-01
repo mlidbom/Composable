@@ -1,5 +1,4 @@
 using System;
-using Composable.Persistence.Common;
 using Composable.Persistence.Common.AdoCE;
 using Oracle.ManagedDataAccess.Client;
 using Composable.Persistence.Oracle.SystemExtensions;

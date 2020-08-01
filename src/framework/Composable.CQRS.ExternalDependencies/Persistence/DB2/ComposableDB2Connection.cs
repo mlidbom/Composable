@@ -1,10 +1,8 @@
 using System;
-using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
-using Composable.Persistence.Common;
 using Composable.Persistence.Common.AdoCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;

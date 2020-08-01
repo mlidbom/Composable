@@ -1,5 +1,4 @@
 using System;
-using Composable.Persistence.Common;
 using Composable.Persistence.Common.AdoCE;
 using MySql.Data.MySqlClient;
 using Composable.Persistence.MySql.SystemExtensions;

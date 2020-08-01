@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Persistence.Common;
 using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.SystemCE.LinqCE;

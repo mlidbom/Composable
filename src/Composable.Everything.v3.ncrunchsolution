@@ -50,7 +50,7 @@
       <Value>DependencyInjection\ComposableDependencyInjectionContainer..cs:framework\Composable.CQRS\Composable.CQRS.csproj-48</Value>
       <Value>Testing\Threading\ThreadGate.cs:framework\Composable.CQRS\Composable.CQRS.csproj-45</Value>
       <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-21</Value>
-      <Value>Persistence\MsSql\Testing\Databases\MsSqlDatabaseHelpers.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-54</Value>
+      <Value>Persistence\MsSql\Testing\Databases\MsSqlDatabaseHelpers.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-53</Value>
       <Value>DependencyInjection\TransactionalExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
       <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine.Coordinator.QueuedMessage.cs:framework\Composable.CQRS\Composable.CQRS.csproj-43</Value>
       <Value>Testing\Threading\ThreadGate.cs:framework\Composable.CQRS\Composable.CQRS.csproj-75</Value>
@@ -79,7 +79,7 @@
       <Value>SystemCE\OptimizedLazy.cs:framework\Composable.CQRS\Composable.CQRS.csproj-18</Value>
       <Value>Messaging\Buses\Endpoint.cs:framework\Composable.CQRS\Composable.CQRS.csproj-75</Value>
       <Value>Messaging\Buses\Endpoint.cs:framework\Composable.CQRS\Composable.CQRS.csproj-26</Value>
-      <Value>Testing\Databases\DatabasePool.cs:framework\Composable.CQRS\Composable.CQRS.csproj-48</Value>
+      <Value>Testing\Databases\DatabasePool.cs:framework\Composable.CQRS\Composable.CQRS.csproj-47</Value>
       <Value>SystemCE\TransactionsCE\TransactionScopeCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-30</Value>
       <Value>SystemCE\ThreadingCE\ThreadExceptionHandler.cs:framework\Composable.CQRS\Composable.CQRS.csproj-17</Value>
       <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-62</Value>
@@ -91,7 +91,7 @@
       <Value>DependencyInjection\TransactionalExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-30</Value>
       <Value>SystemCE\TransactionsCE\TransactionScopeCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-21</Value>
       <Value>SystemCE\ThreadingCE\TaskRunner.cs:framework\Composable.CQRS\Composable.CQRS.csproj-22</Value>
-      <Value>Persistence\DB2\Messaging\Buses\Implementation\DB2InboxPersistenceLayer.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-93</Value>
+      <Value>Persistence\DB2\Messaging\Buses\Implementation\DB2InboxPersistenceLayer.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-92</Value>
       <Value>SystemCE\ThreadingCE\ResourceAccess\ResourceGuardExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-60</Value>
       <Value>SystemCE\ThreadingCE\ResourceAccess\ResourceGuard.ExclusiveAccessGuardedResource.cs:framework\Composable.CQRS\Composable.CQRS.csproj-86</Value>
       <Value>Messaging\Buses\Implementation\Inbox.MessageStorage.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>

@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Composable.Persistence.Common;
 using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.SystemCE.ThreadingCE;

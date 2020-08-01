@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Messaging.Buses.Implementation;
-using Composable.Persistence.Common;
 using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.ThreadingCE;

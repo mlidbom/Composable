@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Composable.Persistence.Common;
 using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.Oracle.SystemExtensions;

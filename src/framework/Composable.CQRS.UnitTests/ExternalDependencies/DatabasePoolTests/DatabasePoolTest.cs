@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Data;
 using Composable.DependencyInjection;
-using Composable.Persistence.Common;
 using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.Persistence.DB2.Testing.Databases;

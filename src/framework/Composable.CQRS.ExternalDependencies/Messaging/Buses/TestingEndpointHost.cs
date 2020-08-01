@@ -7,7 +7,7 @@ namespace Composable.Messaging.Buses
 {
     public class TestingEndpointHost : TestingEndpointHostBase
     {
-        static TestingEndpointHost() => NetMQConfig.MaxSockets *= 10;
+        static TestingEndpointHost() => NetMQConfig.MaxSockets *= 20;
 
         public static ITestingEndpointHost Create(Func<IRunMode, IDependencyInjectionContainer> containerFactory)
             => new TestingEndpointHost(new RunMode(isTesting: true), containerFactory);

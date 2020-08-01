@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
+    <ProjectReference Include="..\..\..\framework\Composable.Testing\Composable.Testing.csproj" />
     <ProjectReference Include="..\AccountManagement.API\AccountManagement.API.csproj" />
     <ProjectReference Include="..\AccountManagement.Server\AccountManagement.Server.csproj" />
   </ItemGroup>

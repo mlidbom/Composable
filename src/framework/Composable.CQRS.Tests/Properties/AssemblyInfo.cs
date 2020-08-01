@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using Composable.Testing;
 using NUnit.Framework;
 
 // General Information about an assembly is controlled through the following
@@ -40,4 +41,5 @@ using NUnit.Framework;
 
 #if !NCRUNCH
     [assembly: Parallelizable(ParallelScope.Fixtures)]
+    [assembly:LevelOfParallelismCE]
 #endif

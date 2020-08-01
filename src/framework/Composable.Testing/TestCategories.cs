@@ -6,7 +6,7 @@ namespace Composable.Testing
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class PerformanceAttribute : PropertyAttribute,
-                                 NUnit.Framework.Interfaces.IApplyToTest
+                                 NUnit.Framework.Interfaces.IApplyToContext
     {
         public PerformanceAttribute()
         {
@@ -21,6 +21,13 @@ namespace Composable.Testing
 #if !NCRUNCH
             var parallel = new ParallelizableAttribute(ParallelScope.None);
             parallel.ApplyToTest(test);
+#endif
+        }
+
+        public void ApplyToContext(TestExecutionContext context)
+        {
+#if !NCRUNCH
+            new ParallelizableAttribute(ParallelScope.None).ApplyToContext(context);
 #endif
         }
     }

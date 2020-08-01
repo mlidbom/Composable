@@ -10,10 +10,10 @@ namespace Composable.Testing
     [TestFixture, TestFixtureSource(typeof(PluggableComponentsTestFixtureSource))]
     public class DuplicateByPluggableComponentTest
     {
-        public DuplicateByPluggableComponentTest(string _) {}
+        public DuplicateByPluggableComponentTest(string pluggableComponentsColonSeparated) {}
     }
 
-     class PluggableComponentsTestFixtureSource : IEnumerable<string>
+    class PluggableComponentsTestFixtureSource : IEnumerable<string>
     {
         static readonly List<string> Dimensions = CreateDimensions().ToList();
         public IEnumerator<string> GetEnumerator() => Dimensions.GetEnumerator();
@@ -32,7 +32,7 @@ namespace Composable.Testing
             }
             catch(Exception e)
             {
-                return  new[]{ e.ToString() };
+                return new[] {e.ToString()};
             }
         }
     }

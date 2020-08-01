@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Persistence.Common;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.DB2.SystemExtensions;
 using IBM.Data.DB2.Core;

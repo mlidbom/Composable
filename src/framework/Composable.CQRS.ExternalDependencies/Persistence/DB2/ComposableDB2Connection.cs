@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Persistence.Common;
+using Composable.Persistence.Common.AdoCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.TransactionsCE;

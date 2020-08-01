@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.Persistence.Common
+namespace Composable.Persistence.Common.AdoCE
 {
     [Flags] enum PoolableConnectionFlags
     {

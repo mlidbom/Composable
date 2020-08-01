@@ -1,4 +1,5 @@
 ﻿using Composable.Persistence.Common;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.TransactionsCE;

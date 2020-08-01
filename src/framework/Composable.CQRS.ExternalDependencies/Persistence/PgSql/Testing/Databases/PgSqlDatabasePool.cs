@@ -2,6 +2,7 @@ using System;
 using Npgsql;
 using Castle.Core.Internal;
 using Composable.Persistence.Common;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;

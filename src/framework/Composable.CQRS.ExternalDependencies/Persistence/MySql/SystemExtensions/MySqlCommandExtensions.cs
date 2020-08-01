@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using Composable.Persistence.Common;
+using Composable.Persistence.Common.AdoCE;
 
 namespace Composable.Persistence.MySql.SystemExtensions
 {

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.Common;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.SystemCE.LinqCE;
 using NpgsqlTypes;

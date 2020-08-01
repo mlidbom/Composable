@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using IBM.Data.DB2.Core;
 using Composable.Persistence.Common;
+using Composable.Persistence.Common.AdoCE;
 
 namespace Composable.Persistence.DB2.SystemExtensions
 {

@@ -3,7 +3,7 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using Composable.SystemCE.ThreadingCE;
 
-namespace Composable.Persistence.Common
+namespace Composable.Persistence.Common.AdoCE
 {
     interface IDbConnectionPool<out TConnection, out TCommand>
         where TConnection : IPoolableConnection, IComposableDbConnection<TCommand>

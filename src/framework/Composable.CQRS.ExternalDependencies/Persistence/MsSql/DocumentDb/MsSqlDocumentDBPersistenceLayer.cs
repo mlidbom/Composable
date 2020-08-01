@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.Persistence.Common;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.SystemCE;

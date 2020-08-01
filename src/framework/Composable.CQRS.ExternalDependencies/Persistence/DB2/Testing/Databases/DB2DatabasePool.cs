@@ -4,6 +4,7 @@ using System.Linq;
 using System.Transactions;
 using Composable.Logging;
 using Composable.Persistence.Common;
+using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.SystemCE;
 using Composable.Testing.Databases;

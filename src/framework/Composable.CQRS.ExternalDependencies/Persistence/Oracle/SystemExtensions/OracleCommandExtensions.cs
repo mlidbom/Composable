@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Oracle.ManagedDataAccess.Client;
 using Composable.Persistence.Common;
+using Composable.Persistence.Common.AdoCE;
 
 namespace Composable.Persistence.Oracle.SystemExtensions
 {

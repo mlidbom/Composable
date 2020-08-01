@@ -4,7 +4,7 @@ using System.Data.Common;
 using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
-namespace Composable.Persistence.Common
+namespace Composable.Persistence.Common.AdoCE
 {
     abstract partial class DbConnectionPool<TConnection, TCommand>
         where TConnection : IPoolableConnection, IComposableDbConnection<TCommand>

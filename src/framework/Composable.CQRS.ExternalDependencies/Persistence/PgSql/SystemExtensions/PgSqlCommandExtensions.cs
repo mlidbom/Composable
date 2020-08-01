@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Npgsql;
 using Composable.Persistence.Common;
+using Composable.Persistence.Common.AdoCE;
 
 namespace Composable.Persistence.PgSql.SystemExtensions
 {

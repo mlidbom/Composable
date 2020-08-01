@@ -41,11 +41,11 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     manager.ConnectionStringFor(dbName);
                 },
                 iterations: 5,
-                maxTotal: TestEnv.PersistenceLayer.ValueFor(msSql:150, mySql: 150, pgSql: 150, orcl: 300, db2: 150).Milliseconds());
+                maxTotal: TestEnv.PersistenceLayer.ValueFor(db2: 150, msSql: 150, mySql: 150, orcl: 300, pgSql: 150).Milliseconds());
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_5_identically_named_databases_in_milliseconds_msSql_50_mySql_75_pgSql_25_orcl_100_db2_50()
+        public void Multiple_threads_can_reserve_and_release_5_identically_named_databases_in_milliseconds_db2_50_msSql_50_mySql_75_orcl_100_pgSql_25()
         {
             if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) return;
 
@@ -60,7 +60,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                     manager.ConnectionStringFor(dbName);
                 },
                 iterations: 5,
-                maxTotal: TestEnv.PersistenceLayer.ValueFor(msSql:50, mySql: 75, pgSql: 25, orcl: 100, db2:50).Milliseconds());
+                maxTotal: TestEnv.PersistenceLayer.ValueFor(db2: 50, msSql: 50, mySql: 75, orcl: 100, pgSql: 25).Milliseconds());
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                            manager.ConnectionStringFor(Guid.NewGuid().ToString());
                        },
                 iterations: 5,
-                maxTotal: TestEnv.PersistenceLayer.ValueFor(msSql:125, mySql: 175, pgSql: 400, orcl: 400, db2:100).Milliseconds());
+                maxTotal: TestEnv.PersistenceLayer.ValueFor(db2: 100, msSql: 125, mySql: 175, orcl: 400, pgSql: 400).Milliseconds());
         }
 
         [Test]
@@ -92,11 +92,11 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
                            manager.ConnectionStringFor(Guid.NewGuid().ToString());
                        },
                 iterations: 5,
-                maxTotal: TestEnv.PersistenceLayer.ValueFor(msSql:100, mySql: 100, pgSql: 500, orcl: 300, db2:100).Milliseconds());
+                maxTotal: TestEnv.PersistenceLayer.ValueFor(db2: 100, msSql: 100, mySql: 100, orcl: 300, pgSql: 500).Milliseconds());
         }
 
         [Test]
-        public void Repeated_fetching_of_same_connection_runs_200_times_in_ten_milliseconds()
+        public void Repeated_fetching_of_same_connection_runs_20_times_in_1_milliseconds()
         {
             if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) return;
 
@@ -107,19 +107,18 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 
             TimeAsserter.Execute(
                 action: () => manager.ConnectionStringFor(dbName),
-                iterations: 200,
-                maxTotal: 10.Milliseconds());
+                iterations: 20,
+                maxTotal: 1.Milliseconds());
         }
 
         [Test]
-        public void Once_DB_Fetched_Can_use_100_connections_in_milliseconds_MsSql_5_MySql_30_PgSql_1_Oracle_10_db2_50()
+        public void Once_DB_Fetched_Can_use_XX_connections_in_1_millisecond_db2_2_MsSql_25_MySql_2_Oracle_7_PgSql_40()
         {
             if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) return;
 
             using var manager = CreatePool();
             manager.SetLogLevel(LogLevel.Warning);
             var reservationName = Guid.NewGuid().ToString();
-            var connectionsToUse = 100;
 
             Action useConnection = null;
 
@@ -155,8 +154,8 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 
            TimeAsserter.Execute(
                action: useConnection!,
-               iterations: connectionsToUse,
-               maxTotal: TestEnv.PersistenceLayer.ValueFor(msSql:5, mySql: 30, pgSql:1, orcl:10, db2: 50).Milliseconds()
+               maxTotal: 1.Milliseconds(),
+               iterations : TestEnv.PersistenceLayer.ValueFor(db2: 2, msSql: 25, mySql: 2, orcl: 7, pgSql: 40)
            );
         }
 

@@ -38,8 +38,7 @@ using NUnit.Framework;
 
 [assembly: AssemblyVersion("1.0.0.0")]
 
-
 #if !NCRUNCH
-    [assembly: Parallelizable(ParallelScope.Fixtures)]
-    [assembly:LevelOfParallelismCE]
+[assembly: Parallelizable(ParallelScope.Fixtures)]
+[assembly: LevelOfParallelismCE]
 #endif

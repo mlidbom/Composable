@@ -22,24 +22,24 @@ namespace Composable.Testing
                 }
             }
 
-            public static TValue ValueFor<TValue>(TValue msSql= default, TValue mySql = default, TValue inMem = default, TValue pgSql = default, TValue orcl = default, TValue db2 = default)
+            public static TValue ValueFor<TValue>(TValue db2 = default, TValue memory = default, TValue msSql = default, TValue mySql = default, TValue orcl = default, TValue pgSql = default)
                 =>
                     Current switch
-                {
-                    DependencyInjection.PersistenceLayer.MsSql => SelectValue(msSql, nameof(msSql)),
-                    DependencyInjection.PersistenceLayer.Memory => SelectValue(inMem, nameof(inMem)),
-                    DependencyInjection.PersistenceLayer.MySql => SelectValue(mySql, nameof(mySql)),
-                    DependencyInjection.PersistenceLayer.PgSql => SelectValue(pgSql, nameof(pgSql)),
-                    DependencyInjection.PersistenceLayer.Orcl => SelectValue(orcl, nameof(orcl)),
-                    DependencyInjection.PersistenceLayer.DB2 => SelectValue(db2, nameof(db2)),
-                    _ => throw new ArgumentOutOfRangeException()
-                };
+                    {
+                        DependencyInjection.PersistenceLayer.DB2 => SelectValue(db2, nameof(db2)),
+                        DependencyInjection.PersistenceLayer.MsSql => SelectValue(msSql, nameof(msSql)),
+                        DependencyInjection.PersistenceLayer.Memory => SelectValue(memory, nameof(memory)),
+                        DependencyInjection.PersistenceLayer.MySql => SelectValue(mySql, nameof(mySql)),
+                        DependencyInjection.PersistenceLayer.PgSql => SelectValue(pgSql, nameof(pgSql)),
+                        DependencyInjection.PersistenceLayer.Orcl => SelectValue(orcl, nameof(orcl)),
+                        _ => throw new ArgumentOutOfRangeException()
+                    };
 
             static TValue SelectValue<TValue>(TValue value, string provider)
             {
                 if(!Equals(value, default(TValue))) return value;
 
-                throw  new Exception($"Value missing for {provider}");
+                throw new Exception($"Value missing for {provider}");
             }
         }
 
@@ -65,7 +65,7 @@ namespace Composable.Testing
                 get
                 {
                     var containerName = FindDimensions.Match(GetTestName()).Groups[2].Value;
-                    if (!Enum.TryParse(containerName, out DependencyInjection.DIContainer provider))
+                    if(!Enum.TryParse(containerName, out DependencyInjection.DIContainer provider))
                     {
                         throw new Exception($"Failed to parse DIContainer from test environment. Value was: {containerName}");
                     }

@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Composable.SystemCE.ThreadingCE;
 
-namespace Composable.Persistence.Common
+namespace Composable.Persistence.Common.AdoCE
 {
     interface IPoolableConnection : IDisposable, IAsyncDisposable
     {

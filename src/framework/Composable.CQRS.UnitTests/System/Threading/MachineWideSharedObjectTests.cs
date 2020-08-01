@@ -112,11 +112,12 @@ namespace Composable.Tests.System.Threading
 
         [Test] public void Update_blocks_GetCopy_and_Update_from_both_same_and_other_instances()
         {
-            var updateGate = ThreadGate.CreateClosedWithTimeout(100.Milliseconds());
-            var conflictingUpdateSectionSameInstance = GatedCodeSection.WithTimeout(100.Milliseconds());
-            var conflictingUpdateSectionOtherInstance = GatedCodeSection.WithTimeout(100.Milliseconds());
-            var conflictingGetCopySectionSameInstance = GatedCodeSection.WithTimeout(100.Milliseconds());
-            var conflictingGetCopySectionOtherInstance = GatedCodeSection.WithTimeout(100.Milliseconds());
+            var timeout = 1.Seconds();
+            var updateGate = ThreadGate.CreateClosedWithTimeout(timeout);
+            var conflictingUpdateSectionSameInstance = GatedCodeSection.WithTimeout(timeout);
+            var conflictingUpdateSectionOtherInstance = GatedCodeSection.WithTimeout(timeout);
+            var conflictingGetCopySectionSameInstance = GatedCodeSection.WithTimeout(timeout);
+            var conflictingGetCopySectionOtherInstance = GatedCodeSection.WithTimeout(timeout);
 
             var conflictingGates = EnumerableCE.Create(conflictingUpdateSectionSameInstance,
                                               conflictingUpdateSectionOtherInstance,
@@ -126,7 +127,7 @@ namespace Composable.Tests.System.Threading
             var name = Guid.NewGuid().ToString();
             using var shared1 = MachineWideSharedObject<SharedObject>.For(name);
             using var shared2 = MachineWideSharedObject<SharedObject>.For(name);
-            using var taskRunner = new TestingTaskRunner(100.Milliseconds());
+            using var taskRunner = new TestingTaskRunner(timeout);
             // ReSharper disable AccessToDisposedClosure
             taskRunner.Start(() => shared1.Update(@this => { updateGate.AwaitPassthrough(); }));
             taskRunner.Start(() => conflictingUpdateSectionSameInstance.Execute(() => shared1.Update(me => {})));

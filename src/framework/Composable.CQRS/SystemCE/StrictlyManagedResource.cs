@@ -86,10 +86,18 @@ namespace Composable.SystemCE
                 {
                     try
                     {
-                        lock(_staticLock) _collectStackTraces = true;
                         this.Log().Error(exception);
-                        // ReSharper disable once EmptyGeneralCatchClause
+                        //Todo: Log metric here.
+                        lock(_staticLock)
+                        {
+                            if(!_collectStackTraces)
+                            {
+                                this.Log().Warning($"Enabling collection of stacktraces for {typeof(TManagedResource).GetFullNameCompilable()} since it is not always disposed.");
+                                _collectStackTraces = true;
+                            }
+                        }
                     }
+                    // ReSharper disable once EmptyGeneralCatchClause
                     catch {}
                 }
             }

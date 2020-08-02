@@ -30,7 +30,7 @@ namespace Composable.Persistence.MsSql.SystemExtensions
                     });
             }
 
-            public Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<IComposableMsSqlConnection, Task<TResult>> func) => Pool.UseConnectionAsyncFlex(syncOrAsync, func);
+            public Task<TResult> UseConnectionAsyncFlex<TResult>(SyncOrAsync syncOrAsync, Func<IComposableMsSqlConnection, Task<TResult>> func) => Pool.UseConnectionAsyncFlex(syncOrAsync, func);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Composable.Persistence.PgSql.SystemExtensions
                     });
             }
 
-            public Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<IComposableNpgsqlConnection, Task<TResult>> func) =>
+            public Task<TResult> UseConnectionAsyncFlex<TResult>(SyncOrAsync syncOrAsync, Func<IComposableNpgsqlConnection, Task<TResult>> func) =>
                 Pool.UseConnectionAsyncFlex(syncOrAsync, func);
         }
     }

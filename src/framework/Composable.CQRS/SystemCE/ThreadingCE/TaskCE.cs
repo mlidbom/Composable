@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Composable.Contracts;
 
 namespace Composable.SystemCE.ThreadingCE
 {
@@ -80,11 +81,6 @@ namespace Composable.SystemCE.ThreadingCE
         ///<summary>Using this instead of Task.Run can help debugging very much by providing a "name" for the task in the debugger views for Tasks</summary>
         public static Task Run(string name, Action action) => Run(name, CancellationToken.None, action);
         public static Task Run(string name, CancellationToken cancellationToken, Action action) => Task.Factory.StartNew(_ => action(), name, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);
-
-        internal static TResult AwaiterResult<TResult>(this Task<TResult> @this) => @this.GetAwaiter().GetResult();
-
-        internal static void AwaiterResult(this Task @this) => @this.GetAwaiter().GetResult();
-
 
         static readonly object DummyObject = new object();
         static readonly Task<object> CompletedObjectTask = Task.FromResult(DummyObject);

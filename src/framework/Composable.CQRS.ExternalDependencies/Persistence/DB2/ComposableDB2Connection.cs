@@ -23,7 +23,7 @@ namespace Composable.Persistence.DB2
 
             internal ComposableDB2Connection(string connectionString) => Connection = new DB2Connection(connectionString);
 
-            async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
+            async Task IPoolableConnection.OpenAsyncFlex(SyncOrAsync syncOrAsync) =>
                 await syncOrAsync.Run(
                     () => Connection.Open(),
                     () => Connection.OpenAsync()).NoMarshalling();

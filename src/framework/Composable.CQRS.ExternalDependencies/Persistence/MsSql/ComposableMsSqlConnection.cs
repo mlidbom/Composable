@@ -16,7 +16,7 @@ namespace Composable.Persistence.MsSql
 
             internal ComposableMsSqlConnection(string connectionString) => Connection = new SqlConnection(connectionString);
 
-            async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
+            async Task IPoolableConnection.OpenAsyncFlex(SyncOrAsync syncOrAsync) =>
                 await syncOrAsync.Run(
                     () => Connection.Open(),
                     () => Connection.OpenAsync()).NoMarshalling();

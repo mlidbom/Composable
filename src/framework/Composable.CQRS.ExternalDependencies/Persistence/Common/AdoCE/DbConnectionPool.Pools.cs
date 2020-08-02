@@ -40,7 +40,7 @@ namespace Composable.Persistence.Common.AdoCE
             );
 
             static int _openings = 0;
-            protected async Task<TConnection> OpenConnectionAsyncFlex(AsyncMode syncOrAsync)
+            protected async Task<TConnection> OpenConnectionAsyncFlex(SyncOrAsync syncOrAsync)
             {
                 using var escalationForbidden = TransactionCE.NoTransactionEscalationScope($"Opening {typeof(TConnection)}");
                 var connection = _createConnection(_connectionString);
@@ -49,7 +49,7 @@ namespace Composable.Persistence.Common.AdoCE
                 //first opening of a connection that takes very long and thus trying our own pooling will not help.
                 if(Interlocked.Increment(ref _openings) == 1)
                 {
-                    await syncOrAsync.Run(connection.OpenAsyncFlex).NoMarshalling();//Currently 120 passing tests total of 60 seconds runtime, average per test 500ms.
+                    await connection.OpenAsyncFlex(syncOrAsync).NoMarshalling();//Currently 120 passing tests total of 60 seconds runtime, average per test 500ms.
                 } else
                 {
                     //Currently about 900 passing tests. Total of 13 seconds. Average per test of 12ms.
@@ -63,9 +63,9 @@ namespace Composable.Persistence.Common.AdoCE
             }
 
 
-            public virtual async Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<TConnection, Task<TResult>> func)
+            public virtual async Task<TResult> UseConnectionAsyncFlex<TResult>(SyncOrAsync syncOrAsync, Func<TConnection, Task<TResult>> func)
             {
-                await using var connection = await syncOrAsync.Run(OpenConnectionAsyncFlex).NoMarshalling();
+                await using var connection = await OpenConnectionAsyncFlex(syncOrAsync).NoMarshalling();
                 return await func(connection).NoMarshalling();
             }
         }
@@ -77,7 +77,7 @@ namespace Composable.Persistence.Common.AdoCE
 
             public TransactionAffinityDbConnectionPool(string connectionString, Func<string, TConnection> createConnection) : base(connectionString, createConnection) {}
 
-            public override async Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<TConnection, Task<TResult>> func)
+            public override async Task<TResult> UseConnectionAsyncFlex<TResult>(SyncOrAsync syncOrAsync, Func<TConnection, Task<TResult>> func)
             {
                 var transactionLocalIdentifier = Transaction.Current?.TransactionInformation.LocalIdentifier;
 
@@ -92,7 +92,7 @@ namespace Composable.Persistence.Common.AdoCE
                             transactionLocalIdentifier,
                             constructor: () =>
                             {
-                                var createConnectionTask = syncOrAsync.Run(OpenConnectionAsyncFlex);
+                                var createConnectionTask = OpenConnectionAsyncFlex(syncOrAsync);
                                 Transaction.Current!.OnCompleted(action: () => _transactionConnections.WithExclusiveAccess(func: transactionConnectionsAfterTransaction =>
                                 {
                                     createConnectionTask.Result.Dispose();

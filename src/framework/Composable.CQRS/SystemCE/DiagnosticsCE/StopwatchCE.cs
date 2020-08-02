@@ -56,6 +56,17 @@ namespace Composable.SystemCE.DiagnosticsCE
             return new TimedExecutionSummary(iterations, total);
         }
 
+        internal static async Task<TimeSpan> TimeExecutionFlexAsync(SyncOrAsync syncOrAsync, [InstantHandle] Func<SyncOrAsync, Task> syncOrAsyncAction)
+        {
+            if(syncOrAsync == SyncOrAsync.Async)
+            {
+                return await TimeExecutionAsync(syncOrAsyncAction.AsAsync()).NoMarshalling();
+            } else
+            {
+                return TimeExecution(syncOrAsyncAction.AsSync());
+            }
+        }
+
         // ReSharper disable once MethodOverloadWithOptionalParameter
         public static TimedExecutionSummary TimeExecution([InstantHandle] Action action, int iterations = 1) => MachineWideSingleThreaded.Execute(() =>
         {

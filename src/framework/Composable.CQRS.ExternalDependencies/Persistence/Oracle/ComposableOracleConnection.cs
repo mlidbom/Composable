@@ -17,7 +17,7 @@ namespace Composable.Persistence.Oracle
 
             internal ComposableOracleConnection(string connectionString) => Connection = new OracleConnection(connectionString);
 
-            async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
+            async Task IPoolableConnection.OpenAsyncFlex(SyncOrAsync syncOrAsync) =>
                 await syncOrAsync.Run(
                     () => Connection.Open(),
                     () => Connection.OpenAsync()).NoMarshalling();

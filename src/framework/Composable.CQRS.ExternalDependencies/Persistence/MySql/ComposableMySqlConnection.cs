@@ -16,7 +16,7 @@ namespace Composable.Persistence.MySql
 
             internal ComposableMySqlConnection(string connectionString) => Connection = new MySqlConnection(connectionString);
 
-            async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
+            async Task IPoolableConnection.OpenAsyncFlex(SyncOrAsync syncOrAsync) =>
                 await syncOrAsync.Run(
                     () => Connection.Open(),
                     () => Connection.OpenAsync()).NoMarshalling();

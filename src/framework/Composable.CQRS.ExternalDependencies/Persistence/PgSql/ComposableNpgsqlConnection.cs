@@ -16,7 +16,7 @@ namespace Composable.Persistence.PgSql
 
             public ComposableNpgsqlConnection(string connectionString) => Connection = new NpgsqlConnection(connectionString);
 
-            async Task IPoolableConnection.OpenAsyncFlex(AsyncMode syncOrAsync) =>
+            async Task IPoolableConnection.OpenAsyncFlex(SyncOrAsync syncOrAsync) =>
                 await syncOrAsync.Run(
                     () => Connection.Open(),
                     () => Connection.OpenAsync()).NoMarshalling();

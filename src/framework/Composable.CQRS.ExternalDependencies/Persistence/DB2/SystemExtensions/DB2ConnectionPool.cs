@@ -28,7 +28,7 @@ namespace Composable.Persistence.DB2.SystemExtensions
                             IComposableDB2Connection.Create);
                     });
             }
-            public Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<IComposableDB2Connection, Task<TResult>> func) =>
+            public Task<TResult> UseConnectionAsyncFlex<TResult>(SyncOrAsync syncOrAsync, Func<IComposableDB2Connection, Task<TResult>> func) =>
                 _pool.Value.UseConnectionAsyncFlex(syncOrAsync, func);
         }
     }

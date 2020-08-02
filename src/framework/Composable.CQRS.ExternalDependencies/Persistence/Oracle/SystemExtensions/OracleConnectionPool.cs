@@ -29,7 +29,7 @@ namespace Composable.Persistence.Oracle.SystemExtensions
                     });
             }
 
-            public Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<IComposableOracleConnection, Task<TResult>> func) =>
+            public Task<TResult> UseConnectionAsyncFlex<TResult>(SyncOrAsync syncOrAsync, Func<IComposableOracleConnection, Task<TResult>> func) =>
                 _pool.Value.UseConnectionAsyncFlex(syncOrAsync, func);
         }
     }

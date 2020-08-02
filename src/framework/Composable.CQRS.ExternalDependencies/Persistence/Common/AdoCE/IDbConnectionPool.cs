@@ -9,20 +9,20 @@ namespace Composable.Persistence.Common.AdoCE
         where TConnection : IPoolableConnection, IComposableDbConnection<TCommand>
         where TCommand : DbCommand
     {
-        Task<TResult> UseConnectionAsyncFlex<TResult>(AsyncMode syncOrAsync, Func<TConnection, Task<TResult>> func);
+        Task<TResult> UseConnectionAsyncFlex<TResult>(SyncOrAsync syncOrAsync, Func<TConnection, Task<TResult>> func);
 
 
         public TResult UseConnection<TResult>(Func<TConnection, TResult> func) =>
-            UseConnectionAsyncFlex(AsyncMode.Sync, func.AsAsync()).AwaiterResult();
+            UseConnectionAsyncFlex(SyncOrAsync.Sync, func.AsAsync()).SyncResult();
 
         public void UseConnection(Action<TConnection> action) =>
-            UseConnectionAsyncFlex(AsyncMode.Sync, action.AsFunc().AsAsync()).AwaiterResult();
+            UseConnectionAsyncFlex(SyncOrAsync.Sync, action.AsFunc().AsAsync()).SyncResult();
 
         public async Task UseConnectionAsync(Func<TConnection, Task> action) =>
-            await UseConnectionAsyncFlex(AsyncMode.Async, action.AsFunc()).NoMarshalling();
+            await UseConnectionAsyncFlex(SyncOrAsync.Async, action.AsFunc()).NoMarshalling();
 
         public async Task<TResult> UseConnectionAsync<TResult>(Func<TConnection, Task<TResult>> func) =>
-            await UseConnectionAsyncFlex(AsyncMode.Async, func).NoMarshalling();
+            await UseConnectionAsyncFlex(SyncOrAsync.Async, func).NoMarshalling();
 
 
 

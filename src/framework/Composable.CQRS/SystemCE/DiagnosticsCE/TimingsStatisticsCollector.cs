@@ -6,6 +6,7 @@ using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.SystemCE.DiagnosticsCE
 {
+    //Todo: Replace implementation with App.Metrics https://www.app-metrics.io/getting-started/metric-types/timers/. Design a wrapper around App.Metrics that can be injected and used as simply and flexibly as this class.
     class TimingsStatisticsCollector
     {
         class RangeStats
@@ -69,10 +70,10 @@ namespace Composable.SystemCE.DiagnosticsCE
             RegisterCall(time);
         }
 
-        public async Task TimeAsyncFlex(AsyncMode syncOrAsync, Func<AsyncMode, Task> funcAsyncFlex)
+        public async Task TimeAsyncFlex(SyncOrAsync syncOrAsync, Func<SyncOrAsync, Task> syncOrAsyncFunc)
         {
 
-            var time = await StopwatchCE.TimeExecutionAsync(async () => await syncOrAsync.Run(funcAsyncFlex).NoMarshalling()).NoMarshalling();
+            var time = await StopwatchCE.TimeExecutionFlexAsync(syncOrAsync, syncOrAsyncFunc).NoMarshalling();
             RegisterCall(time);
         }
 

@@ -15,7 +15,7 @@ namespace Composable.Testing.Databases
                                                                                         {
                                                                                             GetterSetter.ForInt32(@this => @this.Id, (@this, value) => @this.Id = value),
                                                                                             GetterSetter.ForBoolean(@this => @this.IsReserved, (@this, value) => @this.IsReserved = value),
-                                                                                            GetterSetter.ForDateTime(@this => @this.ExpirationDateTime, (@this, value) => @this.ExpirationDateTime = value),
+                                                                                            GetterSetter.ForDateTime(@this => @this.ReservationExpirationTime, (@this, value) => @this.ReservationExpirationTime = value),
                                                                                             GetterSetter.ForString(@this => @this.ReservationName, (@this, value) => @this.ReservationName = value),
                                                                                             GetterSetter.ForGuid(@this => @this.ReservedByPoolId, (@this, value) => @this.ReservedByPoolId = value),
                                                                                             GetterSetter.ForBoolean(@this => @this.IsClean, (@this, value) => @this.IsClean = value)
@@ -24,7 +24,7 @@ namespace Composable.Testing.Databases
             internal int Id { get; private set; }
             internal bool IsReserved { get; private set; }
             internal bool IsClean { get; private set; } = true;
-            public DateTime ExpirationDateTime { get; private set; } = DateTime.MinValue;
+            public DateTime ReservationExpirationTime { get; private set; } = DateTime.MinValue;
             internal string ReservationName { get; private set; } = string.Empty;
             internal Guid ReservedByPoolId { get; private set; } = Guid.Empty;
 
@@ -34,7 +34,7 @@ namespace Composable.Testing.Databases
             internal Database(int id) => Id = id;
             internal Database(string name) : this(IdFromName(name)) { }
 
-            internal bool ShouldBeReleased => IsReserved && ExpirationDateTime < DateTime.UtcNow;
+            internal bool ShouldBeReleased => IsReserved && ReservationExpirationTime < DateTime.UtcNow;
             internal bool IsFree => !IsReserved;
 
             static int IdFromName(string name)
@@ -67,12 +67,12 @@ namespace Composable.Testing.Databases
 
                 IsReserved = true;
                 ReservationName = reservationName;
-                ExpirationDateTime = DateTime.UtcNow + reservationLength;
+                ReservationExpirationTime = DateTime.UtcNow + reservationLength;
                 ReservedByPoolId = poolId;
                 return this;
             }
 
-            public override string ToString() => $"{nameof(Id)}: {Id}, {nameof(IsReserved)}: {IsReserved}, {nameof(IsClean)}: {IsClean}, {nameof(ExpirationDateTime)}: {ExpirationDateTime}, {nameof(ReservationName)}:{ReservationName}, {nameof(ReservedByPoolId)}:{ReservedByPoolId}";
+            public override string ToString() => $"{nameof(Id)}: {Id}, {nameof(IsReserved)}: {IsReserved}, {nameof(IsClean)}: {IsClean}, {nameof(ReservationExpirationTime)}: {ReservationExpirationTime}, {nameof(ReservationName)}:{ReservationName}, {nameof(ReservedByPoolId)}:{ReservedByPoolId}";
         }
     }
 }

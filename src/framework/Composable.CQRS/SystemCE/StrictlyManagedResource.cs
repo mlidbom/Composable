@@ -14,11 +14,11 @@ namespace Composable.SystemCE
 
         public static readonly bool CollectStackTracesForAllStrictlyManagedResources =
             AppSettingsJsonConfigurationParameterProvider.Instance.GetBoolean(CollectStackTracesForAllStrictlyManagedResourcesConfigurationParameterName,
-                                                                        valueIfMissing: false);
+                                                                              valueIfMissing: false);
 
         public static bool CollectStackTracesFor<TManagedResource>()
             => AppSettingsJsonConfigurationParameterProvider.Instance.GetBoolean(ConfigurationParamaterNameFor<TManagedResource>(),
-                                                                           valueIfMissing: false);
+                                                                                 valueIfMissing: false);
 
         static string ConfigurationParamaterNameFor<TManagedResource>() => ConfigurationParamaterNameFor(typeof(TManagedResource));
 
@@ -51,12 +51,13 @@ namespace Composable.SystemCE
     ///</example>
     class StrictlyManagedResource<TManagedResource> : IStrictlyManagedResource where TManagedResource : IStrictlyManagedResource
     {
-        static readonly bool CollectStackTraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
+        static readonly object _staticLock = new object();
+        static bool _collectStackTraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
         public StrictlyManagedResource(bool forceStackTraceCollection = false, bool needsFileInfo = false)
         {
-            if(forceStackTraceCollection || CollectStackTraces || StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResources)
+            if(forceStackTraceCollection || _collectStackTraces || StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResources)
             {
-                ReservationCallStack = new StackTrace(fNeedFileInfo:needsFileInfo).ToString();
+                ReservationCallStack = new StackTrace(fNeedFileInfo: needsFileInfo).ToString();
             }
         }
 
@@ -85,9 +86,11 @@ namespace Composable.SystemCE
                 {
                     try
                     {
+                        lock(_staticLock) _collectStackTraces = true;
                         this.Log().Error(exception);
                         // ReSharper disable once EmptyGeneralCatchClause
-                    }catch{}
+                    }
+                    catch {}
                 }
             }
         }
@@ -138,7 +141,7 @@ namespace Composable.SystemCE
     ///<summary><see cref="IStrictlyManagedResource"/></summary>
     public class StrictlyManagedResourceWasFinalizedException : Exception
     {
-        public StrictlyManagedResourceWasFinalizedException(Type instanceType, string? reservationCallStack) : base(FormatMessage(instanceType, reservationCallStack)) { }
+        public StrictlyManagedResourceWasFinalizedException(Type instanceType, string? reservationCallStack) : base(FormatMessage(instanceType, reservationCallStack)) {}
 
         static string FormatMessage(Type instanceType, string? reservationCallStack)
             => !reservationCallStack.IsNullEmptyOrWhiteSpace()
@@ -152,7 +155,7 @@ Please note that this will decrease performance and should only be set while deb
 
     public class StrictlyManagedResourceLifespanWasExceededException : Exception
     {
-        public StrictlyManagedResourceLifespanWasExceededException(Type instanceType, string reservationCallStack, TimeSpan maxTimeSpan) : base(FormatMessage(instanceType, reservationCallStack, maxTimeSpan)) { }
+        public StrictlyManagedResourceLifespanWasExceededException(Type instanceType, string reservationCallStack, TimeSpan maxTimeSpan) : base(FormatMessage(instanceType, reservationCallStack, maxTimeSpan)) {}
 
         static string FormatMessage(Type instanceType, string reservationCallStack, TimeSpan maxTimeSpan)
             => !reservationCallStack.IsNullEmptyOrWhiteSpace()
@@ -164,5 +167,3 @@ Set configuration value: {StrictlyManagedResources.CollectStackTracesForAllStric
 Please note that this will decrease performance and should only be set while debugging resource leaks.";
     }
 }
-
-

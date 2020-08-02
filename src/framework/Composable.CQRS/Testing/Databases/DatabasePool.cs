@@ -41,7 +41,6 @@ namespace Composable.Testing.Databases
 
         static ILogger Log = Logger.For<DatabasePool>();
         bool _disposed;
-        const string RebootedDatabaseExceptionMessage = "Something went wrong with the database pool and it was rebooted. You may see other test failures due to this. If this is the first time you use the pool everything is fine. If this error pops up at other times something is amiss.";
 
         public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => Log = Log.WithLogLevel(logLevel));
 
@@ -70,9 +69,6 @@ namespace Composable.Testing.Databases
                 MachineWideState.Update(
                     machineWide =>
                     {
-                        if(machineWide.IsEmpty) throw new Exception("MachineWide was empty.");
-                        if(!machineWide.IsValid) throw new Exception("Detected corrupt database pool.");
-
                         if(machineWide.TryReserve(reservationName, _poolId, _reservationLength, out reservedDatabase))
                         {
                             Log.Info($"Reserved pool database: {reservedDatabase.Name}");

@@ -33,6 +33,7 @@ namespace ScratchPad
 
             //Semantic relationship is maintained.
             //For registering handlers we could enable registering via the wrapped type so that handlers need not always do the unwrapping.
+            //It would be possible to listen to all component events, regardless of the owning aggregate type, or to zoom in on specific aggregate's component events.
             wceb = wce1 = wce2;
 
         }

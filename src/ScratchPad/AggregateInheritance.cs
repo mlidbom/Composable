@@ -46,6 +46,9 @@ namespace ScratchPad
             animalEventAnimalWrapped = animalEventBirdWrapped = animalBornEventBirdWrapped;
             animalEventAnimalWrapped = birdChirpsEventBirdWrapped;
 
+            //For registering handlers we could enable registering via the wrapped type so that handlers need not always do the unwrapping.
+            //Listeners could listen to either the wrapped or the unwrapped event. They only _have_ to use the wrapped event if they want to get only inheritor events, and not the base types events.
+            //Thus no code breaks when you decide to make your aggregate inheritable. All existing listeners still work just fine.
         }
     }
 
@@ -72,10 +75,6 @@ namespace ScratchPad
 
             componentEventBaseAnimalWrapped = componentEventBaseBirdWrapped;
             componentEvent1AnimalWrapped = componentEvent1BirdWrapped;
-
-            //For registering handlers we could enable registering via the wrapped type so that handlers need not always do the unwrapping.
         }
     }
-
-
 }

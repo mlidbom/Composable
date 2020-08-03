@@ -6,7 +6,7 @@ namespace Composable.Testing.Threading
     static class GatedCodeSectionExtensions
     {
         public static IGatedCodeSection Open(this IGatedCodeSection @this)
-            => @this.WithExclusiveLock(
+            => @this.WithUpdateLock(
                 () =>
                 {
                     @this.EntranceGate.Open();
@@ -14,7 +14,7 @@ namespace Composable.Testing.Threading
                 });
 
         public static IGatedCodeSection Close(this IGatedCodeSection @this)
-            => @this.WithExclusiveLock(
+            => @this.WithUpdateLock(
                 () =>
                 {
                     @this.EntranceGate.Close();
@@ -22,7 +22,7 @@ namespace Composable.Testing.Threading
                 });
 
         public static IGatedCodeSection LetOneThreadEnter(this IGatedCodeSection @this)
-            => @this.WithExclusiveLock(
+            => @this.WithUpdateLock(
                 () =>
                 {
                     @this.AssertIsEmpty();
@@ -30,7 +30,7 @@ namespace Composable.Testing.Threading
                 });
 
         public static IGatedCodeSection LetOneThreadEnterAndReachExit(this IGatedCodeSection @this)
-            => @this.WithExclusiveLock(
+            => @this.WithUpdateLock(
                 () =>
                 {
                     @this.LetOneThreadEnter();
@@ -38,7 +38,7 @@ namespace Composable.Testing.Threading
                 });
 
         public static IGatedCodeSection LetOneThreadPass(this IGatedCodeSection @this)
-            => @this.WithExclusiveLock(
+            => @this.WithUpdateLock(
                 () =>
                 {
                     @this.LetOneThreadEnterAndReachExit();
@@ -57,12 +57,12 @@ namespace Composable.Testing.Threading
             => @this.WithExclusiveLock(() => @this.EntranceGate.Passed == @this.ExitGate.Passed);
 
         public static IGatedCodeSection AssertIsEmpty(this IGatedCodeSection @this)
-            => @this.WithExclusiveLock(() => Contract.Assert.That(@this.IsEmpty(), "Code section should be empty"));
+            => @this.WithUpdateLock(() => Contract.Assert.That(@this.IsEmpty(), "Code section should be empty"));
 
         public static TResult WithExclusiveLock<TResult>(this IGatedCodeSection @this, Func<TResult> function)
         {
             TResult result = default(TResult)!;
-            @this.WithExclusiveLock(() => result = function());
+            @this.WithUpdateLock(() => result = function());
             return result;
         }
     }

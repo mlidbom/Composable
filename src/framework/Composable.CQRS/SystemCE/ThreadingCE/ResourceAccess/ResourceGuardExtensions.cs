@@ -7,17 +7,16 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
         public static bool TryAwaitCondition(this IResourceGuard @this, TimeSpan timeout, Func<bool> condition)
         {
-            var startTime = DateTime.Now;
-            using var @lock = @this.AwaitExclusiveLock(timeout);
-            while(!condition())
+
+            try
             {
-                if(DateTime.Now - startTime > timeout)
-                {
-                    return false;
-                }
-                @lock.TryReleaseAwaitNotificationAndReacquire(timeout);
+                using var @lock = @this.AwaitReadLockWhen(timeout, condition);
+                return true;
             }
-            return true;
+            catch(Exception)
+            {
+                return false;
+            }
         }
     }
 

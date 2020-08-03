@@ -16,7 +16,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             _doSomething = false;
         }
 
-        [Test] public void Average_uncontended_WithExclusiveAccess_time_is_less_than_200_nanoseconds()
+        [Test] public void Average_uncontended_Update_time_is_less_than_200_nanoseconds()
         {
             var guard = ResourceGuard.WithTimeout(100.Milliseconds());
 
@@ -26,14 +26,14 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             void HammerUpdateLocks()
             {
                 for(var i = 0; i < totalLocks; i++)
-                    guard.WithExclusiveAccess(DoNothing);
+                    guard.Update(DoNothing);
             }
             //ncrunch: no coverage end
 
             TimeAsserter.Execute(HammerUpdateLocks, maxTotal: 200.Nanoseconds().IfInstrumentedMultiplyBy(8) * totalLocks);
         }
 
-        [Test] public void Average_contended_WithExclusiveAccess_time_is_less_than_1_microsecond()
+        [Test] public void Average_contended_Update_time_is_less_than_1_microsecond()
         {
             var guard = ResourceGuard.WithTimeout(100.Milliseconds());
 
@@ -45,7 +45,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             void HammerUpdateLocks()
             {
                 for(var i = 0; i < locksPerIteration; i++)
-                    guard.WithExclusiveAccess(DoNothing);
+                    guard.Update(DoNothing);
             }
             //ncrunch: no coverage end
 
@@ -100,7 +100,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             TimeAsserter.Execute(HammerUpdateLocks, maxTotal: 200.Nanoseconds().IfInstrumentedMultiplyBy(8) * totalLocks);
         }
 
-        [Test] public void Average_contended_ExclusiveLock_time_is_less_than_1_microsecond()
+        [Test] public void Average_contended_UpdateLock_time_is_less_than_1_microsecond()
         {
             var guard = ResourceGuard.WithTimeout(1.Seconds());
 
@@ -112,7 +112,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             void HammerUpdateLocks()
             {
                 for(var i = 0; i < locksPerIteration; i++)
-                    using(guard.AwaitExclusiveLock())
+                    using(guard.AwaitUpdateLock())
                     {
                         DoNothing();
                     }
@@ -125,7 +125,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
                                                   maxTotal: totalLocks.Microseconds().IfInstrumentedMultiplyBy(3));
         }
 
-        [Test] public void Average_uncontended_ExclusiveLock_time_is_less_than_250_nanoseconds()
+        [Test] public void Average_uncontended_UpdateLock_time_is_less_than_250_nanoseconds()
         {
             var guard = ResourceGuard.WithTimeout(100.Milliseconds());
 
@@ -135,7 +135,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             void HammerUpdateLocks()
             {
                 for(var i = 0; i < totalLocks; i++)
-                    using(guard.AwaitExclusiveLock())
+                    using(guard.AwaitUpdateLock())
                     {
                         DoNothing();
                     }

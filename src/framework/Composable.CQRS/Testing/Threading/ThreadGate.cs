@@ -25,22 +25,22 @@ namespace Composable.Testing.Threading
 
         public IThreadGate Open()
         {
-            using(var ownedLock = _resourceGuard.AwaitExclusiveLock())
+            _resourceGuard.Update(() =>
             {
                 _isOpen = true;
                 _lockOnNextPass = false;
-                ownedLock.NotifyAllWaitingThreads();
-            }
+            });
             return this;
         }
 
         public IThreadGate AwaitLetOneThreadPassThrough()
         {
-            using var ownedLock = _resourceGuard.AwaitExclusiveLock();
-            Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
-            _isOpen = true;
-            _lockOnNextPass = true;
-            ownedLock.NotifyAllWaitingThreads();
+            _resourceGuard.Update(() =>
+            {
+                Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
+                _isOpen = true;
+                _lockOnNextPass = true;
+            });
             return this.AwaitClosed();
         }
 
@@ -61,10 +61,12 @@ namespace Composable.Testing.Threading
             }
             catch(AwaitingConditionTimedOutException parentException)
             {
-                throw new AwaitingConditionTimedOutException(parentException, $@"
+                throw new AwaitingConditionTimedOutException(parentException,
+                                                             $@"
 Current state of gate: 
 {this}");
             }
+
             return this;
         }
 
@@ -85,7 +87,6 @@ Current state of gate:
                 _requestsThreads.Add(currentThread);
                 _queuedThreads.AddLast(currentThread);
             });
-
 
             using(_resourceGuard.AwaitUpdateLockWhen(() => _isOpen))
             {
@@ -109,7 +110,7 @@ Current state of gate:
             _defaultTimeout = defaultTimeout;
         }
 
-        public override string ToString() =>  $@"{nameof(IsOpen)} : {IsOpen},
+        public override string ToString() => $@"{nameof(IsOpen)} : {IsOpen},
 {nameof(Queued)}: {Queued},
 {nameof(Passed)}: {Passed},
 {nameof(Requested)}: {Requested},
@@ -118,9 +119,9 @@ Current state of gate:
         readonly TimeSpan _defaultTimeout;
         readonly IResourceGuard _resourceGuard;
         bool _lockOnNextPass;
-        Action<ThreadSnapshot> _passThroughAction = _ => { };
-        Action<ThreadSnapshot> _prePassThroughAction = _ => { };
-        Action<ThreadSnapshot> _postPassThroughAction = _ => { };
+        Action<ThreadSnapshot> _passThroughAction = _ => {};
+        Action<ThreadSnapshot> _prePassThroughAction = _ => {};
+        Action<ThreadSnapshot> _postPassThroughAction = _ => {};
         bool _isOpen;
         readonly List<ThreadSnapshot> _requestsThreads = new List<ThreadSnapshot>();
         readonly LinkedList<ThreadSnapshot> _queuedThreads = new LinkedList<ThreadSnapshot>();

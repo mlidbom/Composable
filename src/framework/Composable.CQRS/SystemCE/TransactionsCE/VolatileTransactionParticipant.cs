@@ -22,7 +22,7 @@ namespace Composable.SystemCE.TransactionsCE
 
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
         Transaction? _enlistedIn;
-        internal void EnsureEnlistedInAnyAmbientTransaction() => _guard.WithExclusiveAccess(() =>
+        internal void EnsureEnlistedInAnyAmbientTransaction() => _guard.Update(() =>
         {
             var ambientTransaction = Transaction.Current;
             if(ambientTransaction == null) return;

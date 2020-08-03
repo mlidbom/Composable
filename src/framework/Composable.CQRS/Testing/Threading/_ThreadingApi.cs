@@ -47,7 +47,7 @@ namespace Composable.Testing.Threading
     {
         IThreadGate EntranceGate { get; }
         IThreadGate ExitGate { get; }
-        IGatedCodeSection WithExclusiveLock(Action action);
+        IGatedCodeSection WithUpdateLock(Action action);
         IDisposable Enter();
     }
 }

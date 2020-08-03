@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Transactions;
+using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.SystemCE.TransactionsCE
 {
@@ -18,8 +20,9 @@ namespace Composable.SystemCE.TransactionsCE
 
         protected virtual void OnInDoubt() {}
 
+        readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
         Transaction? _enlistedIn;
-        internal void EnsureEnlistedInAnyAmbientTransaction()
+        internal void EnsureEnlistedInAnyAmbientTransaction() => _guard.WithExclusiveAccess(() =>
         {
             var ambientTransaction = Transaction.Current;
             if(ambientTransaction == null) return;
@@ -33,7 +36,7 @@ namespace Composable.SystemCE.TransactionsCE
             {
                 throw new Exception($"Somehow switched to a new transaction. Original: {_enlistedIn.TransactionInformation.LocalIdentifier} new: {ambientTransaction.TransactionInformation.LocalIdentifier}");
             }
-        }
+        });
 
         void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment)
         {

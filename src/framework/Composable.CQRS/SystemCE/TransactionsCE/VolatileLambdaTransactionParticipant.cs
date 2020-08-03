@@ -57,7 +57,7 @@ namespace Composable.SystemCE.TransactionsCE
 
         void IEnlistmentNotification.Commit(Enlistment enlistment)
         {
-            _commitTasks.ForEach(@this => @this());
+            _commitTasks.InvokeAll();
             enlistment.Done();
         }
 
@@ -68,11 +68,11 @@ namespace Composable.SystemCE.TransactionsCE
                 if(_enlistmentOptions.HasFlag(EnlistmentOptions.EnlistDuringPrepareRequired))
                 {
                     using var transactionScope = new TransactionScope(_participatingIn!);
-                    _prepareTasks.ForEach(task => task());
+                    _prepareTasks.InvokeAll();
                     transactionScope.Complete();
                 } else
                 {
-                    _prepareTasks.ForEach(task => task());
+                    _prepareTasks.InvokeAll();
                 }
 
                 preparingEnlistment.Prepared();
@@ -85,7 +85,7 @@ namespace Composable.SystemCE.TransactionsCE
 
         void IEnlistmentNotification.Rollback(Enlistment enlistment)
         {
-            _rollbackTasks.ForEach(@this => @this());
+            _rollbackTasks.InvokeAll();
             enlistment.Done();
         }
 

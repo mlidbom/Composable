@@ -158,8 +158,7 @@ namespace Composable.Persistence.InMemory.EventStore
                         var transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
                         return _overlays.GetOrAdd(transactionId, () =>
                         {
-                            var transactionParticipant = new LambdaTransactionParticipant();
-                            Transaction.Current.EnlistVolatile(transactionParticipant, EnlistmentOptions.None);
+                            var transactionParticipant = new VolatileLambdaTransactionParticipant();
 
                             transactionParticipant.AddCommitTasks(() => _lock.WithExclusiveAccess(_ =>
                             {

@@ -3,7 +3,7 @@
     <AllowParallelTestExecution>True</AllowParallelTestExecution>
     <HotSpotsLineExclusionList>
       <Value>DependencyInjection\ComponentRegistration.cs:framework\Composable.CQRS\Composable.CQRS.csproj-59</Value>
-      <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-65</Value>
+      <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-71</Value>
       <Value>DependencyInjection\ComposableDependencyInjectionContainer..cs:framework\Composable.CQRS\Composable.CQRS.csproj-62</Value>
       <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-42</Value>
       <Value>Messaging\Buses\ServerEndpointBuilder.cs:framework\Composable.CQRS\Composable.CQRS.csproj-36</Value>
@@ -61,7 +61,7 @@
       <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine..cs:framework\Composable.CQRS\Composable.CQRS.csproj-34</Value>
       <Value>CQRS\EventRefactoring\Migrations\EventMigrationTest.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-217</Value>
       <Value>DependencyInjection\DependencyInjectionContainer.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-17</Value>
-      <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-122</Value>
+      <Value>DependencyInjection\ComposableDependencyInjectionContainer.ServiceLocator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-128</Value>
       <Value>TestWiringHelper.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-46</Value>
       <Value>Logging\ExceptionLogger.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
       <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-57</Value>

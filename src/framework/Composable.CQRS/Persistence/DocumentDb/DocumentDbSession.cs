@@ -15,9 +15,6 @@ namespace Composable.Persistence.DocumentDb
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     partial class DocumentDbSession : IDocumentDbSession, IEnlistmentNotification
     {
-        [ThreadStatic]
-        internal static bool UseUpdateLock;
-
         readonly MemoryObjectStore _idMap = new MemoryObjectStore();
 
         readonly IDocumentDb _backingStore;
@@ -33,9 +30,9 @@ namespace Composable.Persistence.DocumentDb
             _backingStore = backingStore;
         }
 
-        public virtual bool TryGet<TValue>(object key, [NotNullWhen(true)]out TValue document) => TryGetInternal(key, typeof(TValue), out document);
+        public virtual bool TryGet<TValue>(object key, [NotNullWhen(true)]out TValue document) => TryGetInternal(key, typeof(TValue), out document, useUpdateLock: false);
 
-        bool TryGetInternal<TValue>(object key, Type documentType, [NotNullWhen(true)]out TValue value)
+        bool TryGetInternal<TValue>(object key, Type documentType, [NotNullWhen(true)]out TValue value, bool useUpdateLock)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
@@ -50,7 +47,7 @@ namespace Composable.Persistence.DocumentDb
             }
 
             var documentItem = GetDocumentItem(key, documentType);
-            if(!documentItem.IsDeleted && _backingStore.TryGet(key, out value, _persistentValues) && documentType.IsInstanceOfType(value))
+            if(!documentItem.IsDeleted && _backingStore.TryGet(key, out value, _persistentValues, useUpdateLock) && documentType.IsInstanceOfType(value))
             {
                 OnInitialLoad(key, value!);
                 return true;
@@ -77,24 +74,8 @@ namespace Composable.Persistence.DocumentDb
             GetDocumentItem(key, value.GetType()).DocumentLoadedFromBackingStore(value);
         }
 
-        public virtual TValue GetForUpdate<TValue>(object key)
-        {
-            using (new UpdateLock())
-            {
-                return Get<TValue>(key);
-            }
-        }
-
-        class UpdateLock : IDisposable
-        {
-            public UpdateLock() => UseUpdateLock = true;
-
-            public void Dispose()
-            {
-                UseUpdateLock = false;
-            }
-        }
-
+        public virtual TValue GetForUpdate<TValue>(object key) =>
+            GetInternal<TValue>(key, useUpdateLock: true);
 
         public IEnumerable<TValue> GetAll<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
         {
@@ -127,13 +108,25 @@ namespace Composable.Persistence.DocumentDb
             throw new NoSuchDocumentException(key, typeof(TValue));
         }
 
+        TValue GetInternal<TValue>(object key, bool useUpdateLock)
+        {
+            _usageGuard.AssertNoContextChangeOccurred(this);
+            EnsureParticipatingInTransaction();
+            if (TryGetInternal(key, typeof(TValue), out TValue value, useUpdateLock))
+            {
+                return value!;
+            }
+
+            throw new NoSuchDocumentException(key, typeof(TValue));
+        }
+
         public virtual void Save<TValue>(object id, TValue value)
         {
             Contract.ArgumentNotNull(value, nameof(value));
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
 
-            if (TryGetInternal(id, value.GetType(), out TValue _))
+            if (TryGetInternal(id, value.GetType(), out TValue _, useUpdateLock: false))
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }

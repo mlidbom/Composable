@@ -28,18 +28,18 @@ namespace Composable.Persistence.DocumentDb
             _typeMapper = typeMapper;
         }
 
-        bool IDocumentDb.TryGet<TDocument>(object id, [NotNullWhen(true)] [MaybeNull] out TDocument value, Dictionary<Type, Dictionary<string, string>> persistenTDocuments)
+        bool IDocumentDb.TryGet<TDocument>(object id, [NotNullWhen(true)] [MaybeNull] out TDocument value, Dictionary<Type, Dictionary<string, string>> persistentTDocuments, bool useUpdateLock)
         {
             value = default;
             var idString = GetIdString(id);
 
-            if(!_persistenceLayer.TryGet(idString, AcceptableTypeIds(typeof(TDocument)), DocumentDbSession.UseUpdateLock, out var readRow)) return false;
+            if(!_persistenceLayer.TryGet(idString, AcceptableTypeIds(typeof(TDocument)), useUpdateLock, out var readRow)) return false;
 
             var found = Deserialize<TDocument>(readRow);
 
             //Things such as TimeZone etc can cause roundtripping serialization to result in different values from the original so don't cache the read string. Cache the result of serializing it again.
             //performance: Try to find a way to remove the need to do this so that we can get rid of the overhead of an extra serialization.
-            persistenTDocuments.GetOrAddDefault(found.GetType())[idString] = _serializer.Serialize(found);
+            persistentTDocuments.GetOrAddDefault(found.GetType())[idString] = _serializer.Serialize(found);
 
             value = found;
             return true;

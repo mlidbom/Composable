@@ -47,19 +47,25 @@ namespace Composable.DependencyInjection
                 _scopeCache.Value = null;
             }
 
-            [ThreadStatic] static ComponentRegistration? _parentComponent;
+            readonly ThreadLocal<ComponentRegistration?> _parentComponentStorage = new ThreadLocal<ComponentRegistration?>();
+            ComponentRegistration? ParentComponent
+            {
+                get => _parentComponentStorage.Value;
+                set => _parentComponentStorage.Value = value;
+            }
+
             public TService Resolve<TService>() where TService : class
             {
                 Assert.State.Assert(!_disposed);
                 if(TryGetFromCache(out var currentComponent, out TService? cached)) return cached;
 
-                if(_parentComponent?.Lifestyle == Lifestyle.Singleton && currentComponent.Lifestyle != Lifestyle.Singleton)
+                if(ParentComponent?.Lifestyle == Lifestyle.Singleton && currentComponent.Lifestyle != Lifestyle.Singleton)
                 {
-                    throw new Exception($"{Lifestyle.Singleton} service: {_parentComponent.ServiceTypes.First().FullName} depends on {currentComponent.Lifestyle} service: {currentComponent.ServiceTypes.First().FullName} ");
+                    throw new Exception($"{Lifestyle.Singleton} service: {ParentComponent.ServiceTypes.First().FullName} depends on {currentComponent.Lifestyle} service: {currentComponent.ServiceTypes.First().FullName} ");
                 }
 
-                var previousResolvingComponent = _parentComponent;
-                _parentComponent = currentComponent;
+                var previousResolvingComponent = ParentComponent;
+                ParentComponent = currentComponent;
 
                 try
                 {
@@ -67,7 +73,7 @@ namespace Composable.DependencyInjection
                 }
                 finally
                 {
-                    _parentComponent = previousResolvingComponent;
+                    ParentComponent = previousResolvingComponent;
                 }
             }
 
@@ -96,9 +102,9 @@ namespace Composable.DependencyInjection
 
                 if(registrations == null)
                 {
-                    var parentComponentMessage = _parentComponent == null
+                    var parentComponentMessage = ParentComponent == null
                                                      ? ""
-                                                     : $" Required by parent component: {_parentComponent.InstantiationSpec.FactoryMethodReturnType.GetFullNameCompilable()}";
+                                                     : $" Required by parent component: {ParentComponent.InstantiationSpec.FactoryMethodReturnType.GetFullNameCompilable()}";
                     throw new Exception($"No service of type: {typeof(TService).GetFullNameCompilable()} is registered.{parentComponentMessage}");
                 }
 
@@ -138,11 +144,13 @@ namespace Composable.DependencyInjection
                 }
             }
 
+            //Todo: Performance: Implement IAsyncDisposable.
             public void Dispose()
             {
                 if(!_disposed)
                 {
                     _disposed = true;
+                    _parentComponentStorage.Dispose();
                     _rootCache.Dispose();
                 }
             }

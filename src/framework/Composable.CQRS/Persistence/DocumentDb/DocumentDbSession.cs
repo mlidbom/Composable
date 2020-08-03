@@ -38,7 +38,7 @@ namespace Composable.Persistence.DocumentDb
         bool TryGetInternal<TValue>(object key, Type documentType, [NotNullWhen(true)]out TValue value, bool useUpdateLock)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _transactionParticipant.EnsureParticipatingInAnyCurrentTransaction();
+            _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
             if (documentType.IsInterface)
             {
                 throw new ArgumentException("You cannot query by id for an interface type. There is no guarantee of uniqueness");
@@ -102,7 +102,7 @@ namespace Composable.Persistence.DocumentDb
         public virtual TValue Get<TValue>(object key)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _transactionParticipant.EnsureParticipatingInAnyCurrentTransaction();
+            _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
             if (TryGet(key, out TValue value))
             {
                 return value!;
@@ -114,7 +114,7 @@ namespace Composable.Persistence.DocumentDb
         TValue GetInternal<TValue>(object key, bool useUpdateLock)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _transactionParticipant.EnsureParticipatingInAnyCurrentTransaction();
+            _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
             if (TryGetInternal(key, typeof(TValue), out TValue value, useUpdateLock))
             {
                 return value!;
@@ -127,7 +127,7 @@ namespace Composable.Persistence.DocumentDb
         {
             Contract.ArgumentNotNull(value, nameof(value));
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _transactionParticipant.EnsureParticipatingInAnyCurrentTransaction();
+            _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
 
             if (TryGetInternal(id, value.GetType(), out TValue _, useUpdateLock: false))
             {
@@ -144,7 +144,7 @@ namespace Composable.Persistence.DocumentDb
         public virtual void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _transactionParticipant.EnsureParticipatingInAnyCurrentTransaction();
+            _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
 
             if (entity.Id.Equals(Guid.Empty))
             {
@@ -156,7 +156,7 @@ namespace Composable.Persistence.DocumentDb
         public virtual void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _transactionParticipant.EnsureParticipatingInAnyCurrentTransaction();
+            _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
 
             Delete<TEntity>(entity.Id);
         }
@@ -164,7 +164,7 @@ namespace Composable.Persistence.DocumentDb
         public virtual void Delete<T>(object id)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _transactionParticipant.EnsureParticipatingInAnyCurrentTransaction();
+            _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
 
             if(!TryGet(id, out T _))
             {

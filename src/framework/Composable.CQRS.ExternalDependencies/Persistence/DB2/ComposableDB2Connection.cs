@@ -9,7 +9,6 @@ using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.TransactionsCE;
 using IBM.Data.DB2.Core;
-using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Composable.Persistence.DB2
 {
@@ -29,7 +28,7 @@ namespace Composable.Persistence.DB2
 
                 _transactionParticipant = new OptimizedLazy<VolatileLambdaTransactionParticipant>(
                     () => new VolatileLambdaTransactionParticipant(
-                        onEnlist: () => _db2Transaction = Connection.BeginTransaction(IsolationLevel.Serializable),
+                        onEnlist: () => _db2Transaction = Connection.BeginTransaction(Transaction.Current.IsolationLevel.ToDataIsolationLevel()),
                         onCommit: () => _db2Transaction!.Commit(),
                         onRollback: () => _db2Transaction!.Rollback(),
                         onTransactionCompleted: _ =>
@@ -45,7 +44,7 @@ namespace Composable.Persistence.DB2
                     () => Connection.Open(),
                     () => Connection.OpenAsync()).NoMarshalling();
 
-                _transactionParticipant.Value.EnsureParticipatingInAnyCurrentTransaction();
+                _transactionParticipant.Value.EnsureEnlistedInAnyAmbientTransaction();
             }
 
             DbCommand IComposableDbConnection.CreateCommand() => CreateCommand();
@@ -53,7 +52,7 @@ namespace Composable.Persistence.DB2
             public DB2Command CreateCommand()
             {
                 Assert.State.Assert(Connection.IsOpen);
-                _transactionParticipant.Value.EnsureParticipatingInAnyCurrentTransaction();
+                _transactionParticipant.Value.EnsureEnlistedInAnyAmbientTransaction();
 
                 return Connection.CreateCommand().Mutate(@this => @this.Transaction = _db2Transaction);
             }

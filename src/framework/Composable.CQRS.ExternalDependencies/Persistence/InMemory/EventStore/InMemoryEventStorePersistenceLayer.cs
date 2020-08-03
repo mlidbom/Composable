@@ -156,9 +156,10 @@ namespace Composable.Persistence.InMemory.EventStore
                     return _overlays.GetOrAdd(transactionId,
                                               () =>
                                               {
-                                                  var _ = new VolatileLambdaTransactionParticipant(
-                                                      onCommit: () => _state.WithExclusiveAccess(state => state._events.AddRange(state._overlays[transactionId])),
-                                                      onTransactionCompleted: __ => _state.WithExclusiveAccess(state => state._overlays.Remove(transactionId)));
+                                                  new VolatileLambdaTransactionParticipant(
+                                                          onCommit: () => _state.WithExclusiveAccess(state => state._events.AddRange(state._overlays[transactionId])),
+                                                          onTransactionCompleted: __ => _state.WithExclusiveAccess(state => state._overlays.Remove(transactionId)))
+                                                     .EnsureEnlistedInAnyAmbientTransaction();
 
                                                   return new List<EventDataRow>();
                                               });

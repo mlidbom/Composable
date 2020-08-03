@@ -23,8 +23,6 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         IResourceUpdateLock AwaitUpdateLock(TimeSpan? timeout = null);
     }
 
-    interface IResourceLock : IDisposable {}
-
     interface IResourceUpdateLock : IDisposable
     {
     }
@@ -33,7 +31,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
     {
     }
 
-    interface IExclusiveResourceLock : IResourceLock
+    interface IExclusiveResourceLock : IDisposable
     {
         void NotifyAllWaitingThreads();
         void NotifyOneWaitingThread();

@@ -11,19 +11,19 @@ namespace Composable.Testing.Threading
     {
         public static TResult AwaitPassthroughAndReturn<TResult>(this IThreadGate @this, TResult returnValue)
         {
-            @this.AwaitPassthrough();
+            @this.AwaitPassThrough();
             return returnValue;
         }
 
         public static TResult AwaitPassthroughAndExecute<TResult>(this IThreadGate @this, Func<TResult> func)
         {
-            @this.AwaitPassthrough();
+            @this.AwaitPassThrough();
             return func();
         }
 
         public static void AwaitPassthroughAndExecute(this IThreadGate @this, Action action)
         {
-            @this.AwaitPassthrough();
+            @this.AwaitPassThrough();
             action();
         }
 

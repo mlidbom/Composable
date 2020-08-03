@@ -19,15 +19,6 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             }
             return true;
         }
-
-
-
-        public static TResult UpdateAndReturn<TResult>(this IResourceGuard @this, Action action, TResult result)
-            => @this.Update(() =>
-            {
-                action();
-                return result;
-            });
     }
 
     public class AwaitingConditionTimedOutException : Exception

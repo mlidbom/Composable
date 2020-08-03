@@ -26,7 +26,7 @@ namespace Composable.Testing.Threading
                 () =>
                 {
                     @this.AssertIsEmpty();
-                    @this.EntranceGate.AwaitLetOneThreadPassthrough();
+                    @this.EntranceGate.AwaitLetOneThreadPassThrough();
                 });
 
         public static IGatedCodeSection LetOneThreadEnterAndReachExit(this IGatedCodeSection @this)
@@ -42,7 +42,7 @@ namespace Composable.Testing.Threading
                 () =>
                 {
                     @this.LetOneThreadEnterAndReachExit();
-                    @this.ExitGate.AwaitLetOneThreadPassthrough();
+                    @this.ExitGate.AwaitLetOneThreadPassThrough();
                 });
 
         public static void Execute(this IGatedCodeSection @this, Action action)

@@ -5,8 +5,8 @@ namespace Composable.Testing.Threading
 {
     interface IThreadGateVisitor
     {
-        void AwaitPassthrough();
-        void AwaitPassthrough(TimeSpan timeout);
+        void AwaitPassThrough();
+        void AwaitPassThrough(TimeSpan timeout);
     }
 
     interface IThreadGate : IThreadGateVisitor
@@ -15,7 +15,7 @@ namespace Composable.Testing.Threading
         IThreadGate Open();
 
         ///<summary>Lets a single thread pass.</summary>
-        IThreadGate AwaitLetOneThreadPassthrough();
+        IThreadGate AwaitLetOneThreadPassThrough();
 
         ///<summary>Blocks all threads from passing.</summary>
         IThreadGate Close();

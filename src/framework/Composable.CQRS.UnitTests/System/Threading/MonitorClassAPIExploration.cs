@@ -43,7 +43,7 @@ namespace Composable.Tests.System.Threading
             taskRunner.Start(() =>
             {
                 Monitor.Enter(guarded);
-                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitPassthrough();
+                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitPassThrough();
                 Monitor.Exit(guarded);
             });
 
@@ -53,7 +53,7 @@ namespace Composable.Tests.System.Threading
                                        .TryAwaitPassededThroughCountEqualTo(1, timeout: 200.Milliseconds())
                                        .Should().Be(false);
 
-            threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitLetOneThreadPassthrough();
+            threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitLetOneThreadPassThrough();
 
             threadOneWaitsOnLockSection.ExitGate.AwaitPassedThroughCountEqualTo(1);
 
@@ -82,7 +82,7 @@ namespace Composable.Tests.System.Threading
             taskRunner.Start(() =>
             {
                 Monitor.Enter(guarded);
-                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitPassthrough();
+                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitPassThrough();
                 Monitor.PulseAll(guarded);
                 Monitor.Exit(guarded);
             });
@@ -93,7 +93,7 @@ namespace Composable.Tests.System.Threading
                                        .TryAwaitPassededThroughCountEqualTo(1, timeout: 200.Milliseconds())
                                        .Should().Be(false);
 
-            threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitLetOneThreadPassthrough();
+            threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitLetOneThreadPassThrough();
 
             threadOneWaitsOnLockSection.ExitGate.AwaitPassedThroughCountEqualTo(1);
 

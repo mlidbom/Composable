@@ -34,7 +34,7 @@ namespace Composable.Messaging.Buses.Implementation
             await Task.CompletedTask.NoMarshalling();
         }
 
-        public void Schedule(DateTime sendAt, MessageTypes.Remotable.ExactlyOnce.ICommand message) => _guard.Update(() =>
+        public void Schedule(DateTime sendAt, MessageTypes.Remotable.ExactlyOnce.ICommand message) => _guard.WithExclusiveAccess(() =>
         {
             if(_timeSource.UtcNow > sendAt.ToUniversalTimeSafely())
                 throw new InvalidOperationException(message: "You cannot schedule a queuedMessageInformation to be sent in the past.");
@@ -44,9 +44,9 @@ namespace Composable.Messaging.Buses.Implementation
             _scheduledMessages.Add(scheduledCommand);
         });
 
-        void SendDueCommands() => _guard.Update(() => _scheduledMessages.RemoveWhere(HasPassedSendtime).ForEach(Send));
+        void SendDueCommands() => _guard.WithExclusiveAccess(() => _scheduledMessages.RemoveWhere(HasPassedSendTime).ForEach(Send));
 
-        bool HasPassedSendtime(ScheduledCommand message) => _timeSource.UtcNow >= message.SendAt;
+        bool HasPassedSendTime(ScheduledCommand message) => _timeSource.UtcNow >= message.SendAt;
 
         static readonly string SendTaskName = $"{nameof(CommandScheduler)}_Send";
         void Send(ScheduledCommand scheduledCommand) => _taskRunner.RunAndSurfaceExceptions(SendTaskName, () => TransactionScopeCe.Execute(() => _transport.SendTransactionally(scheduledCommand.Command)));

@@ -618,7 +618,7 @@ namespace Composable.Tests.CQRS
                                             using(changeEmailSection.Enter())
                                             {
                                                 var userToUpdate = session.Get<User>(user.Id);
-                                                hasFetchedUser.AwaitPassthrough(1.Seconds());
+                                                hasFetchedUser.AwaitPassThrough(1.Seconds());
                                                 userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
                                             }
                                         });

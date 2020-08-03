@@ -14,7 +14,7 @@ namespace Composable.Tests.Testing.Threading
     [TestFixture] public class Given_a_locked_ThreadGate
     {
         [Test] public void Calling_AllowOneThreadToPassThrough_throws_an_AwaitingConditionTimedOutException_since_no_threads_are_waiting_to_pass()
-            => Assert.Throws<AwaitingConditionTimedOutException>(() => ThreadGate.CreateClosedWithTimeout(20.Milliseconds()).AwaitLetOneThreadPassthrough());
+            => Assert.Throws<AwaitingConditionTimedOutException>(() => ThreadGate.CreateClosedWithTimeout(20.Milliseconds()).AwaitLetOneThreadPassThrough());
 
         public class After_starting_10_threads_that_all_call_PassThrough
         {
@@ -51,7 +51,7 @@ namespace Composable.Tests.Testing.Threading
             [SetUp] public void SetupTask()
             {
                 _fixture = ThreadGateTestFixture.StartEntrantsOnThreads(10).WaitForAllThreadsToQueueUpAtPassThrough();
-                _fixture.Gate.AwaitLetOneThreadPassthrough();
+                _fixture.Gate.AwaitLetOneThreadPassThrough();
             }
 
             [TearDown] public void TearDownTask() => _fixture.Dispose();
@@ -71,7 +71,7 @@ namespace Composable.Tests.Testing.Threading
             [SetUp] public void SetupTask()
             {
                 _fixture = ThreadGateTestFixture.StartEntrantsOnThreads(10).WaitForAllThreadsToQueueUpAtPassThrough();
-                1.Through(5).ForEach(_ => _fixture.Gate.AwaitLetOneThreadPassthrough().AwaitClosed());
+                1.Through(5).ForEach(_ => _fixture.Gate.AwaitLetOneThreadPassThrough().AwaitClosed());
             }
 
             [TearDown] public void TearDownTask() => _fixture.Dispose();
@@ -114,7 +114,7 @@ namespace Composable.Tests.Testing.Threading
             [SetUp] public void SetupTask()
             {
                 _fixture = ThreadGateTestFixture.StartEntrantsOnThreads(_threads).WaitForAllThreadsToQueueUpAtPassThrough();
-                1.Through(_timesToCallLetOneThreadPassThrough).ForEach(_ => _fixture.Gate.AwaitLetOneThreadPassthrough().AwaitClosed());
+                1.Through(_timesToCallLetOneThreadPassThrough).ForEach(_ => _fixture.Gate.AwaitLetOneThreadPassThrough().AwaitClosed());
             }
 
             [TearDown] public void TearDownTask() => _fixture.Dispose();

@@ -31,7 +31,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 {
                     builder.RegisterCurrentTestsConfiguredPersistenceLayer();
                     builder.RegisterHandlers.ForCommand<ScheduledCommand>(
-                        cmd => _receivedCommandGate.AwaitPassthrough());
+                        cmd => _receivedCommandGate.AwaitPassThrough());
 
                     builder.TypeMapper.Map<ScheduledCommand>("6bc9abe2-8861-4108-98dd-8aa1b50c0c42");
                 });

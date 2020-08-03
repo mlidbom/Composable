@@ -73,11 +73,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                            .HandleAggregate<MyAggregate, MyAggregateEvent.IRoot>();
 
                     builder.RegisterHandlers
-                           .ForCommand((MyExactlyOnceCommand command) => CommandHandlerThreadGate.AwaitPassthrough())
+                           .ForCommand((MyExactlyOnceCommand command) => CommandHandlerThreadGate.AwaitPassThrough())
                            .ForCommand((MyCreateAggregateCommand command, ILocalHypermediaNavigator navigator) => MyCreateAggregateCommandHandlerThreadGate.AwaitPassthroughAndExecute(() => MyAggregate.Create(command.AggregateId, navigator)))
                            .ForCommand((MyUpdateAggregateCommand command, ILocalHypermediaNavigator navigator) => MyUpdateAggregateCommandHandlerThreadGate.AwaitPassthroughAndExecute(() => navigator.Execute(new ComposableApi().EventStore.Queries.GetForUpdate<MyAggregate>(command.AggregateId)).Update()))
-                           .ForEvent((MyExactlyOnceEvent myEvent) => EventHandlerThreadGate.AwaitPassthrough())
-                           .ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyLocalAggregateEventHandlerThreadGate.AwaitPassthrough())
+                           .ForEvent((MyExactlyOnceEvent myEvent) => EventHandlerThreadGate.AwaitPassThrough())
+                           .ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyLocalAggregateEventHandlerThreadGate.AwaitPassThrough())
                            .ForQuery((MyQuery query) => QueryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
                            .ForCommandWithResult((MyAtMostOnceCommandWithResult command) => CommandHandlerWithResultThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()));
 
@@ -89,7 +89,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                   builder =>
                                   {
                                       builder.RegisterCurrentTestsConfiguredPersistenceLayer();
-                                      builder.RegisterHandlers.ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyRemoteAggregateEventHandlerThreadGate.AwaitPassthrough());
+                                      builder.RegisterHandlers.ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyRemoteAggregateEventHandlerThreadGate.AwaitPassThrough());
                                       MapBackendEndpointTypes(builder);
                                   });
 

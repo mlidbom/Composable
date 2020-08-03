@@ -55,7 +55,7 @@ namespace Composable.Tests.Testing.Threading
                                                   () =>
                                                   {
                                                       entrantEvent.HasStarted.Set();
-                                                      Gate.AwaitPassthrough();
+                                                      Gate.AwaitPassThrough();
                                                       entrantEvent.HasCompleted.Set();
                                                   }))
                                           .ToArray();

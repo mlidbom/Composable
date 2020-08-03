@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.Testing.Threading
@@ -33,7 +34,7 @@ namespace Composable.Testing.Threading
             return this;
         }
 
-        public IThreadGate AwaitLetOneThreadPassthrough()
+        public IThreadGate AwaitLetOneThreadPassThrough()
         {
             using var ownedLock = _resourceGuard.AwaitExclusiveLock();
             Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
@@ -45,9 +46,9 @@ namespace Composable.Testing.Threading
 
         public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _resourceGuard.TryAwaitCondition(timeout, condition);
 
-        public IThreadGate SetPostPassThroughAction(Action<ThreadSnapshot> action) => _resourceGuard.UpdateAndReturn(() => _postPassThroughAction = action, this);
-        public IThreadGate SetPrePassThroughAction(Action<ThreadSnapshot> action) => _resourceGuard.UpdateAndReturn(() => _prePassThroughAction = action, this);
-        public IThreadGate SetPassThroughAction(Action<ThreadSnapshot> action) => _resourceGuard.UpdateAndReturn(() => _passThroughAction = action, this);
+        public IThreadGate SetPostPassThroughAction(Action<ThreadSnapshot> action) => this.Mutate(_ => _resourceGuard.Update(() => _postPassThroughAction = action));
+        public IThreadGate SetPrePassThroughAction(Action<ThreadSnapshot> action) => this.Mutate(_ => _resourceGuard.Update(() => _prePassThroughAction = action));
+        public IThreadGate SetPassThroughAction(Action<ThreadSnapshot> action) => this.Mutate(_ => _resourceGuard.Update(() => _passThroughAction = action));
 
         public IThreadGate ExecuteWithExclusiveLockWhen(TimeSpan timeout, Func<bool> condition, Action action)
         {
@@ -73,9 +74,9 @@ Current state of gate:
             return this;
         }
 
-        public void AwaitPassthrough() => AwaitPassthrough(_defaultTimeout);
+        public void AwaitPassThrough() => AwaitPassThrough(_defaultTimeout);
 
-        public void AwaitPassthrough(TimeSpan timeout)
+        public void AwaitPassThrough(TimeSpan timeout)
         {
             var currentThread = new ThreadSnapshot();
 

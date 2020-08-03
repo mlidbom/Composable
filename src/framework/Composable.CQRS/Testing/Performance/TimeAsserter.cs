@@ -197,6 +197,61 @@ namespace Composable.Testing.Performance
             throw new Exception("Unreachable");
         }
 
+        public static StopwatchCE.TimedExecutionSummary ExecuteThreadedLowOverhead
+            ([InstantHandle]Action action,
+             int iterations = 1,
+             TimeSpan? maxAverage = null,
+             TimeSpan? maxTotal = null,
+             string description = "",
+             string? timeFormat = null,
+             [InstantHandle]Action? setup = null,
+             [InstantHandle]Action? tearDown = null,
+             int maxTries = MaxTriesDefault,
+            int maxDegreeOfParallelism = -1)
+        {
+            maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
+            maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
+            TestEnv.Performance.LogMachineSlownessAdjustment();
+
+            timeFormat ??= DefaultTimeFormat;
+
+
+            string Format(TimeSpan? date) => date?.ToStringInvariant(timeFormat) ?? "";
+
+            maxTries = Math.Min(MaxTriesLimit, maxTries);
+            for(var tries = 1; tries <= maxTries; tries++)
+            {
+                setup?.Invoke();
+                StopwatchCE.TimedExecutionSummary executionSummary;
+                try
+                {
+                    executionSummary = StopwatchCE.TimeExecutionThreadedLowOverhead(action: action, iterations: iterations, maxDegreeOfParallelism: maxDegreeOfParallelism);
+                }
+                finally
+                {
+                    tearDown?.Invoke();
+                }
+
+                try
+                {
+                    RunAsserts(maxAverage, maxTotal, executionSummary, Format);
+                }
+                catch(TimeOutException e)
+                {
+                    SafeConsole.WriteLine($"################################  WARNING ################################ Try: {tries} : {e.Message}");
+                    if(tries >= maxTries)
+                    {
+                        PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
+                        throw;
+                    }
+                    continue;
+                }
+                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
+                return executionSummary;
+            }
+            throw new Exception("Unreachable");
+        }
+
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchCE.TimedExecutionSummary executionSummary, [InstantHandle]Func<TimeSpan?, string> format)
         {

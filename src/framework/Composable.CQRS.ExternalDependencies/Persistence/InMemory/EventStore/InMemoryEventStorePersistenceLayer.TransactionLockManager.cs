@@ -46,7 +46,7 @@ namespace Composable.Persistence.InMemory.EventStore
                     var currentTransactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
                     if(currentTransactionId != OwningTransactionLocalId)
                     {
-                        var @lock = Guard.AwaitUpdateLock();
+                        var @lock = Guard.AwaitExclusiveLock();
                         Transaction.Current.OnCompleted(() =>
                         {
                             OwningTransactionLocalId = string.Empty;

@@ -28,7 +28,7 @@ namespace Composable.Testing.Threading
             {
                 _isOpen = true;
                 _lockOnNextPass = false;
-                ownedLock.NotifyWaitingThreadsAboutUpdate();
+                ownedLock.NotifyAllWaitingThreads();
             }
             return this;
         }
@@ -39,7 +39,7 @@ namespace Composable.Testing.Threading
             Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
             _isOpen = true;
             _lockOnNextPass = true;
-            ownedLock.NotifyWaitingThreadsAboutUpdate();
+            ownedLock.NotifyAllWaitingThreads();
             return this.AwaitClosed();
         }
 

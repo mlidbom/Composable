@@ -82,6 +82,26 @@ namespace Composable.SystemCE.DiagnosticsCE
             return new TimedExecutionSummary(iterations, total);
         });
 
+        public static TimedExecutionSummary TimeExecutionThreadedLowOverhead([InstantHandle] Action action, int iterations = 1, int maxDegreeOfParallelism = -1) => MachineWideSingleThreaded.Execute(() =>
+        {
+            maxDegreeOfParallelism = maxDegreeOfParallelism == -1
+                                         ? Math.Max(Environment.ProcessorCount / 2, 4)
+                                         : maxDegreeOfParallelism;
+
+            maxDegreeOfParallelism = Math.Min(maxDegreeOfParallelism, iterations);
+
+            //Profiling shows that the max time for this line to execute is quite high. So it should be improving consistency of measurements significantly as compared to taking the hit during timing.
+            ThreadPoolCE.TryToEnsureSufficientIdleThreadsToRunTasksConcurrently(maxDegreeOfParallelism);
+
+            var total = TimeExecution(
+                () => Parallel.For(fromInclusive: 0,
+                                   toExclusive: iterations,
+                                   body: index => action(),
+                                   parallelOptions: new ParallelOptions {MaxDegreeOfParallelism = maxDegreeOfParallelism}));
+
+            return new TimedExecutionSummary(iterations,  total);
+        });
+
         public static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle] Action action, int iterations = 1, int maxDegreeOfParallelism = -1) => MachineWideSingleThreaded.Execute(() =>
         {
             maxDegreeOfParallelism = maxDegreeOfParallelism == -1

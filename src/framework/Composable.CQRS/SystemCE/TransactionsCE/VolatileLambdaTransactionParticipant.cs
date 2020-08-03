@@ -95,21 +95,20 @@ namespace Composable.SystemCE.TransactionsCE
         internal void EnsureParticipatingInAnyCurrentTransaction()
         {
             var ambientTransaction = Transaction.Current;
-            if(ambientTransaction != null)
+            if(ambientTransaction == null) return;
+
+            if(_participatingIn == null)
             {
-                if(_participatingIn == null)
+                _participatingIn = ambientTransaction;
+                _onEnlist?.Invoke();
+                ambientTransaction.EnlistVolatile(this, _enlistmentOptions);
+                if(_onTransactionCompleted != null)
                 {
-                    _participatingIn = ambientTransaction;
-                    _onEnlist?.Invoke();
-                    ambientTransaction.EnlistVolatile(this, _enlistmentOptions);
-                    if(_onTransactionCompleted != null)
-                    {
-                        ambientTransaction.TransactionCompleted += (transaction, parameters) => _onTransactionCompleted(parameters.Transaction.TransactionInformation.Status);
-                    }
-                } else if(_participatingIn != ambientTransaction)
-                {
-                    throw new Exception($"Somehow switched to a new transaction. Original: {_participatingIn.TransactionInformation.LocalIdentifier} new: {ambientTransaction.TransactionInformation.LocalIdentifier}");
+                    ambientTransaction.TransactionCompleted += (transaction, parameters) => _onTransactionCompleted(parameters.Transaction.TransactionInformation.Status);
                 }
+            } else if(_participatingIn != ambientTransaction)
+            {
+                throw new Exception($"Somehow switched to a new transaction. Original: {_participatingIn.TransactionInformation.LocalIdentifier} new: {ambientTransaction.TransactionInformation.LocalIdentifier}");
             }
         }
     }

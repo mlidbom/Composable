@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
-    public class AwaitingResourceLockTimeoutException : Exception, IDisposable
+    public class AcquireLockTimeoutException : Exception, IDisposable
     {
         internal static void TestingOnlyRunWithAlternativeTimeToWaitForOwningThreadStacktrace(TimeSpan timeoutOverride, Action action)
         {
@@ -22,7 +22,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
         static TimeSpan _timeToWaitForOwningThreadStacktrace = 30.Seconds();
 
-        internal AwaitingResourceLockTimeoutException() : base("Timed out awaiting exclusive access to resource.") { }
+        internal AcquireLockTimeoutException() : base("Timed out awaiting exclusive access to resource.") { }
 
         string? _blockingThreadStacktrace;
         readonly ManualResetEvent _blockingStacktraceWaitHandle = new ManualResetEvent(false);
@@ -47,7 +47,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             _blockingStacktraceWaitHandle.Set();
         }
 
-        ~AwaitingResourceLockTimeoutException()
+        ~AcquireLockTimeoutException()
         {
             Dispose(false);
         }

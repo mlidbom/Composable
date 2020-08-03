@@ -9,111 +9,71 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
     {
         class ExclusiveAccessResourceGuard : IResourceGuard
         {
-            readonly List<AwaitingResourceLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<AwaitingResourceLockTimeoutException>();
+            readonly List<AcquireLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<AcquireLockTimeoutException>();
             int _timeoutsThrownDuringCurrentLock;
 
-            readonly object _lockedObject;
+            readonly LockCE _lock;
             public TimeSpan DefaultTimeout { get; private set; }
 
             public ExclusiveAccessResourceGuard(TimeSpan defaultTimeout)
             {
-                _lockedObject = new object();
+                _lock = LockCE.WithTimeout(defaultTimeout);
                 DefaultTimeout = defaultTimeout;
             }
 
-            public TResult Read<TResult>(Func<TResult> read) => WithExclusiveAccess(read, PulseMode.None);
+            public TResult Read<TResult>(Func<TResult> read) => WithExclusiveAccess(read, SignalWaitingThreadsMode.None);
 
-            public void Update(Action action) => WithExclusiveAccess(action.AsFunc(), PulseMode.All);
-            public TResult Update<TResult>(Func<TResult> update) => WithExclusiveAccess(update, PulseMode.All);
+            public void Update(Action action) => WithExclusiveAccess(action.AsFunc(), SignalWaitingThreadsMode.All);
+            public TResult Update<TResult>(Func<TResult> update) => WithExclusiveAccess(update, SignalWaitingThreadsMode.All);
 
             public IResourceLock AwaitReadLockWhen(TimeSpan timeout, Func<bool> condition) =>
-                AwaitExclusiveLockWhenInternal(timeout, condition, PulseMode.None);
+                AwaitExclusiveLockWhenInternal(timeout, condition, SignalWaitingThreadsMode.None);
 
             public IResourceLock AwaitReadLock(TimeSpan? timeout = null) =>
-                AwaitExclusiveLockInternal(timeout, PulseMode.None);
+                AwaitExclusiveLockInternal(timeout, SignalWaitingThreadsMode.None);
 
             public IResourceLock AwaitUpdateLockWhen(TimeSpan timeout, Func<bool> condition) =>
-                AwaitExclusiveLockWhenInternal(timeout, condition, PulseMode.All);
+                AwaitExclusiveLockWhenInternal(timeout, condition, SignalWaitingThreadsMode.All);
 
             public IResourceLock AwaitUpdateLock(TimeSpan? timeout = null) =>
-                AwaitExclusiveLockInternal(timeout, PulseMode.All);
+                AwaitExclusiveLockInternal(timeout, SignalWaitingThreadsMode.All);
 
-            int _waitingThreadCount = 0;
-            ResourceLock AwaitExclusiveLockWhenInternal(TimeSpan timeout, Func<bool> condition, PulseMode pulseMode)
+            ResourceLock AwaitExclusiveLockWhenInternal(TimeSpan timeout, Func<bool> condition, SignalWaitingThreadsMode signalWaitingThreadsMode)
             {
-                try
+                _lock.AwaitAndAcquire(timeout, condition);
+                return new ResourceLock(this, signalWaitingThreadsMode);
+            }
+
+            void AcquireLock(TimeSpan? timeout)
+            {
+                if(!_lock.TryAcquireLock(timeout ?? DefaultTimeout))
                 {
-                    Interlocked.Increment(ref _waitingThreadCount);
-                    var startTime = DateTime.UtcNow;
-
-                    TakeLock(timeout);
-                    while(!condition())
+                    lock(_timeOutExceptionsOnOtherThreads)
                     {
-                        var elapsedTime = DateTime.UtcNow - startTime;
-                        var timeRemaining = timeout - elapsedTime;
-                        if(elapsedTime > timeout)
-                        {
-                            Monitor.Exit(_lockedObject);
-                            throw new AwaitingConditionTimedOutException();
-                        }
-
-                        ReleaseLockWaitForPulseOrTimeoutAndReacquireLock(timeRemaining);
+                        Interlocked.Increment(ref _timeoutsThrownDuringCurrentLock);
+                        var exception = new AcquireLockTimeoutException();
+                        _timeOutExceptionsOnOtherThreads.Add(exception);
+                        throw exception;
                     }
                 }
-                finally
-                {
-                    Interlocked.Decrement(ref _waitingThreadCount);
-                }
-
-                return new ResourceLock(this, pulseMode);
             }
 
-            void ReleaseLockWaitForPulseOrTimeoutAndReacquireLock(TimeSpan timeRemaining) => Monitor.Wait(_lockedObject, timeRemaining);
-
-            ResourceLock AwaitExclusiveLockInternal(TimeSpan? timeout, PulseMode pulseMode)
+            ResourceLock AwaitExclusiveLockInternal(TimeSpan? timeout, SignalWaitingThreadsMode signalWaitingThreadsMode)
             {
-                TakeLock(timeout);
-                return new ResourceLock(this, pulseMode);
+                AcquireLock(timeout);
+                return new ResourceLock(this, signalWaitingThreadsMode);
             }
 
-            TResult WithExclusiveAccess<TResult>(Func<TResult> func, PulseMode pulseMode)
+            TResult WithExclusiveAccess<TResult>(Func<TResult> func, SignalWaitingThreadsMode signalMode)
             {
-                TakeLock(null);
+                AcquireLock(null);
                 try
                 {
                     return func();
                 }
                 finally
                 {
-                    Pulse(pulseMode);
-                    Monitor.Exit(_lockedObject);
-                }
-            }
-
-            enum PulseMode
-            {
-                None,
-                One,
-                All
-            }
-
-            void Pulse(PulseMode pulseMode)
-            {
-                if(_waitingThreadCount == 0)
-                {
-                    return; //Pulsing is relatively expensive. Let's avoid it when we can and then Update and UpdateLocks can be used without hesitation about performance.
-                }
-
-                switch(pulseMode)
-                {
-                    case PulseMode.None:
-                        break;
-                    case PulseMode.One:
-                        Monitor.Pulse(_lockedObject); //One thread blocked on Monitor.Wait for our _lockedObject, if there is such a thread, will now try and reacquire the lock.
-                        break;
-                    case PulseMode.All:
-                        Monitor.PulseAll(_lockedObject); //All threads blocked on Monitor.Wait for our _lockedObject, if there are such threads, will now try and reacquire the lock.
-                        break;
+                    _lock.SignalWaitingThreadsAndRelease(signalMode);
                 }
             }
 
@@ -138,39 +98,14 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                 }
             }
 
-            void TakeLock(TimeSpan? timeout)
-            {
-                var lockTaken = false;
-                try
-                {
-                    Monitor.TryEnter(_lockedObject, timeout ?? DefaultTimeout, ref lockTaken);
-
-                    if(!lockTaken)
-                    {
-                        lock(_timeOutExceptionsOnOtherThreads)
-                        {
-                            Interlocked.Increment(ref _timeoutsThrownDuringCurrentLock);
-                            var exception = new AwaitingResourceLockTimeoutException();
-                            _timeOutExceptionsOnOtherThreads.Add(exception);
-                            throw exception;
-                        }
-                    }
-                }
-                catch(Exception) //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we do need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
-                {
-                    if(lockTaken) Monitor.Exit(_lockedObject);
-                    throw;
-                }
-            }
-
             class ResourceLock : IResourceLock
             {
                 readonly ExclusiveAccessResourceGuard _guard;
-                readonly PulseMode _pulseMode;
-                public ResourceLock(ExclusiveAccessResourceGuard guard, PulseMode pulseMode)
+                readonly SignalWaitingThreadsMode _signalWaitingThreadsMode;
+                public ResourceLock(ExclusiveAccessResourceGuard guard, SignalWaitingThreadsMode signalWaitingThreadsMode)
                 {
                     _guard = guard;
-                    _pulseMode = pulseMode;
+                    _signalWaitingThreadsMode = signalWaitingThreadsMode;
                 }
 
                 public void Dispose()
@@ -181,8 +116,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                     }
                     finally
                     {
-                        _guard.Pulse(_pulseMode);
-                        Monitor.Exit(_guard._lockedObject);
+                        _guard._lock.SignalWaitingThreadsAndRelease(_signalWaitingThreadsMode);
                     }
                 }
             }

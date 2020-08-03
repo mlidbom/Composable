@@ -75,14 +75,14 @@ namespace Composable.Tests.System.Threading.ResourceAccess
         [TestFixture] public class Given_a_timeout_of_10_milliseconds_an_exception_is_thrown_By_Get_within_15_milliseconds_if_lock_is_not_acquired
         {
             [Test] public void Exception_is_ObjectLockTimedOutException()
-                => RunScenario(0.Milliseconds()).Should().BeOfType<AwaitingResourceLockTimeoutException>();
+                => RunScenario(0.Milliseconds()).Should().BeOfType<AcquireLockTimeoutException>();
 
             [Test] public void If_owner_thread_blocks_for_less_than_stackTrace_timeout_Exception_contains_owning_threads_stack_trace()
                 => RunScenario(30.Milliseconds()).Message.Should().Contain(nameof(DisposeOwningThreadLock));
 
             [Test] public void If_owner_thread_blocks_for_more_than_stacktrace_timeout__Exception_does_not_contain_owning_threads_stack_trace()
             {
-                AwaitingResourceLockTimeoutException.TestingOnlyRunWithAlternativeTimeToWaitForOwningThreadStacktrace(
+                AcquireLockTimeoutException.TestingOnlyRunWithAlternativeTimeToWaitForOwningThreadStacktrace(
                     10.Milliseconds(),
                     () => RunScenario(20.Milliseconds()).Message.Should().NotContain(nameof(DisposeOwningThreadLock)));
             }

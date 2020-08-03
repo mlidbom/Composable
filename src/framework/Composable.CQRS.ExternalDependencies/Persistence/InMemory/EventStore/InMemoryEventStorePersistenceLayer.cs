@@ -16,10 +16,7 @@ namespace Composable.Persistence.InMemory.EventStore
         readonly OptimizedThreadShared<State> _state = new OptimizedThreadShared<State>(new State());
         readonly TransactionLockManager _transactionLockManager = new TransactionLockManager();
 
-        public InMemoryEventStorePersistenceLayer()
-        {
-            _state.WithExclusiveAccess(state => state.Init(_state));
-        }
+        public InMemoryEventStorePersistenceLayer() { _state.WithExclusiveAccess(state => state.Init(_state)); }
 
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events) =>
             _transactionLockManager.WithTransactionWideLock(
@@ -55,19 +52,20 @@ namespace Composable.Persistence.InMemory.EventStore
                                                        .Select((eventRow, innerIndex) => (eventRow, innerIndex))
                                                        .Single(@this => @this.eventRow.EventId == specification.EventId);
 
-                            state.ReplaceEvent(index, new EventDataRow(@event.EventType,
-                                                                   @event.EventJson,
-                                                                   @event.EventId,
-                                                                   specification.EffectiveVersion,
-                                                                   @event.AggregateId,
-                                                                   @event.UtcTimeStamp,
-                                                                   new AggregateEventStorageInformation()
-                                                                   {
-                                                                       EffectiveVersion = specification.EffectiveVersion,
-                                                                       ReadOrder = @event.StorageInformation.ReadOrder,
-                                                                       InsertedVersion = @event.StorageInformation.InsertedVersion,
-                                                                       RefactoringInformation = @event.StorageInformation.RefactoringInformation
-                                                                   }));
+                            state.ReplaceEvent(index,
+                                               new EventDataRow(@event.EventType,
+                                                                @event.EventJson,
+                                                                @event.EventId,
+                                                                specification.EffectiveVersion,
+                                                                @event.AggregateId,
+                                                                @event.UtcTimeStamp,
+                                                                new AggregateEventStorageInformation()
+                                                                {
+                                                                    EffectiveVersion = specification.EffectiveVersion,
+                                                                    ReadOrder = @event.StorageInformation.ReadOrder,
+                                                                    InsertedVersion = @event.StorageInformation.InsertedVersion,
+                                                                    RefactoringInformation = @event.StorageInformation.RefactoringInformation
+                                                                }));
                         }
                     }
                 ));
@@ -130,7 +128,8 @@ namespace Composable.Persistence.InMemory.EventStore
         class State
         {
             List<EventDataRow> _events = new List<EventDataRow>();
-            OptimizedThreadShared<State> _lock = null!;
+            OptimizedThreadShared<State> _state = null!;
+
             public IReadOnlyList<EventDataRow> Events
             {
                 get
@@ -140,9 +139,7 @@ namespace Composable.Persistence.InMemory.EventStore
                         return _events;
                     } else
                     {
-                        var combined = _events.ToList();
-                        combined.AddRange(TransactionalOverlay);
-                        return combined;
+                        return _events.Concat(TransactionalOverlay).ToList();
                     }
                 }
             }
@@ -153,27 +150,18 @@ namespace Composable.Persistence.InMemory.EventStore
             {
                 get
                 {
-                    if(Transaction.Current != null)
-                    {
-                        var transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
-                        return _overlays.GetOrAdd(transactionId, () =>
-                        {
-                            var transactionParticipant = new VolatileLambdaTransactionParticipant();
+                    if(Transaction.Current == null) return null;
 
-                            transactionParticipant.AddCommitTasks(() => _lock.WithExclusiveAccess(_ =>
-                            {
-                                var overlay = _overlays[transactionId];
-                                _events.AddRange(overlay);
-                                _overlays.Remove(transactionId);
-                            }));
+                    var transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
+                    return _overlays.GetOrAdd(transactionId,
+                                              () =>
+                                              {
+                                                  var _ = new VolatileLambdaTransactionParticipant(
+                                                      onCommit: () => _state.WithExclusiveAccess(state => state._events.AddRange(state._overlays[transactionId])),
+                                                      onTransactionCompleted: __ => _state.WithExclusiveAccess(state => state._overlays.Remove(transactionId)));
 
-                            transactionParticipant.AddRollbackTasks(() => _lock.WithExclusiveAccess(_ => _overlays.Remove(transactionId)));
-
-                            return new List<EventDataRow>();
-                        });
-                    }
-
-                    return null;
+                                                  return new List<EventDataRow>();
+                                              });
                 }
             }
 
@@ -188,16 +176,14 @@ namespace Composable.Persistence.InMemory.EventStore
                 }
             }
 
-            public void AddRange(IEnumerable<EventDataRow> rows)
-            {
+            public void AddRange(IEnumerable<EventDataRow> rows) =>
                 TransactionalOverlay!.AddRange(rows);
-            }
 
-            public void DeleteAggregate(Guid aggregateId)
-            {
+            public void DeleteAggregate(Guid aggregateId) =>
                 _events = _events.Where(row => row.AggregateId != aggregateId).ToList();
-            }
-            public void Init(OptimizedThreadShared<State> @lock) { _lock = @lock; }
+
+            public void Init(OptimizedThreadShared<State> @lock) =>
+                _state = @lock;
         }
     }
 }

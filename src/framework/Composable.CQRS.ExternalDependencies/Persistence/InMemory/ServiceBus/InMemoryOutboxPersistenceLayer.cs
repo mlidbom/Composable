@@ -11,7 +11,6 @@ using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistence
 
 namespace Composable.Persistence.InMemory.ServiceBus
 {
-    //Refactor: Consider using SqlLite in-memory instead for our in-memory testing needs: https://www.sqlite.org/inmemorydb.html
     class InMemoryOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
         readonly OptimizedThreadShared<Implementation> _implementation = new OptimizedThreadShared<Implementation>(new Implementation());

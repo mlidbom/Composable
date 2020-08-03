@@ -126,9 +126,9 @@ namespace Composable.SystemCE.TransactionsCE
             Participants.WithExclusiveAccess(participants =>
             {
                 var participant = participants.GetOrAdd(@this.TransactionInformation.LocalIdentifier,
-                                                        () => new VolatileLambdaTransactionParticipant()
-                                                             .AddCommitTasks(() => Participants.WithExclusiveAccess(parts => parts.Remove(@this.TransactionInformation.LocalIdentifier)))
-                                                             .AddRollbackTasks(() => Participants.WithExclusiveAccess(parts => parts.Remove(@this.TransactionInformation.LocalIdentifier))));
+                                                        () => new VolatileLambdaTransactionParticipant(
+                                                                  onCommit:() => Participants.WithExclusiveAccess(parts => parts.Remove(@this.TransactionInformation.LocalIdentifier)),
+                                                                  onRollback:() => Participants.WithExclusiveAccess(parts => parts.Remove(@this.TransactionInformation.LocalIdentifier))));
 
                 action(participant);
             });

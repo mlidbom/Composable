@@ -4,24 +4,24 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
     interface IResourceGuard
     {
-        TimeSpan DefaultTimeout { get; }
+        TimeSpan Timeout { get; }
         TResult Read<TResult>(Func<TResult> read);
         void Update(Action action);
         TResult Update<TResult>(Func<TResult> update);
 
-        IResourceLock AwaitUpdateLockWhen(Func<bool> condition) => AwaitUpdateLockWhen(DefaultTimeout, condition);
+        IResourceLock AwaitUpdateLockWhen(Func<bool> condition) => AwaitUpdateLockWhen(Timeout, condition);
         IResourceLock AwaitUpdateLockWhen(TimeSpan timeout, Func<bool> condition);
         IResourceLock AwaitUpdateLock(TimeSpan? timeout = null);
 
-        void Await(Func<bool> condition) => Await(DefaultTimeout, condition);
-        bool TryAwait(Func<bool> condition) => TryAwait(DefaultTimeout, condition);
+        void Await(Func<bool> condition) => Await(Timeout, condition);
+        bool TryAwait(Func<bool> condition) => TryAwait(Timeout, condition);
 
         void Await(TimeSpan timeOut, Func<bool> condition);
         bool TryAwait(TimeSpan timeOut, Func<bool> condition);
 
-        void UpdateWhen(Func<bool> condition, Action action) => UpdateWhen(DefaultTimeout, condition, action);
+        void UpdateWhen(Func<bool> condition, Action action) => UpdateWhen(Timeout, condition, action);
 
-        TResult UpdateWhen<TResult>(Func<bool> condition, Func<TResult> update) => UpdateWhen(DefaultTimeout, condition, update);
+        TResult UpdateWhen<TResult>(Func<bool> condition, Func<TResult> update) => UpdateWhen(Timeout, condition, update);
 
         void UpdateWhen(TimeSpan timeout, Func<bool> condition, Action action);
         TResult UpdateWhen<TResult>(TimeSpan timeout, Func<bool> condition, Func<TResult> update);

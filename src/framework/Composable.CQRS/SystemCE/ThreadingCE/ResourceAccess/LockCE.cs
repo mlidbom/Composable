@@ -15,14 +15,24 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
     {
         int _waitingThreadCount;
         readonly object _lockObject = new object();
-        static readonly TimeSpan InfiniteTimeout = -1.Milliseconds();
+        internal static readonly TimeSpan InfiniteTimeout = -1.Milliseconds();
 
-        TimeSpan DefaultTimeout { get; set; }
+#if NCRUNCH
+        //Tests timeout at 60 seconds. We want locks to timeout faster so that the blocking stack traces turn up in the test output so we can diagnose the deadlocks.
+        internal static readonly TimeSpan DefaultTimeout = 55.Seconds();
 
+#else
+        //MsSql default query timeout is 30 seconds. Default .Net transaction timeout is 60. If we reach 2 minutes it is all but guaranteed that we have an in-memory deadlock.
+        internal static readonly TimeSpan DefaultTimeout = 2.Minutes();
+
+#endif
+        internal TimeSpan Timeout { get; set; }
+
+        public static LockCE WithDefaultTimeout() => new LockCE(DefaultTimeout);
         public static LockCE WithInfiniteTimeout() => new LockCE(InfiniteTimeout);
         public static LockCE WithTimeout(TimeSpan defaultTimeout) => new LockCE(defaultTimeout);
 
-        LockCE(TimeSpan defaultTimeout) => DefaultTimeout = defaultTimeout;
+        LockCE(TimeSpan defaultTimeout) => Timeout = defaultTimeout;
 
         internal void AwaitAndAcquire(TimeSpan timeout, Func<bool> condition)
         {
@@ -111,7 +121,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             var lockTaken = false;
             try
             {
-                Monitor.TryEnter(_lockObject, timeout ?? DefaultTimeout, ref lockTaken);
+                Monitor.TryEnter(_lockObject, timeout ?? Timeout, ref lockTaken);
             }
             catch(Exception) //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
             {

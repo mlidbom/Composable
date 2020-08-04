@@ -43,7 +43,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             internal ResourceGuardThreadShared(TShared shared)
             {
                 _shared = shared;
-                _guard = ResourceGuard.WithInfiniteTimeout();
+                _guard = ResourceGuard.WithDefaultTimeout();
             }
 
             public TResult Read<TResult>(Func<TShared, TResult> read) =>

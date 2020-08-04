@@ -47,11 +47,6 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             {
                 lock(_lock) action();
             }
-
-            public TResult Update<TResult>(Func<TResult> update)
-            {
-                lock(_lock) return update();
-            }
         }
 
         bool _doSomething = true;
@@ -74,7 +69,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             _doSomething = false;
         }
 
-        static void RunSingleThreadedScenario(Action action, TimeSpan maxTotal)
+        static void RunSingleThreadedScenario(Action action, TimeSpan mUnContended)
         {
             //ncrunch: no coverage start
             void HammerScenario()
@@ -84,10 +79,10 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             }
             //ncrunch: no coverage end
 
-            TimeAsserter.Execute(HammerScenario, maxTotal: maxTotal);
+            TimeAsserter.Execute(HammerScenario, description: "Uncontended", maxTotal: mUnContended);
         }
 
-        public static void RunMultiThreadedScenario(Action action, TimeSpan maxTotal)
+        public static void RunMultiThreadedScenario(Action action, TimeSpan maxContended)
         {
             //ncrunch: no coverage start
             void HammerScenario()
@@ -97,15 +92,48 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             }
             //ncrunch: no coverage end
 
-            TimeAsserter.ExecuteThreadedLowOverhead(HammerScenario, Iterations, maxTotal: maxTotal);
+            TimeAsserter.ExecuteThreadedLowOverhead(HammerScenario, Iterations, description: "Contended", maxTotal: maxContended);
         }
+
+        static void RunScenarios(Action action, TimeSpan mUnContended, TimeSpan maxContended)
+        {
+            RunSingleThreadedScenario(action, mUnContended: mUnContended);
+            RunMultiThreadedScenario(action, maxContended: maxContended);
+        }
+
+        [Test] public void Average_LockedRead_time_is_less_than_30_nanoseconds() =>
+            RunScenarios(() => _locker.Read(_guarded.Read),
+                         mUnContended: (30 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
+                         maxContended: (250 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
+        [Test] public void Average_LockedIncrement_time_is_less_than_30_nanoseconds() =>
+            RunScenarios(() => _locker.Update(_guarded.Increment),
+                         mUnContended: (30 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
+                         maxContended: (250 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
+        [Test] public void Average_MonitorCE_Read_time_is_less_than_32_nanoseconds() =>
+            RunScenarios(() => _monitor.Read(_guarded.Read),
+                         mUnContended: (35 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
+                         maxContended: (300 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
+        [Test] public void Average_MonitorCE_Increment_time_is_less_than_35_nanoseconds() =>
+            RunScenarios(() => _monitor.Update(_guarded.Increment),
+                         mUnContended: (35 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
+                         maxContended: (300 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
+        [Test] public void Average_successful_TryEnter_time_is_less_than_20_nanoseconds() =>
+            RunScenarios(() => _monitor.TryEnterNonBlocking(),
+                         mUnContended: (20 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(6),
+                         maxContended: (20 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(6));
 
         [Test] public void Average_failed_TryEnter_time_is_less_than_15_nanoseconds()
         {
             try
             {
                 _monitor.Enter();
-                Task.Run(() => RunMultiThreadedScenario(() => _monitor.TryEnterNonBlocking(), maxTotal: (15 * TotalLocks).IfInstrumentedMultiplyBy(8).Nanoseconds()));
+                Task.Run(() => RunScenarios(() => _monitor.TryEnterNonBlocking(),
+                                            mUnContended: (15 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
+                                            maxContended: (15 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8))).Wait();
             }
             finally
             {
@@ -113,52 +141,33 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             }
         }
 
-        [Test] public void Average_uncontended_LockedRead_time_is_less_than_30_nanoseconds() =>
-            RunSingleThreadedScenario(() => _locker.Read(_guarded.Read), maxTotal: (23 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+        [Test] public void Average_Update_time_is_less_than_200_nanoseconds() =>
+            RunScenarios(() => _guard.Update(_guarded.Increment),
+                         mUnContended: (200 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
+                         maxContended: (400 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
 
-        [Test] public void Average_uncontended_LockedIncrement_time_is_less_than_30_nanoseconds() =>
-            RunSingleThreadedScenario(() => _locker.Update(_guarded.Increment), maxTotal: (23 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+        [Test] public void Average_Read_time_is_less_than_200_nanoseconds() =>
+            RunScenarios(() => _guard.Read(_guarded.Read),
+                         mUnContended: (100 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
+                         maxContended: (200 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(3));
 
-        [Test] public void Average_uncontended_MonitorCE_Read_time_is_less_than_32_nanoseconds() =>
-            RunSingleThreadedScenario(() => _monitor.Read(_guarded.Read), maxTotal: (27 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+        [Test] public void Average_FakeUpdate_time_is_less_than_35_nanoseconds() =>
+            RunScenarios(() => _fakeGuard.Update(_guarded.Increment),
+                         mUnContended: (30 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
+                         maxContended: (30 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
 
-        [Test] public void Average_uncontended_MonitorCE_Increment_time_is_less_than_35_nanoseconds() =>
-            RunSingleThreadedScenario(() => _monitor.Update(_guarded.Increment), maxTotal: (28 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+        [Test] public void Average_FakeRead_time_is_less_than_30_nanoseconds() =>
+            RunScenarios(() => _fakeGuard.Read(_guarded.Read),
+                         mUnContended: (30 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
+                         maxContended: (30 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
 
-        [Test] public void Average_successful_TryEnter_time_is_less_than_20_nanoseconds() =>
-            RunSingleThreadedScenario(() => _monitor.TryEnterNonBlocking(), maxTotal: (20 * TotalLocks).IfInstrumentedMultiplyBy(6).Nanoseconds());
-
-        [Test] public void Average_uncontended_Update_time_is_less_than_200_nanoseconds() =>
-            RunSingleThreadedScenario(() => _guard.Update(_guarded.Increment), maxTotal: (200 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
-
-        [Test] public void Average_contended_Update_time_is_less_than_1_microsecond() =>
-            RunMultiThreadedScenario(() => _guard.Update(_guarded.Increment), maxTotal: TotalLocks.Microseconds().IfInstrumentedMultiplyBy(1.5));
-
-        [Test] public void Average_contended_Read_time_is_less_than_200_nanoseconds() =>
-            RunMultiThreadedScenario(() => _guard.Read(_guarded.Read), maxTotal: (200 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(3));
-
-        [Test] public void Average_uncontended_Read_time_is_less_than_150_nanoseconds() =>
-            RunSingleThreadedScenario(() => _guard.Read(_guarded.Read), maxTotal: (150 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
-
-        [Test] public void Average_uncontended_FakeUpdate_time_is_less_than_35_nanoseconds() =>
-            RunSingleThreadedScenario(() => _fakeGuard.Update(_guarded.Increment), maxTotal: (30 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
-
-        [Test] public void Average_uncontended_FakeRead_time_is_less_than_30_nanoseconds() =>
-            RunSingleThreadedScenario(() => _fakeGuard.Read(_guarded.Read), maxTotal: (30 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
-
-        [Test] public void Average_contended_UpdateLock_time_is_less_than_1_microsecond() =>
-            RunMultiThreadedScenario(() =>
-                                     {
-                                         using(_guard.AwaitUpdateLock()) DoNothing();
-                                     },
-                                     maxTotal: TotalLocks.Microseconds().IfInstrumentedMultiplyBy(3));
-
-        [Test] public void Average_uncontended_UpdateLock_time_is_less_than_250_nanoseconds() =>
-            RunSingleThreadedScenario(() =>
-                                      {
-                                          using(_guard.AwaitUpdateLock()) DoNothing();
-                                      },
-                                      maxTotal: (250 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+        [Test] public void Average_UpdateLock_time_is_less_than_1_microsecond() =>
+            RunScenarios(() =>
+                         {
+                             using(_guard.AwaitUpdateLock()) DoNothing();
+                         },
+                         mUnContended: (250 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
+                         maxContended: TotalLocks.Microseconds().IfInstrumentedMultiplyBy(3));
 
         void DoNothing()
         {

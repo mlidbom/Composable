@@ -14,7 +14,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_MYSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
-        readonly OptimizedThreadShared<MySqlConnectionStringBuilder> _connectionStringBuilder;
+        readonly IThreadShared<MySqlConnectionStringBuilder> _connectionStringBuilder;
 
         public MySqlDatabasePool()
         {
@@ -22,11 +22,11 @@ namespace Composable.Persistence.MySql.Testing.Databases
                                       ?? "Server=localhost;Database=mysql;Uid=root;Pwd=;";
 
             _masterConnectionPool = IMySqlConnectionPool.CreateInstance(masterConnectionString);
-            _connectionStringBuilder = new OptimizedThreadShared<MySqlConnectionStringBuilder>(new MySqlConnectionStringBuilder(masterConnectionString));
+            _connectionStringBuilder = ThreadShared.Create<MySqlConnectionStringBuilder>(new MySqlConnectionStringBuilder(masterConnectionString));
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => me.Database = db.Name).ConnectionString);
+            => _connectionStringBuilder.Update(@this => @this.Mutate(me => me.Database = db.Name).ConnectionString);
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {

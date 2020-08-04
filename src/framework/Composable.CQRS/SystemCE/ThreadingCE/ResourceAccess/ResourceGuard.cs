@@ -4,22 +4,9 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
     static partial class ResourceGuard
     {
+        static readonly TimeSpan InfiniteTimeout = -1.Milliseconds();
+
         public static IResourceGuard WithTimeout(TimeSpan timeout) => new ExclusiveAccessResourceGuard(timeout);
-
-        public static void WithExclusiveLock(object @lock, Action action)
-        {
-            lock(@lock)
-            {
-                action();
-            }
-        }
-
-        public static TResult WithExclusiveLock<TResult>(object @lock, Func<TResult> func)
-        {
-            lock (@lock)
-            {
-                return func();
-            }
-        }
+        public static IResourceGuard Create() => new ExclusiveAccessResourceGuard(InfiniteTimeout);
     }
 }

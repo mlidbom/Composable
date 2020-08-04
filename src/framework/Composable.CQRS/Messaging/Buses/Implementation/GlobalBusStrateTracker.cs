@@ -8,7 +8,7 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class GlobalBusStateTracker : IGlobalBusStateTracker
     {
-        readonly OptimizedAwaitableThreadShared<NonThreadSafeImplementation> _implementation = new OptimizedAwaitableThreadShared<NonThreadSafeImplementation>(new NonThreadSafeImplementation());
+        readonly IThreadShared<NonThreadSafeImplementation> _implementation = ThreadShared.Create<NonThreadSafeImplementation>(new NonThreadSafeImplementation());
 
         public IReadOnlyList<Exception> GetExceptions() => _implementation.Update(implementation => implementation.GetExceptions());
 

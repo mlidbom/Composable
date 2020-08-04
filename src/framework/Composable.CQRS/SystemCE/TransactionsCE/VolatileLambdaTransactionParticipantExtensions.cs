@@ -8,7 +8,7 @@ namespace Composable.SystemCE.TransactionsCE
 {
     static class VolatileLambdaTransactionParticipantExtensions
     {
-        static readonly IThreadShared<Dictionary<string, VolatileLambdaTransactionParticipant>> Participants = ThreadShared<Dictionary<string, VolatileLambdaTransactionParticipant>>.Optimized();
+        static readonly IThreadShared<Dictionary<string, VolatileLambdaTransactionParticipant>> Participants = ThreadShared.Create<Dictionary<string, VolatileLambdaTransactionParticipant>>();
 
         public static Transaction AddCommitTasks(this Transaction @this, params Action[] actions) => UseParticipant(@this, part => part.AddCommitTasks(actions));
         public static Transaction AddRollbackTasks(this Transaction @this, params Action[] actions) => UseParticipant(@this, part => part.AddRollbackTasks(actions));
@@ -16,14 +16,14 @@ namespace Composable.SystemCE.TransactionsCE
 
         static Transaction UseParticipant(Transaction @this, Action<VolatileLambdaTransactionParticipant> action)
         {
-            Participants.WithExclusiveAccess(participants =>
+            Participants.Update(participants =>
             {
                 var participant = participants.GetOrAdd(@this.TransactionInformation.LocalIdentifier,
                                                         () =>
                                                         {
                                                             var participant = new VolatileLambdaTransactionParticipant(
-                                                                onCommit: () => Participants.WithExclusiveAccess(parts => parts.Remove(@this.TransactionInformation.LocalIdentifier)),
-                                                                onRollback: () => Participants.WithExclusiveAccess(parts => parts.Remove(@this.TransactionInformation.LocalIdentifier)));
+                                                                onCommit: () => Participants.Update(parts => parts.Remove(@this.TransactionInformation.LocalIdentifier)),
+                                                                onRollback: () => Participants.Update(parts => parts.Remove(@this.TransactionInformation.LocalIdentifier)));
                                                             participant.EnsureEnlistedInAnyAmbientTransaction();
                                                             return participant;
                                                         });

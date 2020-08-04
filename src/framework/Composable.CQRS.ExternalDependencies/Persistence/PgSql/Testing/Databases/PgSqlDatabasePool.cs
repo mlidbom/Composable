@@ -15,7 +15,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
         readonly IPgSqlConnectionPool _masterConnectionPool;
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_PGSQL_DATABASE_POOL_MASTER_CONNECTIONSTRING";
-        readonly OptimizedThreadShared<NpgsqlConnectionStringBuilder> _connectionStringBuilder;
+        readonly IThreadShared<NpgsqlConnectionStringBuilder> _connectionStringBuilder;
 
         public PgSqlDatabasePool()
         {
@@ -23,11 +23,11 @@ namespace Composable.Persistence.PgSql.Testing.Databases
                                       ?? "Host=localhost;Database=postgres;Username=postgres;Password=Development!1;";
 
             _masterConnectionPool = IPgSqlConnectionPool.CreateInstance(masterConnectionString);
-            _connectionStringBuilder = new OptimizedThreadShared<NpgsqlConnectionStringBuilder>(new NpgsqlConnectionStringBuilder(masterConnectionString));
+            _connectionStringBuilder = ThreadShared.Create<NpgsqlConnectionStringBuilder>(new NpgsqlConnectionStringBuilder(masterConnectionString));
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me => me.Database = db.Name.ToLowerInvariant()).ConnectionString);
+            => _connectionStringBuilder.Update(@this => @this.Mutate(me => me.Database = db.Name.ToLowerInvariant()).ConnectionString);
 
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {

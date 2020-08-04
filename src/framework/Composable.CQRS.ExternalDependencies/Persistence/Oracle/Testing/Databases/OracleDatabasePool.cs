@@ -14,19 +14,19 @@ namespace Composable.Persistence.Oracle.Testing.Databases
 
         const string ConnectionStringConfigurationParameterName = "COMPOSABLE_ORACLE_DATABASE_POOL_MASTER_CONNECTIONSTRING";
 
-        readonly OptimizedThreadShared<OracleConnectionStringBuilder> _connectionStringBuilder;
+        readonly IThreadShared<OracleConnectionStringBuilder> _connectionStringBuilder;
 
         public OracleDatabasePool()
         {
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
                                       ?? "Data Source=127.0.0.1:1521/orclpdb; DBA Privilege=SYSDBA; User Id=sys; Password=Development!1;";
 
-            _connectionStringBuilder = new OptimizedThreadShared<OracleConnectionStringBuilder>(new OracleConnectionStringBuilder(masterConnectionString));
+            _connectionStringBuilder = ThreadShared.Create<OracleConnectionStringBuilder>(new OracleConnectionStringBuilder(masterConnectionString));
             _masterConnectionPool = IOracleConnectionPool.CreateInstance(masterConnectionString);
         }
 
         protected override string ConnectionStringFor(Database db)
-            => _connectionStringBuilder.WithExclusiveAccess(@this => @this.Mutate(me =>
+            => _connectionStringBuilder.Update(@this => @this.Mutate(me =>
             {
                 me.UserID = db.Name.ToUpperInvariant();
                 me.Password = db.Name.ToUpperInvariant();

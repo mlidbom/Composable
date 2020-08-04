@@ -32,7 +32,7 @@ namespace Composable.Messaging.Buses.Implementation
                 var taskCompletionSource = new AsyncTaskCompletionSource();
                 var outGoingMessage = TransportMessage.OutGoing.Create(@event, _typeMapper, _serializer);
 
-                _state.WithExclusiveAccess(state => state.ExpectedCompletionTasks.Add(outGoingMessage.MessageId, taskCompletionSource));
+                _state.Update(state => state.ExpectedCompletionTasks.Add(outGoingMessage.MessageId, taskCompletionSource));
                 SendMessage(outGoingMessage);
                 await taskCompletionSource.Task.NoMarshalling();
             }
@@ -42,7 +42,7 @@ namespace Composable.Messaging.Buses.Implementation
                 var taskCompletionSource = new AsyncTaskCompletionSource();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
 
-                _state.WithExclusiveAccess(state => state.ExpectedCompletionTasks.Add(outGoingMessage.MessageId, taskCompletionSource));
+                _state.Update(state => state.ExpectedCompletionTasks.Add(outGoingMessage.MessageId, taskCompletionSource));
                 SendMessage(outGoingMessage);
                 await taskCompletionSource.Task.NoMarshalling();
             }
@@ -52,7 +52,7 @@ namespace Composable.Messaging.Buses.Implementation
                 var taskCompletionSource = new AsyncTaskCompletionSource<Func<object>>();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
 
-                _state.WithExclusiveAccess(state => state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource));
+                _state.Update(state => state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource));
                 SendMessage(outGoingMessage);
                 return (TCommandResult)(await taskCompletionSource.Task.NoMarshalling()).Invoke();
             }
@@ -62,7 +62,7 @@ namespace Composable.Messaging.Buses.Implementation
                 var taskCompletionSource = new AsyncTaskCompletionSource();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
 
-                _state.WithExclusiveAccess(state => state.ExpectedCompletionTasks.Add(outGoingMessage.MessageId, taskCompletionSource));
+                _state.Update(state => state.ExpectedCompletionTasks.Add(outGoingMessage.MessageId, taskCompletionSource));
                 SendMessage(outGoingMessage);
                 await taskCompletionSource.Task.NoMarshalling();
             }
@@ -72,7 +72,7 @@ namespace Composable.Messaging.Buses.Implementation
                 var taskCompletionSource = new AsyncTaskCompletionSource<Func<object>>();
                 var outGoingMessage = TransportMessage.OutGoing.Create(query, _typeMapper, _serializer);
 
-                _state.WithExclusiveAccess(state => state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource));
+                _state.Update(state => state.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource));
                 SendMessage(outGoingMessage);
                 return (TQueryResult)(await taskCompletionSource.Task.NoMarshalling()).Invoke();
             }
@@ -98,7 +98,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _globalBusStateTracker = globalBusStateTracker;
                 var socket = new DealerSocket();
                 _socketDisposable = (IDisposable)socket;//Getting rid of the type means we don't need to worry about usage from the wrong threads.
-                _state = new OptimizedThreadShared<InboxConnectionState>(new InboxConnectionState());
+                _state = ThreadShared.Create<InboxConnectionState>(new InboxConnectionState());
 
                 poller.Add(_sendQueue);
 
@@ -142,7 +142,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, _typeMapper, _serializer, batchMaximum: 100);
 
-                _state.WithExclusiveAccess(state =>
+                _state.Update(state =>
                 {
                     foreach(var response in responseBatch)
                     {

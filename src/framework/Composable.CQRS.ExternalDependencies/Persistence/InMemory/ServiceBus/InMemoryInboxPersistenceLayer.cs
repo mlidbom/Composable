@@ -11,19 +11,19 @@ namespace Composable.Persistence.InMemory.ServiceBus
 {
     class InMemoryInboxPersistenceLayer : IServiceBusPersistenceLayer.IInboxPersistenceLayer
     {
-        readonly OptimizedThreadShared<Implementation> _implementation = new OptimizedThreadShared<Implementation>(new Implementation());
+        readonly IThreadShared<Implementation> _implementation = ThreadShared.Create<Implementation>(new Implementation());
 
-        public void SaveMessage(Guid messageId, Guid typeId, string serializedMessage) => _implementation.WithExclusiveAccess(@this => @this.SaveMessage(messageId, typeId, serializedMessage));
+        public void SaveMessage(Guid messageId, Guid typeId, string serializedMessage) => _implementation.Update(@this => @this.SaveMessage(messageId, typeId, serializedMessage));
 
         public void MarkAsSucceeded(Guid messageId)
-            => Transaction.Current.AddCommitTasks(() => _implementation.WithExclusiveAccess(@this => @this.MarkAsSucceeded(messageId)));
+            => Transaction.Current.AddCommitTasks(() => _implementation.Update(@this => @this.MarkAsSucceeded(messageId)));
 
         public int RecordException(Guid messageId, string exceptionStackTrace, string exceptionMessage, string exceptionType)
-            => _implementation.WithExclusiveAccess(@this => @this.RecordException(messageId, exceptionStackTrace, exceptionMessage, exceptionType));
+            => _implementation.Update(@this => @this.RecordException(messageId, exceptionStackTrace, exceptionMessage, exceptionType));
 
-        public int MarkAsFailed(Guid messageId) => _implementation.WithExclusiveAccess(@this => @this.MarkAsFailed(messageId));
+        public int MarkAsFailed(Guid messageId) => _implementation.Update(@this => @this.MarkAsFailed(messageId));
 
-        public Task InitAsync() => _implementation.WithExclusiveAccess(@this => @this.InitAsync());
+        public Task InitAsync() => _implementation.Update(@this => @this.InitAsync());
 
         class Implementation : IServiceBusPersistenceLayer.IInboxPersistenceLayer
         {

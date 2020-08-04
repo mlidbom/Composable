@@ -15,10 +15,11 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
     {
         int _waitingThreadCount;
         readonly object _lockObject = new object();
+        static readonly TimeSpan InfiniteTimeout = -1.Milliseconds();
 
         TimeSpan DefaultTimeout { get; set; }
 
-        public static LockCE Create() => new LockCE(TimeSpan.MaxValue);
+        public static LockCE Create() => new LockCE(InfiniteTimeout);
         public static LockCE WithTimeout(TimeSpan defaultTimeout) => new LockCE(defaultTimeout);
 
         LockCE(TimeSpan defaultTimeout) => DefaultTimeout = defaultTimeout;
@@ -38,18 +39,25 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                 Interlocked.Increment(ref _waitingThreadCount);
                 var startTime = DateTime.UtcNow;
 
+                bool infiniteTimeout = timeout == InfiniteTimeout;
                 AcquireLock(timeout);
-                while(!condition())
+                if(infiniteTimeout)
                 {
-                    var elapsedTime = DateTime.UtcNow - startTime;
-                    var timeRemaining = timeout - elapsedTime;
-                    if(elapsedTime > timeout)
+                    while(!condition()) ReleaseWaitForSignalOrTimeoutAndReacquire(InfiniteTimeout);
+                } else
+                {
+                    while(!condition())
                     {
-                        Release();
-                        return false;
-                    }
+                        var elapsedTime = DateTime.UtcNow - startTime;
+                        var timeRemaining = timeout - elapsedTime;
+                        if(elapsedTime > timeout)
+                        {
+                            Release();
+                            return false;
+                        }
 
-                    ReleaseWaitForSignalOrTimeoutAndReacquire(timeRemaining);
+                        ReleaseWaitForSignalOrTimeoutAndReacquire(timeRemaining);
+                    }
                 }
             }
             finally
@@ -62,7 +70,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
         internal void Release() => Monitor.Exit(_lockObject);
 
-        void ReleaseWaitForSignalOrTimeoutAndReacquire(TimeSpan timeRemaining) => Monitor.Wait(_lockObject, timeRemaining);
+        void ReleaseWaitForSignalOrTimeoutAndReacquire(TimeSpan timeRemaining) { Monitor.Wait(_lockObject, timeRemaining); }
 
         internal void SignalWaitingThreadsAndRelease(SignalWaitingThreadsMode signalWaitingThreadsMode)
         {
@@ -105,7 +113,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             {
                 Monitor.TryEnter(_lockObject, timeout ?? DefaultTimeout, ref lockTaken);
             }
-            catch(Exception) //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we do need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
+            catch(Exception) //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
             {
                 if(lockTaken) Release();
                 throw;

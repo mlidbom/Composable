@@ -72,8 +72,8 @@ namespace Composable.Persistence.Common.AdoCE
 
         class TransactionAffinityDbConnectionPool : DefaultDbConnectionPool
         {
-            readonly OptimizedThreadShared<Dictionary<string, Task<TConnection>>> _transactionConnections =
-                new OptimizedThreadShared<Dictionary<string, Task<TConnection>>>(new Dictionary<string, Task<TConnection>>());
+            readonly IThreadShared<Dictionary<string, Task<TConnection>>> _transactionConnections =
+                 ThreadShared.Create<Dictionary<string, Task<TConnection>>>();
 
             public TransactionAffinityDbConnectionPool(string connectionString, Func<string, TConnection> createConnection) : base(connectionString, createConnection) {}
 
@@ -87,13 +87,13 @@ namespace Composable.Persistence.Common.AdoCE
                 } else
                 {
                     //TConnection requires that the same connection is used throughout a transaction
-                    var getConnectionTask = _transactionConnections.WithExclusiveAccess(
-                        func: transactionConnections => transactionConnections.GetOrAdd(
+                    var getConnectionTask = _transactionConnections.Update(
+                        transactionConnections => transactionConnections.GetOrAdd(
                             transactionLocalIdentifier,
                             constructor: () =>
                             {
                                 var createConnectionTask = OpenConnectionAsyncFlex(syncOrAsync);
-                                Transaction.Current!.OnCompleted(action: () => _transactionConnections.WithExclusiveAccess(func: transactionConnectionsAfterTransaction =>
+                                Transaction.Current!.OnCompleted(action: () => _transactionConnections.Update(transactionConnectionsAfterTransaction =>
                                 {
                                     createConnectionTask.Result.Dispose();
                                     transactionConnectionsAfterTransaction.Remove(transactionLocalIdentifier);

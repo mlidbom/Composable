@@ -13,12 +13,12 @@ namespace Composable.Persistence.InMemory.ServiceBus
 {
     class InMemoryOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
-        readonly OptimizedThreadShared<Implementation> _implementation = new OptimizedThreadShared<Implementation>(new Implementation());
+        readonly IThreadShared<Implementation> _implementation = ThreadShared.Create<Implementation>(new Implementation());
 
         public void SaveMessage(Message messageWithReceivers)
-            => Transaction.Current.AddCommitTasks(() => _implementation.WithExclusiveAccess(@this => @this.SaveMessage(messageWithReceivers)));
-        public int MarkAsReceived(Guid messageId, Guid endpointId) => _implementation.WithExclusiveAccess(@this => @this.MarkAsReceived(messageId, endpointId));
-        public Task InitAsync() => _implementation.WithExclusiveAccess(@this => @this.InitAsync());
+            => Transaction.Current.AddCommitTasks(() => _implementation.Update(@this => @this.SaveMessage(messageWithReceivers)));
+        public int MarkAsReceived(Guid messageId, Guid endpointId) => _implementation.Update(@this => @this.MarkAsReceived(messageId, endpointId));
+        public Task InitAsync() => _implementation.Update(@this => @this.InitAsync());
 
         class Implementation : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
         {

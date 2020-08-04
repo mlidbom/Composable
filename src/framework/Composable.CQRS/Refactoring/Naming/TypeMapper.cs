@@ -13,9 +13,9 @@ namespace Composable.Refactoring.Naming
 {
     class TypeMapper : ITypeMapper, ITypeMappingRegistar
     {
-        readonly IThreadShared<State> _state = ThreadShared<State>.Optimized();
+        readonly IThreadShared<State> _state = ThreadShared.Create<State>();
 
-        public TypeId GetId(Type type) => _state.WithExclusiveAccess(state =>
+        public TypeId GetId(Type type) => _state.Update(state =>
         {
             if(state.TypeToTypeIdMap.TryGetValue(type, out var typeId))
             {
@@ -25,7 +25,7 @@ namespace Composable.Refactoring.Naming
             throw BuildExceptionDescribingHowToAddMissingMappings(new List<Type> {type});
         });
 
-        public Type GetType(TypeId typeId) => _state.WithExclusiveAccess(state =>
+        public Type GetType(TypeId typeId) => _state.Update(state =>
         {
             if(state.TypeIdToTypeMap.TryGetValue(typeId, out var type))
             {
@@ -37,14 +37,14 @@ namespace Composable.Refactoring.Naming
 
         public bool TryGetType(TypeId typeId, [NotNullWhen(true)] out Type? type)
         {
-            type = _state.WithExclusiveAccess(state => state.TypeIdToTypeMap.TryGetValue(typeId, out var innerType) ? innerType : null);
+            type = _state.Update(state => state.TypeIdToTypeMap.TryGetValue(typeId, out var innerType) ? innerType : null);
 
             return type != null;
         }
 
         public IEnumerable<TypeId> GetIdForTypesAssignableTo(Type type)
         {
-            return _state.WithExclusiveAccess(state => state
+            return _state.Update(state => state
                                                       .TypeToTypeIdMap
                                                       .Keys
                                                       .Where(type.IsAssignableFrom)
@@ -52,7 +52,7 @@ namespace Composable.Refactoring.Naming
                                                       .ToArray());
         }
 
-        public void AssertMappingsExistFor(IEnumerable<Type> typesThatRequireMappings) => _state.WithExclusiveAccess(state =>
+        public void AssertMappingsExistFor(IEnumerable<Type> typesThatRequireMappings) => _state.Update(state =>
         {
             var typesWithMissingMappings = typesThatRequireMappings.Where(type => !state.TypeToTypeIdMap.ContainsKey(type)).ToList();
             if(typesWithMissingMappings.Any())
@@ -61,14 +61,14 @@ namespace Composable.Refactoring.Naming
             }
         });
 
-        public void IncludeMappingsFrom(TypeMapper other) => _state.WithExclusiveAccess(
-            state => other._state.WithExclusiveAccess(
+        public void IncludeMappingsFrom(TypeMapper other) => _state.Update(
+            state => other._state.Update(
                 otherState => otherState.TypeToTypeIdMap.ForEach(pair => InternalMap(pair.Key, pair.Value))));
 
         public ITypeMappingRegistar Map<TType>(Guid typeIdGuid) => InternalMap(typeof(TType), new TypeId(typeIdGuid));
         public ITypeMappingRegistar Map<TType>(string typeGuid) => Map<TType>(Guid.Parse(typeGuid));
 
-        ITypeMappingRegistar InternalMap(Type type, TypeId typeId) => _state.WithExclusiveAccess(state =>
+        ITypeMappingRegistar InternalMap(Type type, TypeId typeId) => _state.Update(state =>
         {
             if(state.TypeToTypeIdMap.TryGetValue(type, out var existingTypeId))
             {

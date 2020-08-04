@@ -1,117 +1,68 @@
 ﻿using System;
-using System.Threading;
 using Composable.SystemCE.ReflectionCE;
-using JetBrains.Annotations;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
     interface IThreadShared<out TResource>
     {
-        TResult WithExclusiveAccess<TResult>(Func<TResource, TResult> func);
-        void WithExclusiveAccess([InstantHandle]Action<TResource> func);
+        TResult Read<TResult>(Func<TResource, TResult> read);
+        TResult Update<TResult>(Func<TResource, TResult> update);
+        void Update(Action<TResource> update);
+        void Await(Func<TResource, bool> condition);
+        void UpdateWhen(Func<TResource, bool> condition, Action<TResource> update);
+        TResult UpdateWhen<TResult>(Func<TResource, bool> condition, Func<TResource, TResult> update);
     }
 
-    class ThreadShared<TResource> : IThreadShared<TResource> where TResource : new()
+    static class ThreadShared
     {
-        static readonly Func<TResource> CreateInstance = Constructor.For<TResource>.DefaultConstructor.Instance;
-        readonly IResourceGuard _guard;
-        readonly TResource _resource;
+        public static IThreadShared<TShared> Create<TShared>() where TShared : new() =>
+            new ResourceGuardThreadShared<TShared>(Constructor.For<TShared>.DefaultConstructor.Instance());
 
-        public static ThreadShared<TResource> WithTimeout(TimeSpan timeout) => new ThreadShared<TResource>(ResourceGuard.WithTimeout(timeout), new TResource());
-        public static IThreadShared<TResource> Optimized() => new OptimizedThreadShared<TResource>(CreateInstance());
+        public static IThreadShared<TShared> WithTimeout<TShared>(TimeSpan timeout) where TShared : new() =>
+            new ResourceGuardThreadShared<TShared>(timeout, Constructor.For<TShared>.DefaultConstructor.Instance());
 
-        internal ThreadShared(IResourceGuard guard, TResource resource)
+        public static IThreadShared<TShared> Create<TShared>(TShared shared) =>
+            new ResourceGuardThreadShared<TShared>(shared);
+
+        public static IThreadShared<TShared> WithTimeout<TShared>(TimeSpan timeOut, TShared shared) =>
+            new ResourceGuardThreadShared<TShared>(shared);
+
+
+        class ResourceGuardThreadShared<TShared> : IThreadShared<TShared>
         {
-            _guard = guard;
-            _resource = resource;
-        }
+            readonly IResourceGuard _guard;
 
-        public TResult WithExclusiveAccess<TResult>(Func<TResource, TResult> func) => _guard.Update(() => func(_resource));
-        public void WithExclusiveAccess(Action<TResource> func) => _guard.Update(() => func(_resource));
-    }
+            readonly TShared _shared;
 
-    class OptimizedThreadShared<TResource> : IThreadShared<TResource>
-    {
-        readonly TResource _resource;
-        readonly object _lock = new object();
-        public OptimizedThreadShared(TResource resource) => _resource = resource;
-
-        public TResult WithExclusiveAccess<TResult>(Func<TResource, TResult> func) => ResourceGuard.WithExclusiveLock(_lock, () => func(_resource));
-
-        public void WithExclusiveAccess(Action<TResource> func) => ResourceGuard.WithExclusiveLock(_lock, () => func(_resource));
-    }
-
-    class OptimizedAwaitableThreadShared<TShared>
-    {
-        readonly object _lock = new object();
-        readonly TShared _shared;
-        public OptimizedAwaitableThreadShared(TShared shared) => _shared = shared;
-
-        public TResult Read<TResult>(Func<TShared, TResult> read)
-        {
-            lock(_lock)
+            internal ResourceGuardThreadShared(TimeSpan timeout, TShared shared)
             {
-                return read(_shared);
+                _shared = shared;
+                _guard = ResourceGuard.WithTimeout(timeout);
             }
-        }
 
-        public TResult Update<TResult>(Func<TShared, TResult> update)
-        {
-            lock(_lock)
+            internal ResourceGuardThreadShared(TShared shared)
             {
-                var result = update(_shared);
-                Monitor.PulseAll(_lock);
-                return result;
+                _shared = shared;
+                _guard = ResourceGuard.Create();
             }
-        }
 
-        public void Update(Action<TShared> update)
-        {
-            lock(_lock)
-            {
-                update(_shared);
-                Monitor.PulseAll(_lock);
-            }
-        }
+            public TResult Read<TResult>(Func<TShared, TResult> read) =>
+                _guard.Read(() => read(_shared));
 
-        public void Await(Func<TShared, bool> condition)
-        {
-            lock(_lock)
-            {
-                while(!condition(_shared))
-                {
-                    Monitor.Wait(_lock);
-                }
-            }
-        }
+            public TResult Update<TResult>(Func<TShared, TResult> update) =>
+                _guard.Update(() => update(_shared));
 
-        public void UpdateWhen(Func<TShared, bool> condition, Action<TShared> update)
-        {
-            lock(_lock)
-            {
-                while(!condition(_shared))
-                {
-                    Monitor.Wait(_lock);
-                }
+            public void Update(Action<TShared> update) =>
+                _guard.Update(() => update(_shared));
 
-                update(_shared);
-                Monitor.PulseAll(_lock);
-            }
-        }
+            public void Await(Func<TShared, bool> condition) =>
+                _guard.Await(() => condition(_shared));
 
-        public TResult UpdateWhen<TResult>(Func<TShared, bool> condition, Func<TShared, TResult> update)
-        {
-            lock(_lock)
-            {
-                while(!condition(_shared))
-                {
-                    Monitor.Wait(_lock);
-                }
+            public void UpdateWhen(Func<TShared, bool> condition, Action<TShared> update) =>
+                _guard.UpdateWhen(() => condition(_shared), () => update(_shared));
 
-                var result = update(_shared);
-                Monitor.PulseAll(_lock);
-                return result;
-            }
+            public TResult UpdateWhen<TResult>(Func<TShared, bool> condition, Func<TShared, TResult> update) =>
+                _guard.UpdateWhen(() => condition(_shared), () => update(_shared));
         }
     }
 }

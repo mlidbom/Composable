@@ -21,10 +21,31 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                 DefaultTimeout = defaultTimeout;
             }
 
+            public void Await(Func<bool> condition) =>
+                _lock.AwaitAndAcquire(DefaultTimeout, condition);
+
+            public bool TryAwait(Func<bool> condition)
+            {
+                if(_lock.TryAwaitAndAcquire(DefaultTimeout, condition))
+                {
+                    _lock.Release();
+                    return true;
+                } else
+                {
+                    return false;
+                }
+            }
+
             public TResult Read<TResult>(Func<TResult> read) => WithExclusiveAccess(read, SignalWaitingThreadsMode.None);
 
             public void Update(Action action) => WithExclusiveAccess(action.AsFunc(), SignalWaitingThreadsMode.All);
             public TResult Update<TResult>(Func<TResult> update) => WithExclusiveAccess(update, SignalWaitingThreadsMode.All);
+
+            public void UpdateWhen(TimeSpan timeout, Func<bool> condition, Action action) =>
+                UpdateWhenInternal(timeout, condition, action.AsFunc(), SignalWaitingThreadsMode.All);
+
+            public TResult UpdateWhen<TResult>(TimeSpan timeout, Func<bool> condition, Func<TResult> update) =>
+                UpdateWhenInternal(timeout, condition, update, SignalWaitingThreadsMode.All);
 
             public IResourceLock AwaitReadLockWhen(TimeSpan timeout, Func<bool> condition) =>
                 AwaitExclusiveLockWhenInternal(timeout, condition, SignalWaitingThreadsMode.None);
@@ -42,6 +63,15 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             {
                 _lock.AwaitAndAcquire(timeout, condition);
                 return new ResourceLock(this, signalWaitingThreadsMode);
+            }
+
+            TResult UpdateWhenInternal<TResult>(TimeSpan timeout, Func<bool> condition, Func<TResult> func, SignalWaitingThreadsMode signalWaitingThreadsMode)
+            {
+                _lock.AwaitAndAcquire(timeout, condition);
+                using(DisposableCE.Create(() => _lock.SignalWaitingThreadsAndRelease(signalWaitingThreadsMode)))
+                {
+                    return func();
+                }
             }
 
             void AcquireLock(TimeSpan? timeout)

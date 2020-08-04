@@ -11,14 +11,14 @@ namespace Composable.SystemCE.ThreadingCE
 {
     class MachineWideSingleThreaded
     {
-        static readonly OptimizedThreadShared<Dictionary<string, Mutex>> Cache = new OptimizedThreadShared<Dictionary<string, Mutex>>(new Dictionary<string, Mutex>());
+        static readonly IThreadShared<Dictionary<string, Mutex>> Cache = ThreadShared.Create<Dictionary<string, Mutex>>(new Dictionary<string, Mutex>());
 
         readonly Mutex _mutex;
         MachineWideSingleThreaded(string lockId)
         {
             var lockId1 = $@"Global\{lockId}";
 
-            _mutex = Cache.WithExclusiveAccess(cache => cache.GetOrAdd(lockId1,
+            _mutex = Cache.Update(cache => cache.GetOrAdd(lockId1,
                                                                        () =>
                                                                        {
                                                                            try

@@ -70,7 +70,6 @@
       <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-31</Value>
       <Value>Messaging\Hypermedia\NavigationSpecification.cs:framework\Composable.CQRS\Composable.CQRS.csproj-28</Value>
       <Value>SystemCE\TransactionsCE\TransactionScopeCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-12</Value>
-      <Value>SystemCE\ThreadingCE\ResourceAccess\ThreadShared.cs:framework\Composable.CQRS\Composable.CQRS.csproj-82</Value>
       <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine.Coordinator.cs:framework\Composable.CQRS\Composable.CQRS.csproj-37</Value>
       <Value>Messaging\Buses\Implementation\Inbox.cs:framework\Composable.CQRS\Composable.CQRS.csproj-69</Value>
       <Value>SystemCE\TransactionsCE\TransactionScopeCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-8</Value>
@@ -81,7 +80,6 @@
       <Value>SystemCE\TransactionsCE\TransactionScopeCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-30</Value>
       <Value>SystemCE\ThreadingCE\ThreadExceptionHandler.cs:framework\Composable.CQRS\Composable.CQRS.csproj-17</Value>
       <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-62</Value>
-      <Value>SystemCE\ThreadingCE\ResourceAccess\ThreadShared.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
       <Value>DependencyInjection\TransactionalExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-30</Value>
       <Value>SystemCE\TransactionsCE\TransactionScopeCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-21</Value>
       <Value>SystemCE\ThreadingCE\TaskRunner.cs:framework\Composable.CQRS\Composable.CQRS.csproj-22</Value>

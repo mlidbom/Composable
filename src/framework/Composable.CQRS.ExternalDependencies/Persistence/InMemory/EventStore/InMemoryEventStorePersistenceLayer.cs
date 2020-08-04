@@ -13,15 +13,15 @@ namespace Composable.Persistence.InMemory.EventStore
 {
     partial class InMemoryEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
-        readonly OptimizedThreadShared<State> _state = new OptimizedThreadShared<State>(new State());
+        readonly IThreadShared<State> _state = ThreadShared.Create<State>(new State());
         readonly TransactionLockManager _transactionLockManager = new TransactionLockManager();
 
-        public InMemoryEventStorePersistenceLayer() { _state.WithExclusiveAccess(state => state.Init(_state)); }
+        public InMemoryEventStorePersistenceLayer() { _state.Update(state => state.Init(_state)); }
 
         public void InsertSingleAggregateEvents(IReadOnlyList<EventDataRow> events) =>
             _transactionLockManager.WithTransactionWideLock(
                 events[0].AggregateId,
-                () => _state.WithExclusiveAccess(state =>
+                () => _state.Update(state =>
                 {
                     events.ForEach((@event, index) => @event.StorageInformation.ReadOrder ??= ReadOrder.FromLong(state.Events.Count + index + 1));
                     state.AddRange(events);
@@ -31,7 +31,7 @@ namespace Composable.Persistence.InMemory.EventStore
             => _transactionLockManager.WithTransactionWideLock(
                 aggregateId,
                 takeWriteLock,
-                () => _state.WithExclusiveAccess(
+                () => _state.Update(
                     state => state
                             .Events
                             .OrderBy(@this => @this.StorageInformation.ReadOrder)
@@ -42,8 +42,8 @@ namespace Composable.Persistence.InMemory.EventStore
 
         public void UpdateEffectiveVersions(IReadOnlyList<VersionSpecification> versions)
             => _transactionLockManager.WithTransactionWideLock(
-                _state.WithExclusiveAccess(state => state.Events.Single(@event => @event.EventId == versions[0].EventId)).AggregateId,
-                () => _state.WithExclusiveAccess(
+                _state.Update(state => state.Events.Single(@event => @event.EventId == versions[0].EventId)).AggregateId,
+                () => _state.Update(
                     state =>
                     {
                         foreach(var specification in versions)
@@ -72,8 +72,8 @@ namespace Composable.Persistence.InMemory.EventStore
 
         public EventNeighborhood LoadEventNeighborHood(Guid eventId)
             => _transactionLockManager.WithTransactionWideLock(
-                _state.WithExclusiveAccess(state => state.Events.Single(@event => @event.EventId == eventId)).AggregateId,
-                () => _state.WithExclusiveAccess(state =>
+                _state.Update(state => state.Events.Single(@event => @event.EventId == eventId)).AggregateId,
+                () => _state.Update(state =>
                 {
                     var found = state.Events.Single(@this => @this.EventId == eventId);
 
@@ -94,13 +94,13 @@ namespace Composable.Persistence.InMemory.EventStore
                 }));
 
         public IEnumerable<EventDataRow> StreamEvents(int batchSize)
-            => _state.WithExclusiveAccess(state => state.Events
+            => _state.Update(state => state.Events
                                                         .OrderBy(@event => @event.StorageInformation.ReadOrder)
                                                         .Where(@event => @event.StorageInformation.EffectiveVersion > 0)
                                                         .ToArray());
 
         public IReadOnlyList<CreationEventRow> ListAggregateIdsInCreationOrder()
-            => _state.WithExclusiveAccess(state =>
+            => _state.Update(state =>
             {
                 var found = new HashSet<Guid>();
                 var result = new List<CreationEventRow>();
@@ -119,7 +119,7 @@ namespace Composable.Persistence.InMemory.EventStore
         public void DeleteAggregate(Guid aggregateId)
             => _transactionLockManager.WithTransactionWideLock(
                 aggregateId,
-                () => _state.WithExclusiveAccess(state => state.DeleteAggregate(aggregateId)));
+                () => _state.Update(state => state.DeleteAggregate(aggregateId)));
 
         public void SetupSchemaIfDatabaseUnInitialized()
         { /*Nothing to do for an in-memory storage*/
@@ -128,7 +128,7 @@ namespace Composable.Persistence.InMemory.EventStore
         class State
         {
             List<EventDataRow> _events = new List<EventDataRow>();
-            OptimizedThreadShared<State> _state = null!;
+            IThreadShared<State> _state = null!;
 
             public IReadOnlyList<EventDataRow> Events
             {
@@ -157,8 +157,8 @@ namespace Composable.Persistence.InMemory.EventStore
                                               () =>
                                               {
                                                   new VolatileLambdaTransactionParticipant(
-                                                          onCommit: () => _state.WithExclusiveAccess(state => state._events.AddRange(state._overlays[transactionId])),
-                                                          onTransactionCompleted: __ => _state.WithExclusiveAccess(state => state._overlays.Remove(transactionId)))
+                                                          onCommit: () => _state.Update(state => state._events.AddRange(state._overlays[transactionId])),
+                                                          onTransactionCompleted: __ => _state.Update(state => state._overlays.Remove(transactionId)))
                                                      .EnsureEnlistedInAnyAmbientTransaction();
 
                                                   return new List<EventDataRow>();
@@ -183,7 +183,7 @@ namespace Composable.Persistence.InMemory.EventStore
             public void DeleteAggregate(Guid aggregateId) =>
                 _events = _events.Where(row => row.AggregateId != aggregateId).ToList();
 
-            public void Init(OptimizedThreadShared<State> @lock) =>
+            public void Init(IThreadShared<State> @lock) =>
                 _state = @lock;
         }
     }

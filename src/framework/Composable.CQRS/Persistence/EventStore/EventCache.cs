@@ -18,7 +18,7 @@ namespace Composable.Persistence.EventStore
             readonly EventCache _parent;
             readonly object _lock = new object();
 
-            readonly IThreadShared<Dictionary<string, Dictionary<Guid, Entry>>> _overlays = ThreadShared<Dictionary<string, Dictionary<Guid, Entry>>>.Optimized();
+            readonly IThreadShared<Dictionary<string, Dictionary<Guid, Entry>>> _overlays = ThreadShared.Create<Dictionary<string, Dictionary<Guid, Entry>>>();
 
             Dictionary<Guid, Entry> CurrentOverlay
             {
@@ -27,17 +27,17 @@ namespace Composable.Persistence.EventStore
                     var transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
                     Dictionary<Guid, Entry>? overlay = null;
 
-                    if(_overlays.WithExclusiveAccess(@this => @this.TryGetValue(transactionId, out overlay)))
+                    if(_overlays.Update(@this => @this.TryGetValue(transactionId, out overlay)))
                     {
                         return Assert.Result.NotNull(overlay);
                     }
 
                     overlay = new Dictionary<Guid, Entry>();
 
-                    _overlays.WithExclusiveAccess(@this => @this.Add(transactionId, overlay));
+                    _overlays.Update(@this => @this.Add(transactionId, overlay));
 
                     Transaction.Current.OnCommittedSuccessfully(() => _parent.AcceptTransactionResult(overlay));
-                    Transaction.Current.OnCompleted(() => _overlays.WithExclusiveAccess(@this => @this.Remove(transactionId)));
+                    Transaction.Current.OnCompleted(() => _overlays.Update(@this => @this.Remove(transactionId)));
 
                     return overlay;
                 }

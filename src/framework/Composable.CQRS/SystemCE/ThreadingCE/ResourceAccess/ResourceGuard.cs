@@ -5,6 +5,7 @@ using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
+    //Urgent: The split between this and LockCE does not seem to really make sense.
     class ResourceGuard : IResourceGuard
     {
         public static IResourceGuard WithTimeout(TimeSpan timeout) => new ResourceGuard(LockCE.WithTimeout(timeout));

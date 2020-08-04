@@ -10,6 +10,21 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         All
     }
 
+    // urgent: Carefully review monitor documentation: https://docs.microsoft.com/en-us/dotnet/api/system.threading.monitor?view=netcore-3.1
+    /*
+Note: Blocking == Context switch == about 20 nanoseconds to acquire a lock just turned into something like a microsecond or two at the very least. That's 50 times slower AT LEAST.
+   So: If we know that we are about to block, we can do other work here that would be unacceptable for the uncontended case.
+     Such as 
+        incrementing a counter of such instances of contention
+        logging once per 10^x contended locks including the stack trace.
+
+    TryEnter without a timeout value NEVER blocks and return a bool this lets us detect contention and act differently when we know we are about to block: https://tinyurl.com/y36v2fh6
+
+Note: In these cases we are allowed to do expensive work, as is SECONDS if required instead of nanoseconds, to diagnose what is severe application misbehavior, most likely a deadlock:
+  1.We have timed out unconditionally (Not a Try* method) acquiring the lock..
+  2. We are releasing a lock and see that others have timed out waiting for this lock.
+    */
+
     ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
     class LockCE
     {
@@ -44,9 +59,9 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
         internal bool TryAwaitAndAcquire(TimeSpan conditionTimeout, Func<bool> condition)
         {
+            bool acquiredLockStartingWait = false;
             try
             {
-                Interlocked.Increment(ref _waitingThreadCount);
                 var startTime = DateTime.UtcNow;
 
                 bool infiniteTimeout = conditionTimeout == InfiniteTimeout;
@@ -54,10 +69,14 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                 if(infiniteTimeout)
                 {
                     Acquire(DefaultTimeout);
+                    acquiredLockStartingWait = true;
+                    Interlocked.Increment(ref _waitingThreadCount);
                     while(!condition()) ReleaseWaitForSignalOrTimeoutAndReacquire(InfiniteTimeout);
                 } else
                 {
                     Acquire(conditionTimeout);
+                    acquiredLockStartingWait = true;
+                    Interlocked.Increment(ref _waitingThreadCount);
                     while(!condition())
                     {
                         var elapsedTime = DateTime.UtcNow - startTime;
@@ -74,7 +93,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             }
             finally
             {
-                Interlocked.Decrement(ref _waitingThreadCount);
+               if(acquiredLockStartingWait)  Interlocked.Decrement(ref _waitingThreadCount);
             }
 
             return true;

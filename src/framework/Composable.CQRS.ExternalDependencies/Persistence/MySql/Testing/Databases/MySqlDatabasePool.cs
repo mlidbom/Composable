@@ -22,7 +22,7 @@ namespace Composable.Persistence.MySql.Testing.Databases
                                       ?? "Server=localhost;Database=mysql;Uid=root;Pwd=;";
 
             _masterConnectionPool = IMySqlConnectionPool.CreateInstance(masterConnectionString);
-            _connectionStringBuilder = ThreadShared.Create<MySqlConnectionStringBuilder>(new MySqlConnectionStringBuilder(masterConnectionString));
+            _connectionStringBuilder = ThreadShared.WithDefaultTimeout<MySqlConnectionStringBuilder>(new MySqlConnectionStringBuilder(masterConnectionString));
         }
 
         protected override string ConnectionStringFor(Database db)

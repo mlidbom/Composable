@@ -60,9 +60,13 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         TResult UpdateWhenInternal<TResult>(TimeSpan timeout, Func<bool> condition, Func<TResult> func, SignalWaitingThreadsMode signalWaitingThreadsMode)
         {
             _lock.AwaitAndAcquire(timeout, condition);
-            using(DisposableCE.Create(() => _lock.SignalWaitingThreadsAndRelease(signalWaitingThreadsMode)))
+            try
             {
                 return func();
+            }
+            finally
+            {
+                _lock.SignalWaitingThreadsAndRelease(signalWaitingThreadsMode);
             }
         }
 

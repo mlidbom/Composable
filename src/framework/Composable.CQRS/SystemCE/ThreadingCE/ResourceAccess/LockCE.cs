@@ -19,7 +19,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
 #if NCRUNCH
         //Tests timeout at 60 seconds. We want locks to timeout faster so that the blocking stack traces turn up in the test output so we can diagnose the deadlocks.
-        internal static readonly TimeSpan DefaultTimeout = 55.Seconds();
+        internal static readonly TimeSpan DefaultTimeout = 45.Seconds();
 
 #else
         //MsSql default query timeout is 30 seconds. Default .Net transaction timeout is 60. If we reach 2 minutes it is all but guaranteed that we have an in-memory deadlock.
@@ -50,6 +50,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                 var startTime = DateTime.UtcNow;
 
                 bool infiniteTimeout = timeout == InfiniteTimeout;
+                //Urgent: We are using the timeout parameter for dramatically different things here. The time to wait for the initial lock before assuming deadlock and throwing, and the amount of time to wait for the condition to become true.
                 Acquire(timeout);
                 if(infiniteTimeout)
                 {
@@ -80,7 +81,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
         internal void Release() => Monitor.Exit(_lockObject);
 
-        void ReleaseWaitForSignalOrTimeoutAndReacquire(TimeSpan timeRemaining) { Monitor.Wait(_lockObject, timeRemaining); }
+        void ReleaseWaitForSignalOrTimeoutAndReacquire(TimeSpan timeout) { Monitor.Wait(_lockObject, timeout); }
 
         internal void SignalWaitingThreadsAndRelease(SignalWaitingThreadsMode signalWaitingThreadsMode)
         {

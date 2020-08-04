@@ -29,7 +29,7 @@ namespace Composable.Messaging.Buses.Implementation
                     _messageStorage = messageStorage;
                     _serviceLocator = serviceLocator;
                     _messageHandlerRegistry = messageHandlerRegistry;
-                    _implementation = ThreadShared.Create<NonThreadsafeImplementation>(new NonThreadsafeImplementation(globalStateTracker));
+                    _implementation = ThreadShared.WithDefaultTimeout(new NonThreadsafeImplementation(globalStateTracker));
                 }
 
                 internal HandlerExecutionTask AwaitExecutableHandlerExecutionTask(IReadOnlyList<IMessageDispatchingRule> dispatchingRules)

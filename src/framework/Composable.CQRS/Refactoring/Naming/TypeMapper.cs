@@ -13,7 +13,7 @@ namespace Composable.Refactoring.Naming
 {
     class TypeMapper : ITypeMapper, ITypeMappingRegistar
     {
-        readonly IThreadShared<State> _state = ThreadShared.Create<State>();
+        readonly IThreadShared<State> _state = ThreadShared.WithDefaultTimeout<State>();
 
         public TypeId GetId(Type type) => _state.Update(state =>
         {

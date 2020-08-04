@@ -98,7 +98,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _globalBusStateTracker = globalBusStateTracker;
                 var socket = new DealerSocket();
                 _socketDisposable = (IDisposable)socket;//Getting rid of the type means we don't need to worry about usage from the wrong threads.
-                _state = ThreadShared.Create<InboxConnectionState>(new InboxConnectionState());
+                _state = ThreadShared.WithDefaultTimeout<InboxConnectionState>(new InboxConnectionState());
 
                 poller.Add(_sendQueue);
 

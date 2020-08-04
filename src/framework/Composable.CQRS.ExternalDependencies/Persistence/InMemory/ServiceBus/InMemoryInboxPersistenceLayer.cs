@@ -11,7 +11,7 @@ namespace Composable.Persistence.InMemory.ServiceBus
 {
     class InMemoryInboxPersistenceLayer : IServiceBusPersistenceLayer.IInboxPersistenceLayer
     {
-        readonly IThreadShared<Implementation> _implementation = ThreadShared.Create<Implementation>(new Implementation());
+        readonly IThreadShared<Implementation> _implementation = ThreadShared.WithDefaultTimeout<Implementation>(new Implementation());
 
         public void SaveMessage(Guid messageId, Guid typeId, string serializedMessage) => _implementation.Update(@this => @this.SaveMessage(messageId, typeId, serializedMessage));
 

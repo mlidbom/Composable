@@ -11,7 +11,7 @@ namespace Composable.SystemCE.ThreadingCE
 {
     class MachineWideSingleThreaded
     {
-        static readonly IThreadShared<Dictionary<string, Mutex>> Cache = ThreadShared.Create<Dictionary<string, Mutex>>(new Dictionary<string, Mutex>());
+        static readonly IThreadShared<Dictionary<string, Mutex>> Cache = ThreadShared.WithDefaultTimeout<Dictionary<string, Mutex>>(new Dictionary<string, Mutex>());
 
         readonly Mutex _mutex;
         MachineWideSingleThreaded(string lockId)

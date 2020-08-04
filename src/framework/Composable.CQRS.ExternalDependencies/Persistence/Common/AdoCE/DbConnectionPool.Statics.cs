@@ -11,7 +11,7 @@ namespace Composable.Persistence.Common.AdoCE
         where TCommand : DbCommand
     {
         static readonly IThreadShared<Dictionary<string, IDbConnectionPool<TConnection, TCommand>>> Pools =
-            ThreadShared.Create<Dictionary<string, IDbConnectionPool<TConnection, TCommand>>>(new Dictionary<string, IDbConnectionPool<TConnection, TCommand>>());
+            ThreadShared.WithDefaultTimeout<Dictionary<string, IDbConnectionPool<TConnection, TCommand>>>(new Dictionary<string, IDbConnectionPool<TConnection, TCommand>>());
 
         internal static IDbConnectionPool<TConnection, TCommand> ForConnectionString(string connectionString, PoolableConnectionFlags flags, Func<string, TConnection> createConnection) =>
             Pools.Update(pools => pools.GetOrAdd(connectionString, constructor: () => Create(connectionString, flags, createConnection)));

@@ -18,7 +18,7 @@ namespace Composable.Persistence.EventStore
             readonly EventCache _parent;
             readonly object _lock = new object();
 
-            readonly IThreadShared<Dictionary<string, Dictionary<Guid, Entry>>> _overlays = ThreadShared.Create<Dictionary<string, Dictionary<Guid, Entry>>>();
+            readonly IThreadShared<Dictionary<string, Dictionary<Guid, Entry>>> _overlays = ThreadShared.WithDefaultTimeout<Dictionary<string, Dictionary<Guid, Entry>>>();
 
             Dictionary<Guid, Entry> CurrentOverlay
             {

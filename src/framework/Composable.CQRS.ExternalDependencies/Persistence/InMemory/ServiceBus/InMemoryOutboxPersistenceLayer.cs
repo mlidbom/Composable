@@ -13,7 +13,7 @@ namespace Composable.Persistence.InMemory.ServiceBus
 {
     class InMemoryOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
-        readonly IThreadShared<Implementation> _implementation = ThreadShared.Create<Implementation>(new Implementation());
+        readonly IThreadShared<Implementation> _implementation = ThreadShared.WithDefaultTimeout<Implementation>(new Implementation());
 
         public void SaveMessage(Message messageWithReceivers)
             => Transaction.Current.AddCommitTasks(() => _implementation.Update(@this => @this.SaveMessage(messageWithReceivers)));

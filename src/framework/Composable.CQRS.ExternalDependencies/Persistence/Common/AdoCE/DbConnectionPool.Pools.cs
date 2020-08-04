@@ -73,7 +73,7 @@ namespace Composable.Persistence.Common.AdoCE
         class TransactionAffinityDbConnectionPool : DefaultDbConnectionPool
         {
             readonly IThreadShared<Dictionary<string, Task<TConnection>>> _transactionConnections =
-                 ThreadShared.Create<Dictionary<string, Task<TConnection>>>();
+                 ThreadShared.WithDefaultTimeout<Dictionary<string, Task<TConnection>>>();
 
             public TransactionAffinityDbConnectionPool(string connectionString, Func<string, TConnection> createConnection) : base(connectionString, createConnection) {}
 

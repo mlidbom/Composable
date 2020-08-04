@@ -13,6 +13,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         IResourceLock AwaitUpdateLockWhen(TimeSpan timeout, Func<bool> condition);
         IResourceLock AwaitUpdateLock(TimeSpan? timeout = null);
 
+        //Urgent: This makes no sense. The Timeout member is about lock timeouts, not about conditions.
         void Await(Func<bool> condition) => Await(Timeout, condition);
         bool TryAwait(Func<bool> condition) => TryAwait(Timeout, condition);
 

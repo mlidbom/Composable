@@ -8,7 +8,7 @@ namespace Composable.SystemCE.TransactionsCE
 {
     static class VolatileLambdaTransactionParticipantExtensions
     {
-        static readonly IThreadShared<Dictionary<string, VolatileLambdaTransactionParticipant>> Participants = ThreadShared.Create<Dictionary<string, VolatileLambdaTransactionParticipant>>();
+        static readonly IThreadShared<Dictionary<string, VolatileLambdaTransactionParticipant>> Participants = ThreadShared.WithDefaultTimeout<Dictionary<string, VolatileLambdaTransactionParticipant>>();
 
         public static Transaction AddCommitTasks(this Transaction @this, params Action[] actions) => UseParticipant(@this, part => part.AddCommitTasks(actions));
         public static Transaction AddRollbackTasks(this Transaction @this, params Action[] actions) => UseParticipant(@this, part => part.AddRollbackTasks(actions));

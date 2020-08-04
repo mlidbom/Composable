@@ -21,7 +21,7 @@ namespace Composable.Persistence.Oracle.Testing.Databases
             var masterConnectionString = Environment.GetEnvironmentVariable(ConnectionStringConfigurationParameterName)
                                       ?? "Data Source=127.0.0.1:1521/orclpdb; DBA Privilege=SYSDBA; User Id=sys; Password=Development!1;";
 
-            _connectionStringBuilder = ThreadShared.Create<OracleConnectionStringBuilder>(new OracleConnectionStringBuilder(masterConnectionString));
+            _connectionStringBuilder = ThreadShared.WithDefaultTimeout<OracleConnectionStringBuilder>(new OracleConnectionStringBuilder(masterConnectionString));
             _masterConnectionPool = IOracleConnectionPool.CreateInstance(masterConnectionString);
         }
 

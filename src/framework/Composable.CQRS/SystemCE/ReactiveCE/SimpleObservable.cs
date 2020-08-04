@@ -9,7 +9,7 @@ namespace Composable.SystemCE.ReactiveCE
     ///<summary>Simple implementation of <see cref="IObservable{T}"/> that tracks subscribers and allows for calling OnNext on them all at once.</summary>
     class SimpleObservable<TEvent> : IObservable<TEvent>
     {
-        readonly IThreadShared<HashSet<IObserver<TEvent>>> _observerCollection = ThreadShared.Create<HashSet<IObserver<TEvent>>>();
+        readonly IThreadShared<HashSet<IObserver<TEvent>>> _observerCollection = ThreadShared.WithDefaultTimeout<HashSet<IObserver<TEvent>>>();
 
         ///<summary>Calls <see cref="IObserver{T}.OnNext"/> for each subscribed observer.</summary>
         public void OnNext(TEvent @event)

@@ -101,11 +101,11 @@ namespace Composable.Tests.System.Threading.ResourceAccess
                                             .InnerExceptions.Single();
 
                 TaskCE.Run($"Wait_And_{nameof(DisposeOwningThreadLock)}",
-                           () =>
+                           async () =>
                            {
-                               Thread.Sleep(ownerThreadWaitTime);
+                               await Task.Delay(ownerThreadWaitTime);
                                DisposeOwningThreadLock(updateLock);
-                           });
+                           }).Wait();
 
                 return thrownException;
             }

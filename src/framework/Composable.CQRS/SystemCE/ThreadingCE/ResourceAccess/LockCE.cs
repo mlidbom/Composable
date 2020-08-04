@@ -34,34 +34,35 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
         LockCE(TimeSpan defaultTimeout) => Timeout = defaultTimeout;
 
-        internal void AwaitAndAcquire(TimeSpan timeout, Func<bool> condition)
+        internal void AwaitAndAcquire(TimeSpan conditionTimeout, Func<bool> condition)
         {
-            if(!TryAwaitAndAcquire(timeout, condition))
+            if(!TryAwaitAndAcquire(conditionTimeout, condition))
             {
                 throw new AwaitingConditionTimedOutException();
             }
         }
 
-        internal bool TryAwaitAndAcquire(TimeSpan timeout, Func<bool> condition)
+        internal bool TryAwaitAndAcquire(TimeSpan conditionTimeout, Func<bool> condition)
         {
             try
             {
                 Interlocked.Increment(ref _waitingThreadCount);
                 var startTime = DateTime.UtcNow;
 
-                bool infiniteTimeout = timeout == InfiniteTimeout;
-                //Urgent: We are using the timeout parameter for dramatically different things here. The time to wait for the initial lock before assuming deadlock and throwing, and the amount of time to wait for the condition to become true.
-                Acquire(timeout);
+                bool infiniteTimeout = conditionTimeout == InfiniteTimeout;
+
                 if(infiniteTimeout)
                 {
+                    Acquire(DefaultTimeout);
                     while(!condition()) ReleaseWaitForSignalOrTimeoutAndReacquire(InfiniteTimeout);
                 } else
                 {
+                    Acquire(conditionTimeout);
                     while(!condition())
                     {
                         var elapsedTime = DateTime.UtcNow - startTime;
-                        var timeRemaining = timeout - elapsedTime;
-                        if(elapsedTime > timeout)
+                        var timeRemaining = conditionTimeout - elapsedTime;
+                        if(elapsedTime > conditionTimeout)
                         {
                             Release();
                             return false;

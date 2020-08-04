@@ -15,16 +15,15 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         int _timeoutsThrownDuringCurrentLock;
 
         readonly LockCE _lock;
+        ResourceGuard(LockCE @lock) => _lock = @lock;
         public TimeSpan Timeout => _lock.Timeout;
 
-        ResourceGuard(LockCE @lock) => _lock = @lock;
+        public void Await(TimeSpan conditionTimeout, Func<bool> condition) =>
+            _lock.AwaitAndAcquire(conditionTimeout, condition);
 
-        public void Await(TimeSpan timeOut, Func<bool> condition) =>
-            _lock.AwaitAndAcquire(timeOut, condition);
-
-        public bool TryAwait(TimeSpan timeOut, Func<bool> condition)
+        public bool TryAwait(TimeSpan conditionTimeout, Func<bool> condition)
         {
-            if(_lock.TryAwaitAndAcquire(timeOut, condition))
+            if(_lock.TryAwaitAndAcquire(conditionTimeout, condition))
             {
                 _lock.Release();
                 return true;
@@ -45,21 +44,21 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         public TResult UpdateWhen<TResult>(TimeSpan timeout, Func<bool> condition, Func<TResult> update) =>
             UpdateWhenInternal(timeout, condition, update, SignalWaitingThreadsMode.All);
 
-        public IResourceLock AwaitUpdateLockWhen(TimeSpan timeout, Func<bool> condition) =>
-            AwaitExclusiveLockWhenInternal(timeout, condition, SignalWaitingThreadsMode.All);
+        public IResourceLock AwaitUpdateLockWhen(TimeSpan conditionTimeout, Func<bool> condition) =>
+            AwaitExclusiveLockWhenInternal(conditionTimeout, condition, SignalWaitingThreadsMode.All);
 
-        public IResourceLock AwaitUpdateLock(TimeSpan? timeout = null) =>
+        public IResourceLock AwaitUpdateLock(TimeSpan timeout) =>
             AwaitExclusiveLockInternal(timeout, SignalWaitingThreadsMode.All);
 
-        ResourceLock AwaitExclusiveLockWhenInternal(TimeSpan timeout, Func<bool> condition, SignalWaitingThreadsMode signalWaitingThreadsMode)
+        ResourceLock AwaitExclusiveLockWhenInternal(TimeSpan conditionTimeout, Func<bool> condition, SignalWaitingThreadsMode signalWaitingThreadsMode)
         {
-            _lock.AwaitAndAcquire(timeout, condition);
+            _lock.AwaitAndAcquire(conditionTimeout, condition);
             return new ResourceLock(this, signalWaitingThreadsMode);
         }
 
-        TResult UpdateWhenInternal<TResult>(TimeSpan timeout, Func<bool> condition, Func<TResult> func, SignalWaitingThreadsMode signalWaitingThreadsMode)
+        TResult UpdateWhenInternal<TResult>(TimeSpan conditionTimeout, Func<bool> condition, Func<TResult> func, SignalWaitingThreadsMode signalWaitingThreadsMode)
         {
-            _lock.AwaitAndAcquire(timeout, condition);
+            _lock.AwaitAndAcquire(conditionTimeout, condition);
             try
             {
                 return func();

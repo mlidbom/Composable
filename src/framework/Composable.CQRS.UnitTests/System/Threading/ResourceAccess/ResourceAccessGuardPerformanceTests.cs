@@ -55,7 +55,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
                                          maxTotal: totalLocks.Microseconds().IfInstrumentedMultiplyBy(1.5));
         }
 
-        [Test] public void Average_contended_ReadLock_time_is_less_than_1_microsecond()
+        [Test] public void Average_contended_Read_time_is_less_than_1_microsecond()
         {
             var guard = ResourceGuard.WithTimeout(1.Seconds());
 
@@ -67,10 +67,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             void HammerUpdateLocks()
             {
                 for(var i = 0; i < locksPerIteration; i++)
-                    using(guard.AwaitReadLock())
-                    {
-                        DoNothing();
-                    }
+                    guard.Read(ReadNothing);
             }
             //ncrunch: no coverage end
 
@@ -80,7 +77,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
                                                   maxTotal: totalLocks.Microseconds().IfInstrumentedMultiplyBy(3));
         }
 
-        [Test] public void Average_uncontended_ReadLock_time_is_less_than_200_nanoseconds()
+        [Test] public void Average_uncontended_Read_time_is_less_than_200_nanoseconds()
         {
             var guard = ResourceGuard.WithTimeout(100.Milliseconds());
 
@@ -90,10 +87,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             void HammerUpdateLocks()
             {
                 for(var i = 0; i < totalLocks; i++)
-                    using(guard.AwaitReadLock())
-                    {
-                        DoNothing();
-                    }
+                    guard.Read(ReadNothing);
             }
             //ncrunch: no coverage end
 
@@ -151,6 +145,18 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             if(_doSomething)
             {
                 Console.WriteLine("Something");
+            }
+        }
+
+        readonly object _readObject = new object();
+        object ReadNothing()
+        {
+            if(_doSomething)
+            {
+                return _readObject;
+            } else
+            {
+                return null!;
             }
         }
     }

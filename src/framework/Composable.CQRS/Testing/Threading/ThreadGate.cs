@@ -44,7 +44,7 @@ namespace Composable.Testing.Threading
             return this.AwaitClosed();
         }
 
-        public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _resourceGuard.TryAwaitCondition(timeout, condition);
+        public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _resourceGuard.TryAwait(timeout, condition);
 
         public IThreadGate SetPostPassThroughAction(Action<ThreadSnapshot> action) => this.Mutate(_ => _resourceGuard.Update(() => _postPassThroughAction = action));
         public IThreadGate SetPrePassThroughAction(Action<ThreadSnapshot> action) => this.Mutate(_ => _resourceGuard.Update(() => _prePassThroughAction = action));

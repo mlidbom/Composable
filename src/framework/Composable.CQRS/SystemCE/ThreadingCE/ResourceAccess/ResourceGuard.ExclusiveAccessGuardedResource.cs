@@ -21,12 +21,12 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                 DefaultTimeout = defaultTimeout;
             }
 
-            public void Await(Func<bool> condition) =>
-                _lock.AwaitAndAcquire(DefaultTimeout, condition);
+            public void Await(TimeSpan timeOut, Func<bool> condition) =>
+                _lock.AwaitAndAcquire(timeOut, condition);
 
-            public bool TryAwait(Func<bool> condition)
+            public bool TryAwait(TimeSpan timeOut, Func<bool> condition)
             {
-                if(_lock.TryAwaitAndAcquire(DefaultTimeout, condition))
+                if(_lock.TryAwaitAndAcquire(timeOut, condition))
                 {
                     _lock.Release();
                     return true;
@@ -46,12 +46,6 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
             public TResult UpdateWhen<TResult>(TimeSpan timeout, Func<bool> condition, Func<TResult> update) =>
                 UpdateWhenInternal(timeout, condition, update, SignalWaitingThreadsMode.All);
-
-            public IResourceLock AwaitReadLockWhen(TimeSpan timeout, Func<bool> condition) =>
-                AwaitExclusiveLockWhenInternal(timeout, condition, SignalWaitingThreadsMode.None);
-
-            public IResourceLock AwaitReadLock(TimeSpan? timeout = null) =>
-                AwaitExclusiveLockInternal(timeout, SignalWaitingThreadsMode.None);
 
             public IResourceLock AwaitUpdateLockWhen(TimeSpan timeout, Func<bool> condition) =>
                 AwaitExclusiveLockWhenInternal(timeout, condition, SignalWaitingThreadsMode.All);

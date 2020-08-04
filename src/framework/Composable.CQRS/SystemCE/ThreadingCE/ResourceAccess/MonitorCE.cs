@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
@@ -102,16 +103,16 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
 
         internal void Exit() => Monitor.Exit(_lockObject);
 
-        void Wait(TimeSpan timeout) { Monitor.Wait(_lockObject, timeout); }
+        void Wait(TimeSpan timeout) => Monitor.Wait(_lockObject, timeout);
 
         ///<summary>Note that while Signal calls <see cref="Monitor.PulseAll"/> it only does so if there are waiting threads. There is no overhead if there are no waiting threads.</summary>
-        internal void SignalAndExit(NotifyWaiting notifyWaiting)
+        internal void NotifyWaitingExit(NotifyWaiting notifyWaiting)
         {
-            WakeWaiting(notifyWaiting);
+            NotifyWaiting(notifyWaiting);
             Exit();
         }
 
-        internal void WakeWaiting(NotifyWaiting notifyWaiting)
+        internal void NotifyWaiting(NotifyWaiting notifyWaiting)
         {
             if(_waitingThreadCount == 0)
             {
@@ -131,7 +132,36 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
             }
         }
 
-        internal void Enter(TimeSpan? timeout = null)
+        internal void Update(Action action)
+        {
+            Enter();
+            try
+            {
+                action();
+            }
+            finally
+            {
+                NotifyWaiting(ResourceAccess.NotifyWaiting.All);
+                Exit();
+            }
+        }
+
+        internal TReturn Read<TReturn>(Func<TReturn> func)
+        {
+            Enter();
+            try
+            {
+                return func();
+            }
+            finally
+            {
+                Exit();
+            }
+        }
+
+        internal void Enter() => Enter(Timeout);
+
+        internal void Enter(TimeSpan timeout)
         {
             if(!TryEnter(timeout))
             {
@@ -142,12 +172,13 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
         ///<summary>Tries to enter the monitor. Will never block.</summary>
         internal bool TryEnterNonBlocking() => Monitor.TryEnter(_lockObject);
 
-        internal bool TryEnter(TimeSpan? timeout = null)
+        internal bool TryEnter(TimeSpan timeout)
         {
+            if(TryEnterNonBlocking()) return true;
             var lockTaken = false;
             try
             {
-                Monitor.TryEnter(_lockObject, timeout ?? Timeout, ref lockTaken);
+                Monitor.TryEnter(_lockObject, timeout, ref lockTaken);
             }
             catch(Exception) //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
             {

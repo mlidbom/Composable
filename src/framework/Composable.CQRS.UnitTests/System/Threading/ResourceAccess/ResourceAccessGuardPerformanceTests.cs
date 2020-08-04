@@ -1,6 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
@@ -8,6 +6,7 @@ using Composable.Testing.Performance;
 using Composable.Testing;
 using NCrunch.Framework;
 using NUnit.Framework;
+
 // ReSharper disable InconsistentlySynchronizedField
 
 namespace Composable.Tests.System.Threading.ResourceAccess
@@ -22,16 +21,6 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             readonly object _lock = new object();
 
             internal long Read() => Value;
-
-            internal long ReadLocked()
-            {
-                lock(_lock) return Value;
-            }
-
-            internal void IncrementLocked()
-            {
-                lock(_lock)Value++;
-            }
         }
 
         class MyFakeGuard
@@ -40,273 +29,142 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             public TResult Read<TResult>(Func<TResult> read) => read();
 
             //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Update(Action action) { }
+            public void Update(Action action) {}
 
             //[MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TResult Update<TResult>(Func<TResult> update) => update();
         }
 
-        [SetUp] public void SetupTask() { _doSomething = false; }
-
-        [Test] public void Average_failed_TryEnter_time_is_less_than_15_nanoseconds()
+        class Locker
         {
-            var guard = MonitorCE.WithTimeout(1.Seconds());
-
-            const int totalLocks = 1_000_000;
-
-            //ncrunch: no coverage start
-            void HammerTryEnter()
+            readonly object _lock = new object();
+            public TResult Read<TResult>(Func<TResult> read)
             {
-                for(var i = 0; i < totalLocks; i++)
-                    guard.TryEnterNonBlocking();
+                lock(_lock) return read();
             }
-            //ncrunch: no coverage end
 
-            try
+            public void Update(Action action)
             {
-                guard.Enter();
-                var time = Task.Run(() => TimeAsserter.Execute(HammerTryEnter, maxTotal: (15 * totalLocks).IfInstrumentedMultiplyBy(8).Nanoseconds())).Result;
+                lock(_lock) action();
             }
-            finally
+
+            public TResult Update<TResult>(Func<TResult> update)
             {
-                guard.Exit();
+                lock(_lock) return update();
             }
-        }
-
-        [Test] public void Average_successful_TryEnter_time_is_less_than_20_nanoseconds()
-        {
-            var guard = MonitorCE.WithTimeout(1.Seconds());
-
-            const int totalLocks = 1_000_000;
-
-            //ncrunch: no coverage start
-            void HammerTryEnter()
-            {
-                for(var i = 0; i < totalLocks; i++)
-                    guard.TryEnterNonBlocking();
-            }
-            //ncrunch: no coverage end
-
-            TimeAsserter.Execute(HammerTryEnter, maxTotal: (20 * totalLocks).IfInstrumentedMultiplyBy(6).Nanoseconds());
-        }
-
-        [Test] public void Average_uncontended_Update_time_is_less_than_200_nanoseconds()
-        {
-            var guard = ResourceGuard.WithTimeout(100.Milliseconds());
-
-            const int totalLocks = 1_000_000;
-
-            var guarded = new MyLong();
-
-            //ncrunch: no coverage start
-            void HammerUpdateLocks()
-            {
-                for(var i = 0; i < totalLocks; i++)
-                    guard.Update(guarded.Increment);
-            }
-            //ncrunch: no coverage end
-
-            TimeAsserter.Execute(HammerUpdateLocks, maxTotal: (200 * totalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
-        }
-
-        [Test] public void Average_contended_Update_time_is_less_than_1_microsecond()
-        {
-            var guard = ResourceGuard.WithTimeout(100.Milliseconds());
-
-            const int totalLocks = 1_000_000;
-            const int iterations = 100;
-            const int locksPerIteration = totalLocks / iterations;
-
-            var guarded = new MyLong();
-            //ncrunch: no coverage start
-            void HammerUpdateLocks()
-            {
-                for(var i = 0; i < locksPerIteration; i++)
-                    guard.Update(guarded.Increment);
-            }
-            //ncrunch: no coverage end
-
-            TimeAsserter.ExecuteThreadedLowOverhead(HammerUpdateLocks,
-                                                    iterations,
-                                                    description: $"Take {locksPerIteration} update locks",
-                                                    maxTotal: totalLocks.Microseconds().IfInstrumentedMultiplyBy(1.5));
-        }
-
-        [Test] public void Average_contended_Read_time_is_less_than_1_microsecond()
-        {
-            var guard = ResourceGuard.WithTimeout(1.Seconds());
-
-            const int totalLocks = 1_000_000;
-            const int iterations = 100;
-            const int locksPerIteration = totalLocks / iterations;
-            var guarded = new MyLong();
-
-            //ncrunch: no coverage start
-            void HammerUpdateLocks()
-            {
-                for(var i = 0; i < locksPerIteration; i++)
-                    guard.Read(guarded.Read);
-            }
-            //ncrunch: no coverage end
-
-            TimeAsserter.ExecuteThreadedLowOverhead(HammerUpdateLocks,
-                                                    iterations,
-                                                    description: $"Take {locksPerIteration} update locks",
-                                                    maxTotal: totalLocks.Microseconds().IfInstrumentedMultiplyBy(3));
-        }
-
-        [Test] public void Average_uncontended_Read_time_is_less_than_150_nanoseconds()
-        {
-            var guard = ResourceGuard.WithTimeout(100.Milliseconds());
-
-            const int totalLocks = 1_000_000;
-
-            var guarded = new MyLong();
-
-            //ncrunch: no coverage start
-            void HammerUpdateLocks()
-            {
-                for(var i = 0; i < totalLocks; i++)
-                    guard.Read(guarded.Read);
-            }
-            //ncrunch: no coverage end
-
-            TimeAsserter.Execute(HammerUpdateLocks, maxTotal: (150 * totalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
-        }
-
-        [Test] public void Average_uncontended_LockedRead_time_is_less_than_30_nanoseconds()
-        {
-            const int totalLocks = 1_000_000;
-
-            var guarded = new MyLong();
-
-            //ncrunch: no coverage start
-            void HammerUpdateLocks()
-            {
-                for(var i = 0; i < totalLocks; i++)
-                    guarded.ReadLocked();
-            }
-            //ncrunch: no coverage end
-
-            TimeAsserter.Execute(HammerUpdateLocks, maxTotal: (30 * totalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
-        }
-
-        [Test] public void Average_uncontended_LockedIncrement_time_is_less_than_30_nanoseconds()
-        {
-            const int totalLocks = 1_000_000;
-
-            var guarded = new MyLong();
-
-            //ncrunch: no coverage start
-            void HammerUpdateLocks()
-            {
-                for(var i = 0; i < totalLocks; i++)
-                    guarded.IncrementLocked();
-            }
-            //ncrunch: no coverage end
-
-            TimeAsserter.Execute(HammerUpdateLocks, maxTotal: (30 * totalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
-        }
-
-        [Test] public void Average_uncontended_FakeUpdate_time_is_less_than_30_nanoseconds()
-        {
-            const int totalLocks = 1_000_000;
-
-            var guarded = new MyLong();
-            var fakeGuard = new MyFakeGuard();
-
-            //ncrunch: no coverage start
-            void HammerUpdateLocks()
-            {
-                for(var i = 0; i < totalLocks; i++)
-                    fakeGuard.Update(guarded.Increment);
-            }
-            //ncrunch: no coverage end
-
-            TimeAsserter.Execute(HammerUpdateLocks, maxTotal: (30 * totalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
-        }
-
-        [Test] public void Average_uncontended_FakeRead_time_is_less_than_30_nanoseconds()
-        {
-            const int totalLocks = 1_000_000;
-
-            var guarded = new MyLong();
-            var fakeGuard = new MyFakeGuard();
-
-            //ncrunch: no coverage start
-            void HammerUpdateLocks()
-            {
-                for(var i = 0; i < totalLocks; i++)
-                    fakeGuard.Read(guarded.Read);
-            }
-            //ncrunch: no coverage end
-
-            TimeAsserter.Execute(HammerUpdateLocks, maxTotal: (30 * totalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
-        }
-
-        [Test] public void Average_contended_UpdateLock_time_is_less_than_1_microsecond()
-        {
-            var guard = ResourceGuard.WithTimeout(1.Seconds());
-
-            const int totalLocks = 1_000_000;
-            const int iterations = 100;
-            const int locksPerIteration = totalLocks / iterations;
-
-            //ncrunch: no coverage start
-            void HammerUpdateLocks()
-            {
-                for(var i = 0; i < locksPerIteration; i++)
-                    using(guard.AwaitUpdateLock())
-                    {
-                        DoNothing();
-                    }
-            }
-            //ncrunch: no coverage end
-
-            TimeAsserter.ExecuteThreadedLowOverhead(HammerUpdateLocks,
-                                                    iterations,
-                                                    description: $"Take {locksPerIteration} update locks",
-                                                    maxTotal: totalLocks.Microseconds().IfInstrumentedMultiplyBy(3));
-        }
-
-        [Test] public void Average_uncontended_UpdateLock_time_is_less_than_250_nanoseconds()
-        {
-            var guard = ResourceGuard.WithTimeout(100.Milliseconds());
-
-            const int totalLocks = 1_000_000;
-
-            //ncrunch: no coverage start
-            void HammerUpdateLocks()
-            {
-                for(var i = 0; i < totalLocks; i++)
-                    using(guard.AwaitUpdateLock())
-                    {
-                        DoNothing();
-                    }
-            }
-            //ncrunch: no coverage end
-
-            TimeAsserter.Execute(HammerUpdateLocks, maxTotal: (250 * totalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
         }
 
         bool _doSomething = true;
+        MyLong _guarded;
+        Locker _locker;
+        MonitorCE _monitor;
+        IResourceGuard _guard;
+        MyFakeGuard _fakeGuard;
+        const int TotalLocks = 1_000_000;
+        const int Iterations = 100;
+        const int LocksPerIteration = TotalLocks / Iterations;
+
+        [SetUp] public void SetupTask()
+        {
+            _locker = new Locker();
+            _monitor = MonitorCE.WithDefaultTimeout();
+            _guard = ResourceGuard.WithDefaultTimeout();
+            _guarded = new MyLong();
+            _fakeGuard = new MyFakeGuard();
+            _doSomething = false;
+        }
+
+        static void RunSingleThreadedScenario(Action action, TimeSpan maxTotal)
+        {
+            //ncrunch: no coverage start
+            void HammerScenario()
+            {
+                for(var i = 0; i < TotalLocks; i++)
+                    action();
+            }
+            //ncrunch: no coverage end
+
+            TimeAsserter.Execute(HammerScenario, maxTotal: maxTotal);
+        }
+
+        public static void RunMultiThreadedScenario(Action action, TimeSpan maxTotal)
+        {
+            //ncrunch: no coverage start
+            void HammerScenario()
+            {
+                for(var i = 0; i < LocksPerIteration; i++)
+                    action();
+            }
+            //ncrunch: no coverage end
+
+            TimeAsserter.ExecuteThreadedLowOverhead(HammerScenario, Iterations, maxTotal: maxTotal);
+        }
+
+        [Test] public void Average_failed_TryEnter_time_is_less_than_15_nanoseconds()
+        {
+            try
+            {
+                _monitor.Enter();
+                Task.Run(() => RunMultiThreadedScenario(() => _monitor.TryEnterNonBlocking(), maxTotal: (15 * TotalLocks).IfInstrumentedMultiplyBy(8).Nanoseconds()));
+            }
+            finally
+            {
+                _monitor.Exit();
+            }
+        }
+
+        [Test] public void Average_uncontended_LockedRead_time_is_less_than_30_nanoseconds() =>
+            RunSingleThreadedScenario(() => _locker.Read(_guarded.Read), maxTotal: (23 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
+        [Test] public void Average_uncontended_LockedIncrement_time_is_less_than_30_nanoseconds() =>
+            RunSingleThreadedScenario(() => _locker.Update(_guarded.Increment), maxTotal: (23 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
+        [Test] public void Average_uncontended_MonitorCE_Read_time_is_less_than_32_nanoseconds() =>
+            RunSingleThreadedScenario(() => _monitor.Read(_guarded.Read), maxTotal: (27 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
+        [Test] public void Average_uncontended_MonitorCE_Increment_time_is_less_than_35_nanoseconds() =>
+            RunSingleThreadedScenario(() => _monitor.Update(_guarded.Increment), maxTotal: (28 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
+        [Test] public void Average_successful_TryEnter_time_is_less_than_20_nanoseconds() =>
+            RunSingleThreadedScenario(() => _monitor.TryEnterNonBlocking(), maxTotal: (20 * TotalLocks).IfInstrumentedMultiplyBy(6).Nanoseconds());
+
+        [Test] public void Average_uncontended_Update_time_is_less_than_200_nanoseconds() =>
+            RunSingleThreadedScenario(() => _guard.Update(_guarded.Increment), maxTotal: (200 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
+        [Test] public void Average_contended_Update_time_is_less_than_1_microsecond() =>
+            RunMultiThreadedScenario(() => _guard.Update(_guarded.Increment), maxTotal: TotalLocks.Microseconds().IfInstrumentedMultiplyBy(1.5));
+
+        [Test] public void Average_contended_Read_time_is_less_than_200_nanoseconds() =>
+            RunMultiThreadedScenario(() => _guard.Read(_guarded.Read), maxTotal: (200 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(3));
+
+        [Test] public void Average_uncontended_Read_time_is_less_than_150_nanoseconds() =>
+            RunSingleThreadedScenario(() => _guard.Read(_guarded.Read), maxTotal: (150 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
+        [Test] public void Average_uncontended_FakeUpdate_time_is_less_than_35_nanoseconds() =>
+            RunSingleThreadedScenario(() => _fakeGuard.Update(_guarded.Increment), maxTotal: (30 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
+        [Test] public void Average_uncontended_FakeRead_time_is_less_than_30_nanoseconds() =>
+            RunSingleThreadedScenario(() => _fakeGuard.Read(_guarded.Read), maxTotal: (30 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
+        [Test] public void Average_contended_UpdateLock_time_is_less_than_1_microsecond() =>
+            RunMultiThreadedScenario(() =>
+                                     {
+                                         using(_guard.AwaitUpdateLock()) DoNothing();
+                                     },
+                                     maxTotal: TotalLocks.Microseconds().IfInstrumentedMultiplyBy(3));
+
+        [Test] public void Average_uncontended_UpdateLock_time_is_less_than_250_nanoseconds() =>
+            RunSingleThreadedScenario(() =>
+                                      {
+                                          using(_guard.AwaitUpdateLock()) DoNothing();
+                                      },
+                                      maxTotal: (250 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
+
         void DoNothing()
         {
             if(_doSomething)
             {
                 Console.WriteLine("Something");
-            }
-        }
-
-        readonly object _readObject = new object();
-        object ReadNothing()
-        {
-            if(_doSomething)
-            {
-                return _readObject;
-            } else
-            {
-                return null!;
             }
         }
     }

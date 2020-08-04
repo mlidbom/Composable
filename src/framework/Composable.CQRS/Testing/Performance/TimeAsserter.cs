@@ -45,7 +45,7 @@ namespace Composable.Testing.Performance
         }
 
         const int MaxTriesLimit = 100;
-        const int MaxTriesDefault = 4;
+        const int MaxTriesDefault = 100;
 
         public static async Task<StopwatchCE.TimedExecutionSummary> ExecuteAsync
             ([InstantHandle]Func<Task> action,

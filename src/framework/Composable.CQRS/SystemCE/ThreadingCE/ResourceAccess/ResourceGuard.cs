@@ -66,11 +66,12 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             }
             finally
             {
-                _monitor.SignalAndExit(notifyWaiting);
+                _monitor.NotifyWaitingExit(notifyWaiting);
             }
         }
 
-        void AcquireLock(TimeSpan? timeout)
+
+        void AcquireLock(TimeSpan timeout)
         {
             if(!_monitor.TryEnter(timeout))
             {
@@ -84,7 +85,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             }
         }
 
-        ResourceLock AwaitExclusiveLockInternal(TimeSpan? timeout, NotifyWaiting notifyWaiting)
+        ResourceLock AwaitExclusiveLockInternal(TimeSpan timeout, NotifyWaiting notifyWaiting)
         {
             AcquireLock(timeout);
             return new ResourceLock(this, notifyWaiting);
@@ -92,14 +93,14 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
         TResult EnterDoNotifyExit<TResult>(Func<TResult> func, NotifyWaiting notifyMode)
         {
-            AcquireLock(null);
+            AcquireLock(Timeout);
             try
             {
                 return func();
             }
             finally
             {
-                _monitor.SignalAndExit(notifyMode);
+                _monitor.NotifyWaitingExit(notifyMode);
             }
         }
 
@@ -142,7 +143,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                 }
                 finally
                 {
-                    _guard._monitor.SignalAndExit(_notifyWaiting);
+                    _guard._monitor.NotifyWaitingExit(_notifyWaiting);
                 }
             }
         }

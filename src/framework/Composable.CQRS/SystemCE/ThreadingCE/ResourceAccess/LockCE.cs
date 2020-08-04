@@ -19,7 +19,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
         TimeSpan DefaultTimeout { get; set; }
 
-        public static LockCE Create() => new LockCE(InfiniteTimeout);
+        public static LockCE WithInfiniteTimeout() => new LockCE(InfiniteTimeout);
         public static LockCE WithTimeout(TimeSpan defaultTimeout) => new LockCE(defaultTimeout);
 
         LockCE(TimeSpan defaultTimeout) => DefaultTimeout = defaultTimeout;
@@ -40,7 +40,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                 var startTime = DateTime.UtcNow;
 
                 bool infiniteTimeout = timeout == InfiniteTimeout;
-                AcquireLock(timeout);
+                Acquire(timeout);
                 if(infiniteTimeout)
                 {
                     while(!condition()) ReleaseWaitForSignalOrTimeoutAndReacquire(InfiniteTimeout);
@@ -98,15 +98,15 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             }
         }
 
-        internal void AcquireLock(TimeSpan? timeout)
+        internal void Acquire(TimeSpan? timeout)
         {
-            if(!TryAcquireLock(timeout))
+            if(!TryAcquire(timeout))
             {
                 throw new AcquireLockTimeoutException();
             }
         }
 
-        internal bool TryAcquireLock(TimeSpan? timeout)
+        internal bool TryAcquire(TimeSpan? timeout)
         {
             var lockTaken = false;
             try

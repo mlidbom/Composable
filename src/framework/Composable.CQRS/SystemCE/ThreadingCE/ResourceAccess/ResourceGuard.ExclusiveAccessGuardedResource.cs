@@ -70,7 +70,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
             void AcquireLock(TimeSpan? timeout)
             {
-                if(!_lock.TryAcquireLock(timeout ?? DefaultTimeout))
+                if(!_lock.TryAcquire(timeout ?? DefaultTimeout))
                 {
                     lock(_timeOutExceptionsOnOtherThreads)
                     {

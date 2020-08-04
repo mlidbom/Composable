@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
-    enum SignalWaitingThreadsMode
+    enum NotifyWaiting
     {
         None,
         One,
@@ -26,7 +26,7 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
     */
 
     ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
-    class LockCE
+    class MonitorCE
     {
         int _waitingThreadCount;
         readonly object _lockObject = new object();
@@ -39,25 +39,26 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
 #else
         //MsSql default query timeout is 30 seconds. Default .Net transaction timeout is 60. If we reach 2 minutes it is all but guaranteed that we have an in-memory deadlock.
         internal static readonly TimeSpan DefaultTimeout = 2.Minutes();
-
 #endif
+        internal static readonly TimeSpan NonBlockingTimeout = TimeSpan.Zero;
+
         internal TimeSpan Timeout { get; set; }
 
-        public static LockCE WithDefaultTimeout() => new LockCE(DefaultTimeout);
-        public static LockCE WithInfiniteTimeout() => new LockCE(InfiniteTimeout);
-        public static LockCE WithTimeout(TimeSpan defaultTimeout) => new LockCE(defaultTimeout);
+        public static MonitorCE WithDefaultTimeout() => new MonitorCE(DefaultTimeout);
+        public static MonitorCE WithInfiniteTimeout() => new MonitorCE(InfiniteTimeout);
+        public static MonitorCE WithTimeout(TimeSpan defaultTimeout) => new MonitorCE(defaultTimeout);
 
-        LockCE(TimeSpan defaultTimeout) => Timeout = defaultTimeout;
+        MonitorCE(TimeSpan defaultTimeout) => Timeout = defaultTimeout;
 
-        internal void AwaitAndAcquire(TimeSpan conditionTimeout, Func<bool> condition)
+        internal void EnterWhen(TimeSpan conditionTimeout, Func<bool> condition)
         {
-            if(!TryAwaitAndAcquire(conditionTimeout, condition))
+            if(!TryEnterWhen(conditionTimeout, condition))
             {
                 throw new AwaitingConditionTimedOutException();
             }
         }
 
-        internal bool TryAwaitAndAcquire(TimeSpan conditionTimeout, Func<bool> condition)
+        internal bool TryEnterWhen(TimeSpan conditionTimeout, Func<bool> condition)
         {
             bool acquiredLockStartingWait = false;
             try
@@ -68,13 +69,13 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
 
                 if(infiniteTimeout)
                 {
-                    Acquire(DefaultTimeout);
+                    Enter(DefaultTimeout);
                     acquiredLockStartingWait = true;
                     Interlocked.Increment(ref _waitingThreadCount);
-                    while(!condition()) ReleaseWaitForSignalOrTimeoutAndReacquire(InfiniteTimeout);
+                    while(!condition()) Wait(InfiniteTimeout);
                 } else
                 {
-                    Acquire(conditionTimeout);
+                    Enter(conditionTimeout);
                     acquiredLockStartingWait = true;
                     Interlocked.Increment(ref _waitingThreadCount);
                     while(!condition())
@@ -83,11 +84,11 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
                         var timeRemaining = conditionTimeout - elapsedTime;
                         if(elapsedTime > conditionTimeout)
                         {
-                            Release();
+                            Exit();
                             return false;
                         }
 
-                        ReleaseWaitForSignalOrTimeoutAndReacquire(timeRemaining);
+                        Wait(timeRemaining);
                     }
                 }
             }
@@ -99,45 +100,49 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
             return true;
         }
 
-        internal void Release() => Monitor.Exit(_lockObject);
+        internal void Exit() => Monitor.Exit(_lockObject);
 
-        void ReleaseWaitForSignalOrTimeoutAndReacquire(TimeSpan timeout) { Monitor.Wait(_lockObject, timeout); }
+        void Wait(TimeSpan timeout) { Monitor.Wait(_lockObject, timeout); }
 
-        internal void SignalWaitingThreadsAndRelease(SignalWaitingThreadsMode signalWaitingThreadsMode)
+        ///<summary>Note that while Signal calls <see cref="Monitor.PulseAll"/> it only does so if there are waiting threads. There is no overhead if there are no waiting threads.</summary>
+        internal void SignalAndExit(NotifyWaiting notifyWaiting)
         {
-            SignalWaitingThreads(signalWaitingThreadsMode);
-            Release();
+            WakeWaiting(notifyWaiting);
+            Exit();
         }
 
-        internal void SignalWaitingThreads(SignalWaitingThreadsMode signalWaitingThreadsMode)
+        internal void WakeWaiting(NotifyWaiting notifyWaiting)
         {
             if(_waitingThreadCount == 0)
             {
-                return; //Pulsing is relatively expensive. Let's avoid it when we can.
+                return; //Pulsing is relatively expensive. About 100 nanoseconds. 5 times the cost of acquiring an uncontended lock. We should definitely avoid it when we can.
             }
 
-            switch(signalWaitingThreadsMode)
+            switch(notifyWaiting)
             {
-                case SignalWaitingThreadsMode.None:
+                case ResourceAccess.NotifyWaiting.None:
                     break;
-                case SignalWaitingThreadsMode.One:
+                case ResourceAccess.NotifyWaiting.One:
                     Monitor.Pulse(_lockObject); //One thread blocked on Monitor.Wait for our _lockObject, if there is such a thread, will now try and reacquire the lock.
                     break;
-                case SignalWaitingThreadsMode.All:
+                case ResourceAccess.NotifyWaiting.All:
                     Monitor.PulseAll(_lockObject); //All threads blocked on Monitor.Wait for our _lockObject, if there are such threads, will now try and reacquire the lock.
                     break;
             }
         }
 
-        internal void Acquire(TimeSpan? timeout)
+        internal void Enter(TimeSpan? timeout = null)
         {
-            if(!TryAcquire(timeout))
+            if(!TryEnter(timeout))
             {
                 throw new AcquireLockTimeoutException();
             }
         }
 
-        internal bool TryAcquire(TimeSpan? timeout)
+        ///<summary>Tries to enter the monitor. Will never block.</summary>
+        internal bool TryEnterNonBlocking() => Monitor.TryEnter(_lockObject);
+
+        internal bool TryEnter(TimeSpan? timeout = null)
         {
             var lockTaken = false;
             try
@@ -146,7 +151,7 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
             }
             catch(Exception) //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
             {
-                if(lockTaken) Release();
+                if(lockTaken) Exit();
                 throw;
             }
 

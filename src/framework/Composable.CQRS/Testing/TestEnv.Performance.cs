@@ -11,6 +11,9 @@ namespace Composable.Testing
         internal static TimeSpan IfInstrumentedMultiplyBy(this TimeSpan original, double by) =>
             Performance.IsInstrumented ? original * by : original;
 
+        internal static double IfInstrumentedMultiplyBy(this int original, double by) =>
+            Performance.IsInstrumented ? original * by : original;
+
         internal static int IfInstrumentedDivideBy(this int original, double by) =>
             Performance.IsInstrumented ? (int)(original / by) : original;
 

@@ -13,7 +13,6 @@ namespace Composable.Tests.Testing.Performance
                 tearDown: () => {},
                 action: () => {},
                 iterations: 1000,
-                timeFormat:"ffff",
                 maxTotal: 1.Milliseconds()
             );
         }

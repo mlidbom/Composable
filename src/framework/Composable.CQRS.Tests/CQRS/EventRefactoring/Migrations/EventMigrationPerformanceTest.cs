@@ -58,7 +58,6 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             TimeAsserter.Execute(
                 description: "Uncached loading",
                 maxTotal: maxUncachedLoadTime,
-                timeFormat: "ss\\.fff",
                 setup: () => clonedLocator = _container.Clone(),
                 tearDown: () => clonedLocator?.Dispose(),
                 action: () => LoadWithCloneLocator(clonedLocator!));
@@ -70,7 +69,6 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 TimeAsserter.Execute(
                     description: "Cached loading",
                     maxTotal: maxCachedLoadTime,
-                    timeFormat: "ss\\.fff",
                     action: () => LoadWithCloneLocator(clonedLocator));
             }
         }

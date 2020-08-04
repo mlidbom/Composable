@@ -8,25 +8,25 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
     //Urgent: The split between this and LockCE does not seem to really make sense.
     class ResourceGuard : IResourceGuard
     {
-        public static IResourceGuard WithTimeout(TimeSpan timeout) => new ResourceGuard(LockCE.WithTimeout(timeout));
-        public static IResourceGuard WithDefaultTimeout() => new ResourceGuard(LockCE.WithDefaultTimeout());
-        public static IResourceGuard WithInfiniteTimeout() => new ResourceGuard(LockCE.WithInfiniteTimeout());
+        public static IResourceGuard WithTimeout(TimeSpan timeout) => new ResourceGuard(MonitorCE.WithTimeout(timeout));
+        public static IResourceGuard WithDefaultTimeout() => new ResourceGuard(MonitorCE.WithDefaultTimeout());
+        public static IResourceGuard WithInfiniteTimeout() => new ResourceGuard(MonitorCE.WithInfiniteTimeout());
 
         readonly List<AcquireLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<AcquireLockTimeoutException>();
         int _timeoutsThrownDuringCurrentLock;
 
-        readonly LockCE _lock;
-        ResourceGuard(LockCE @lock) => _lock = @lock;
-        public TimeSpan Timeout => _lock.Timeout;
+        readonly MonitorCE _monitor;
+        ResourceGuard(MonitorCE monitor) => _monitor = monitor;
+        public TimeSpan Timeout => _monitor.Timeout;
 
         public void Await(TimeSpan conditionTimeout, Func<bool> condition) =>
-            _lock.AwaitAndAcquire(conditionTimeout, condition);
+            _monitor.EnterWhen(conditionTimeout, condition);
 
         public bool TryAwait(TimeSpan conditionTimeout, Func<bool> condition)
         {
-            if(_lock.TryAwaitAndAcquire(conditionTimeout, condition))
+            if(_monitor.TryEnterWhen(conditionTimeout, condition))
             {
-                _lock.Release();
+                _monitor.Exit();
                 return true;
             } else
             {
@@ -34,45 +34,45 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             }
         }
 
-        public TResult Read<TResult>(Func<TResult> read) => WithExclusiveAccess(read, SignalWaitingThreadsMode.None);
+        public TResult Read<TResult>(Func<TResult> read) => EnterDoNotifyExit(read, NotifyWaiting.None);
 
-        public void Update(Action action) => WithExclusiveAccess(action.AsFunc(), SignalWaitingThreadsMode.All);
-        public TResult Update<TResult>(Func<TResult> update) => WithExclusiveAccess(update, SignalWaitingThreadsMode.All);
+        public void Update(Action action) => EnterDoNotifyExit(action.AsFunc(), NotifyWaiting.All);
+        public TResult Update<TResult>(Func<TResult> update) => EnterDoNotifyExit(update, NotifyWaiting.All);
 
         public void UpdateWhen(TimeSpan timeout, Func<bool> condition, Action action) =>
-            UpdateWhenInternal(timeout, condition, action.AsFunc(), SignalWaitingThreadsMode.All);
+            UpdateWhenInternal(timeout, condition, action.AsFunc(), NotifyWaiting.All);
 
         public TResult UpdateWhen<TResult>(TimeSpan timeout, Func<bool> condition, Func<TResult> update) =>
-            UpdateWhenInternal(timeout, condition, update, SignalWaitingThreadsMode.All);
+            UpdateWhenInternal(timeout, condition, update, NotifyWaiting.All);
 
         public IResourceLock AwaitUpdateLockWhen(TimeSpan conditionTimeout, Func<bool> condition) =>
-            AwaitExclusiveLockWhenInternal(conditionTimeout, condition, SignalWaitingThreadsMode.All);
+            AwaitExclusiveLockWhenInternal(conditionTimeout, condition, NotifyWaiting.All);
 
         public IResourceLock AwaitUpdateLock(TimeSpan timeout) =>
-            AwaitExclusiveLockInternal(timeout, SignalWaitingThreadsMode.All);
+            AwaitExclusiveLockInternal(timeout, NotifyWaiting.All);
 
-        ResourceLock AwaitExclusiveLockWhenInternal(TimeSpan conditionTimeout, Func<bool> condition, SignalWaitingThreadsMode signalWaitingThreadsMode)
+        ResourceLock AwaitExclusiveLockWhenInternal(TimeSpan conditionTimeout, Func<bool> condition, NotifyWaiting notifyWaiting)
         {
-            _lock.AwaitAndAcquire(conditionTimeout, condition);
-            return new ResourceLock(this, signalWaitingThreadsMode);
+            _monitor.EnterWhen(conditionTimeout, condition);
+            return new ResourceLock(this, notifyWaiting);
         }
 
-        TResult UpdateWhenInternal<TResult>(TimeSpan conditionTimeout, Func<bool> condition, Func<TResult> func, SignalWaitingThreadsMode signalWaitingThreadsMode)
+        TResult UpdateWhenInternal<TResult>(TimeSpan conditionTimeout, Func<bool> condition, Func<TResult> func, NotifyWaiting notifyWaiting)
         {
-            _lock.AwaitAndAcquire(conditionTimeout, condition);
+            _monitor.EnterWhen(conditionTimeout, condition);
             try
             {
                 return func();
             }
             finally
             {
-                _lock.SignalWaitingThreadsAndRelease(signalWaitingThreadsMode);
+                _monitor.SignalAndExit(notifyWaiting);
             }
         }
 
         void AcquireLock(TimeSpan? timeout)
         {
-            if(!_lock.TryAcquire(timeout))
+            if(!_monitor.TryEnter(timeout))
             {
                 lock(_timeOutExceptionsOnOtherThreads)
                 {
@@ -84,13 +84,13 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             }
         }
 
-        ResourceLock AwaitExclusiveLockInternal(TimeSpan? timeout, SignalWaitingThreadsMode signalWaitingThreadsMode)
+        ResourceLock AwaitExclusiveLockInternal(TimeSpan? timeout, NotifyWaiting notifyWaiting)
         {
             AcquireLock(timeout);
-            return new ResourceLock(this, signalWaitingThreadsMode);
+            return new ResourceLock(this, notifyWaiting);
         }
 
-        TResult WithExclusiveAccess<TResult>(Func<TResult> func, SignalWaitingThreadsMode signalMode)
+        TResult EnterDoNotifyExit<TResult>(Func<TResult> func, NotifyWaiting notifyMode)
         {
             AcquireLock(null);
             try
@@ -99,7 +99,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             }
             finally
             {
-                _lock.SignalWaitingThreadsAndRelease(signalMode);
+                _monitor.SignalAndExit(notifyMode);
             }
         }
 
@@ -127,11 +127,11 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         class ResourceLock : IResourceLock
         {
             readonly ResourceGuard _guard;
-            readonly SignalWaitingThreadsMode _signalWaitingThreadsMode;
-            public ResourceLock(ResourceGuard guard, SignalWaitingThreadsMode signalWaitingThreadsMode)
+            readonly NotifyWaiting _notifyWaiting;
+            public ResourceLock(ResourceGuard guard, NotifyWaiting notifyWaiting)
             {
                 _guard = guard;
-                _signalWaitingThreadsMode = signalWaitingThreadsMode;
+                _notifyWaiting = notifyWaiting;
             }
 
             public void Dispose()
@@ -142,7 +142,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                 }
                 finally
                 {
-                    _guard._lock.SignalWaitingThreadsAndRelease(_signalWaitingThreadsMode);
+                    _guard._monitor.SignalAndExit(_notifyWaiting);
                 }
             }
         }

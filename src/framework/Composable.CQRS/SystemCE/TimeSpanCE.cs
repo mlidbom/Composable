@@ -7,13 +7,35 @@ namespace Composable.SystemCE
     /// <summary>A collection of extensions to work with timespans</summary>
     static partial class TimeSpanCE
     {
-        const double TicksPerMicroSecond = TimeSpan.TicksPerMillisecond / 1000.0;
-        const double TicksPerNanosecond = TicksPerMicroSecond / 1000.0;
+        const long TicksPerMillisecond = TimeSpan.TicksPerMillisecond;   //10000
+        const long TicksPerMicroSecond = TicksPerMillisecond / 1000;     //10
+        const double MicrosecondsPerTick = 1.0 / TicksPerMicroSecond;    //0.1
+
+        const double TicksPerNanosecond = TicksPerMicroSecond / 1000.0;  //0.01
+        const double NanosecondsPerTick = 1.0 / TicksPerNanosecond;      //100.0
 
         public static TimeSpan Ticks(this double ticks) => TimeSpan.FromTicks((long)Math.Round(ticks));
         public static TimeSpan Ticks(this long ticks) => TimeSpan.FromTicks(ticks);
 
-        public static TimeSpan Nanoseconds(this int nanoseconds) => (nanoseconds * TicksPerNanosecond).Ticks();
+
+        public static double TotalNanoseconds(this TimeSpan @this) => @this.Ticks * NanosecondsPerTick;
+
+
+        public static TimeSpan Nanoseconds(this double nanoseconds)
+        {
+            const double minimumNanosecondsForReasonableConversionAccuracy = 500.0;
+            if(nanoseconds < minimumNanosecondsForReasonableConversionAccuracy)
+            {
+                var accuracyLossPercentage = (int)((1.0 - (minimumNanosecondsForReasonableConversionAccuracy -50) / minimumNanosecondsForReasonableConversionAccuracy) * 100.0);
+
+                throw new ArgumentException($"{nameof(nanoseconds)} parameter must be no less than {minimumNanosecondsForReasonableConversionAccuracy} or accuracy loss might exceed {accuracyLossPercentage}% due to the accuracy of TimeSpan.");
+            }
+            return (nanoseconds * TicksPerNanosecond).Ticks();
+        }
+
+        public static TimeSpan Nanoseconds(this int nanoseconds) => ((double)nanoseconds).Nanoseconds();
+
+        public static double TotalMicroseconds(this TimeSpan self) => self.Ticks * MicrosecondsPerTick;
 
         public static TimeSpan Microseconds(this int microseconds) => (microseconds * TicksPerMicroSecond).Ticks();
 

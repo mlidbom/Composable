@@ -12,8 +12,39 @@ namespace Composable.Testing.Performance
     //performance: Add ability to switch on strict mode such that no retries are performed. This would help us surface tests riding the edge and causing extra load during test runs.
     public static class TimeAsserter
     {
-        const string DefaultTimeFormat = @"ss\.ffffff";
-        const int MaxTriesLimit = 10;
+        const string DefaultTimeFormat = @"ss\.fffffff";
+
+        static readonly TimeSpan OneMicrosecond = 1.Microseconds();
+        static readonly TimeSpan OneMillisecond = 1.Microseconds();
+
+        static string Format(TimeSpan? time)
+        {
+            if(time == null) return "";
+
+            if(time >= OneMillisecond)
+            {
+                var defaultFormattedWith7SecondDecimalPoints = time.Value.ToStringInvariant(DefaultTimeFormat);
+
+                var parts = defaultFormattedWith7SecondDecimalPoints.Split('.');
+                var (integer, decimalPart) = (parts[0], parts[1]);
+
+                var d1 = decimalPart.Substring(0, 3);
+                var d2 = decimalPart.Substring(3, 3);
+                var d3 = decimalPart.Substring(6, 1);
+
+                return $"{integer}.{d1}_{d2}_{d3}";
+            }
+
+            if(time >= OneMicrosecond)
+            {
+                return $"{time.Value.TotalMicroseconds()} microseconds";
+            } else
+            {
+                return $"{time.Value.TotalNanoseconds()} nanoseconds";
+            }
+        }
+
+        const int MaxTriesLimit = 100;
         const int MaxTriesDefault = 4;
 
         public static async Task<StopwatchCE.TimedExecutionSummary> ExecuteAsync
@@ -22,7 +53,6 @@ namespace Composable.Testing.Performance
              TimeSpan? maxAverage = null,
              TimeSpan? maxTotal = null,
              string description = "",
-             string? timeFormat = null,
              uint maxTries = MaxTriesDefault,
              [InstantHandle]Action? setup = null,
              [InstantHandle]Action? tearDown = null)
@@ -31,10 +61,6 @@ namespace Composable.Testing.Performance
             maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
             maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
             TestEnv.Performance.LogMachineSlownessAdjustment();
-
-            timeFormat ??= DefaultTimeFormat;
-
-            string Format(TimeSpan? date) => date?.ToStringInvariant(timeFormat) ?? "";
 
             maxTries = Math.Min(MaxTriesLimit, maxTries);
             for(var tries = 1; tries <= maxTries; tries++)
@@ -77,7 +103,6 @@ namespace Composable.Testing.Performance
              TimeSpan? maxAverage = null,
              TimeSpan? maxTotal = null,
              string description = "",
-             string? timeFormat = null,
              uint maxTries = MaxTriesDefault,
              [InstantHandle]Action? setup = null,
              [InstantHandle]Action? tearDown = null)
@@ -86,10 +111,6 @@ namespace Composable.Testing.Performance
             maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
             maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
             TestEnv.Performance.LogMachineSlownessAdjustment();
-
-            timeFormat ??= DefaultTimeFormat;
-
-            string Format(TimeSpan? date) => date?.ToStringInvariant(timeFormat) ?? "";
 
             maxTries = Math.Min(MaxTriesLimit, maxTries);
             for(var tries = 1; tries <= maxTries; tries++)
@@ -132,7 +153,6 @@ namespace Composable.Testing.Performance
              TimeSpan? maxAverage = null,
              TimeSpan? maxTotal = null,
              string description = "",
-             string? timeFormat = null,
              [InstantHandle]Action? setup = null,
              [InstantHandle]Action? tearDown = null,
              int maxTries = MaxTriesDefault,
@@ -142,13 +162,7 @@ namespace Composable.Testing.Performance
             maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
             TestEnv.Performance.LogMachineSlownessAdjustment();
 
-            timeFormat ??= DefaultTimeFormat;
-
-
             // ReSharper disable AccessToModifiedClosure
-
-            string Format(TimeSpan? date) => date?.ToStringInvariant(timeFormat) ?? "";
-
             void PrintResults(StopwatchCE.TimedThreadedExecutionSummary executionSummary)
             {
                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
@@ -203,7 +217,6 @@ namespace Composable.Testing.Performance
              TimeSpan? maxAverage = null,
              TimeSpan? maxTotal = null,
              string description = "",
-             string? timeFormat = null,
              [InstantHandle]Action? setup = null,
              [InstantHandle]Action? tearDown = null,
              int maxTries = MaxTriesDefault,
@@ -212,11 +225,6 @@ namespace Composable.Testing.Performance
             maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
             maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
             TestEnv.Performance.LogMachineSlownessAdjustment();
-
-            timeFormat ??= DefaultTimeFormat;
-
-
-            string Format(TimeSpan? date) => date?.ToStringInvariant(timeFormat) ?? "";
 
             maxTries = Math.Min(MaxTriesLimit, maxTries);
             for(var tries = 1; tries <= maxTries; tries++)

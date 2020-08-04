@@ -51,7 +51,7 @@ namespace Composable.Tests.System.Reflection
 
             var defaultConstructor = StopwatchCE.TimeExecution(ActivatorCreateInstance, constructions).Total;
             var maxTime = defaultConstructor.DivideBy(35);
-            TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.IfInstrumentedMultiplyBy(25), timeFormat: "ss\\.ffff");
+            TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.IfInstrumentedMultiplyBy(25));
         }
 
         static void DynamicModuleConstruct() => Constructor.For<Simple>.WithArguments<string>.Instance(_argument);

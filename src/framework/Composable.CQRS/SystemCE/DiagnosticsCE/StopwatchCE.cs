@@ -155,17 +155,17 @@ namespace Composable.SystemCE.DiagnosticsCE
 
             public override string ToString() => $@"
 {_description}
-Total: {Format(Total)}
-Average: {Format(Total)}
+Total: {Total.FormatReadable()}
+Average: {Total.FormatReadable()}
 
 Individual execution times    
-    Average: {Format(IndividualExecutionTimes.Average())}
-    Min:     {Format(IndividualExecutionTimes.Min())}
-    Max:     {Format(IndividualExecutionTimes.Max())}
-    Sum:     {Format(IndividualExecutionTimes.Sum())}
+    Average: {IndividualExecutionTimes.Average().FormatReadable()}
+    Min:     {IndividualExecutionTimes.Min().FormatReadable()}
+    Max:     {IndividualExecutionTimes.Max().FormatReadable()}
+    Sum:     {IndividualExecutionTimes.Sum().FormatReadable()}
 ";
 
-            static string Format(TimeSpan? average) => average?.ToString(@"ss\.ffffff", CultureInfo.InvariantCulture) ?? "";
+            static string Format(TimeSpan? average) => average.FormatReadable();
         }
     }
 }

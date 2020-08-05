@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 
 namespace Composable.Testing.Performance
 {
-    //performance: Add ability to switch on strict mode such that no retries are performed. This would help us surface tests riding the edge and causing extra load during test runs.
     public static class TimeAsserter
     {
         const int MaxTriesLimit = 10;
@@ -36,7 +35,7 @@ namespace Composable.Testing.Performance
                 if(!RunAsserts(executionSummary, maxAverage: maxAverage, maxTotal: maxTotal, maxTries: maxTries, tries: tries))
                     continue;
 
-                PrintSummary(iterations, maxAverage, maxTotal, description, TimeSpanCE.FormatReadable, executionSummary);
+                PrintSummary(executionSummary, description, iterations, maxAverage, maxTotal);
                 return executionSummary;
             }
 
@@ -54,7 +53,6 @@ namespace Composable.Testing.Performance
         {
             HandleArguments(ref maxAverage, ref maxTotal, ref maxTries);
 
-            maxTries = Math.Min(MaxTriesLimit, maxTries);
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
@@ -65,7 +63,7 @@ namespace Composable.Testing.Performance
                 if(!RunAsserts(executionSummary, maxAverage: maxAverage, maxTotal: maxTotal, maxTries: maxTries, tries: tries))
                     continue;
 
-                PrintSummary(iterations, maxAverage, maxTotal, description, TimeSpanCE.FormatReadable, executionSummary);
+                PrintSummary(executionSummary, description, iterations, maxAverage, maxTotal);
                 return executionSummary;
             }
 
@@ -84,22 +82,6 @@ namespace Composable.Testing.Performance
         {
             HandleArguments(ref maxAverage, ref maxTotal, ref maxTries);
 
-            // ReSharper disable AccessToModifiedClosure
-            void PrintResults(StopwatchCE.TimedThreadedExecutionSummary executionSummary)
-            {
-                PrintSummary(iterations, maxAverage, maxTotal, description, TimeSpanCE.FormatReadable, executionSummary);
-
-                ConsoleCE.WriteLine($@"  
-    Individual execution times    
-    Average: {((TimeSpan?)executionSummary.IndividualExecutionTimes.Average()).FormatReadable()}
-    Min:     {((TimeSpan?)executionSummary.IndividualExecutionTimes.Min()).FormatReadable()}
-    Max:     {((TimeSpan?)executionSummary.IndividualExecutionTimes.Max()).FormatReadable()}
-    Sum:     {((TimeSpan?)executionSummary.IndividualExecutionTimes.Sum()).FormatReadable()}
-");
-            }
-            // ReSharper restore AccessToModifiedClosure
-
-            maxTries = Math.Min(MaxTriesLimit, maxTries);
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
@@ -110,7 +92,7 @@ namespace Composable.Testing.Performance
                 if(!RunAsserts(executionSummary, maxAverage: maxAverage, maxTotal: maxTotal, maxTries: maxTries, tries: tries))
                     continue;
 
-                PrintResults(executionSummary);
+                PrintSummary(executionSummary, description, iterations, maxAverage, maxTotal);
                 return executionSummary;
             }
 
@@ -138,7 +120,7 @@ namespace Composable.Testing.Performance
                 if(!RunAsserts(executionSummary, maxAverage: maxAverage, maxTotal: maxTotal, maxTries: maxTries, tries: tries))
                     continue;
 
-                PrintSummary(iterations, maxAverage, maxTotal, description, TimeSpanCE.FormatReadable, executionSummary);
+                PrintSummary(executionSummary, description, iterations, maxAverage, maxTotal);
                 return executionSummary;
             }
 
@@ -178,26 +160,37 @@ namespace Composable.Testing.Performance
 
         static string Percent(TimeSpan percent, TimeSpan of) => $"{(int)((percent.TotalMilliseconds / of.TotalMilliseconds) * 100)}%";
 
-        static void PrintSummary(int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal, string description, [InstantHandle] Func<TimeSpan?, string> format, StopwatchCE.TimedExecutionSummary executionSummary)
+        static void PrintSummary(StopwatchCE.TimedExecutionSummary executionSummary, string description, int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal)
         {
             string maxAverageReport = maxAverage == null
                                           ? ""
-                                          : $" {Percent(executionSummary.Average, maxAverage.Value)} of {nameof(maxAverage)}: {format(maxAverage)}";
+                                          : $" {Percent(executionSummary.Average, maxAverage.Value)} of {nameof(maxAverage)}: {maxAverage.FormatReadable()}";
 
             string maxTotalReport = maxTotal == null
                                         ? ""
-                                        : $" {Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {format(maxTotal)}";
+                                        : $" {Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {maxTotal.FormatReadable()}";
 
             ConsoleCE.WriteImportantLine($@"""{description}"" {iterations:### ### ###} {iterations.Pluralize("iteration")}");
             if(iterations > 1)
             {
                 ConsoleCE.WriteLine($@"
-Total:   {format(executionSummary.Total)} {maxTotalReport}
-Average: {format(executionSummary.Average)} {maxAverageReport}"
+Total:   {executionSummary.Total.FormatReadable()} {maxTotalReport}
+Average: {executionSummary.Average.FormatReadable()} {maxAverageReport}"
                                        .RemoveLeadingLineBreak());
             } else
             {
-                ConsoleCE.WriteLine($@"Total:   {format(executionSummary.Total)} {maxTotalReport} ");
+                ConsoleCE.WriteLine($@"Total:   {executionSummary.Total.FormatReadable()} {maxTotalReport} ");
+            }
+
+            if(executionSummary is StopwatchCE.TimedThreadedExecutionSummary threadedSummary)
+            {
+                ConsoleCE.WriteLine($@"  
+Individual execution times    
+    Average: {threadedSummary.IndividualExecutionTimes.Average().FormatReadable()}
+    Min:     {threadedSummary.IndividualExecutionTimes.Min().FormatReadable()}
+    Max:     {threadedSummary.IndividualExecutionTimes.Max().FormatReadable()}
+    Sum:     {threadedSummary.IndividualExecutionTimes.Sum().FormatReadable()}
+");
             }
         }
     }

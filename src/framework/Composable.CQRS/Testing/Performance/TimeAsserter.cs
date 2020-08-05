@@ -57,29 +57,32 @@ namespace Composable.Testing.Performance
             await InternalExecuteAsync(() => StopwatchCE.TimeExecutionAsync(action, iterations), iterations, maxAverage, maxTotal, description, setup, tearDown, maxTries).NoMarshalling();
 
         static TReturnValue InternalExecute<TReturnValue>([InstantHandle] Func<TReturnValue> runScenario,
-                                                                 int iterations,
-                                                                 TimeSpan? maxAverage,
-                                                                 TimeSpan? maxTotal,
-                                                                 string description,
-                                                                 [InstantHandle] Action? setup,
-                                                                 [InstantHandle] Action? tearDown,
-                                                                 uint maxTries = MaxTriesDefault) where TReturnValue : StopwatchCE.TimedExecutionSummary =>
-        InternalExecuteAsync(runScenario.AsAsync(), iterations, maxAverage, maxTotal, description, setup, tearDown, maxTries).SyncResult();
+                                                          int iterations,
+                                                          TimeSpan? maxAverage,
+                                                          TimeSpan? maxTotal,
+                                                          string description,
+                                                          [InstantHandle] Action? setup,
+                                                          [InstantHandle] Action? tearDown,
+                                                          uint maxTries = MaxTriesDefault) where TReturnValue : StopwatchCE.TimedExecutionSummary =>
+            InternalExecuteAsync(runScenario.AsAsync(), iterations, maxAverage, maxTotal, description, setup, tearDown, maxTries).SyncResult();
 
         static async Task<TReturnValue> InternalExecuteAsync<TReturnValue>([InstantHandle] Func<Task<TReturnValue>> runScenario,
-                                                                 int iterations,
-                                                                 TimeSpan? maxAverage,
-                                                                 TimeSpan? maxTotal,
-                                                                 string description,
-                                                                 [InstantHandle] Action? setup,
-                                                                 [InstantHandle] Action? tearDown,
-                                                                 uint maxTries = MaxTriesDefault) where TReturnValue : StopwatchCE.TimedExecutionSummary
+                                                                           int iterations,
+                                                                           TimeSpan? maxAverage,
+                                                                           TimeSpan? maxTotal,
+                                                                           string description,
+                                                                           [InstantHandle] Action? setup,
+                                                                           [InstantHandle] Action? tearDown,
+                                                                           uint maxTries = MaxTriesDefault) where TReturnValue : StopwatchCE.TimedExecutionSummary
         {
             Assert.Argument.Assert(maxTries > 0);
             maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
             maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
             TestEnv.Performance.LogMachineSlownessAdjustment();
             maxTries = Math.Min(MaxTriesLimit, maxTries);
+
+            ConsoleCE.WriteLine();
+            ConsoleCE.WriteImportantLine($@"""{description}"" {iterations:### ### ###} {iterations.Pluralize("iteration")} starting");
 
             for(var tries = 1; tries <= maxTries; tries++)
             {
@@ -96,6 +99,8 @@ namespace Composable.Testing.Performance
                 }
 
                 PrintSummary(executionSummary, description, iterations, maxAverage, maxTotal);
+                ConsoleCE.WriteImportantLine("DONE");
+                ConsoleCE.WriteLine();
                 return executionSummary;
             }
 
@@ -126,7 +131,6 @@ namespace Composable.Testing.Performance
                                         ? ""
                                         : $" {Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {maxTotal.FormatReadable()}";
 
-            ConsoleCE.WriteImportantLine($@"""{description}"" {iterations:### ### ###} {iterations.Pluralize("iteration")}");
             if(iterations > 1)
             {
                 ConsoleCE.WriteLine($@"

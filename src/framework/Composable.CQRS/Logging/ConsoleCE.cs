@@ -9,8 +9,8 @@ namespace Composable.Logging
         internal static readonly object SynchronizationRoot = typeof(ConsoleCE);
 
 
-        internal static void WriteWarningLine(string message) => WriteLine($"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {message} !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        internal static void WriteImportantLine(string message) => WriteLine($"############################## {message} ##############################");
+        internal static void WriteWarningLine(string message) => WriteLine($"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {message}");
+        internal static void WriteImportantLine(string message) => WriteLine($"############################## {message}");
         internal static void WriteLine(string message)
         {
             //NSpec breaks System.Console somehow when tests run in parallel. We are forced to synchronize these tests with other tests and this is the current workaround.

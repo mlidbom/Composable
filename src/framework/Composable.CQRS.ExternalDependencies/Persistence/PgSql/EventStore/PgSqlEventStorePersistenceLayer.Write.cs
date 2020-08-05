@@ -69,7 +69,8 @@ UPDATE {Event.TableName} /*With(READCOMMITTED, ROWLOCK)*/
             var commandText = versions.Select((spec, index) =>
                                                   $@"UPDATE {Event.TableName} SET {Event.EffectiveVersion} = {spec.EffectiveVersion} WHERE {Event.EventId} = '{spec.EventId}';").Join(Environment.NewLine);
 
-            _connectionManager.UseConnection(connection => connection.PrepareAndExecuteNonQuery(commandText));
+            //We do not prepare here since this query will only ever be executed once.
+            _connectionManager.UseConnection(connection => connection.ExecuteNonQuery(commandText));
         }
 
         public EventNeighborhood LoadEventNeighborHood(Guid eventId)

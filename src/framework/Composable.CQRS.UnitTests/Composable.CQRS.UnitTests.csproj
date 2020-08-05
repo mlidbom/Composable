@@ -46,11 +46,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="SystemExtensions\Threading\" />
-    <Folder Include="System\Threading\Tasks\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\..\TestUsingPluggableComponentCombinations" Link="TestUsingPluggableComponentCombinations">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

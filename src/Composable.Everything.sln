@@ -54,6 +54,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.CQRS.UnitTests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.UnitTests", "Samples\AccountManagement\AccountManagement.UnitTests\AccountManagement.UnitTests.csproj", "{9B6BDD56-85CB-486B-81E8-3660A6754076}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.PerformanceTests", "framework\Composable.PerformanceTests\Composable.PerformanceTests.csproj", "{344011D3-F89F-492D-8B7D-E0370B43FE73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,6 +145,12 @@ Global
 		{9B6BDD56-85CB-486B-81E8-3660A6754076}.docs|Any CPU.Build.0 = Debug|Any CPU
 		{9B6BDD56-85CB-486B-81E8-3660A6754076}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B6BDD56-85CB-486B-81E8-3660A6754076}.Release|Any CPU.Build.0 = Release|Any CPU
+		{344011D3-F89F-492D-8B7D-E0370B43FE73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{344011D3-F89F-492D-8B7D-E0370B43FE73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{344011D3-F89F-492D-8B7D-E0370B43FE73}.docs|Any CPU.ActiveCfg = Debug|Any CPU
+		{344011D3-F89F-492D-8B7D-E0370B43FE73}.docs|Any CPU.Build.0 = Debug|Any CPU
+		{344011D3-F89F-492D-8B7D-E0370B43FE73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{344011D3-F89F-492D-8B7D-E0370B43FE73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

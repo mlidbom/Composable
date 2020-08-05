@@ -2,7 +2,7 @@
 using Composable.DDD;
 using JetBrains.Annotations;
 
-namespace Composable.Tests.KeyValueStorage
+namespace Composable.Tests.Persistence.DocumentDb
 {
     class Dog : IPersistentEntity<Guid>
     {

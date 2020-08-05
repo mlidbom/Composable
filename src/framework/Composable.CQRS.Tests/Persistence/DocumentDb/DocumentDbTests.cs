@@ -8,14 +8,14 @@ using Composable.DependencyInjection.Testing;
 using Composable.Persistence.DocumentDb;
 using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.LinqCE;
-using FluentAssertions;
-using NUnit.Framework;
 using Composable.SystemCE.ThreadingCE;
+using FluentAssertions;
 using JetBrains.Annotations;
+using NUnit.Framework;
 
 // ReSharper disable AccessToDisposedClosure
 
-namespace Composable.Tests.KeyValueStorage
+namespace Composable.Tests.Persistence.DocumentDb
 {
     class DocumentDbTests : DocumentDbTestsBase
     {

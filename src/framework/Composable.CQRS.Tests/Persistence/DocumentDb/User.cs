@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Composable.DDD;
 using JetBrains.Annotations;
 
-namespace Composable.Tests.KeyValueStorage
+namespace Composable.Tests.Persistence.DocumentDb
 {
     class Person : ValueObject<Person>, IPersistentEntity<Guid>
     {

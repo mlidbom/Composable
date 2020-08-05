@@ -36,6 +36,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Composable.CQRS.Tests.InMemory")]
 [assembly: InternalsVisibleTo("Composable.CQRS.UnitTests")]
 [assembly: InternalsVisibleTo("Composable.CQRS.ExternalDependencies.Tests")]
+[assembly: InternalsVisibleTo("Composable.PerformanceTests")]
 
 [assembly: InternalsVisibleTo("ScratchPad")]
 

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Composable.Testing;
 using NUnit.Framework;
@@ -37,6 +38,9 @@ using NUnit.Framework;
 // by using the '*' as shown below:
 
 [assembly: AssemblyVersion("1.0.0.0")]
+
+
+[assembly: InternalsVisibleTo("Composable.PerformanceTests")]
 
 #if !NCRUNCH
 [assembly: Parallelizable(ParallelScope.Fixtures)]

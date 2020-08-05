@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using NCrunch.Framework;
 using NUnit.Framework;
 
-namespace Composable.Tests.KeyValueStorage
+namespace Composable.Tests.Persistence.DocumentDb
 {
     [Performance, LongRunning, Serial]
     class DocumentDbPerformanceTests : DocumentDbTestsBase

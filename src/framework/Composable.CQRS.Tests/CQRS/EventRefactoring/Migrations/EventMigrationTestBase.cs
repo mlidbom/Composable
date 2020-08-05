@@ -27,7 +27,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
     {
         internal void RunMigrationTest(params MigrationScenario[] scenarios)
         {
-            SafeConsole.WriteLine($"###############$$$$$$$Running {scenarios.Length} scenario(s)");
+            ConsoleCE.WriteLine($"###############$$$$$$$Running {scenarios.Length} scenario(s)");
 
             IList<IEventMigration> migrations = new List<IEventMigration>();
             using var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations.ToArray());
@@ -56,13 +56,13 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                 eventsInStoreAtStart = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
             }
 
-            SafeConsole.WriteLine($"\n########Running Scenario {indexOfScenarioInBatch}");
+            ConsoleCE.WriteLine($"\n########Running Scenario {indexOfScenarioInBatch}");
 
             var original = TestAggregate.FromEvents(TestingTimeSource.FrozenUtcNow(), scenario.AggregateId, scenario.OriginalHistory)
                                         .History.ToList();
-            SafeConsole.WriteLine("Original History: ");
-            original.ForEach(e => SafeConsole.WriteLine($"      {e}"));
-            SafeConsole.WriteLine();
+            ConsoleCE.WriteLine("Original History: ");
+            original.ForEach(e => ConsoleCE.WriteLine($"      {e}"));
+            ConsoleCE.WriteLine();
 
             var initialAggregate = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.OriginalHistory);
             var expected = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.ExpectedHistory)
@@ -70,9 +70,9 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             var expectedCompleteEventStoreStream = eventsInStoreAtStart.Concat(expected)
                                                                        .ToList();
 
-            SafeConsole.WriteLine("Expected History: ");
-            expected.ForEach(e => SafeConsole.WriteLine($"      {e}"));
-            SafeConsole.WriteLine();
+            ConsoleCE.WriteLine("Expected History: ");
+            expected.ForEach(e => ConsoleCE.WriteLine($"      {e}"));
+            ConsoleCE.WriteLine();
 
             timeSource.FreezeAtUtcTime(timeSource.UtcNow + 1.Hours()); //Bump clock to ensure that times will be be wrong unless the time from the original events are used..
 
@@ -92,7 +92,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                                       .History;
             AssertStreamsAreIdentical(expected, migratedCachedHistory, "Loaded cached aggregate");
 
-            SafeConsole.WriteLine("  Streaming all events in store");
+            ConsoleCE.WriteLine("  Streaming all events in store");
             var streamedEvents = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
                                                                                                      .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
                                                                                                      .ToList());
@@ -108,7 +108,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                                       .History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
-                SafeConsole.WriteLine("  Persisting migrations");
+                ConsoleCE.WriteLine("  Persisting migrations");
                 using(serviceLocator.BeginScope())
                 {
                     serviceLocator.Resolve<IEventStore>()
@@ -127,13 +127,13 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             }
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
-            SafeConsole.WriteLine("Streaming all events in store");
+            ConsoleCE.WriteLine("Streaming all events in store");
             streamedEvents = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
                                                                                                  .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
                                                                                                  .ToList());
             AssertStreamsAreIdentical(expectedCompleteEventStoreStream, streamedEvents, "Streaming all events in store");
 
-            SafeConsole.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
+            ConsoleCE.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
             migrations.Clear();
 
             migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
@@ -141,21 +141,21 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                             .History;
             AssertStreamsAreIdentical(expected, migratedHistory, "loaded aggregate");
 
-            SafeConsole.WriteLine("Streaming all events in store");
+            ConsoleCE.WriteLine("Streaming all events in store");
             streamedEvents = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
                                                                                                  .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
                                                                                                  .ToList());
             AssertStreamsAreIdentical(expectedCompleteEventStoreStream, streamedEvents, "Streaming all events in store");
 
 
-            SafeConsole.WriteLine("Cloning service locator / starting new instance of application");
+            ConsoleCE.WriteLine("Cloning service locator / starting new instance of application");
             using var clonedServiceLocator2 = serviceLocator.Clone();
             migratedHistory = clonedServiceLocator2.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<IEventStoreUpdater>()
                                                                                                                  .Get<TestAggregate>(initialAggregate.Id))
                                                    .History;
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
-            SafeConsole.WriteLine("Streaming all events in store");
+            ConsoleCE.WriteLine("Streaming all events in store");
             streamedEvents = clonedServiceLocator2.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<IEventStore>()
                                                                                                                 .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
                                                                                                                 .ToList());
@@ -233,12 +233,12 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             }
             catch(Exception)
             {
-                SafeConsole.WriteLine($"   Failed comparing with {descriptionOfHistory}");
-                SafeConsole.WriteLine("   Expected: ");
-                expected.ForEach(e => SafeConsole.WriteLine($"      {e.ToNewtonSoftDebugString(Formatting.None)}"));
-                SafeConsole.WriteLine("\n   Actual: ");
-                migratedHistory.ForEach(e => SafeConsole.WriteLine($"      {e.ToNewtonSoftDebugString(Formatting.None)}"));
-                SafeConsole.WriteLine("\n");
+                ConsoleCE.WriteLine($"   Failed comparing with {descriptionOfHistory}");
+                ConsoleCE.WriteLine("   Expected: ");
+                expected.ForEach(e => ConsoleCE.WriteLine($"      {e.ToNewtonSoftDebugString(Formatting.None)}"));
+                ConsoleCE.WriteLine("\n   Actual: ");
+                migratedHistory.ForEach(e => ConsoleCE.WriteLine($"      {e.ToNewtonSoftDebugString(Formatting.None)}"));
+                ConsoleCE.WriteLine("\n");
 
                 throw;
             }

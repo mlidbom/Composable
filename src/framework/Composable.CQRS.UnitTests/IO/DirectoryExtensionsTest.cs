@@ -27,9 +27,9 @@ namespace Composable.Tests.IO
             Assert.That(directory.AsDirectory().Exists, "There should be a directory at first");
             Assert.That(directory.AsDirectory().GetDirectories().Any(), Is.True, "There should be subdirectories");
 
-            SafeConsole.WriteLine("Deleting directory {0}", directory);
+            ConsoleCE.WriteLine("Deleting directory {0}", directory);
             directory.AsDirectory().DeleteRecursive();
-            SafeConsole.WriteLine("Deleted directory {0}", directory);
+            ConsoleCE.WriteLine("Deleted directory {0}", directory);
 
 
             Assert.That(directory.AsDirectory().Exists, Is.False, "Directory should have been deleted");
@@ -43,9 +43,9 @@ namespace Composable.Tests.IO
 
             Assert.That(directory.AsDirectory().Size(), Is.EqualTo(size));
 
-            SafeConsole.WriteLine("Deleting directory {0}", directory);
+            ConsoleCE.WriteLine("Deleting directory {0}", directory);
             directory.AsDirectory().Delete(true);
-            SafeConsole.WriteLine("Deleted directory {0}", directory);
+            ConsoleCE.WriteLine("Deleted directory {0}", directory);
         }
 
         static string CreateUsableFolderPath() => Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -58,7 +58,7 @@ namespace Composable.Tests.IO
             }
 
             directoryPath.AsDirectory().Create();
-            SafeConsole.WriteLine("created directory {0}", directoryPath);
+            ConsoleCE.WriteLine("created directory {0}", directoryPath);
             var fileContent = new Byte[100];
             var size = 0;
             directoryPath.Repeat(2).Select(dir => Path.Combine(dir, Guid.NewGuid().ToString())).ForEach(
@@ -69,7 +69,7 @@ namespace Composable.Tests.IO
                             stream.Write(fileContent, 0, fileContent.Length);
                             size += fileContent.Length;
                         }
-                        SafeConsole.WriteLine("created file {0}", file);
+                        ConsoleCE.WriteLine("created file {0}", file);
                     });
 
             size += directoryPath.Repeat(2)

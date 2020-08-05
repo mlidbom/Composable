@@ -75,7 +75,7 @@ namespace Composable.Tests.Serialization
             var eventWithOnlySubclassValuesJson = _eventSerializer.Serialize(eventWithOnlySubclassValues);
             TestEvent roundTripped = (TestEvent)_eventSerializer.Deserialize(typeof(TestEvent), eventWithAllValuesJson);
 
-            SafeConsole.WriteLine(eventWithAllValuesJson);
+            ConsoleCE.WriteLine(eventWithAllValuesJson);
 
             eventWithAllValuesJson.Should().Be(@"{
   ""Test1"": ""Test1"",

@@ -36,5 +36,17 @@ namespace Composable.SystemCE
         [StringFormatMethod(formatParameterName:"message")]
         public static string FormatInvariant(string message, params object[] arguments) =>
             string.Format(CultureInfo.InvariantCulture,  message, arguments);
+
+        public static string RemoveLeadingLineBreak(this string @this)
+        {
+            while(@this.StartsWithInvariant(Environment.NewLine))
+            {
+                @this = @this[Environment.NewLine.Length..];
+            }
+
+            return @this;
+        }
+
+        public static string Pluralize(this int count, string theString) => count == 1 ? theString : $"{theString}s";
     }
 }

@@ -77,8 +77,8 @@ namespace Composable.Persistence.Common.AdoCE
         static readonly IReadOnlyList<string> ParameterPrefixes = EnumerableCE.Create(@"@", @":").ToArray();
         public static TCommand LogCommand<TCommand>(this TCommand @this) where TCommand : DbCommand
         {
-            SafeConsole.WriteLine("####################################### Logging command###############################################");
-            SafeConsole.WriteLine($@"{nameof(@this.CommandText)}:
+            ConsoleCE.WriteLine("####################################### Logging command###############################################");
+            ConsoleCE.WriteLine($@"{nameof(@this.CommandText)}:
 {@this.CommandText}");
 
             var parameters = @this.Parameters.Cast<DbParameter>().ToList();
@@ -95,13 +95,13 @@ namespace Composable.Persistence.Common.AdoCE
 {nameof(parameter.Direction)}: {parameter.Direction},
 {nameof(parameter.IsNullable)}: {parameter.IsNullable}".ReplaceInvariant(Environment.NewLine, "")));
 
-                SafeConsole.WriteLine("####################################### Hacking values into parameter positions #######################################");
+                ConsoleCE.WriteLine("####################################### Hacking values into parameter positions #######################################");
                 var commandTextWithParameterValues = @this.CommandText;
                 parameters.ForEach(
                     parameter => ParameterPrefixes.ForEach(
                         prefix => commandTextWithParameterValues = commandTextWithParameterValues.ReplaceInvariant($"{prefix}{parameter.ParameterName}", parameter.Value == DBNull.Value ? "NULL" : parameter.Value?.ToString() ?? "NULL")));
                 Console.WriteLine(commandTextWithParameterValues);
-                SafeConsole.WriteLine("######################################################################################################");
+                ConsoleCE.WriteLine("######################################################################################################");
             }
 
             return @this;

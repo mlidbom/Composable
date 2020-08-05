@@ -47,34 +47,23 @@ namespace Composable.Testing.Performance
         const int MaxTriesLimit = 10;
         const int MaxTriesDefault = 10;
 
-        public static async Task<StopwatchCE.TimedExecutionSummary> ExecuteAsync
-            ([InstantHandle]Func<Task> action,
-             int iterations = 1,
-             TimeSpan? maxAverage = null,
-             TimeSpan? maxTotal = null,
-             string description = "",
-             uint maxTries = MaxTriesDefault,
-             [InstantHandle]Action? setup = null,
-             [InstantHandle]Action? tearDown = null)
+        public static async Task<StopwatchCE.TimedExecutionSummary> ExecuteAsync([InstantHandle] Func<Task> action,
+                                                                                 int iterations = 1,
+                                                                                 TimeSpan? maxAverage = null,
+                                                                                 TimeSpan? maxTotal = null,
+                                                                                 string description = "",
+                                                                                 uint maxTries = MaxTriesDefault,
+                                                                                 [InstantHandle] Action? setup = null,
+                                                                                 [InstantHandle] Action? tearDown = null)
         {
-            Assert.Argument.Assert(maxTries > 0);
-            maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
-            maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
-            TestEnv.Performance.LogMachineSlownessAdjustment();
+            HandleArguments(ref maxAverage, ref maxTotal, ref maxTries);
 
-            maxTries = Math.Min(MaxTriesLimit, maxTries);
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                StopwatchCE.TimedExecutionSummary executionSummary;
-                try
-                {
-                    executionSummary = await StopwatchCE.TimeExecutionAsync(action: action, iterations: iterations).NoMarshalling();
-                }
-                finally
-                {
-                    tearDown?.Invoke();
-                }
+                using var _ = DisposableCE.Create(() => tearDown?.Invoke());
+
+                var executionSummary = await StopwatchCE.TimeExecutionAsync(action: action, iterations: iterations).NoMarshalling();
 
                 try
                 {
@@ -82,14 +71,12 @@ namespace Composable.Testing.Performance
                 }
                 catch(TimeOutException e)
                 {
-                    SafeConsole.WriteLine($"################################  WARNING ################################ Try: {tries} : {e.Message}");
-                    if(tries >= maxTries)
-                    {
-                        PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
-                        throw;
-                    }
+                    ConsoleCE.WriteWarningLine($@"""{description}"" Try: {tries} : {e.Message}");
+                    if(tries >= maxTries) throw;
+
                     continue;
                 }
+
                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
                 return executionSummary;
             }
@@ -97,34 +84,24 @@ namespace Composable.Testing.Performance
             throw new Exception("Unreachable");
         }
 
-        public static StopwatchCE.TimedExecutionSummary Execute
-            ([InstantHandle]Action action,
-             int iterations = 1,
-             TimeSpan? maxAverage = null,
-             TimeSpan? maxTotal = null,
-             string description = "",
-             uint maxTries = MaxTriesDefault,
-             [InstantHandle]Action? setup = null,
-             [InstantHandle]Action? tearDown = null)
+        public static StopwatchCE.TimedExecutionSummary Execute([InstantHandle] Action action,
+                                                                int iterations = 1,
+                                                                TimeSpan? maxAverage = null,
+                                                                TimeSpan? maxTotal = null,
+                                                                string description = "",
+                                                                uint maxTries = MaxTriesDefault,
+                                                                [InstantHandle] Action? setup = null,
+                                                                [InstantHandle] Action? tearDown = null)
         {
-            Assert.Argument.Assert(maxTries > 0);
-            maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
-            maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
-            TestEnv.Performance.LogMachineSlownessAdjustment();
+            HandleArguments(ref maxAverage, ref maxTotal, ref maxTries);
 
             maxTries = Math.Min(MaxTriesLimit, maxTries);
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                StopwatchCE.TimedExecutionSummary executionSummary;
-                try
-                {
-                    executionSummary = StopwatchCE.TimeExecution(action: action, iterations: iterations);
-                }
-                finally
-                {
-                    tearDown?.Invoke();
-                }
+                using var _ = DisposableCE.Create(() => tearDown?.Invoke());
+
+                var executionSummary = StopwatchCE.TimeExecution(action: action, iterations: iterations);
 
                 try
                 {
@@ -132,14 +109,12 @@ namespace Composable.Testing.Performance
                 }
                 catch(TimeOutException e)
                 {
-                    SafeConsole.WriteLine($"################################  WARNING ################################ Try: {tries} : {e.Message}");
-                    if(tries >= maxTries)
-                    {
-                        PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
-                        throw;
-                    }
+                    ConsoleCE.WriteWarningLine($@"""{description}"" Try: {tries} : {e.Message}");
+                    if(tries >= maxTries) throw;
+
                     continue;
                 }
+
                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
                 return executionSummary;
             }
@@ -147,27 +122,24 @@ namespace Composable.Testing.Performance
             throw new Exception("Unreachable");
         }
 
-        public static StopwatchCE.TimedThreadedExecutionSummary ExecuteThreaded
-            ([InstantHandle]Action action,
-             int iterations = 1,
-             TimeSpan? maxAverage = null,
-             TimeSpan? maxTotal = null,
-             string description = "",
-             [InstantHandle]Action? setup = null,
-             [InstantHandle]Action? tearDown = null,
-             int maxTries = MaxTriesDefault,
-            int maxDegreeOfParallelism = -1)
+        public static StopwatchCE.TimedThreadedExecutionSummary ExecuteThreaded([InstantHandle] Action action,
+                                                                                int iterations = 1,
+                                                                                TimeSpan? maxAverage = null,
+                                                                                TimeSpan? maxTotal = null,
+                                                                                string description = "",
+                                                                                [InstantHandle] Action? setup = null,
+                                                                                [InstantHandle] Action? tearDown = null,
+                                                                                uint maxTries = MaxTriesDefault,
+                                                                                int maxDegreeOfParallelism = -1)
         {
-            maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
-            maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
-            TestEnv.Performance.LogMachineSlownessAdjustment();
+            HandleArguments(ref maxAverage, ref maxTotal, ref maxTries);
 
             // ReSharper disable AccessToModifiedClosure
             void PrintResults(StopwatchCE.TimedThreadedExecutionSummary executionSummary)
             {
                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
 
-                SafeConsole.WriteLine($@"  
+                ConsoleCE.WriteLine($@"  
     Individual execution times    
     Average: {Format(executionSummary.IndividualExecutionTimes.Average())}
     Min:     {Format(executionSummary.IndividualExecutionTimes.Min())}
@@ -181,15 +153,9 @@ namespace Composable.Testing.Performance
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                StopwatchCE.TimedThreadedExecutionSummary executionSummary;
-                try
-                {
-                    executionSummary = StopwatchCE.TimeExecutionThreaded(action: action, iterations: iterations, maxDegreeOfParallelism: maxDegreeOfParallelism);
-                }
-                finally
-                {
-                    tearDown?.Invoke();
-                }
+                using var _ = DisposableCE.Create(() => tearDown?.Invoke());
+
+                var executionSummary = StopwatchCE.TimeExecutionThreaded(action: action, iterations: iterations, maxDegreeOfParallelism: maxDegreeOfParallelism);
 
                 try
                 {
@@ -197,48 +163,36 @@ namespace Composable.Testing.Performance
                 }
                 catch(TimeOutException e)
                 {
-                    SafeConsole.WriteLine($"################################  WARNING ################################ Try: {tries} : {e.Message}");
-                    if(tries >= maxTries)
-                    {
-                        PrintResults(executionSummary);
-                        throw;
-                    }
+                    ConsoleCE.WriteWarningLine($@"""{description}"" Try: {tries} : {e.Message}");
+                    if(tries >= maxTries) throw;
+
                     continue;
                 }
+
                 PrintResults(executionSummary);
                 return executionSummary;
             }
+
             throw new Exception("Unreachable");
         }
 
-        public static StopwatchCE.TimedExecutionSummary ExecuteThreadedLowOverhead
-            ([InstantHandle]Action action,
-             int iterations = 1,
-             TimeSpan? maxAverage = null,
-             TimeSpan? maxTotal = null,
-             string description = "",
-             [InstantHandle]Action? setup = null,
-             [InstantHandle]Action? tearDown = null,
-             int maxTries = MaxTriesDefault,
-            int maxDegreeOfParallelism = -1)
+        public static StopwatchCE.TimedExecutionSummary ExecuteThreadedLowOverhead([InstantHandle] Action action,
+                                                                                   int iterations = 1,
+                                                                                   TimeSpan? maxAverage = null,
+                                                                                   TimeSpan? maxTotal = null,
+                                                                                   string description = "",
+                                                                                   [InstantHandle] Action? setup = null,
+                                                                                   [InstantHandle] Action? tearDown = null,
+                                                                                   uint maxTries = MaxTriesDefault,
+                                                                                   int maxDegreeOfParallelism = -1)
         {
-            maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
-            maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
-            TestEnv.Performance.LogMachineSlownessAdjustment();
+            HandleArguments(ref maxAverage, ref maxTotal, ref maxTries);
 
-            maxTries = Math.Min(MaxTriesLimit, maxTries);
             for(var tries = 1; tries <= maxTries; tries++)
             {
                 setup?.Invoke();
-                StopwatchCE.TimedExecutionSummary executionSummary;
-                try
-                {
-                    executionSummary = StopwatchCE.TimeExecutionThreadedLowOverhead(action: action, iterations: iterations, maxDegreeOfParallelism: maxDegreeOfParallelism);
-                }
-                finally
-                {
-                    tearDown?.Invoke();
-                }
+                using var _ = DisposableCE.Create(() => tearDown?.Invoke());
+                var executionSummary = StopwatchCE.TimeExecutionThreadedLowOverhead(action: action, iterations: iterations, maxDegreeOfParallelism: maxDegreeOfParallelism);
 
                 try
                 {
@@ -246,22 +200,30 @@ namespace Composable.Testing.Performance
                 }
                 catch(TimeOutException e)
                 {
-                    SafeConsole.WriteLine($"################################  WARNING ################################ Try: {tries} : {e.Message}");
-                    if(tries >= maxTries)
-                    {
-                        PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
-                        throw;
-                    }
+                    ConsoleCE.WriteWarningLine($@"""{description}"" Try: {tries} : {e.Message}");
+                    if(tries >= maxTries) throw;
+
                     continue;
                 }
+
                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
                 return executionSummary;
             }
+
             throw new Exception("Unreachable");
         }
 
+        static void HandleArguments(ref TimeSpan? maxAverage, ref TimeSpan? maxTotal, ref uint maxTries)
+        {
+            Assert.Argument.Assert(maxTries > 0);
+            maxAverage = TestEnv.Performance.AdjustForMachineSlowness(maxAverage);
+            maxTotal = TestEnv.Performance.AdjustForMachineSlowness(maxTotal);
+            TestEnv.Performance.LogMachineSlownessAdjustment();
+            maxTries = Math.Min(MaxTriesLimit, maxTries);
+        }
+
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-        static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchCE.TimedExecutionSummary executionSummary, [InstantHandle]Func<TimeSpan?, string> format)
+        static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchCE.TimedExecutionSummary executionSummary, [InstantHandle] Func<TimeSpan?, string> format)
         {
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)
             {
@@ -285,29 +247,26 @@ namespace Composable.Testing.Performance
 
         static string Percent(TimeSpan percent, TimeSpan of) => $"{(int)((percent.TotalMilliseconds / of.TotalMilliseconds) * 100)}%";
 
-        static void PrintSummary
-            (int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal, string description, [InstantHandle]Func<TimeSpan?, string> format, StopwatchCE.TimedExecutionSummary executionSummary)
+        static void PrintSummary(int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal, string description, [InstantHandle] Func<TimeSpan?, string> format, StopwatchCE.TimedExecutionSummary executionSummary)
         {
             string maxAverageReport = maxAverage == null
-                                       ? ""
-                                       : $" {Percent(executionSummary.Average, maxAverage.Value)} of {nameof(maxAverage)}: {format(maxAverage)}";
+                                          ? ""
+                                          : $" {Percent(executionSummary.Average, maxAverage.Value)} of {nameof(maxAverage)}: {format(maxAverage)}";
 
             string maxTotalReport = maxTotal == null
-                                       ? ""
-                                       : $" {Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {format(maxTotal)}";
+                                        ? ""
+                                        : $" {Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {format(maxTotal)}";
 
+            ConsoleCE.WriteImportantLine($@"""{description}"" {iterations:### ### ###} {iterations.Pluralize("iteration")}");
             if(iterations > 1)
             {
-                SafeConsole.WriteLine(
-                    $@"Executed {iterations:### ### ###} iterations of ""{description}""
-    Total:   {format(executionSummary.Total)} {maxTotalReport}
-    Average: {format(executionSummary.Average)} {maxAverageReport}");
-            }
-            else
+                ConsoleCE.WriteLine($@"
+Total:   {format(executionSummary.Total)} {maxTotalReport}
+Average: {format(executionSummary.Average)} {maxAverageReport}"
+                                       .RemoveLeadingLineBreak());
+            } else
             {
-                SafeConsole.WriteLine(
-                    $@"Executed {iterations} iterations of ""{description}""
-    Total:   {format(executionSummary.Total)} {maxTotalReport} ");
+                ConsoleCE.WriteLine($@"Total:   {format(executionSummary.Total)} {maxTotalReport} ");
             }
         }
     }

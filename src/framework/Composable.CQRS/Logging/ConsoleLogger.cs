@@ -35,7 +35,7 @@ namespace Composable.Logging
         {
             if(_logLevel >= LogLevel.Error)
             {
-                SafeConsole.WriteLine($@"
+                ConsoleCE.WriteLine($@"
 ############################################# ERROR in : {_type.GetFullNameCompilable()} #############################################
 MESSAGE: {message} 
 EXCEPTION: {exception}
@@ -80,7 +80,7 @@ EXCEPTION: {exception}
         {
             if(_logLevel >= LogLevel.Warning)
             {
-                SafeConsole.WriteLine($"WARNING:{_type}: {DateTime.Now:HH:mm:ss.fff} {message}");
+                ConsoleCE.WriteLine($"WARNING:{_type}: {DateTime.Now:HH:mm:ss.fff} {message}");
             }
         }
 
@@ -88,7 +88,7 @@ EXCEPTION: {exception}
         {
             if(_logLevel >= LogLevel.Warning)
             {
-                SafeConsole.WriteLine($"WARNING:{_type}: {DateTime.Now:HH:mm:ss.fff} {message}, \n: Exception: {exception}");
+                ConsoleCE.WriteLine($"WARNING:{_type}: {DateTime.Now:HH:mm:ss.fff} {message}, \n: Exception: {exception}");
             }
         }
 
@@ -96,14 +96,14 @@ EXCEPTION: {exception}
         {
             if(_logLevel >= LogLevel.Info)
             {
-                SafeConsole.WriteLine($"INFO:{_type}: {DateTime.Now:HH:mm:ss.fff} {message}");
+                ConsoleCE.WriteLine($"INFO:{_type}: {DateTime.Now:HH:mm:ss.fff} {message}");
             }
         }
         public void Debug(string message)
         {
             if(_logLevel >= LogLevel.Debug)
             {
-                SafeConsole.WriteLine($"DEBUG:{_type}: {DateTime.Now:HH:mm:ss.fff} {message}");
+                ConsoleCE.WriteLine($"DEBUG:{_type}: {DateTime.Now:HH:mm:ss.fff} {message}");
             }
         }
 

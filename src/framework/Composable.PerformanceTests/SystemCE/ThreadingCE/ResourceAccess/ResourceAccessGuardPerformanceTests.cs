@@ -91,37 +91,37 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
             TimeAsserter.ExecuteThreadedLowOverhead(HammerScenario, Iterations, description: "Multithreaded", maxTotal: maxContended);
         }
 
-        // ReSharper disable once IdentifierTypo I want the numbers aligned in the calls
-        static void RunScenarios(Action action, TimeSpan singleThread, TimeSpan multipThread)
+        // ReSharper disable once InconsistentNaming
+        static void RunScenarios(Action action, TimeSpan singleThread, TimeSpan multiThread_)
         {
             RunSingleThreadedScenario(action, mUnContended: singleThread);
-            RunMultiThreadedScenario(action, maxContended: multipThread);
+            RunMultiThreadedScenario(action, maxContended: multiThread_);
         }
 
         [Test] public void LockedRead_time_is_less_than_nanoseconds_SingleThreaded__MultiThreaded_() =>
             RunScenarios(() => _locker.Read(_guarded.Read),
                          singleThread: (40 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 8, unoptimized: 1.8),
-                         multipThread: (220 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 3.5));
+                         multiThread_: (220 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 3.5));
 
         [Test] public void LockedIncrement_time_is_less_than_nanoseconds_SingleThreaded__MultiThreaded_() =>
             RunScenarios(() => _locker.Update(_guarded.Increment),
                          singleThread: (45 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 8, unoptimized: 1.6),
-                         multipThread: (280 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 2.2));
+                         multiThread_: (280 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 2.2));
 
         [Test] public void MonitorCE_Read_time_is_less_than_nanoseconds_SingleThreaded__MultiThreaded_() =>
             RunScenarios(() => _monitor.Read(_guarded.Read),
                          singleThread: (45 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 24, unoptimized: 1.9),
-                         multipThread: (250 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 4));
+                         multiThread_: (250 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 4));
 
         [Test] public void MonitorCE_Increment_time_is_less_than_nanoseconds_SingleThreaded__MultiThreaded_() =>
             RunScenarios(() => _monitor.Update(_guarded.Increment),
                          singleThread: (60 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 32, unoptimized: 1.8),
-                         multipThread: (250 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 5.0, unoptimized: 1.3));
+                         multiThread_: (250 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 5.0, unoptimized: 1.3));
 
         [Test] public void TryEnter_time_is_less_than_nanoseconds_SingleThreaded__MultiThreaded_() =>
             RunScenarios(() => _monitor.TryEnterNonBlocking(),
                          singleThread: (14 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 9, unoptimized: 1.3),
-                         multipThread: (4 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 23, unoptimized: 1.7));
+                         multiThread_: (4 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 23, unoptimized: 1.7));
 
         [Test] public void TryEnter_failed_time_is_less_than_nanoseconds_SingleThreaded__MultiThreaded_()
         {
@@ -133,7 +133,7 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
                              () => _monitor.TryEnterNonBlocking(),
                              //ncrunch: no coverage end
                                             singleThread: (12 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 12, unoptimized: 1.4),
-                                            multipThread: (1.85 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 45, unoptimized: 1.5))).Wait();
+                                            multiThread_: (1.85 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 45, unoptimized: 1.5))).Wait();
             }
             finally
             {
@@ -147,22 +147,22 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
                 () => _guard.Update(_guarded.Increment),
                 //ncrunch: no coverage end
                 singleThread: (130 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 12, unoptimized: 1.3),
-                multipThread: (300 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 6, unoptimized: 1.4));
+                multiThread_: (300 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 6, unoptimized: 1.4));
 
         [Test] public void Read_time_is_less_than_nanoseconds_SingleThreaded__MultiThreaded_() =>
             RunScenarios(() => _guard.Read(_guarded.Read),
                          singleThread: (70 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 17, unoptimized: 1.6),
-                         multipThread: (220 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 5, unoptimized: 1.8));
+                         multiThread_: (220 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 5, unoptimized: 1.8));
 
         [Test] public void FakeUpdate_time_is_less_than_nanoseconds_SingleThreaded_30_MultiThreaded_30() =>
             RunScenarios(() => _fakeGuard.Update(_guarded.Increment),
                          singleThread: (20 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 9, unoptimized:2.4),
-                         multipThread: (25 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 4.5));
+                         multiThread_: (25 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 4.5));
 
         [Test] public void FakeRead_time_is_less_than_nanoseconds_SingleThreaded_25_MultiThreaded_18() =>
             RunScenarios(() => _fakeGuard.Read(_guarded.Read),
                          singleThread: (35 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 9.0, unoptimized: 1.4),
-                         multipThread: (25 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 5.0));
+                         multiThread_: (25 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 5.0));
 
         [Test] public void UpdateLock_time_is_less_than_nanoseconds_SingleThreaded_250_MultiThreaded_() =>
             RunScenarios(
@@ -173,7 +173,7 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
                 },
                 //ncrunch: no coverage end
                 singleThread: (90 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 22, unoptimized: 1.4),
-                multipThread: (200 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 22, unoptimized: 1.6));
+                multiThread_: (200 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 22, unoptimized: 1.6));
 
         void DoNothing()
         {

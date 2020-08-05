@@ -25,6 +25,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 {
     public class Fixture : DuplicateByPluggableComponentTest
     {
+        static readonly TimeSpan _timeout = 10.Seconds();
         internal ITestingEndpointHost Host;
         internal IThreadGate CommandHandlerThreadGate;
         internal IThreadGate CommandHandlerWithResultThreadGate;
@@ -37,7 +38,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         internal IReadOnlyList<IThreadGate> AllGates;
 
-        protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
+        protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(_timeout);
         protected IEndpoint ClientEndpoint;
         protected IEndpoint RemoteEndpoint;
         protected IRemoteHypermediaNavigator RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteHypermediaNavigator>();
@@ -96,17 +97,16 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             ClientEndpoint = Host.RegisterClientEndpointForRegisteredEndpoints();
 
             await Host.StartAsync();
-
             AllGates = new List<IThreadGate>
                        {
-                           (CommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
-                           (CommandHandlerWithResultThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
-                           (MyCreateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
-                           (MyUpdateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
-                           (MyRemoteAggregateEventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
-                           (MyLocalAggregateEventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
-                           (EventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds())),
-                           (QueryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(5.Seconds()))
+                           (CommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(_timeout)),
+                           (CommandHandlerWithResultThreadGate = ThreadGate.CreateOpenWithTimeout(_timeout)),
+                           (MyCreateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(_timeout)),
+                           (MyUpdateAggregateCommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(_timeout)),
+                           (MyRemoteAggregateEventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(_timeout)),
+                           (MyLocalAggregateEventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(_timeout)),
+                           (EventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(_timeout)),
+                           (QueryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(_timeout))
                        };
         }
 

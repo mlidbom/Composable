@@ -63,7 +63,6 @@
       <Value>TestWiringHelper.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-46</Value>
       <Value>Logging\ExceptionLogger.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
       <Value>Messaging\Buses\EndpointHost.cs:framework\Composable.CQRS\Composable.CQRS.csproj-57</Value>
-      <Value>Messaging\ServiceBusSpecification\Given_a_backend_endpoint_with_a_command_event_and_query_handler\_Fixture.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-97</Value>
       <Value>CQRS\EventRefactoring\Migrations\EventMigrationTestBase.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-40</Value>
       <Value>AccountManagementServerDomainBootstrapper.cs:Samples\AccountManagement\AccountManagement.Server\AccountManagement.Server.csproj-15</Value>
       <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-31</Value>

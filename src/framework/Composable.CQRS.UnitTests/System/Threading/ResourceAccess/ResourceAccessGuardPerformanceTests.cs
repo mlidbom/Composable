@@ -113,12 +113,12 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
         [Test] public void Average_MonitorCE_Read_time_is_less_than_32_nanoseconds() =>
             RunScenarios(() => _monitor.Read(_guarded.Read),
-                         mUnContended: (35 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
+                         mUnContended: (35 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(24),
                          maxContended: (300 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
 
         [Test] public void Average_MonitorCE_Increment_time_is_less_than_35_nanoseconds() =>
             RunScenarios(() => _monitor.Update(_guarded.Increment),
-                         mUnContended: (35 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
+                         mUnContended: (35 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(24),
                          maxContended: (300 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8));
 
         [Test] public void Average_successful_TryEnter_time_is_less_than_20_nanoseconds() =>
@@ -148,8 +148,8 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
         [Test] public void Average_Read_time_is_less_than_200_nanoseconds() =>
             RunScenarios(() => _guard.Read(_guarded.Read),
-                         mUnContended: (100 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(8),
-                         maxContended: (200 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(3));
+                         mUnContended: (100 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(10),
+                         maxContended: (200 * TotalLocks).Nanoseconds().IfInstrumentedMultiplyBy(5));
 
         [Test] public void Average_FakeUpdate_time_is_less_than_35_nanoseconds() =>
             RunScenarios(() => _fakeGuard.Update(_guarded.Increment),

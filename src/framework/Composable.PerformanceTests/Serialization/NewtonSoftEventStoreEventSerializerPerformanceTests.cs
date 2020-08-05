@@ -19,7 +19,7 @@ namespace Composable.Tests.Serialization
 
         [OneTimeSetUp] public void SetupTask() => _eventSerializer = new EventStoreSerializer(new TypeMapper());
 
-        [Test, Performance, Serial] public void Should_roundtrip_simple_event_1000_times_in_15_milliseconds()
+        [Test] public void Should_roundtrip_simple_event_1000_times_in_15_milliseconds()
         {
             var @event = new NewtonSoftEventStoreEventSerializerTests.TestEvent(
                                             test1: "Test1",
@@ -42,7 +42,7 @@ namespace Composable.Tests.Serialization
                                 );
         }
 
-        [Test, Performance, Serial] public void Should_roundtrip_simple_event_within_50_percent_of_default_serializer_performance()
+        [Test] public void Should_roundtrip_simple_event_within_50_percent_of_default_serializer_performance()
         {
             const int iterations = 1000;
             const double allowedSlowdown = 1.5;

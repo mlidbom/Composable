@@ -6,14 +6,13 @@ using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
 using Composable.Persistence.Common.DependencyInjection;
 using Composable.Testing;
-using NCrunch.Framework;
 using NUnit.Framework;
 
 //ncrunch: no coverage start
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
-    [Performance, Serial] public class PerformanceTestBase : DuplicateByPluggableComponentTest
+    public class PerformanceTestBase : DuplicateByPluggableComponentTest
     {
         protected ITestingEndpointHost Host;
         protected IEndpoint ServerEndpoint;

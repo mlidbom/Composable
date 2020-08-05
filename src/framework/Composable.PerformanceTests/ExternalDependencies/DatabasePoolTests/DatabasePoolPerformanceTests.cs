@@ -9,13 +9,10 @@ using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.SystemCE;
 using Composable.Testing;
 using Composable.Testing.Performance;
-using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
 {
-    //Performance: Review usage of Serial attribute. Remember: This stops all other tests from running!
-    [Performance, Serial]
     public class DatabasePoolPerformanceTests : DatabasePoolTest
     {
         [OneTimeSetUp]public void WarmUpCache()

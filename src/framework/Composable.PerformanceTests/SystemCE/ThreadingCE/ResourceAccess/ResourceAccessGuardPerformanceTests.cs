@@ -4,7 +4,6 @@ using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.Testing.Performance;
 using Composable.Testing;
-using NCrunch.Framework;
 using NUnit.Framework;
 // ReSharper disable UnusedMethodReturnValue.Local
 // ReSharper disable MemberCanBeMadeStatic.Local
@@ -14,7 +13,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.System.Threading.ResourceAccess
 {
-    [Performance, Serial] public class ResourceAccessGuardPerformanceTests
+    public class ResourceAccessGuardPerformanceTests
     {
         class MyLong
         {

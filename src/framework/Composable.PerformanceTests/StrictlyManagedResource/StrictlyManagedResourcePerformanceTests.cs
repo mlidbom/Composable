@@ -1,14 +1,12 @@
 ﻿using Composable.SystemCE;
-using Composable.Testing;
 using Composable.Testing.Performance;
-using NCrunch.Framework;
 using NUnit.Framework;
 
 // ReSharper disable StringLiteralTypo
 
 namespace Composable.Tests.StrictlyManagedResource
 {
-    [TestFixture] [Performance] [Serial] public class StrictlyManagedResourcePerformanceTests
+    [TestFixture]public class StrictlyManagedResourcePerformanceTests
     {
         // ReSharper disable once ClassNeverInstantiated.Local
         class StrictResource : IStrictlyManagedResource

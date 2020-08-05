@@ -7,13 +7,12 @@ using Composable.SystemCE;
 using Composable.SystemCE.DiagnosticsCE;
 using Composable.SystemCE.LinqCE;
 using Composable.Testing.Performance;
-using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.Testing;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
-    [Performance, Serial] public class RemoteQueryPerformanceTests : PerformanceTestBase
+    public class RemoteQueryPerformanceTests : PerformanceTestBase
     {
         [Test] public void SingleThreaded_Runs_100_local_requests_making_one_remote_query_each_in_60_milliseconds() =>
             RunScenario(threaded: false, requests: 100.EnvDivide(instrumented:1.3), queriesPerRequest: 1, maxTotal: 60.Milliseconds());

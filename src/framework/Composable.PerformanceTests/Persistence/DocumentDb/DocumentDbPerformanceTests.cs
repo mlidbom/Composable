@@ -3,12 +3,11 @@ using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions.Extensions;
 using JetBrains.Annotations;
-using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace Composable.Tests.Persistence.DocumentDb
 {
-    [Performance, LongRunning, Serial]
+    [LongRunning]
     class DocumentDbPerformanceTests : DocumentDbTestsBase
     {
         [Test] public void Saves_100_documents_in_milliseconds_msSql_75_MySql_300_InMemory_8_PgSql_100_Orcl_100_DB2_300()

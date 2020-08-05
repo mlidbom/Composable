@@ -10,15 +10,13 @@ using Composable.SystemCE;
 using Composable.SystemCE.LinqCE;
 using Composable.Testing.Performance;
 using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
-using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.Testing;
 using JetBrains.Annotations;
 
 namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
-    //[ConfigurationBasedDuplicateByDimensions]
-    [Performance, LongRunning, Serial]
+    [LongRunning]
     public class EventMigrationPerformanceTest : EventMigrationTestBase
     {
         List<AggregateEvent> _history;

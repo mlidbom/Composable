@@ -3,13 +3,12 @@ using Composable.DependencyInjection;
 using Composable.SystemCE;
 using Composable.SystemCE.DiagnosticsCE;
 using Composable.Testing.Performance;
-using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.Testing;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
 {
-    [Performance, Serial] public class Local_Query_performance_tests : PerformanceTestBase
+    public class Local_Query_performance_tests : PerformanceTestBase
     {
         [Test] public void Runs_10_000__MultiThreaded_local_requests_making_a_single_local_query_each_in_20_milliseconds() =>
             RunScenario(threaded: true, requests: 10_000.EnvDivide(instrumented:12), queriesPerRequest: 1, maxTotal: 20.Milliseconds());

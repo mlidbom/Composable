@@ -13,7 +13,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.System.Reflection
 {
-    [TestFixture, Performance, Serial]public class Activator_one_argument_constructor_performance_tests
+    [TestFixture]public class Activator_one_argument_constructor_performance_tests
     {
         static readonly string _argument = "AnArgument";
 
@@ -24,9 +24,9 @@ namespace Composable.Tests.System.Reflection
 #pragma warning restore IDE0060 // Remove unused parameter
         }
 
-        [Test, Serial] public void Can_create_instance() => Constructor.For<Simple>.WithArguments<string>.Instance(_argument).Should().NotBe(null);
+        [Test] public void Can_create_instance() => Constructor.For<Simple>.WithArguments<string>.Instance(_argument).Should().NotBe(null);
 
-        [Test, Serial] public void _005_Constructs_1_00_000_instances_within_60_percent_of_normal_constructor_call()
+        [Test] public void _005_Constructs_1_00_000_instances_within_60_percent_of_normal_constructor_call()
         {
             var constructions = 1_00_000.EnvDivide(instrumented:4.7);
 
@@ -40,7 +40,7 @@ namespace Composable.Tests.System.Reflection
             TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime);
         }
 
-        [Test, Serial] public void _005_Constructs_1_00_000_instances_35_times_faster_than_via_activator_createinstance()
+        [Test] public void _005_Constructs_1_00_000_instances_35_times_faster_than_via_activator_createinstance()
         {
             var constructions = 1_00_000.EnvDivide(instrumented:20);
 

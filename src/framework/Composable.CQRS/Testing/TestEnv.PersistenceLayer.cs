@@ -6,10 +6,10 @@ using Composable.SystemCE;
 namespace Composable.Testing
 {
     ///<summary>TestEnvironment class. Shortened name since it is referenced statically and has nested types</summary>
-    static partial class TestEnv
+    public static partial class TestEnv
     {
         ///<summary>Persistence layer members</summary>
-        internal static class PersistenceLayer
+        public static class PersistenceLayer
         {
             public static DependencyInjection.PersistenceLayer Current
             {
@@ -58,9 +58,9 @@ namespace Composable.Testing
                                                         .GetType("NUnit.Framework.TestContext")!;
 
         static readonly Regex FindDimensions = new Regex(@"\(""(.*)\:(.*)""\)", RegexOptions.Compiled);
-        internal static class DIContainer
+        public static class DIContainer
         {
-            internal static DependencyInjection.DIContainer Current
+            public static DependencyInjection.DIContainer Current
             {
                 get
                 {

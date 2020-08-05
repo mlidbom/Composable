@@ -146,6 +146,20 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
             }
         }
 
+        internal T Update<T>(Func<T> func)
+        {
+            Enter();
+            try
+            {
+                return func();
+            }
+            finally
+            {
+                NotifyWaiting(ResourceAccess.NotifyWaiting.All);
+                Exit();
+            }
+        }
+
         internal TReturn Read<TReturn>(Func<TReturn> func)
         {
             Enter();

@@ -1,20 +1,27 @@
 ﻿using System;
-using System.Threading;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using AccountManagement.API;
 using AccountManagement.Domain.Registration;
 using AccountManagement.UserStories.Scenarios;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
+using Composable.SystemCE.CollectionsCE.ConcurrentCE;
 using Composable.SystemCE.DiagnosticsCE;
+using Composable.Testing;
 using Composable.Testing.Performance;
+using FluentAssertions;
 using FluentAssertions.Extensions;
+using JetBrains.Annotations;
+using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace AccountManagement
 {
-    [TestFixture] class PerformanceTest
+    [Serial] class PerformanceTest : DuplicateByPluggableComponentTest
     {
+        public PerformanceTest([NotNull] string pluggableComponentsColonSeparated) : base(pluggableComponentsColonSeparated) {}
+
         ITestingEndpointHost _host;
         IEndpoint _clientEndpoint;
         AccountScenarioApi _scenarioApi;
@@ -27,68 +34,66 @@ namespace AccountManagement
             _scenarioApi = new AccountScenarioApi(_clientEndpoint);
             await _host.StartAsync();
             //Warmup
-            StopwatchCE.TimeExecutionThreaded(() => _scenarioApi.Register.Execute(), iterations: 100);
+            StopwatchCE.TimeExecutionThreaded(() => _scenarioApi.Register.Execute(), iterations: 3);
         }
 
-        [Test, Ignore("Only intended to be executed manually")] public void _1_threads_create_1000_accounts_in_5_second() =>
-            TimeAsserter.Execute(() => _scenarioApi.Register.Execute(), iterations: 1000, maxTotal: 10.Seconds());
+        [Test] public void SingleThreaded_creates_XX_accounts_in_20_milliseconds_db2__memory__msSql__mySql__oracle_pgSql_() =>
+            TimeAsserter.Execute(
+                description: "Register accounts",
+                action: () => _scenarioApi.Register.Execute().Result.Status.Should().Be(RegistrationAttemptStatus.Successful),
+                iterations: TestEnv.PersistenceLayer.ValueFor(db2: 2, memory: 2, msSql: 2, mySql: 2, orcl: 2, pgSql: 2),
+                maxTotal: 20.Milliseconds());
 
-        [Test, Ignore("Only intended to be executed manually")] public void _10_threads_create_4000_accounts_in_8_seconds_then_logs_in_to_each_account_in_7_seconds_then_fetches_each_account_resource_in_zero_point_5_seconds()
+        [Test] public void Multithreaded_creates_XX_accounts_in_20_milliseconds__db2_memory__msSql__mySql__oracle_pgSql_() =>
+            TimeAsserter.ExecuteThreaded(
+                description: "Register accounts",
+                action: () => _scenarioApi.Register.Execute().Result.Status.Should().Be(RegistrationAttemptStatus.Successful),
+                iterations: TestEnv.PersistenceLayer.ValueFor(db2: 2, memory: 10, msSql: 4, mySql: 1, orcl: 2, pgSql: 4),
+                maxTotal: 20.Milliseconds());
+
+        [Test] public void Multithreaded_logs_in_XX_in_20_milliseconds_db2__memory__msSql__mySql__oracle_pgSql_()
         {
-            var maxDegreeOfParallelism = 10;
-            var accountCount = 4000;
-            var accountsArray = new (string Email, string Password, Guid Id)[accountCount];
-
-            var currentAccount = -1;
-
-            TimeAsserter.ExecuteThreaded(description: "Register account",
-                                         setup: () => currentAccount = -1,
-                                         action: () =>
-                                         {
-                                             var registerAccountScenario = _scenarioApi.Register;
-                                             var result = registerAccountScenario.Execute().Result;
-                                             if(result.Status != RegistrationAttemptStatus.Successful)
-                                             {
-                                                 throw new Exception(result.Status.ToString());
-                                             }
-
-                                             accountsArray[Interlocked.Increment(ref currentAccount)] = (registerAccountScenario.Email, registerAccountScenario.Password, registerAccountScenario.AccountId);
-                                         },
-                                         iterations: accountCount,
-                                         maxTotal: 8.Seconds(),
-                                         maxDegreeOfParallelism: maxDegreeOfParallelism);
+            var logins = TestEnv.PersistenceLayer.ValueFor(db2: 2, memory: 2, msSql: 2, mySql: 2, orcl: 2, pgSql: 2);
+            var accountsReader = CreateAccountsThreaded(Math.Min(logins, 10)).ToConcurrentCircularReader();
 
             TimeAsserter.ExecuteThreaded(description: "Log in to account",
-                                         setup: () => currentAccount = -1,
                                          action: () =>
                                          {
-                                             var (email, password, _) = accountsArray[Interlocked.Increment(ref currentAccount)];
-
-                                             var loginResult = _scenarioApi.Login(email, password).Execute();
-                                             if(!loginResult.Succeeded)
-                                             {
-                                                 throw new Exception();
-                                             }
+                                             var account = accountsReader.Next();
+                                             _scenarioApi.Login(account.Email, account.Password).Execute().Succeeded.Should().BeTrue();
                                          },
-                                         iterations: accountCount,
-                                         maxTotal: 7.Seconds(),
-                                         maxDegreeOfParallelism: maxDegreeOfParallelism);
+                                         iterations: logins,
+                                         maxTotal: 20.Milliseconds());
+        }
+
+        [Test] public void Multithreaded_fetches_XX_account_resources_in_10_milliseconds_db2_memory__msSql__mySql__oracle_pgSql_()
+        {
+            var fetches = TestEnv.PersistenceLayer.ValueFor(db2: 10, memory: 40, msSql: 30, mySql: 20, orcl: 25, pgSql: 25);
+            var accountsReader = CreateAccountsThreaded(Math.Min(fetches, 10)).ToConcurrentCircularReader();
 
             TimeAsserter.ExecuteThreaded(description: "Fetch account resource",
-                                         setup: () => currentAccount = -1,
                                          action: () =>
                                          {
-                                             var (_, _, id) = accountsArray[Interlocked.Increment(ref currentAccount)];
-
-                                             var accountResource = _clientEndpoint.ExecuteClientRequest(AccountApi.Instance.Query.AccountById(id));
-                                             if(accountResource.Id != id)
-                                             {
-                                                 throw new Exception();
-                                             }
+                                             var account = accountsReader.Next();
+                                             _clientEndpoint.ExecuteClientRequest(AccountApi.Instance.Query.AccountById(account.Id)).Id.Should().Be(account.Id);
                                          },
-                                         iterations: accountCount,
-                                         maxTotal: 0.5.Seconds(),
-                                         maxDegreeOfParallelism: maxDegreeOfParallelism);
+                                         iterations: fetches,
+                                         maxTotal: 10.Milliseconds());
+        }
+
+        ConcurrentBag<(string Email, string Password, Guid Id)> CreateAccountsThreaded(int accountCount)
+        {
+            var created = new ConcurrentBag<(string Email, string Password, Guid Id)>();
+
+            StopwatchCE.TimeExecutionThreaded(
+                () =>
+                {
+                    var registerAccountScenario = _scenarioApi.Register;
+                    registerAccountScenario.Execute().Result.Status.Should().Be(RegistrationAttemptStatus.Successful);
+                    created.Add((registerAccountScenario.Email, registerAccountScenario.Password, registerAccountScenario.AccountId));
+                },
+                iterations: accountCount);
+            return created;
         }
 
         [TearDown] public void Teardown() => _host.Dispose();

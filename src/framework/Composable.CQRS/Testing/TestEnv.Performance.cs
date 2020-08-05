@@ -8,15 +8,15 @@ using Composable.SystemCE.DiagnosticsCE;
 namespace Composable.Testing
 {
     ///<summary>TestEnvironment class. Shortened name since it is referenced statically and has nested types</summary>
-    static partial class TestEnv
+    public static partial class TestEnv
     {
-        internal static TimeSpan EnvMultiply(this TimeSpan original, double instrumented = 1.0, double unoptimized = 1.0) =>
+        public static TimeSpan EnvMultiply(this TimeSpan original, double instrumented = 1.0, double unoptimized = 1.0) =>
             original * EnvFactor(instrumented: instrumented, unoptimized: unoptimized);
 
-        internal static int EnvMultiply(this int original, double instrumented = 1.0, double unoptimized = 1.0) =>
+        public static int EnvMultiply(this int original, double instrumented = 1.0, double unoptimized = 1.0) =>
             (int)(original * EnvFactor(instrumented: instrumented, unoptimized: unoptimized));
 
-        internal static int EnvDivide(this int original, double instrumented = 1.0, double unoptimized = 1.0) =>
+        public static int EnvDivide(this int original, double instrumented = 1.0, double unoptimized = 1.0) =>
             (int)(original / EnvFactor(instrumented: instrumented, unoptimized: unoptimized));
 
         static double EnvFactor(double instrumented = 1.0, double unoptimized = 1.0)
@@ -26,11 +26,11 @@ namespace Composable.Testing
             return 1.0;
         }
 
-        internal static class Performance
+        public static class Performance
         {
-            internal static readonly bool AreOptimizationsDisabled = ((DebuggableAttribute)typeof(TestEnv).Assembly.GetCustomAttribute(typeof(DebuggableAttribute))!).IsJITOptimizerDisabled;
+            public static readonly bool AreOptimizationsDisabled = ((DebuggableAttribute)typeof(TestEnv).Assembly.GetCustomAttribute(typeof(DebuggableAttribute))!).IsJITOptimizerDisabled;
 
-            internal static readonly bool IsInstrumented = CheckIfInstrumented();
+            public static readonly bool IsInstrumented = CheckIfInstrumented();
             static bool CheckIfInstrumented()
             {
                 var time = StopwatchCE.TimeExecution(action: () =>

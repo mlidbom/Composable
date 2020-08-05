@@ -12,38 +12,6 @@ namespace Composable.Testing.Performance
     //performance: Add ability to switch on strict mode such that no retries are performed. This would help us surface tests riding the edge and causing extra load during test runs.
     public static class TimeAsserter
     {
-        const string DefaultTimeFormat = @"ss\.fffffff";
-
-        static readonly TimeSpan OneMicrosecond = 1.Microseconds();
-        static readonly TimeSpan OneMillisecond = 1.Microseconds();
-
-        static string Format(TimeSpan? time)
-        {
-            if(time == null) return "";
-
-            if(time >= OneMillisecond)
-            {
-                var defaultFormattedWith7SecondDecimalPoints = time.Value.ToStringInvariant(DefaultTimeFormat);
-
-                var parts = defaultFormattedWith7SecondDecimalPoints.Split('.');
-                var (integer, decimalPart) = (parts[0], parts[1]);
-
-                var d1 = decimalPart.Substring(0, 3);
-                var d2 = decimalPart.Substring(3, 3);
-                var d3 = decimalPart.Substring(6, 1);
-
-                return $"{integer}.{d1}_{d2}_{d3}";
-            }
-
-            if(time >= OneMicrosecond)
-            {
-                return $"{time.Value.TotalMicroseconds()} microseconds";
-            } else
-            {
-                return $"{time.Value.TotalNanoseconds()} nanoseconds";
-            }
-        }
-
         const int MaxTriesLimit = 10;
         const int MaxTriesDefault = 10;
 
@@ -65,19 +33,10 @@ namespace Composable.Testing.Performance
 
                 var executionSummary = await StopwatchCE.TimeExecutionAsync(action: action, iterations: iterations).NoMarshalling();
 
-                try
-                {
-                    RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format: Format);
-                }
-                catch(TimeOutException e)
-                {
-                    ConsoleCE.WriteWarningLine($@"""{description}"" Try: {tries} : {e.Message}");
-                    if(tries >= maxTries) throw;
-
+                if(!RunAsserts(executionSummary, maxAverage: maxAverage, maxTotal: maxTotal, maxTries: maxTries, tries: tries))
                     continue;
-                }
 
-                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
+                PrintSummary(iterations, maxAverage, maxTotal, description, TimeSpanCE.FormatReadable, executionSummary);
                 return executionSummary;
             }
 
@@ -103,19 +62,10 @@ namespace Composable.Testing.Performance
 
                 var executionSummary = StopwatchCE.TimeExecution(action: action, iterations: iterations);
 
-                try
-                {
-                    RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format: Format);
-                }
-                catch(TimeOutException e)
-                {
-                    ConsoleCE.WriteWarningLine($@"""{description}"" Try: {tries} : {e.Message}");
-                    if(tries >= maxTries) throw;
-
+                if(!RunAsserts(executionSummary, maxAverage: maxAverage, maxTotal: maxTotal, maxTries: maxTries, tries: tries))
                     continue;
-                }
 
-                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
+                PrintSummary(iterations, maxAverage, maxTotal, description, TimeSpanCE.FormatReadable, executionSummary);
                 return executionSummary;
             }
 
@@ -137,14 +87,14 @@ namespace Composable.Testing.Performance
             // ReSharper disable AccessToModifiedClosure
             void PrintResults(StopwatchCE.TimedThreadedExecutionSummary executionSummary)
             {
-                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
+                PrintSummary(iterations, maxAverage, maxTotal, description, TimeSpanCE.FormatReadable, executionSummary);
 
                 ConsoleCE.WriteLine($@"  
     Individual execution times    
-    Average: {Format(executionSummary.IndividualExecutionTimes.Average())}
-    Min:     {Format(executionSummary.IndividualExecutionTimes.Min())}
-    Max:     {Format(executionSummary.IndividualExecutionTimes.Max())}
-    Sum:     {Format(executionSummary.IndividualExecutionTimes.Sum())}
+    Average: {((TimeSpan?)executionSummary.IndividualExecutionTimes.Average()).FormatReadable()}
+    Min:     {((TimeSpan?)executionSummary.IndividualExecutionTimes.Min()).FormatReadable()}
+    Max:     {((TimeSpan?)executionSummary.IndividualExecutionTimes.Max()).FormatReadable()}
+    Sum:     {((TimeSpan?)executionSummary.IndividualExecutionTimes.Sum()).FormatReadable()}
 ");
             }
             // ReSharper restore AccessToModifiedClosure
@@ -157,17 +107,8 @@ namespace Composable.Testing.Performance
 
                 var executionSummary = StopwatchCE.TimeExecutionThreaded(action: action, iterations: iterations, maxDegreeOfParallelism: maxDegreeOfParallelism);
 
-                try
-                {
-                    RunAsserts(maxAverage, maxTotal, executionSummary, Format);
-                }
-                catch(TimeOutException e)
-                {
-                    ConsoleCE.WriteWarningLine($@"""{description}"" Try: {tries} : {e.Message}");
-                    if(tries >= maxTries) throw;
-
+                if(!RunAsserts(executionSummary, maxAverage: maxAverage, maxTotal: maxTotal, maxTries: maxTries, tries: tries))
                     continue;
-                }
 
                 PrintResults(executionSummary);
                 return executionSummary;
@@ -194,19 +135,10 @@ namespace Composable.Testing.Performance
                 using var _ = DisposableCE.Create(() => tearDown?.Invoke());
                 var executionSummary = StopwatchCE.TimeExecutionThreadedLowOverhead(action: action, iterations: iterations, maxDegreeOfParallelism: maxDegreeOfParallelism);
 
-                try
-                {
-                    RunAsserts(maxAverage, maxTotal, executionSummary, Format);
-                }
-                catch(TimeOutException e)
-                {
-                    ConsoleCE.WriteWarningLine($@"""{description}"" Try: {tries} : {e.Message}");
-                    if(tries >= maxTries) throw;
-
+                if(!RunAsserts(executionSummary, maxAverage: maxAverage, maxTotal: maxTotal, maxTries: maxTries, tries: tries))
                     continue;
-                }
 
-                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
+                PrintSummary(iterations, maxAverage, maxTotal, description, TimeSpanCE.FormatReadable, executionSummary);
                 return executionSummary;
             }
 
@@ -222,22 +154,21 @@ namespace Composable.Testing.Performance
             maxTries = Math.Min(MaxTriesLimit, maxTries);
         }
 
-        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-        static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchCE.TimedExecutionSummary executionSummary, [InstantHandle] Func<TimeSpan?, string> format)
+        static bool RunAsserts(StopwatchCE.TimedExecutionSummary executionSummary, TimeSpan? maxAverage, TimeSpan? maxTotal, uint maxTries, int tries)
         {
+            string failureMessage = "";
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)
             {
-                string maxTotalReport = $" {Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {format(maxTotal)}";
-
-                throw new TimeOutException($"{nameof(maxTotal)}: {format(maxTotal!.Value)} exceeded. Was: {format(executionSummary.Total)} {maxTotalReport}");
-            }
-
-            if(maxAverage.HasValue && executionSummary.Average > maxAverage.Value)
+                failureMessage = $"{Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {maxTotal.FormatReadable()}";
+            } else if(maxAverage.HasValue && executionSummary.Average > maxAverage.Value)
             {
-                string maxAverageReport = $" {Percent(executionSummary.Average, maxAverage.Value)} of {nameof(maxAverage)}: {format(maxAverage)}";
-
-                throw new TimeOutException($"{nameof(maxAverage)}: {format(maxAverage!.Value)} exceeded. Was: {format(executionSummary.Average)} {maxAverageReport}");
+                failureMessage = $" {Percent(executionSummary.Average, maxAverage.Value)} of {nameof(maxAverage)}: {maxAverage.FormatReadable()}";
             }
+
+            if(failureMessage.Length == 0) return true;
+            if(tries < maxTries) return false;
+
+            throw new TimeOutException(failureMessage);
         }
 
         public class TimeOutException : Exception

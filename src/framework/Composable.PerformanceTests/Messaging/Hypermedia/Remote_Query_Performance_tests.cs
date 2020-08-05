@@ -6,11 +6,11 @@ using Composable.Messaging.Hypermedia;
 using Composable.SystemCE;
 using Composable.SystemCE.DiagnosticsCE;
 using Composable.SystemCE.LinqCE;
+using Composable.Testing;
 using Composable.Testing.Performance;
 using NUnit.Framework;
-using Composable.Testing;
 
-namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
+namespace Composable.Tests.Messaging.Hypermedia
 {
     public class RemoteQueryPerformanceTests : PerformanceTestBase
     {

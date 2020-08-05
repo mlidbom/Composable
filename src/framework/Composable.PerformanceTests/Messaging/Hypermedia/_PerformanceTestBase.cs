@@ -10,7 +10,7 @@ using NUnit.Framework;
 
 //ncrunch: no coverage start
 
-namespace Composable.Tests.Messaging.ServiceBusSpecification.Performance
+namespace Composable.Tests.Messaging.Hypermedia
 {
     public class PerformanceTestBase : DuplicateByPluggableComponentTest
     {

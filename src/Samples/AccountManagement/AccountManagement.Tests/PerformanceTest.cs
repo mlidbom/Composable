@@ -11,8 +11,6 @@ using Composable.Testing.Performance;
 using FluentAssertions.Extensions;
 using NUnit.Framework;
 
-#pragma warning disable IDE1006 //Review OK: Test Naming Styles
-
 namespace AccountManagement
 {
     [TestFixture] class PerformanceTest

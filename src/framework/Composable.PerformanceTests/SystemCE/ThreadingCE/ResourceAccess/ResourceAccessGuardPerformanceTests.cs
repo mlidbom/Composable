@@ -2,16 +2,17 @@ using System;
 using System.Threading.Tasks;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
-using Composable.Testing.Performance;
 using Composable.Testing;
+using Composable.Testing.Performance;
 using NUnit.Framework;
+
 // ReSharper disable UnusedMethodReturnValue.Local
 // ReSharper disable MemberCanBeMadeStatic.Local
 // ReSharper disable UnusedParameter.Local
 
 // ReSharper disable InconsistentlySynchronizedField
 
-namespace Composable.Tests.System.Threading.ResourceAccess
+namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
 {
     public class ResourceAccessGuardPerformanceTests
     {

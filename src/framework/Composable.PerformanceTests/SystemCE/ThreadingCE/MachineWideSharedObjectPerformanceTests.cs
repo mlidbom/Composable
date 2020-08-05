@@ -1,13 +1,12 @@
 ﻿using System;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
-using Composable.Testing;
 using Composable.Testing.Performance;
+using Composable.Tests.System.Threading;
 using FluentAssertions;
-using NCrunch.Framework;
 using NUnit.Framework;
 
-namespace Composable.Tests.System.Threading
+namespace Composable.Tests.SystemCE.ThreadingCE
 {
     [TestFixture] public class MachineWideSharedObjectPerformanceTests
     {

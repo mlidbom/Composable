@@ -6,10 +6,9 @@ using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;
-using NCrunch.Framework;
 using NUnit.Framework;
 
-namespace Composable.Tests.System.Reflection
+namespace Composable.Tests.SystemCE.ReflectionCE
 {
     [TestFixture]public class Activator_default_constructor_Generic_argument_performance_tests
     {

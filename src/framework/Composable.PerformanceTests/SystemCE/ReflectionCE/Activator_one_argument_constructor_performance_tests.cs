@@ -7,11 +7,11 @@ using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;
-using NCrunch.Framework;
 using NUnit.Framework;
+
 #pragma warning disable IDE1006 //Review OK: Test Naming Styles
 
-namespace Composable.Tests.System.Reflection
+namespace Composable.Tests.SystemCE.ReflectionCE
 {
     [TestFixture]public class Activator_one_argument_constructor_performance_tests
     {

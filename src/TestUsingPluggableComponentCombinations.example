@@ -1,4 +1,4 @@
-#When running tests all tests that uses dependency injection and persistence will be executed once for every configured value in this file.
+#When running tests, all tests that uses dependency injection and persistence will be executed once for every configured value in this file.
 #Format is PersistenceLayer:DIContainer. Comment out the ones you do not want with #. Empty/Whitespace lines are ignored
 #For PersistenceLayer: MsSql is Microsoft Sql Server, PgSql is PostgreSql, MySql is hopefully obvious , Orcl is Oracle Database, DB2 is IBM DB2
 #For DIContainer: Com is Composable, Sim is SimpleInjector, Win is Windsor

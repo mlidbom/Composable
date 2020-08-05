@@ -10,7 +10,7 @@ namespace Composable.Tests.KeyValueStorage
     //[ConfigurationBasedDuplicateByDimensions]
     class DocumentDbTestsBase : DuplicateByPluggableComponentTest
     {
-        protected IDocumentDb CreateStore() => TestWiringHelper.DocumentDb(ServiceLocator);
+        protected IDocumentDb CreateStore() => ServiceLocator.DocumentDb();
         protected IServiceLocator ServiceLocator { get; private set; }
         protected IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(
             builder

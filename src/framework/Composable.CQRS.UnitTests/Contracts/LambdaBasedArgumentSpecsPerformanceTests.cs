@@ -1,3 +1,4 @@
+using System;
 using Composable.Contracts;
 using Composable.SystemCE;
 using Composable.Testing.Performance;
@@ -16,7 +17,7 @@ namespace Composable.Tests.Contracts
             TimeAsserter.Execute(
                 action: () => Contract.Argument(() => notNullOrDefault).NotNullOrDefault(),
                 iterations: 300,
-                maxTotal: 1.Milliseconds().IfInstrumentedMultiplyBy(3.0)
+                maxTotal: 1.Milliseconds().EnvMultiply(instrumented: 3.0)
             );
         }
     }

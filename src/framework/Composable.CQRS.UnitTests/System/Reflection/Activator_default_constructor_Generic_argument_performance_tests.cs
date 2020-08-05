@@ -20,7 +20,7 @@ namespace Composable.Tests.System.Reflection
 
         [Test, Serial] public void Constructs_1_000_000_instances_within_50_percent_of_default_constructor_time()
         {
-            var constructions = 1_000_000.IfInstrumentedDivideBy(4.7);
+            var constructions = 1_000_000.EnvDivide(instrumented:4.7);
 
             //warmup
             StopwatchCE.TimeExecution(DefaultConstructor, constructions);
@@ -34,7 +34,7 @@ namespace Composable.Tests.System.Reflection
 
         [Test, Serial] public void Constructs_1_000_000_instances_2_times_faster_than_via_new_constraint_constructor_time()
         {
-            var constructions = 1_000_000.IfInstrumentedDivideBy(10);
+            var constructions = 1_000_000.EnvDivide(instrumented:10);
 
             //warmup
             StopwatchCE.TimeExecution(NewConstraint, constructions);
@@ -43,12 +43,12 @@ namespace Composable.Tests.System.Reflection
 
             var defaultConstructor = StopwatchCE.TimeExecution(NewConstraint, constructions).Total;
             var maxTime = defaultConstructor.DivideBy(2);
-            TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.IfInstrumentedMultiplyBy(4));
+            TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.EnvMultiply(instrumented: 4));
         }
 
         [Test, Serial] public void Constructs_1_000_000_instances_2_times_faster_than_via_activator_CreateInstance()
         {
-            var constructions = 1_000_000.IfInstrumentedDivideBy(10);
+            var constructions = 1_000_000.EnvDivide(instrumented:10);
 
             //warmup
             StopwatchCE.TimeExecution(ActivatorCreateInstance, constructions);
@@ -57,7 +57,7 @@ namespace Composable.Tests.System.Reflection
 
             var defaultConstructor = StopwatchCE.TimeExecution(ActivatorCreateInstance, constructions).Total;
             var maxTime = defaultConstructor.DivideBy(2);
-            TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.IfInstrumentedMultiplyBy(4.2));
+            TimeAsserter.Execute(DynamicModuleConstruct, constructions, maxTotal: maxTime.EnvMultiply(instrumented: 4.2));
         }
 
         static void DynamicModuleConstruct() => Constructor.For<Simple>.DefaultConstructor.Instance();

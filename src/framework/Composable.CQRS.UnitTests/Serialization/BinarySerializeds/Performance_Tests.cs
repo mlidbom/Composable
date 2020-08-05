@@ -57,7 +57,7 @@ namespace Composable.Tests.Serialization.BinarySerializeds
 
             var maxTotal = jsonSerializationTime.DivideBy(5);
 
-            var binarySerializationTime = RunScenario(BinaryRoundTrip, iterations.IfInstrumentedDivideBy(5), maxTotal:maxTotal);
+            var binarySerializationTime = RunScenario(BinaryRoundTrip, TestEnv.EnvDivide(iterations, instrumented:5), maxTotal:maxTotal);
 
             Console.WriteLine($"Binary: {binarySerializationTime.TotalMilliseconds}, JSon: {jsonSerializationTime.TotalMilliseconds}");
         }
@@ -65,20 +65,20 @@ namespace Composable.Tests.Serialization.BinarySerializeds
         [Test] public void _005_Constructs_1_00_000_instances_within_20_percent_of_default_constructor_time()
         {
             var margin = 1.20;
-            var constructions = 1_00_000.IfInstrumentedDivideBy(4.7);
+            var constructions = TestEnv.EnvDivide(1_00_000, instrumented:4.7);
             var defaultConstructor = RunScenario(DefaultConstructor, constructions);
             var maxTime = defaultConstructor.MultiplyBy(margin);
             RunScenario(DynamicModuleConstruct, constructions, maxTotal: maxTime );
         }
 
         [Test] public void _010_Serializes_10_000_times_in_100_milliseconds() =>
-            RunScenario(BinarySerialize, 10_000.IfInstrumentedDivideBy(7), maxTotal:100.Milliseconds());
+            RunScenario(BinarySerialize, TestEnv.EnvDivide(10_000, instrumented:7), maxTotal:100.Milliseconds());
 
         [Test] public void _020_DeSerializes_10_000_times_in_130_milliseconds() =>
-                RunScenario(BinaryDeSerialize, iterations: 10_000.IfInstrumentedDivideBy(5.5), maxTotal:130.Milliseconds());
+                RunScenario(BinaryDeSerialize, iterations: TestEnv.EnvDivide(10_000, instrumented:5.5), maxTotal:130.Milliseconds());
 
         [Test] public void _030_Roundtrips_1_000_times_in_25_milliseconds() =>
-            RunScenario(BinaryRoundTrip, iterations: 1_000.IfInstrumentedDivideBy(6.5), maxTotal:25.Milliseconds());
+            RunScenario(BinaryRoundTrip, iterations: TestEnv.EnvDivide(1_000, instrumented:6.5), maxTotal:25.Milliseconds());
 
         //ncrunch: no coverage start
 

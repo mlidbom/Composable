@@ -35,6 +35,8 @@ namespace Composable.SystemCE
             return (nanoseconds * TicksPerNanosecond).Ticks();
         }
 
+        public static TimeSpan Nanoseconds(this long nanoseconds) => ((double)nanoseconds).Nanoseconds();
+
         public static TimeSpan Nanoseconds(this int nanoseconds) => ((double)nanoseconds).Nanoseconds();
 
         public static double TotalMicroseconds(this TimeSpan self) => self.Ticks * MicrosecondsPerTick;

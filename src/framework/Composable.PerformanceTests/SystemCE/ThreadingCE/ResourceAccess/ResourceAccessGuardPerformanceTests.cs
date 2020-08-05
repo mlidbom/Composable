@@ -51,9 +51,9 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
         MonitorCE _monitor;
         IResourceGuard _guard;
         MyFakeGuard _fakeGuard;
-        static readonly int TotalLocks = 1_000_000.EnvDivide(unoptimized:10);
+        static readonly long TotalLocks = 10_000_000.EnvDivide(unoptimized:1000);
         const int Iterations = 100;
-        static readonly int LocksPerIteration = TotalLocks / Iterations;
+        static readonly long LocksPerIteration = TotalLocks / Iterations;
 
         [SetUp] public void SetupTask()
         {

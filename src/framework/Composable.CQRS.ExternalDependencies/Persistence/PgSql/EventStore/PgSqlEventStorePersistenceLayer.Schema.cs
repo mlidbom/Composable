@@ -16,7 +16,7 @@ namespace Composable.Persistence.PgSql.EventStore
             if(!_initialized)
             {
                 _connectionManager.UseCommand(suppressTransactionWarning: true,
-                                              command => command.ExecuteNonQuery($@"
+                                              command => command.PrepareAndExecuteNonQuery($@"
 
 
     CREATE TABLE IF NOT EXISTS {Event.TableName}

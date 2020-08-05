@@ -41,7 +41,9 @@ INSERT INTO {DispatchingTable.TableName}
     VALUES (@{DispatchingTable.MessageId}, @{DispatchingTable.EndpointId}_{index}, @{DispatchingTable.IsReceived});
 ").AddParameter($"{DispatchingTable.EndpointId}_{index}", endpointId));
 
-                    command.ExecuteNonQuery();
+                    command
+                       .PrepareStatement() //Even though the count above will differ it will probably not have too many variations for preparing the statement to be quite beneficial.
+                       .ExecuteNonQuery();
                 });
         }
 
@@ -59,6 +61,7 @@ WHERE {DispatchingTable.MessageId} = @{DispatchingTable.MessageId}
 ")
                           .AddParameter(DispatchingTable.MessageId, messageId)
                           .AddParameter(DispatchingTable.EndpointId, endpointId)
+                          .PrepareStatement()
                           .ExecuteNonQuery());
         }
 

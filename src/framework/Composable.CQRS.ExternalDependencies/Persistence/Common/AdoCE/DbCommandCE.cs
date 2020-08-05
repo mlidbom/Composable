@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using Composable.Contracts;
 using Composable.Logging;
 using Composable.SystemCE;
 using Composable.SystemCE.LinqCE;
@@ -25,6 +26,19 @@ namespace Composable.Persistence.Common.AdoCE
         public static async Task<int> ExecuteNonQueryAsync(this DbCommand @this, string commandText) =>
             await @this.SetCommandText(commandText).ExecuteNonQueryAsync().NoMarshalling();
 
+
+        public static object PrepareAndExecuteScalar(this DbCommand @this, string commandText) =>
+            @this.SetCommandText(commandText).PrepareStatement().ExecuteScalar();
+
+        public static async Task<object> PrepareAndExecuteScalarAsync(this DbCommand @this, string commandText) =>
+            await @this.SetCommandText(commandText).PrepareStatement().ExecuteScalarAsync().NoMarshalling();
+
+        public static int PrepareAndExecuteNonQuery(this DbCommand @this, string commandText) =>
+            @this.SetCommandText(commandText).PrepareStatement().ExecuteNonQuery();
+
+        public static async Task<int> PrepareAndExecuteNonQueryAsync(this DbCommand @this, string commandText) =>
+            await @this.SetCommandText(commandText).PrepareStatement().ExecuteNonQueryAsync().NoMarshalling();
+
         public static TCommand AppendCommandText<TCommand>(this TCommand @this, string append) where TCommand : DbCommand =>
             @this.Mutate(me => me.CommandText += append);
 
@@ -37,6 +51,18 @@ namespace Composable.Persistence.Common.AdoCE
                 me.CommandType = CommandType.StoredProcedure;
                 me.CommandText = storedProcedure;
             });
+
+        public static TCommand PrepareStatement<TCommand>(this TCommand @this) where TCommand : DbCommand
+        {
+            Contract.Arguments.Assert(@this.CommandText.Length > 0, "Cannot prepare statement with empty CommandText");
+            return @this.Mutate(me => me.Prepare());
+        }
+
+        public static async Task<TCommand> PrepareStatementAsync<TCommand>(this TCommand @this) where TCommand : DbCommand
+        {
+            Contract.Arguments.Assert(@this.CommandText.Length > 0, "Cannot prepare statement with empty CommandText");
+            return await @this.MutateAsync(async me => await me.PrepareAsync().NoMarshalling()).NoMarshalling();
+        }
 
         public static IReadOnlyList<T> ExecuteReaderAndSelect<T, TCommand, TReader>(this TCommand @this, Func<TReader, T> select)
             where TCommand : DbCommand

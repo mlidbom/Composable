@@ -32,7 +32,7 @@ namespace Composable.Tests.KeyValueStorage
                 TimeAsserter.Execute(
                     action: SaveOneNewUserInTransaction,
                     iterations: 100,
-                    maxTotal: TestEnv.PersistenceLayer.ValueFor(db2: 300, memory: 8, msSql: 75, mySql: 300, orcl: 100, pgSql: 100).Milliseconds()
+                    maxTotal: TestEnv.PersistenceLayer.ValueFor(db2: 300, memory: 8, msSql: 75, mySql: 300, orcl: 100, pgSql: 75).Milliseconds()
                 );
             });
         }

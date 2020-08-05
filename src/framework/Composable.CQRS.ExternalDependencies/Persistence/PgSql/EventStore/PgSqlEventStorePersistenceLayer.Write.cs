@@ -52,6 +52,7 @@ UPDATE {Event.TableName} /*With(READCOMMITTED, ROWLOCK)*/
                                               .AddParameter(Event.EffectiveVersion, NpgsqlDbType.Integer, data.StorageInformation.EffectiveVersion)
                                               .AddNullableParameter(Event.TargetEvent, NpgsqlDbType.Varchar, data.StorageInformation.RefactoringInformation?.TargetEvent.ToString())
                                               .AddNullableParameter(Event.RefactoringType, NpgsqlDbType.Smallint, data.StorageInformation.RefactoringInformation?.RefactoringType == null ? null : (byte?)data.StorageInformation.RefactoringInformation.RefactoringType)
+                                              .PrepareStatement()
                                               .ExecuteNonQuery());
                     }
                     catch(PostgresException e) when(SqlExceptions.PgSql.IsPrimaryKeyViolation(e))
@@ -68,7 +69,7 @@ UPDATE {Event.TableName} /*With(READCOMMITTED, ROWLOCK)*/
             var commandText = versions.Select((spec, index) =>
                                                   $@"UPDATE {Event.TableName} SET {Event.EffectiveVersion} = {spec.EffectiveVersion} WHERE {Event.EventId} = '{spec.EventId}';").Join(Environment.NewLine);
 
-            _connectionManager.UseConnection(connection => connection.ExecuteNonQuery(commandText));
+            _connectionManager.UseConnection(connection => connection.PrepareAndExecuteNonQuery(commandText));
         }
 
         public EventNeighborhood LoadEventNeighborHood(Guid eventId)
@@ -91,7 +92,8 @@ where {Event.EventId} = @{Event.EventId}
                     command.CommandText = selectStatement;
 
                     command.AddParameter(Event.EventId, eventId);
-                    using var reader = command.ExecuteReader();
+                    using var reader = command.PrepareStatement()
+                                              .ExecuteReader();
                     reader.Read();
 
                     var effectiveReadOrder = reader.GetString(0).ReplaceInvariant(",", ".");
@@ -110,10 +112,10 @@ where {Event.EventId} = @{Event.EventId}
             _connectionManager.UseCommand(
                 command =>
                 {
-                    command.CommandText +=
-                        $"DELETE FROM {Event.TableName} /*With(ROWLOCK)*/ WHERE {Event.AggregateId} = @{Event.AggregateId};";
-                    command.AddParameter(Event.AggregateId, aggregateId);
-                    command.ExecuteNonQuery();
+                    command.SetCommandText($"DELETE FROM {Event.TableName} /*With(ROWLOCK)*/ WHERE {Event.AggregateId} = @{Event.AggregateId};")
+                           .AddParameter(Event.AggregateId, aggregateId)
+                           .PrepareStatement()
+                           .ExecuteNonQuery();
                 });
         }
     }

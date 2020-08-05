@@ -13,7 +13,7 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
             public static async Task EnsureTablesExistAsync(IPgSqlConnectionPool connectionFactory)
             {
 
-                await connectionFactory.ExecuteNonQueryAsync($@"
+                await connectionFactory.PrepareAndExecuteNonQueryAsync($@"
 
 
     CREATE TABLE IF NOT EXISTS {Message.TableName}

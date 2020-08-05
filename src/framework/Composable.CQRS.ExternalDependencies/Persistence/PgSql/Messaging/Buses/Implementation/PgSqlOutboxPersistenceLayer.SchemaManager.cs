@@ -15,7 +15,7 @@ namespace Composable.Persistence.PgSql.Messaging.Buses.Implementation
             {
 
 
-                await connectionFactory.ExecuteNonQueryAsync($@"
+                await connectionFactory.PrepareAndExecuteNonQueryAsync($@"
    
 
     CREATE TABLE IF NOT EXISTS {Message.TableName}

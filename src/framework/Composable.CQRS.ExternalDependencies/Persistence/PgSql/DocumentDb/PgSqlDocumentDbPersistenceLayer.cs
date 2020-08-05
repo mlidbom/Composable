@@ -38,6 +38,7 @@ namespace Composable.Persistence.PgSql.DocumentDb
                                           .AddDateTime2Parameter(Schema.Updated, writeRow.UpdateTime)
                                           .AddParameter(Schema.ValueTypeId, writeRow.TypeId)
                                           .AddMediumTextParameter(Schema.Value, writeRow.SerializedDocument)
+                                          .PrepareStatement()
                                           .ExecuteNonQuery());
                 }
             });
@@ -52,6 +53,7 @@ namespace Composable.Persistence.PgSql.DocumentDb
 SELECT {Schema.Value}, {Schema.ValueTypeId} FROM {Schema.TableName}  {UseUpdateLock(useUpdateLock)} 
 WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptableTypeIds)}")
                                   .AddVarcharParameter(Schema.Id, 500, idString)
+                                  .PrepareStatement()
                                    //Todo: There is a GetGuid method. But it cannot read the text value. How do I use it? Same for all other Guid usages in PgSql
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(Guid.Parse(reader.GetString(1)), reader.GetString(0))));
             if(documents.Count < 1)
@@ -79,6 +81,7 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
                            .AddDateTime2Parameter(Schema.Created, row.UpdateTime)
                            .AddDateTime2Parameter(Schema.Updated, row.UpdateTime)
                            .AddMediumTextParameter(Schema.Value, row.SerializedDocument)
+                           .PrepareStatement()
                            .ExecuteNonQuery();
                 });
             }
@@ -95,6 +98,7 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
                 command =>
                     command.SetCommandText($@"DELETE FROM {Schema.TableName} WHERE {Schema.Id} = @{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptableTypes)}")
                            .AddVarcharParameter(Schema.Id, 500, idString)
+                           .PrepareStatement()
                            .ExecuteNonQuery());
         }
 
@@ -103,6 +107,7 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
             EnsureInitialized();
             return _connectionPool.UseCommand(
                 command => command.SetCommandText($@"SELECT {Schema.Id} FROM {Schema.TableName} WHERE {Schema.ValueTypeId} {TypeInClause(acceptableTypes)}")
+                                  .PrepareStatement()//Performance: Does this work in Npgsql when there are no parameters? Should we have parameters?
                                   .ExecuteReaderAndSelect(reader => Guid.Parse(reader.GetString(0))));
         }
 
@@ -112,6 +117,7 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
             return _connectionPool.UseCommand(
                 command => command.SetCommandText($@"SELECT {Schema.Id}, {Schema.Value}, {Schema.ValueTypeId} FROM {Schema.TableName} WHERE {Schema.ValueTypeId} {TypeInClause(acceptableTypes)} 
                                    AND {Schema.Id} IN('" + ids.Select(id => id.ToString()).Join("','") + "')")
+                                  .PrepareStatement() //Performance: Does this work in Npgsql when there are no parameters? Should we have parameters?
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(Guid.Parse(reader.GetString(2)), reader.GetString(1))));
         }
 
@@ -120,6 +126,7 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
             EnsureInitialized();
             return _connectionPool.UseCommand(
                 command => command.SetCommandText($@"SELECT {Schema.Id}, {Schema.Value}, {Schema.ValueTypeId} FROM {Schema.TableName} WHERE {Schema.ValueTypeId} {TypeInClause(acceptableTypes)}")
+                                  .PrepareStatement() //Performance: Does this work in Npgsql when there are no parameters? Should we have parameters?
                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(Guid.Parse(reader.GetString(2)), reader.GetString(1))));
         }
 

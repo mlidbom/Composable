@@ -73,7 +73,9 @@ BEGIN
 	GRANT ALL ON SCHEMA public TO PUBLIC;
 	GRANT ALL ON SCHEMA public TO postgres;
 
-END; $$;").ExecuteNonQuery());
+END; $$;")
+                                  .PrepareStatement()
+                                  .ExecuteNonQuery());
 
         void ResetConnectionPool(Database db)
         {

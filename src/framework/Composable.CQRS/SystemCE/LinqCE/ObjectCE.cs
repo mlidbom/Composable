@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Composable.Contracts;
+using Composable.SystemCE.ThreadingCE;
 
 namespace Composable.SystemCE.LinqCE
 {
@@ -24,6 +26,12 @@ namespace Composable.SystemCE.LinqCE
         public static T Mutate<T>(this T @this, Action<T> mutate)
         {
             mutate(@this);
+            return @this;
+        }
+
+        public static async Task<T> MutateAsync<T>(this T @this, Func<T, Task> mutate)
+        {
+            await mutate(@this).NoMarshalling();
             return @this;
         }
 

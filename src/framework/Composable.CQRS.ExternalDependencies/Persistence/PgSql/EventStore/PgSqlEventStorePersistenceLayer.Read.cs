@@ -7,7 +7,7 @@ using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Npgsql;
 using NpgsqlTypes;
-using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
+using Event = Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
 using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.PgSql.EventStore
@@ -44,17 +44,17 @@ FROM {Event.TableName}";
                 //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
                 utcTimeStamp: DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
                 storageInformation: new AggregateEventStorageInformation()
+                                    {
+                                        ReadOrder = ReadOrder.Parse(eventReader.GetString(10)),
+                                        InsertedVersion = eventReader.GetInt32(9),
+                                        EffectiveVersion = eventReader.GetInt32(3),
+                                        RefactoringInformation = (eventReader[7] as string, eventReader[8] as short?)switch
                                         {
-                                            ReadOrder = ReadOrder.Parse(eventReader.GetString(10)),
-                                            InsertedVersion = eventReader.GetInt32(9),
-                                            EffectiveVersion = eventReader.GetInt32(3),
-                                            RefactoringInformation = (eventReader[7] as string, eventReader[8] as short?)switch
-                                            {
-                                                (null, null) => null,
-                                                (string targetEvent, short type) => new AggregateEventRefactoringInformation(Guid.Parse(targetEvent), (AggregateEventRefactoringType)type),
-                                                (_, _) => throw new Exception("Should not be possible to get here")
-                                            }
+                                            (null, null) => null,
+                                            (string targetEvent, short type) => new AggregateEventRefactoringInformation(Guid.Parse(targetEvent), (AggregateEventRefactoringType)type),
+                                            (_, _) => throw new Exception("Should not be possible to get here")
                                         }
+                                    }
             );
         }
 
@@ -73,6 +73,7 @@ ORDER BY {Event.ReadOrder} ASC;
 ")
                                                                        .AddParameter(Event.AggregateId, aggregateId)
                                                                        .AddParameter("CachedVersion", startAfterInsertedVersion)
+                                                                       .PrepareStatement()
                                                                        .ExecuteReaderAndSelect(ReadDataRow)
                                                                        .SkipWhile(@this => @this.StorageInformation.InsertedVersion <= startAfterInsertedVersion)
                                                                        .ToList());
@@ -85,8 +86,9 @@ ORDER BY {Event.ReadOrder} ASC;
                 //We prefer predictable performance, even if slightly slower under easy conditions, to services that suddenly virtually stop working completely due to tons of concurrency issues as an aggregate is accessed by many threads.
                 //Pages that led to the below hack: https://tinyurl.com/y7nef75p, https://tinyurl.com/y7c63cny, https://tinyurl.com/y75qlwar
                 _connectionManager.UseCommand(command => command.SetCommandText($"select {Event.AggregateId} from AggregateLock where AggregateId = @{Event.AggregateId} for update;")
-                                                                                        .AddParameter(Event.AggregateId, aggregateId)
-                                                                                        .ExecuteNonQuery());
+                                                                .AddParameter(Event.AggregateId, aggregateId)
+                                                                .PrepareStatement()
+                                                                .ExecuteNonQuery());
 
                 //We took care of the locking on the line above. Since events are Append only that lock is sufficient. Suppressing the current transaction keeps PostgreSql from incorrectly detecting a collision and failing our transactions.
                 using var ignore = new TransactionScope(TransactionScopeOption.Suppress);
@@ -114,6 +116,7 @@ ORDER BY {Event.ReadOrder} ASC
 LIMIT {batchSize}";
                                                                     return command.SetCommandText(commandText)
                                                                                   .AddParameter(Event.ReadOrder, NpgsqlDbType.Varchar, lastReadEventReadOrder.ToString())
+                                                                                  .PrepareStatement()
                                                                                   .ExecuteReaderAndSelect(ReadDataRow)
                                                                                   .ToList();
                                                                 });
@@ -140,6 +143,7 @@ SELECT {Event.AggregateId}, {Event.EventType}
 FROM {Event.TableName} 
 WHERE {Event.EffectiveVersion} = 1 
 ORDER BY {Event.ReadOrder} ASC")
+                                                                           .PrepareStatement()
                                                                            .ExecuteReaderAndSelect(reader => new CreationEventRow(aggregateId: Guid.Parse(reader.GetString(0)), typeId: Guid.Parse(reader.GetString(1)))));
         }
     }

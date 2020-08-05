@@ -30,6 +30,7 @@ INSERT INTO {Schema.TableName}
                        .AddParameter(Schema.TypeId, typeId)
                         //performance: Like with the event store, keep all framework properties out of the JSON and put it into separate columns instead. For events. Reuse a pre-serialized instance from the persisting to the event store.
                        .AddMediumTextParameter(Schema.Body, serializedMessage)
+                       .PrepareStatement()
                        .ExecuteNonQuery();
                 });
         }
@@ -48,6 +49,7 @@ WHERE {Schema.MessageId} = @{Schema.MessageId}
     AND {Schema.Status} = {(int)Inbox.MessageStatus.UnHandled};
 ")
                                       .AddParameter(Schema.MessageId, messageId)
+                                      .PrepareStatement()
                                       .ExecuteNonQuery();
 
                     Assert.Result.Assert(affectedRows == 1);
@@ -73,6 +75,7 @@ WHERE {Schema.MessageId} = @{Schema.MessageId};
                           .AddMediumTextParameter(Schema.ExceptionStackTrace, exceptionStackTrace)
                           .AddMediumTextParameter(Schema.ExceptionMessage, exceptionMessage)
                           .AddVarcharParameter(Schema.ExceptionType, 500, exceptionType)
+                          .PrepareStatement()
                           .ExecuteNonQuery());
         }
 
@@ -87,6 +90,7 @@ UPDATE {Schema.TableName}
 WHERE {Schema.MessageId} = @{Schema.MessageId}
     AND {Schema.Status} = {(int)Inbox.MessageStatus.UnHandled};")
                           .AddParameter(Schema.MessageId, messageId)
+                          .PrepareStatement()
                           .ExecuteNonQuery());
         }
 

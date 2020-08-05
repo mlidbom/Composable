@@ -1,3 +1,39 @@
 ﻿<ProjectConfiguration>
-  <Settings />
+  <Settings>
+    <IgnoredTests>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.System.Threading.ResourceAccess.ResourceAccessGuardPerformanceTests.Average_failed_TryEnter_time_is_less_than_15_nanoseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.System.Threading.ResourceAccess.ResourceAccessGuardPerformanceTests.Average_FakeRead_time_is_less_than_30_nanoseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.System.Threading.ResourceAccess.ResourceAccessGuardPerformanceTests.Average_FakeUpdate_time_is_less_than_35_nanoseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.System.Threading.ResourceAccess.ResourceAccessGuardPerformanceTests.Average_LockedIncrement_time_is_less_than_30_nanoseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.System.Threading.ResourceAccess.ResourceAccessGuardPerformanceTests.Average_LockedRead_time_is_less_than_30_nanoseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.System.Threading.ResourceAccess.ResourceAccessGuardPerformanceTests.Average_MonitorCE_Increment_time_is_less_than_35_nanoseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.System.Threading.ResourceAccess.ResourceAccessGuardPerformanceTests.Average_MonitorCE_Read_time_is_less_than_32_nanoseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.System.Threading.ResourceAccess.ResourceAccessGuardPerformanceTests.Average_Read_time_is_less_than_200_nanoseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.System.Threading.ResourceAccess.ResourceAccessGuardPerformanceTests.Average_successful_TryEnter_time_is_less_than_20_nanoseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.System.Threading.ResourceAccess.ResourceAccessGuardPerformanceTests.Average_Update_time_is_less_than_200_nanoseconds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.Tests.System.Threading.ResourceAccess.ResourceAccessGuardPerformanceTests.Average_UpdateLock_time_is_less_than_1_microsecond</TestName>
+      </NamedTestSelector>
+    </IgnoredTests>
+  </Settings>
 </ProjectConfiguration>

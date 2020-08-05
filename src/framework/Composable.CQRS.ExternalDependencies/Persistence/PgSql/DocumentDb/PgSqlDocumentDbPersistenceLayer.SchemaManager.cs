@@ -21,7 +21,7 @@ namespace Composable.Persistence.PgSql.DocumentDb
                     {
                         TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                         {
-                            _connectionPool.ExecuteNonQuery($@"
+                            _connectionPool.PrepareAndExecuteNonQuery($@"
 CREATE TABLE IF NOT EXISTS {Document.TableName} 
 (
     {Document.Id}          VARCHAR(500) NOT NULL,

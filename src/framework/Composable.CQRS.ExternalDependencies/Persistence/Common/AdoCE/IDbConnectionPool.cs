@@ -35,6 +35,14 @@ namespace Composable.Persistence.Common.AdoCE
         public async Task<int> ExecuteNonQueryAsync(string commandText) =>
             await UseConnectionAsync(async connection => await connection.ExecuteNonQueryAsync(commandText).NoMarshalling()).NoMarshalling();
 
+        public int PrepareAndExecuteNonQuery(string commandText) =>
+            UseConnection(connection => connection.PrepareAndExecuteNonQuery(commandText));
+
+        public object PrepareAndExecuteScalar(string commandText) =>
+            UseConnection(connection => connection.PrepareAndExecuteScalar(commandText));
+
+        public async Task<int> PrepareAndExecuteNonQueryAsync(string commandText) =>
+            await UseConnectionAsync(async connection => await connection.PrepareAndExecuteNonQueryAsync(commandText).NoMarshalling()).NoMarshalling();
 
         public void UseCommand(Action<TCommand> action) =>
             UseConnection(connection => connection.UseCommand(action));

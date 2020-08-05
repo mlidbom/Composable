@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
+using Composable.Logging;
 using Composable.SystemCE;
 using Composable.SystemCE.DiagnosticsCE;
 
@@ -21,8 +22,19 @@ namespace Composable.Testing
 
         static double EnvFactor(double instrumented = 1.0, double unoptimized = 1.0)
         {
-            if(Performance.IsInstrumented) return instrumented;
-            if(Performance.AreOptimizationsDisabled) return unoptimized;
+            if(Performance.IsInstrumented)
+            {
+                ConsoleCE.WriteLine($"Adjusting by {instrumented} for Instrumented Code");
+                return instrumented;
+            }
+
+            if(Performance.AreOptimizationsDisabled)
+            {
+                ConsoleCE.WriteLine($"Adjusting by {unoptimized} for UnOptimized Code");
+                return unoptimized;
+            }
+
+            ConsoleCE.WriteLine("Code is optimized. No adjustment made");
             return 1.0;
         }
 

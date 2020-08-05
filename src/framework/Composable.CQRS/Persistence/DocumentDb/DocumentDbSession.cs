@@ -23,8 +23,6 @@ namespace Composable.Persistence.DocumentDb
 
         readonly IDictionary<DocumentKey, DocumentItem> _handledDocuments = new Dictionary<DocumentKey, DocumentItem>();
 
-        static readonly ILogger Log = Logger.For<DocumentDbSession>();
-
         public DocumentDbSession(IDocumentDb backingStore)
         {
             _usageGuard = new CombinationUsageGuard(new SingleThreadUseGuard(), new SingleTransactionUsageGuard());

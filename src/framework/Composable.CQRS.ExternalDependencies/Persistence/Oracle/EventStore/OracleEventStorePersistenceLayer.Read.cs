@@ -18,6 +18,7 @@ namespace Composable.Persistence.Oracle.EventStore
         public OracleEventStorePersistenceLayer(OracleEventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
 
         //var lockHint = takeWriteLock ? "With(UPDLOCK, READCOMMITTED, ROWLOCK)" : "With(READCOMMITTED, ROWLOCK)";
+        // ReSharper disable once UnusedMember.Local
         static string CreateLockHint(bool takeWriteLock) => takeWriteLock ? "FOR UPDATE" : "";
 
         static string CreateSelectClause() =>

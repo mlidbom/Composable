@@ -164,8 +164,6 @@ Individual execution times
     Max:     {IndividualExecutionTimes.Max().FormatReadable()}
     Sum:     {IndividualExecutionTimes.Sum().FormatReadable()}
 ";
-
-            static string Format(TimeSpan? average) => average.FormatReadable();
         }
     }
 }

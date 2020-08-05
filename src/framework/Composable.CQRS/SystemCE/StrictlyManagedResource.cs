@@ -51,7 +51,8 @@ namespace Composable.SystemCE
     ///</example>
     class StrictlyManagedResource<TManagedResource> : IStrictlyManagedResource where TManagedResource : IStrictlyManagedResource
     {
-        static readonly object _staticLock = new object();
+        // ReSharper disable once StaticMemberInGenericType
+        static readonly object StaticLock = new object();
         static bool _collectStackTraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
         public StrictlyManagedResource(bool forceStackTraceCollection = false, bool needsFileInfo = false)
         {
@@ -88,7 +89,7 @@ namespace Composable.SystemCE
                     {
                         this.Log().Error(exception);
                         //Todo: Log metric here.
-                        lock(_staticLock)
+                        lock(StaticLock)
                         {
                             if(!_collectStackTraces)
                             {

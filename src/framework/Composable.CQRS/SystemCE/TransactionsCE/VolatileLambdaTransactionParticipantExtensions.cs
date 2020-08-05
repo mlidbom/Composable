@@ -21,11 +21,11 @@ namespace Composable.SystemCE.TransactionsCE
                 var participant = participants.GetOrAdd(@this.TransactionInformation.LocalIdentifier,
                                                         () =>
                                                         {
-                                                            var participant = new VolatileLambdaTransactionParticipant(
+                                                            var createdParticipant = new VolatileLambdaTransactionParticipant(
                                                                 onCommit: () => Participants.Update(parts => parts.Remove(@this.TransactionInformation.LocalIdentifier)),
                                                                 onRollback: () => Participants.Update(parts => parts.Remove(@this.TransactionInformation.LocalIdentifier)));
-                                                            participant.EnsureEnlistedInAnyAmbientTransaction();
-                                                            return participant;
+                                                            createdParticipant.EnsureEnlistedInAnyAmbientTransaction();
+                                                            return createdParticipant;
                                                         });
 
                 action(participant);

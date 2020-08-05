@@ -121,7 +121,7 @@ namespace Composable.Messaging.Buses
                     Singleton.For<IOutbox>().CreatedBy((RealEndpointConfiguration configuration, ITransport transport, Outbox.IMessageStorage messageStorage)
                                                            => new Outbox(transport, messageStorage, configuration)),
 
-                    Singleton.For<IEventStoreEventPublisher>().CreatedBy((IOutbox outbox, IMessageHandlerRegistry messageHandlerRegistry) 
+                    Singleton.For<IEventStoreEventPublisher>().CreatedBy((IOutbox outbox, IMessageHandlerRegistry messageHandlerRegistry)
                                                                              => new ServiceBusEventStoreEventPublisher(outbox, messageHandlerRegistry)),
 
                     Singleton.For<Inbox.IMessageStorage>().CreatedBy((IServiceBusPersistenceLayer.IInboxPersistenceLayer persistenceLayer) => new InboxMessageStorage(persistenceLayer)),

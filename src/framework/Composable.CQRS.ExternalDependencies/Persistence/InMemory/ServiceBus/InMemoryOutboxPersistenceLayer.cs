@@ -8,12 +8,13 @@ using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 using Message = Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.OutboxMessageWithReceivers;
+// ReSharper disable CollectionNeverQueried.Local
 
 namespace Composable.Persistence.InMemory.ServiceBus
 {
     class InMemoryOutboxPersistenceLayer : IServiceBusPersistenceLayer.IOutboxPersistenceLayer
     {
-        readonly IThreadShared<Implementation> _implementation = ThreadShared.WithDefaultTimeout<Implementation>(new Implementation());
+        readonly IThreadShared<Implementation> _implementation = ThreadShared.WithDefaultTimeout(new Implementation());
 
         public void SaveMessage(Message messageWithReceivers)
             => Transaction.Current.AddCommitTasks(() => _implementation.Update(@this => @this.SaveMessage(messageWithReceivers)));

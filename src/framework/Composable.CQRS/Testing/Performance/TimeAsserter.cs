@@ -98,7 +98,7 @@ namespace Composable.Testing.Performance
                     continue;
                 }
 
-                PrintSummary(executionSummary, description, iterations, maxAverage, maxTotal);
+                PrintSummary(executionSummary, iterations, maxAverage, maxTotal);
                 ConsoleCE.WriteImportantLine("DONE");
                 ConsoleCE.WriteLine();
                 return executionSummary;
@@ -121,7 +121,7 @@ namespace Composable.Testing.Performance
             return failureMessage;
         }
 
-        static void PrintSummary(StopwatchCE.TimedExecutionSummary executionSummary, string description, int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal)
+        static void PrintSummary(StopwatchCE.TimedExecutionSummary executionSummary, int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal)
         {
             string maxAverageReport = maxAverage == null
                                           ? ""

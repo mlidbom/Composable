@@ -6,12 +6,14 @@ using System.Transactions;
 using Composable.Messaging.Buses.Implementation;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 
 namespace Composable.Persistence.InMemory.ServiceBus
 {
     class InMemoryInboxPersistenceLayer : IServiceBusPersistenceLayer.IInboxPersistenceLayer
     {
-        readonly IThreadShared<Implementation> _implementation = ThreadShared.WithDefaultTimeout<Implementation>(new Implementation());
+        readonly IThreadShared<Implementation> _implementation = ThreadShared.WithDefaultTimeout(new Implementation());
 
         public void SaveMessage(Guid messageId, Guid typeId, string serializedMessage) => _implementation.Update(@this => @this.SaveMessage(messageId, typeId, serializedMessage));
 

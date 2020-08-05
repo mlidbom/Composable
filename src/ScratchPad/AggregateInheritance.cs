@@ -1,7 +1,5 @@
 ﻿using Composable.Persistence.EventStore;
-// ReSharper disable CommentTypo
-// ReSharper disable NotAccessedVariable
-// ReSharper disable IdentifierTypo
+// ReSharper disable All
 #pragma warning disable 219
 
 namespace ScratchPad

@@ -6,6 +6,9 @@ using Composable.Testing.Performance;
 using Composable.Testing;
 using NCrunch.Framework;
 using NUnit.Framework;
+// ReSharper disable UnusedMethodReturnValue.Local
+// ReSharper disable MemberCanBeMadeStatic.Local
+// ReSharper disable UnusedParameter.Local
 
 // ReSharper disable InconsistentlySynchronizedField
 
@@ -15,24 +18,17 @@ namespace Composable.Tests.System.Threading.ResourceAccess
     {
         class MyLong
         {
-            internal long Value = 0;
-            internal void Increment() => Value++;
+            long _value;
+            internal void Increment() => _value++;
 
-            readonly object _lock = new object();
-
-            internal long Read() => Value;
+            internal long Read() => _value;
         }
 
         class MyFakeGuard
         {
-            //[MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TResult Read<TResult>(Func<TResult> read) => read();
 
-            //[MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Update(Action action) {}
-
-            //[MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public TResult Update<TResult>(Func<TResult> update) => update();
         }
 
         class Locker

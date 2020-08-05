@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using Composable.Persistence.EventStore;
-// ReSharper disable IdentifierTypo
-// ReSharper disable NotAccessedVariable
+﻿using Composable.Persistence.EventStore;
+// ReSharper disable All
 #pragma warning disable 219
 #pragma warning disable 414
 

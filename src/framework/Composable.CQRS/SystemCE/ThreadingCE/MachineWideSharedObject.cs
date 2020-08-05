@@ -25,7 +25,7 @@ namespace Composable.SystemCE.ThreadingCE
         bool _disposed;
 
         // ReSharper disable once StaticMemberInGenericType
-        static readonly IThreadShared<Dictionary<string, MemoryMappedFile>> Cache = ThreadShared.WithDefaultTimeout<Dictionary<string, MemoryMappedFile>>(new Dictionary<string, MemoryMappedFile>());
+        static readonly IThreadShared<Dictionary<string, MemoryMappedFile>> Cache = ThreadShared.WithDefaultTimeout(new Dictionary<string, MemoryMappedFile>());
 
         internal static MachineWideSharedObject<TObject> For(string name, bool usePersistentFile = false, long capacity = 1000_000) => new MachineWideSharedObject<TObject>(name, usePersistentFile, capacity);
 

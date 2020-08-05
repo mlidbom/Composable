@@ -13,7 +13,7 @@ namespace Composable.Persistence.InMemory.EventStore
 {
     partial class InMemoryEventStorePersistenceLayer : IEventStorePersistenceLayer
     {
-        readonly IThreadShared<State> _state = ThreadShared.WithDefaultTimeout<State>(new State());
+        readonly IThreadShared<State> _state = ThreadShared.WithDefaultTimeout(new State());
         readonly TransactionLockManager _transactionLockManager = new TransactionLockManager();
 
         public InMemoryEventStorePersistenceLayer() { _state.Update(state => state.Init(_state)); }

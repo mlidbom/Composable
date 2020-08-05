@@ -23,7 +23,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
                                       ?? "Host=localhost;Database=postgres;Username=postgres;Password=Development!1;";
 
             _masterConnectionPool = IPgSqlConnectionPool.CreateInstance(masterConnectionString);
-            _connectionStringBuilder = ThreadShared.WithDefaultTimeout<NpgsqlConnectionStringBuilder>(new NpgsqlConnectionStringBuilder(masterConnectionString));
+            _connectionStringBuilder = ThreadShared.WithDefaultTimeout(new NpgsqlConnectionStringBuilder(masterConnectionString));
         }
 
         protected override string ConnectionStringFor(Database db)

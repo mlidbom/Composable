@@ -84,7 +84,8 @@ namespace Composable.SystemCE.ReflectionCE
                 var types = AppDomain.CurrentDomain.GetAssemblies()
                                      .Select(assembly => assembly.GetType(valueType))
                                      .Where(t => t != null)
-                                     .Select(Contract.ReturnNotNull)
+                                      // ReSharper disable once RedundantEnumerableCastCall
+                                     .Cast<Type>()
                                      .ToArray();
                 if (types.None())
                 {

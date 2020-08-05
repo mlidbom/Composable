@@ -189,7 +189,9 @@ namespace Composable.Contracts
             for(var i = 0; i < arguments.Length; i++)
             {
                 inspected[i] = new InspectedValue<TParameter>(type: inspectionType,
+#pragma warning disable CS8604 // Possible null reference argument.
                     value: ContractsExpression.ExtractValue(arguments[i]),
+#pragma warning restore CS8604 // Possible null reference argument.
                     name: ContractsExpression.ExtractName(arguments[i]));
             }
             return new Inspected<TParameter>(inspected);

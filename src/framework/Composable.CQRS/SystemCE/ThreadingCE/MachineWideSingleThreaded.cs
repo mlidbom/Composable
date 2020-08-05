@@ -11,7 +11,7 @@ namespace Composable.SystemCE.ThreadingCE
 {
     class MachineWideSingleThreaded
     {
-        static readonly IThreadShared<Dictionary<string, Mutex>> Cache = ThreadShared.WithDefaultTimeout<Dictionary<string, Mutex>>(new Dictionary<string, Mutex>());
+        static readonly IThreadShared<Dictionary<string, Mutex>> Cache = ThreadShared.WithDefaultTimeout(new Dictionary<string, Mutex>());
 
         readonly Mutex _mutex;
         MachineWideSingleThreaded(string lockId)
@@ -19,26 +19,26 @@ namespace Composable.SystemCE.ThreadingCE
             var lockId1 = $@"Global\{lockId}";
 
             _mutex = Cache.Update(cache => cache.GetOrAdd(lockId1,
-                                                                       () =>
-                                                                       {
-                                                                           try
-                                                                           {
-                                                                               var existing = Mutex.OpenExisting(lockId1);
-                                                                               return existing;
-                                                                           }
-                                                                           catch
-                                                                           {
-                                                                               var mutex = new Mutex(initiallyOwned: false, name: lockId1);
+                                                          () =>
+                                                          {
+                                                              try
+                                                              {
+                                                                  var existing = Mutex.OpenExisting(lockId1);
+                                                                  return existing;
+                                                              }
+                                                              catch
+                                                              {
+                                                                  var mutex = new Mutex(initiallyOwned: false, name: lockId1);
 
-                                                                               MutexSecurity mutexSecurity = new MutexSecurity();
-                                                                               mutexSecurity.AddAccessRule(new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
-                                                                                                                               MutexRights.FullControl,
-                                                                                                                               AccessControlType.Allow));
-                                                                               mutex.SetAccessControl(mutexSecurity);
+                                                                  MutexSecurity mutexSecurity = new MutexSecurity();
+                                                                  mutexSecurity.AddAccessRule(new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
+                                                                                                                  MutexRights.FullControl,
+                                                                                                                  AccessControlType.Allow));
+                                                                  mutex.SetAccessControl(mutexSecurity);
 
-                                                                               return mutex;
-                                                                           }
-                                                                       }));
+                                                                  return mutex;
+                                                              }
+                                                          }));
         }
 
         internal void Execute([InstantHandle] Action action)

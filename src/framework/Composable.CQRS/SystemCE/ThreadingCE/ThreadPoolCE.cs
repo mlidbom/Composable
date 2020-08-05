@@ -24,7 +24,6 @@ namespace Composable.SystemCE.ThreadingCE
         static int Executing => Max - Available;
         static int Live => ThreadPool.ThreadCount;
         static int Idle => Live - Executing;
-        static long Queued => ThreadPool.PendingWorkItemCount;
 
         static int Max
         {

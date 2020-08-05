@@ -16,17 +16,19 @@ namespace Composable.SystemCE.ThreadingCE
     {
         public void RunAndSurfaceExceptions(string taskName, Action task)
         {
-            TaskCE.Run(taskName, _cancellationTokenSource.Token, () =>
-                     {
-                         try
-                         {
-                             task();
-                         }
-                         catch(Exception exception)
-                         {
-                             this.Log().Error(exception, "Exception thrown on background thread. ");
-                         }
-                     });
+            TaskCE.Run(taskName,
+                       () =>
+                       {
+                           try
+                           {
+                               task();
+                           }
+                           catch(Exception exception)
+                           {
+                               this.Log().Error(exception, "Exception thrown on background thread. ");
+                           }
+                       },
+                       _cancellationTokenSource.Token);
         }
 
         readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();

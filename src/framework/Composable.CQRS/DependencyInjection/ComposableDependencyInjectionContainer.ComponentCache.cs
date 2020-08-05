@@ -107,7 +107,8 @@ namespace Composable.DependencyInjection
             var exceptions = disposables
                             .Select(disposable => ExceptionCE.TryCatch(disposable.Dispose))
                             .Where(me => me != null)
-                            .Select(Contract.ReturnNotNull)
+                             // ReSharper disable once RedundantEnumerableCastCall
+                            .Cast<Exception>()
                             .ToList();
 
             if(exceptions.Any())

@@ -80,11 +80,11 @@ namespace Composable.SystemCE.ThreadingCE
         public static Task<TResult> Run<TResult>(Func<TResult> function) => Task.Run(function);
 
         ///<summary>Using this instead of Task.Run can help debugging very much by providing a "name" for the task in the debugger views for Tasks</summary>
-        public static Task Run(string name, Action action) => Run(name, CancellationToken.None, action);
-        public static Task Run(string name, CancellationToken cancellationToken, Action action) => Task.Factory.StartNew(_ => action(), name, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);
+        public static Task Run(string name, Action action) => Run(name, action, CancellationToken.None);
+        public static Task Run(string name, Action action, CancellationToken cancellationToken) => Task.Factory.StartNew(_ => action(), name, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);
 
-        public static Task Run(string name, Func<Task> action) => Run(name, CancellationToken.None, action);
-        public static Task Run(string name, CancellationToken cancellationToken, Func<Task> action) => Task.Factory.StartNew(async _ => await action().NoMarshalling(), name, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);
+        public static Task Run(string name, Func<Task> action) => Run(name, action, CancellationToken.None);
+        public static Task Run(string name, Func<Task> action, CancellationToken cancellationToken) => Task.Factory.StartNew(async _ => await action().NoMarshalling(), name, cancellationToken, TaskCreationOptions.None, TaskScheduler.Default);
 
         static readonly object DummyObject = new object();
         static readonly Task<object> CompletedObjectTask = Task.FromResult(DummyObject);

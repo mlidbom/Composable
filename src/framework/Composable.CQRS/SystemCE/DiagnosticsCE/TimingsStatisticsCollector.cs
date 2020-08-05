@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.SystemCE.ThreadingCE;
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable UnusedMember.Local
 
 namespace Composable.SystemCE.DiagnosticsCE
 {

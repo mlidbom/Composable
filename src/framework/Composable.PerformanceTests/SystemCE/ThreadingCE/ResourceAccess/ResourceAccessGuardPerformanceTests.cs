@@ -175,6 +175,7 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
                 singleThread: (90 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 22, unoptimized: 1.4),
                 multiThread_: (200 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 22, unoptimized: 1.6));
 
+        //ncrunch: no coverage start
         void DoNothing()
         {
             if(_doSomething)
@@ -182,5 +183,6 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
                 Console.WriteLine("Something");
             }
         }
+        //ncrunch: no coverage end
     }
 }

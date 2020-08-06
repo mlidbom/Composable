@@ -3,13 +3,6 @@ using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
-    enum NotifyWaiting
-    {
-        None,
-        One,
-        All
-    }
-
     // urgent: Carefully review monitor documentation: https://docs.microsoft.com/en-us/dotnet/api/system.threading.monitor?view=netcore-3.1
     /*
 Note: Blocking == Context switch == about 20 nanoseconds to acquire a lock just turned into something like a microsecond or two at the very least. That's 50 times slower AT LEAST.
@@ -28,41 +21,28 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
     ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
     partial class MonitorCE
     {
-        public static MonitorCE WithDefaultTimeout() => new MonitorCE(DefaultTimeout);
-        public static MonitorCE WithInfiniteTimeout() => new MonitorCE(InfiniteTimeout);
-        public static MonitorCE WithTimeout(TimeSpan defaultTimeout) => new MonitorCE(defaultTimeout);
-
-        internal void Exit() => Monitor.Exit(_lockObject);
-
-        void Wait(TimeSpan timeout) => Monitor.Wait(_lockObject, timeout);
-
-        ///<summary>Note that while Signal calls <see cref="Monitor.PulseAll"/> it only does so if there are waiting threads. There is no overhead if there are no waiting threads.</summary>
-        internal void NotifyWaitingExit(NotifyWaiting notifyWaiting)
-        {
-            NotifyWaiting(notifyWaiting);
-            Exit();
-        }
-
-        internal void Update(Action action)
-        {
-            using(EnterNotifyAllUpdateLock()) action();
-        }
-
-        internal T Update<T>(Func<T> func)
-        {
-            using(EnterNotifyAllUpdateLock()) return func();
-        }
-
-        internal TReturn Read<TReturn>(Func<TReturn> func)
-        {
-            using(EnterReadLock()) return func();
-        }
-
         internal void Enter() => Enter(Timeout);
 
         void Enter(TimeSpan timeout)
         {
-            if(!TryEnter(timeout)) throw new AcquireLockTimeoutException();
+            if(!TryEnter(timeout))
+            {
+                //urgent: Deal with blocking stack traces here.
+                throw new AcquireLockTimeoutException();
+            }
+        }
+
+        internal void Exit()
+        {
+            //Urgent: Deal with other threads timed out waiting on this monitor here.
+            Monitor.Exit(_lockObject);
+        }
+
+        ///<summary>Note that while Signal calls <see cref="Monitor.PulseAll"/> it only does so if there are waiting threads. There is no overhead if there are no waiting threads.</summary>
+        internal void NotifyWaitingExit(NotifyWaiting notifyWaiting)
+        {
+            NotifyWaitingThreads(notifyWaiting);
+            Exit();
         }
 
         ///<summary>Tries to enter the monitor. Will never block.</summary>
@@ -86,23 +66,28 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
             return lockTaken;
         }
 
-
-        void NotifyWaiting(NotifyWaiting notifyWaiting)
+        void NotifyOneWaitingThread()
         {
-            if(_waitingThreadCount == 0)
-            {
-                return; //Pulsing is relatively expensive. About 100 nanoseconds. 5 times the cost of acquiring an uncontended lock. We should definitely avoid it when we can.
-            }
+            if(_waitingThreadCount > 0)Monitor.Pulse(_lockObject); //One thread blocked on Monitor.Wait for our _lockObject, will now try and reacquire the lock.
+        }
 
+        void NotifyAllWaitingThreads()
+        {
+            if(_waitingThreadCount > 1)Monitor.PulseAll(_lockObject); //All threads blocked on Monitor.Wait for our _lockObject, if there are such threads, will now try and reacquire the lock.
+            else if(_waitingThreadCount > 0) Monitor.Pulse(_lockObject); //One thread blocked on Monitor.Wait for our _lockObject, will now try and reacquire the lock.
+        }
+
+        void NotifyWaitingThreads(NotifyWaiting notifyWaiting)
+        {
             switch(notifyWaiting)
             {
-                case ResourceAccess.NotifyWaiting.None:
+                case NotifyWaiting.None:
                     break;
-                case ResourceAccess.NotifyWaiting.One:
-                    Monitor.Pulse(_lockObject); //One thread blocked on Monitor.Wait for our _lockObject, if there is such a thread, will now try and reacquire the lock.
+                case NotifyWaiting.One:
+                    NotifyOneWaitingThread();
                     break;
-                case ResourceAccess.NotifyWaiting.All:
-                    Monitor.PulseAll(_lockObject); //All threads blocked on Monitor.Wait for our _lockObject, if there are such threads, will now try and reacquire the lock.
+                case NotifyWaiting.All:
+                    NotifyAllWaitingThreads();
                     break;
             }
         }

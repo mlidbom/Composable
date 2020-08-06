@@ -22,42 +22,32 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         public void Await(TimeSpan conditionTimeout, Func<bool> condition) =>
             _monitor.EnterWhen(conditionTimeout, condition);
 
-        public bool TryAwait(TimeSpan conditionTimeout, Func<bool> condition)
-        {
-            if(_monitor.TryEnterWhen(conditionTimeout, condition))
-            {
-                _monitor.Exit();
-                return true;
-            } else
-            {
-                return false;
-            }
-        }
+        public bool TryAwait(TimeSpan conditionTimeout, Func<bool> condition) => _monitor.TryAwait(conditionTimeout, condition);
 
-        public TResult Read<TResult>(Func<TResult> read) => EnterDoNotifyExit(read, NotifyWaiting.None);
+        public TResult Read<TResult>(Func<TResult> read) => EnterDoNotifyExit(read, MonitorCE.NotifyWaiting.None);
 
-        public void Update(Action action) => EnterDoNotifyExit(action.AsFunc(), NotifyWaiting.All);
-        public TResult Update<TResult>(Func<TResult> update) => EnterDoNotifyExit(update, NotifyWaiting.All);
+        public void Update(Action action) => EnterDoNotifyExit(action.AsFunc(), MonitorCE.NotifyWaiting.All);
+        public TResult Update<TResult>(Func<TResult> update) => EnterDoNotifyExit(update, MonitorCE.NotifyWaiting.All);
 
         public void UpdateWhen(TimeSpan timeout, Func<bool> condition, Action action) =>
-            UpdateWhenInternal(timeout, condition, action.AsFunc(), NotifyWaiting.All);
+            UpdateWhenInternal(timeout, condition, action.AsFunc(), MonitorCE.NotifyWaiting.All);
 
         public TResult UpdateWhen<TResult>(TimeSpan timeout, Func<bool> condition, Func<TResult> update) =>
-            UpdateWhenInternal(timeout, condition, update, NotifyWaiting.All);
+            UpdateWhenInternal(timeout, condition, update, MonitorCE.NotifyWaiting.All);
 
         public IResourceLock AwaitUpdateLockWhen(TimeSpan conditionTimeout, Func<bool> condition) =>
-            AwaitExclusiveLockWhenInternal(conditionTimeout, condition, NotifyWaiting.All);
+            AwaitExclusiveLockWhenInternal(conditionTimeout, condition, MonitorCE.NotifyWaiting.All);
 
         public IResourceLock AwaitUpdateLock(TimeSpan timeout) =>
-            AwaitExclusiveLockInternal(timeout, NotifyWaiting.All);
+            AwaitExclusiveLockInternal(timeout, MonitorCE.NotifyWaiting.All);
 
-        ResourceLock AwaitExclusiveLockWhenInternal(TimeSpan conditionTimeout, Func<bool> condition, NotifyWaiting notifyWaiting)
+        ResourceLock AwaitExclusiveLockWhenInternal(TimeSpan conditionTimeout, Func<bool> condition, MonitorCE.NotifyWaiting notifyWaiting)
         {
             _monitor.EnterWhen(conditionTimeout, condition);
             return new ResourceLock(this, notifyWaiting);
         }
 
-        TResult UpdateWhenInternal<TResult>(TimeSpan conditionTimeout, Func<bool> condition, Func<TResult> func, NotifyWaiting notifyWaiting)
+        TResult UpdateWhenInternal<TResult>(TimeSpan conditionTimeout, Func<bool> condition, Func<TResult> func, MonitorCE.NotifyWaiting notifyWaiting)
         {
             _monitor.EnterWhen(conditionTimeout, condition);
             try
@@ -85,13 +75,13 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             }
         }
 
-        ResourceLock AwaitExclusiveLockInternal(TimeSpan timeout, NotifyWaiting notifyWaiting)
+        ResourceLock AwaitExclusiveLockInternal(TimeSpan timeout, MonitorCE.NotifyWaiting notifyWaiting)
         {
             AcquireLock(timeout);
             return new ResourceLock(this, notifyWaiting);
         }
 
-        TResult EnterDoNotifyExit<TResult>(Func<TResult> func, NotifyWaiting notifyMode)
+        TResult EnterDoNotifyExit<TResult>(Func<TResult> func, MonitorCE.NotifyWaiting notifyMode)
         {
             AcquireLock(Timeout);
             try
@@ -128,8 +118,8 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         class ResourceLock : IResourceLock
         {
             readonly ResourceGuard _guard;
-            readonly NotifyWaiting _notifyWaiting;
-            public ResourceLock(ResourceGuard guard, NotifyWaiting notifyWaiting)
+            readonly MonitorCE.NotifyWaiting _notifyWaiting;
+            public ResourceLock(ResourceGuard guard, MonitorCE.NotifyWaiting notifyWaiting)
             {
                 _guard = guard;
                 _notifyWaiting = notifyWaiting;

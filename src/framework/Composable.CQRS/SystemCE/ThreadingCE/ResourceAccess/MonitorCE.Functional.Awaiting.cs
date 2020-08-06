@@ -5,6 +5,18 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
     partial class MonitorCE
     {
+        public bool TryAwait(TimeSpan conditionTimeout, Func<bool> condition)
+        {
+            if(TryEnterWhen(conditionTimeout, condition))
+            {
+                Exit();
+                return true;
+            } else
+            {
+                return false;
+            }
+        }
+
         internal void EnterWhen(TimeSpan conditionTimeout, Func<bool> condition)
         {
             if(!TryEnterWhen(conditionTimeout, condition))
@@ -51,5 +63,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
             return true;
         }
+
+        void Wait(TimeSpan timeout) => Monitor.Wait(_lockObject, timeout);
     }
 }

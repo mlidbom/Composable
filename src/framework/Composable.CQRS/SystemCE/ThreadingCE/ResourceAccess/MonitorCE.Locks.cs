@@ -7,74 +7,45 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
     partial class MonitorCE
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        //By creating the locks only once in the constructor usages become zero-allocation operations. By always referencing them by the concrete type inlining remains possible.
-        readonly Lock _lock;
-        readonly ReadLock _readLock;
-        readonly NotifyOneUpdateLock _notifyOneUpdateLock;
-        readonly NotifyAllUpdateLock _notifyAllUpdateLock;
-
         internal Lock EnterLock()
         {
             Enter();
             return _lock;
         }
 
-        internal NotifyOneUpdateLock EnterNotifyOneUpdateLock()
+        internal NotifyOneLock EnterNotifyOneUpdateLock()
         {
             Enter();
-            return _notifyOneUpdateLock;
+            return _notifyOneLock;
         }
 
-        internal NotifyAllUpdateLock EnterNotifyAllUpdateLock()
+        internal NotifyAllLock EnterNotifyAllUpdateLock()
         {
             Enter();
-            return _notifyAllUpdateLock;
-        }
-
-        internal ReadLock EnterReadLock()
-        {
-            Enter();
-            return _readLock;
+            return _notifyAllLock;
         }
 
 
         ///<summary>Ensure you only call <see cref="IDisposable.Dispose"/> once on an instance of a <see cref="ISingleUseDisposable"/>.</summary>
         internal interface ISingleUseDisposable : IDisposable {}
 
-        internal sealed class ReadLock : ISingleUseDisposable
+
+        internal sealed class NotifyAllLock : ISingleUseDisposable
         {
             readonly MonitorCE _monitor;
             [Obsolete("Only for internal use")]
-            internal ReadLock(MonitorCE monitor) => _monitor = monitor;
+            internal NotifyAllLock(MonitorCE monitor) => _monitor = monitor;
 
-            public void Dispose()
-            {
-                _monitor.Exit();
-            }
+            public void Dispose() => _monitor.NotifyWaitingExit(NotifyWaiting.All);
         }
 
-        internal sealed class NotifyAllUpdateLock : ISingleUseDisposable
+        internal sealed class NotifyOneLock : ISingleUseDisposable
         {
             readonly MonitorCE _monitor;
             [Obsolete("Only for internal use")]
-            internal NotifyAllUpdateLock(MonitorCE monitor) => _monitor = monitor;
+            internal NotifyOneLock(MonitorCE monitor) => _monitor = monitor;
 
-            public void Dispose()
-            {
-                _monitor.NotifyWaitingExit(ResourceAccess.NotifyWaiting.All);
-            }
-        }
-
-        internal sealed class NotifyOneUpdateLock : ISingleUseDisposable
-        {
-            readonly MonitorCE _monitor;
-            [Obsolete("Only for internal use")]
-            internal NotifyOneUpdateLock(MonitorCE monitor) => _monitor = monitor;
-
-            public void Dispose()
-            {
-                _monitor.NotifyWaitingExit(ResourceAccess.NotifyWaiting.One);
-            }
+            public void Dispose() => _monitor.NotifyWaitingExit(NotifyWaiting.One);
         }
 
         internal sealed class Lock : ISingleUseDisposable
@@ -83,10 +54,11 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             [Obsolete("Only for internal use")]
             internal Lock(MonitorCE monitor) => _monitor = monitor;
 
-            public void Dispose()
-            {
-                _monitor.Exit();
-            }
+            public void NotifyOneWaitingThread() => _monitor.NotifyOneWaitingThread();
+
+            public void NotifyAllWaitingThread() => _monitor.NotifyAllWaitingThreads();
+
+            public void Dispose() => _monitor.Exit();
         }
     }
 }

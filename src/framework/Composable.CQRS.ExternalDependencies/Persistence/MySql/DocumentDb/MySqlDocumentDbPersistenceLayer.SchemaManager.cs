@@ -1,4 +1,5 @@
 ﻿using Composable.Persistence.MySql.SystemExtensions;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
@@ -8,20 +9,18 @@ namespace Composable.Persistence.MySql.DocumentDb
     {
         class SchemaManager
         {
-            readonly object _lockObject = new object();
+            readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
             bool _initialized = false;
             readonly IMySqlConnectionPool _connectionPool;
             public SchemaManager(IMySqlConnectionPool connectionPool) => _connectionPool = connectionPool;
 
-            internal void EnsureInitialized()
+            internal void EnsureInitialized() => _monitor.Update(() =>
             {
-                lock(_lockObject)
+                if(!_initialized)
                 {
-                    if(!_initialized)
+                    TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                     {
-                        TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
-                        {
-                            _connectionPool.ExecuteNonQuery($@"
+                        _connectionPool.ExecuteNonQuery($@"
 CREATE TABLE IF NOT EXISTS {Document.TableName} 
 (
   {Document.Id}          VARCHAR(500) NOT NULL,
@@ -36,12 +35,11 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
 ");
-                        });
-                    }
-
-                    _initialized = true;
+                    });
                 }
-            }
+
+                _initialized = true;
+            });
         }
     }
 }

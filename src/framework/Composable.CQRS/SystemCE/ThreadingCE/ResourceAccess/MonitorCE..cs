@@ -21,7 +21,7 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
     */
 
     ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
-    partial class MonitorCE
+    public partial class MonitorCE
     {
         readonly List<EnterLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<EnterLockTimeoutException>();
         int _timeoutsThrownDuringCurrentLock;

@@ -112,7 +112,7 @@ namespace Composable.Testing.Databases
                                            //We are being a bit tricky here. The databases are reserved by this instance so that when it is disposed so are their reservations.
                                            //That way we don't leave our reservations around when we don't have time to clean them before the test runner terminates.
                                            //But that means we must be careful not to mess with databases that have been released when this pool was disposed.
-                                           lock(_disposeLock)
+                                           using(_disposeMonitor.EnterUpdateLock())
                                            {
                                                if(!_disposed)
                                                {
@@ -128,10 +128,10 @@ namespace Composable.Testing.Databases
 
         protected abstract string ConnectionStringFor(Database db);
 
-        readonly object _disposeLock = new object();
+        readonly MonitorCE _disposeMonitor = MonitorCE.WithDefaultTimeout();
         protected override void Dispose(bool disposing)
         {
-            lock(_disposeLock)
+            using(_disposeMonitor.EnterUpdateLock())
             {
                 if(_disposed) return;
                 _disposed = true;

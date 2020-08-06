@@ -4,6 +4,7 @@ using Composable.Logging;
 using Composable.SystemCE.ConfigurationCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.SystemCE
 {
@@ -52,7 +53,7 @@ namespace Composable.SystemCE
     class StrictlyManagedResource<TManagedResource> : IStrictlyManagedResource where TManagedResource : IStrictlyManagedResource
     {
         // ReSharper disable once StaticMemberInGenericType
-        static readonly object StaticLock = new object();
+        static readonly MonitorCE StaticMonitor = MonitorCE.WithDefaultTimeout();
         static bool _collectStackTraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
         public StrictlyManagedResource(bool forceStackTraceCollection = false, bool needsFileInfo = false)
         {
@@ -89,7 +90,7 @@ namespace Composable.SystemCE
                     {
                         this.Log().Error(exception);
                         //Todo: Log metric here.
-                        lock(StaticLock)
+                        using(StaticMonitor.EnterUpdateLock())
                         {
                             if(!_collectStackTraces)
                             {

@@ -7,6 +7,7 @@ using Composable.Persistence.DocumentDb;
 using Composable.Persistence.PgSql.SystemExtensions;
 using Composable.SystemCE;
 using Composable.SystemCE.CollectionsCE.GenericCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Npgsql;
 using Schema = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
@@ -17,7 +18,6 @@ namespace Composable.Persistence.PgSql.DocumentDb
         readonly IPgSqlConnectionPool _connectionPool;
         readonly SchemaManager _schemaManager;
         bool _initialized;
-        readonly object _lockObject = new object();
 
         internal PgSqlDocumentDbPersistenceLayer(IPgSqlConnectionPool connectionPool)
         {
@@ -135,16 +135,14 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
         // ReSharper disable once UnusedParameter.Local
         static string UseUpdateLock(bool _) => "";// useUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
 
-        void EnsureInitialized()
+        readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
+        void EnsureInitialized() => _monitor.Update(() =>
         {
-            lock(_lockObject)
+            if(!_initialized)
             {
-                if(!_initialized)
-                {
-                    _schemaManager.EnsureInitialized();
-                    _initialized = true;
-                }
+                _schemaManager.EnsureInitialized();
+                _initialized = true;
             }
-        }
+        });
     }
 }

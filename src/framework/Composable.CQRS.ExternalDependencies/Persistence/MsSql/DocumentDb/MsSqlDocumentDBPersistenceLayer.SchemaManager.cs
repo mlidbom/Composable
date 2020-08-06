@@ -1,4 +1,5 @@
 ﻿using Composable.Persistence.MsSql.SystemExtensions;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
@@ -8,20 +9,18 @@ namespace Composable.Persistence.MsSql.DocumentDb
     {
         class SchemaManager
         {
-            readonly object _lockObject = new object();
+            readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
             bool _initialized = false;
             readonly IMsSqlConnectionPool _connectionPool;
             public SchemaManager(IMsSqlConnectionPool connectionPool) => _connectionPool = connectionPool;
 
-            internal void EnsureInitialized()
+            internal void EnsureInitialized() => _monitor.Update(() =>
             {
-                lock(_lockObject)
+                if(!_initialized)
                 {
-                    if(!_initialized)
+                    TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                     {
-                        TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
-                        {
-                            _connectionPool.ExecuteNonQuery($@"
+                        _connectionPool.ExecuteNonQuery($@"
 IF NOT EXISTS(select name from sys.tables where name = '{Document.TableName}')
 BEGIN 
     CREATE TABLE dbo.{Document.TableName}
@@ -39,12 +38,11 @@ BEGIN
 
 END
 ");
-                        });
-                    }
-
-                    _initialized = true;
+                    });
                 }
-            }
+
+                _initialized = true;
+            });
         }
     }
 }

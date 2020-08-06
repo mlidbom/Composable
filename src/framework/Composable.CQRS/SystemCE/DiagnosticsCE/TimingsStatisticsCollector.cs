@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
+
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedMember.Local
 
@@ -36,7 +38,7 @@ namespace Composable.SystemCE.DiagnosticsCE
         readonly RangeStats[] _callStats;
         long _totalCalls;
 
-        object _lock = new object();
+        MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
         TimeSpan _totalTime;
         public TimeSpan TotalTime => _totalTime;
         public long TotalCalls => _totalCalls;
@@ -90,7 +92,7 @@ namespace Composable.SystemCE.DiagnosticsCE
         void RegisterCall(TimeSpan time)
         {
             Interlocked.Increment(ref _totalCalls);
-            lock(_lock) _totalTime += time;
+            using(_monitor.EnterUpdateLock()) _totalTime += time;
             // ReSharper disable once ForCanBeConvertedToForeach
             for(int i = 0; i < _callStats.Length; ++i)
             {

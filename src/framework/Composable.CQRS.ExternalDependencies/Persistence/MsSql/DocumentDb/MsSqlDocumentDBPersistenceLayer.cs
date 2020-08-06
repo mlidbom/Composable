@@ -8,6 +8,7 @@ using Composable.Persistence.DocumentDb;
 using Composable.Persistence.MsSql.SystemExtensions;
 using Composable.SystemCE;
 using Composable.SystemCE.CollectionsCE.GenericCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Schema = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
 namespace Composable.Persistence.MsSql.DocumentDb
@@ -17,7 +18,6 @@ namespace Composable.Persistence.MsSql.DocumentDb
         readonly IMsSqlConnectionPool _connectionPool;
         readonly SchemaManager _schemaManager;
         bool _initialized;
-        readonly object _lockObject = new object();
 
         internal MsSqlDocumentDbPersistenceLayer(IMsSqlConnectionPool connectionPool)
         {
@@ -126,16 +126,14 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId}  {TypeInClause(acceptabl
 
         static string UseUpdateLock(bool useUpdateLock) => useUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
 
-        void EnsureInitialized()
+        readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
+        void EnsureInitialized() => _monitor.Update(() =>
         {
-            lock(_lockObject)
+            if(!_initialized)
             {
-                if(!_initialized)
-                {
-                    _schemaManager.EnsureInitialized();
-                    _initialized = true;
-                }
+                _schemaManager.EnsureInitialized();
+                _initialized = true;
             }
-        }
+        });
     }
 }

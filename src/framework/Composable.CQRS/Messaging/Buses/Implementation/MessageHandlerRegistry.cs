@@ -26,21 +26,18 @@ namespace Composable.Messaging.Buses.Implementation
 
         public MessageHandlerRegistry(ITypeMapper typeMapper) => _typeMapper = typeMapper;
 
-        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForEvent<TEvent>(Action<TEvent> handler)
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForEvent<TEvent>(Action<TEvent> handler) => _monitor.Update(() =>
         {
             MessageInspector.AssertValid<TEvent>();
-            using(_monitor.EnterUpdateLock())
-            {
-                _eventHandlers.TryGetValue(typeof(TEvent), out var currentEventSubscribers);
-                currentEventSubscribers ??= new List<Action<MessageTypes.IEvent>>();
+            _eventHandlers.TryGetValue(typeof(TEvent), out var currentEventSubscribers);
+            currentEventSubscribers ??= new List<Action<MessageTypes.IEvent>>();
 
-                ThreadSafe.AddToCopyAndReplace(ref _eventHandlers, typeof(TEvent), currentEventSubscribers.AddToCopy(@event => handler((TEvent)@event)));
-                ThreadSafe.AddToCopyAndReplace(ref _eventHandlerRegistrations, new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
-                return this;
-            }
-        }
+            ThreadSafe.AddToCopyAndReplace(ref _eventHandlers, typeof(TEvent), currentEventSubscribers.AddToCopy(@event => handler((TEvent)@event)));
+            ThreadSafe.AddToCopyAndReplace(ref _eventHandlerRegistrations, new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
+            return this;
+        });
 
-        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForCommand<TCommand>(Action<TCommand> handler)
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForCommand<TCommand>(Action<TCommand> handler) => _monitor.Update(() =>
         {
             MessageInspector.AssertValid<TCommand>();
 
@@ -49,39 +46,29 @@ namespace Composable.Messaging.Buses.Implementation
                 throw new Exception($"{typeof(TCommand)} expects a result. You must register a method that returns a result.");
             }
 
-            using(_monitor.EnterUpdateLock())
-            {
-                ThreadSafe.AddToCopyAndReplace(ref _commandHandlers, typeof(TCommand), command => handler((TCommand)command));
-                return this;
-            }
-        }
+            ThreadSafe.AddToCopyAndReplace(ref _commandHandlers, typeof(TCommand), command => handler((TCommand)command));
+            return this;
+        });
 
-        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler)
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) => _monitor.Update(() =>
         {
             MessageInspector.AssertValid<TCommand>();
-            using(_monitor.EnterUpdateLock())
-            {
-                ThreadSafe.AddToCopyAndReplace(ref _commandHandlersReturningResults, typeof(TCommand), new CommandHandlerWithResultRegistration<TCommand, TResult>(handler));
-                return this;
-            }
-        }
 
-        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler)
+            ThreadSafe.AddToCopyAndReplace(ref _commandHandlersReturningResults, typeof(TCommand), new CommandHandlerWithResultRegistration<TCommand, TResult>(handler));
+            return this;
+        });
+
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) => _monitor.Update(() =>
         {
             MessageInspector.AssertValid<TQuery>();
-            using(_monitor.EnterUpdateLock())
-            {
-                ThreadSafe.AddToCopyAndReplace(ref _queryHandlers, typeof(TQuery), new QueryHandlerRegistration<TQuery, TResult>(handler));
-                return this;
-            }
-        }
+
+            ThreadSafe.AddToCopyAndReplace(ref _queryHandlers, typeof(TQuery), new QueryHandlerRegistration<TQuery, TResult>(handler));
+            return this;
+        });
 
         Action<object> IMessageHandlerRegistry.GetCommandHandler(MessageTypes.ICommand message)
         {
-            if(TryGetCommandHandler(message, out var handler))
-            {
-                return handler;
-            }
+            if(TryGetCommandHandler(message, out var handler)) return handler;
 
             throw new NoHandlerException(message.GetType());
         }

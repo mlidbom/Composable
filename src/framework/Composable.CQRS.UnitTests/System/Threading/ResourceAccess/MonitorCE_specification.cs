@@ -18,7 +18,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 {
     [TestFixture] public class MonitorCE_specification
     {
-        [Test] public void When_one_thread_has_UpdateLock_other_thread_is_blocked_until_first_thread_disposes_lock()
+        [Test] public void When_one_thread_has_UpdateLock_other_thread_is_blocked_until_first_thread_disposes_lock_()
         {
             var monitor = MonitorCE.WithTimeout(1.Seconds());
 

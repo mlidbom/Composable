@@ -7,6 +7,7 @@ using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DB2.SystemExtensions;
 using Composable.SystemCE;
 using Composable.SystemCE.CollectionsCE.GenericCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using IBM.Data.DB2.Core;
 using Schema = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 
@@ -17,7 +18,6 @@ namespace Composable.Persistence.DB2.DocumentDb
         readonly IDB2ConnectionPool _connectionPool;
         readonly SchemaManager _schemaManager;
         bool _initialized;
-        readonly object _lockObject = new object();
 
         internal DB2DocumentDbPersistenceLayer(IDB2ConnectionPool connectionPool)
         {
@@ -52,8 +52,8 @@ namespace Composable.Persistence.DB2.DocumentDb
                 command => command.SetCommandText($@"
 SELECT {Schema.Value}, {Schema.ValueTypeId} FROM {Schema.TableName} {UseUpdateLock(useUpdateLock)} 
 WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptableTypeIds)}")
-                                                                                   .AddVarcharParameter(Schema.Id, 500, idString)
-                                                                                   .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuidFromString(1), reader.GetString(0))));
+                                  .AddVarcharParameter(Schema.Id, 500, idString)
+                                  .ExecuteReaderAndSelect(reader => new IDocumentDbPersistenceLayer.ReadRow(reader.GetGuidFromString(1), reader.GetString(0))));
             if(documents.Count < 1)
             {
                 document = null;
@@ -125,18 +125,17 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
         static string TypeInClause(IEnumerable<Guid> acceptableTypeIds) { return "IN( '" + acceptableTypeIds.Select(guid => guid.ToString()).Join("', '") + "')"; }
 
         // ReSharper disable once UnusedParameter.Local
-        static string UseUpdateLock(bool _) => "";// useUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
+        static string UseUpdateLock(bool _) => ""; // useUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
 
-        void EnsureInitialized()
+
+        readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
+        void EnsureInitialized() => _monitor.Update(() =>
         {
-            lock(_lockObject)
+            if(!_initialized)
             {
-                if(!_initialized)
-                {
-                    _schemaManager.EnsureInitialized();
-                    _initialized = true;
-                }
+                _schemaManager.EnsureInitialized();
+                _initialized = true;
             }
-        }
+        });
     }
 }

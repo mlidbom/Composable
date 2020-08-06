@@ -1,5 +1,6 @@
 ﻿using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.DB2.SystemExtensions;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.TransactionsCE;
 using Document = Composable.Persistence.DocumentDb.IDocumentDbPersistenceLayer.DocumentTableSchemaStrings;
 // ReSharper disable StringLiteralTypo
@@ -12,20 +13,18 @@ namespace Composable.Persistence.DB2.DocumentDb
 
         class SchemaManager
         {
-            readonly object _lockObject = new object();
+            readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
             bool _initialized = false;
             readonly IDB2ConnectionPool _connectionPool;
             public SchemaManager(IDB2ConnectionPool connectionPool) => _connectionPool = connectionPool;
 
-            internal void EnsureInitialized()
+            internal void EnsureInitialized() => _monitor.Update(() =>
             {
-                lock(_lockObject)
+                if(!_initialized)
                 {
-                    if(!_initialized)
+                    TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
                     {
-                        TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
-                        {
-                            _connectionPool.UseCommand(cmd => cmd.SetCommandText($@"
+                        _connectionPool.UseCommand(cmd => cmd.SetCommandText($@"
 begin
     declare continue handler for sqlstate '42710' begin end; --Ignore error if table exists
         
@@ -44,13 +43,12 @@ begin
     ';
 end;
 ")
-                                                                     .ExecuteNonQuery());
-                        });
-                    }
-
-                    _initialized = true;
+                                                             .ExecuteNonQuery());
+                    });
                 }
-            }
+
+                _initialized = true;
+            });
         }
     }
 }

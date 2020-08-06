@@ -1,10 +1,11 @@
 ﻿using System;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.SystemCE
 {
     class OptimizedLazy<TValue> where TValue : class
     {
-        readonly object _lock = new object();
+        readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
         TValue? _value;
         readonly Func<TValue> _factory;
 
@@ -14,10 +15,7 @@ namespace Composable.SystemCE
             {
                 if(_value != null) return _value;
 
-                lock(_lock)
-                {
-                    return _value ??= _factory();
-                }
+                return _monitor.Update(() => _value ??= _factory());
             }
         }
 

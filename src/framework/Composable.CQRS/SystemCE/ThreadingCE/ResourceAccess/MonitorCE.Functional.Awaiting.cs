@@ -3,12 +3,12 @@ using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
-    partial class MonitorCE
+    public partial class MonitorCE
     {
-        internal NotifyAllLock EnterNotifyAllLockWhen(Func<bool> condition) =>
-            EnterNotifyAllLockWhen(InfiniteTimeout, condition);
+        internal NotifyAllLock EnterUpdateLockWhen(Func<bool> condition) =>
+            EnterUpdateLockWhen(InfiniteTimeout, condition);
 
-        internal NotifyAllLock EnterNotifyAllLockWhen(TimeSpan conditionTimeout, Func<bool> condition)
+        internal NotifyAllLock EnterUpdateLockWhen(TimeSpan conditionTimeout, Func<bool> condition)
         {
             EnterWhen(conditionTimeout, condition);
             return _notifyAllLock;

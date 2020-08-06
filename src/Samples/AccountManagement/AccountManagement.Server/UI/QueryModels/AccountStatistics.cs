@@ -6,6 +6,7 @@ using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore.Query.Models.SelfGeneratingQueryModels;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace AccountManagement.UI.QueryModels
 {
@@ -56,23 +57,20 @@ namespace AccountManagement.UI.QueryModels
 
         class StatisticsSingletonInitializer
         {
-            readonly object _initializationlock = new object();
+            readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
             bool _isInitialized;
             readonly DocumentDbApi _documentDbApi = new DocumentDbApi();
-            public void EnsureInitialized(ILocalHypermediaNavigator navigator)
+            public void EnsureInitialized(ILocalHypermediaNavigator navigator) => _monitor.Update(() =>
             {
-                lock(_initializationlock)
+                if(!_isInitialized)
                 {
-                    if(!_isInitialized)
+                    _isInitialized = true;
+                    if(navigator.Execute(_documentDbApi.Queries.TryGet<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId)) is None<SingletonStatisticsQuerymodel>)
                     {
-                        _isInitialized = true;
-                        if(navigator.Execute(_documentDbApi.Queries.TryGet<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId)) is None<SingletonStatisticsQuerymodel>)
-                        {
-                            navigator.Execute(_documentDbApi.Commands.Save(new SingletonStatisticsQuerymodel()));
-                        }
+                        navigator.Execute(_documentDbApi.Commands.Save(new SingletonStatisticsQuerymodel()));
                     }
                 }
-            }
+            });
         }
     }
 }

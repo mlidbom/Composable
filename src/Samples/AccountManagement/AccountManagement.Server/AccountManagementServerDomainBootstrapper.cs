@@ -33,7 +33,7 @@ namespace AccountManagement
 
             builder.RegisterDocumentDb()
                    .HandleDocumentType<EventStoreApi.QueryApi.AggregateLink<Account>>(builder.RegisterHandlers)
-                   .HandleDocumentType<AccountStatistics.SingletonStatisticsQuerymodel>(builder.RegisterHandlers);
+                   .HandleDocumentType<AccountStatistics.SingletonStatisticsQueryModel>(builder.RegisterHandlers);
         }
 
         static void RegisterHandlers(IEndpointBuilder builder)

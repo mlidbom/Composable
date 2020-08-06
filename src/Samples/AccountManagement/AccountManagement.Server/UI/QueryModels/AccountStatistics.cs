@@ -14,11 +14,11 @@ namespace AccountManagement.UI.QueryModels
     {
         /// <summary>
         /// Note that we use a <see cref="SelfGeneratingQueryModel{TQueryModel,TAggregateEvent}"/> even though we will store it in a document database.
-        /// Doing so let'st the querymodel cleanly encapsulate how it maintains its own state when it receives events.
+        /// Doing so lets the query model cleanly encapsulate how it maintains its own state when it receives events.
         /// </summary>
-        public class SingletonStatisticsQuerymodel : SelfGeneratingQueryModel<SingletonStatisticsQuerymodel, AccountEvent.Root>
+        public class SingletonStatisticsQueryModel : SelfGeneratingQueryModel<SingletonStatisticsQueryModel, AccountEvent.Root>
         {
-            public SingletonStatisticsQuerymodel()
+            public SingletonStatisticsQueryModel()
             {
                 RegisterEventAppliers()
                    .For<AccountEvent.Created>(created => NumberOfAccounts++)
@@ -42,9 +42,9 @@ namespace AccountManagement.UI.QueryModels
             {
                 initializer.EnsureInitialized(navigator);
 
-                if(new SingletonStatisticsQuerymodel().HandlesEvent(@event))
+                if(new SingletonStatisticsQueryModel().HandlesEvent(@event))
                 {
-                    navigator.Execute(new DocumentDbApi().Queries.GetForUpdate<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId))
+                    navigator.Execute(new DocumentDbApi().Queries.GetForUpdate<SingletonStatisticsQueryModel>(SingletonStatisticsQueryModel.StaticId))
                        .ApplyEvent(@event);
                 }
             });
@@ -65,9 +65,9 @@ namespace AccountManagement.UI.QueryModels
                 if(!_isInitialized)
                 {
                     _isInitialized = true;
-                    if(navigator.Execute(_documentDbApi.Queries.TryGet<SingletonStatisticsQuerymodel>(SingletonStatisticsQuerymodel.StaticId)) is None<SingletonStatisticsQuerymodel>)
+                    if(navigator.Execute(_documentDbApi.Queries.TryGet<SingletonStatisticsQueryModel>(SingletonStatisticsQueryModel.StaticId)) is None<SingletonStatisticsQueryModel>)
                     {
-                        navigator.Execute(_documentDbApi.Commands.Save(new SingletonStatisticsQuerymodel()));
+                        navigator.Execute(_documentDbApi.Commands.Save(new SingletonStatisticsQueryModel()));
                     }
                 }
             });

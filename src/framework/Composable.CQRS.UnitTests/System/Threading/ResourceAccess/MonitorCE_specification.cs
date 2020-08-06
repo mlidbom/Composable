@@ -89,29 +89,25 @@ namespace Composable.Tests.System.Threading.ResourceAccess
                     () => RunScenario(20.Milliseconds()).Message.Should().NotContain(nameof(DisposeOwningThreadLock)));
             }
 
-            static void DisposeOwningThreadLock(IDisposable disposable) => disposable.Dispose();
+            internal static void DisposeOwningThreadLock(IDisposable disposable) => disposable.Dispose();
 
             Exception RunScenario(TimeSpan ownerThreadWaitTime)
             {
                 var resourceGuard = MonitorCE.WithTimeout(10.Milliseconds());
 
                 var updateLock = resourceGuard.EnterNotifyAllLock();
+                ConsoleCE.WriteImportantLine($"Thread: {Thread.CurrentThread.ManagedThreadId}");
 
                 var thrownException = Assert.Throws<AggregateException>(
                                                  () => TaskCE.Run(() => resourceGuard.EnterNotifyAllLock())
                                                              .Wait())
                                             .InnerExceptions.Single();
 
-                TaskCE.Run($"Wait_And_{nameof(DisposeOwningThreadLock)}",
-                           async () =>
-                           {
-                               await Task.Delay(ownerThreadWaitTime);
-                               DisposeOwningThreadLock(updateLock);
-                           }).Wait();
 
-                this.Log().Error(thrownException);
+               Thread.Sleep(ownerThreadWaitTime);
+               DisposeOwningThreadLock(updateLock);
 
-                return thrownException;
+               return thrownException;
             }
 
             static void RunWithChangedStackTraceTimeout(TimeSpan timeout, Action action)

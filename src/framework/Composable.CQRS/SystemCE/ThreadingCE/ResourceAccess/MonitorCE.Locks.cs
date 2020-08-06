@@ -7,19 +7,19 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
     partial class MonitorCE
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        internal Lock EnterLock()
+        internal Lock EnterReadLock()
         {
             EnterInternal();
             return _lock;
         }
 
-        internal NotifyOneLock EnterNotifyOneLock()
+        internal NotifyOneLock EnterNotifyOnlyOneUpdateLock()
         {
             EnterInternal();
             return _notifyOneLock;
         }
 
-        public NotifyAllLock EnterNotifyAllLock()
+        public NotifyAllLock EnterUpdateLock()
         {
             EnterInternal();
             return _notifyAllLock;

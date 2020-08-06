@@ -7,42 +7,38 @@ using Composable.Contracts;
 using Composable.DDD;
 using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.LinqCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.Persistence.DocumentDb
 {
     class MemoryObjectStore : IEnumerable<KeyValuePair<string, object>>
     {
         readonly Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
-        protected readonly object LockObject = new object();
+        protected readonly MonitorCE Monitor = MonitorCE.WithDefaultTimeout();
 
-        internal bool Contains(Type type, object id)
-        {
-            lock(LockObject)
-            {
-                return TryGet(type, id, out _);
-            }
-        }
+        internal bool Contains(Type type, object id) => Monitor.Read(() => TryGet(type, id, out _));
 
-        internal bool TryGet<T>(object id, [NotNullWhen(true)]out T value)
+        internal bool TryGet<T>(object id, [NotNullWhen(true)] out T value)
         {
-            lock(LockObject)
+            using(Monitor.EnterUpdateLock())
             {
-                if (TryGet(typeof(T), id, out var found))
+                if(TryGet(typeof(T), id, out var found))
                 {
                     value = (T)found;
                     return true;
                 }
+
                 value = default!;
                 return false;
             }
         }
 
-        protected bool TryGet(Type typeOfValue, object id, [NotNullWhen(true)]out object? value)
+        protected bool TryGet(Type typeOfValue, object id, [NotNullWhen(true)] out object? value)
         {
             var idstring = GetIdString(id);
             value = null;
 
-            if (!_db.TryGetValue(idstring, out var matchesId))
+            if(!_db.TryGetValue(idstring, out var matchesId))
             {
                 return false;
             }
@@ -53,87 +49,67 @@ namespace Composable.Persistence.DocumentDb
                 value = found.Single();
                 return true;
             }
+
             return false;
         }
 
         protected static string GetIdString(object id) => Contract.ReturnNotNull(id).ToStringNotNull().ToUpperInvariant().TrimEnd(' ');
 
-        public virtual void Add<T>(object id, T value)
+        public virtual void Add<T>(object id, T value) => Monitor.Update(() =>
         {
             Assert.Argument.NotNull(value);
-            lock(LockObject)
-            {
-                var idString = GetIdString(id);
-                if(Contains(value.GetType(), idString))
-                {
-                    throw new AttemptToSaveAlreadyPersistedValueException(id, value);
-                }
-                _db.GetOrAddDefault(idString).Add(value);
-            }
-        }
 
-        public void Remove(object id, Type documentType)
-        {
-            lock(LockObject)
+            var idString = GetIdString(id);
+            if(Contains(value.GetType(), idString))
             {
-                var idstring = GetIdString(id);
-                var removed = _db.GetOrAddDefault(idstring).RemoveWhere(documentType.IsInstanceOfType);
-                if(removed.None())
-                {
-                    throw new NoSuchDocumentException(id, documentType);
-                }
-                if (removed.Count > 1)
-                {
-                    throw new Exception("It really should be impossible to hit multiple documents with one Id, but apparently you just did it!");
-                }
+                throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }
-        }
 
-        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+            _db.GetOrAddDefault(idString).Add(value);
+        });
+
+        public void Remove(object id, Type documentType) => Monitor.Update(() =>
         {
-            lock(LockObject)
+            var idString = GetIdString(id);
+            var removed = _db.GetOrAddDefault(idString).RemoveWhere(documentType.IsInstanceOfType);
+            if(removed.None())
             {
-                return _db.SelectMany(m => m.Value.Select(inner => new KeyValuePair<string, object>(m.Key, inner)))
-                    .ToList()//ToList is to make it thread safe...
-                    .GetEnumerator();
+                throw new NoSuchDocumentException(id, documentType);
             }
-        }
+
+            if(removed.Count > 1)
+            {
+                throw new Exception("It really should be impossible to hit multiple documents with one Id, but apparently you just did it!");
+            }
+        });
+
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => Monitor.Read(
+            () => _db.SelectMany(m => m.Value.Select(inner => new KeyValuePair<string, object>(m.Key, inner)))
+                     .ToList() //ToList is to make it thread safe...
+                     .GetEnumerator());
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> _)
-        {
-            lock(LockObject)
-            {
-                values.ForEach(pair => Update(pair.Key, pair.Value));
-            }
-        }
+        public void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> _) => Monitor.Update(
+            () => values.ForEach(pair => Update(pair.Key, pair.Value)));
 
-        protected virtual void Update(object key, object value)
+        protected virtual void Update(object key, object value) => Monitor.Update(() =>
         {
-            lock(LockObject)
+            if(!TryGet(value.GetType(), key, out var existing))
             {
-                if (!TryGet(value.GetType(), key, out var existing))
-                {
-                    throw new NoSuchDocumentException(key, value.GetType());
-                }
-                if (!ReferenceEquals(existing, value))
-                {
-                    Remove(key, value.GetType());
-                    Add(key, value);
-                }
+                throw new NoSuchDocumentException(key, value.GetType());
             }
-        }
 
-        public IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>
-        {
-            lock(LockObject)
+            if(!ReferenceEquals(existing, value))
             {
-                return this.
-                    Where(pair => pair.Value is T)
-                    .Select(pair => (T)pair.Value)
-                    .ToList();
+                Remove(key, value.GetType());
+                Add(key, value);
             }
-        }
+        });
+
+        public IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid> => Monitor.Read(
+            () => this.Where(pair => pair.Value is T)
+                      .Select(pair => (T)pair.Value)
+                      .ToList());
     }
 }

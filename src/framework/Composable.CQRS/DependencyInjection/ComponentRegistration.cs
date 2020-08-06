@@ -9,6 +9,7 @@ using Composable.SystemCE;
 using Composable.SystemCE.DiagnosticsCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 // ReSharper disable UnusedMember.Global
 
@@ -136,6 +137,7 @@ namespace Composable.DependencyInjection
 
     public abstract class ComponentRegistration
     {
+        internal readonly MonitorCE Monitor = MonitorCE.WithDefaultTimeout();
         internal Guid Id { get; } = Guid.NewGuid();
         internal IEnumerable<Type> ServiceTypes { get; }
         internal InstantiationSpec InstantiationSpec { get; }

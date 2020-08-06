@@ -8,6 +8,7 @@ using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -21,14 +22,14 @@ namespace Composable.Messaging.Buses.Implementation
         IReadOnlyDictionary<Type, HandlerWithResultRegistration> _commandHandlersReturningResults = new Dictionary<Type, HandlerWithResultRegistration>();
         IReadOnlyList<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
 
-        readonly object _lock = new object();
+        readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
 
         public MessageHandlerRegistry(ITypeMapper typeMapper) => _typeMapper = typeMapper;
 
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForEvent<TEvent>(Action<TEvent> handler)
         {
             MessageInspector.AssertValid<TEvent>();
-            lock(_lock)
+            using(_monitor.EnterUpdateLock())
             {
                 _eventHandlers.TryGetValue(typeof(TEvent), out var currentEventSubscribers);
                 currentEventSubscribers ??= new List<Action<MessageTypes.IEvent>>();
@@ -48,7 +49,7 @@ namespace Composable.Messaging.Buses.Implementation
                 throw new Exception($"{typeof(TCommand)} expects a result. You must register a method that returns a result.");
             }
 
-            lock(_lock)
+            using(_monitor.EnterUpdateLock())
             {
                 ThreadSafe.AddToCopyAndReplace(ref _commandHandlers, typeof(TCommand), command => handler((TCommand)command));
                 return this;
@@ -58,7 +59,7 @@ namespace Composable.Messaging.Buses.Implementation
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler)
         {
             MessageInspector.AssertValid<TCommand>();
-            lock(_lock)
+            using(_monitor.EnterUpdateLock())
             {
                 ThreadSafe.AddToCopyAndReplace(ref _commandHandlersReturningResults, typeof(TCommand), new CommandHandlerWithResultRegistration<TCommand, TResult>(handler));
                 return this;
@@ -68,7 +69,7 @@ namespace Composable.Messaging.Buses.Implementation
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler)
         {
             MessageInspector.AssertValid<TQuery>();
-            lock(_lock)
+            using(_monitor.EnterUpdateLock())
             {
                 ThreadSafe.AddToCopyAndReplace(ref _queryHandlers, typeof(TQuery), new QueryHandlerRegistration<TQuery, TResult>(handler));
                 return this;

@@ -48,6 +48,7 @@ namespace Composable.DependencyInjection
             }
 
             readonly ThreadLocal<ComponentRegistration?> _parentComponentStorage = new ThreadLocal<ComponentRegistration?>();
+
             ComponentRegistration? ParentComponent
             {
                 get => _parentComponentStorage.Value;
@@ -118,8 +119,7 @@ namespace Composable.DependencyInjection
             }
 
             TService CreateAndCacheInstance<TService>(ComponentRegistration currentComponent, ScopeCache? scopeCache) where TService : class
-            {
-                lock(currentComponent)
+                => currentComponent.Monitor.Read(() =>
                 {
                     TService instance;
                     switch(currentComponent.Lifestyle)
@@ -141,8 +141,7 @@ namespace Composable.DependencyInjection
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                }
-            }
+                });
 
             //Todo: Performance: Implement IAsyncDisposable.
             public void Dispose()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Refactoring.Naming;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -10,7 +11,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class Router
         {
-            readonly object _lock = new object();
+            readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
             readonly ITypeMapper _typeMapper;
 
             IReadOnlyDictionary<Type, IInboxConnection> _commandHandlerRoutes = new Dictionary<Type, IInboxConnection>();
@@ -45,7 +46,7 @@ namespace Composable.Messaging.Buses.Implementation
                     }
                 }
 
-                lock(_lock)
+                using(_monitor.EnterUpdateLock())
                 {
                     if(eventSubscribers.Count > 0)
                     {

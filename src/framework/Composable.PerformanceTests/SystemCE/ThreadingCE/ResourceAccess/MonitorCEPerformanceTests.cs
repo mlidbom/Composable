@@ -32,7 +32,7 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
 
             internal long Read_MonitorCE_Using_EnterLock()
             {
-                using(_monitor.EnterLock())
+                using(_monitor.EnterReadLock())
                 {
                     return Read_Unsafe();
                 }
@@ -50,17 +50,17 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
 
             internal void Increment_MonitorCE_Using_EnterLock()
             {
-                using(_monitor.EnterLock()) Increment_Unsafe();
+                using(_monitor.EnterReadLock()) Increment_Unsafe();
             }
 
             internal void Increment_MonitorCE_Using_EnterNotifyOneUpdateLock()
             {
-                using(_monitor.EnterNotifyOneLock()) Increment_Unsafe();
+                using(_monitor.EnterNotifyOnlyOneUpdateLock()) Increment_Unsafe();
             }
 
             internal void Increment_MonitorCE_Using_EnterNotifyAllUpdateLock()
             {
-                using(_monitor.EnterNotifyOneLock()) Increment_Unsafe();
+                using(_monitor.EnterNotifyOnlyOneUpdateLock()) Increment_Unsafe();
             }
 
             internal void Increment_MonitorCE_Update() => _monitor.Update(Increment_Unsafe);
@@ -132,7 +132,6 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
             RunScenarios(() => _guarded.Read_MonitorCE_Read(),
                          singleThread: (40 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 24.0, unoptimized: 2.2),
                          multiThread: (200 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 6.0, unoptimized:1.6));
-
 
         [Test] public void _050_Increment_Unsafe___________________________________time_is_less_than_nanoseconds_SingleThreaded_06_MultiThreaded_08() =>
             RunScenarios(() => _guarded.Increment_Unsafe(),

@@ -16,7 +16,7 @@ namespace Composable.Persistence.EventStore
         class TransactionalOverlay
         {
             readonly EventCache _parent;
-            readonly object _lock = new object();
+            readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
 
             readonly IThreadShared<Dictionary<string, Dictionary<Guid, Entry>>> _overlays = ThreadShared.WithDefaultTimeout<Dictionary<string, Dictionary<Guid, Entry>>>();
 
@@ -45,19 +45,14 @@ namespace Composable.Persistence.EventStore
 
             public TransactionalOverlay(EventCache eventCache) => _parent = eventCache;
 
-            internal void Add(Guid aggregateId, Entry entry)
-            {
-                lock(_lock)
-                {
-                    CurrentOverlay[aggregateId] = entry;
-                }
-            }
+            internal void Add(Guid aggregateId, Entry entry) => _monitor.Update(
+                () => CurrentOverlay[aggregateId] = entry);
 
             internal bool TryGet(Guid aggregateId, [NotNullWhen(true)]out Entry? entry)
             {
                 entry = null;
                 if(Transaction.Current == null) return false;
-                lock(_lock)
+                using(_monitor.EnterReadLock())
                 {
                     return CurrentOverlay.TryGetValue(aggregateId, out entry);
                 }

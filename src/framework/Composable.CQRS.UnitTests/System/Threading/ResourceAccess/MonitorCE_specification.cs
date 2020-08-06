@@ -22,14 +22,14 @@ namespace Composable.Tests.System.Threading.ResourceAccess
         {
             var monitor = MonitorCE.WithTimeout(1.Seconds());
 
-            var updateLock = monitor.EnterNotifyAllLock();
+            var updateLock = monitor.EnterUpdateLock();
 
             using var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
             using var otherThreadGotLock = new ManualResetEventSlim(false);
             var otherThreadTask = TaskCE.Run(() =>
             {
                 otherThreadIsWaitingForLock.Set();
-                using(monitor.EnterNotifyAllLock())
+                using(monitor.EnterUpdateLock())
                 {
                     otherThreadGotLock.Set();
                 }
@@ -48,8 +48,8 @@ namespace Composable.Tests.System.Threading.ResourceAccess
         {
             var monitor = MonitorCE.WithTimeout(1.Seconds());
 
-            var updateLock1 = monitor.EnterNotifyAllLock();
-            var updateLock2 = monitor.EnterNotifyAllLock();
+            var updateLock1 = monitor.EnterUpdateLock();
+            var updateLock2 = monitor.EnterUpdateLock();
 
             using var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
             using var otherThreadGotLock = new ManualResetEventSlim(false);
@@ -57,7 +57,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
                                              () =>
                                              {
                                                  otherThreadIsWaitingForLock.Set();
-                                                 using(monitor.EnterNotifyAllLock())
+                                                 using(monitor.EnterUpdateLock())
                                                  {
                                                      otherThreadGotLock.Set();
                                                  }
@@ -105,7 +105,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
                 TaskCE.Run(() =>
                 {
-                    var @lock = resourceGuard.EnterNotifyAllLock();
+                    var @lock = resourceGuard.EnterUpdateLock();
                     hasTakenLock.Set();
                     isAwaitingLock.WaitOne();
                     Thread.Sleep(ownerThreadWaitTime);
@@ -118,7 +118,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
                                                  () => TaskCE.Run(() =>
                                                               {
                                                                   isAwaitingLock.Set();
-                                                                  resourceGuard.EnterNotifyAllLock();
+                                                                  resourceGuard.EnterUpdateLock();
                                                               })
                                                              .Wait())
                                             .InnerExceptions.Single();

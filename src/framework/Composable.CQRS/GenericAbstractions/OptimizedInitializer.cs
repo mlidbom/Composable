@@ -1,10 +1,11 @@
 ﻿using System;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.GenericAbstractions
 {
     public class OptimizedInitializer
     {
-        readonly object _lock = new object();
+        readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
         bool _initialized;
         readonly Action _initialize;
 
@@ -12,14 +13,14 @@ namespace Composable.GenericAbstractions
         {
             if(!_initialized)
             {
-                lock(_lock)
+                _monitor.Update(() =>
                 {
                     if(!_initialized)
                     {
                         _initialize();
                         _initialized = true;
                     }
-                }
+                });
             }
         }
 

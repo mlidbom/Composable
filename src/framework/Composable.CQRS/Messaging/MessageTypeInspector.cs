@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.SystemCE.ReflectionCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.Messaging
 {
@@ -17,13 +18,13 @@ namespace Composable.Messaging
                                                             new AtMostOnceCommandDefaultConstructorMustNotSetADeduplicationId()
                                                         };
 
-        static readonly object Lock = new object();
+        static readonly MonitorCE Monitor = MonitorCE.WithDefaultTimeout();
         static HashSet<Type> _successfullyInspectedTypes = new HashSet<Type>();
         internal static void AssertValid(Type type)
         {
             if(_successfullyInspectedTypes.Contains(type)) return;
 
-            lock(Lock)
+            Monitor.Update(() =>
             {
                 if(_successfullyInspectedTypes.Contains(type)) return;
 
@@ -33,7 +34,7 @@ namespace Composable.Messaging
                 }
 
                 _successfullyInspectedTypes = new HashSet<Type>(_successfullyInspectedTypes) {type};
-            }
+            });
         }
 
         abstract class MessageTypeDesignRule

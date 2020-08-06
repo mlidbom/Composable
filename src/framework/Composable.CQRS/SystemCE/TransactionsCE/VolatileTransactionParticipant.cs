@@ -20,7 +20,7 @@ namespace Composable.SystemCE.TransactionsCE
 
         protected virtual void OnInDoubt() {}
 
-        readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
+        readonly MonitorCE _guard = MonitorCE.WithTimeout(30.Seconds());
         Transaction? _enlistedIn;
         internal void EnsureEnlistedInAnyAmbientTransaction() => _guard.Update(() =>
         {

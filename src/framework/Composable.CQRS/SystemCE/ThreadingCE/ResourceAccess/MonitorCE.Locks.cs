@@ -19,19 +19,14 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             return _notifyOneLock;
         }
 
-        internal NotifyAllLock EnterNotifyAllLock()
+        public NotifyAllLock EnterNotifyAllLock()
         {
             EnterInternal();
             return _notifyAllLock;
         }
 
-
-        ///<summary>Ensure you only call <see cref="IDisposable.Dispose"/> once on an instance of a <see cref="ISingleUseDisposable"/>.</summary>
-        internal interface ISingleUseDisposable : IDisposable {}
-
-
-        //Urgent: Get rid of the IResourceLock interface
-        internal sealed class NotifyAllLock : ISingleUseDisposable, IResourceLock
+        ///<summary>Ensure you only call <see cref="Dispose"/> once on an instance.</summary>
+        internal sealed class NotifyAllLock : IDisposable
         {
             readonly MonitorCE _monitor;
             [Obsolete("Only for internal use")]
@@ -40,7 +35,8 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             public void Dispose() => _monitor.NotifyWaitingExit(NotifyWaiting.All);
         }
 
-        internal sealed class NotifyOneLock : ISingleUseDisposable, IResourceLock
+        ///<summary>Ensure you only call <see cref="Dispose"/> once on an instance.</summary>
+        internal sealed class NotifyOneLock : IDisposable
         {
             readonly MonitorCE _monitor;
             [Obsolete("Only for internal use")]
@@ -49,7 +45,8 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             public void Dispose() => _monitor.NotifyWaitingExit(NotifyWaiting.One);
         }
 
-        internal sealed class Lock : ISingleUseDisposable, IResourceLock
+        ///<summary>Ensure you only call <see cref="Dispose"/> once on an instance.</summary>
+        internal sealed class Lock : IDisposable
         {
             readonly MonitorCE _monitor;
             [Obsolete("Only for internal use")]

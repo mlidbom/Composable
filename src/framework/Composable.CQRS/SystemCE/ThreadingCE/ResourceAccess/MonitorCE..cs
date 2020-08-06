@@ -23,19 +23,19 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
     ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
     partial class MonitorCE
     {
-        readonly List<AcquireLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<AcquireLockTimeoutException>();
+        readonly List<EnterLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<EnterLockTimeoutException>();
         int _timeoutsThrownDuringCurrentLock;
 
         void EnterInternal() => EnterInternal(Timeout);
 
-        internal void EnterInternal(TimeSpan timeout)
+        void EnterInternal(TimeSpan timeout)
         {
             if(!TryEnter(timeout))
             {
                 lock(_timeOutExceptionsOnOtherThreads)
                 {
                     Interlocked.Increment(ref _timeoutsThrownDuringCurrentLock);
-                    var exception = new AcquireLockTimeoutException();
+                    var exception = new EnterLockTimeoutException();
                     _timeOutExceptionsOnOtherThreads.Add(exception);
                     throw exception;
                 }
@@ -49,7 +49,7 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
         }
 
         ///<summary>Note that while Signal calls <see cref="Monitor.PulseAll"/> it only does so if there are waiting threads. There is no overhead if there are no waiting threads.</summary>
-        internal void NotifyWaitingExit(NotifyWaiting notifyWaiting)
+        void NotifyWaitingExit(NotifyWaiting notifyWaiting)
         {
             NotifyWaitingThreads(notifyWaiting);
             Exit();
@@ -58,7 +58,7 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
         ///<summary>Tries to enter the monitor. Will never block.</summary>
         bool TryEnterNonBlocking() => Monitor.TryEnter(_lockObject);
 
-        internal bool TryEnter(TimeSpan timeout)
+        bool TryEnter(TimeSpan timeout)
         {
             if(TryEnterNonBlocking()) return true;
 

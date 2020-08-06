@@ -2,7 +2,7 @@
 {
     partial class MonitorCE
     {
-        internal enum NotifyWaiting
+        enum NotifyWaiting
         {
             None,
             One,

@@ -34,7 +34,7 @@ namespace Composable.Persistence.InMemory.EventStore
 
             class TransactionWideLock
             {
-                public TransactionWideLock() => Guard = ResourceGuard.WithTimeout(1.Minutes());
+                public TransactionWideLock() => Guard = MonitorCE.WithTimeout(1.Minutes());
 
                 public void AwaitAccess(bool takeWriteLock)
                 {
@@ -46,7 +46,7 @@ namespace Composable.Persistence.InMemory.EventStore
                     var currentTransactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
                     if(currentTransactionId != OwningTransactionLocalId)
                     {
-                        var @lock = Guard.AwaitUpdateLock();
+                        var @lock = Guard.EnterNotifyAllLock();
                         Transaction.Current.OnCompleted(() =>
                         {
                             OwningTransactionLocalId = string.Empty;
@@ -57,7 +57,7 @@ namespace Composable.Persistence.InMemory.EventStore
                 }
 
                 string OwningTransactionLocalId { get; set; } = string.Empty;
-                IResourceGuard Guard { get; }
+                MonitorCE Guard { get; }
             }
         }
     }

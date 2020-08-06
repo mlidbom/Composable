@@ -19,7 +19,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly ITaskRunner _taskRunner;
         Timer? _scheduledMessagesTimer;
         readonly List<ScheduledCommand> _scheduledMessages = new List<ScheduledCommand>();
-        readonly IResourceGuard _guard = ResourceGuard.WithTimeout(1.Seconds());
+        readonly MonitorCE _guard = MonitorCE.WithTimeout(1.Seconds());
 
         public CommandScheduler(IOutbox transport, IUtcTimeTimeSource timeSource, ITaskRunner taskRunner)
         {

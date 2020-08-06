@@ -17,22 +17,27 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             return _notifyOneLock;
         }
 
+
+        internal NotifyAllLock EnterNotifyAllLockWhen(Func<bool> condition) =>
+            EnterNotifyAllLockWhen(InfiniteTimeout, condition);
+
         internal NotifyAllLock EnterNotifyAllLockWhen(TimeSpan conditionTimeout, Func<bool> condition)
         {
             EnterWhen(conditionTimeout, condition);
             return _notifyAllLock;
         }
 
-        public void Await(TimeSpan conditionTimeout, Func<bool> condition)
+        internal void Await(Func<bool> condition) => Await(InfiniteTimeout, condition);
+
+        internal void Await(TimeSpan conditionTimeout, Func<bool> condition)
         {
-            if(!TryEnterWhen(conditionTimeout, condition))
+            if(!TryAwait(conditionTimeout, condition))
             {
                 throw new AwaitingConditionTimedOutException();
             }
-            Exit();
         }
 
-        public bool TryAwait(TimeSpan conditionTimeout, Func<bool> condition)
+        internal bool TryAwait(TimeSpan conditionTimeout, Func<bool> condition)
         {
             if(TryEnterWhen(conditionTimeout, condition))
             {

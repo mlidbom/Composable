@@ -54,7 +54,7 @@ namespace Composable.Testing.Threading
         {
             try
             {
-                using(_resourceGuard.AwaitUpdateLockWhen(timeout, condition))
+                using(_resourceGuard.EnterNotifyAllLockWhen(timeout, condition))
                 {
                     action();
                 }
@@ -88,7 +88,7 @@ Current state of gate:
                 _queuedThreads.AddLast(currentThread);
             });
 
-            using(_resourceGuard.AwaitUpdateLockWhen(() => _isOpen))
+            using(_resourceGuard.EnterNotifyAllLockWhen(() => _isOpen))
             {
                 if(_lockOnNextPass)
                 {
@@ -106,7 +106,7 @@ Current state of gate:
 
         ThreadGate(TimeSpan defaultTimeout)
         {
-            _resourceGuard = ResourceGuard.WithTimeout(defaultTimeout);
+            _resourceGuard = MonitorCE.WithTimeout(defaultTimeout);
             _defaultTimeout = defaultTimeout;
         }
 
@@ -117,7 +117,7 @@ Current state of gate:
 ";
 
         readonly TimeSpan _defaultTimeout;
-        readonly IResourceGuard _resourceGuard;
+        readonly MonitorCE _resourceGuard;
         bool _lockOnNextPass;
         Action<ThreadSnapshot> _passThroughAction = _ => {};
         Action<ThreadSnapshot> _prePassThroughAction = _ => {};

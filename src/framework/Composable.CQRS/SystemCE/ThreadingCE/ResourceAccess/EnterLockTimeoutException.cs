@@ -4,25 +4,25 @@ using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
-    public class AcquireLockTimeoutException : Exception, IDisposable
+#pragma warning disable CA1001 // Types that own disposable fields should be disposable,
+                               // Yes, but this is an exception. No one is going to dispose it so let's not be cute and pretend that we handle it "correctly".
+                               //This should be thrown very rarely. Only when you have severe application misbehavior. We accept suboptimal cleanup here.
+    public class EnterLockTimeoutException : Exception
+#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         internal static void TestingOnlyRunWithAlternativeTimeToWaitForOwningThreadStacktrace(TimeSpan timeoutOverride, Action action)
         {
             var originalTimeout = _timeToWaitForOwningThreadStacktrace;
-            try
+            using(DisposableCE.Create(() => _timeToWaitForOwningThreadStacktrace = originalTimeout))
             {
                 _timeToWaitForOwningThreadStacktrace = timeoutOverride;
                 action();
-            }
-            finally
-            {
-                _timeToWaitForOwningThreadStacktrace = originalTimeout;
             }
         }
 
         static TimeSpan _timeToWaitForOwningThreadStacktrace = 30.Seconds();
 
-        internal AcquireLockTimeoutException() : base("Timed out awaiting exclusive access to resource.") { }
+        internal EnterLockTimeoutException() : base("Timed out awaiting exclusive access to resource.") {}
 
         string? _blockingThreadStacktrace;
         readonly ManualResetEvent _blockingStacktraceWaitHandle = new ManualResetEvent(false);
@@ -45,25 +45,6 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         {
             Interlocked.CompareExchange(ref _blockingThreadStacktrace, blockingThreadStackTrace.ToString(), null);
             _blockingStacktraceWaitHandle.Set();
-        }
-
-        ~AcquireLockTimeoutException()
-        {
-            Dispose(false);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if(disposing)
-            {
-                _blockingStacktraceWaitHandle.Dispose();
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }

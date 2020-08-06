@@ -35,7 +35,7 @@ namespace Composable.Testing.Databases
 
         internal static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(DatabasePool)}_";
 
-        readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
+        readonly MonitorCE _guard = MonitorCE.WithTimeout(30.Seconds());
         readonly Guid _poolId = Guid.NewGuid();
         IReadOnlyList<Database> _transientCache = new List<Database>();
 

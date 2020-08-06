@@ -17,16 +17,16 @@ namespace Composable.Tests.System.Threading.ResourceAccess
     {
         [Test] public void When_one_thread_has_UpdateLock_other_thread_is_blocked_until_first_thread_disposes_lock()
         {
-            var resourceGuard = ResourceGuard.WithTimeout(1.Seconds());
+            var resourceGuard = MonitorCE.WithTimeout(1.Seconds());
 
-            var updateLock = resourceGuard.AwaitUpdateLock();
+            var updateLock = resourceGuard.EnterNotifyAllLock();
 
             using var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
             using var otherThreadGotLock = new ManualResetEventSlim(false);
             var otherThreadTask = TaskCE.Run(() =>
             {
                 otherThreadIsWaitingForLock.Set();
-                using(resourceGuard.AwaitUpdateLock())
+                using(resourceGuard.EnterNotifyAllLock())
                 {
                     otherThreadGotLock.Set();
                 }
@@ -43,10 +43,10 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
         [Test] public void When_one_thread_calls_AwaitUpdateLock_twice_other_thread_is_blocked_until_first_thread_disposes_both_locks()
         {
-            var resourceGuard = ResourceGuard.WithTimeout(1.Seconds());
+            var resourceGuard = MonitorCE.WithTimeout(1.Seconds());
 
-            var updateLock1 = resourceGuard.AwaitUpdateLock();
-            var updateLock2 = resourceGuard.AwaitUpdateLock();
+            var updateLock1 = resourceGuard.EnterNotifyAllLock();
+            var updateLock2 = resourceGuard.EnterNotifyAllLock();
 
             using var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
             using var otherThreadGotLock = new ManualResetEventSlim(false);
@@ -54,7 +54,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
                                              () =>
                                              {
                                                  otherThreadIsWaitingForLock.Set();
-                                                 using(resourceGuard.AwaitUpdateLock())
+                                                 using(resourceGuard.EnterNotifyAllLock())
                                                  {
                                                      otherThreadGotLock.Set();
                                                  }
@@ -75,14 +75,14 @@ namespace Composable.Tests.System.Threading.ResourceAccess
         [TestFixture] public class Given_a_timeout_of_10_milliseconds_an_exception_is_thrown_By_Get_within_15_milliseconds_if_lock_is_not_acquired
         {
             [Test] public void Exception_is_ObjectLockTimedOutException()
-                => RunScenario(0.Milliseconds()).Should().BeOfType<AcquireLockTimeoutException>();
+                => RunScenario(0.Milliseconds()).Should().BeOfType<EnterLockTimeoutException>();
 
             [Test] public void If_owner_thread_blocks_for_less_than_stackTrace_timeout_Exception_contains_owning_threads_stack_trace()
                 => RunScenario(30.Milliseconds()).Message.Should().Contain(nameof(DisposeOwningThreadLock));
 
             [Test] public void If_owner_thread_blocks_for_more_than_stacktrace_timeout__Exception_does_not_contain_owning_threads_stack_trace()
             {
-                AcquireLockTimeoutException.TestingOnlyRunWithAlternativeTimeToWaitForOwningThreadStacktrace(
+                EnterLockTimeoutException.TestingOnlyRunWithAlternativeTimeToWaitForOwningThreadStacktrace(
                     10.Milliseconds(),
                     () => RunScenario(20.Milliseconds()).Message.Should().NotContain(nameof(DisposeOwningThreadLock)));
             }
@@ -91,12 +91,12 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
             static Exception RunScenario(TimeSpan ownerThreadWaitTime)
             {
-                var resourceGuard = ResourceGuard.WithTimeout(10.Milliseconds());
+                var resourceGuard = MonitorCE.WithTimeout(10.Milliseconds());
 
-                var updateLock = resourceGuard.AwaitUpdateLock();
+                var updateLock = resourceGuard.EnterNotifyAllLock();
 
                 var thrownException = Assert.Throws<AggregateException>(
-                                                 () => TaskCE.Run(() => resourceGuard.AwaitUpdateLock())
+                                                 () => TaskCE.Run(() => resourceGuard.EnterNotifyAllLock())
                                                              .Wait())
                                             .InnerExceptions.Single();
 

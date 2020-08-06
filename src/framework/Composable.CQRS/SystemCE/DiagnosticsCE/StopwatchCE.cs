@@ -16,8 +16,6 @@ namespace Composable.SystemCE.DiagnosticsCE
         internal static TimingsStatisticsCollector CreateCollector(string name, params TimeSpan[] rangesToCollect) =>
             new TimingsStatisticsCollector(name, rangesToCollect);
 
-        static readonly MachineWideSingleThreaded MachineWideSingleThreaded = MachineWideSingleThreaded.For(typeof(StopwatchCE));
-
         ///<summary>Measures how long it takes to execute <paramref name="action"/></summary>
         internal static TimeSpan TimeExecution([InstantHandle] Action action) => new Stopwatch().TimeExecution(action);
         internal static async Task<TimeSpan> TimeExecutionAsync([InstantHandle] Func<Task> action) => await new Stopwatch().TimeExecutionAsync(action).NoMarshalling();
@@ -40,7 +38,6 @@ namespace Composable.SystemCE.DiagnosticsCE
             return @this.Elapsed;
         }
 
-        //urgent: Can we get MachineWideSingleThreaded functionality with async?
         // ReSharper disable once MethodOverloadWithOptionalParameter
         public static async Task<TimedExecutionSummary> TimeExecutionAsync([InstantHandle] Func<Task> action, int iterations = 1)
         {
@@ -68,7 +65,7 @@ namespace Composable.SystemCE.DiagnosticsCE
         }
 
         // ReSharper disable once MethodOverloadWithOptionalParameter
-        public static TimedExecutionSummary TimeExecution([InstantHandle] Action action, int iterations = 1) => MachineWideSingleThreaded.Execute(() =>
+        public static TimedExecutionSummary TimeExecution([InstantHandle] Action action, int iterations = 1)
         {
             var total = TimeExecution(
                 () =>
@@ -80,9 +77,9 @@ namespace Composable.SystemCE.DiagnosticsCE
                 });
 
             return new TimedExecutionSummary(iterations, total);
-        });
+        }
 
-        public static TimedExecutionSummary TimeExecutionThreadedLowOverhead([InstantHandle] Action action, int iterations = 1, int maxDegreeOfParallelism = -1) => MachineWideSingleThreaded.Execute(() =>
+        public static TimedExecutionSummary TimeExecutionThreadedLowOverhead([InstantHandle] Action action, int iterations = 1, int maxDegreeOfParallelism = -1)
         {
             maxDegreeOfParallelism = maxDegreeOfParallelism == -1
                                          ? Math.Max(Environment.ProcessorCount / 2, 4)
@@ -100,9 +97,9 @@ namespace Composable.SystemCE.DiagnosticsCE
                                    parallelOptions: new ParallelOptions {MaxDegreeOfParallelism = maxDegreeOfParallelism}));
 
             return new TimedExecutionSummary(iterations,  total);
-        });
+        }
 
-        public static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle] Action action, int iterations = 1, int maxDegreeOfParallelism = -1) => MachineWideSingleThreaded.Execute(() =>
+        public static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle] Action action, int iterations = 1, int maxDegreeOfParallelism = -1)
         {
             maxDegreeOfParallelism = maxDegreeOfParallelism == -1
                                          ? Math.Max(Environment.ProcessorCount / 2, 4)
@@ -127,7 +124,7 @@ namespace Composable.SystemCE.DiagnosticsCE
                                    parallelOptions: new ParallelOptions {MaxDegreeOfParallelism = maxDegreeOfParallelism}));
 
             return new TimedThreadedExecutionSummary(iterations, individual.ToList(), total);
-        });
+        }
 
         public class TimedExecutionSummary
         {

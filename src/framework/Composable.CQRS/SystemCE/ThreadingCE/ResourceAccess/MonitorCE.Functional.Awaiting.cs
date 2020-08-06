@@ -5,19 +5,6 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
     partial class MonitorCE
     {
-        internal Lock EnterLockWhen(TimeSpan conditionTimeout, Func<bool> condition)
-        {
-            EnterWhen(conditionTimeout, condition);
-            return _lock;
-        }
-
-        internal NotifyOneLock EnterNotifyOneLockWhen(TimeSpan conditionTimeout, Func<bool> condition)
-        {
-            EnterWhen(conditionTimeout, condition);
-            return _notifyOneLock;
-        }
-
-
         internal NotifyAllLock EnterNotifyAllLockWhen(Func<bool> condition) =>
             EnterNotifyAllLockWhen(InfiniteTimeout, condition);
 

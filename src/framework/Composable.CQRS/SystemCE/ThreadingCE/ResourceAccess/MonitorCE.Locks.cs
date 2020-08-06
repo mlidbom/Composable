@@ -52,10 +52,6 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             [Obsolete("Only for internal use")]
             internal Lock(MonitorCE monitor) => _monitor = monitor;
 
-            public void NotifyOneWaitingThread() => _monitor.NotifyOneWaitingThread();
-
-            public void NotifyAllWaitingThread() => _monitor.NotifyAllWaitingThreads();
-
             public void Dispose() => _monitor.Exit();
         }
     }

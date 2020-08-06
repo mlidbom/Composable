@@ -15,7 +15,7 @@ Note: Blocking == Context switch == about 20 nanoseconds to acquire a lock just 
 
     TryEnter without a timeout value NEVER blocks and return a bool this lets us detect contention and act differently when we know we are about to block: https://tinyurl.com/y36v2fh6
 
-Note: In these cases we are allowed to do expensive work, as is SECONDS if required instead of nanoseconds, to diagnose what is severe application misbehavior, most likely a deadlock:
+Note: In these cases we are allowed to do relatively expensive work to diagnose what is severe application misbehavior, most likely a deadlock:
   1.We have timed out unconditionally (Not a Try* method) acquiring the lock..
   2. We are releasing a lock and see that others have timed out waiting for this lock.
     */
@@ -38,7 +38,7 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
 
         void Exit()
         {
-            SetBlockingStackTraceInTimedOutExceptions();
+            UpdateAnyRegisteredTimeoutExceptions();
             Monitor.Exit(_lockObject);
         }
 
@@ -97,14 +97,11 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
             }
         }
 
-        void SetBlockingStackTraceInTimedOutExceptions()
+        void UpdateAnyRegisteredTimeoutExceptions()
         {
-            //todo: Log a warning if disposing after a longer time than the default lock timeout.
-            //Using this exchange trick spares us from taking one more lock every time we release one at the cost of a negligible decrease in the chances for an exception to contain the blocking stacktrace.
-            var timeoutExceptionsOnOtherThreads = Interlocked.Exchange(ref _timeoutsThrownDuringCurrentLock, 0);
-
-            if(timeoutExceptionsOnOtherThreads > 0)
+            if(_timeoutsThrownDuringCurrentLock > 0)
             {
+                Interlocked.Exchange(ref _timeoutsThrownDuringCurrentLock, 0);
                 lock(_timeOutExceptionsOnOtherThreads)
                 {
                     var stackTrace = new StackTrace(fNeedFileInfo: true);

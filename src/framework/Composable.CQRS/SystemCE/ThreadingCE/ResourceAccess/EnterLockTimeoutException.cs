@@ -1,50 +1,36 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable,
-                               // Yes, but this is an exception. No one is going to dispose it so let's not be cute and pretend that we handle it "correctly".
-                               //This should be thrown very rarely. Only when you have severe application misbehavior. We accept suboptimal cleanup here.
     public class EnterLockTimeoutException : Exception
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
-        internal static void TestingOnlyRunWithAlternativeTimeToWaitForOwningThreadStacktrace(TimeSpan timeoutOverride, Action action)
-        {
-            var originalTimeout = _timeToWaitForOwningThreadStacktrace;
-            using(DisposableCE.Create(() => _timeToWaitForOwningThreadStacktrace = originalTimeout))
-            {
-                _timeToWaitForOwningThreadStacktrace = timeoutOverride;
-                action();
-            }
-        }
-
+        // ReSharper disable once FieldCanBeMadeReadOnly.Local (Actually our tests that temporarily changes this through reflection stops working if it is readonly....)
         static TimeSpan _timeToWaitForOwningThreadStacktrace = 30.Seconds();
 
-        internal EnterLockTimeoutException() : base("Timed out awaiting exclusive access to resource.") {}
+        readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
+
+        internal EnterLockTimeoutException() : base("Timed out awaiting lock. This likely indicates an in-memory deadlock. See below for the stacktrace of the blocking thread as it disposes the lock.") {}
 
         string? _blockingThreadStacktrace;
-        readonly ManualResetEvent _blockingStacktraceWaitHandle = new ManualResetEvent(false);
 
         public override string Message
         {
             get
             {
-                _blockingStacktraceWaitHandle.WaitOne(_timeToWaitForOwningThreadStacktrace);
-                Interlocked.CompareExchange(ref _blockingThreadStacktrace, "Failed to get blocking thread stack trace", null);
+                if(!_monitor.TryAwait(_timeToWaitForOwningThreadStacktrace, () => _blockingThreadStacktrace != null))
+                {
+                    _blockingThreadStacktrace = $"Failed to get blocking thread stack trace. Timed out after: {_timeToWaitForOwningThreadStacktrace}";
+                }
 
                 return $@"{base.Message}
------ Blocking threads stacktrace for disposing its lock -----
+----- Blocking thread lock disposal stack trace-----
 {_blockingThreadStacktrace}
 ";
             }
         }
 
-        internal void SetBlockingThreadsDisposeStackTrace(StackTrace blockingThreadStackTrace)
-        {
-            Interlocked.CompareExchange(ref _blockingThreadStacktrace, blockingThreadStackTrace.ToString(), null);
-            _blockingStacktraceWaitHandle.Set();
-        }
+        internal void SetBlockingThreadsDisposeStackTrace(StackTrace blockingThreadStackTrace) =>
+            _monitor.Update(() => _blockingThreadStacktrace = blockingThreadStackTrace.ToString());
     }
 }

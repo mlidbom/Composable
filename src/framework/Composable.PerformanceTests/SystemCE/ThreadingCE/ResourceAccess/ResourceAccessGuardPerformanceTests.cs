@@ -28,8 +28,8 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
             public MyLong(in bool doSomething) => _doSomething = doSomething;
 
 
-            internal void Increment() => _value++;
-            internal long Read() => _value;
+            internal void Increment_Unsafe() => _value++;
+            internal long Read_Unsafe() => _value;
 
             internal void Increment_Locked()
             {
@@ -137,42 +137,42 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
         }
 
         [Test] public void _010_Read_Unsafe____time_is_less_than_nanoseconds_SingleThreaded_35_MultiThreaded_25() =>
-            RunScenarios(() => _guarded.Read(),
+            RunScenarios(() => _guarded.Read_Unsafe(),
                          singleThread: (35 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 9.0, unoptimized: 1.4),
                          multiThread_: (25 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 5.0));
 
         [Test] public void _020_Read_Lock______time_is_less_than_nanoseconds_SingleThreaded_40_MultiThreaded_230() =>
-            RunScenarios(() => _locker.Read(_guarded.Read),
+            RunScenarios(() => _locker.Read(_guarded.Read_Unsafe),
                          singleThread: (40 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 8, unoptimized: 1.8),
                          multiThread_: (220 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 3.5));
 
         [Test] public void _030_Read_MonitorCE_time_is_less_than_nanoseconds_SingleThreaded_45_MultiThreaded_250() =>
-            RunScenarios(() => _monitor.Read(_guarded.Read),
+            RunScenarios(() => _monitor.Read(_guarded.Read_Unsafe),
                          singleThread: (45 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 24, unoptimized: 1.9),
                          multiThread_: (250 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 4));
 
         [Test] public void _040_Read_Guard____time_is_less_than_nanoseconds_SingleThreaded_70_MultiThreaded_220() =>
-            RunScenarios(() => _guard.Read(_guarded.Read),
+            RunScenarios(() => _guard.Read(_guarded.Read_Unsafe),
                          singleThread: (70 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 17, unoptimized: 1.6),
                          multiThread_: (220 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 5, unoptimized: 1.8));
 
         [Test] public void _050_Increment_Unsafe____time_is_less_than_nanoseconds_SingleThreaded_20__MultiThreaded_25() =>
-            RunScenarios(() => _guarded.Increment(),
+            RunScenarios(() => _guarded.Increment_Unsafe(),
                          singleThread: (20 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 9, unoptimized:2.4),
                          multiThread_: (25 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 4.5));
 
         [Test] public void _060_Increment_Lock______time_is_less_than_nanoseconds_SingleThreaded_45__MultiThreaded_280() =>
-            RunScenarios(() => _locker.Update(_guarded.Increment),
+            RunScenarios(() => _locker.Update(_guarded.Increment_Unsafe),
                          singleThread: (45 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 8, unoptimized: 1.6),
                          multiThread_: (280 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 2.2));
 
         [Test] public void _070_Increment_MonitorCE_time_is_less_than_nanoseconds_SingleThreaded_60__MultiThreaded_250() =>
-            RunScenarios(() => _monitor.Update(_guarded.Increment),
+            RunScenarios(() => _monitor.Update(_guarded.Increment_Unsafe),
                          singleThread: (60 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 32, unoptimized: 1.8),
                          multiThread_: (250 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 5.0, unoptimized: 1.3));
 
         [Test] public void _080_Increment_Guard____time_is_less_than_nanoseconds_SingleThreaded_130_MultiThreaded_300() =>
-            RunScenarios(() => _guard.Update(_guarded.Increment),
+            RunScenarios(() => _guard.Update(_guarded.Increment_Unsafe),
                          singleThread: (130 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 12, unoptimized: 1.3),
                          multiThread_: (300 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 6, unoptimized: 1.4));
 

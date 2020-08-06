@@ -32,13 +32,7 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
         {
             if(!TryEnter(timeout))
             {
-                lock(_timeOutExceptionsOnOtherThreads)
-                {
-                    Interlocked.Increment(ref _timeoutsThrownDuringCurrentLock);
-                    var exception = new EnterLockTimeoutException();
-                    _timeOutExceptionsOnOtherThreads.Add(exception);
-                    throw exception;
-                }
+                RegisterAndThrowTimeoutException();
             }
         }
 
@@ -48,10 +42,15 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
             Monitor.Exit(_lockObject);
         }
 
-        ///<summary>Note that while Signal calls <see cref="Monitor.PulseAll"/> it only does so if there are waiting threads. There is no overhead if there are no waiting threads.</summary>
-        void NotifyWaitingExit(NotifyWaiting notifyWaiting)
+        void NotifyOneExit()
         {
-            NotifyWaitingThreads(notifyWaiting);
+            NotifyOneWaitingThread();
+            Exit();
+        }
+
+        void NotifyAllExit()
+        {
+            NotifyAllWaitingThreads();
             Exit();
         }
 
@@ -87,18 +86,14 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
             else if(_waitingThreadCount > 0) Monitor.Pulse(_lockObject); //One thread blocked on Monitor.Wait for our _lockObject, will now try and reacquire the lock.
         }
 
-        void NotifyWaitingThreads(NotifyWaiting notifyWaiting)
+        void RegisterAndThrowTimeoutException()
         {
-            switch(notifyWaiting)
+            lock(_timeOutExceptionsOnOtherThreads)
             {
-                case NotifyWaiting.None:
-                    break;
-                case NotifyWaiting.One:
-                    NotifyOneWaitingThread();
-                    break;
-                case NotifyWaiting.All:
-                    NotifyAllWaitingThreads();
-                    break;
+                Interlocked.Increment(ref _timeoutsThrownDuringCurrentLock);
+                var exception = new EnterLockTimeoutException();
+                _timeOutExceptionsOnOtherThreads.Add(exception);
+                throw exception;
             }
         }
 

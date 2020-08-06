@@ -32,7 +32,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             [Obsolete("Only for internal use")]
             internal NotifyAllLock(MonitorCE monitor) => _monitor = monitor;
 
-            public void Dispose() => _monitor.NotifyWaitingExit(NotifyWaiting.All);
+            public void Dispose() => _monitor.NotifyAllExit();
         }
 
         ///<summary>Ensure you only call <see cref="Dispose"/> once on an instance.</summary>
@@ -42,7 +42,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             [Obsolete("Only for internal use")]
             internal NotifyOneLock(MonitorCE monitor) => _monitor = monitor;
 
-            public void Dispose() => _monitor.NotifyWaitingExit(NotifyWaiting.One);
+            public void Dispose() => _monitor.NotifyOneExit();
         }
 
         ///<summary>Ensure you only call <see cref="Dispose"/> once on an instance.</summary>

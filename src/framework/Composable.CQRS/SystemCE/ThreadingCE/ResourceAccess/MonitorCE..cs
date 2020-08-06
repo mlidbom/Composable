@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
@@ -44,7 +43,51 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
             Exit();
         }
 
-        internal void NotifyWaiting(NotifyWaiting notifyWaiting)
+        internal void Update(Action action)
+        {
+            using(EnterNotifyAllUpdateLock()) action();
+        }
+
+        internal T Update<T>(Func<T> func)
+        {
+            using(EnterNotifyAllUpdateLock()) return func();
+        }
+
+        internal TReturn Read<TReturn>(Func<TReturn> func)
+        {
+            using(EnterReadLock()) return func();
+        }
+
+        internal void Enter() => Enter(Timeout);
+
+        void Enter(TimeSpan timeout)
+        {
+            if(!TryEnter(timeout)) throw new AcquireLockTimeoutException();
+        }
+
+        ///<summary>Tries to enter the monitor. Will never block.</summary>
+        internal bool TryEnterNonBlocking() => Monitor.TryEnter(_lockObject);
+
+        internal bool TryEnter(TimeSpan timeout)
+        {
+            if(TryEnterNonBlocking()) return true;
+
+            var lockTaken = false;
+            try
+            {
+                Monitor.TryEnter(_lockObject, timeout, ref lockTaken);
+            }
+            catch(Exception) //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
+            {
+                if(lockTaken) Exit();
+                throw;
+            }
+
+            return lockTaken;
+        }
+
+
+        void NotifyWaiting(NotifyWaiting notifyWaiting)
         {
             if(_waitingThreadCount == 0)
             {
@@ -62,77 +105,6 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
                     Monitor.PulseAll(_lockObject); //All threads blocked on Monitor.Wait for our _lockObject, if there are such threads, will now try and reacquire the lock.
                     break;
             }
-        }
-
-        internal void Update(Action action)
-        {
-            Enter();
-            try
-            {
-                action();
-            }
-            finally
-            {
-                NotifyWaiting(ResourceAccess.NotifyWaiting.All);
-                Exit();
-            }
-        }
-
-        internal T Update<T>(Func<T> func)
-        {
-            Enter();
-            try
-            {
-                return func();
-            }
-            finally
-            {
-                NotifyWaiting(ResourceAccess.NotifyWaiting.All);
-                Exit();
-            }
-        }
-
-        internal TReturn Read<TReturn>(Func<TReturn> func)
-        {
-            Enter();
-            try
-            {
-                return func();
-            }
-            finally
-            {
-                Exit();
-            }
-        }
-
-        internal void Enter() => Enter(Timeout);
-
-        internal void Enter(TimeSpan timeout)
-        {
-            if(!TryEnter(timeout))
-            {
-                throw new AcquireLockTimeoutException();
-            }
-        }
-
-        ///<summary>Tries to enter the monitor. Will never block.</summary>
-        internal bool TryEnterNonBlocking() => Monitor.TryEnter(_lockObject);
-
-        internal bool TryEnter(TimeSpan timeout)
-        {
-            if(TryEnterNonBlocking()) return true;
-            var lockTaken = false;
-            try
-            {
-                Monitor.TryEnter(_lockObject, timeout, ref lockTaken);
-            }
-            catch(Exception) //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
-            {
-                if(lockTaken) Exit();
-                throw;
-            }
-
-            return lockTaken;
         }
     }
 }

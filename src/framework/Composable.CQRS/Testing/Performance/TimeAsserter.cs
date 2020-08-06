@@ -11,7 +11,7 @@ namespace Composable.Testing.Performance
 {
     public static class TimeAsserter
     {
-        const int MaxTriesLimit = 10;
+        const int MaxTriesLimit = 40;
         const int MaxTriesDefault = 10;
 
         public static StopwatchCE.TimedExecutionSummary Execute([InstantHandle] Action action,

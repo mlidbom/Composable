@@ -76,7 +76,7 @@ namespace Composable.SystemCE.ThreadingCE
         ///<summary>Here just in order to collect all run methods here so that all task execution comes through this class and we can easily find them all and review them for why they don't pass a name for easier debugging. Any call to  <see cref="Task.Run(System.Action)"/> elsewhere is known to be a mistake to be replaced with a call to this method.</summary>
         public static Task Run(Action action) => Task.Run(action);
 
-        public static Task Run(Func<Task> actionAsync) => Task.Run(actionAsync);
+        public static Task Run(Func<Task> asyncAction) => Task.Run(asyncAction);
 
         ///<summary>Here just in order to collect all run methods here so that all task execution comes through this class and we can easily find them all and review them for why they don't pass a name for easier debugging. Any call to  <see cref="Task.Run(System.Action)"/> elsewhere is known to be a mistake to be replaced with a call to this method.</summary>
         public static Task<TResult> Run<TResult>(Func<TResult> function) => Task.Run(function);

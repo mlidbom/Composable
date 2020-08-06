@@ -27,79 +27,11 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
     */
 
     ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
-    class MonitorCE
+    partial class MonitorCE
     {
-        int _waitingThreadCount;
-        readonly object _lockObject = new object();
-        internal static readonly TimeSpan InfiniteTimeout = -1.Milliseconds();
-
-#if NCRUNCH
-        //Tests timeout at 60 seconds. We want locks to timeout faster so that the blocking stack traces turn up in the test output so we can diagnose the deadlocks.
-        internal static readonly TimeSpan DefaultTimeout = 45.Seconds();
-
-#else
-        //MsSql default query timeout is 30 seconds. Default .Net transaction timeout is 60. If we reach 2 minutes it is all but guaranteed that we have an in-memory deadlock.
-        internal static readonly TimeSpan DefaultTimeout = 2.Minutes();
-#endif
-        internal static readonly TimeSpan NonBlockingTimeout = TimeSpan.Zero;
-
-        internal TimeSpan Timeout { get; set; }
-
         public static MonitorCE WithDefaultTimeout() => new MonitorCE(DefaultTimeout);
         public static MonitorCE WithInfiniteTimeout() => new MonitorCE(InfiniteTimeout);
         public static MonitorCE WithTimeout(TimeSpan defaultTimeout) => new MonitorCE(defaultTimeout);
-
-        MonitorCE(TimeSpan defaultTimeout) => Timeout = defaultTimeout;
-
-        internal void EnterWhen(TimeSpan conditionTimeout, Func<bool> condition)
-        {
-            if(!TryEnterWhen(conditionTimeout, condition))
-            {
-                throw new AwaitingConditionTimedOutException();
-            }
-        }
-
-        internal bool TryEnterWhen(TimeSpan conditionTimeout, Func<bool> condition)
-        {
-            bool acquiredLockStartingWait = false;
-            try
-            {
-                var startTime = DateTime.UtcNow;
-
-                bool infiniteTimeout = conditionTimeout == InfiniteTimeout;
-
-                if(infiniteTimeout)
-                {
-                    Enter(DefaultTimeout);
-                    acquiredLockStartingWait = true;
-                    Interlocked.Increment(ref _waitingThreadCount);
-                    while(!condition()) Wait(InfiniteTimeout);
-                } else
-                {
-                    Enter(conditionTimeout);
-                    acquiredLockStartingWait = true;
-                    Interlocked.Increment(ref _waitingThreadCount);
-                    while(!condition())
-                    {
-                        var elapsedTime = DateTime.UtcNow - startTime;
-                        var timeRemaining = conditionTimeout - elapsedTime;
-                        if(elapsedTime > conditionTimeout)
-                        {
-                            Exit();
-                            return false;
-                        }
-
-                        Wait(timeRemaining);
-                    }
-                }
-            }
-            finally
-            {
-               if(acquiredLockStartingWait)  Interlocked.Decrement(ref _waitingThreadCount);
-            }
-
-            return true;
-        }
 
         internal void Exit() => Monitor.Exit(_lockObject);
 

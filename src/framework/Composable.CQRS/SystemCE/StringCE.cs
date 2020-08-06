@@ -48,5 +48,7 @@ namespace Composable.SystemCE
         }
 
         public static string Pluralize(this int count, string theString) => count == 1 ? theString : $"{theString}s";
+
+        public static string Invariant(this FormattableString interpolatedString) => FormattableString.Invariant(interpolatedString);
     }
 }

@@ -9,8 +9,6 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         TResult Update<TResult>(Func<TResource, TResult> update);
         void Update(Action<TResource> update);
         void Await(Func<TResource, bool> condition);
-        void UpdateWhen(Func<TResource, bool> condition, Action<TResource> update);
-        TResult UpdateWhen<TResult>(Func<TResource, bool> condition, Func<TResource, TResult> update);
     }
 
     static class ThreadShared
@@ -57,12 +55,6 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
             public void Await(Func<TShared, bool> condition) =>
                 _guard.Await(() => condition(_shared));
-
-            public void UpdateWhen(Func<TShared, bool> condition, Action<TShared> update) =>
-                _guard.UpdateWhen(() => condition(_shared), () => update(_shared));
-
-            public TResult UpdateWhen<TResult>(Func<TShared, bool> condition, Func<TShared, TResult> update) =>
-                _guard.UpdateWhen(() => condition(_shared), () => update(_shared));
         }
     }
 }

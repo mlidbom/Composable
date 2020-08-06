@@ -93,10 +93,10 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             {
                 var resourceGuard = ResourceGuard.WithTimeout(10.Milliseconds());
 
-                var updateLock = resourceGuard.AwaitUpdateLock(0.Milliseconds());
+                var updateLock = resourceGuard.AwaitUpdateLock();
 
                 var thrownException = Assert.Throws<AggregateException>(
-                                                 () => TaskCE.Run(() => resourceGuard.AwaitUpdateLock(15.Milliseconds()))
+                                                 () => TaskCE.Run(() => resourceGuard.AwaitUpdateLock())
                                                              .Wait())
                                             .InnerExceptions.Single();
 

@@ -55,12 +55,12 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
 
             internal void Increment_MonitorCE_Using_EnterNotifyOneUpdateLock()
             {
-                using(_monitor.EnterNotifyOneUpdateLock()) Increment_Unsafe();
+                using(_monitor.EnterNotifyOneLock()) Increment_Unsafe();
             }
 
             internal void Increment_MonitorCE_Using_EnterNotifyAllUpdateLock()
             {
-                using(_monitor.EnterNotifyOneUpdateLock()) Increment_Unsafe();
+                using(_monitor.EnterNotifyOneLock()) Increment_Unsafe();
             }
 
             internal void Increment_MonitorCE_Update() => _monitor.Update(Increment_Unsafe);

@@ -6,12 +6,12 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
     {
         internal void Update(Action action)
         {
-            using(EnterNotifyAllUpdateLock()) action();
+            using(EnterNotifyAllLock()) action();
         }
 
         internal T Update<T>(Func<T> func)
         {
-            using(EnterNotifyAllUpdateLock()) return func();
+            using(EnterNotifyAllLock()) return func();
         }
 
         internal TReturn Read<TReturn>(Func<TReturn> func)

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
@@ -21,20 +23,28 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
     ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
     partial class MonitorCE
     {
-        internal void Enter() => Enter(Timeout);
+        readonly List<AcquireLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<AcquireLockTimeoutException>();
+        int _timeoutsThrownDuringCurrentLock;
 
-        void Enter(TimeSpan timeout)
+        void EnterInternal() => EnterInternal(Timeout);
+
+        internal void EnterInternal(TimeSpan timeout)
         {
             if(!TryEnter(timeout))
             {
-                //urgent: Deal with blocking stack traces here.
-                throw new AcquireLockTimeoutException();
+                lock(_timeOutExceptionsOnOtherThreads)
+                {
+                    Interlocked.Increment(ref _timeoutsThrownDuringCurrentLock);
+                    var exception = new AcquireLockTimeoutException();
+                    _timeOutExceptionsOnOtherThreads.Add(exception);
+                    throw exception;
+                }
             }
         }
 
-        internal void Exit()
+        void Exit()
         {
-            //Urgent: Deal with other threads timed out waiting on this monitor here.
+            SetBlockingStackTraceInTimedOutExceptions();
             Monitor.Exit(_lockObject);
         }
 
@@ -46,7 +56,7 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
         }
 
         ///<summary>Tries to enter the monitor. Will never block.</summary>
-        internal bool TryEnterNonBlocking() => Monitor.TryEnter(_lockObject);
+        bool TryEnterNonBlocking() => Monitor.TryEnter(_lockObject);
 
         internal bool TryEnter(TimeSpan timeout)
         {
@@ -89,6 +99,27 @@ Note: In these cases we are allowed to do expensive work, as is SECONDS if requi
                 case NotifyWaiting.All:
                     NotifyAllWaitingThreads();
                     break;
+            }
+        }
+
+        void SetBlockingStackTraceInTimedOutExceptions()
+        {
+            //todo: Log a warning if disposing after a longer time than the default lock timeout.
+            //Using this exchange trick spares us from taking one more lock every time we release one at the cost of a negligible decrease in the chances for an exception to contain the blocking stacktrace.
+            var timeoutExceptionsOnOtherThreads = Interlocked.Exchange(ref _timeoutsThrownDuringCurrentLock, 0);
+
+            if(timeoutExceptionsOnOtherThreads > 0)
+            {
+                lock(_timeOutExceptionsOnOtherThreads)
+                {
+                    var stackTrace = new StackTrace(fNeedFileInfo: true);
+                    foreach(var exception in _timeOutExceptionsOnOtherThreads)
+                    {
+                        exception.SetBlockingThreadsDisposeStackTrace(stackTrace);
+                    }
+
+                    _timeOutExceptionsOnOtherThreads.Clear();
+                }
             }
         }
     }

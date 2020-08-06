@@ -9,19 +9,19 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
     {
         internal Lock EnterLock()
         {
-            Enter();
+            EnterInternal();
             return _lock;
         }
 
-        internal NotifyOneLock EnterNotifyOneUpdateLock()
+        internal NotifyOneLock EnterNotifyOneLock()
         {
-            Enter();
+            EnterInternal();
             return _notifyOneLock;
         }
 
-        internal NotifyAllLock EnterNotifyAllUpdateLock()
+        internal NotifyAllLock EnterNotifyAllLock()
         {
-            Enter();
+            EnterInternal();
             return _notifyAllLock;
         }
 
@@ -30,7 +30,8 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         internal interface ISingleUseDisposable : IDisposable {}
 
 
-        internal sealed class NotifyAllLock : ISingleUseDisposable
+        //Urgent: Get rid of the IResourceLock interface
+        internal sealed class NotifyAllLock : ISingleUseDisposable, IResourceLock
         {
             readonly MonitorCE _monitor;
             [Obsolete("Only for internal use")]
@@ -39,7 +40,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             public void Dispose() => _monitor.NotifyWaitingExit(NotifyWaiting.All);
         }
 
-        internal sealed class NotifyOneLock : ISingleUseDisposable
+        internal sealed class NotifyOneLock : ISingleUseDisposable, IResourceLock
         {
             readonly MonitorCE _monitor;
             [Obsolete("Only for internal use")]
@@ -48,7 +49,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             public void Dispose() => _monitor.NotifyWaitingExit(NotifyWaiting.One);
         }
 
-        internal sealed class Lock : ISingleUseDisposable
+        internal sealed class Lock : ISingleUseDisposable, IResourceLock
         {
             readonly MonitorCE _monitor;
             [Obsolete("Only for internal use")]

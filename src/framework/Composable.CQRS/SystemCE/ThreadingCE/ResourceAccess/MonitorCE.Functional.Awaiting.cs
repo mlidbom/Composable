@@ -5,6 +5,33 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
     partial class MonitorCE
     {
+        internal Lock EnterLockWhen(TimeSpan conditionTimeout, Func<bool> condition)
+        {
+            EnterWhen(conditionTimeout, condition);
+            return _lock;
+        }
+
+        internal NotifyOneLock EnterNotifyOneLockWhen(TimeSpan conditionTimeout, Func<bool> condition)
+        {
+            EnterWhen(conditionTimeout, condition);
+            return _notifyOneLock;
+        }
+
+        internal NotifyAllLock EnterNotifyAllLockWhen(TimeSpan conditionTimeout, Func<bool> condition)
+        {
+            EnterWhen(conditionTimeout, condition);
+            return _notifyAllLock;
+        }
+
+        public void Await(TimeSpan conditionTimeout, Func<bool> condition)
+        {
+            if(!TryEnterWhen(conditionTimeout, condition))
+            {
+                throw new AwaitingConditionTimedOutException();
+            }
+            Exit();
+        }
+
         public bool TryAwait(TimeSpan conditionTimeout, Func<bool> condition)
         {
             if(TryEnterWhen(conditionTimeout, condition))
@@ -17,7 +44,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             }
         }
 
-        internal void EnterWhen(TimeSpan conditionTimeout, Func<bool> condition)
+        void EnterWhen(TimeSpan conditionTimeout, Func<bool> condition)
         {
             if(!TryEnterWhen(conditionTimeout, condition))
             {
@@ -25,21 +52,21 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             }
         }
 
-        internal bool TryEnterWhen(TimeSpan conditionTimeout, Func<bool> condition)
+        bool TryEnterWhen(TimeSpan conditionTimeout, Func<bool> condition)
         {
             var acquiredLockStartingWait = false;
             try
             {
                 if(conditionTimeout == InfiniteTimeout)
                 {
-                    Enter(DefaultTimeout);
+                    EnterInternal(DefaultTimeout);
                     acquiredLockStartingWait = true;
                     Interlocked.Increment(ref _waitingThreadCount);
                     while(!condition()) Wait(InfiniteTimeout);
                 } else
                 {
                     var startTime = DateTime.UtcNow;
-                    Enter(conditionTimeout);
+                    EnterInternal(conditionTimeout);
                     acquiredLockStartingWait = true;
                     Interlocked.Increment(ref _waitingThreadCount);
                     while(!condition())

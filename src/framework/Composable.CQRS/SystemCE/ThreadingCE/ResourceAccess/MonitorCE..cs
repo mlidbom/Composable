@@ -7,6 +7,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
     // urgent: Carefully review monitor documentation: https://docs.microsoft.com/en-us/dotnet/api/system.threading.monitor?view=netcore-3.1
     /*
+     Todo:
 Note: Blocking == Context switch == about 20 nanoseconds to acquire a lock just turned into something like a microsecond or two at the very least. That's 50 times slower AT LEAST.
    So: If we know that we are about to block, we can do other work here that would be unacceptable for the uncontended case.
      Such as 
@@ -26,7 +27,7 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
         readonly List<EnterLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<EnterLockTimeoutException>();
         int _timeoutsThrownDuringCurrentLock;
 
-        void EnterInternal() => EnterInternal(Timeout);
+        void EnterInternal() => EnterInternal(_timeout);
 
         void EnterInternal(TimeSpan timeout)
         {

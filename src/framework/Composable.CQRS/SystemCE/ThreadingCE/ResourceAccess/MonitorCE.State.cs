@@ -16,14 +16,14 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         readonly NotifyOneLock _notifyOneLock;
         readonly NotifyAllLock _notifyAllLock;
 
-        internal static readonly TimeSpan InfiniteTimeout = -1.Milliseconds();
+        static readonly TimeSpan InfiniteTimeout = -1.Milliseconds();
 #if NCRUNCH
-        internal static readonly TimeSpan DefaultTimeout = 45.Seconds(); //Tests timeout at 60 seconds. We want locks to timeout faster so that the blocking stack traces turn up in the test output so we can diagnose the deadlocks.
+        static readonly TimeSpan DefaultTimeout = 45.Seconds(); //Tests timeout at 60 seconds. We want locks to timeout faster so that the blocking stack traces turn up in the test output so we can diagnose the deadlocks.
 #else
-        internal static readonly TimeSpan DefaultTimeout = 2.Minutes(); //MsSql default query timeout is 30 seconds. Default .Net transaction timeout is 60. If we reach 2 minutes it is all but guaranteed that we have an in-memory deadlock.
+        static readonly TimeSpan DefaultTimeout = 2.Minutes(); //MsSql default query timeout is 30 seconds. Default .Net transaction timeout is 60. If we reach 2 minutes it is all but guaranteed that we have an in-memory deadlock.
 #endif
 
-        internal readonly TimeSpan Timeout;
+        readonly TimeSpan _timeout;
 
         MonitorCE(TimeSpan timeout)
         {
@@ -32,7 +32,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             _notifyOneLock = new NotifyOneLock(this);
             _notifyAllLock = new NotifyAllLock(this);
 #pragma warning restore CS0618 // Type or member is obsolete
-            Timeout = timeout;
+            _timeout = timeout;
         }
     }
 }

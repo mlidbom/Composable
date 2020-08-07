@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.SystemCE.LinqCE;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 
 namespace Composable.SystemCE.ThreadingCE
 {

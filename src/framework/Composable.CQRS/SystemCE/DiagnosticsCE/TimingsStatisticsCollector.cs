@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedMember.Local

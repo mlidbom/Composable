@@ -10,6 +10,7 @@ using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Testing.Databases

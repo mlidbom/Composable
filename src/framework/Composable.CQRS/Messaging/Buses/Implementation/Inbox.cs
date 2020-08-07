@@ -9,6 +9,7 @@ using Composable.Refactoring.Naming;
 using Composable.Serialization;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 using NetMQ;
 using NetMQ.Sockets;
 

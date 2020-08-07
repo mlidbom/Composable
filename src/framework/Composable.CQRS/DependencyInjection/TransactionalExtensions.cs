@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 using Composable.SystemCE.TransactionsCE;
 using JetBrains.Annotations;
 

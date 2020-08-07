@@ -5,6 +5,7 @@ using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 using Schema =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation

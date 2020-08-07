@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Composable.Persistence.Common.AdoCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 using Oracle.ManagedDataAccess.Client;
 
 namespace Composable.Persistence.Oracle

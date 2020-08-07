@@ -7,6 +7,7 @@ using Composable.Persistence.Common.AdoCE;
 using Composable.SystemCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 using Composable.SystemCE.TransactionsCE;
 using IBM.Data.DB2.Core;
 

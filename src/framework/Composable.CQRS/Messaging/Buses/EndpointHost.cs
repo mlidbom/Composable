@@ -8,6 +8,7 @@ using Composable.Logging;
 using Composable.Messaging.Buses.Implementation;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 
 namespace Composable.Messaging.Buses
 {

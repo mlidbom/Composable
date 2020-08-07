@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Messaging.Buses.Implementation

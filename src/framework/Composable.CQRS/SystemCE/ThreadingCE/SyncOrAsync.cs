@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Composable.Contracts;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 
 namespace Composable.SystemCE.ThreadingCE
 {

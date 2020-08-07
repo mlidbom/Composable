@@ -8,6 +8,7 @@ using Composable.Logging;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 using FluentAssertions;
 using NUnit.Framework;
 using Assert = NUnit.Framework.Assert;

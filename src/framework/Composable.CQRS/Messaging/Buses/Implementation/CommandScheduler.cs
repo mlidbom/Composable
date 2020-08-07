@@ -8,6 +8,7 @@ using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Messaging.Buses.Implementation

@@ -2,6 +2,7 @@
 using Composable.Persistence.Common.AdoCE;
 using Composable.Persistence.Oracle.SystemExtensions;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 using Message =  Composable.Messaging.Buses.Implementation.IServiceBusPersistenceLayer.InboxMessageDatabaseSchemaStrings;
 
 namespace Composable.Persistence.Oracle.Messaging.Buses.Implementation

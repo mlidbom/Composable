@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 
 namespace Composable.Testing.Threading
 {

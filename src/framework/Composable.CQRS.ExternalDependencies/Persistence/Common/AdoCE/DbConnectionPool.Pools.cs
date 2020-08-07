@@ -9,6 +9,7 @@ using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.DiagnosticsCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
+using Composable.SystemCE.ThreadingCE.TasksCE;
 using Composable.SystemCE.TransactionsCE;
 // ReSharper disable StaticMemberInGenericType
 

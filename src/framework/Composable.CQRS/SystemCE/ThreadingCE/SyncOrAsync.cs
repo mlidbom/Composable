@@ -45,7 +45,7 @@ namespace Composable.SystemCE.ThreadingCE
             return @this.GetAwaiter().GetResult();
         }
 
-        internal static void SyncResult(this Task @this)
+        static void SyncResult(this Task @this)
         {
             //Should only ever be called when in the sync mode, so assert that the task is done.
             Assert.Argument.Assert(@this.IsCompleted);

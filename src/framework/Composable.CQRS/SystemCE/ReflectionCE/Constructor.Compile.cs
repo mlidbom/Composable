@@ -33,11 +33,11 @@ namespace Composable.SystemCE.ReflectionCE
                     return new CompilerBuilder<TInstance>(actualType);
                 }
 
-                internal Delegate WithArgumentTypes(Type argument1Type) => CompileForSignature(typeof(Func<,>).MakeGenericType(argument1Type, _typeToConstruct));
-                internal Delegate WithArgumentTypes(Type argument1Type, Type argument2Type) => CompileForSignature(typeof(Func<,,>).MakeGenericType(argument1Type, argument2Type, _typeToConstruct));
-                internal Delegate WithArgumentTypes(Type argument1Type, Type argument2Type, Type argument3Type) => CompileForSignature(typeof(Func<,,,>).MakeGenericType(argument1Type, argument2Type, argument3Type, _typeToConstruct));
-                internal Delegate WithArgumentTypes(Type argument1Type, Type argument2Type, Type argument3Type, Type argument4Type) => CompileForSignature(typeof(Func<,,,>).MakeGenericType(argument1Type, argument2Type, argument3Type, argument4Type, _typeToConstruct));
-                internal Delegate WithArgumentTypes(Type argument1Type, Type argument2Type, Type argument3Type, Type argument4Type, Type argument5Type) => CompileForSignature(typeof(Func<,,,,>).MakeGenericType(argument1Type, argument2Type, argument3Type, argument4Type, argument5Type, _typeToConstruct));
+                Delegate WithArgumentTypes(Type argument1Type) => CompileForSignature(typeof(Func<,>).MakeGenericType(argument1Type, _typeToConstruct));
+                Delegate WithArgumentTypes(Type argument1Type, Type argument2Type) => CompileForSignature(typeof(Func<,,>).MakeGenericType(argument1Type, argument2Type, _typeToConstruct));
+                Delegate WithArgumentTypes(Type argument1Type, Type argument2Type, Type argument3Type) => CompileForSignature(typeof(Func<,,,>).MakeGenericType(argument1Type, argument2Type, argument3Type, _typeToConstruct));
+                Delegate WithArgumentTypes(Type argument1Type, Type argument2Type, Type argument3Type, Type argument4Type) => CompileForSignature(typeof(Func<,,,>).MakeGenericType(argument1Type, argument2Type, argument3Type, argument4Type, _typeToConstruct));
+                Delegate WithArgumentTypes(Type argument1Type, Type argument2Type, Type argument3Type, Type argument4Type, Type argument5Type) => CompileForSignature(typeof(Func<,,,,>).MakeGenericType(argument1Type, argument2Type, argument3Type, argument4Type, argument5Type, _typeToConstruct));
 
                 internal Func<TInstance> DefaultConstructor() => (Func<TInstance>)CompileForSignature(typeof(Func<>).MakeGenericType(_typeToConstruct));
                 internal Func<TArgument1, TInstance> WithArguments<TArgument1>() => (Func<TArgument1, TInstance>)WithArgumentTypes(typeof(TArgument1));

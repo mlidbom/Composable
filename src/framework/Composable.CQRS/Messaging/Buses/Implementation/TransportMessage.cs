@@ -26,9 +26,9 @@ namespace Composable.Messaging.Buses.Implementation
             readonly IRemotableMessageSerializer _serializer;
             internal readonly string Body;
             internal readonly TypeId MessageTypeId;
-            internal readonly Type MessageType;
+            readonly Type _messageType;
             internal readonly TransportMessageType MessageTypeEnum;
-            internal bool Is<TType>() => typeof(TType).IsAssignableFrom(MessageType);
+            internal bool Is<TType>() => typeof(TType).IsAssignableFrom(_messageType);
 
             MessageTypes.IMessage? _message;
             readonly ITypeMapper _typeMapper;
@@ -38,7 +38,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(_message == null)
                 {
-                    _message = _serializer.DeserializeMessage(MessageType, Body);
+                    _message = _serializer.DeserializeMessage(_messageType, Body);
 
                     Assert.State.Assert(!(_message is MessageTypes.Remotable.ExactlyOnce.IMessage actualMessage) || MessageId == actualMessage.MessageId);
                 }
@@ -51,8 +51,8 @@ namespace Composable.Messaging.Buses.Implementation
                 _typeMapper = typeMapper;
                 Body = body;
                 MessageTypeId = messageTypeId;
-                MessageType = typeMapper.GetType(messageTypeId);
-                MessageTypeEnum = GetMessageTypeEnum(MessageType);
+                _messageType = typeMapper.GetType(messageTypeId);
+                MessageTypeEnum = GetMessageTypeEnum(_messageType);
                 Client = client;
                 MessageId = messageId;
             }

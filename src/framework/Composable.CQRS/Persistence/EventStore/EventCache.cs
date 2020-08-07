@@ -70,7 +70,7 @@ namespace Composable.Persistence.EventStore
 
             public IReadOnlyList<AggregateEvent> Events { get; private set; }
             public int MaxSeenInsertedVersion { get; private set; }
-            public int InsertedVersionToAggregateVersionOffset { get; }
+            int InsertedVersionToAggregateVersionOffset { get; }
 
             public Entry(IReadOnlyList<AggregateEvent> events, int maxSeenInsertedVersion)
             {

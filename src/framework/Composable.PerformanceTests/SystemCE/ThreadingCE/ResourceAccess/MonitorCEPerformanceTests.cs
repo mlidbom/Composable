@@ -67,16 +67,11 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
         }
 
         MyLong _guarded;
-        MonitorCE _monitor;
         static readonly long TotalLocks = 10_000_000.EnvDivide(unoptimized: 10, instrumented: 100);
         const int Iterations = 100;
         static readonly long LocksPerIteration = TotalLocks / Iterations;
 
-        [SetUp] public void SetupTask()
-        {
-            _monitor = MonitorCE.WithDefaultTimeout();
-            _guarded = new MyLong();
-        }
+        [SetUp] public void SetupTask() => _guarded = new MyLong();
 
         [TearDown] public void TearDownTask() { ConsoleCE.WriteImportantLine(StringCE.Invariant($"{_guarded.Value:N0}")); }
 

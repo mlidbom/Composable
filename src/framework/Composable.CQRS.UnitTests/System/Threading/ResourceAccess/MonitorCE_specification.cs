@@ -97,7 +97,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
             internal static void DisposeOwningThreadLock(IDisposable disposable) => disposable.Dispose();
 
-            Exception RunScenario(TimeSpan ownerThreadWaitTime, TimeSpan monitorTimeout)
+            static Exception RunScenario(TimeSpan ownerThreadWaitTime, TimeSpan monitorTimeout)
             {
                 var resourceGuard = MonitorCE.WithTimeout(monitorTimeout);
 

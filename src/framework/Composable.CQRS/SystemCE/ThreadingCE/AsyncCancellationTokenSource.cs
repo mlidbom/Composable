@@ -18,7 +18,7 @@ namespace Composable.SystemCE.ThreadingCE
         public AsyncCancellationTokenSource(TimeSpan delay) => _source = new CancellationTokenSource(delay);
         public AsyncCancellationTokenSource(int millisecondsDelay) => _source = new CancellationTokenSource(millisecondsDelay);
 
-        public bool HasOrHasHadCallbacks => GetCallbackPartitionsAsObject(_source) != null;
+        bool HasOrHasHadCallbacks => GetCallbackPartitionsAsObject(_source) != null;
 
         public CancellationToken Token => _source.Token;
 

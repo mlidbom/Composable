@@ -4,13 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Composable.SystemCE;
 using Composable.SystemCE.LinqCE;
-using Contract = Composable.Contracts.Contract;
 
 namespace Composable.DependencyInjection
 {
     partial class ComposableDependencyInjectionContainer
     {
-        internal class RootCache : IDisposable
+        class RootCache : IDisposable
         {
             readonly int[] _serviceTypeIndexToComponentIndex;
             readonly (ComponentRegistration[] Registrations, object Instance)[] _cache;

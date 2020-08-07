@@ -4,9 +4,9 @@ namespace Composable.Messaging
 {
     static partial class MessageInspector
     {
-        public class AttemptToSendStrictlyLocalMessageRemotely : Exception
+        public class AttemptToSendStrictlyLocalMessageRemotelyException : Exception
         {
-            public AttemptToSendStrictlyLocalMessageRemotely(MessageTypes.StrictlyLocal.IMessage message) : base(RemoteSendOfStrictlyLocalMessageMessage(message)) {}
+            public AttemptToSendStrictlyLocalMessageRemotelyException(MessageTypes.StrictlyLocal.IMessage message) : base(RemoteSendOfStrictlyLocalMessageMessage(message)) {}
 
             static string RemoteSendOfStrictlyLocalMessageMessage(MessageTypes.StrictlyLocal.IMessage message) => $@"
 

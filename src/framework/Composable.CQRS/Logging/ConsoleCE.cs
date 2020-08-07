@@ -19,8 +19,5 @@ namespace Composable.Logging
 
         internal static void WriteLine() =>
             WriteLine("");
-
-        static void Write(string message) =>
-            Monitor.Update(() => Console.Write(message));
     }
 }

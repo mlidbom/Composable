@@ -69,6 +69,6 @@ namespace Composable.SystemCE.ThreadingCE
 
         internal static MachineWideSingleThreaded For(string name) => new MachineWideSingleThreaded(name);
         internal static MachineWideSingleThreaded For<TSynchronized>() => For(typeof(TSynchronized));
-        internal static MachineWideSingleThreaded For(Type synchronized) => new MachineWideSingleThreaded($"{nameof(MachineWideSingleThreaded)}_{synchronized.AssemblyQualifiedName}");
+        static MachineWideSingleThreaded For(Type synchronized) => new MachineWideSingleThreaded($"{nameof(MachineWideSingleThreaded)}_{synchronized.AssemblyQualifiedName}");
     }
 }

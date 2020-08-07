@@ -41,7 +41,7 @@
       <Value>DependencyInjection\ComponentRegistrationExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-85</Value>
       <Value>DependencyInjection\ComponentRegistrationExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-86</Value>
       <Value>DependencyInjection\ComponentRegistrationExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-87</Value>
-      <Value>Messaging\Buses\TestingEndpointHostBase.cs:framework\Composable.CQRS\Composable.CQRS.csproj-31</Value>
+      <Value>Messaging\Buses\TestingEndpointHostBase.cs:framework\Composable.CQRS\Composable.CQRS.csproj-28</Value>
       <Value>Testing\Threading\ThreadGateExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-42</Value>
       <Value>DependencyInjection\TransactionalExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-23</Value>
       <Value>DependencyInjection\TransactionalExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-15</Value>

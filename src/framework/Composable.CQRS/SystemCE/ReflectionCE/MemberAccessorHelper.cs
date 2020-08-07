@@ -13,7 +13,7 @@ namespace Composable.SystemCE.ReflectionCE
     {
         static readonly IDictionary<Type, Func<Object, Object>[]> TypeFields = new ConcurrentDictionary<Type, Func<Object, Object>[]>();
 
-        internal static Func<object, object> BuildFieldGetter(FieldInfo field)
+        static Func<object, object> BuildFieldGetter(FieldInfo field)
         {
             Contract.ArgumentNotNull(field, nameof(field));
 

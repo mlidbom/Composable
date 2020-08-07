@@ -20,7 +20,7 @@ namespace Composable.Testing.Databases
         protected readonly MachineWideSharedObject<SharedState> MachineWideState;
         protected static string? DatabaseRootFolderOverride;
         static TimeSpan _reservationLength;
-        protected const int NumberOfDatabases = 10;
+        const int NumberOfDatabases = 10;
 
         protected DatabasePool()
         {
@@ -34,7 +34,7 @@ namespace Composable.Testing.Databases
             MachineWideState = MachineWideSharedObject<SharedState>.For(GetType().GetFullNameCompilable().ReplaceInvariant(".", "_"), usePersistentFile: true);
         }
 
-        internal static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(DatabasePool)}_";
+        static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(DatabasePool)}_";
 
         readonly MonitorCE _guard = MonitorCE.WithTimeout(30.Seconds());
         readonly Guid _poolId = Guid.NewGuid();

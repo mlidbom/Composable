@@ -13,7 +13,7 @@ namespace Composable.Messaging.Buses
 
         internal IMessageHandlerRegistrar Register { get; }
 
-        internal OptimizedLazy<IServiceLocator> ServiceLocator { get; }
+        OptimizedLazy<IServiceLocator> ServiceLocator { get; }
 
         internal TService Resolve<TService>() where TService : class => ServiceLocator.Value.Resolve<TService>();
     }

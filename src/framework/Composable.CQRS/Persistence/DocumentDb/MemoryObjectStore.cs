@@ -14,13 +14,13 @@ namespace Composable.Persistence.DocumentDb
     class MemoryObjectStore : IEnumerable<KeyValuePair<string, object>>
     {
         readonly Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
-        protected readonly MonitorCE Monitor = MonitorCE.WithDefaultTimeout();
+        readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
 
-        internal bool Contains(Type type, object id) => Monitor.Read(() => TryGet(type, id, out _));
+        internal bool Contains(Type type, object id) => _monitor.Read(() => TryGet(type, id, out _));
 
         internal bool TryGet<T>(object id, [NotNullWhen(true)] out T value)
         {
-            using(Monitor.EnterUpdateLock())
+            using(_monitor.EnterUpdateLock())
             {
                 if(TryGet(typeof(T), id, out var found))
                 {
@@ -33,7 +33,7 @@ namespace Composable.Persistence.DocumentDb
             }
         }
 
-        protected bool TryGet(Type typeOfValue, object id, [NotNullWhen(true)] out object? value)
+        bool TryGet(Type typeOfValue, object id, [NotNullWhen(true)] out object? value)
         {
             var idstring = GetIdString(id);
             value = null;
@@ -53,9 +53,9 @@ namespace Composable.Persistence.DocumentDb
             return false;
         }
 
-        protected static string GetIdString(object id) => Contract.ReturnNotNull(id).ToStringNotNull().ToUpperInvariant().TrimEnd(' ');
+        static string GetIdString(object id) => Contract.ReturnNotNull(id).ToStringNotNull().ToUpperInvariant().TrimEnd(' ');
 
-        public virtual void Add<T>(object id, T value) => Monitor.Update(() =>
+        public virtual void Add<T>(object id, T value) => _monitor.Update(() =>
         {
             Assert.Argument.NotNull(value);
 
@@ -68,7 +68,7 @@ namespace Composable.Persistence.DocumentDb
             _db.GetOrAddDefault(idString).Add(value);
         });
 
-        public void Remove(object id, Type documentType) => Monitor.Update(() =>
+        public void Remove(object id, Type documentType) => _monitor.Update(() =>
         {
             var idString = GetIdString(id);
             var removed = _db.GetOrAddDefault(idString).RemoveWhere(documentType.IsInstanceOfType);
@@ -83,17 +83,17 @@ namespace Composable.Persistence.DocumentDb
             }
         });
 
-        public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => Monitor.Read(
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => _monitor.Read(
             () => _db.SelectMany(m => m.Value.Select(inner => new KeyValuePair<string, object>(m.Key, inner)))
                      .ToList() //ToList is to make it thread safe...
                      .GetEnumerator());
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> _) => Monitor.Update(
+        public void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> _) => _monitor.Update(
             () => values.ForEach(pair => Update(pair.Key, pair.Value)));
 
-        protected virtual void Update(object key, object value) => Monitor.Update(() =>
+        protected virtual void Update(object key, object value) => _monitor.Update(() =>
         {
             if(!TryGet(value.GetType(), key, out var existing))
             {
@@ -107,7 +107,7 @@ namespace Composable.Persistence.DocumentDb
             }
         });
 
-        public IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid> => Monitor.Read(
+        public IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid> => _monitor.Read(
             () => this.Where(pair => pair.Value is T)
                       .Select(pair => (T)pair.Value)
                       .ToList());

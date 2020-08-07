@@ -14,16 +14,13 @@ namespace Composable.Messaging.Buses
         readonly ILogger _log = Logger.For<TestingEndpointHostBase>();
 
         readonly List<Exception> _expectedExceptions = new List<Exception>();
-        public TestingEndpointHostBase(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory)
-        {
-            GlobalBusStateTracker = new GlobalBusStateTracker();
-        }
+        public TestingEndpointHostBase(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory) => GlobalBusStateTracker = new GlobalBusStateTracker();
 
         public IEnumerable<EndPointAddress> ServerEndpoints => Endpoints.Where(@this => !(@this.Address is null))
                                                                         .Select(@this => @this.Address!)
                                                                         .ToList();
 
-        public void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }
+        void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }
         public IEndpoint RegisterTestingEndpoint(string? name = null, EndpointId? id = null, Action<IEndpointBuilder>? setup = null)
         {
             var endpointId = id ?? new EndpointId(Guid.NewGuid());

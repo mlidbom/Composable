@@ -14,21 +14,19 @@ namespace Composable.Messaging.Hypermedia
 
         public void Post(MessageTypes.Remotable.AtMostOnce.ICommand command) => PostAsync(command).WaitUnwrappingException();
 
-        public Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
+        public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
         {
             MessageInspector.AssertValidToSendRemote(command);
-            return PostAsyncAfterFastPathOptimization(command);
+            await _transport.PostAsync(command).NoMarshalling();
         }
-        async Task PostAsyncAfterFastPathOptimization(MessageTypes.Remotable.AtMostOnce.ICommand command) { await _transport.PostAsync(command).NoMarshalling(); }
 
         public TResult Post<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command) => PostAsync(command).ResultUnwrappingException();
 
-        public Task<TResult> PostAsync<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command)
+        public async Task<TResult> PostAsync<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command)
         {
             MessageInspector.AssertValidToSendRemote(command);
-            return PostAsyncAfterFastPathOptimization(command);
+            return await _transport.PostAsync(command).NoMarshalling();
         }
-        async Task<TResult> PostAsyncAfterFastPathOptimization<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command) => await _transport.PostAsync(command).NoMarshalling();
 
         public Task<TResult> GetAsync<TResult>(MessageTypes.Remotable.NonTransactional.IQuery<TResult> query)
         {

@@ -135,7 +135,7 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
 
         [Test] public void _060_Increment_Locked___________________________________time_is_less_than_nanoseconds_SingleThreaded_25__MultiThreaded_240() =>
             RunScenarios(() => _guarded.Increment_Locked(),
-                         singleThread: (25 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 8.0, unoptimized: 1.6),
+                         singleThread: (25 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 9.0, unoptimized: 1.6),
                          multiThread: (240 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 3.0));
 
         [Test] public void _070_Increment_MonitorCE_Using_EnterLock_________________time_is_less_than_nanoseconds_SingleThreaded_30__MultiThreaded_240() =>

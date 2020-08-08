@@ -109,9 +109,11 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
         }
 
         [Test]
-        public void Once_DB_Fetched_Can_use_XX_connections_in_1_millisecond_db2_2_MsSql_25_MySql_2_Oracle_7_PgSql_40()
+        public void Once_DB_Fetched_Can_use_XX_connections_in_1_millisecond_db2_2_MsSql_22_MySql_2_Oracle_7_PgSql_40()
         {
             if(TestEnv.PersistenceLayer.Current == PersistenceLayer.Memory) return;
+
+            var iterations = TestEnv.PersistenceLayer.ValueFor(db2: 2, msSql: 22, mySql: 2, orcl: 7, pgSql: 40);
 
             using var manager = CreatePool();
             manager.SetLogLevel(LogLevel.Warning);
@@ -152,7 +154,7 @@ namespace Composable.Tests.ExternalDependencies.DatabasePoolTests
            TimeAsserter.Execute(
                action: useConnection!,
                maxTotal: 1.Milliseconds(),
-               iterations : TestEnv.PersistenceLayer.ValueFor(db2: 2, msSql: 25, mySql: 2, orcl: 7, pgSql: 40)
+               iterations : iterations
            );
         }
 

@@ -67,6 +67,10 @@ namespace Composable.Messaging
                 public interface IMessage : IForbidTransactionalRemoteSender, Remotable.IMessage {}
                 public interface IQuery : Remotable.IRequireRemoteResponse, NonTransactional.IMessage, MessageTypes.IQuery { }
                 public interface IQuery<TResult> : NonTransactional.IQuery, MessageTypes.IQuery<TResult> { }
+
+                public interface ICreateMyOwnResultQuery<TResult> : IQuery<TResult>, MessageTypes.ICreateMyOwnResultQuery<TResult>
+                {
+                }
             }
 
             public static partial class AtMostOnce

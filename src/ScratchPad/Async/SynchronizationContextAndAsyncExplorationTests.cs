@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.TasksCE;
 using FluentAssertions;
 using Nito.AsyncEx;
@@ -11,8 +12,38 @@ namespace ScratchPad.Async
     [TestFixture]
     public class SynchronizationContextAndAsyncExplorationTests
     {
-        [SetUp] public void SetupTask()
+        [Test] public void Exceptions_in_async_methods_are_always_marshaled_to_the_task_result()
         {
+            var result = Throw();
+
+            Assert.Throws<Exception>(() => result.SyncResult());
+        }
+
+        [Test] public async Task Async_Exceptions_in_async_methods_are_always_marshaled_to_the_task_result()
+        {
+            var result = Throw();
+
+            var thrown = false;
+            try
+            {
+                await result;
+            }
+            catch(Exception)
+            {
+                thrown = true;
+            }
+
+            thrown.Should().BeTrue();
+        }
+
+        static async Task Throw(bool @throw = true)
+        {
+            if(@throw)
+            {
+                throw new Exception();
+            }
+
+            await Task.CompletedTask;
         }
 
         [Test] public void PrintContextOther()

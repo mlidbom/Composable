@@ -48,7 +48,7 @@ namespace Composable.Tests.Messaging.Hypermedia
 
         protected class MyRemoteQuery : MessageTypes.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
         protected class MyLocalQuery : MessageTypes.StrictlyLocal.Queries.Query<MyLocalQuery, MyQueryResult> {}
-        protected class MyQueryResult {}
+        protected internal class MyQueryResult {}
 
         public PerformanceTestBase(string _) : base(_) {}
     }

@@ -3,7 +3,7 @@ using System.Threading;
 using Composable.SystemCE.ThreadingCE;
 using NUnit.Framework;
 
-namespace Composable.Tests.System.Threading
+namespace Composable.Tests.SystemCE.ThreadingCE
 {
     [TestFixture] public class AsyncCancellationTokenSourceTests
     {

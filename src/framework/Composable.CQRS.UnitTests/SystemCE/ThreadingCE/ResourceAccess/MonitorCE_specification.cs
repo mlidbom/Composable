@@ -1,12 +1,9 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Composable.Logging;
 using Composable.SystemCE;
-using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Composable.SystemCE.ThreadingCE.TasksCE;
 using FluentAssertions;
@@ -15,7 +12,7 @@ using Assert = NUnit.Framework.Assert;
 
 // ReSharper disable AccessToDisposedClosure
 
-namespace Composable.Tests.System.Threading.ResourceAccess
+namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
 {
     [TestFixture] public class MonitorCE_specification
     {

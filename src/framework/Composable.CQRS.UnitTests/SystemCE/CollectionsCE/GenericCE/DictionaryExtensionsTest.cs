@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Composable.SystemCE.CollectionsCE.GenericCE;
 using NUnit.Framework;
 
-namespace Composable.Tests.System.Collections.Generic
+namespace Composable.Tests.SystemCE.CollectionsCE.GenericCE
 {
     public static class DictionaryExtensionsGetOrAddWhenKey
     {

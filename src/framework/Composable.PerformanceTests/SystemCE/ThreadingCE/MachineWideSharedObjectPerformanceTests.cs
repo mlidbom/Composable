@@ -2,7 +2,6 @@
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.Testing.Performance;
-using Composable.Tests.System.Threading;
 using FluentAssertions;
 using NUnit.Framework;
 

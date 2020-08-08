@@ -2,7 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Tests.System.Linq
+namespace Composable.Tests.SystemCE.LinqCE
 {
     [TestFixture]
     public class ExpressionUtilTests

@@ -7,7 +7,7 @@ using Xunit;
 
 // ReSharper disable ImplicitlyCapturedClosure
 
-namespace Composable.Tests.System.Threading
+namespace Composable.Tests.SystemCE.ThreadingCE
 {
     public class MonitorClassApiExploration
     {

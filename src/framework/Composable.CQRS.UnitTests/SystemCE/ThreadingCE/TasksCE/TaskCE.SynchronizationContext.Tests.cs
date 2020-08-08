@@ -5,7 +5,7 @@ using FluentAssertions;
 using Nito.AsyncEx;
 using NUnit.Framework;
 
-namespace Composable.Tests.System.Threading.Tasks
+namespace Composable.Tests.SystemCE.ThreadingCE.TasksCE
 {
     public class TaskCE_SynchronizationContext_Tests
     {

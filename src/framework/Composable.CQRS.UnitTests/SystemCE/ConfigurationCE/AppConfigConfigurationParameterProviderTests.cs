@@ -3,7 +3,7 @@ using Composable.SystemCE.ConfigurationCE;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Tests.System.Configuration
+namespace Composable.Tests.SystemCE.ConfigurationCE
 {
     [TestFixture] public class AppConfigConfigurationParameterProviderTests
     {

@@ -52,7 +52,7 @@ namespace Composable.Tests.Testing.Threading
                              .ToList();
 
             _tasksPassingGate = EntrantEvents.Select(
-                                                 entrantEvent => TaskCE.StartOnDedicatedThread(
+                                                 entrantEvent => TaskCE.RunOnDedicatedThread(
                                                   () =>
                                                   {
                                                       entrantEvent.HasStarted.Set();

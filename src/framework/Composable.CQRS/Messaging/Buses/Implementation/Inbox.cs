@@ -86,6 +86,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                         var dispatchTask = _handlerExecutionEngine.Enqueue(transportMessage);
 
+                        //Bug: this returns a task that must be awaited somehow.
                         dispatchTask.ContinueAsynchronouslyOnDefaultScheduler(dispatchResult =>
                         {
                             //refactor: Consider moving these responsibilities into the message class or other class. Probably create more subtypes so that no type checking is required. See also: HandlerExecutionEngine.Coordinator and [.HandlerExecutionTask]

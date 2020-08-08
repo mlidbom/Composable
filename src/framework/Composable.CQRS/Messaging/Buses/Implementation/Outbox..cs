@@ -37,6 +37,7 @@ namespace Composable.Messaging.Buses.Implementation
                 Transaction.Current.OnCommittedSuccessfully(() => connections.ForEach(subscriberConnection =>
                 {
                     subscriberConnection.SendAsync(exactlyOnceEvent)
+                                         //Bug: this returns a task that must be awaited somehow.
                                         .ContinueAsynchronouslyOnDefaultScheduler(task => HandleDeliveryTaskResults(task, subscriberConnection.EndpointInformation.Id, exactlyOnceEvent.MessageId));
                 }));
             }
@@ -48,8 +49,12 @@ namespace Composable.Messaging.Buses.Implementation
 
             _storage.SaveMessage(exactlyOnceCommand, connection.EndpointInformation.Id);
 
-            Transaction.Current.OnCommittedSuccessfully(() => connection.SendAsync(exactlyOnceCommand)
-                                                                        .ContinueAsynchronouslyOnDefaultScheduler(task => HandleDeliveryTaskResults(task, connection.EndpointInformation.Id, exactlyOnceCommand.MessageId)));
+            Transaction.Current.OnCommittedSuccessfully(() =>
+            {
+                connection.SendAsync(exactlyOnceCommand)
+                           //Bug: this returns a task that must be awaited somehow.
+                          .ContinueAsynchronouslyOnDefaultScheduler(task => HandleDeliveryTaskResults(task, connection.EndpointInformation.Id, exactlyOnceCommand.MessageId));
+            });
         }
 
         void HandleDeliveryTaskResults(Task completedSendTask, EndpointId receiverId, Guid messageId)

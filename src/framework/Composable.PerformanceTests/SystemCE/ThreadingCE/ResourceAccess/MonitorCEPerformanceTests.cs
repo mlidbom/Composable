@@ -121,7 +121,7 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
         [Test] public void _031_Read_MonitorCE_Using_EnterLock______time_is_less_than_nanoseconds_SingleThreaded_25_MultiThreaded_180() =>
             RunScenarios(() => _guarded.Read_MonitorCE_Using_EnterLock(),
                          singleThread: (25 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 40, unoptimized: 2.2),
-                         multiThread: (180 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 6.0, unoptimized:1.4));
+                         multiThread: (180 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 7.0, unoptimized:1.4));
 
         [Test] public void _032_Read_MonitorCE_Read________________time_is_less_than_nanoseconds_SingleThreaded_40_MultiThreaded_200() =>
             RunScenarios(() => _guarded.Read_MonitorCE_Read(),

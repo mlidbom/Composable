@@ -3,8 +3,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using Composable.Persistence.EventStore;
+using Composable.SystemCE;
 using Composable.SystemCE.ReflectionCE;
+using Composable.SystemCE.ReflectionCE.EmitCE;
+using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
+
+// ReSharper disable StaticMemberInGenericType
 
 namespace Composable.Messaging.Events
 {
@@ -34,9 +42,9 @@ namespace Composable.Messaging.Events
                     return @event => _handler((THandledEvent)@event);
                 } else if(WrapperType.IsAssignableFrom(eventType))
                 {
-                    return @event => _handler((THandledEvent)((MessageTypes.IWrapperEvent<MessageTypes.IEvent>)@event).Event);;
-                }
-                else
+                    return @event => _handler((THandledEvent)((MessageTypes.IWrapperEvent<MessageTypes.IEvent>)@event).Event);
+                    ;
+                } else
                 {
                     return null;
                 }
@@ -47,8 +55,23 @@ namespace Composable.Messaging.Events
             where TWrappedEvent : TEvent
             where THandledWrapperEvent : MessageTypes.IWrapperEvent<TWrappedEvent>
         {
-            static readonly Func<TWrappedEvent, THandledWrapperEvent> WrapperConstructor = Constructor.For<THandledWrapperEvent>.WithArguments<TWrappedEvent>.Instance;
             readonly Action<THandledWrapperEvent> _handler;
+            static readonly Func<object, THandledWrapperEvent> WrapperConstructor;
+
+            static RegisteredWrappedHandler()
+            {
+                var closedWrapperEventType = typeof(THandledWrapperEvent);
+                var openWrapperEventType = closedWrapperEventType.GetGenericTypeDefinition();
+
+                var openWrapperImplementationType = CreateGenericWrapperEventType(openWrapperEventType);
+                var wrappedEventType = closedWrapperEventType.GenericTypeArguments[0];
+                var closedWrapperImplementationType = openWrapperImplementationType.MakeGenericType(wrappedEventType);
+
+                var constructor = Constructor.Compile.ForReturnType(closedWrapperImplementationType).WithArgumentTypes(wrappedEventType);
+
+                //Urgent: Performance: DynamicInvoke here is not going to be terribly fast.
+                WrapperConstructor = @event => (THandledWrapperEvent)constructor.DynamicInvoke(@event).NotNull();
+            }
 
             public RegisteredWrappedHandler(Action<THandledWrapperEvent> handler) => _handler = handler;
             internal override Action<object>? TryCreateHandlerFor(Type eventType)
@@ -59,10 +82,56 @@ namespace Composable.Messaging.Events
                 } else if(typeof(TWrappedEvent).IsAssignableFrom(eventType))
                 {
                     return @event => _handler(WrapperConstructor((TWrappedEvent)@event));
-                }else
+                } else
                 {
                     return null;
                 }
+            }
+
+            static IReadOnlyDictionary<Type, Type> _createdWrapperTypes = new Dictionary<Type, Type>();
+            static readonly MonitorCE Monitor = MonitorCE.WithDefaultTimeout();
+            static Type CreateGenericWrapperEventType(Type wrapperEventType)
+            {
+                if(_createdWrapperTypes.TryGetValue(wrapperEventType, out var cachedWrapperImplementation))
+                {
+                    return cachedWrapperImplementation;
+                }
+
+                return Monitor.Update(() =>
+                {
+                    if(!wrapperEventType.IsInterface) throw new ArgumentException("Must be an interface", $"{nameof(wrapperEventType)}");
+
+                    if(wrapperEventType != typeof(MessageTypes.IWrapperEvent<>)
+                    && wrapperEventType.GetInterfaces().All(iface => iface != typeof(MessageTypes.IWrapperEvent<>).MakeGenericType(wrapperEventType.GetGenericArguments()[0])))
+                        throw new ArgumentException($"Must implement {typeof(MessageTypes.IWrapperEvent<>).FullName}", $"{nameof(wrapperEventType)}");
+
+                    var wrappedEventType = wrapperEventType.GetGenericArguments()[0];
+
+                    var requiredEventInterface = wrappedEventType.GetGenericParameterConstraints().Single(constraint => constraint.IsInterface && typeof(MessageTypes.IEvent).IsAssignableFrom(constraint));
+
+                    var genericWrapperEventType = AssemblyBuilderCE.Module.Update(module =>
+                    {
+                        TypeBuilder wrapperEventBuilder = module.DefineType(
+                            name: $"{wrapperEventType}_ilgen_impl",
+                            attr: TypeAttributes.Public,
+                            parent: null,
+                            interfaces: new[] {wrapperEventType});
+
+                        GenericTypeParameterBuilder wrappedEventTypeParameter = wrapperEventBuilder.DefineGenericParameters("TWrappedEvent")[0];
+
+                        wrappedEventTypeParameter.SetInterfaceConstraints(requiredEventInterface);
+
+                        var (wrappedEventField, _) = wrapperEventBuilder.ImplementProperty(nameof(MessageTypes.IWrapperEvent<IAggregateEvent>.Event), wrappedEventTypeParameter);
+
+                        wrapperEventBuilder.ImplementConstructor(wrappedEventField);
+
+                        return wrapperEventBuilder.CreateType().NotNull();
+                    });
+
+                    ThreadSafe.AddToCopyAndReplace(ref _createdWrapperTypes, wrapperEventType, genericWrapperEventType);
+
+                    return genericWrapperEventType;
+                });
             }
         }
 
@@ -149,7 +218,6 @@ namespace Composable.Messaging.Events
         // ReSharper disable once StaticMemberInGenericType
         static readonly Action<object>[] NullHandlerList = Array.Empty<Action<object>>();
 
-
         Action<object>[] GetHandlers(Type type, bool validateHandlerExists = true)
         {
             if(_cachedTotalHandlers != _totalHandlers)
@@ -176,6 +244,7 @@ namespace Composable.Messaging.Events
                         result.AddRange(_runBeforeHandlers);
                         hasFoundHandler = true;
                     }
+
                     result.Add(handler);
                 }
             }

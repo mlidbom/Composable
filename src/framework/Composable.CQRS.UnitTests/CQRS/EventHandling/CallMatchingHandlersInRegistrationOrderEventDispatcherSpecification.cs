@@ -23,8 +23,9 @@ namespace Composable.Tests.CQRS.EventHandling
                 int called = 0;
                 _dispatcher.Register().ForWrapped<MessageTypes.IWrapperEvent<IUserCreatedEvent>, IUserCreatedEvent>(@event => called++);
 
-                //Urgent: Get this working.
-                //_dispatcher.Dispatch(new UserCreatedEvent());
+                _dispatcher.Dispatch(new UserCreatedEvent());
+
+                called.Should().Be(1);
             }
 
             public class with_2_BeforeHandlers_2_AfterHandlers_and_1_handler_each_per_4_specific_event_type : Given_an_instance

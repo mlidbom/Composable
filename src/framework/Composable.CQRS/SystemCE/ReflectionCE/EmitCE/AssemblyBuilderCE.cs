@@ -34,13 +34,13 @@ namespace Composable.SystemCE.ReflectionCE.EmitCE
                                                              returnType: propertyType,
                                                              parameterTypes: null);
 
-            ImplementGetMethod(typeBuilder, propertyBuilder, fieldBuilder);
-            ImplementSetMethod(typeBuilder, propertyBuilder, fieldBuilder);
+            typeBuilder.ImplementGetMethod(propertyBuilder, fieldBuilder);
+            typeBuilder.ImplementSetMethod(propertyBuilder, fieldBuilder);
 
             return (fieldBuilder, propertyBuilder);
         }
 
-        static void ImplementSetMethod(TypeBuilder typeBuilder, PropertyBuilder propertyBuilder, FieldBuilder fieldBuilder)
+        static void ImplementSetMethod(this TypeBuilder typeBuilder, PropertyBuilder propertyBuilder, FieldBuilder fieldBuilder)
         {
             var setMethodBuilder = typeBuilder.DefineMethod(name: $"set_{propertyBuilder.Name}",
                                                             attributes: PropertyAccessorAttributes,
@@ -55,7 +55,7 @@ namespace Composable.SystemCE.ReflectionCE.EmitCE
             propertyBuilder.SetSetMethod(setMethodBuilder);
         }
 
-        static void ImplementGetMethod(TypeBuilder typeBuilder, PropertyBuilder propertyBuilder, FieldBuilder fieldBuilder)
+        static void ImplementGetMethod(this TypeBuilder typeBuilder, PropertyBuilder propertyBuilder, FieldBuilder fieldBuilder)
         {
             var getMethodBuilder = typeBuilder.DefineMethod(name: $"get_{propertyBuilder.Name}",
                                                             attributes: PropertyAccessorAttributes | MethodAttributes.Virtual,

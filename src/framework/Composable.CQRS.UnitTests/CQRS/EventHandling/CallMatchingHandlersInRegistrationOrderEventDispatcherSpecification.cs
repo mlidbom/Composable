@@ -1,6 +1,10 @@
-﻿using Composable.Messaging.Events;
+﻿using Composable.Messaging;
+using Composable.Messaging.Events;
+using Composable.Persistence.EventStore;
 using FluentAssertions;
+using NUnit.Framework;
 using Xunit;
+using Assert = Xunit.Assert;
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE0051 //Review OK: unused private members are intentional in this test.
@@ -13,6 +17,15 @@ namespace Composable.Tests.CQRS.EventHandling
         public class Given_an_instance
         {
             readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<IUserEvent> _dispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<IUserEvent>();
+
+            [Test] public void Dispatches_to_wrapped_event_handler()
+            {
+                int called = 0;
+                _dispatcher.Register().ForWrapped<MessageTypes.IWrapperEvent<IUserCreatedEvent>, IUserCreatedEvent>(@event => called++);
+
+                //Urgent: Get this working.
+                //_dispatcher.Dispatch(new UserCreatedEvent());
+            }
 
             public class with_2_BeforeHandlers_2_AfterHandlers_and_1_handler_each_per_4_specific_event_type : Given_an_instance
             {
@@ -81,7 +94,7 @@ namespace Composable.Tests.CQRS.EventHandling
                 }
             }
 
-            interface IUserEvent {}
+            interface IUserEvent : IAggregateEvent {}
             interface IUserCreatedEvent : IUserEvent {}
             interface IUserRegistered : IUserCreatedEvent{}
             interface IUserSkillsEvent : IUserEvent {}
@@ -89,14 +102,14 @@ namespace Composable.Tests.CQRS.EventHandling
             interface IUserSkillsRemoved : IUserSkillsEvent {}
             interface IIgnoredUserEvent : IUserEvent {}
 
-            class UnHandledUserEvent : IUserEvent {}
+            class UnHandledUserEvent : AggregateEvent, IUserEvent {}
 
-            class IgnoredUserEvent : IIgnoredUserEvent {}
+            class IgnoredUserEvent : AggregateEvent, IIgnoredUserEvent {}
 
-            class UserCreatedEvent : IUserCreatedEvent
+            class UserCreatedEvent : AggregateEvent, IUserCreatedEvent
             {}
 
-            class UserRegistered : IUserRegistered
+            class UserRegistered : AggregateEvent, IUserRegistered
             {}
         }
     }

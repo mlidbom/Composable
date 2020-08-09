@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Persistence.EventStore;
+using Composable.SystemCE.ReflectionCE;
 
 namespace Composable.Messaging.Events
 {
@@ -12,9 +13,60 @@ namespace Composable.Messaging.Events
     /// Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
     /// </summary>
     public class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
-        where TEvent : class
+        where TEvent : class, MessageTypes.IEvent
     {
-        readonly List<KeyValuePair<Type, Action<object>>> _handlers = new List<KeyValuePair<Type, Action<object>>>();
+        abstract class RegisteredHandler
+        {
+            internal abstract Action<object>? TryCreateHandlerFor(Type eventType);
+        }
+
+        class RegisteredHandler<THandledEvent> : RegisteredHandler
+            where THandledEvent : MessageTypes.IEvent
+        {
+            //Since handler has specified no preference for wrapper type the most generic of all will do and any wrapped event containing a matching event should be dispatched to this handler.
+            static readonly Type WrapperType = typeof(MessageTypes.IWrapperEvent<>).MakeGenericType(typeof(THandledEvent));
+            readonly Action<THandledEvent> _handler;
+            public RegisteredHandler(Action<THandledEvent> handler) => _handler = handler;
+            internal override Action<object>? TryCreateHandlerFor(Type eventType)
+            {
+                if(typeof(THandledEvent).IsAssignableFrom(eventType))
+                {
+                    return @event => _handler((THandledEvent)@event);
+                } else if(WrapperType.IsAssignableFrom(eventType))
+                {
+                    return @event => _handler((THandledEvent)((MessageTypes.IWrapperEvent<MessageTypes.IEvent>)@event).Event);;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
+        class RegisteredWrappedHandler<THandledWrapperEvent, TWrappedEvent> : RegisteredHandler
+            where TWrappedEvent : TEvent
+            where THandledWrapperEvent : MessageTypes.IWrapperEvent<TWrappedEvent>
+        {
+            static readonly Func<TWrappedEvent, THandledWrapperEvent> WrapperConstructor = Constructor.For<THandledWrapperEvent>.WithArguments<TWrappedEvent>.Instance;
+            readonly Action<THandledWrapperEvent> _handler;
+
+            public RegisteredWrappedHandler(Action<THandledWrapperEvent> handler) => _handler = handler;
+            internal override Action<object>? TryCreateHandlerFor(Type eventType)
+            {
+                if(typeof(THandledWrapperEvent).IsAssignableFrom(eventType))
+                {
+                    return @event => _handler((THandledWrapperEvent)@event);
+                } else if(typeof(TWrappedEvent).IsAssignableFrom(eventType))
+                {
+                    return @event => _handler(WrapperConstructor((TWrappedEvent)@event));
+                }else
+                {
+                    return null;
+                }
+            }
+        }
+
+        readonly List<RegisteredHandler> _handlers = new List<RegisteredHandler>();
 
         readonly List<Action<object>> _runBeforeHandlers = new List<Action<object>>();
         readonly List<Action<object>> _runAfterHandlers = new List<Action<object>>();
@@ -35,15 +87,22 @@ namespace Composable.Messaging.Events
             ///<summary>Registers a for any event that implements THandledEvent. All matching handlers will be called in the order they were registered.</summary>
             RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent => ForGenericEvent(handler);
 
+            RegistrationBuilder ForWrapped<TWrapperEvent, TWrappedEvent>(Action<TWrapperEvent> handler)
+                where TWrappedEvent : TEvent, MessageTypes.IEvent
+                where TWrapperEvent : MessageTypes.IWrapperEvent<TWrappedEvent>
+            {
+                _owner._handlers.Add(new RegisteredWrappedHandler<TWrapperEvent, TWrappedEvent>(handler));
+                _owner._totalHandlers++;
+                return this;
+            }
+
             ///<summary>Lets you register handlers for event interfaces that may be defined outside of the event hierarchy you specify with TEvent.
             /// Useful for listening to generic events such as IAggregateCreatedEvent or IAggregateDeletedEvent
             /// Be aware that the concrete event received MUST still actually inherit TEvent or there will be an InvalidCastException
             /// </summary>
-            RegistrationBuilder ForGenericEvent<THandledEvent>(Action<THandledEvent> handler)
+            RegistrationBuilder ForGenericEvent<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : MessageTypes.IEvent
             {
-                var eventType = typeof(THandledEvent);
-
-                _owner._handlers.Add(new KeyValuePair<Type, Action<object>>(eventType, e => handler((THandledEvent)e)));
+                _owner._handlers.Add(new RegisteredHandler<THandledEvent>(handler));
                 _owner._totalHandlers++;
                 return this;
             }
@@ -72,19 +131,15 @@ namespace Composable.Messaging.Events
 
             IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.ForGenericEvent<THandledEvent>(Action<THandledEvent> handler) => ForGenericEvent(handler);
 
-            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.BeforeHandlers<THandledEvent>(Action<THandledEvent> runBeforeHandlers)
-            {
-                return BeforeHandlers(e => runBeforeHandlers((THandledEvent)e));
-            }
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.BeforeHandlers<THandledEvent>(Action<THandledEvent> runBeforeHandlers) { return BeforeHandlers(e => runBeforeHandlers((THandledEvent)e)); }
 
-            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.AfterHandlers<THandledEvent>(Action<THandledEvent> runAfterHandlers)
-            {
-                return AfterHandlers(e => runAfterHandlers((THandledEvent)e));
-            }
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.AfterHandlers<THandledEvent>(Action<THandledEvent> runAfterHandlers) { return AfterHandlers(e => runAfterHandlers((THandledEvent)e)); }
 
             IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.IgnoreUnhandled<THandledEvent>() => IgnoreUnhandled<THandledEvent>();
 
             IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.For<THandledEvent>(Action<THandledEvent> handler) => For(handler);
+
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.ForWrapped<TWrapperEvent, TWrappedEvent>(Action<TWrapperEvent> handler) => ForWrapped<TWrapperEvent, TWrappedEvent>(handler);
 
             #endregion
         }
@@ -94,6 +149,7 @@ namespace Composable.Messaging.Events
         // ReSharper disable once StaticMemberInGenericType
         static readonly Action<object>[] NullHandlerList = Array.Empty<Action<object>>();
 
+
         Action<object>[] GetHandlers(Type type, bool validateHandlerExists = true)
         {
             if(_cachedTotalHandlers != _totalHandlers)
@@ -102,7 +158,7 @@ namespace Composable.Messaging.Events
                 _typeToHandlerCache = new Dictionary<Type, Action<object>[]>();
             }
 
-            if (_typeToHandlerCache.TryGetValue(type, out var arrayResult))
+            if(_typeToHandlerCache.TryGetValue(type, out var arrayResult))
             {
                 return arrayResult;
             }
@@ -110,17 +166,17 @@ namespace Composable.Messaging.Events
             var result = new List<Action<object>>();
             var hasFoundHandler = false;
 
-            for(var index = 0; index < _handlers.Count; index++)
+            foreach(var registeredHandler in _handlers)
             {
-                if(_handlers[index].Key.IsAssignableFrom(type))
+                var handler = registeredHandler.TryCreateHandlerFor(type);
+                if(handler != null)
                 {
                     if(!hasFoundHandler)
                     {
                         result.AddRange(_runBeforeHandlers);
                         hasFoundHandler = true;
                     }
-
-                    result.Add(_handlers[index].Value);
+                    result.Add(handler);
                 }
             }
 

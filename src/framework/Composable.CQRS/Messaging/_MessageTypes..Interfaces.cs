@@ -1,4 +1,5 @@
 ﻿using System;
+
 // ReSharper disable UnusedTypeParameter
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable RedundantNameQualifier
@@ -10,24 +11,37 @@ namespace Composable.Messaging
         ///<summary>Any object that is used to transfer data from a sender to a receiver through a messaging infrastructure.</summary>
         public interface IMessage {}
 
-        public interface IForbidTransactionalRemoteSender : IMessage { }
-        public interface IRequireTransactionalReceiver : IMessage { }
-        public interface IRequireTransactionalSender : IMessage{ }
+        public interface IForbidTransactionalRemoteSender : IMessage {}
+        public interface IRequireTransactionalReceiver : IMessage {}
+        public interface IRequireTransactionalSender : IMessage {}
 
         ///<summary>Informs the receiver that something has happened.</summary>
-        public interface IEvent : IMessage { }
+        public interface IEvent : IMessage {}
 
-        public interface IHasReturnValue : IMessage
-        {}
+        //Enables flexible inheritance and composition
+        //Todo: IWrapperEvent name is not great...
+        public interface IWrapperEvent<out TEventInterface> : IEvent
+            where TEventInterface : IEvent
+        {
+            TEventInterface Event { get; }
+        }
+
+        public interface IWrapperEvent<TWrapperEventClass, out TEventInterface> : IWrapperEvent<TEventInterface>
+            where TEventInterface : IEvent
+            where TWrapperEventClass : IWrapperEvent<TWrapperEventClass, TEventInterface>
+        {
+        }
+
+        public interface IHasReturnValue : IMessage {}
 
         /// <summary>Instructs the receiver to perform an action.</summary>
-        public interface ICommand : IRequireTransactionalReceiver { }
-        public interface ICommand<out TResult> : ICommand, IHasReturnValue{ }
+        public interface ICommand : IRequireTransactionalReceiver {}
+        public interface ICommand<out TResult> : ICommand, IHasReturnValue {}
 
-        public interface IQuery : IForbidTransactionalRemoteSender, IHasReturnValue { }
+        public interface IQuery : IForbidTransactionalRemoteSender, IHasReturnValue {}
 
         ///<summary>An instructs the receiver to return a result based upon the data in the query.</summary>
-        public interface IQuery<TResult> : MessageTypes.IQuery { }
+        public interface IQuery<TResult> : MessageTypes.IQuery {}
 
         ///<summary>Many resources in a hypermedia API do not actually need access to backend data. The data in the query is sufficient to create the result. For such queries implement this interface. That way no network roundtrip etc is required to perform the query. Greatly enhancing performance</summary>
         public interface ICreateMyOwnResultQuery<TResult> : IQuery<TResult>
@@ -38,12 +52,11 @@ namespace Composable.Messaging
         public static partial class StrictlyLocal
         {
             public interface IMessage {}
-            public interface IEvent : MessageTypes.IEvent, StrictlyLocal.IMessage { }
-            public interface ICommand : MessageTypes.ICommand, IRequireTransactionalSender, StrictlyLocal.IMessage { }
-            public interface ICommand<TResult> : MessageTypes.ICommand<TResult>, IRequireTransactionalSender, StrictlyLocal.ICommand, StrictlyLocal.IMessage  { }
+            public interface IEvent : MessageTypes.IEvent, StrictlyLocal.IMessage {}
+            public interface ICommand : MessageTypes.ICommand, IRequireTransactionalSender, StrictlyLocal.IMessage {}
+            public interface ICommand<TResult> : MessageTypes.ICommand<TResult>, IRequireTransactionalSender, StrictlyLocal.ICommand, StrictlyLocal.IMessage {}
             public interface IQuery<TQuery, TResult> : MessageTypes.IQuery<TResult>, StrictlyLocal.IMessage
-            where TQuery : IQuery<TQuery, TResult>
-            { }
+                where TQuery : IQuery<TQuery, TResult> {}
         }
 
         public static partial class Remotable
@@ -59,25 +72,23 @@ namespace Composable.Messaging
             public interface IMessage : MessageTypes.IMessage {}
             public interface IEvent : Remotable.IMessage, MessageTypes.IEvent {}
             public interface IRequireRemoteResponse : Remotable.IMessage {}
-            public interface ICommand : MessageTypes.ICommand, Remotable.IMessage { }
-            public interface ICommand<out TResult> : ICommand, MessageTypes.ICommand<TResult>, IRequireRemoteResponse { }
+            public interface ICommand : MessageTypes.ICommand, Remotable.IMessage {}
+            public interface ICommand<out TResult> : ICommand, MessageTypes.ICommand<TResult>, IRequireRemoteResponse {}
 
             public static partial class NonTransactional
             {
                 public interface IMessage : IForbidTransactionalRemoteSender, Remotable.IMessage {}
-                public interface IQuery : Remotable.IRequireRemoteResponse, NonTransactional.IMessage, MessageTypes.IQuery { }
-                public interface IQuery<TResult> : NonTransactional.IQuery, MessageTypes.IQuery<TResult> { }
+                public interface IQuery : Remotable.IRequireRemoteResponse, NonTransactional.IMessage, MessageTypes.IQuery {}
+                public interface IQuery<TResult> : NonTransactional.IQuery, MessageTypes.IQuery<TResult> {}
 
-                public interface ICreateMyOwnResultQuery<TResult> : IQuery<TResult>, MessageTypes.ICreateMyOwnResultQuery<TResult>
-                {
-                }
+                public interface ICreateMyOwnResultQuery<TResult> : IQuery<TResult>, MessageTypes.ICreateMyOwnResultQuery<TResult> {}
             }
 
             public static partial class AtMostOnce
             {
                 //todo: dangerous: Validate the design of implementing classes. A default constructor should result in DeduplicationId being Guid.Empty
-                public interface ICommand : IAtMostOnceMessage, Remotable.ICommand, IRequireRemoteResponse, IForbidTransactionalRemoteSender { }
-                public interface ICommand<out TResult> : AtMostOnce.ICommand, Remotable.ICommand<TResult> { }
+                public interface ICommand : IAtMostOnceMessage, Remotable.ICommand, IRequireRemoteResponse, IForbidTransactionalRemoteSender {}
+                public interface ICommand<out TResult> : AtMostOnce.ICommand, Remotable.ICommand<TResult> {}
             }
 
             public static partial class ExactlyOnce
@@ -85,8 +96,8 @@ namespace Composable.Messaging
                 public interface IMessage : IRequireAllOperationsToBeTransactional, IAtMostOnceMessage, Remotable.IMessage {}
                 public interface IRequireAllOperationsToBeTransactional : IRequireTransactionalSender, IRequireTransactionalReceiver {}
 
-                public interface IEvent : Remotable.IEvent, ExactlyOnce.IMessage { }
-                public interface ICommand : Remotable.ICommand, ExactlyOnce.IMessage { }
+                public interface IEvent : Remotable.IEvent, ExactlyOnce.IMessage {}
+                public interface ICommand : Remotable.ICommand, ExactlyOnce.IMessage {}
             }
         }
     }

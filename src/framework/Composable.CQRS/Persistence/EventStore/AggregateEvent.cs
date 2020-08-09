@@ -1,8 +1,17 @@
 ﻿using System;
 using Composable.DDD;
+using Composable.Messaging;
 
 namespace Composable.Persistence.EventStore
 {
+    public class AggregateEvent<TWrapperEventClass, TBaseEventInterface> : MessageTypes.WrapperEvent<TWrapperEventClass, TBaseEventInterface>
+
+        where TBaseEventInterface : IAggregateEvent, MessageTypes.IWrapperEvent<TBaseEventInterface>
+        where TWrapperEventClass : MessageTypes.IWrapperEvent<TWrapperEventClass, TBaseEventInterface>
+    {
+        public AggregateEvent(TBaseEventInterface @event) : base(@event) {}
+    }
+ 
     public abstract class AggregateEvent : ValueObject<AggregateEvent>, IAggregateEvent
     {
         protected AggregateEvent()

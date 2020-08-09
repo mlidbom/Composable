@@ -12,6 +12,14 @@ namespace Composable.Messaging
 {
     public static partial class MessageTypes
     {
+        public class WrapperEvent<TWrapperEventClass, TEventInterface> : IWrapperEvent<TWrapperEventClass, TEventInterface>
+            where TEventInterface : IWrapperEvent<TEventInterface>
+            where TWrapperEventClass : IWrapperEvent<TWrapperEventClass, TEventInterface>
+        {
+            public WrapperEvent(TEventInterface @event) => Event = @event;
+            public TEventInterface Event { get; }
+        }
+
         public partial class StrictlyLocal
         {
             public static class Queries

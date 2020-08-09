@@ -1,13 +1,13 @@
 ﻿using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.SystemCE;
-using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using Composable.SystemCE.ReflectionCE;
 using Composable.SystemCE.ReflectionCE.EmitCE;
 
 namespace ScratchPad.ReflectionEmit
@@ -28,13 +28,11 @@ namespace ScratchPad.ReflectionEmit
             //instantiate a concrete version.
             Type wrapperEventIUserEvent = genericWrapperEventType.MakeGenericType(typeof(IUserEvent));
 
-            var instance = (IUserWrapperEvent<IUserEvent>)Activator.CreateInstance(wrapperEventIUserEvent).NotNull();
-
-            var wrappedProperty = wrapperEventIUserEvent.GetProperty(nameof(MessageTypes.IWrapperEvent<IAggregateEvent>.Event)).NotNull();
+            var constructor = (Func<IUserEvent, IUserWrapperEvent<IUserEvent>>)Constructor.Compile.ForReturnType(wrapperEventIUserEvent).WithArgumentTypes(typeof(IUserEvent));
 
             var userEvent = new UserEvent();
-            instance.Event.Should().Be(null);
-            wrappedProperty.SetValue(instance, userEvent);
+            var instance = constructor(userEvent);
+
             instance.Event.Should().Be(userEvent);
         }
 
@@ -61,6 +59,8 @@ namespace ScratchPad.ReflectionEmit
                 wrappedEventTypeParameter.SetInterfaceConstraints(requiredEventInterface);
 
                 var (wrappedEventField, _) = wrapperEventBuilder.ImplementProperty(nameof(MessageTypes.IWrapperEvent<IAggregateEvent>.Event), wrappedEventTypeParameter);
+
+                wrapperEventBuilder.ImplementConstructor(wrappedEventField);
 
                 return wrapperEventBuilder.CreateType().NotNull();
             });

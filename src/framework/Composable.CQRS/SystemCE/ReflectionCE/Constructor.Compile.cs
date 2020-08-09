@@ -50,7 +50,7 @@ namespace Composable.SystemCE.ReflectionCE
                 {
                     var delegateTypeGenericArgumentTypes = delegateType.GetGenericArguments();
                     var instanceType = delegateTypeGenericArgumentTypes[^1];
-                    var constructorArgumentTypes = delegateTypeGenericArgumentTypes.Length > 1 ? delegateTypeGenericArgumentTypes.Take(delegateTypeGenericArgumentTypes.Length - 1).ToArray() : Type.EmptyTypes;
+                    var constructorArgumentTypes = delegateTypeGenericArgumentTypes[..^1];
 
                     ConstructorInfo constructor = Contract.ReturnNotNull(instanceType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, types: constructorArgumentTypes, modifiers: null));
                     if (constructor == null)

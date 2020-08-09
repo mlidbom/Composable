@@ -40,6 +40,20 @@ namespace Composable.SystemCE.ReflectionCE.EmitCE
             return (fieldBuilder, propertyBuilder);
         }
 
+        public static void ImplementConstructor(this TypeBuilder typeBuilder, FieldInfo field)
+        {
+            Type[] constructorArgs = {field.FieldType};
+            var constructorBuilder = typeBuilder.DefineConstructor(MethodAttributes.Public,
+                                                                     CallingConventions.Standard,
+                                                                     constructorArgs);
+            // Generate IL for the method. The constructor stores its argument in the private field.
+            var ilGenerator = constructorBuilder.GetILGenerator();
+            ilGenerator.Emit(OpCodes.Ldarg_0);
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            ilGenerator.Emit(OpCodes.Stfld, field);
+            ilGenerator.Emit(OpCodes.Ret);
+        }
+
         static void ImplementSetMethod(this TypeBuilder typeBuilder, PropertyBuilder propertyBuilder, FieldBuilder fieldBuilder)
         {
             var setMethodBuilder = typeBuilder.DefineMethod(name: $"set_{propertyBuilder.Name}",

@@ -76,7 +76,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             static TransportMessageType GetMessageTypeEnum(Type messageType)
             {
-                if(typeof(MessageTypes.Remotable.NonTransactional.IQuery).IsAssignableFrom(messageType))
+                if(typeof(MessageTypes.Remotable.NonTransactional.IQuery<object>).IsAssignableFrom(messageType))
                     return TransportMessageType.NonTransactionalQuery;
                 if(typeof(MessageTypes.Remotable.AtMostOnce.ICommand<object>).IsAssignableFrom(messageType))
                     return TransportMessageType.AtMostOnceCommandWithReturnValue;
@@ -185,7 +185,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     response.Append(incoming.Client);
                     response.Append(incoming.MessageId);
-                    if(incoming.Is<MessageTypes.IHasReturnValue>())
+                    if(incoming.Is<MessageTypes.IHasReturnValue<object>>())
                     {
                         response.Append((int)ResponseType.FailureExpectedReturnValue);
                     } else

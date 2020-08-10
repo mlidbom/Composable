@@ -33,8 +33,8 @@ namespace Composable.Messaging.Buses.Implementation
         IInboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command);
         IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
 
-        Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand);
-        Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand);
+        Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command);
+        Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command);
         Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
     }
 
@@ -60,7 +60,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         Action<MessageTypes.ICommand> GetCommandHandler(Type commandType);
         Func<MessageTypes.ICommand, object> GetCommandHandlerWithReturnValue(Type commandType);
-        Func<MessageTypes.IQuery, object> GetQueryHandler(Type commandType);
+        Func<MessageTypes.IQuery<object>, object> GetQueryHandler(Type commandType);
         IReadOnlyList<Action<MessageTypes.IEvent>> GetEventHandlers(Type eventType);
 
         Func<MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>, TResult> GetQueryHandler<TQuery, TResult>(MessageTypes.StrictlyLocal.IQuery<TQuery, TResult> query) where TQuery : MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>;

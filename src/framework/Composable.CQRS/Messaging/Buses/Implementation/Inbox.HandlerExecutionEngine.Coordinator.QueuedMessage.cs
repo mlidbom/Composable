@@ -123,7 +123,8 @@ namespace Composable.Messaging.Buses.Implementation
                             Implementation.TransportMessage.TransportMessageType.NonTransactionalQuery => actualMessage =>
                             {
                                 var queryHandler = _handlerRegistry.GetQueryHandler(actualMessage.GetType());
-                                return queryHandler((MessageTypes.IQuery)actualMessage);
+                                //todo: Double dispatch instead of casting?
+                                return queryHandler((MessageTypes.IQuery<object>)actualMessage);
                             },
                             _ => throw new ArgumentOutOfRangeException()
                         };

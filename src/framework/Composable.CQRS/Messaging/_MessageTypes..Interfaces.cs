@@ -17,8 +17,7 @@ namespace Composable.Messaging
 
         public interface IRequireResponse : MessageTypes.IMessage {}
         public interface ICannotBeSentRemotelyFromWithinTransaction : MessageTypes.IMessage {}
-        public interface IHasReturnValue : MessageTypes.IRequireResponse, ICannotBeSentRemotelyFromWithinTransaction {}
-        public interface IHasReturnValue<out TResult> : MessageTypes.IHasReturnValue {}
+        public interface IHasReturnValue<out TResult> : MessageTypes.IRequireResponse, ICannotBeSentRemotelyFromWithinTransaction {}
 
         ///<summary>Informs the receiver that something has happened.</summary>
         public interface IEvent : MessageTypes.IMessage {}
@@ -33,12 +32,10 @@ namespace Composable.Messaging
 
         //Todo: Should there really be no commands that may have non-transactional receivers?
         public interface ICommand : MessageTypes.IRequireTransactionalReceiver {}
-        public interface ICommand<out TResult> : MessageTypes.ICommand, MessageTypes.IHasReturnValue {}
-
-        public interface IQuery : MessageTypes.ICannotBeSentRemotelyFromWithinTransaction, MessageTypes.IHasReturnValue {}
+        public interface ICommand<out TResult> : MessageTypes.ICommand, MessageTypes.IHasReturnValue<TResult> {}
 
         ///<summary>An instructs the receiver to return a result based upon the data in the query.</summary>
-        public interface IQuery<out TResult> : MessageTypes.IQuery {}
+        public interface IQuery<out TResult> : MessageTypes.IMessage {}
 
         ///<summary>Many resources in a hypermedia API do not actually need access to backend data. The data in the query is sufficient to create the result. For such queries implement this interface. That way no network roundtrip etc is required to perform the query. Greatly enhancing performance</summary>
         public interface ICreateMyOwnResultQuery<out TResult> : MessageTypes.IQuery<TResult>
@@ -66,8 +63,7 @@ namespace Composable.Messaging
             public static partial class NonTransactional
             {
                 public interface IMessage : ICannotBeSentRemotelyFromWithinTransaction, Remotable.IMessage {}
-                public interface IQuery : NonTransactional.IMessage, MessageTypes.IQuery {}
-                public interface IQuery<out TResult> : NonTransactional.IQuery, MessageTypes.IQuery<TResult>, MessageTypes.IHasReturnValue<TResult> {}
+                public interface IQuery<out TResult> : NonTransactional.IMessage, MessageTypes.IQuery<TResult>, MessageTypes.IHasReturnValue<TResult> {}
 
                 public interface ICreateMyOwnResultQuery<out TResult> : IQuery<TResult>, MessageTypes.ICreateMyOwnResultQuery<TResult> {}
             }

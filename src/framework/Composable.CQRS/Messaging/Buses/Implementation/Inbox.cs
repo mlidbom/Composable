@@ -102,7 +102,7 @@ namespace Composable.Messaging.Buses.Implementation
                                     Assert.Result.Assert(dispatchResult.IsCompleted);
                                     try
                                     {
-                                        if(message is MessageTypes.IHasReturnValue)
+                                        if(message is MessageTypes.IHasReturnValue<object>)
                                         {
                                             var successResponse = transportMessage.CreateSuccessResponseWithData(Contract.ReturnNotNull(dispatchResult.Result));
                                             _responseQueue.Enqueue(successResponse);

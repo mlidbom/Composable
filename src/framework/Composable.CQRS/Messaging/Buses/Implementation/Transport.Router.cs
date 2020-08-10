@@ -67,7 +67,7 @@ namespace Composable.Messaging.Buses.Implementation
                     ? connection
                     : throw new NoHandlerForMessageTypeException(command.GetType());
 
-            internal IInboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.NonTransactional.IQuery query) =>
+            internal IInboxConnection ConnectionToHandlerFor<TQuery>(MessageTypes.Remotable.NonTransactional.IQuery<TQuery> query) =>
                 _queryHandlerRoutes.TryGetValue(query.GetType(), out var connection)
                     ? connection
                     : throw new NoHandlerForMessageTypeException(query.GetType());
@@ -88,7 +88,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             static bool IsRemoteCommand(Type type) => typeof(MessageTypes.Remotable.ICommand).IsAssignableFrom(type);
             static bool IsRemoteEvent(Type type) => typeof(MessageTypes.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(type);
-            static bool IsRemoteQuery(Type type) => typeof(MessageTypes.Remotable.NonTransactional.IQuery).IsAssignableFrom(type);
+            static bool IsRemoteQuery(Type type) => typeof(MessageTypes.Remotable.NonTransactional.IQuery<object>).IsAssignableFrom(type);
         }
     }
 }

@@ -80,7 +80,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public Action<MessageTypes.ICommand> GetCommandHandler(Type commandType) => _commandHandlers[commandType];
 
-        public Func<MessageTypes.IQuery, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType].HandlerMethod;
+        public Func<MessageTypes.IQuery<object>, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType].HandlerMethod;
 
         public IReadOnlyList<Action<MessageTypes.IEvent>> GetEventHandlers(Type eventType)
         {

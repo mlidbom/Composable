@@ -45,7 +45,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                      ? _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
                                                      {
                                                          var innerResult = _messageTask(message);
-                                                         if(message is MessageTypes.Remotable.IAtMostOnceMessage)
+                                                         if(message is MessageTypes.Remotable.AtMostOnce.IMessage)
                                                          {
                                                              _messageStorage.MarkAsSucceeded(TransportMessage);
                                                          }
@@ -60,14 +60,14 @@ namespace Composable.Messaging.Buses.Implementation
                                 }
                                 catch(Exception exception)
                                 {
-                                    if(message is MessageTypes.Remotable.IAtMostOnceMessage)
+                                    if(message is MessageTypes.Remotable.AtMostOnce.IMessage)
                                     {
                                         _messageStorage.RecordException(TransportMessage, exception);
                                     }
 
                                     if(!retryPolicy.TryAwaitNextRetryTimeForException(exception))
                                     {
-                                        if(message is MessageTypes.Remotable.IAtMostOnceMessage)
+                                        if(message is MessageTypes.Remotable.AtMostOnce.IMessage)
                                         {
                                             _messageStorage.MarkAsFailed(TransportMessage);
                                         }
@@ -123,7 +123,8 @@ namespace Composable.Messaging.Buses.Implementation
                             Implementation.TransportMessage.TransportMessageType.NonTransactionalQuery => actualMessage =>
                             {
                                 var queryHandler = _handlerRegistry.GetQueryHandler(actualMessage.GetType());
-                                return queryHandler((MessageTypes.IQuery)actualMessage);
+                                //todo: Double dispatch instead of casting?
+                                return queryHandler((MessageTypes.IQuery<object>)actualMessage);
                             },
                             _ => throw new ArgumentOutOfRangeException()
                         };

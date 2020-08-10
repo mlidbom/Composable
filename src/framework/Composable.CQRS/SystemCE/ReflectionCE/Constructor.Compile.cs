@@ -33,7 +33,7 @@ namespace Composable.SystemCE.ReflectionCE
                     return new CompilerBuilder<TInstance>(actualType);
                 }
 
-                Delegate WithArgumentTypes(Type argument1Type) => CompileForSignature(typeof(Func<,>).MakeGenericType(argument1Type, _typeToConstruct));
+                internal Delegate WithArgumentTypes(Type argument1Type) => CompileForSignature(typeof(Func<,>).MakeGenericType(argument1Type, _typeToConstruct));
                 Delegate WithArgumentTypes(Type argument1Type, Type argument2Type) => CompileForSignature(typeof(Func<,,>).MakeGenericType(argument1Type, argument2Type, _typeToConstruct));
                 Delegate WithArgumentTypes(Type argument1Type, Type argument2Type, Type argument3Type) => CompileForSignature(typeof(Func<,,,>).MakeGenericType(argument1Type, argument2Type, argument3Type, _typeToConstruct));
                 Delegate WithArgumentTypes(Type argument1Type, Type argument2Type, Type argument3Type, Type argument4Type) => CompileForSignature(typeof(Func<,,,>).MakeGenericType(argument1Type, argument2Type, argument3Type, argument4Type, _typeToConstruct));
@@ -50,7 +50,7 @@ namespace Composable.SystemCE.ReflectionCE
                 {
                     var delegateTypeGenericArgumentTypes = delegateType.GetGenericArguments();
                     var instanceType = delegateTypeGenericArgumentTypes[^1];
-                    var constructorArgumentTypes = delegateTypeGenericArgumentTypes.Length > 1 ? delegateTypeGenericArgumentTypes.Take(delegateTypeGenericArgumentTypes.Length - 1).ToArray() : Type.EmptyTypes;
+                    var constructorArgumentTypes = delegateTypeGenericArgumentTypes[..^1];
 
                     ConstructorInfo constructor = Contract.ReturnNotNull(instanceType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, types: constructorArgumentTypes, modifiers: null));
                     if (constructor == null)

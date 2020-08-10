@@ -76,7 +76,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             static TransportMessageType GetMessageTypeEnum(Type messageType)
             {
-                if(typeof(MessageTypes.Remotable.NonTransactional.IQuery).IsAssignableFrom(messageType))
+                if(typeof(MessageTypes.Remotable.NonTransactional.IQuery<object>).IsAssignableFrom(messageType))
                     return TransportMessageType.NonTransactionalQuery;
                 if(typeof(MessageTypes.Remotable.AtMostOnce.ICommand<object>).IsAssignableFrom(messageType))
                     return TransportMessageType.AtMostOnceCommandWithReturnValue;
@@ -119,7 +119,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public static OutGoing Create(MessageTypes.Remotable.IMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
-                var messageId = (message as MessageTypes.Remotable.IAtMostOnceMessage)?.MessageId ?? Guid.NewGuid();
+                var messageId = (message as MessageTypes.Remotable.AtMostOnce.IMessage)?.MessageId ?? Guid.NewGuid();
                 //performance: detect implementation of BinarySerialized and use that when available
                 var body = serializer.SerializeMessage(message);
                 return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is MessageTypes.Remotable.ExactlyOnce.IMessage);
@@ -185,7 +185,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     response.Append(incoming.Client);
                     response.Append(incoming.MessageId);
-                    if(incoming.Is<MessageTypes.IHasReturnValue>())
+                    if(incoming.Is<MessageTypes.IHasReturnValue<object>>())
                     {
                         response.Append((int)ResponseType.FailureExpectedReturnValue);
                     } else

@@ -21,6 +21,7 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
   2. We are releasing a lock and see that others have timed out waiting for this lock.
     */
 
+#pragma warning disable CA1001 // Class owns disposable fields but is not disposable
     ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
     public partial class MonitorCE
     {

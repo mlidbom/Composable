@@ -14,7 +14,6 @@ namespace Composable.Messaging
                                                             new CannotBeBothEventAndQuery(),
                                                             new CannotBeBothRemotableAndStrictlyLocal(),
                                                             new CannotForbidAndRequireTransactionalSender(),
-                                                            new ConcreteQueryMustImplementGenericQueryInterface(),
                                                             new AtMostOnceCommandDefaultConstructorMustNotSetADeduplicationId()
                                                         };
 
@@ -64,32 +63,19 @@ namespace Composable.Messaging
 
         class MutuallyExclusiveInterfaces<TInterface1, TInterface2> : SimpleMessageTypeDesignRule
         {
-            protected override bool IsInvalid(Type type) => type.Implements<TInterface1>() && type.Implements<TInterface2>();
+            protected override bool IsInvalid(Type type) => typeof(TInterface1).IsAssignableFrom(type) && typeof(TInterface2).IsAssignableFrom(type);
             protected override string CreateMessage(Type type) => $"{type.GetFullNameCompilable()} implements both {typeof(TInterface1).GetFullNameCompilable()} and {typeof(TInterface2).GetFullNameCompilable()}";
         }
 
         class CannotBeBothCommandAndEvent : MutuallyExclusiveInterfaces<MessageTypes.ICommand, MessageTypes.IEvent> {}
 
-        class CannotBeBothCommandAndQuery : MutuallyExclusiveInterfaces<MessageTypes.ICommand, MessageTypes.IQuery> {}
+        class CannotBeBothCommandAndQuery : MutuallyExclusiveInterfaces<MessageTypes.ICommand, MessageTypes.IQuery<object>> {}
 
-        class CannotBeBothEventAndQuery : MutuallyExclusiveInterfaces<MessageTypes.IEvent, MessageTypes.IQuery> {}
+        class CannotBeBothEventAndQuery : MutuallyExclusiveInterfaces<MessageTypes.IEvent, MessageTypes.IQuery<object>> {}
 
         class CannotBeBothRemotableAndStrictlyLocal : MutuallyExclusiveInterfaces<MessageTypes.Remotable.IMessage, MessageTypes.StrictlyLocal.IMessage> {}
 
-        class CannotForbidAndRequireTransactionalSender :  MutuallyExclusiveInterfaces<MessageTypes.IRequireTransactionalSender, MessageTypes.IForbidTransactionalRemoteSender> {}
-
-
-        class ConcreteQueryMustImplementGenericQueryInterface : MessageTypeDesignRule
-        {
-            internal override void AssertFulfilledBy(Type type)
-            {
-                if(type.Implements<MessageTypes.IQuery>() && !type.IsAbstract && !type.Implements(typeof(MessageTypes.IQuery<>)))
-                {
-                    throw new MessageTypeDesignViolationException($"{type.GetFullNameCompilable()} implements only: {typeof(MessageTypes.IQuery).GetFullNameCompilable()}. Concrete classes must implement {typeof(MessageTypes.IQuery<>).GetFullNameCompilable()}");
-
-                }
-            }
-        }
+        class CannotForbidAndRequireTransactionalSender :  MutuallyExclusiveInterfaces<MessageTypes.IRequireTransactionalSender, MessageTypes.ICannotBeSentRemotelyFromWithinTransaction> {}
 
         class AtMostOnceCommandDefaultConstructorMustNotSetADeduplicationId : MessageTypeDesignRule
         {
@@ -102,9 +88,9 @@ namespace Composable.Messaging
                         var instance = (MessageTypes.Remotable.AtMostOnce.ICommand)Constructor.CreateInstance(type);
                         if(instance.MessageId != Guid.Empty)
                         {
-                            throw new MessageTypeDesignViolationException($@"The default constructor of {type.GetFullNameCompilable()} sets {nameof(MessageTypes.Remotable.IAtMostOnceMessage)}.{nameof(MessageTypes.Remotable.IAtMostOnceMessage.MessageId)} to a value other than Guid.Empty.
+                            throw new MessageTypeDesignViolationException($@"The default constructor of {type.GetFullNameCompilable()} sets {nameof(MessageTypes.Remotable.AtMostOnce.IMessage)}.{nameof(MessageTypes.Remotable.AtMostOnce.IMessage.MessageId)} to a value other than Guid.Empty.
 Since {type.GetFullNameCompilable()} is an {typeof(MessageTypes.Remotable.AtMostOnce.ICommand).GetFullNameCompilable()} this is very likely to break the exactly once guarantee.
-For instance: If you bind this command in a web UI and forget to bind the {nameof(MessageTypes.Remotable.IAtMostOnceMessage.MessageId)} then the infrastructure will be unable to realize that this is NOT the correct originally created {nameof(MessageTypes.Remotable.IAtMostOnceMessage.MessageId)}.
+For instance: If you bind this command in a web UI and forget to bind the {nameof(MessageTypes.Remotable.AtMostOnce.IMessage.MessageId)} then the infrastructure will be unable to realize that this is NOT the correct originally created {nameof(MessageTypes.Remotable.AtMostOnce.IMessage.MessageId)}.
 This in turn means that if your user clicks multiple times the command may well be both sent and handled multiple times. Thus breaking the exactly once guarantee. The same thing if a Single Page Application receives an HTTP timeout and retries the command. 
 And another example: If you make the setter private many serialization technologies will not be able to maintain the value of the property. But since you used this constructor the property will have a value. A new one each time the instance is deserialized. Again breaking the at most once guarantee.
 ");

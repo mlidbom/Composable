@@ -18,7 +18,9 @@ namespace Composable.Testing
                     var storageProviderName = FindDimensions.Match(GetTestName()).Groups[1].Value;
                     if(Enum.TryParse(storageProviderName, out DependencyInjection.PersistenceLayer provider)) return provider;
 
+#pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
                     throw new Exception($"Failed to parse PersistenceLayerProvider from test environment. Value was: {storageProviderName}");
+#pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
                 }
             }
 
@@ -67,7 +69,9 @@ namespace Composable.Testing
                     var containerName = FindDimensions.Match(GetTestName()).Groups[2].Value;
                     if(!Enum.TryParse(containerName, out DependencyInjection.DIContainer provider))
                     {
+#pragma warning disable CA1065 // Do not raise exceptions in unexpected locations
                         throw new Exception($"Failed to parse DIContainer from test environment. Value was: {containerName}");
+#pragma warning restore CA1065 // Do not raise exceptions in unexpected locations
                     }
 
                     return provider;

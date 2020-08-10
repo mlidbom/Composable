@@ -9,7 +9,7 @@ namespace Composable.Persistence.EventStore.PersistenceLayer
             EventJson = eventAsJson;
             EventType = eventType;
 
-            EventId = @event.EventId;
+            EventId = @event.MessageId;
             AggregateVersion = @event.AggregateVersion;
             AggregateId = @event.AggregateId;
             UtcTimeStamp = @event.UtcTimeStamp;
@@ -23,7 +23,7 @@ namespace Composable.Persistence.EventStore.PersistenceLayer
             EventJson = eventAsJson;
             EventType = typeId;
 
-            EventId = @event.EventId;
+            EventId = @event.MessageId;
             AggregateVersion = @event.AggregateVersion;
             AggregateId = @event.AggregateId;
             UtcTimeStamp = @event.UtcTimeStamp;

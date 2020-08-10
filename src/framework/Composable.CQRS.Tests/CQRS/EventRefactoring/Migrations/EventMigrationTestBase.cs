@@ -229,7 +229,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                                    config => config.RespectingRuntimeTypes()
                                                    .WithStrictOrdering()
                                                    .ComparingByMembers<AggregateEvent>()
-                                                   .Excluding(@event => @event.EventId));
+                                                   .Excluding(@event => @event.MessageId));
             }
             catch(Exception)
             {

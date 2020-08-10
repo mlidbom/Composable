@@ -84,7 +84,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 {
                     e.NewEvent.AggregateVersion = _inspectedEvent!.AggregateVersion + index;
 
-                    e.StorageInformation.RefactoringInformation = AggregateEventRefactoringInformation.Replaces(_inspectedEvent.EventId);
+                    e.StorageInformation.RefactoringInformation = AggregateEventRefactoringInformation.Replaces(_inspectedEvent.MessageId);
                     e.StorageInformation.EffectiveVersion = _inspectedEvent.AggregateVersion + index;
 
                     e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
@@ -132,7 +132,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                     {
                         e.NewEvent.AggregateVersion = _inspectedEvent.AggregateVersion + index;
 
-                        e.StorageInformation.RefactoringInformation = AggregateEventRefactoringInformation.InsertAfter(_lastEventInActualStream!.EventId);
+                        e.StorageInformation.RefactoringInformation = AggregateEventRefactoringInformation.InsertAfter(_lastEventInActualStream!.MessageId);
                         e.StorageInformation.EffectiveVersion = _inspectedEvent.AggregateVersion + index;
 
                         e.NewEvent.AggregateId = _inspectedEvent.AggregateId;
@@ -146,7 +146,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                     {
                         e.NewEvent.AggregateVersion = _inspectedEvent!.AggregateVersion + index;
 
-                        e.StorageInformation.RefactoringInformation = AggregateEventRefactoringInformation.InsertBefore(_inspectedEvent!.EventId);
+                        e.StorageInformation.RefactoringInformation = AggregateEventRefactoringInformation.InsertBefore(_inspectedEvent!.MessageId);
                         e.StorageInformation.EffectiveVersion = _inspectedEvent.AggregateVersion + index;
 
                         e.NewEvent.AggregateId = _inspectedEvent.AggregateId;

@@ -100,7 +100,7 @@ namespace Composable.Persistence.EventStore
             var @event = (AggregateEvent)_serializer.Deserialize(eventType: _typeMapper.GetType(new TypeId(eventDataRowRow.EventType)), json: eventDataRowRow.EventJson);
             @event.AggregateId = eventDataRowRow.AggregateId;
             @event.AggregateVersion = eventDataRowRow.AggregateVersion;
-            @event.EventId = eventDataRowRow.EventId;
+            @event.MessageId = eventDataRowRow.EventId;
             @event.UtcTimeStamp = eventDataRowRow.UtcTimeStamp;
             return @event;
         }
@@ -290,14 +290,14 @@ AggregateIds:
         void FixManualVersions(AggregateEventWithRefactoringInformation[] originalHistory, AggregateEvent[] newHistory, IReadOnlyList<List<EventDataRow>> refactorings)
         {
             var versionUpdates = new List<VersionSpecification>();
-            var replacedOrRemoved = originalHistory.Where(@this => newHistory.None(@event => @event.EventId == @this.Event.EventId)).ToList();
-            versionUpdates.AddRange(replacedOrRemoved.Select(@this => new VersionSpecification(@this.Event.EventId, -@this.StorageInformation.EffectiveVersion)));
+            var replacedOrRemoved = originalHistory.Where(@this => newHistory.None(@event => @event.MessageId == @this.Event.MessageId)).ToList();
+            versionUpdates.AddRange(replacedOrRemoved.Select(@this => new VersionSpecification(@this.Event.MessageId, -@this.StorageInformation.EffectiveVersion)));
 
-            var replacedOrRemoved2 = refactorings.SelectMany(@this =>@this).Where(@this => newHistory.None(@event => @event.EventId == @this.EventId));
+            var replacedOrRemoved2 = refactorings.SelectMany(@this =>@this).Where(@this => newHistory.None(@event => @event.MessageId == @this.EventId));
             versionUpdates.AddRange(replacedOrRemoved2.Select(@this => new VersionSpecification(@this.EventId, -@this.StorageInformation.EffectiveVersion)));
 
             //Performance: Filter out rows where the new value equals the old value. We don't want to go updating every event in every refactored aggregate if only a few, or none, have actually changed.
-            versionUpdates.AddRange(newHistory.Select((@this , index) => new VersionSpecification(@this.EventId, index + 1)));
+            versionUpdates.AddRange(newHistory.Select((@this , index) => new VersionSpecification(@this.MessageId, index + 1)));
 
             _persistenceLayer.UpdateEffectiveVersions(versionUpdates);
         }
@@ -310,7 +310,7 @@ AggregateIds:
                 var inMemory = inMemoryMigratedHistory[index];
                 var loaded = loadedAggregateHistory[index];
                 Assert.Result.Assert(inMemory.AggregateId == loaded.AggregateId);
-                Assert.Result.Assert(inMemory.EventId == loaded.EventId);
+                Assert.Result.Assert(inMemory.MessageId == loaded.MessageId);
                 Assert.Result.Assert(inMemory.AggregateVersion == loaded.AggregateVersion);
                 Assert.Result.Assert(inMemory.UtcTimeStamp == loaded.UtcTimeStamp);
                 Assert.Result.Assert(inMemory.GetType() == loaded.GetType());

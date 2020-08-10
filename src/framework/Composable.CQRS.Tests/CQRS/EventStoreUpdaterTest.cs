@@ -481,7 +481,7 @@ namespace Composable.Tests.CQRS
                                         Assert.That(_eventSpy.DispatchedMessages.Count, Is.EqualTo(18));
 
                                         var dispatchedEvents = _eventSpy.DispatchedMessages.OfType<IAggregateEvent>().ToList();
-                                        Assert.That(dispatchedEvents.Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
+                                        Assert.That(dispatchedEvents.Select(e => e.MessageId).Distinct().Count(), Is.EqualTo(18));
 
                                         var allPersistedEvents = _serviceLocator.EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
                                         EventStorageTestHelper.StripSeventhDecimalPointFromSecondFractionOnUtcUpdateTime(dispatchedEvents);

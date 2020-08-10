@@ -88,7 +88,7 @@ namespace Composable.Tests.Serialization
                         .RespectingRuntimeTypes()
                         .ComparingByMembers<AggregateEvent>()
                         .Excluding(@event => @event.UtcTimeStamp)//Timestamp is defaulted in the constructor used by serialization.
-                        .Excluding(@event => @event.EventId)
+                        .Excluding(@event => @event.MessageId)
             );
         }
     }

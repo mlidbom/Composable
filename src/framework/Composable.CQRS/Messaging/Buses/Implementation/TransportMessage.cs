@@ -119,7 +119,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public static OutGoing Create(MessageTypes.Remotable.IMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
-                var messageId = (message as MessageTypes.Remotable.IAtMostOnceMessage)?.MessageId ?? Guid.NewGuid();
+                var messageId = (message as MessageTypes.Remotable.AtMostOnce.IMessage)?.MessageId ?? Guid.NewGuid();
                 //performance: detect implementation of BinarySerialized and use that when available
                 var body = serializer.SerializeMessage(message);
                 return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is MessageTypes.Remotable.ExactlyOnce.IMessage);

@@ -4,11 +4,10 @@ using Composable.Messaging;
 
 namespace Composable.Persistence.EventStore
 {
-    public class AggregateEvent<TWrapperEventClass, TBaseEventInterface> : MessageTypes.WrapperEvent<TWrapperEventClass, TBaseEventInterface>,
+    public class AggregateEvent<TWrapperEventClass, TBaseEventInterface> : MessageTypes.WrapperEvent<TBaseEventInterface>,
                                                                            IAggregateEvent<TBaseEventInterface>
 
         where TBaseEventInterface : IAggregateEvent, MessageTypes.IWrapperEvent<TBaseEventInterface>
-        where TWrapperEventClass : MessageTypes.IWrapperEvent<TWrapperEventClass, TBaseEventInterface>
     {
         public AggregateEvent(TBaseEventInterface @event) : base(@event) {}
     }

@@ -77,7 +77,7 @@ namespace Composable.Messaging.Events
             RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent => ForGenericEvent(handler);
 
             RegistrationBuilder ForWrapped<TWrapperEvent>(Action<TWrapperEvent> handler)
-                where TWrapperEvent : MessageTypes.IWrapperEvent<MessageTypes.IEvent>
+                where TWrapperEvent : MessageTypes.IWrapperEvent<TEvent>
             {
                 _owner._handlers.Add(new RegisteredWrappedHandler<TWrapperEvent>(handler));
                 _owner._totalHandlers++;

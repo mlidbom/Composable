@@ -8,9 +8,8 @@ namespace Composable.Messaging.Events
         ///<summary>Registers a handler for any event that implements THandledEvent. All matching handlers will be called in the order they were registered.</summary>
         IEventHandlerRegistrar<TEvent> For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent;
 
-        public IEventHandlerRegistrar<TEvent> ForWrapped<TWrapperEvent, TWrappedEvent>(Action<TWrapperEvent> handler)
-            where TWrappedEvent : TEvent, MessageTypes.IEvent
-            where TWrapperEvent : MessageTypes.IWrapperEvent<TWrappedEvent>;
+        public IEventHandlerRegistrar<TEvent> ForWrapped<TWrapperEvent>(Action<TWrapperEvent> handler)
+            where TWrapperEvent : MessageTypes.IWrapperEvent<MessageTypes.IEvent>;
 
         ///<summary>Lets you register handlers for event interfaces that may be defined outside of the event hierarchy you specify with TEvent.
         /// Useful for listening to generic events such as IAggregateCreatedEvent or IAggregateDeletedEvent

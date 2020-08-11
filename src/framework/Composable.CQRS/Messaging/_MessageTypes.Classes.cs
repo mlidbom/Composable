@@ -1,7 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Threading;
 using Composable.DDD;
 using Composable.Messaging.Buses.Implementation;
+using Composable.Persistence.EventStore;
 using Composable.Refactoring.Naming;
+using Composable.SystemCE;
+using Composable.SystemCE.ReflectionCE.EmitCE;
+using Composable.SystemCE.ThreadingCE;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 using Newtonsoft.Json;
 
 // ReSharper disable RedundantNameQualifier
@@ -12,13 +22,6 @@ namespace Composable.Messaging
 {
     public static partial class MessageTypes
     {
-        public class WrapperEvent<TEventInterface> : IWrapperEvent<TEventInterface>
-            where TEventInterface : IWrapperEvent<TEventInterface>
-        {
-            public WrapperEvent(TEventInterface @event) => Event = @event;
-            public TEventInterface Event { get; }
-        }
-
         public partial class StrictlyLocal
         {
             public static class Queries

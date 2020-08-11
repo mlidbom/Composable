@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.GenericAbstractions;
 using Composable.SystemCE;
 using Composable.SystemCE.DiagnosticsCE;
 using Composable.SystemCE.ReflectionCE;
@@ -14,6 +15,13 @@ namespace Composable.Tests.SystemCE.ReflectionCE
     {
         [UsedImplicitly] class Simple
         {}
+
+        [Test] public void Constructs_InstancePropertySingletons_through_the_Instance_Property()
+        {
+            var unit = Constructor.For<VoidCE>.DefaultConstructor.Instance.Invoke();
+
+            ReferenceEquals(unit, VoidCE.Instance).Should().Be(true);
+        }
 
         [Test] public void Can_construct_instance() => Constructor.For<Simple>.DefaultConstructor.Instance().Should().NotBe(null);
 

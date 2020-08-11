@@ -117,7 +117,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarCommand
         {
-            public class RegisterUserCommand : MessageTypes.Remotable.AtMostOnce.Command<RegisterUserResult>
+            public class RegisterUserCommand : MessageTypes.Remotable.AtMostOnce.AtMostOnceCommand<RegisterUserResult>
             {
                 public Guid UserId { get; private set; } = Guid.NewGuid();
 

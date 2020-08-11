@@ -18,12 +18,12 @@ namespace Composable.SystemCE.ThreadingCE.TasksCE
 
     class AsyncTaskCompletionSource
     {
-        readonly AsyncTaskCompletionSource<Unit> _completionSource;
+        readonly AsyncTaskCompletionSource<VoidCE> _completionSource;
         public Task Task => _completionSource.Task;
 
-        public void ScheduleContinuation() => _completionSource.ScheduleContinuation(Unit.Instance);
+        public void ScheduleContinuation() => _completionSource.ScheduleContinuation(VoidCE.Instance);
         public void ScheduleException(Exception exception) => _completionSource.ScheduleException(exception);
 
-        public AsyncTaskCompletionSource() => _completionSource = new AsyncTaskCompletionSource<Unit>();
+        public AsyncTaskCompletionSource() => _completionSource = new AsyncTaskCompletionSource<VoidCE>();
     }
 }

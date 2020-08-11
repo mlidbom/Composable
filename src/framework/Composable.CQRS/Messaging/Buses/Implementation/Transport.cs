@@ -56,14 +56,14 @@ namespace Composable.Messaging.Buses.Implementation
         public IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event) =>
             _runningAndNotDisposed.Do(() => _router.SubscriberConnectionsFor(@event));
 
-        public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand atMostOnceCommand)
+        public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand atMostOnceCommand)
         {
             _runningAndNotDisposed.Assert();
             var connection = _router.ConnectionToHandlerFor(atMostOnceCommand);
             await connection.PostAsync(atMostOnceCommand).NoMarshalling();
         }
 
-        public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> atMostOnceCommand)
+        public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TCommandResult> atMostOnceCommand)
         {
             _runningAndNotDisposed.Assert();
             var connection = _router.ConnectionToHandlerFor(atMostOnceCommand);

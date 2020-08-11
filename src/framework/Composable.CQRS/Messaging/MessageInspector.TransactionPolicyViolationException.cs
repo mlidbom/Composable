@@ -23,7 +23,7 @@ Rules:
 These messages will not respect the transaction so if you want to send them during a transaction you have to acknowledge that they will not by suppressing the current transaction before sending them.
 
 
-* There must be a transaction for you to send a {typeof(MessageTypes.IRequireTransactionalSender).FullName}
+* There must be a transaction for you to send a {typeof(MessageTypes.IMustBeSentTransactionally).FullName}
 The whole point of these message types is to guarantee you exactly once delivery. Without a transaction while sending this guarantee is lost.
 
 ";

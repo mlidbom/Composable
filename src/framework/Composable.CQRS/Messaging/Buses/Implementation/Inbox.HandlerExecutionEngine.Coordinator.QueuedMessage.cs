@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions;
+using Composable.SystemCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.TasksCE;
@@ -41,11 +42,11 @@ namespace Composable.Messaging.Buses.Implementation
                             {
                                 try
                                 {
-                                    var result = message is MessageTypes.IRequireTransactionalReceiver
+                                    var result = message is MessageTypes.IMustBeHandledTransactionally
                                                      ? _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
                                                      {
                                                          var innerResult = _messageTask(message);
-                                                         if(message is MessageTypes.Remotable.AtMostOnce.IMessage)
+                                                         if(message is MessageTypes.Remotable.IAtMostOnceMessage)
                                                          {
                                                              _messageStorage.MarkAsSucceeded(TransportMessage);
                                                          }
@@ -60,14 +61,14 @@ namespace Composable.Messaging.Buses.Implementation
                                 }
                                 catch(Exception exception)
                                 {
-                                    if(message is MessageTypes.Remotable.AtMostOnce.IMessage)
+                                    if(message is MessageTypes.Remotable.IAtMostOnceMessage)
                                     {
                                         _messageStorage.RecordException(TransportMessage, exception);
                                     }
 
                                     if(!retryPolicy.TryAwaitNextRetryTimeForException(exception))
                                     {
-                                        if(message is MessageTypes.Remotable.AtMostOnce.IMessage)
+                                        if(message is MessageTypes.Remotable.IAtMostOnceMessage)
                                         {
                                             _messageStorage.MarkAsFailed(TransportMessage);
                                         }
@@ -106,19 +107,19 @@ namespace Composable.Messaging.Buses.Implementation
                             Implementation.TransportMessage.TransportMessageType.AtMostOnceCommandWithReturnValue => message =>
                             {
                                 var commandHandler = _handlerRegistry.GetCommandHandlerWithReturnValue(message.GetType());
-                                return commandHandler((MessageTypes.Remotable.AtMostOnce.ICommand)message);
+                                return commandHandler((MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand)message);
                             },
                             Implementation.TransportMessage.TransportMessageType.AtMostOnceCommand => message =>
                             {
                                 var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
-                                commandHandler((MessageTypes.Remotable.AtMostOnce.ICommand)message);
-                                return Unit.Instance; //Todo:Properly handle commands with and without return values
+                                commandHandler((MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand)message);
+                                return VoidCE.Instance; //Todo:Properly handle commands with and without return values
                             },
                             Implementation.TransportMessage.TransportMessageType.ExactlyOnceCommand => message =>
                             {
                                 var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
                                 commandHandler((MessageTypes.Remotable.ExactlyOnce.ICommand)message);
-                                return Unit.Instance;//Todo:Properly handle commands with and without return values
+                                return VoidCE.Instance;//Todo:Properly handle commands with and without return values
                             },
                             Implementation.TransportMessage.TransportMessageType.NonTransactionalQuery => actualMessage =>
                             {

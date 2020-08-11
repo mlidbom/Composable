@@ -7,19 +7,19 @@ namespace Composable.Messaging.Hypermedia
 {
     public abstract class NavigationSpecification
     {
-        public static NavigationSpecification Post(MessageTypes.Remotable.AtMostOnce.ICommand command) => new VoidCommand(command);
+        public static NavigationSpecification Post(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand command) => new VoidCommand(command);
 
         public static NavigationSpecification<TResult> Get<TResult>(MessageTypes.Remotable.NonTransactional.IQuery<TResult> query) => NavigationSpecification<TResult>.Get(query);
-        public static NavigationSpecification<TResult> Post<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command) => NavigationSpecification<TResult>.Post(command);
+        public static NavigationSpecification<TResult> Post<TResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TResult> command) => NavigationSpecification<TResult>.Post(command);
 
         public void NavigateOn(IRemoteHypermediaNavigator busSession) => NavigateOnAsync(busSession).WaitUnwrappingException();
         public abstract Task NavigateOnAsync(IRemoteHypermediaNavigator busSession);
 
         class VoidCommand : NavigationSpecification
         {
-            readonly MessageTypes.Remotable.AtMostOnce.ICommand _command;
+            readonly MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand _command;
 
-            public VoidCommand(MessageTypes.Remotable.AtMostOnce.ICommand command) => _command = command;
+            public VoidCommand(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand command) => _command = command;
 
             public override async Task NavigateOnAsync(IRemoteHypermediaNavigator busSession) => await busSession.PostAsync(_command).NoMarshalling();
         }
@@ -32,12 +32,12 @@ namespace Composable.Messaging.Hypermedia
 
         public NavigationSpecification<TNext> Select<TNext>(Func<TResult, TNext> select) => new NavigationSpecification<TNext>.SelectQuery<TResult>(this, select);
 
-        public NavigationSpecification Post(Func<TResult, MessageTypes.Remotable.AtMostOnce.ICommand> next) => new PostVoidCommand<TResult>(this, next);
+        public NavigationSpecification Post(Func<TResult, MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand> next) => new PostVoidCommand<TResult>(this, next);
         public NavigationSpecification<TNext> Get<TNext>(Func<TResult, MessageTypes.Remotable.NonTransactional.IQuery<TNext>> next) => new NavigationSpecification<TNext>.ContinuationQuery<TResult>(this, next);
-        public NavigationSpecification<TNext> Post<TNext>(Func<TResult, MessageTypes.Remotable.AtMostOnce.ICommand<TNext>> next) => new NavigationSpecification<TNext>.PostCommand<TResult>(this, next);
+        public NavigationSpecification<TNext> Post<TNext>(Func<TResult, MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TNext>> next) => new NavigationSpecification<TNext>.PostCommand<TResult>(this, next);
 
         internal static NavigationSpecification<TResult> Get(MessageTypes.Remotable.NonTransactional.IQuery<TResult> query) => new StartQuery(query);
-        internal static NavigationSpecification<TResult> Post(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command) => new StartCommand(command);
+        internal static NavigationSpecification<TResult> Post(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TResult> command) => new StartCommand(command);
 
         class SelectQuery<TPrevious> : NavigationSpecification<TResult>
         {
@@ -68,9 +68,9 @@ namespace Composable.Messaging.Hypermedia
 
         class StartCommand : NavigationSpecification<TResult>
         {
-            readonly MessageTypes.Remotable.AtMostOnce.ICommand<TResult> _start;
+            readonly MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TResult> _start;
 
-            internal StartCommand(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> start) => _start = start;
+            internal StartCommand(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TResult> start) => _start = start;
 
             public override async Task<TResult> NavigateOnAsync(IRemoteHypermediaNavigator busSession) => await busSession.PostAsync(_start).NoMarshalling();
         }
@@ -97,8 +97,8 @@ namespace Composable.Messaging.Hypermedia
         class PostCommand<TPrevious> : NavigationSpecification<TResult>
         {
             readonly NavigationSpecification<TPrevious> _previous;
-            readonly Func<TPrevious, MessageTypes.Remotable.AtMostOnce.ICommand<TResult>> _next;
-            internal PostCommand(NavigationSpecification<TPrevious> previous, Func<TPrevious, MessageTypes.Remotable.AtMostOnce.ICommand<TResult>> next)
+            readonly Func<TPrevious, MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TResult>> _next;
+            internal PostCommand(NavigationSpecification<TPrevious> previous, Func<TPrevious, MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TResult>> next)
             {
                 _previous = previous;
                 _next = next;
@@ -115,8 +115,8 @@ namespace Composable.Messaging.Hypermedia
         class PostVoidCommand<TPrevious> : NavigationSpecification
         {
             readonly NavigationSpecification<TPrevious> _previous;
-            readonly Func<TPrevious, MessageTypes.Remotable.AtMostOnce.ICommand> _next;
-            internal PostVoidCommand(NavigationSpecification<TPrevious> previous, Func<TPrevious, MessageTypes.Remotable.AtMostOnce.ICommand> next)
+            readonly Func<TPrevious, MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand> _next;
+            internal PostVoidCommand(NavigationSpecification<TPrevious> previous, Func<TPrevious, MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand> next)
             {
                 _previous = previous;
                 _next = next;

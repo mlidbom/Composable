@@ -163,7 +163,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        protected class MyCreateAggregateCommand : MessageTypes.Remotable.AtMostOnce.Command
+        protected class MyCreateAggregateCommand : MessageTypes.Remotable.AtMostOnce.AtMostOnceHypermediaCommand
         {
             MyCreateAggregateCommand() : base(DeduplicationIdHandling.Reuse) {}
 
@@ -176,7 +176,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public Guid AggregateId { get; set; }
         }
 
-        protected class MyUpdateAggregateCommand : MessageTypes.Remotable.AtMostOnce.Command
+        protected class MyUpdateAggregateCommand : MessageTypes.Remotable.AtMostOnce.AtMostOnceHypermediaCommand
         {
             [UsedImplicitly] MyUpdateAggregateCommand() : base(DeduplicationIdHandling.Reuse) {}
             public MyUpdateAggregateCommand(Guid aggregateId) : base(DeduplicationIdHandling.Create) => AggregateId = aggregateId;
@@ -187,13 +187,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         protected class MyExactlyOnceEvent : AggregateEvent {}
         protected class MyQuery : MessageTypes.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
         protected class MyQueryResult {}
-        protected class MyAtMostOnceCommand : MessageTypes.Remotable.AtMostOnce.Command<MyCommandResult>
+        protected class MyAtMostOnceCommand : MessageTypes.Remotable.AtMostOnce.AtMostOnceCommand<MyCommandResult>
         {
             protected MyAtMostOnceCommand() : base(DeduplicationIdHandling.Reuse) {}
             internal static MyAtMostOnceCommand Create() => new MyAtMostOnceCommand {MessageId = Guid.NewGuid()};
         }
 
-        protected class MyAtMostOnceCommandWithResult : MessageTypes.Remotable.AtMostOnce.Command<MyCommandResult>
+        protected class MyAtMostOnceCommandWithResult : MessageTypes.Remotable.AtMostOnce.AtMostOnceCommand<MyCommandResult>
         {
             MyAtMostOnceCommandWithResult() : base(DeduplicationIdHandling.Reuse) {}
             internal static MyAtMostOnceCommandWithResult Create() => new MyAtMostOnceCommandWithResult {MessageId = Guid.NewGuid()};

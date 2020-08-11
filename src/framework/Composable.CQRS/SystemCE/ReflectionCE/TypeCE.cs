@@ -113,6 +113,10 @@ namespace Composable.SystemCE.ReflectionCE
             }
         }
 
+
+        public static bool Is<TOther>(this Type @this) => typeof(TOther).IsAssignableFrom(@this);
+        public static bool Is(this Type @this, Type other) => other.IsAssignableFrom(@this);
+
         public static string GetFullNameCompilable(this Type @this)
         {
             if(!@this.IsConstructedGenericType) return @this.FullName!.ReplaceInvariant("+", ".");

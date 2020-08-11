@@ -10,7 +10,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public class ChangeEmail : MessageTypes.Remotable.AtMostOnce.Command
+            public class ChangeEmail : MessageTypes.Remotable.AtMostOnce.AtMostOnceHypermediaCommand
             {
                 [JsonConstructor]public ChangeEmail(Guid accountId, string email) : base(DeduplicationIdHandling.Reuse)
                 {

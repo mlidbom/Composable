@@ -1,6 +1,6 @@
 namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
-    class AssertMigrationsAreIdempotentEventModifier : IEventModifier
+    class AssertMigrationsAreIdempotentEventModifier : IEventModifier, IStaticInstancePropertySingleton
     {
         public static readonly IEventModifier Instance = new AssertMigrationsAreIdempotentEventModifier();
         AssertMigrationsAreIdempotentEventModifier() { }

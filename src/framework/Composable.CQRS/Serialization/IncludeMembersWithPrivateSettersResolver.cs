@@ -4,7 +4,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Composable.Serialization
 {
-    class IncludeMembersWithPrivateSettersResolver : DefaultContractResolver
+    class IncludeMembersWithPrivateSettersResolver : DefaultContractResolver, IStaticInstancePropertySingleton
     {
         public static readonly IncludeMembersWithPrivateSettersResolver Instance = new IncludeMembersWithPrivateSettersResolver();
         protected IncludeMembersWithPrivateSettersResolver()

@@ -22,28 +22,41 @@ namespace Composable.Messaging
         {
             static readonly MonitorCE Monitor = MonitorCE.WithDefaultTimeout();
 
-            static class WrapperConstructorCache<TEvent> where TEvent : IEvent
+            static class WrapperConstructorCache<TWrapperEvent, TWrappedEvent> 
+                where TWrapperEvent : IWrapperEvent<TWrappedEvent>
+                where TWrappedEvent : IEvent
             {
-                static readonly Func<IEvent, IWrapperEvent<IEvent>> UntypedConstructor = CreateConstructorFor(typeof(TEvent));
+                static readonly Func<IEvent, IWrapperEvent<IEvent>> UntypedConstructor = CreateConstructorFor(typeof(TWrappedEvent));
 
-                internal static readonly Func<TEvent, IWrapperEvent<TEvent>> Constructor = @event => (IWrapperEvent<TEvent>)UntypedConstructor(@event);
+                internal static readonly Func<TWrappedEvent, IWrapperEvent<TWrappedEvent>> Constructor = @event => (IWrapperEvent<TWrappedEvent>)UntypedConstructor(@event);
             }
 
-            public static IWrapperEvent<TWrappedEvent> WrapEvent<TWrappedEvent>(TWrappedEvent theEvent) where TWrappedEvent : IEvent =>
-                WrapperConstructorCache<TWrappedEvent>.Constructor(theEvent);
+            public static TWrapperEvent WrapEvent<TWrapperEvent, TWrappedEvent>(TWrappedEvent theEvent)
+                where TWrapperEvent : IWrapperEvent<TWrappedEvent>
+                where TWrappedEvent : IEvent =>
+                (TWrapperEvent)WrapperConstructorCache<TWrapperEvent, TWrappedEvent>.Constructor(theEvent);
 
-            public static IWrapperEvent<MessageTypes.IEvent> WrapEvent(IEvent theEvent)
+            public static IWrapperEvent<TWrappedEvent> WrapEvent<TWrappedEvent>(TWrappedEvent theEvent) where TWrappedEvent : IEvent =>
+                WrapperConstructorCache<MessageTypes.IWrapperEvent<TWrappedEvent>, TWrappedEvent>.Constructor(theEvent);
+
+            static IReadOnlyDictionary<Type, Func<MessageTypes.IEvent, IWrapperEvent<MessageTypes.IEvent>>> _wrapperConstructors = new Dictionary<Type, Func<IEvent, IWrapperEvent<IEvent>>>();
+            public static IWrapperEvent<MessageTypes.IEvent> WrapEvent(IEvent theEvent) =>
+                WrapperConstructorFor(theEvent.GetType()).Invoke(theEvent);
+
+            public static Func<IEvent, IWrapperEvent<IEvent>> WrapperConstructorFor(Type wrappedEventType)
             {
-                var wrappedEventType = theEvent.GetType();
-                if(_wrapperConstructors.TryGetValue(wrappedEventType, out var constructor)) return constructor!(theEvent);
+                if(_wrapperConstructors.TryGetValue(wrappedEventType, out var constructor))
+                {
+                    return constructor;
+                }
 
                 Monitor.Update(() =>
                 {
-                    constructor = CreateConstructorFor(theEvent.GetType());
+                    constructor = CreateConstructorFor(wrappedEventType);
                     ThreadSafe.AddToCopyAndReplace(ref _wrapperConstructors, wrappedEventType, constructor);
                 });
 
-                return constructor!(theEvent);
+                return constructor!;
             }
 
             static Func<IEvent, IWrapperEvent<IEvent>> CreateConstructorFor(Type wrappedEventType)
@@ -74,8 +87,6 @@ namespace Composable.Messaging
             }
 
             static string DescribeParameterList(IEnumerable<Type> parameterTypes) { return parameterTypes.Select(parameterType => parameterType.FullNameNotNull()).Join(", "); }
-
-            static IReadOnlyDictionary<Type, Func<MessageTypes.IEvent, IWrapperEvent<MessageTypes.IEvent>>> _wrapperConstructors = new Dictionary<Type, Func<IEvent, IWrapperEvent<IEvent>>>();
 
             static IReadOnlyDictionary<Type, Type> _createdWrapperTypes = new Dictionary<Type, Type>();
             internal static Type CreateGenericWrapperEventType(Type wrapperEventType)

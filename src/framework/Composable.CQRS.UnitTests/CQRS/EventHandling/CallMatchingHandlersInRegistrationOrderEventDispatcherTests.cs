@@ -1,10 +1,7 @@
-﻿using Composable.Messaging;
-using Composable.Messaging.Events;
+﻿using Composable.Messaging.Events;
 using Composable.Persistence.EventStore;
 using FluentAssertions;
-using NUnit.Framework;
 using Xunit;
-using Assert = Xunit.Assert;
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE0051 //Review OK: unused private members are intentional in this test.

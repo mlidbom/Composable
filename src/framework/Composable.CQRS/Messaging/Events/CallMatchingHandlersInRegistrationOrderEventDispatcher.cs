@@ -97,7 +97,7 @@ namespace Composable.Messaging.Events
 
             RegistrationBuilder BeforeHandlers(Action<TEvent> runBeforeHandlers)
             {
-                //Urgent: fix this
+                //Urgent: fix this. Use the registered handler classes above
                 _owner._runBeforeHandlers.Add(e => runBeforeHandlers(((MessageTypes.IWrapperEvent<TEvent>)e).Event));
                 _owner._totalHandlers++;
                 return this;
@@ -112,9 +112,8 @@ namespace Composable.Messaging.Events
 
             RegistrationBuilder IgnoreUnhandled<T>() where T : MessageTypes.IEvent
             {
-                _owner._ignoredEvents.Add(typeof(T));
-                //urgent: Is this correct?
-                _owner._ignoredEvents.Add(typeof(MessageTypes.IWrapperEvent<T>));
+                _owner._ignoredEvents.Add(typeof(T)); //Urgent: Remove?
+                _owner._ignoredEvents.Add(typeof(MessageTypes.IWrapperEvent<T>)); //urgent: Is this correct?
                 _owner._totalHandlers++;
                 return this;
             }
@@ -191,11 +190,8 @@ namespace Composable.Messaging.Events
         public void Dispatch(TEvent evt)
         {
             //Urgent: Wrapping here seems arguable at best.
-            var wrapped = evt as MessageTypes.IWrapperEvent<MessageTypes.IEvent>;
-            if(wrapped == null)
-            {
-                wrapped = MessageTypes.WrapperEvent.WrapEvent((MessageTypes.IEvent)evt);
-            }
+            var wrapped = evt as MessageTypes.IWrapperEvent<MessageTypes.IEvent>
+                       ?? MessageTypes.WrapperEvent.WrapEvent((MessageTypes.IEvent)evt);
 
             var handlers = GetHandlers(wrapped.GetType());
             for(var i = 0; i < handlers.Length; i++)

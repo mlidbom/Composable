@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Composable.Contracts;
+using Composable.SystemCE;
 
 namespace Composable.Functional
 {
@@ -31,7 +32,7 @@ namespace Composable.Functional
         public override bool HasValue => true;
     }
 
-    public sealed class None<T> : Option<T>
+    public sealed class None<T> : Option<T>, IStaticInstancePropertySingleton
     {
         None(){}
         internal static readonly None<T> Instance = new None<T>();

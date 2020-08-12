@@ -10,6 +10,8 @@ namespace Composable.Messaging
     {
         internal static void AssertValid(IReadOnlyList<Type> eventTypesToInspect) => eventTypesToInspect.ForEach(MessageTypeInspector.AssertValid);
 
+        internal static void AssertValidForSubscription<TMessage>() => MessageTypeInspector.AssertValidForSubscription(typeof(TMessage));
+
         internal static void AssertValid<TMessage>() => MessageTypeInspector.AssertValid(typeof(TMessage));
 
         internal static void AssertValidToSendRemote(MessageTypes.IMessage message)

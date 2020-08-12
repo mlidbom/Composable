@@ -19,6 +19,15 @@ namespace Composable.Messaging
 
         static readonly MonitorCE Monitor = MonitorCE.WithDefaultTimeout();
         static HashSet<Type> _successfullyInspectedTypes = new HashSet<Type>();
+
+
+        internal static void AssertValidForSubscription(Type type)
+        {
+            if(!type.Is<MessageTypes.IEvent>()) throw new Exception($"You can only subscribe to subtypes of {typeof(MessageTypes.IEvent).GetFullNameCompilable()}");
+            if(!type.IsInterface) throw new Exception($"{type.GetFullNameCompilable()} is not an interface. You can only subscribe to event interfaces because as soon as you subscribe to classes you loose the guarantees of semantic routing since classes do not support multiple inheritance.");;
+            AssertValid(type);
+        }
+
         internal static void AssertValid(Type type)
         {
             if(_successfullyInspectedTypes.Contains(type)) return;

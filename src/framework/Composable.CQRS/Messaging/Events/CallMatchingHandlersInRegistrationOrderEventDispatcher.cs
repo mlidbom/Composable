@@ -79,6 +79,7 @@ namespace Composable.Messaging.Events
             RegistrationBuilder ForWrapped<TWrapperEvent>(Action<TWrapperEvent> handler)
                 where TWrapperEvent : MessageTypes.IWrapperEvent<TEvent>
             {
+                MessageTypeInspector.AssertValidForSubscription(typeof(TWrapperEvent));
                 _owner._handlers.Add(new RegisteredWrappedHandler<TWrapperEvent>(handler));
                 _owner._totalHandlers++;
                 return this;
@@ -90,7 +91,7 @@ namespace Composable.Messaging.Events
             /// </summary>
             RegistrationBuilder ForGenericEvent<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : MessageTypes.IEvent
             {
-                if(!typeof(THandledEvent).IsInterface) throw new Exception($"{typeof(THandledEvent).GetFullNameCompilable()} is not an interface. You can only register handlers for events because as soon as you handle classes you break the guarantees of semantic routing");
+                MessageTypeInspector.AssertValidForSubscription(typeof(THandledEvent));
                 if(typeof(THandledEvent).Is<MessageTypes.IWrapperEvent<MessageTypes.IEvent>>())throw new Exception($"Handlers of type {typeof(MessageTypes.IWrapperEvent<>).Name} must be registered through the {nameof(ForWrapped)} method.");
                 _owner._handlers.Add(new RegisteredHandler<THandledEvent>(handler));
                 _owner._totalHandlers++;

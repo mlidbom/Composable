@@ -33,7 +33,7 @@ namespace Composable.Tests.CQRS.EventHandling
                 _dispatcher.Register().IgnoreAllUnhandled();
                 _dispatcher.Register().For((THandlerEvent @event) => callCount++);
                 _dispatcher.Dispatch(_event);
-                callCount.Should().Be(1);
+                callCount.Should().Be(1, "Message was not dispatched to handler.");
             }
 
             public void DispatchesToWrapped<THandlerEvent>()
@@ -43,7 +43,7 @@ namespace Composable.Tests.CQRS.EventHandling
                 _dispatcher.Register().IgnoreAllUnhandled();
                 _dispatcher.Register().ForWrapped((THandlerEvent @event) => callCount++);
                 _dispatcher.Dispatch(_event);
-                callCount.Should().Be(1);
+                callCount.Should().Be(1, "Message was not dispatched to handler.");
             }
 
             public void DoesNotDispatchToWrapped<THandlerEvent>()
@@ -53,7 +53,7 @@ namespace Composable.Tests.CQRS.EventHandling
                 _dispatcher.Register().IgnoreAllUnhandled();
                 _dispatcher.Register().ForWrapped((THandlerEvent @event) => callCount++);
                 _dispatcher.Dispatch(_event);
-                callCount.Should().Be(0);
+                callCount.Should().Be(0, "Message was dispatched to handler.");
             }
         }
 

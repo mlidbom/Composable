@@ -36,16 +36,6 @@ namespace Composable.Tests.CQRS.EventHandling
                 callCount.Should().Be(1);
             }
 
-            public void DoesNotDispatchTo<THandlerEvent>()
-                where THandlerEvent : TDispatcherRootEvent
-            {
-                var callCount = 0;
-                _dispatcher.Register().IgnoreAllUnhandled();
-                _dispatcher.Register().For((THandlerEvent @event) => callCount++);
-                _dispatcher.Dispatch(_event);
-                callCount.Should().Be(0);
-            }
-
             public void DispatchesToWrapped<THandlerEvent>()
                 where THandlerEvent : MessageTypes.IWrapperEvent<TDispatcherRootEvent>
             {

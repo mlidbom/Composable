@@ -15,10 +15,10 @@ namespace Composable.Messaging
         public interface IMustBeHandledTransactionally : MessageTypes.IMessage {}
         public interface IMustBeSentAndHandledTransactionally : MessageTypes.IMustBeSentTransactionally, MessageTypes.IMustBeHandledTransactionally {}
 
-        public interface IRequireAResponse : MessageTypes.IMessage {}
-        public interface IHypermediaMessage : MessageTypes.IRequireAResponse {}
         public interface ICannotBeSentRemotelyFromWithinTransaction : MessageTypes.IMessage {}
-        public interface IHasReturnValue<out TResult> : MessageTypes.IHypermediaMessage, ICannotBeSentRemotelyFromWithinTransaction {}
+        public interface IRequireAResponse : MessageTypes.ICannotBeSentRemotelyFromWithinTransaction {}
+        public interface IHypermediaMessage : MessageTypes.IRequireAResponse {}
+        public interface IHasReturnValue<out TResult> : MessageTypes.IHypermediaMessage {}
 
         ///<summary>Informs the receiver that something has happened.</summary>
         public interface IEvent : MessageTypes.IMessage {}

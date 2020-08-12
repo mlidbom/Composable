@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
@@ -14,7 +17,8 @@ namespace Composable.Messaging
                                                             new CannotBeBothEventAndQuery(),
                                                             new CannotBeBothRemotableAndStrictlyLocal(),
                                                             new CannotForbidAndRequireTransactionalSender(),
-                                                            new AtMostOnceCommandDefaultConstructorMustNotSetADeduplicationId()
+                                                            new AtMostOnceCommandDefaultConstructorMustNotSetADeduplicationId(),
+                                                            new WrapperEventInterfaceMustBeGenericAndDeclareTypeParameterAsAsOutParameter()
                                                         };
 
         static readonly MonitorCE Monitor = MonitorCE.WithDefaultTimeout();
@@ -85,6 +89,39 @@ namespace Composable.Messaging
         class CannotBeBothRemotableAndStrictlyLocal : MutuallyExclusiveInterfaces<MessageTypes.Remotable.IMessage, MessageTypes.StrictlyLocal.IMessage> {}
 
         class CannotForbidAndRequireTransactionalSender :  MutuallyExclusiveInterfaces<MessageTypes.IMustBeSentTransactionally, MessageTypes.ICannotBeSentRemotelyFromWithinTransaction> {}
+
+
+        class WrapperEventInterfaceMustBeGenericAndDeclareTypeParameterAsAsOutParameter : SimpleMessageTypeDesignRule
+        {
+            string _message = "";
+            protected override bool IsInvalid(Type type)
+            {
+                if(type.Is<MessageTypes.IWrapperEvent<MessageTypes.IEvent>>())
+                {
+                    var allInterfaces = type.GetInterfaces().ToList();
+                    if(type.IsInterface) allInterfaces.Add(type);
+
+                    var wrapperInterfacesImplemented = allInterfaces.Where(@interface => @interface.Is<MessageTypes.IWrapperEvent<MessageTypes.IEvent>>()).ToArray();
+                    var nonGeneric = wrapperInterfacesImplemented.FirstOrDefault(@interface => !@interface.IsGenericType);
+                    if(nonGeneric != null)
+                    {
+                        _message = $"{nonGeneric.GetFullNameCompilable()} implements {typeof(MessageTypes.IWrapperEvent<>).GetFullNameCompilable()} but is not generic. This means that routing based on the covariance of the wrapping type is impossible and thus semantic routing breaks down.";
+                        return true;
+                    }
+
+                    var typeParameterIsNotOut = wrapperInterfacesImplemented.FirstOrDefault(@interface => !@interface.GetGenericTypeDefinition().GetGenericArguments()[0].GenericParameterAttributes.HasFlag(GenericParameterAttributes.Covariant));
+                    if(typeParameterIsNotOut != null)
+                    {
+                        _message = $"{typeParameterIsNotOut.GetFullNameCompilable()} implements {typeof(MessageTypes.IWrapperEvent<>).GetFullNameCompilable()} but does not declare the type parameter as covariant(out). If the type parameter is not covariant routing to derived types does not work because they are not assignable to the base interface type";
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            protected override string CreateMessage(Type type) => _message;
+        }
 
         class AtMostOnceCommandDefaultConstructorMustNotSetADeduplicationId : MessageTypeDesignRule
         {

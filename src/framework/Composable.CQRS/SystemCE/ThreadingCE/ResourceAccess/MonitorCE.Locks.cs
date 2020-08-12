@@ -9,19 +9,19 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
     {
         internal Lock EnterReadLock()
         {
-            EnterInternal();
+            Enter();
             return _lock;
         }
 
         internal NotifyOneLock EnterNotifyOnlyOneUpdateLock()
         {
-            EnterInternal();
+            Enter();
             return _notifyOneLock;
         }
 
         public NotifyAllLock EnterUpdateLock()
         {
-            EnterInternal();
+            Enter();
             return _notifyAllLock;
         }
 

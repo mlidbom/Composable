@@ -28,9 +28,9 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
         readonly List<EnterLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<EnterLockTimeoutException>();
         int _timeoutsThrownDuringCurrentLock;
 
-        void EnterInternal() => EnterInternal(_timeout);
+        void Enter() => Enter(_timeout);
 
-        void EnterInternal(TimeSpan timeout)
+        void Enter(TimeSpan timeout)
         {
             if(!TryEnter(timeout))
             {

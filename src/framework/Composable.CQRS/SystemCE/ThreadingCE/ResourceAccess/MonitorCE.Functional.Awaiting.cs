@@ -51,14 +51,14 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             {
                 if(conditionTimeout == InfiniteTimeout)
                 {
-                    EnterInternal(DefaultTimeout);
+                    Enter(DefaultTimeout);
                     acquiredLockStartingWait = true;
                     Interlocked.Increment(ref _waitingThreadCount);
                     while(!condition()) Wait(InfiniteTimeout);
                 } else
                 {
                     var startTime = DateTime.UtcNow;
-                    EnterInternal(conditionTimeout);
+                    Enter(conditionTimeout);
                     acquiredLockStartingWait = true;
                     Interlocked.Increment(ref _waitingThreadCount);
                     while(!condition())

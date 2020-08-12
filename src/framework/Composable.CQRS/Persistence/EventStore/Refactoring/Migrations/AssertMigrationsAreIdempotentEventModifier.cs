@@ -1,3 +1,5 @@
+using Composable.SystemCE;
+
 namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
     class AssertMigrationsAreIdempotentEventModifier : IEventModifier, IStaticInstancePropertySingleton

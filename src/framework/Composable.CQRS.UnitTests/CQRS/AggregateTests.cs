@@ -79,11 +79,11 @@ namespace Composable.Tests.CQRS
             public CascadingEventsAggregate():base(TestingTimeSource.FrozenUtcNow())
             {
                 RegisterEventHandlers()
-                    .For<TriggeringEvent>(@event => Publish(new TriggeredEvent()));
+                    .For<ITriggeringEvent>(@event => Publish(new TriggeredEvent()));
 
                 RegisterEventAppliers()
-                    .For<TriggeringEvent>(@event => TriggeringEventApplied = true)
-                    .For<TriggeredEvent>(@event => TriggeredEventApplied = true);
+                    .For<ITriggeringEvent>(@event => TriggeringEventApplied = true)
+                    .For<ITriggeredEvent>(@event => TriggeredEventApplied = true);
             }
             public bool TriggeredEventApplied { get; private set; }
             public bool TriggeringEventApplied { get; private set; }
@@ -93,13 +93,15 @@ namespace Composable.Tests.CQRS
             }
         }
 
-        class TriggeringEvent : AggregateEvent, IAggregateCreatedEvent
+        interface ITriggeringEvent : IAggregateCreatedEvent {}
+
+        class TriggeringEvent : AggregateEvent, ITriggeringEvent
         {
             public TriggeringEvent() : base(Guid.NewGuid()) {}
         }
 
-        class TriggeredEvent : AggregateEvent
-        {
+        interface ITriggeredEvent : IAggregateEvent {}
+        class TriggeredEvent : AggregateEvent, ITriggeredEvent {
         }
     }
 }

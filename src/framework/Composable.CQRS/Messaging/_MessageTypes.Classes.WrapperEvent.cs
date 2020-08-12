@@ -135,7 +135,7 @@ namespace Composable.Messaging
         }
 
         public class WrapperEvent<TEventInterface> : IWrapperEvent<TEventInterface>
-            where TEventInterface : IWrapperEvent<TEventInterface>
+            where TEventInterface : IEvent
         {
             public WrapperEvent(TEventInterface @event) => Event = @event;
             public TEventInterface Event { get; }

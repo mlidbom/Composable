@@ -90,6 +90,8 @@ namespace Composable.Messaging.Events
             /// </summary>
             RegistrationBuilder ForGenericEvent<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : MessageTypes.IEvent
             {
+                if(!typeof(THandledEvent).IsInterface) throw new Exception($"{typeof(THandledEvent).GetFullNameCompilable()} is not an interface. You can only register handlers for events because as soon as you handle classes you break the guarantees of semantic routing");
+                if(typeof(THandledEvent).Is<MessageTypes.IWrapperEvent<MessageTypes.IEvent>>())throw new Exception($"Handlers of type {typeof(MessageTypes.IWrapperEvent<>).Name} must be registered through the {nameof(ForWrapped)} method.");
                 _owner._handlers.Add(new RegisteredHandler<THandledEvent>(handler));
                 _owner._totalHandlers++;
                 return this;

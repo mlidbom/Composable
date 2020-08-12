@@ -20,10 +20,13 @@ namespace Composable.Messaging.Events
         IEventHandlerRegistrar<TEvent> BeforeHandlers<THandledEvent>(Action<THandledEvent> runBeforeHandlers) where THandledEvent : TEvent;
         IEventHandlerRegistrar<TEvent> AfterHandlers<THandledEvent>(Action<THandledEvent> runAfterHandlers) where THandledEvent : TEvent;
         IEventHandlerRegistrar<TEvent> IgnoreUnhandled<TIgnored>() where TIgnored : TEvent;
+
+        IEventHandlerRegistrar<TEvent> IgnoreAllUnhandled() => IgnoreUnhandled<TEvent>();
     }
 
     static class EventHandlerRegistrar
     {
+
         public static IEventHandlerRegistrar<TEvent> BeforeHandlers<TEvent>(this IEventHandlerRegistrar<TEvent> @this, Action<TEvent> handler) where TEvent : class, MessageTypes.IEvent => @this.BeforeHandlers(handler);
 
         public static IEventHandlerRegistrar<TEvent> AfterHandlers<TEvent>(this IEventHandlerRegistrar<TEvent> @this, Action<TEvent> handler) where TEvent : class, MessageTypes.IEvent => @this.AfterHandlers(handler);

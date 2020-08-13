@@ -35,8 +35,8 @@ namespace Composable.Persistence.EventStore.Aggregates
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
 
-        int _raiseEventReentrancyLevel = 0;
-        readonly List<TAggregateEventImplementation> _raiseEventUnpushedEvents = new List<TAggregateEventImplementation>();
+        int _reentrancyLevel = 0;
+        readonly List<TAggregateEventImplementation> _unpublishedEvents = new List<TAggregateEventImplementation>();
         bool _applyingEvents;
 
         protected TEvent Publish<TEvent>(TEvent theEvent)
@@ -46,7 +46,7 @@ namespace Composable.Persistence.EventStore.Aggregates
 
             try
             {
-                _raiseEventReentrancyLevel++;
+                _reentrancyLevel++;
                 theEvent.AggregateVersion = Version + 1;
                 theEvent.UtcTimeStamp = TimeSource.UtcNow;
                 if(Version == 0)
@@ -72,21 +72,21 @@ namespace Composable.Persistence.EventStore.Aggregates
                 ApplyEvent(theEvent);
                 AssertInvariantsAreMet();
                 _unCommittedEvents.Add(theEvent);
-                _raiseEventUnpushedEvents.Add(theEvent);
+                _unpublishedEvents.Add(theEvent);
                 _eventHandlersEventDispatcher.Dispatch(theEvent);
             }
             finally
             {
-                _raiseEventReentrancyLevel--;
+                _reentrancyLevel--;
             }
 
-            if(_raiseEventReentrancyLevel == 0)
+            if(_reentrancyLevel == 0)
             {
-                foreach(var @event in _raiseEventUnpushedEvents)
+                foreach(var @event in _unpublishedEvents)
                 {
-                    _simpleObservable.OnNext(@event);
+                    _eventStream.OnNext(@event);
                 }
-                _raiseEventUnpushedEvents.Clear();
+                _unpublishedEvents.Clear();
             }
 
             return theEvent;
@@ -121,15 +121,14 @@ namespace Composable.Persistence.EventStore.Aggregates
         {
         }
 
-        readonly SimpleObservable<TAggregateEventImplementation> _simpleObservable = new SimpleObservable<TAggregateEventImplementation>();
-        IObservable<IAggregateEvent> IEventStored.EventStream => _simpleObservable;
+        readonly SimpleObservable<TAggregateEventImplementation> _eventStream = new SimpleObservable<TAggregateEventImplementation>();
+        IObservable<IAggregateEvent> IEventStored.EventStream => _eventStream;
 
-        void IEventStored.AcceptChanges()
+        public void Commit(Action<IReadOnlyList<IAggregateEvent>> commitEvents)
         {
+            commitEvents(_unCommittedEvents);
             _unCommittedEvents.Clear();
         }
-
-        IReadOnlyList<IAggregateEvent> IEventStored.GetChanges() => _unCommittedEvents;
 
         void IEventStored.SetTimeSource(IUtcTimeTimeSource timeSource)
         {

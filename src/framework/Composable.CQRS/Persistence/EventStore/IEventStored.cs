@@ -9,8 +9,8 @@ namespace Composable.Persistence.EventStore
     {
         Guid Id { get; }
         int Version { get; }
-        IReadOnlyList<IAggregateEvent> GetChanges();
-        void AcceptChanges();
+
+        void Commit(Action<IReadOnlyList<IAggregateEvent>> commitEvents);
         void LoadFromHistory(IEnumerable<IAggregateEvent> history);
         void SetTimeSource(IUtcTimeTimeSource timeSource);
         IObservable<IAggregateEvent> EventStream { get; }

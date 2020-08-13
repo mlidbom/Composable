@@ -246,7 +246,7 @@ namespace Composable.Tests.CQRS
             user.Register("OriginalEmail", "password", Guid.NewGuid());
 
             UseInTransactionalScope(session => session.Save(user));
-            Assert.That(((IEventStored)user).GetChanges(), Is.Empty);
+            ((IEventStored)user).Commit(events => events.Should().BeEmpty());
         }
 
         [Test]

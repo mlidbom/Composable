@@ -30,23 +30,23 @@ namespace Composable.Tests.CQRS
         }
 
         [Test]
-        public void GetChangesReturnsEmptyListAfterAcceptChangesCalled()
+        public void ResetEmptiesOutListOfUncommittedEvents()
         {
             var user = new User();
             var userAseventStored = (IEventStored)user;
             Assert.That(user.Version, Is.EqualTo(0));
 
             user.Register("email", "password", Guid.NewGuid());
-            userAseventStored.AcceptChanges();
-            Assert.That(userAseventStored.GetChanges(), Is.Empty);
+            userAseventStored.Commit(_ => {});
+            userAseventStored.Commit(events => events.Should().BeEmpty());
 
             user.ChangeEmail("NewEmail");
-            userAseventStored.AcceptChanges();
-            Assert.That(userAseventStored.GetChanges(), Is.Empty);
+            userAseventStored.Commit(_ => {});
+            userAseventStored.Commit(events => events.Should().BeEmpty());
 
             user.ChangePassword("NewPassword");
-            userAseventStored.AcceptChanges();
-            Assert.That(userAseventStored.GetChanges(), Is.Empty);
+            userAseventStored.Commit(_ => {});
+            userAseventStored.Commit(events => events.Should().BeEmpty());
         }
 
 

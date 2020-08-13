@@ -3,16 +3,30 @@ using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging;
 using Composable.Messaging.Events;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReactiveCE;
+using JetBrains.Annotations;
 
 #pragma warning disable CA1033 // Interface methods should be callable by child types
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent> : VersionedEntity<TAggregate>, IEventStored<TAggregateEvent>
+    [Obsolete("Only here to let things compile while inheritors migrate to the version with 5 type parameters")]
+    public class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent> : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent, AggregateEvent<TAggregateEvent>, IAggregateEvent<TAggregateEvent>>
         where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+        where TAggregateEvent : class, IAggregateEvent
+        where TAggregateEventImplementation : AggregateEvent, TAggregateEvent
+    {
+        [Obsolete("Only for infrastructure", true)] protected Aggregate():this(DateTimeNowTimeSource.Instance){ }
+        protected Aggregate([NotNull] IUtcTimeTimeSource timeSource) : base(timeSource) {}
+    }
+
+    public partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent, TWrapperEventImplementation, TWrapperEventInterface> : VersionedEntity<TAggregate>, IEventStored<TAggregateEvent>
+        where TWrapperEventImplementation : TWrapperEventInterface
+        where TWrapperEventInterface : IAggregateEvent<TAggregateEvent>
+        where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent, TWrapperEventImplementation, TWrapperEventInterface>
         where TAggregateEvent : class, IAggregateEvent
         where TAggregateEventImplementation : AggregateEvent, TAggregateEvent
     {

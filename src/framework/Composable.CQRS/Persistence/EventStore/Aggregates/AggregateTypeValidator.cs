@@ -90,7 +90,7 @@ List of problem members:{Environment.NewLine}{brokenMembers}{Environment.NewLine
             static void AssertValidInternal(ITypeMapper typeMapper)
             {
                 var classInheritanceChain = typeof(TAggregate).ClassInheritanceChain().ToList();
-                var inheritedAggregateType = classInheritanceChain.Where(baseClass => baseClass.IsConstructedGenericType && baseClass.GetGenericTypeDefinition() == typeof(Aggregate<,,>)).Single();
+                var inheritedAggregateType = classInheritanceChain.Where(baseClass => baseClass.IsConstructedGenericType && baseClass.GetGenericTypeDefinition() == typeof(Aggregate<,,,,>)).Single();
 
                 var detectedEventImplementationType = inheritedAggregateType.GenericTypeArguments[1];
                 var detectedEventType = inheritedAggregateType.GenericTypeArguments[2];

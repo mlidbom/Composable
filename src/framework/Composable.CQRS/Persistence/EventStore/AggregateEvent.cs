@@ -7,11 +7,11 @@ namespace Composable.Persistence.EventStore
     public class AggregateEvent<TBaseEventInterface> : MessageTypes.WrapperEvent<TBaseEventInterface>,
                                                                            IAggregateEvent<TBaseEventInterface>
 
-        where TBaseEventInterface : IAggregateEvent, MessageTypes.IWrapperEvent<TBaseEventInterface>
+        where TBaseEventInterface : IAggregateEvent
     {
         public AggregateEvent(TBaseEventInterface @event) : base(@event) {}
     }
- 
+
     public abstract class AggregateEvent : ValueObject<AggregateEvent>, IAggregateEvent
     {
         protected AggregateEvent()

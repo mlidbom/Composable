@@ -62,7 +62,7 @@ namespace Composable.Persistence.EventStore
             Contract.Assert.That(version > 0, "version > 0");
 
             _usageGuard.AssertNoContextChangeOccurred(this);
-            var aggregate = CreateInstance<TAggregate>();
+
             var history = GetHistory(aggregateId);
             if(history.None())
             {
@@ -74,6 +74,7 @@ namespace Composable.Persistence.EventStore
                 throw new Exception($"Requested version: {version} not found. Current version: {history.Count}");
             }
 
+            var aggregate = CreateInstance<TAggregate>();
             aggregate.LoadFromHistory(history.Where(e => e.AggregateVersion <= version));
             return aggregate;
         }

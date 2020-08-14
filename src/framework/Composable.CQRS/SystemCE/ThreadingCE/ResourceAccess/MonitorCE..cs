@@ -79,12 +79,12 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
 
         void NotifyOneWaitingThread()
         {
-            if(_waitingThreadCount > 0)Monitor.Pulse(_lockObject); //One thread blocked on Monitor.Wait for our _lockObject, will now try and reacquire the lock.
+            if(_waitingThreadCount > 0) Monitor.Pulse(_lockObject); //One thread blocked on Monitor.Wait for our _lockObject, will now try and reacquire the lock.
         }
 
         void NotifyAllWaitingThreads()
         {
-            if(_waitingThreadCount > 1)Monitor.PulseAll(_lockObject); //All threads blocked on Monitor.Wait for our _lockObject, if there are such threads, will now try and reacquire the lock.
+            if(_waitingThreadCount > 1) Monitor.PulseAll(_lockObject);   //All threads blocked on Monitor.Wait for our _lockObject, if there are such threads, will now try and reacquire the lock.
             else if(_waitingThreadCount > 0) Monitor.Pulse(_lockObject); //One thread blocked on Monitor.Wait for our _lockObject, will now try and reacquire the lock.
         }
 

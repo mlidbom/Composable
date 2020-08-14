@@ -25,16 +25,19 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
     ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
     public partial class MonitorCE
     {
-        readonly List<EnterLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<EnterLockTimeoutException>();
-        int _timeoutsThrownDuringCurrentLock;
+        int _lockId;
+        readonly object _timeoutLock = new object();
+        IReadOnlyList<(int,EnterLockTimeoutException)> _timeOutExceptionsOnOtherThreads = new List<(int, EnterLockTimeoutException)>();
+
 
         void Enter() => Enter(_timeout);
 
         void Enter(TimeSpan timeout)
         {
+            var currentLock = _lockId;
             if(!TryEnter(timeout))
             {
-                RegisterAndThrowTimeoutException();
+                RegisterAndThrowTimeoutException(currentLock);
             }
         }
 
@@ -56,25 +59,26 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
             Exit();
         }
 
-        ///<summary>Tries to enter the monitor. Will never block.</summary>
-        bool TryEnterNonBlocking() => Monitor.TryEnter(_lockObject);
-
         bool TryEnter(TimeSpan timeout)
         {
-            if(TryEnterNonBlocking()) return true;
-
-            var lockTaken = false;
-            try
+            if(!Monitor.TryEnter(_lockObject)) //This will never block and calling it first improves performance quite a bit.
             {
-                Monitor.TryEnter(_lockObject, timeout, ref lockTaken);
-            }
-            catch(Exception) //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
-            {
-                if(lockTaken) Exit();
-                throw;
+                var lockTaken = false;
+                try
+                {
+                    Monitor.TryEnter(_lockObject, timeout, ref lockTaken);
+                }
+                catch(Exception) //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
+                {
+                    if(lockTaken) Exit();
+                    throw;
+                }
+
+                if(!lockTaken) return false;
             }
 
-            return lockTaken;
+            unchecked { _lockId++; }
+            return true;
         }
 
         void NotifyOneWaitingThread()
@@ -88,31 +92,32 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
             else if(_waitingThreadCount > 0) Monitor.Pulse(_lockObject); //One thread blocked on Monitor.Wait for our _lockObject, will now try and reacquire the lock.
         }
 
-        void RegisterAndThrowTimeoutException()
+        void RegisterAndThrowTimeoutException(int currentLock)
         {
-            lock(_timeOutExceptionsOnOtherThreads)
+            lock(_timeoutLock)
             {
-                Interlocked.Increment(ref _timeoutsThrownDuringCurrentLock);
                 var exception = new EnterLockTimeoutException();
-                _timeOutExceptionsOnOtherThreads.Add(exception);
+                ThreadSafe.AddToCopyAndReplace(ref _timeOutExceptionsOnOtherThreads, (currentLock, exception));
                 throw exception;
             }
         }
 
         void UpdateAnyRegisteredTimeoutExceptions()
         {
-            if(_timeoutsThrownDuringCurrentLock > 0)
+            if(_timeOutExceptionsOnOtherThreads.Count > 0)
             {
-                Interlocked.Exchange(ref _timeoutsThrownDuringCurrentLock, 0);
-                lock(_timeOutExceptionsOnOtherThreads)
+                lock(_timeoutLock)
                 {
                     var stackTrace = new StackTrace(fNeedFileInfo: true);
                     foreach(var exception in _timeOutExceptionsOnOtherThreads)
                     {
-                        exception.SetBlockingThreadsDisposeStackTrace(stackTrace);
+                        if(exception.Item1 == _lockId)
+                        {
+                            exception.Item2.SetBlockingThreadsDisposeStackTrace(stackTrace);
+                        }
                     }
 
-                    _timeOutExceptionsOnOtherThreads.Clear();
+                    Interlocked.Exchange(ref _timeOutExceptionsOnOtherThreads, new List<(int, EnterLockTimeoutException)>());
                 }
             }
         }

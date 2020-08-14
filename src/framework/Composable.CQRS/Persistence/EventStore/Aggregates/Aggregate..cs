@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
 using Composable.Messaging.Events;
 using Composable.SystemCE;
 using Composable.SystemCE.LinqCE;
@@ -45,12 +44,12 @@ namespace Composable.Persistence.EventStore.Aggregates
             Assert.Argument.NotNull(timeSource);
             Contract.Assert.That(typeof(TAggregateEvent).IsInterface, "typeof(TAggregateEvent).IsInterface");
             TimeSource = timeSource;
-            _eventHandlersEventDispatcher.Register().IgnoreUnhandled<TAggregateEvent>();
+            _eventHandlersDispatcher.Register().IgnoreUnhandled<TAggregateEvent>();
         }
 
         readonly List<IAggregateEvent> _unCommittedEvents = new List<IAggregateEvent>();
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventAppliersDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventHandlersDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
 
         int _reentrancyLevel = 0;
         readonly List<TAggregateEventImplementation> _unpublishedEvents = new List<TAggregateEventImplementation>();
@@ -60,14 +59,14 @@ namespace Composable.Persistence.EventStore.Aggregates
         {
             Contract.Assert.That(!_applyingEvents, "You cannot raise events from within event appliers");
 
-            using(ScopedChange.Enter(() => _reentrancyLevel++, () => _reentrancyLevel--))
+            using(ScopedChange.Enter(onEnter:() => _reentrancyLevel++, onDispose: () => _reentrancyLevel--))
             {
                 theEvent.AggregateVersion = Version + 1;
                 theEvent.UtcTimeStamp = TimeSource.UtcNow;
                 if(Version == 0)
                 {
-                    if(!(theEvent is IAggregateCreatedEvent)) throw new Exception($"The first raised event type {theEvent.GetType()} did not inherit {nameof(IAggregateCreatedEvent)}");
-                    if(theEvent.AggregateId == Guid.Empty) throw new Exception($"{nameof(IAggregateDeletedEvent.AggregateId)} was empty in {nameof(IAggregateCreatedEvent)}");
+                    if(!(theEvent is IAggregateCreatedEvent)) throw new Exception($"The first published event {theEvent.GetType()} did not implement {nameof(IAggregateCreatedEvent)}. The first event an aggregate publishes must always implement {nameof(IAggregateCreatedEvent)}.");
+                    if(theEvent.AggregateId == Guid.Empty) throw new Exception($"{nameof(IAggregateEvent.AggregateId)} was empty in {nameof(IAggregateCreatedEvent)}");
                     theEvent.AggregateVersion = 1;
                 } else
                 {
@@ -79,39 +78,37 @@ namespace Composable.Persistence.EventStore.Aggregates
                 AssertInvariantsAreMet();
                 _unCommittedEvents.Add(theEvent);
                 _unpublishedEvents.Add(theEvent);
-                _eventHandlersEventDispatcher.Dispatch(theEvent);
+                _eventHandlersDispatcher.Dispatch(theEvent);
             }
 
             if(_reentrancyLevel == 0)
             {
-                foreach(var @event in _unpublishedEvents)
-                {
-                    _eventStream.OnNext(@event);
-                }
-
+                foreach(var @event in _unpublishedEvents) _eventStream.OnNext(@event);
                 _unpublishedEvents.Clear();
             }
 
             return theEvent;
         }
 
-        protected IEventHandlerRegistrar<TAggregateEvent> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();
+        protected IEventHandlerRegistrar<TAggregateEvent> RegisterEventAppliers() => _eventAppliersDispatcher.RegisterHandlers();
 
         // ReSharper disable once UnusedMember.Global todo: coverage
-        protected IEventHandlerRegistrar<TAggregateEvent> RegisterEventHandlers() => _eventHandlersEventDispatcher.RegisterHandlers();
+        protected IEventHandlerRegistrar<TAggregateEvent> RegisterEventHandlers() => _eventHandlersDispatcher.RegisterHandlers();
 
         void ApplyEvent(TAggregateEvent theEvent)
         {
-            using var scope = ScopedChange.Enter(() => _applyingEvents = true, () => _applyingEvents = false);
-            if(theEvent is IAggregateCreatedEvent)
+            using(ScopedChange.Enter(onEnter: () => _applyingEvents = true, onDispose: () => _applyingEvents = false))
             {
+                if(theEvent is IAggregateCreatedEvent)
+                {
 #pragma warning disable 618 // Review OK: This is the one place where we are quite sure that calling this obsolete method is correct.
-                SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateId);
+                    SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateId);
 #pragma warning restore 618
-            }
+                }
 
-            Version = theEvent.AggregateVersion;
-            _eventDispatcher.Dispatch(theEvent);
+                Version = theEvent.AggregateVersion;
+                _eventAppliersDispatcher.Dispatch(theEvent);
+            }
         }
 
         protected virtual void AssertInvariantsAreMet() {}

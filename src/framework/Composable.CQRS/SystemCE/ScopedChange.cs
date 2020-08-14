@@ -4,11 +4,15 @@ namespace Composable.SystemCE
 {
     static class ScopedChange
     {
-        ///<summary>Executes <param name="enterAction"> immediately and executes <param name="exitAction"> when disposed. A for more expressive and concise version of making a change and then using a finally block to ensure that the change is rolled back.</param></param></summary>
-        public static IDisposable Enter(Action enterAction, Action exitAction)
+        ///<summary>
+        /// <para>A more expressive and concise version of making a change and then using a finally block to ensure that the change is rolled back at some later point.</para>
+        /// <para>Executes <paramref name="onEnter"/>immediately and executes <paramref name="onDispose"/> when disposed.</para>
+        /// <para>Ensure that you use named parameters to make the call easy to read.</para>
+        /// </summary>
+        public static IDisposable Enter(Action onEnter, Action onDispose)
         {
-            enterAction();
-            return DisposableCE.Create(exitAction);
+            onEnter();
+            return DisposableCE.Create(onDispose);
         }
     }
 }

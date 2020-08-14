@@ -31,7 +31,7 @@ namespace Composable.Persistence.EventStore.Aggregates
         where TAggregateEvent : class, IAggregateEvent
         where TAggregateEventImplementation : AggregateEvent, TAggregateEvent
     {
-        IUtcTimeTimeSource TimeSource { get; set; }
+        protected IUtcTimeTimeSource TimeSource { get; private set; }
 
         static Aggregate() => AggregateTypeValidator<TAggregate, TAggregateEventImplementation, TAggregateEvent>.AssertStaticStructureIsValid();
 
@@ -51,10 +51,10 @@ namespace Composable.Persistence.EventStore.Aggregates
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventAppliersDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent> _eventHandlersDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateEvent>();
 
-        int _reentrancyLevel = 0;
-        readonly List<TAggregateEventImplementation> _unpublishedEvents = new List<TAggregateEventImplementation>();
+        int _reentrancyLevel;
         bool _applyingEvents;
 
+        readonly List<TAggregateEventImplementation> _eventsPublishedDuringCurrentPublishCallIncludingReentrantCallsFromEventHandlers = new List<TAggregateEventImplementation>();
         protected TEvent Publish<TEvent>(TEvent theEvent) where TEvent : TAggregateEventImplementation
         {
             Contract.Assert.That(!_applyingEvents, "You cannot raise events from within event appliers");
@@ -75,16 +75,16 @@ namespace Composable.Persistence.EventStore.Aggregates
                 }
 
                 ApplyEvent(theEvent);
-                AssertInvariantsAreMet();
                 _unCommittedEvents.Add(theEvent);
-                _unpublishedEvents.Add(theEvent);
+                _eventsPublishedDuringCurrentPublishCallIncludingReentrantCallsFromEventHandlers.Add(theEvent);
                 _eventHandlersDispatcher.Dispatch(theEvent);
             }
 
             if(_reentrancyLevel == 0)
             {
-                foreach(var @event in _unpublishedEvents) _eventStream.OnNext(@event);
-                _unpublishedEvents.Clear();
+                AssertInvariantsAreMet(); //It is allowed to enter a temporarily invalid state that will be corrected by new events published by event handlers. So we only check invariants once this event has been fully published including reentrancy.
+                foreach(var @event in _eventsPublishedDuringCurrentPublishCallIncludingReentrantCallsFromEventHandlers) _eventStream.OnNext(@event);
+                _eventsPublishedDuringCurrentPublishCallIncludingReentrantCallsFromEventHandlers.Clear();
             }
 
             return theEvent;
@@ -126,6 +126,7 @@ namespace Composable.Persistence.EventStore.Aggregates
 
         void IEventStored.LoadFromHistory(IEnumerable<IAggregateEvent> history)
         {
+            if(Version != 0) throw new InvalidOperationException($"You can only call {nameof(IEventStored.LoadFromHistory)} on an empty Aggregate with {nameof(Version)} == 0");
             history.ForEach(theEvent => ApplyEvent((TAggregateEvent)theEvent));
             AssertInvariantsAreMet();
         }

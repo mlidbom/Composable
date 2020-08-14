@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
@@ -25,10 +26,10 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
     ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
     public partial class MonitorCE
     {
-        int _lockId;
+        ulong _lockId;
+        long _contendedLocks;
         readonly object _timeoutLock = new object();
-        IReadOnlyList<(int,EnterLockTimeoutException)> _timeOutExceptionsOnOtherThreads = new List<(int, EnterLockTimeoutException)>();
-
+        IReadOnlyList<EnterLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<EnterLockTimeoutException>();
 
         void Enter() => Enter(_timeout);
 
@@ -63,6 +64,7 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
         {
             if(!Monitor.TryEnter(_lockObject)) //This will never block and calling it first improves performance quite a bit.
             {
+                Interlocked.Increment(ref _contendedLocks);
                 var lockTaken = false;
                 try
                 {
@@ -78,6 +80,7 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
             }
 
             unchecked { _lockId++; }
+
             return true;
         }
 
@@ -92,12 +95,12 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
             else if(_waitingThreadCount > 0) Monitor.Pulse(_lockObject); //One thread blocked on Monitor.Wait for our _lockObject, will now try and reacquire the lock.
         }
 
-        void RegisterAndThrowTimeoutException(int currentLock)
+        void RegisterAndThrowTimeoutException(ulong currentLock)
         {
             lock(_timeoutLock)
             {
-                var exception = new EnterLockTimeoutException();
-                ThreadSafe.AddToCopyAndReplace(ref _timeOutExceptionsOnOtherThreads, (currentLock, exception));
+                var exception = new EnterLockTimeoutException(lockId: currentLock);
+                ThreadSafe.AddToCopyAndReplace(ref _timeOutExceptionsOnOtherThreads, exception);
                 throw exception;
             }
         }
@@ -109,15 +112,12 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
                 lock(_timeoutLock)
                 {
                     var stackTrace = new StackTrace(fNeedFileInfo: true);
-                    foreach(var exception in _timeOutExceptionsOnOtherThreads)
+                    foreach(var exception in _timeOutExceptionsOnOtherThreads.Where(exception => exception.LockId == _lockId))
                     {
-                        if(exception.Item1 == _lockId)
-                        {
-                            exception.Item2.SetBlockingThreadsDisposeStackTrace(stackTrace);
-                        }
+                        exception.SetBlockingThreadsDisposeStackTrace(stackTrace);
                     }
 
-                    Interlocked.Exchange(ref _timeOutExceptionsOnOtherThreads, new List<(int, EnterLockTimeoutException)>());
+                    Interlocked.Exchange(ref _timeOutExceptionsOnOtherThreads, new List<EnterLockTimeoutException>());
                 }
             }
         }

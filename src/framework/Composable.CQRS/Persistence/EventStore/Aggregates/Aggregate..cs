@@ -82,7 +82,7 @@ namespace Composable.Persistence.EventStore.Aggregates
 
             if(_reentrancyLevel == 0)
             {
-                AssertInvariantsAreMet(); //It is allowed to enter a temporarily invalid state that will be corrected by new events published by event handlers. So we only check invariants once this event has been fully published including reentrancy.
+                AssertInvariantsAreMet(); //It is allowed to enter a temporarily invalid state that will be corrected by new events published by event handlers. So we only check invariants once this event has been fully published including events published by handlers of the original event.
                 foreach(var @event in _eventsPublishedDuringCurrentPublishCallIncludingReentrantCallsFromEventHandlers) _eventStream.OnNext(@event);
                 _eventsPublishedDuringCurrentPublishCallIncludingReentrantCallsFromEventHandlers.Clear();
             }

@@ -29,7 +29,6 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
         ulong _lockId;
         long _contendedLocks;
         readonly object _timeoutLock = new object();
-        int _reentrancyLevel;
         int _allowReentrancyIfGreaterThanZero;
         IReadOnlyList<EnterLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<EnterLockTimeoutException>();
 
@@ -83,22 +82,14 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
                 if(!lockTaken) return false;
             }
 
-            OnAfterLockEntered_Must_Be_Called_by_any_code_entering_lock_including_waits();
-
             return true;
-        }
-
-        void OnAfterLockEntered_Must_Be_Called_by_any_code_entering_lock_including_waits()
-        {
-            _reentrancyLevel++; //Bug: Waits exits lock completely and reenters to the same depth. This is plain wrong when called from waits.
         }
 
         bool IsEntered() => Monitor.IsEntered(_lockObject);
 
         void OnBeforeLockExit_Must_be_called_by_any_code_exiting_lock_including_waits()
         {
-            _reentrancyLevel--; //Bug: Waits exits lock completely and reenters to the same depth. This is plain wrong when called from waits.
-            if(_reentrancyLevel == 0) unchecked { _lockId++; }
+            unchecked { _lockId++; }
         }
 
         void NotifyOneWaitingThread()

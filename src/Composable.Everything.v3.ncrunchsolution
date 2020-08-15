@@ -51,9 +51,8 @@
       <Value>Messaging\Buses\EndpointRequestExecutor.cs:framework\Composable.CQRS\Composable.CQRS.csproj-22</Value>
       <Value>Persistence\MsSql\Testing\Databases\MsSqlDatabaseHelpers.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-53</Value>
       <Value>DependencyInjection\TransactionalExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-39</Value>
-      <Value>Testing\Threading\ThreadGate.cs:framework\Composable.CQRS\Composable.CQRS.csproj-91</Value>
+      <Value>Testing\Threading\ThreadGate.cs:framework\Composable.CQRS\Composable.CQRS.csproj-88</Value>
       <Value>Testing\Threading\ThreadGateExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-41</Value>
-      <Value>Testing\Threading\GatedCodeSectionExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-51</Value>
       <Value>Testing\Threading\ThreadGateExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
       <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine..cs:framework\Composable.CQRS\Composable.CQRS.csproj-34</Value>
       <Value>CQRS\EventRefactoring\Migrations\EventMigrationTest.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-217</Value>

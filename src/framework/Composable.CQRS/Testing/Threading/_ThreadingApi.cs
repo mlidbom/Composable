@@ -7,13 +7,10 @@ namespace Composable.Testing.Threading
     interface IThreadGateVisitor
     {
         void AwaitPassThrough();
-        void AwaitPassThrough(TimeSpan timeout);
     }
 
     interface IThreadGate : IThreadGateVisitor
     {
-        MonitorCE Monitor { get; }
-
         ///<summary>Opens the gate and lets all threads through.</summary>
         IThreadGate Open();
 
@@ -50,7 +47,6 @@ namespace Composable.Testing.Threading
     {
         IThreadGate EntranceGate { get; }
         IThreadGate ExitGate { get; }
-        IGatedCodeSection WithUpdateLock(Action action);
         IDisposable Enter();
     }
 }

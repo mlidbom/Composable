@@ -23,7 +23,6 @@ namespace Composable.Testing.Threading
         public IReadOnlyList<ThreadSnapshot> PassedThrough => _monitor.Read(() => _passedThreads.ToList());
         public Action<ThreadSnapshot> PassThroughAction => _monitor.Read(() => _passThroughAction);
 
-        public MonitorCE Monitor => _monitor;
         public IThreadGate Open()
         {
             _monitor.Update(() =>
@@ -77,9 +76,7 @@ Current state of gate:
             return this;
         }
 
-        public void AwaitPassThrough() => AwaitPassThrough(_defaultTimeout);
-
-        public void AwaitPassThrough(TimeSpan timeout)
+        public void AwaitPassThrough()
         {
             var currentThread = new ThreadSnapshot();
 

@@ -26,29 +26,5 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         {
             using(EnterUpdateLock()) return func(out outParam);
         }
-
-        public ReentrancyAllowedScope EnterReentrancyAllowedScope() => new ReentrancyAllowedScope(this);
-
-        public sealed class ReentrancyAllowedScope : IDisposable
-        {
-            readonly MonitorCE _monitor;
-            internal ReentrancyAllowedScope(MonitorCE monitor)
-            {
-                _monitor = monitor;
-                AssertOwnsLock();
-                _monitor._allowReentrancyIfGreaterThanZero++;
-            }
-
-            public void Dispose()
-            {
-                AssertOwnsLock();
-                _monitor._allowReentrancyIfGreaterThanZero--;
-            }
-
-            void AssertOwnsLock()
-            {
-                if(!_monitor.IsEntered()) throw new Exception("You must own the lock to enable or disable reentrancy.");
-            }
-        }
     }
 }

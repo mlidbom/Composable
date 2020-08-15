@@ -100,9 +100,8 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
         void Wait(TimeSpan timeout)
         {
-            OnBeforeLockExit_Must_be_called_by_any_code_exiting_lock_including_waits(); //Bug: Waits exits lock completely and reenters to the same depth. THis is plain wrong when called from waits.
+            OnBeforeLockExit_Must_be_called_by_any_code_exiting_lock_including_waits();
             Monitor.Wait(_lockObject, timeout);
-            OnAfterLockEntered_Must_Be_Called_by_any_code_entering_lock_including_waits(); //Bug: Waits exits lock completely and reenters to the same depth. THis is plain wrong when called from waits.
         }
     }
 }

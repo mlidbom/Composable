@@ -32,7 +32,7 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
 
             internal long Read_MonitorCE_Using_EnterLock()
             {
-                using(_monitor.EnterReadLock())
+                using(_monitor.EnterLock())
                 {
                     return Read_Unsafe();
                 }
@@ -50,7 +50,7 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
 
             internal void Increment_MonitorCE_Using_EnterLock()
             {
-                using(_monitor.EnterReadLock()) Increment_Unsafe();
+                using(_monitor.EnterLock()) Increment_Unsafe();
             }
 
             internal void Increment_MonitorCE_Using_EnterNotifyOneUpdateLock()

@@ -52,7 +52,7 @@ namespace Composable.Persistence.EventStore
             {
                 entry = null;
                 if(Transaction.Current == null) return false;
-                using(_monitor.EnterReadLock())
+                using(_monitor.EnterLock())
                 {
                     return CurrentOverlay.TryGetValue(aggregateId, out entry);
                 }

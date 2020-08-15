@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
@@ -8,7 +9,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
         public TReturn Read<TReturn>(Func<TReturn> func)
         {
-            using(EnterReadLock()) return func();
+            using(EnterLock()) return func();
         }
 
         public void Update(Action action)

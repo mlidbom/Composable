@@ -6,44 +6,39 @@ namespace Composable.Testing.Threading
     static class GatedCodeSectionExtensions
     {
         public static IGatedCodeSection Open(this IGatedCodeSection @this)
-            => @this.WithUpdateLock(
-                () =>
-                {
-                    @this.EntranceGate.Open();
-                    @this.ExitGate.Open();
-                });
+        {
+            @this.EntranceGate.Open();
+            @this.ExitGate.Open();
+            return @this;
+        }
 
         public static IGatedCodeSection Close(this IGatedCodeSection @this)
-            => @this.WithUpdateLock(
-                () =>
-                {
-                    @this.EntranceGate.Close();
-                    @this.ExitGate.Close();
-                });
+        {
+            @this.EntranceGate.Close();
+            @this.ExitGate.Close();
+            return @this;
+        }
 
         public static IGatedCodeSection LetOneThreadEnter(this IGatedCodeSection @this)
-            => @this.WithUpdateLock(
-                () =>
-                {
-                    @this.AssertIsEmpty();
-                    @this.EntranceGate.AwaitLetOneThreadPassThrough();
-                });
+        {
+            @this.AssertIsEmpty();
+            @this.EntranceGate.AwaitLetOneThreadPassThrough();
+            return @this;
+        }
 
         public static IGatedCodeSection LetOneThreadEnterAndReachExit(this IGatedCodeSection @this)
-            => @this.WithUpdateLock(
-                () =>
-                {
-                    @this.LetOneThreadEnter();
-                    @this.ExitGate.AwaitQueueLengthEqualTo(1);
-                });
+        {
+            @this.LetOneThreadEnter();
+            @this.ExitGate.AwaitQueueLengthEqualTo(1);
+            return @this;
+        }
 
         public static IGatedCodeSection LetOneThreadPass(this IGatedCodeSection @this)
-            => @this.WithUpdateLock(
-                () =>
-                {
-                    @this.LetOneThreadEnterAndReachExit();
-                    @this.ExitGate.AwaitLetOneThreadPassThrough();
-                });
+        {
+            @this.LetOneThreadEnterAndReachExit();
+            @this.ExitGate.AwaitLetOneThreadPassThrough();
+            return @this;
+        }
 
         public static void Execute(this IGatedCodeSection @this, Action action)
         {
@@ -54,16 +49,12 @@ namespace Composable.Testing.Threading
         }
 
         public static bool IsEmpty(this IGatedCodeSection @this)
-            => @this.WithExclusiveLock(() => @this.EntranceGate.Passed == @this.ExitGate.Passed);
+            => @this.EntranceGate.Passed == @this.ExitGate.Passed;
 
         public static IGatedCodeSection AssertIsEmpty(this IGatedCodeSection @this)
-            => @this.WithUpdateLock(() => Contract.Assert.That(@this.IsEmpty(), "Code section should be empty"));
-
-        public static TResult WithExclusiveLock<TResult>(this IGatedCodeSection @this, Func<TResult> function)
         {
-            TResult result = default(TResult)!;
-            @this.WithUpdateLock(() => result = function());
-            return result;
+            Contract.Assert.That(@this.IsEmpty(), "Code section should be empty");
+            return @this;
         }
     }
 }

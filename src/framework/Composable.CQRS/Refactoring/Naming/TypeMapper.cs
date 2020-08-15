@@ -61,11 +61,14 @@ namespace Composable.Refactoring.Naming
             }
         });
 
-        public void IncludeMappingsFrom(TypeMapper other) => _state.Update(
-            state => other._state.Update(
-                otherState => otherState.TypeToTypeIdMap.ForEach(pair => InternalMap(pair.Key, pair.Value))));
+        public void IncludeMappingsFrom(TypeMapper other) => _state.Update(state => other._state.Update(state.IncludeMappingsFrom));
 
-        public ITypeMappingRegistar Map<TType>(Guid typeIdGuid) => InternalMap(typeof(TType), new TypeId(typeIdGuid));
+        public ITypeMappingRegistar Map<TType>(Guid typeIdGuid)
+        {
+            _state.Update(state => state.Map(typeof(TType), new TypeId(typeIdGuid)));
+            return this;
+        }
+
         public ITypeMappingRegistar Map<TType>(string typeGuid) => Map<TType>(Guid.Parse(typeGuid));
 
         ITypeMappingRegistar InternalMap(Type type, TypeId typeId) => _state.Update(state =>
@@ -123,6 +126,28 @@ You should map them in your endpoint configuration by using {typeof(IEndpointBui
         {
             public readonly Dictionary<Type, TypeId> TypeToTypeIdMap = new Dictionary<Type, TypeId>();
             public readonly Dictionary<TypeId, Type> TypeIdToTypeMap = new Dictionary<TypeId, Type>();
+
+            internal void Map(Type type, TypeId typeId)
+            {
+                if(TypeToTypeIdMap.TryGetValue(type, out var existingTypeId))
+                {
+                    if(existingTypeId == typeId) return;
+                    throw new Exception($"Attempted to map Type:{type.FullName} to: {typeId}, but it is already mapped to: TypeId: {existingTypeId}");
+                }
+
+                if(TypeIdToTypeMap.TryGetValue(typeId, out var existingType))
+                {
+                    if(existingType == type) return;
+                    throw new Exception($"Attempted to map TypeId:{typeId.GuidValue} to: {type.FullName}, but it is already mapped to Type: {existingType.FullName}");
+                }
+
+                AssertTypeValidForMapping(type);
+
+                TypeIdToTypeMap.Add(typeId, type);
+                TypeToTypeIdMap.Add(type, typeId);
+            }
+
+            public void IncludeMappingsFrom(State otherState) => otherState.TypeToTypeIdMap.ForEach(pair => Map(pair.Key, pair.Value));
         }
 
         static string MapMethodCallforType(Type type) => $@"{nameof(ITypeMappingRegistar.Map)}<{type.GetFullNameCompilable()}>(""{Guid.NewGuid()}"")";

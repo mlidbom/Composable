@@ -16,7 +16,9 @@ namespace Composable.Persistence.DocumentDb
         readonly Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
         readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
 
-        internal bool Contains(Type type, object id) => _monitor.Read(() => TryGet(type, id, out _));
+        internal bool Contains(Type type, object id) => _monitor.Read(() => ContainsInternal(type, id));
+
+        bool ContainsInternal(Type type, object id) => TryGet(type, id, out _);
 
         internal bool TryGet<T>(object id, [NotNullWhen(true)] out T value)
         {
@@ -60,7 +62,7 @@ namespace Composable.Persistence.DocumentDb
             Assert.Argument.NotNull(value);
 
             var idString = GetIdString(id);
-            if(Contains(value.GetType(), idString))
+            if(ContainsInternal(value.GetType(), idString))
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }

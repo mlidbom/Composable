@@ -6,29 +6,14 @@ using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
-    // urgent: Carefully review monitor documentation: https://docs.microsoft.com/en-us/dotnet/api/system.threading.monitor?view=netcore-3.1
-    /*
-     Todo:
-Note: Blocking == Context switch == about 20 nanoseconds to acquire a lock just turned into something like a microsecond or two at the very least. That's 50 times slower AT LEAST.
-   So: If we know that we are about to block, we can do other work here that would be unacceptable for the uncontended case.
-     Such as 
-        incrementing a counter of such instances of contention
-        logging once per 10^x contended locks including the stack trace.
-
-    TryEnter without a timeout value NEVER blocks and return a bool this lets us detect contention and act differently when we know we are about to block: https://tinyurl.com/y36v2fh6
-
-Note: In these cases we are allowed to do relatively expensive work to diagnose what is severe application misbehavior, most likely a deadlock:
-  1.We have timed out unconditionally (Not a Try* method) acquiring the lock..
-  2. We are releasing a lock and see that others have timed out waiting for this lock.
-    */
-
 #pragma warning disable CA1001 // Class owns disposable fields but is not disposable
-    ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
+    ///<summary>The monitor class exposes a rather obscure, brittle and easily misused API in my opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
     public partial class MonitorCE
     {
         ulong _lockId;
         long _contendedLocks;
         readonly object _timeoutLock = new object();
+        int _allowReentrancyIfGreaterThanZero;
         IReadOnlyList<EnterLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<EnterLockTimeoutException>();
 
         void Enter() => Enter(_timeout);
@@ -45,6 +30,7 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
         void Exit()
         {
             UpdateAnyRegisteredTimeoutExceptions();
+            OnBeforeLockExit_Must_be_called_by_any_code_exiting_lock_including_waits();
             Monitor.Exit(_lockObject);
         }
 
@@ -62,6 +48,7 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
 
         bool TryEnter(TimeSpan timeout)
         {
+            if(_allowReentrancyIfGreaterThanZero == 0 && IsEntered()) throw new InvalidOperationException($"{nameof(MonitorCE)} is not reentrant.");
             if(!Monitor.TryEnter(_lockObject)) //This will never block and calling it first improves performance quite a bit.
             {
                 Interlocked.Increment(ref _contendedLocks);
@@ -79,9 +66,14 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
                 if(!lockTaken) return false;
             }
 
-            unchecked { _lockId++; }
-
             return true;
+        }
+
+        bool IsEntered() => Monitor.IsEntered(_lockObject);
+
+        void OnBeforeLockExit_Must_be_called_by_any_code_exiting_lock_including_waits()
+        {
+            unchecked { _lockId++; }
         }
 
         void NotifyOneWaitingThread()

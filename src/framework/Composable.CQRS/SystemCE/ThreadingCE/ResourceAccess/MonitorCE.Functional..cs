@@ -39,15 +39,15 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                 _monitor._allowReentrancyIfGreaterThanZero++;
             }
 
-            void AssertOwnsLock()
-            {
-                if(_monitor._ownerThread != Thread.CurrentThread.ManagedThreadId) throw new Exception("You must own the lock to enable or disable reentrancy.");
-            }
-
             public void Dispose()
             {
                 AssertOwnsLock();
                 _monitor._allowReentrancyIfGreaterThanZero--;
+            }
+
+            void AssertOwnsLock()
+            {
+                if(!_monitor.IsEntered()) throw new Exception("You must own the lock to enable or disable reentrancy.");
             }
         }
     }

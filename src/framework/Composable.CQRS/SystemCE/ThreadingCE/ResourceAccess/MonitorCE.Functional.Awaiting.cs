@@ -50,15 +50,14 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 
             bool AllowReentrancyCondition()
             {
-                var ownerThread = _ownerThread;
                 try
                 {
-                    _ownerThread = NoOwnerThread;
+                    _allowReentrancyIfGreaterThanZero++;
                     return condition();
                 }
                 finally
                 {
-                    _ownerThread = ownerThread;
+                    _allowReentrancyIfGreaterThanZero--;
                 }
             }
 

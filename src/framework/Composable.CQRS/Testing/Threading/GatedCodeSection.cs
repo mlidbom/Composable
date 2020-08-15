@@ -24,8 +24,21 @@ namespace Composable.Testing.Threading
             using(_lock.EnterUpdateLock())
             {
                 //The reason for taking the lock is to inspect/modify both gates. So take the locks right away and ensure consistency throughout the action
-                EntranceGate.WithExclusiveLock(() => ExitGate.WithExclusiveLock(action));
+                EntranceGate.WithExclusiveLock(() => ExitGate.WithExclusiveLock(() =>
+                {
+                    using(_lock.EnterReentrancyAllowedScope())
+                    {
+                        using(EntranceGate.Monitor.EnterReentrancyAllowedScope())
+                        {
+                            using(ExitGate.Monitor.EnterReentrancyAllowedScope())
+                            {
+                                action();
+                            }
+                        }
+                    }
+                }));
             }
+
             return this;
         }
 

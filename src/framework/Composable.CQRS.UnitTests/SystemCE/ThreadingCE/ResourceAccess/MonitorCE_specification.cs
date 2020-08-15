@@ -42,35 +42,15 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
             Task.WaitAll(otherThreadTask);
         }
 
-        [Test] public void When_one_thread_calls_AwaitUpdateLock_twice_other_thread_is_blocked_until_first_thread_disposes_both_locks()
+        [Test] public void When_one_thread_calls_AwaitUpdateLock_twice_an_exception_is_thrown()
         {
             var monitor = MonitorCE.WithTimeout(1.Seconds());
 
-            var updateLock1 = monitor.EnterUpdateLock();
-            var updateLock2 = monitor.EnterUpdateLock();
+            using(monitor.EnterUpdateLock())
+            {
+                Assert.Throws<InvalidOperationException>(() => monitor.EnterUpdateLock());
+            }
 
-            using var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
-            using var otherThreadGotLock = new ManualResetEventSlim(false);
-            var otherThreadTask = TaskCE.Run("otherThreadTask",
-                                             () =>
-                                             {
-                                                 otherThreadIsWaitingForLock.Set();
-                                                 using(monitor.EnterUpdateLock())
-                                                 {
-                                                     otherThreadGotLock.Set();
-                                                 }
-                                             });
-
-            otherThreadIsWaitingForLock.Wait();
-            otherThreadGotLock.Wait(10.Milliseconds()).Should().BeFalse();
-
-            updateLock1.Dispose();
-            otherThreadGotLock.Wait(10.Milliseconds()).Should().BeFalse();
-
-            updateLock2.Dispose();
-            otherThreadGotLock.Wait(10.Milliseconds()).Should().BeTrue();
-
-            Task.WaitAll(otherThreadTask);
         }
 
         [TestFixture] public class Given_a_timeout_of_10_milliseconds_an_exception_is_thrown_By_Get_within_15_milliseconds_if_lock_is_not_acquired

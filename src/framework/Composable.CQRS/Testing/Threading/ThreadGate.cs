@@ -23,6 +23,7 @@ namespace Composable.Testing.Threading
         public IReadOnlyList<ThreadSnapshot> PassedThrough => _monitor.Read(() => _passedThreads.ToList());
         public Action<ThreadSnapshot> PassThroughAction => _monitor.Read(() => _passThroughAction);
 
+        public MonitorCE Monitor => _monitor;
         public IThreadGate Open()
         {
             _monitor.Update(() =>

@@ -47,6 +47,21 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         bool TryEnterWhen(TimeSpan conditionTimeout, Func<bool> condition)
         {
             var acquiredLockStartingWait = false;
+
+            bool AllowReentrancyCondition()
+            {
+                var ownerThread = _ownerThread;
+                try
+                {
+                    _ownerThread = NoOwnerThread;
+                    return condition();
+                }
+                finally
+                {
+                    _ownerThread = ownerThread;
+                }
+            }
+
             try
             {
                 if(conditionTimeout == InfiniteTimeout)
@@ -54,14 +69,15 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                     Enter(DefaultTimeout);
                     acquiredLockStartingWait = true;
                     Interlocked.Increment(ref _waitingThreadCount);
-                    while(!condition()) Wait(InfiniteTimeout);
+                    while(!AllowReentrancyCondition()) Wait(InfiniteTimeout);
                 } else
                 {
                     var startTime = DateTime.UtcNow;
                     Enter(conditionTimeout);
                     acquiredLockStartingWait = true;
                     Interlocked.Increment(ref _waitingThreadCount);
-                    while(!condition())
+
+                    while(!AllowReentrancyCondition())
                     {
                         var elapsedTime = DateTime.UtcNow - startTime;
                         var timeRemaining = conditionTimeout - elapsedTime;
@@ -83,6 +99,11 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
             return true;
         }
 
-        void Wait(TimeSpan timeout) => Monitor.Wait(_lockObject, timeout);
+        void Wait(TimeSpan timeout)
+        {
+            OnBeforeLockExit_Must_be_called_by_any_code_exiting_lock_including_waits();
+            Monitor.Wait(_lockObject, timeout);
+            OnAfterLockEntered_Must_Be_Called_by_any_code_entering_lock_including_waits();
+        }
     }
 }

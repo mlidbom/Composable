@@ -95,6 +95,8 @@ namespace Composable.Messaging
 
                 public interface IEvent : Remotable.IEvent, ExactlyOnce.IMessage {}
 
+                //Todo: Should this exist? Or should the wrapped event alone carry this data and metadata? Isn't having it here as well duplication that might cause conflicts with the declaration of the wrapped events?
+                //Urgent: Remove for now.
                 public interface IWrapperEvent<out TEventInterface> : MessageTypes.IWrapperEvent<TEventInterface>, ExactlyOnce.IEvent
                     where TEventInterface : IEvent
                 {

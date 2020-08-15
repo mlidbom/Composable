@@ -120,13 +120,13 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
 
         [Test] public void _031_Read_MonitorCE_Using_EnterLock______time_is_less_than_nanoseconds_SingleThreaded_25_MultiThreaded_180() =>
             RunScenarios(() => _guarded.Read_MonitorCE_Using_EnterLock(),
-                         singleThread: (25 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 40, unoptimized: 2.2),
-                         multiThread: (180 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 10, unoptimized:1.4));
+                         singleThread: (25 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 45, unoptimized: 2.2),
+                         multiThread: (180 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 14, unoptimized:1.4));
 
         [Test] public void _032_Read_MonitorCE_Read________________time_is_less_than_nanoseconds_SingleThreaded_40_MultiThreaded_200() =>
             RunScenarios(() => _guarded.Read_MonitorCE_Read(),
                          singleThread: (40 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 30.0, unoptimized: 2.2),
-                         multiThread: (200 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 7.0, unoptimized:1.6));
+                         multiThread: (200 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 9.0, unoptimized:1.6));
 
         [Test] public void _050_Increment_Unsafe___________________________________time_is_less_than_nanoseconds_SingleThreaded_06_MultiThreaded_08() =>
             RunScenarios(() => _guarded.Increment_Unsafe(),
@@ -140,13 +140,13 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
 
         [Test] public void _070_Increment_MonitorCE_Using_EnterLock_________________time_is_less_than_nanoseconds_SingleThreaded_30__MultiThreaded_240() =>
             RunScenarios(() => _guarded.Increment_MonitorCE_Using_EnterLock(),
-                         singleThread: (30 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 32, unoptimized: 2.2),
-                         multiThread: (240 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 6.0, unoptimized: 1.3));
+                         singleThread: (35 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 40, unoptimized: 2.2),
+                         multiThread: (240 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 8.0, unoptimized: 1.3));
 
         [Test] public void _071_Increment_MonitorCE_Using_EnterNotifyOneUpdateLock___time_is_less_than_nanoseconds_SingleThreaded_30__MultiThreaded_270() =>
             RunScenarios(() => _guarded.Increment_MonitorCE_Using_EnterNotifyOneUpdateLock(),
-                         singleThread: (30 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 40, unoptimized: 2.8),
-                         multiThread: (270 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 8.0, unoptimized: 1.3));
+                         singleThread: (30 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 45, unoptimized: 2.8),
+                         multiThread: (270 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 10, unoptimized: 1.3));
 
         [Test] public void _072_Increment_MonitorCE_Using_EnterNotifyAllUpdateLock____time_is_less_than_nanoseconds_SingleThreaded_30__MultiThreaded_270() =>
             RunScenarios(() => _guarded.Increment_MonitorCE_Using_EnterNotifyAllUpdateLock(),
@@ -156,7 +156,7 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
         [Test] public void _073_Increment_MonitorCE_Update_________________________time_is_less_than_nanoseconds_SingleThreaded_50__MultiThreaded_250() =>
             RunScenarios(() => _guarded.Increment_MonitorCE_Update(),
                          singleThread: (50 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 32, unoptimized: 1.8),
-                         multiThread: (250 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 8.0, unoptimized: 1.3));
+                         multiThread: (250 * TotalLocks).Nanoseconds().EnvMultiply(instrumented: 12, unoptimized: 1.3));
 
     }
 }

@@ -26,9 +26,13 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
     ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
     public partial class MonitorCE
     {
+        const int NoOwnerThread = -1;
         ulong _lockId;
+        int _ownerThread = NoOwnerThread;
         long _contendedLocks;
         readonly object _timeoutLock = new object();
+        int _reentrancyLevel;
+        int _allowReentrancyIfGreaterThanZero;
         IReadOnlyList<EnterLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<EnterLockTimeoutException>();
 
         void Enter() => Enter(_timeout);
@@ -45,6 +49,7 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
         void Exit()
         {
             UpdateAnyRegisteredTimeoutExceptions();
+            OnBeforeLockExit_Must_be_called_by_any_code_exiting_lock_including_waits();
             Monitor.Exit(_lockObject);
         }
 
@@ -62,6 +67,7 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
 
         bool TryEnter(TimeSpan timeout)
         {
+            if(_allowReentrancyIfGreaterThanZero == 0 && _ownerThread == Thread.CurrentThread.ManagedThreadId) throw new InvalidOperationException($"{nameof(MonitorCE)} is not reentrant.");
             if(!Monitor.TryEnter(_lockObject)) //This will never block and calling it first improves performance quite a bit.
             {
                 Interlocked.Increment(ref _contendedLocks);
@@ -79,9 +85,26 @@ Note: In these cases we are allowed to do relatively expensive work to diagnose 
                 if(!lockTaken) return false;
             }
 
-            unchecked { _lockId++; }
+            OnAfterLockEntered_Must_Be_Called_by_any_code_entering_lock_including_waits();
 
             return true;
+        }
+
+        void OnAfterLockEntered_Must_Be_Called_by_any_code_entering_lock_including_waits()
+        {
+            _reentrancyLevel++;
+            _ownerThread = Thread.CurrentThread.ManagedThreadId;
+        }
+
+        void OnBeforeLockExit_Must_be_called_by_any_code_exiting_lock_including_waits()
+        {
+            _reentrancyLevel--;
+            if(_reentrancyLevel == 0)
+            {
+                unchecked { _lockId++; }
+
+                _ownerThread = NoOwnerThread;
+            }
         }
 
         void NotifyOneWaitingThread()

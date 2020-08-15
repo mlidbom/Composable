@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.Testing.Threading
 {
@@ -11,6 +12,8 @@ namespace Composable.Testing.Threading
 
     interface IThreadGate : IThreadGateVisitor
     {
+        MonitorCE Monitor { get; }
+
         ///<summary>Opens the gate and lets all threads through.</summary>
         IThreadGate Open();
 

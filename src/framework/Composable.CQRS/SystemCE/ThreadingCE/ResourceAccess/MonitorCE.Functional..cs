@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
@@ -24,6 +25,30 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         public T Update<T>(OutParamDelegate<T> func, out T outParam)
         {
             using(EnterUpdateLock()) return func(out outParam);
+        }
+
+        public ReentrancyAllowedScope EnterReentrancyAllowedScope() => new ReentrancyAllowedScope(this);
+
+        public sealed class ReentrancyAllowedScope : IDisposable
+        {
+            readonly MonitorCE _monitor;
+            internal ReentrancyAllowedScope(MonitorCE monitor)
+            {
+                _monitor = monitor;
+                AssertOwnsLock();
+                _monitor._allowReentrancyIfGreaterThanZero++;
+            }
+
+            void AssertOwnsLock()
+            {
+                if(_monitor._ownerThread != Thread.CurrentThread.ManagedThreadId) throw new Exception("You must own the lock to enable or disable reentrancy.");
+            }
+
+            public void Dispose()
+            {
+                AssertOwnsLock();
+                _monitor._allowReentrancyIfGreaterThanZero--;
+            }
         }
     }
 }

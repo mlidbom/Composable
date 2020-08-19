@@ -113,7 +113,7 @@ namespace Composable.Testing.Performance
             string failureMessage = "";
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)
             {
-                failureMessage = $"{Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {maxTotal.FormatReadable()}";
+                failureMessage = $"Total:{executionSummary.Total.FormatReadable()} {Percent(executionSummary.Total, maxTotal.Value)} of {nameof(maxTotal)}: {maxTotal.FormatReadable()}";
             } else if(maxAverage.HasValue && executionSummary.Average > maxAverage.Value)
             {
                 failureMessage = $" {Percent(executionSummary.Average, maxAverage.Value)} of {nameof(maxAverage)}: {maxAverage.FormatReadable()}";

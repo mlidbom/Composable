@@ -22,11 +22,11 @@ namespace Composable.Messaging
         {
             static readonly MonitorCE Monitor = MonitorCE.WithDefaultTimeout();
 
-            static class WrapperConstructorCache<TWrapperEvent, TWrappedEvent> 
+            static class WrapperConstructorCache<TWrapperEvent, TWrappedEvent>
                 where TWrapperEvent : IWrapperEvent<TWrappedEvent>
                 where TWrappedEvent : IEvent
             {
-                static readonly Func<IEvent, IWrapperEvent<IEvent>> UntypedConstructor = CreateConstructorFor(typeof(TWrappedEvent));
+                static readonly Func<IEvent, IWrapperEvent<IEvent>> UntypedConstructor = Monitor.Update(() => CreateConstructorFor(typeof(TWrappedEvent)));
 
                 internal static readonly Func<TWrappedEvent, IWrapperEvent<TWrappedEvent>> Constructor = @event => (IWrapperEvent<TWrappedEvent>)UntypedConstructor(@event);
             }
@@ -89,48 +89,45 @@ namespace Composable.Messaging
             static string DescribeParameterList(IEnumerable<Type> parameterTypes) { return parameterTypes.Select(parameterType => parameterType.FullNameNotNull()).Join(", "); }
 
             static IReadOnlyDictionary<Type, Type> _createdWrapperTypes = new Dictionary<Type, Type>();
-            internal static Type CreateGenericWrapperEventType(Type wrapperEventType)
+            static Type CreateGenericWrapperEventType(Type wrapperEventType)
             {
                 if(_createdWrapperTypes.TryGetValue(wrapperEventType, out var cachedWrapperImplementation))
                 {
                     return cachedWrapperImplementation;
                 }
 
-                return Monitor.Update(() =>
+                if(!wrapperEventType.IsInterface) throw new ArgumentException("Must be an interface", $"{nameof(wrapperEventType)}");
+
+                if(wrapperEventType != typeof(MessageTypes.IWrapperEvent<>)
+                && wrapperEventType.GetInterfaces().All(iface => iface != typeof(MessageTypes.IWrapperEvent<>).MakeGenericType(wrapperEventType.GetGenericArguments()[0])))
+                    throw new ArgumentException($"Must implement {typeof(MessageTypes.IWrapperEvent<>).FullName}", $"{nameof(wrapperEventType)}");
+
+                var wrappedEventType = wrapperEventType.GetGenericArguments()[0];
+
+                var requiredEventInterface = wrappedEventType.GetGenericParameterConstraints().Single(constraint => constraint.IsInterface && typeof(MessageTypes.IEvent).IsAssignableFrom(constraint));
+
+                var genericWrapperEventType = AssemblyBuilderCE.Module.Update(module =>
                 {
-                    if(!wrapperEventType.IsInterface) throw new ArgumentException("Must be an interface", $"{nameof(wrapperEventType)}");
+                    TypeBuilder wrapperEventBuilder = module.DefineType(
+                        name: $"{wrapperEventType}_ilgen_impl",
+                        attr: TypeAttributes.Public,
+                        parent: null,
+                        interfaces: new[] {wrapperEventType});
 
-                    if(wrapperEventType != typeof(MessageTypes.IWrapperEvent<>)
-                    && wrapperEventType.GetInterfaces().All(iface => iface != typeof(MessageTypes.IWrapperEvent<>).MakeGenericType(wrapperEventType.GetGenericArguments()[0])))
-                        throw new ArgumentException($"Must implement {typeof(MessageTypes.IWrapperEvent<>).FullName}", $"{nameof(wrapperEventType)}");
+                    GenericTypeParameterBuilder wrappedEventTypeParameter = wrapperEventBuilder.DefineGenericParameters("TWrappedEvent")[0];
 
-                    var wrappedEventType = wrapperEventType.GetGenericArguments()[0];
+                    wrappedEventTypeParameter.SetInterfaceConstraints(requiredEventInterface);
 
-                    var requiredEventInterface = wrappedEventType.GetGenericParameterConstraints().Single(constraint => constraint.IsInterface && typeof(MessageTypes.IEvent).IsAssignableFrom(constraint));
+                    var (wrappedEventField, _) = wrapperEventBuilder.ImplementProperty(nameof(MessageTypes.IWrapperEvent<IAggregateEvent>.Event), wrappedEventTypeParameter);
 
-                    var genericWrapperEventType = AssemblyBuilderCE.Module.Update(module =>
-                    {
-                        TypeBuilder wrapperEventBuilder = module.DefineType(
-                            name: $"{wrapperEventType}_ilgen_impl",
-                            attr: TypeAttributes.Public,
-                            parent: null,
-                            interfaces: new[] {wrapperEventType});
+                    wrapperEventBuilder.ImplementConstructor(wrappedEventField);
 
-                        GenericTypeParameterBuilder wrappedEventTypeParameter = wrapperEventBuilder.DefineGenericParameters("TWrappedEvent")[0];
-
-                        wrappedEventTypeParameter.SetInterfaceConstraints(requiredEventInterface);
-
-                        var (wrappedEventField, _) = wrapperEventBuilder.ImplementProperty(nameof(MessageTypes.IWrapperEvent<IAggregateEvent>.Event), wrappedEventTypeParameter);
-
-                        wrapperEventBuilder.ImplementConstructor(wrappedEventField);
-
-                        return wrapperEventBuilder.CreateType().NotNull();
-                    });
-
-                    ThreadSafe.AddToCopyAndReplace(ref _createdWrapperTypes, wrapperEventType, genericWrapperEventType);
-
-                    return genericWrapperEventType;
+                    return wrapperEventBuilder.CreateType().NotNull();
                 });
+
+                ThreadSafe.AddToCopyAndReplace(ref _createdWrapperTypes, wrapperEventType, genericWrapperEventType);
+
+                return genericWrapperEventType;
             }
         }
 

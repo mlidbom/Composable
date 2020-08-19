@@ -76,9 +76,7 @@ Current state of gate:
             return this;
         }
 
-        public void AwaitPassThrough() => AwaitPassThrough(_defaultTimeout);
-
-        public void AwaitPassThrough(TimeSpan timeout)
+        public void AwaitPassThrough()
         {
             var currentThread = new ThreadSnapshot();
 

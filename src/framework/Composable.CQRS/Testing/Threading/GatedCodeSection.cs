@@ -19,16 +19,6 @@ namespace Composable.Testing.Threading
             ExitGate = ThreadGate.CreateClosedWithTimeout(timeout);
         }
 
-        public IGatedCodeSection WithUpdateLock(Action action)
-        {
-            using(_lock.EnterUpdateLock())
-            {
-                //The reason for taking the lock is to inspect/modify both gates. So take the locks right away and ensure consistency throughout the action
-                EntranceGate.WithExclusiveLock(() => ExitGate.WithExclusiveLock(action));
-            }
-            return this;
-        }
-
         public IDisposable Enter()
         {
             EntranceGate.AwaitPassThrough();

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.Testing.Threading
 {
     interface IThreadGateVisitor
     {
         void AwaitPassThrough();
-        void AwaitPassThrough(TimeSpan timeout);
     }
 
     interface IThreadGate : IThreadGateVisitor
@@ -47,7 +47,6 @@ namespace Composable.Testing.Threading
     {
         IThreadGate EntranceGate { get; }
         IThreadGate ExitGate { get; }
-        IGatedCodeSection WithUpdateLock(Action action);
         IDisposable Enter();
     }
 }

@@ -120,7 +120,7 @@ namespace Composable.Tests.SystemCE.ThreadingCE
             var conflictingGetCopySectionSameInstance = GatedCodeSection.WithTimeout(timeout);
             var conflictingGetCopySectionOtherInstance = GatedCodeSection.WithTimeout(timeout);
 
-            var conflictingGates = EnumerableCE.Create(conflictingUpdateSectionSameInstance,
+            var conflictingSections = EnumerableCE.Create(conflictingUpdateSectionSameInstance,
                                               conflictingUpdateSectionOtherInstance,
                                               conflictingGetCopySectionSameInstance,
                                               conflictingGetCopySectionOtherInstance).ToList();
@@ -137,17 +137,17 @@ namespace Composable.Tests.SystemCE.ThreadingCE
             taskRunner.Start(() => conflictingGetCopySectionOtherInstance.Execute(() => shared2.GetCopy()));
 
             updateGate.AwaitQueueLengthEqualTo(1);
-            conflictingGates.ForEach(gate =>
+            conflictingSections.ForEach(section =>
             {
-                gate.EntranceGate.AwaitQueueLengthEqualTo(1);
-                gate.Open();
+                section.EntranceGate.AwaitQueueLengthEqualTo(1);
+                section.Open();
             });
 
             Thread.Sleep(50.Milliseconds());
 
-            conflictingGates.ForEach(gate => gate.ExitGate.PassedThrough.Count.Should().Be(0));
+            conflictingSections.ForEach(gate => gate.ExitGate.PassedThrough.Count.Should().Be(0));
             updateGate.Open();
-            conflictingGates.ForEach(gate => gate.ExitGate.AwaitPassedThroughCountEqualTo(1));
+            conflictingSections.ForEach(gate => gate.ExitGate.AwaitPassedThroughCountEqualTo(1));
 
             taskRunner.WaitForTasksToComplete();
             // ReSharper restore AccessToDisposedClosure

@@ -141,7 +141,7 @@ namespace Composable.Messaging.Events
         Dictionary<Type, Action<IEvent>[]> _typeToHandlerCache = new Dictionary<Type, Action<IEvent>[]>();
         int _cachedTotalHandlers;
         // ReSharper disable once StaticMemberInGenericType
-        static readonly Action<object>[] NullHandlerList = Array.Empty<Action<object>>();
+        static readonly Action<IEvent>[] NullHandlerList = Array.Empty<Action<IEvent>>();
 
         Action<IEvent>[] GetHandlers(Type type, bool validateHandlerExists = true)
         {

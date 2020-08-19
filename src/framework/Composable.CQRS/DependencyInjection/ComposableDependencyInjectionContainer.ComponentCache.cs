@@ -55,7 +55,9 @@ namespace Composable.DependencyInjection
 
             public void Dispose()
             {
+                // ReSharper disable ConditionIsAlwaysTrueOrFalse
                 DisposeComponents(_cache.Where(@this => @this.Registrations != null && @this.Instance != null)
+                                         // ReSharper restore ConditionIsAlwaysTrueOrFalse
                                         .Where(@this => @this.Registrations[0].InstantiationSpec.SingletonInstance == null) //We don't dispose instance registrations.
                                         .Select(@this => @this.Instance)
                                         .OfType<IDisposable>());

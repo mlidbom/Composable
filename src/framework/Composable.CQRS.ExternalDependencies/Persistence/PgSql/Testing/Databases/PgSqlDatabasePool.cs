@@ -50,7 +50,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
                 ResetDatabase(db);
             } else
             {
-                _masterConnectionPool?.ExecuteNonQuery($@"CREATE DATABASE {databaseName};");
+                _masterConnectionPool.ExecuteNonQuery($@"CREATE DATABASE {databaseName};");
             }
         }
 

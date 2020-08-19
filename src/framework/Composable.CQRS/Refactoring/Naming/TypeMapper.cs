@@ -71,28 +71,6 @@ namespace Composable.Refactoring.Naming
 
         public ITypeMappingRegistar Map<TType>(string typeGuid) => Map<TType>(Guid.Parse(typeGuid));
 
-        ITypeMappingRegistar InternalMap(Type type, TypeId typeId) => _state.Update(state =>
-        {
-            if(state.TypeToTypeIdMap.TryGetValue(type, out var existingTypeId))
-            {
-                if(existingTypeId == typeId) return this;
-                throw new Exception($"Attempted to map Type:{type.FullName} to: {typeId}, but it is already mapped to: TypeId: {existingTypeId}");
-            }
-
-            if(state.TypeIdToTypeMap.TryGetValue(typeId, out var existingType))
-            {
-                if(existingType == type) return this;
-                throw new Exception($"Attempted to map TypeId:{typeId.GuidValue} to: {type.FullName}, but it is already mapped to Type: {existingType.FullName}");
-            }
-
-            AssertTypeValidForMapping(type);
-
-            state.TypeIdToTypeMap.Add(typeId, type);
-            state.TypeToTypeIdMap.Add(type, typeId);
-
-            return this;
-        });
-
         static void AssertTypeValidForMapping(Type type)
         {
             if(type.IsAbstract)

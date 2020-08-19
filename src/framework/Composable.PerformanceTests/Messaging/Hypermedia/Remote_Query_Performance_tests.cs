@@ -92,13 +92,13 @@ namespace Composable.Tests.Messaging.Hypermedia
                                                     .ToArray()));
             }
 
-            async Task RunScenario() => await Task.WhenAll(1.Through(requests).Select(_ => RunRequestAsync()).ToArray());
+            async Task RunScenarioAsync() => await Task.WhenAll(1.Through(requests).Select(_ => RunRequestAsync()).ToArray());
             //ncrunch: no coverage end
 
             //Warmup
-            await RunScenario();
+            await RunScenarioAsync();
 
-            await TimeAsserter.ExecuteAsync(RunScenario, maxTotal: maxTotal);
+            await TimeAsserter.ExecuteAsync(RunScenarioAsync, maxTotal: maxTotal);
         }
 
         public RemoteQueryPerformanceTests(string _) : base(_) {}

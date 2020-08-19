@@ -27,6 +27,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public Transport(IGlobalBusStateTracker globalBusStateTracker, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
         {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse ReSharper incorrectly believes nullable reference types to deliver runtime guarantees.
             _runningAndNotDisposed = new AssertAndRun(() => Assert.State.Assert(_running, _poller != null, _poller.IsRunning));
             _router = new Router(typeMapper);
             _serializer = serializer;

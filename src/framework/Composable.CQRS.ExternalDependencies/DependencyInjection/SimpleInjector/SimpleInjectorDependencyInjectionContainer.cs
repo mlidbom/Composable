@@ -48,6 +48,7 @@ namespace Composable.DependencyInjection.SimpleInjector
                     {
                         _container.RegisterInstance(serviceType, componentRegistration.InstantiationSpec.SingletonInstance);
                     }
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalse ReSharper incorrectly believes nullable reference types to deliver runtime guarantees.
                 } else if(componentRegistration.InstantiationSpec.FactoryMethod != null)
                 {
                     var baseRegistration = GetSimpleInjectorLifestyle(componentRegistration.Lifestyle)

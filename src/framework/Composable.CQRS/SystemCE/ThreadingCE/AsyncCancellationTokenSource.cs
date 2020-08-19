@@ -11,7 +11,7 @@ namespace Composable.SystemCE.ThreadingCE
     //Hack to implement the suggested framework fix from here: https://github.com/dotnet/runtime/issues/23405 so that calling cancel on a CancellationTokenSource does not call registrations synchronously.
     sealed class AsyncCancellationTokenSource : IDisposable
     {
-        static readonly Func<CancellationTokenSource, IEnumerable> GetCallbackPartitionsAsObject = CreateCallbackPartitionsAccessor();
+        static readonly Func<CancellationTokenSource, IEnumerable?> GetCallbackPartitionsAsObject = CreateCallbackPartitionsAccessor();
         readonly CancellationTokenSource _source;
 
         public AsyncCancellationTokenSource() => _source = new CancellationTokenSource();

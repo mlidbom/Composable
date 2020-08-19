@@ -7,6 +7,7 @@ namespace AccountManagement.API.ValidationAttributes.Helpers
         public override bool IsValid(object value)
         {
             // ReSharper disable once ConvertIfStatementToReturnStatement
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse ReSharper incorrectly believes nullable reference types to deliver runtime guarantees.
             if(value == null)
             {
                 return false; //We don't mind empty strings, but null is taboo.

@@ -22,7 +22,7 @@ namespace Composable.Messaging
 {
     public static partial class MessageTypes
     {
-        public partial class StrictlyLocal
+        public class StrictlyLocal
         {
             public static class Queries
             {
@@ -45,9 +45,9 @@ namespace Composable.Messaging
             }
         }
 
-        public static partial class Remotable
+        public static class Remotable
         {
-            public static partial class AtMostOnce
+            public static class AtMostOnce
             {
                 //Todo: How can we prevent UI's from just defaulting to using a constructor that creates a new guid?
                 public class AtMostOnceHypermediaCommand : IAtMostOnceHypermediaCommand
@@ -91,7 +91,7 @@ namespace Composable.Messaging
                 }
             }
 
-            public static partial class NonTransactional
+            public static class NonTransactional
             {
                 public static class Queries
                 {
@@ -124,7 +124,7 @@ namespace Composable.Messaging
                 }
             }
 
-            public static partial class ExactlyOnce
+            public static class ExactlyOnce
             {
                 public class Command : ValueObject<Command>, IExactlyOnceCommand
                 {

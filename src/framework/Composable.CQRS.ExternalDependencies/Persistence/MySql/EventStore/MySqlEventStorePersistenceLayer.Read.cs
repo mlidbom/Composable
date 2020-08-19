@@ -50,7 +50,9 @@ FROM {Event.TableName} {lockHint} ";
                                             RefactoringInformation = (eventReader[7] as Guid?, eventReader[8] as sbyte?)switch
                                             {
                                                 (null, null) => null,
+                                                // ReSharper disable PatternAlwaysOfType
                                                 (Guid targetEvent, sbyte type) => new AggregateEventRefactoringInformation(targetEvent, (AggregateEventRefactoringType)type),
+                                                // ReSharper restore PatternAlwaysOfType
                                                 _ => throw new Exception("Should not be possible to get here")
                                             }
                                         }

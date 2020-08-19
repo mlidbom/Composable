@@ -103,8 +103,8 @@ where {Event.EventId} = :{Event.EventId}";
                     reader.Read();
 
                     var effectiveReadOrder = reader.GetOracleDecimal(0);
-                    var previousEventReadOrder = reader[1] == DBNull.Value ? (OracleDecimal?)null! : reader.GetOracleDecimal(1);
-                    var nextEventReadOrder = reader[2] == DBNull.Value ? (OracleDecimal?)null! : reader.GetOracleDecimal(2);
+                    var previousEventReadOrder = reader[1] == DBNull.Value ? (OracleDecimal?)null : reader.GetOracleDecimal(1);
+                    var nextEventReadOrder = reader[2] == DBNull.Value ? (OracleDecimal?)null : reader.GetOracleDecimal(2);
                     neighborhood = new EventNeighborhood(effectiveReadOrder: effectiveReadOrder.ToReadOrder(),
                                                          previousEventReadOrder: previousEventReadOrder?.ToReadOrder(),
                                                          nextEventReadOrder: nextEventReadOrder?.ToReadOrder());

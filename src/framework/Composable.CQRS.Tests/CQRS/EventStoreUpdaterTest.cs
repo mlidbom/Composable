@@ -59,7 +59,13 @@ namespace Composable.Tests.CQRS
                           .Map<Composable.Tests.CQRS.UserChangedEmail>("40ae1f6d-5f95-4c60-ac5f-21a3d1c85de9")
                           .Map<Composable.Tests.CQRS.UserChangedPassword>("0b3b57f6-fd69-4da1-bb52-15033495f044")
                           .Map<Composable.Tests.CQRS.UserEvent>("fa71e035-571d-4231-bd65-e667c138ec36")
-                          .Map<Composable.Tests.CQRS.UserRegistered>("03265864-8e1d-4eb7-a7a9-63dfc2b965de");
+                          .Map<Composable.Tests.CQRS.UserRegistered>("03265864-8e1d-4eb7-a7a9-63dfc2b965de")
+                          .Map<Composable.Tests.CQRS.IMigratedAfterUserChangedEmailEvent>("4ed567a3-724a-48d5-80f2-58978ca66922")
+                          .Map<Composable.Tests.CQRS.IMigratedBeforeUserRegisteredEvent>("dbe74932-9a8d-4977-8f85-d55de7711f26")
+                          .Map<Composable.Tests.CQRS.IMigratedReplaceUserChangedPasswordEvent>("798d793d-1866-41e5-8d59-26bf285dfc80")
+                          .Map<Composable.Tests.CQRS.IUserChangedEmail>("27cfff73-9f21-4835-83d1-fbb4d58419e3")
+                          .Map<Composable.Tests.CQRS.IUserChangedPassword>("9ee2f0e9-af5c-469b-8b85-7eda6a856b81")
+                          .Map<Composable.Tests.CQRS.IUserRegistered>("6a9b3276-cedc-4dae-a15c-4d386c935a48");
         }
 
         [TearDown] public void TearDownTask()
@@ -240,7 +246,7 @@ namespace Composable.Tests.CQRS
             user.Register("OriginalEmail", "password", Guid.NewGuid());
 
             UseInTransactionalScope(session => session.Save(user));
-            Assert.That(((IEventStored)user).GetChanges(), Is.Empty);
+            ((IEventStored)user).Commit(events => events.Should().BeEmpty());
         }
 
         [Test]

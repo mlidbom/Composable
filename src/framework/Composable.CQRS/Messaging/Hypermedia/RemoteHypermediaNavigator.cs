@@ -12,17 +12,17 @@ namespace Composable.Messaging.Hypermedia
 
         public RemoteHypermediaNavigator(ITransport transport) => _transport = transport;
 
-        public void Post(MessageTypes.Remotable.AtMostOnce.ICommand command) => PostAsync(command).WaitUnwrappingException();
+        public void Post(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand command) => PostAsync(command).WaitUnwrappingException();
 
-        public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
+        public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand command)
         {
             MessageInspector.AssertValidToSendRemote(command);
             await _transport.PostAsync(command).NoMarshalling();
         }
 
-        public TResult Post<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command) => PostAsync(command).ResultUnwrappingException();
+        public TResult Post<TResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TResult> command) => PostAsync(command).ResultUnwrappingException();
 
-        public async Task<TResult> PostAsync<TResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TResult> command)
+        public async Task<TResult> PostAsync<TResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TResult> command)
         {
             MessageInspector.AssertValidToSendRemote(command);
             return await _transport.PostAsync(command).NoMarshalling();

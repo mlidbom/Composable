@@ -78,9 +78,9 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(typeof(MessageTypes.Remotable.NonTransactional.IQuery<object>).IsAssignableFrom(messageType))
                     return TransportMessageType.NonTransactionalQuery;
-                if(typeof(MessageTypes.Remotable.AtMostOnce.ICommand<object>).IsAssignableFrom(messageType))
+                if(typeof(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<object>).IsAssignableFrom(messageType))
                     return TransportMessageType.AtMostOnceCommandWithReturnValue;
-                if(typeof(MessageTypes.Remotable.AtMostOnce.ICommand).IsAssignableFrom(messageType))
+                if(typeof(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand).IsAssignableFrom(messageType))
                     return TransportMessageType.AtMostOnceCommand;
                 else if(typeof(MessageTypes.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(messageType))
                     return TransportMessageType.ExactlyOnceEvent;
@@ -119,7 +119,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public static OutGoing Create(MessageTypes.Remotable.IMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
-                var messageId = (message as MessageTypes.Remotable.AtMostOnce.IMessage)?.MessageId ?? Guid.NewGuid();
+                var messageId = (message as MessageTypes.Remotable.IAtMostOnceMessage)?.MessageId ?? Guid.NewGuid();
                 //performance: detect implementation of BinarySerialized and use that when available
                 var body = serializer.SerializeMessage(message);
                 return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is MessageTypes.Remotable.ExactlyOnce.IMessage);

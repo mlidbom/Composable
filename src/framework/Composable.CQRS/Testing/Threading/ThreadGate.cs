@@ -59,9 +59,9 @@ namespace Composable.Testing.Threading
                     action();
                 }
             }
-            catch(AwaitingConditionTimedOutException parentException)
+            catch(AwaitingConditionTimeoutException parentException)
             {
-                throw new AwaitingConditionTimedOutException(parentException,
+                throw new AwaitingConditionTimeoutException(parentException,
                                                              $@"
 Current state of gate: 
 {this}");

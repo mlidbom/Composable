@@ -49,6 +49,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 builder.TypeMapper.Map<MyExactlyOnceCommand>("0ddefcaa-4d4d-48b2-9e1a-762c0b835275")
                        .Map<MyAtMostOnceCommandWithResult>("24248d03-630b-4909-a6ea-e7fdaf82baa2")
                        .Map<MyExactlyOnceEvent>("2fdde21f-c6d4-46a2-95e5-3429b820dfc3")
+                       .Map<IMyExactlyOnceEvent>("49ba71a4-5f4c-4930-9e01-62bc0551d8c8")
                        .Map<MyQuery>("b9d62f22-514b-4e3c-9ac1-66940a7a8144")
                        .Map<MyCreateAggregateCommand>("86bf04d8-8e6d-4e21-a95e-8af237f69f0f")
                        .Map<MyUpdateAggregateCommand>("c4ce3662-d068-4ec1-9c02-8d8f08640414")
@@ -77,7 +78,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                            .ForCommand((MyExactlyOnceCommand command) => CommandHandlerThreadGate.AwaitPassThrough())
                            .ForCommand((MyCreateAggregateCommand command, ILocalHypermediaNavigator navigator) => MyCreateAggregateCommandHandlerThreadGate.AwaitPassthroughAndExecute(() => MyAggregate.Create(command.AggregateId, navigator)))
                            .ForCommand((MyUpdateAggregateCommand command, ILocalHypermediaNavigator navigator) => MyUpdateAggregateCommandHandlerThreadGate.AwaitPassthroughAndExecute(() => navigator.Execute(new ComposableApi().EventStore.Queries.GetForUpdate<MyAggregate>(command.AggregateId)).Update()))
-                           .ForEvent((MyExactlyOnceEvent myEvent) => EventHandlerThreadGate.AwaitPassThrough())
+                           .ForEvent((IMyExactlyOnceEvent myEvent) => EventHandlerThreadGate.AwaitPassThrough())
                            .ForEvent((MyAggregateEvent.IRoot myAggregateEvent) => MyLocalAggregateEventHandlerThreadGate.AwaitPassThrough())
                            .ForQuery((MyQuery query) => QueryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
                            .ForCommandWithResult((MyAtMostOnceCommandWithResult command) => CommandHandlerWithResultThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()));
@@ -163,7 +164,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        protected class MyCreateAggregateCommand : MessageTypes.Remotable.AtMostOnce.Command
+        protected class MyCreateAggregateCommand : MessageTypes.Remotable.AtMostOnce.AtMostOnceHypermediaCommand
         {
             MyCreateAggregateCommand() : base(DeduplicationIdHandling.Reuse) {}
 
@@ -176,7 +177,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public Guid AggregateId { get; set; }
         }
 
-        protected class MyUpdateAggregateCommand : MessageTypes.Remotable.AtMostOnce.Command
+        protected class MyUpdateAggregateCommand : MessageTypes.Remotable.AtMostOnce.AtMostOnceHypermediaCommand
         {
             [UsedImplicitly] MyUpdateAggregateCommand() : base(DeduplicationIdHandling.Reuse) {}
             public MyUpdateAggregateCommand(Guid aggregateId) : base(DeduplicationIdHandling.Create) => AggregateId = aggregateId;
@@ -184,16 +185,18 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         }
 
         protected class MyExactlyOnceCommand : MessageTypes.Remotable.ExactlyOnce.Command {}
-        protected class MyExactlyOnceEvent : AggregateEvent {}
+
+        protected interface IMyExactlyOnceEvent : IAggregateEvent {}
+        protected class MyExactlyOnceEvent : AggregateEvent, IMyExactlyOnceEvent {}
         protected class MyQuery : MessageTypes.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
         protected class MyQueryResult {}
-        protected class MyAtMostOnceCommand : MessageTypes.Remotable.AtMostOnce.Command<MyCommandResult>
+        protected class MyAtMostOnceCommand : MessageTypes.Remotable.AtMostOnce.AtMostOnceCommand<MyCommandResult>
         {
             protected MyAtMostOnceCommand() : base(DeduplicationIdHandling.Reuse) {}
             internal static MyAtMostOnceCommand Create() => new MyAtMostOnceCommand {MessageId = Guid.NewGuid()};
         }
 
-        protected class MyAtMostOnceCommandWithResult : MessageTypes.Remotable.AtMostOnce.Command<MyCommandResult>
+        protected class MyAtMostOnceCommandWithResult : MessageTypes.Remotable.AtMostOnce.AtMostOnceCommand<MyCommandResult>
         {
             MyAtMostOnceCommandWithResult() : base(DeduplicationIdHandling.Reuse) {}
             internal static MyAtMostOnceCommandWithResult Create() => new MyAtMostOnceCommandWithResult {MessageId = Guid.NewGuid()};

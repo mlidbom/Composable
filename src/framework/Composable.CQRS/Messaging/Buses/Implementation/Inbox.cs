@@ -72,7 +72,7 @@ namespace Composable.Messaging.Buses.Implementation
                     foreach(var transportMessage in transportMessageBatch)
                     {
                         //performance: With the current design having this code here causes all queries to wait for persisting of all transactional messages that arrived before them.
-                        if(transportMessage.Is<MessageTypes.Remotable.AtMostOnce.IMessage>())
+                        if(transportMessage.Is<MessageTypes.Remotable.IAtMostOnceMessage>())
                         {
                             //todo: handle the exception that will be thrown if this is a duplicate message
                             _storage.SaveIncomingMessage(transportMessage);
@@ -91,7 +91,7 @@ namespace Composable.Messaging.Buses.Implementation
                         {
                             //refactor: Consider moving these responsibilities into the message class or other class. Probably create more subtypes so that no type checking is required. See also: HandlerExecutionEngine.Coordinator and [.HandlerExecutionTask]
                             var message = transportMessage.DeserializeMessageAndCacheForNextCall();
-                            if(message is MessageTypes.IRequireResponse)
+                            if(message is MessageTypes.IRequireAResponse)
                             {
                                 if(dispatchResult.IsFaulted)
                                 {

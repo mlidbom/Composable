@@ -11,7 +11,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public partial class LogIn : MessageTypes.Remotable.AtMostOnce.Command<LogIn.LoginAttemptResult>
+            public partial class LogIn : MessageTypes.Remotable.AtMostOnce.AtMostOnceCommand<LogIn.LoginAttemptResult>
             {
                 public LogIn() : base(DeduplicationIdHandling.Reuse) {}
 

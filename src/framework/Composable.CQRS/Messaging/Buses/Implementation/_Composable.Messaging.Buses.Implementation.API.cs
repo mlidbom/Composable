@@ -33,8 +33,8 @@ namespace Composable.Messaging.Buses.Implementation
         IInboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command);
         IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
 
-        Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command);
-        Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command);
+        Task PostAsync(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand command);
+        Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TCommandResult> command);
         Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
     }
 
@@ -44,8 +44,8 @@ namespace Composable.Messaging.Buses.Implementation
         Task SendAsync(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
         Task SendAsync(MessageTypes.Remotable.ExactlyOnce.ICommand command);
 
-        Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command);
-        Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command);
+        Task PostAsync(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand command);
+        Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TCommandResult> command);
         Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
     }
 

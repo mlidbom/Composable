@@ -26,7 +26,7 @@ namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
             Qm = new RootQueryModel();
             var eventStored = ((IEventStored)Ag);
             eventStored.EventStream.Subscribe(@event => Qm.ApplyEvent((RootEvent.IRoot)@event));
-            Qm.LoadFromHistory(eventStored.GetChanges());
+            eventStored.Commit(Qm.LoadFromHistory);
         }
 
         [Test] public void ConstructorWorks()

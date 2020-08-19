@@ -30,23 +30,23 @@ namespace Composable.Tests.CQRS
         }
 
         [Test]
-        public void GetChangesReturnsEmptyListAfterAcceptChangesCalled()
+        public void ResetEmptiesOutListOfUncommittedEvents()
         {
             var user = new User();
             var userAseventStored = (IEventStored)user;
             Assert.That(user.Version, Is.EqualTo(0));
 
             user.Register("email", "password", Guid.NewGuid());
-            userAseventStored.AcceptChanges();
-            Assert.That(userAseventStored.GetChanges(), Is.Empty);
+            userAseventStored.Commit(_ => {});
+            userAseventStored.Commit(events => events.Should().BeEmpty());
 
             user.ChangeEmail("NewEmail");
-            userAseventStored.AcceptChanges();
-            Assert.That(userAseventStored.GetChanges(), Is.Empty);
+            userAseventStored.Commit(_ => {});
+            userAseventStored.Commit(events => events.Should().BeEmpty());
 
             user.ChangePassword("NewPassword");
-            userAseventStored.AcceptChanges();
-            Assert.That(userAseventStored.GetChanges(), Is.Empty);
+            userAseventStored.Commit(_ => {});
+            userAseventStored.Commit(events => events.Should().BeEmpty());
         }
 
 
@@ -79,11 +79,11 @@ namespace Composable.Tests.CQRS
             public CascadingEventsAggregate():base(TestingTimeSource.FrozenUtcNow())
             {
                 RegisterEventHandlers()
-                    .For<TriggeringEvent>(@event => Publish(new TriggeredEvent()));
+                    .For<ITriggeringEvent>(@event => Publish(new TriggeredEvent()));
 
                 RegisterEventAppliers()
-                    .For<TriggeringEvent>(@event => TriggeringEventApplied = true)
-                    .For<TriggeredEvent>(@event => TriggeredEventApplied = true);
+                    .For<ITriggeringEvent>(@event => TriggeringEventApplied = true)
+                    .For<ITriggeredEvent>(@event => TriggeredEventApplied = true);
             }
             public bool TriggeredEventApplied { get; private set; }
             public bool TriggeringEventApplied { get; private set; }
@@ -93,13 +93,15 @@ namespace Composable.Tests.CQRS
             }
         }
 
-        class TriggeringEvent : AggregateEvent, IAggregateCreatedEvent
+        interface ITriggeringEvent : IAggregateCreatedEvent {}
+
+        class TriggeringEvent : AggregateEvent, ITriggeringEvent
         {
             public TriggeringEvent() : base(Guid.NewGuid()) {}
         }
 
-        class TriggeredEvent : AggregateEvent
-        {
+        interface ITriggeredEvent : IAggregateEvent {}
+        class TriggeredEvent : AggregateEvent, ITriggeredEvent {
         }
     }
 }

@@ -117,7 +117,7 @@ EXCEPTION: {exception}
                 ContractResolver = IgnoreStackTraces.Instance
             };
 
-        class IgnoreStackTraces : IncludeMembersWithPrivateSettersResolver
+        class IgnoreStackTraces : IncludeMembersWithPrivateSettersResolver, IStaticInstancePropertySingleton
         {
             public new static readonly IgnoreStackTraces Instance = new IgnoreStackTraces();
             IgnoreStackTraces()

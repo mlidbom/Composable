@@ -52,13 +52,13 @@ namespace Composable.SystemCE.ReflectionCE
                     var instanceType = delegateTypeGenericArgumentTypes[^1];
                     var constructorArgumentTypes = delegateTypeGenericArgumentTypes[..^1];
 
-                    ConstructorInfo constructor = Contract.ReturnNotNull(instanceType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, types: constructorArgumentTypes, modifiers: null));
+                    ConstructorInfo? constructor = instanceType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, types: constructorArgumentTypes, modifiers: null);
                     if (constructor == null)
                     {
                         throw new Exception($"Expected to find a constructor with the signature: [private|protected|public] {instanceType.GetFullNameCompilable()}({DescribeParameterList(constructorArgumentTypes)})");
                     }
 
-                    var constructorCallMethod = new DynamicMethod($"Generated_constructor_for_{instanceType.Name}", instanceType, constructorArgumentTypes, instanceType);
+                    var constructorCallMethod = new DynamicMethod(name:$"Generated_constructor_for_{instanceType.Name}", returnType: instanceType, parameterTypes: constructorArgumentTypes, owner: instanceType);
                     var ilGenerator = constructorCallMethod.GetILGenerator();
                     for (var argumentIndex = 0; argumentIndex < constructorArgumentTypes.Length; argumentIndex++)
                     {

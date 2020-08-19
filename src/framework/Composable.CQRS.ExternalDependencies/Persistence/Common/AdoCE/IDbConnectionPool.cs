@@ -1,6 +1,7 @@
 using System;
 using System.Data.Common;
 using System.Threading.Tasks;
+using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.TasksCE;
 
@@ -17,10 +18,10 @@ namespace Composable.Persistence.Common.AdoCE
             UseConnectionAsyncFlex(SyncOrAsync.Sync, func.AsAsync()).SyncResult();
 
         public void UseConnection(Action<TConnection> action) =>
-            UseConnectionAsyncFlex(SyncOrAsync.Sync, action.AsFunc().AsAsync()).SyncResult();
+            UseConnectionAsyncFlex(SyncOrAsync.Sync, action.AsVoidFunc().AsAsync()).SyncResult();
 
         public async Task UseConnectionAsync(Func<TConnection, Task> action) =>
-            await UseConnectionAsyncFlex(SyncOrAsync.Async, action.AsFunc()).NoMarshalling();
+            await UseConnectionAsyncFlex(SyncOrAsync.Async, action.AsVoidFunc()).NoMarshalling();
 
         public async Task<TResult> UseConnectionAsync<TResult>(Func<TConnection, Task<TResult>> func) =>
             await UseConnectionAsyncFlex(SyncOrAsync.Async, func).NoMarshalling();

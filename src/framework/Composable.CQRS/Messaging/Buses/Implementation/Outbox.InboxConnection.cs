@@ -47,7 +47,7 @@ namespace Composable.Messaging.Buses.Implementation
                 await taskCompletionSource.Task.NoMarshalling();
             }
 
-            public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.ICommand<TCommandResult> command)
+            public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TCommandResult> command)
             {
                 var taskCompletionSource = new AsyncTaskCompletionSource<Func<object>>();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
@@ -57,7 +57,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return (TCommandResult)(await taskCompletionSource.Task.NoMarshalling()).Invoke();
             }
 
-            public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.ICommand command)
+            public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand command)
             {
                 var taskCompletionSource = new AsyncTaskCompletionSource();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);

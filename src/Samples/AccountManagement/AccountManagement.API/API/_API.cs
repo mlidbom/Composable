@@ -5,6 +5,7 @@ using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Hypermedia;
 using Composable.Persistence.InMemory.DependencyInjection;
+using Composable.SystemCE;
 
 namespace AccountManagement.API
 {
@@ -23,7 +24,7 @@ namespace AccountManagement.API
     /// <summary>
     /// This is the entry point to the API for all .Net clients. It provides a simple intuitive fluent API for accessing all of the functionality in the AccountManagement application.
     /// </summary>
-    public class AccountApi
+    public class AccountApi : IStaticInstancePropertySingleton
     {
         public static AccountApi Instance => new AccountApi();
 

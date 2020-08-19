@@ -14,7 +14,7 @@ namespace Composable.Tests.Testing.Threading
     [TestFixture] public class Given_a_locked_ThreadGate
     {
         [Test] public void Calling_AllowOneThreadToPassThrough_throws_an_AwaitingConditionTimedOutException_since_no_threads_are_waiting_to_pass()
-            => Assert.Throws<AwaitingConditionTimedOutException>(() => ThreadGate.CreateClosedWithTimeout(20.Milliseconds()).AwaitLetOneThreadPassThrough());
+            => Assert.Throws<AwaitingConditionTimeoutException>(() => ThreadGate.CreateClosedWithTimeout(20.Milliseconds()).AwaitLetOneThreadPassThrough());
 
         public class After_starting_10_threads_that_all_call_PassThrough
         {

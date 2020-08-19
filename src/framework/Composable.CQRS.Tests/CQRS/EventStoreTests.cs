@@ -154,14 +154,12 @@ namespace Composable.Tests.CQRS
                                                    {
                                                        var eventStore = _serviceLocator.EventStore();
 
-                                                       eventStore.GetAggregateHistory(Guid.NewGuid()); //Trick store into ensuring the schema exists.
-
                                                        var user = new User();
                                                        user.Register("email@email.se", "password", Guid.NewGuid());
 
                                                        using(new TransactionScope())
                                                        {
-                                                           eventStore.SaveSingleAggregateEvents(((IEventStored)user).GetChanges());
+                                                           ((IEventStored)user).Commit(eventStore.SaveSingleAggregateEvents);
                                                            eventStore.GetAggregateHistory(user.Id);
                                                            Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Not.Empty);
                                                        }
@@ -179,11 +177,10 @@ namespace Composable.Tests.CQRS
                 var eventStore = _serviceLocator.EventStore();
 
                 user.Register("email@email.se", "password", Guid.NewGuid());
-                var stored = (IEventStored)user;
 
                 TransactionScopeCe.Execute(() =>
                 {
-                    eventStore.SaveSingleAggregateEvents(stored.GetChanges());
+                    ((IEventStored)user).Commit(eventStore.SaveSingleAggregateEvents);
                     eventStore.GetAggregateHistory(user.Id);
                     Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Not.Empty);
                 });

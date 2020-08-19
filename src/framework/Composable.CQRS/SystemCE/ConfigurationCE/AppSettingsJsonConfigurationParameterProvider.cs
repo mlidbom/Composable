@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 namespace Composable.SystemCE.ConfigurationCE
 {
     ///<summary>Fetches configuration variables from the application configuration file.</summary>
-    class AppSettingsJsonConfigurationParameterProvider : IConfigurationParameterProvider
+    class AppSettingsJsonConfigurationParameterProvider : IConfigurationParameterProvider, IStaticInstancePropertySingleton
     {
         public static readonly IConfigurationParameterProvider Instance = new AppSettingsJsonConfigurationParameterProvider();
 

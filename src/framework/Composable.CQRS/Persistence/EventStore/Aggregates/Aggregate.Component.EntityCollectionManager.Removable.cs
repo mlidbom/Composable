@@ -1,10 +1,14 @@
 ﻿using System;
+using Composable.DDD;
+using Composable.Messaging;
 using Composable.Messaging.Events;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    public abstract partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
-        where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
+    public partial class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent, TWrapperEventImplementation, TWrapperEventInterface>
+        where TWrapperEventImplementation : TWrapperEventInterface
+        where TWrapperEventInterface : IAggregateEvent<TAggregateEvent>
+        where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent, TWrapperEventImplementation, TWrapperEventInterface>
         where TAggregateEvent : class, IAggregateEvent
         where TAggregateEventImplementation : AggregateEvent, TAggregateEvent
     {

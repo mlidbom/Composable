@@ -10,6 +10,8 @@ namespace Composable.Messaging
     {
         internal static void AssertValid(IReadOnlyList<Type> eventTypesToInspect) => eventTypesToInspect.ForEach(MessageTypeInspector.AssertValid);
 
+        internal static void AssertValidForSubscription<TMessage>() => MessageTypeInspector.AssertValidForSubscription(typeof(TMessage));
+
         internal static void AssertValid<TMessage>() => MessageTypeInspector.AssertValid(typeof(TMessage));
 
         internal static void AssertValidToSendRemote(MessageTypes.IMessage message)
@@ -17,16 +19,16 @@ namespace Composable.Messaging
             CommonAssertions(message);
 
             if(message is MessageTypes.StrictlyLocal.IMessage strictlyLocalMessage) throw new AttemptToSendStrictlyLocalMessageRemotelyException(strictlyLocalMessage);
-            if(message is MessageTypes.IRequireTransactionalSender && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IRequireTransactionalSender).FullName} but there is no transaction.");
+            if(message is MessageTypes.IMustBeSentTransactionally && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IMustBeSentTransactionally).FullName} but there is no transaction.");
             if(message is MessageTypes.ICannotBeSentRemotelyFromWithinTransaction && Transaction.Current != null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.ICannotBeSentRemotelyFromWithinTransaction).FullName} but there is a transaction.");
-            if(message is MessageTypes.Remotable.AtMostOnce.IMessage atMostOnce && atMostOnce.MessageId == Guid.Empty) throw new Exception($"{nameof(MessageTypes.Remotable.AtMostOnce.IMessage.MessageId)} was Guid.Empty for message of type: {message.GetType().FullName}");
+            if(message is MessageTypes.Remotable.IAtMostOnceMessage atMostOnce && atMostOnce.MessageId == Guid.Empty) throw new Exception($"{nameof(MessageTypes.Remotable.IAtMostOnceMessage.MessageId)} was Guid.Empty for message of type: {message.GetType().FullName}");
         }
 
         internal static void AssertValidToExecuteLocally(MessageTypes.IMessage message)
         {
             CommonAssertions(message);
 
-            if(message is MessageTypes.IRequireTransactionalSender && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IRequireTransactionalSender).FullName} but there is no transaction.");
+            if(message is MessageTypes.IMustBeSentTransactionally && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IMustBeSentTransactionally).FullName} but there is no transaction.");
         }
 
         static void CommonAssertions(MessageTypes.IMessage message)

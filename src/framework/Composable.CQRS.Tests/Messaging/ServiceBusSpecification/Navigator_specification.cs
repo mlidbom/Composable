@@ -103,7 +103,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             public string Name { get; private set; }
         }
 
-        protected class RegisterUserCommand : MessageTypes.Remotable.AtMostOnce.Command<UserRegisteredConfirmationResource>
+        protected class RegisterUserCommand : MessageTypes.Remotable.AtMostOnce.AtMostOnceCommand<UserRegisteredConfirmationResource>
         {
             RegisterUserCommand() : base(DeduplicationIdHandling.Reuse) {}
 

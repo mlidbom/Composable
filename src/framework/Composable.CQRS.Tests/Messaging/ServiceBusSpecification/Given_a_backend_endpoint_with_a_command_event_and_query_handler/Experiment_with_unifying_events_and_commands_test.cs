@@ -44,7 +44,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                     builder.Container.RegisterEventStore(builder.Configuration.ConnectionStringName);
 
                     builder.RegisterHandlers
-                           .ForEvent((UserEvent.Implementation.UserRegisteredEvent myEvent) => {})
+                           .ForEvent((UserEvent.IUserRegistered myEvent) => {})
                            .ForQuery((GetUserQuery query, IEventStoreReader eventReader) => new UserResource(eventReader.GetHistory(query.UserId)))
                            .ForCommandWithResult((UserRegistrarCommand.RegisterUserCommand command, IEventStoreUpdater store) =>
                             {
@@ -63,7 +63,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                            .Map<UserEvent.Implementation.Root>("05f0f69f-c29a-49c0-8cea-62286f5a1816")
                            .Map<UserEvent.Implementation.UserRegisteredEvent>("5eac2b7a-014a-4783-9b19-4f0f975028f4")
                            .Map<UserEvent.IRoot>("ff9f3cae-7377-4865-a623-f11436dad926")
-                           .Map<UserEvent.UserRegistered>("1b5e0128-ab76-4026-a6d7-4f2ffa4d82cd")
+                           .Map<UserEvent.IUserRegistered>("1b5e0128-ab76-4026-a6d7-4f2ffa4d82cd")
                            .Map<RegisterUserResult>("940adbc5-ef68-436a-90c2-ac4f000ec377")
                            .Map<UserResource>("9f621299-22d9-4888-81f1-0e9ebc09625c");
                 });
@@ -98,7 +98,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             public interface IRoot : IAggregateEvent {}
 
-            public interface UserRegistered : IRoot, IAggregateCreatedEvent {}
+            public interface IUserRegistered : IRoot, IAggregateCreatedEvent {}
 
             public static class Implementation
             {
@@ -108,7 +108,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                     protected Root(Guid aggregateId) : base(aggregateId) {}
                 }
 
-                public class UserRegisteredEvent : Root, UserRegistered
+                public class UserRegisteredEvent : Root, IUserRegistered
                 {
                     public UserRegisteredEvent(Guid userId) : base(userId) {}
                 }
@@ -117,7 +117,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarCommand
         {
-            public class RegisterUserCommand : MessageTypes.Remotable.AtMostOnce.Command<RegisterUserResult>
+            public class RegisterUserCommand : MessageTypes.Remotable.AtMostOnce.AtMostOnceCommand<RegisterUserResult>
             {
                 public Guid UserId { get; private set; } = Guid.NewGuid();
 

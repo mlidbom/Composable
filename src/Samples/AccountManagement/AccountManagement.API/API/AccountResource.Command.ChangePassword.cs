@@ -11,7 +11,7 @@ namespace AccountManagement.API
     {
         public static partial class Command
         {
-            public class ChangePassword : MessageTypes.Remotable.AtMostOnce.Command, IValidatableObject
+            public class ChangePassword : MessageTypes.Remotable.AtMostOnce.AtMostOnceHypermediaCommand, IValidatableObject
             {
                 [UsedImplicitly] public ChangePassword() : base(DeduplicationIdHandling.Reuse) {}
                 public ChangePassword(Guid accountId):base(DeduplicationIdHandling.Create) => AccountId = accountId;

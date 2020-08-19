@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
@@ -14,11 +17,21 @@ namespace Composable.Messaging
                                                             new CannotBeBothEventAndQuery(),
                                                             new CannotBeBothRemotableAndStrictlyLocal(),
                                                             new CannotForbidAndRequireTransactionalSender(),
-                                                            new AtMostOnceCommandDefaultConstructorMustNotSetADeduplicationId()
+                                                            new AtMostOnceCommandDefaultConstructorMustNotSetADeduplicationId(),
+                                                            new WrapperEventInterfaceMustBeGenericAndDeclareTypeParameterAsAsOutParameter()
                                                         };
 
         static readonly MonitorCE Monitor = MonitorCE.WithDefaultTimeout();
         static HashSet<Type> _successfullyInspectedTypes = new HashSet<Type>();
+
+
+        internal static void AssertValidForSubscription(Type type)
+        {
+            if(!type.Is<MessageTypes.IEvent>()) throw new Exception($"You can only subscribe to subtypes of {typeof(MessageTypes.IEvent).GetFullNameCompilable()}");
+            if(!type.IsInterface) throw new Exception($"{type.GetFullNameCompilable()} is not an interface. You can only subscribe to event interfaces because as soon as you subscribe to classes you loose the guarantees of semantic routing since classes do not support multiple inheritance.");;
+            AssertValid(type);
+        }
+
         internal static void AssertValid(Type type)
         {
             if(_successfullyInspectedTypes.Contains(type)) return;
@@ -75,22 +88,55 @@ namespace Composable.Messaging
 
         class CannotBeBothRemotableAndStrictlyLocal : MutuallyExclusiveInterfaces<MessageTypes.Remotable.IMessage, MessageTypes.StrictlyLocal.IMessage> {}
 
-        class CannotForbidAndRequireTransactionalSender :  MutuallyExclusiveInterfaces<MessageTypes.IRequireTransactionalSender, MessageTypes.ICannotBeSentRemotelyFromWithinTransaction> {}
+        class CannotForbidAndRequireTransactionalSender :  MutuallyExclusiveInterfaces<MessageTypes.IMustBeSentTransactionally, MessageTypes.ICannotBeSentRemotelyFromWithinTransaction> {}
+
+
+        class WrapperEventInterfaceMustBeGenericAndDeclareTypeParameterAsAsOutParameter : SimpleMessageTypeDesignRule
+        {
+            string _message = "";
+            protected override bool IsInvalid(Type type)
+            {
+                if(type.Is<MessageTypes.IWrapperEvent<MessageTypes.IEvent>>())
+                {
+                    var allInterfaces = type.GetInterfaces().ToList();
+                    if(type.IsInterface) allInterfaces.Add(type);
+
+                    var wrapperInterfacesImplemented = allInterfaces.Where(@interface => @interface.Is<MessageTypes.IWrapperEvent<MessageTypes.IEvent>>()).ToArray();
+                    var nonGeneric = wrapperInterfacesImplemented.FirstOrDefault(@interface => !@interface.IsGenericType);
+                    if(nonGeneric != null)
+                    {
+                        _message = $"{nonGeneric.GetFullNameCompilable()} implements {typeof(MessageTypes.IWrapperEvent<>).GetFullNameCompilable()} but is not generic. This means that routing based on the covariance of the wrapping type is impossible and thus semantic routing breaks down.";
+                        return true;
+                    }
+
+                    var typeParameterIsNotOut = wrapperInterfacesImplemented.FirstOrDefault(@interface => !@interface.GetGenericTypeDefinition().GetGenericArguments()[0].GenericParameterAttributes.HasFlag(GenericParameterAttributes.Covariant));
+                    if(typeParameterIsNotOut != null)
+                    {
+                        _message = $"{typeParameterIsNotOut.GetFullNameCompilable()} implements {typeof(MessageTypes.IWrapperEvent<>).GetFullNameCompilable()} but does not declare the type parameter as covariant(out). If the type parameter is not covariant routing to derived types does not work because they are not assignable to the base interface type";
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            protected override string CreateMessage(Type type) => _message;
+        }
 
         class AtMostOnceCommandDefaultConstructorMustNotSetADeduplicationId : MessageTypeDesignRule
         {
             internal override void AssertFulfilledBy(Type type)
             {
-                if(type.Implements<MessageTypes.Remotable.AtMostOnce.ICommand>())
+                if(type.Implements<MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand>())
                 {
                     if(Constructor.HasDefaultConstructor(type))
                     {
-                        var instance = (MessageTypes.Remotable.AtMostOnce.ICommand)Constructor.CreateInstance(type);
+                        var instance = (MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand)Constructor.CreateInstance(type);
                         if(instance.MessageId != Guid.Empty)
                         {
-                            throw new MessageTypeDesignViolationException($@"The default constructor of {type.GetFullNameCompilable()} sets {nameof(MessageTypes.Remotable.AtMostOnce.IMessage)}.{nameof(MessageTypes.Remotable.AtMostOnce.IMessage.MessageId)} to a value other than Guid.Empty.
-Since {type.GetFullNameCompilable()} is an {typeof(MessageTypes.Remotable.AtMostOnce.ICommand).GetFullNameCompilable()} this is very likely to break the exactly once guarantee.
-For instance: If you bind this command in a web UI and forget to bind the {nameof(MessageTypes.Remotable.AtMostOnce.IMessage.MessageId)} then the infrastructure will be unable to realize that this is NOT the correct originally created {nameof(MessageTypes.Remotable.AtMostOnce.IMessage.MessageId)}.
+                            throw new MessageTypeDesignViolationException($@"The default constructor of {type.GetFullNameCompilable()} sets {nameof(MessageTypes.Remotable.IAtMostOnceMessage)}.{nameof(MessageTypes.Remotable.IAtMostOnceMessage.MessageId)} to a value other than Guid.Empty.
+Since {type.GetFullNameCompilable()} is an {typeof(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand).GetFullNameCompilable()} this is very likely to break the exactly once guarantee.
+For instance: If you bind this command in a web UI and forget to bind the {nameof(MessageTypes.Remotable.IAtMostOnceMessage.MessageId)} then the infrastructure will be unable to realize that this is NOT the correct originally created {nameof(MessageTypes.Remotable.IAtMostOnceMessage.MessageId)}.
 This in turn means that if your user clicks multiple times the command may well be both sent and handled multiple times. Thus breaking the exactly once guarantee. The same thing if a Single Page Application receives an HTTP timeout and retries the command. 
 And another example: If you make the setter private many serialization technologies will not be able to maintain the value of the property. But since you used this constructor the property will have a value. A new one each time the instance is deserialized. Again breaking the at most once guarantee.
 ");

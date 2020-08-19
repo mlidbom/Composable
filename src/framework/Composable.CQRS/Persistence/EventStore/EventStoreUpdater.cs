@@ -62,7 +62,7 @@ namespace Composable.Persistence.EventStore
             Contract.Assert.That(version > 0, "version > 0");
 
             _usageGuard.AssertNoContextChangeOccurred(this);
-            var aggregate = CreateInstance<TAggregate>();
+
             var history = GetHistory(aggregateId);
             if(history.None())
             {
@@ -74,6 +74,7 @@ namespace Composable.Persistence.EventStore
                 throw new Exception($"Requested version: {version} not found. Current version: {history.Count}");
             }
 
+            var aggregate = CreateInstance<TAggregate>();
             aggregate.LoadFromHistory(history.Where(e => e.AggregateVersion <= version));
             return aggregate;
         }
@@ -82,22 +83,23 @@ namespace Composable.Persistence.EventStore
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
-            var changes = aggregate.GetChanges().ToList();
-            if (aggregate.Version > 0 && changes.None() || changes.Any() && changes.Min(e => e.AggregateVersion) > 1)
+
+            aggregate.Commit(events =>
             {
-                throw new AttemptToSaveAlreadyPersistedAggregateException(aggregate);
-            }
-            if (aggregate.Version == 0 && changes.None())
-            {
-                throw new AttemptToSaveEmptyAggregateException(aggregate);
-            }
+                if (aggregate.Version > 0 && events.None() || events.Any() && events.Min(e => e.AggregateVersion) > 1)
+                {
+                    throw new AttemptToSaveAlreadyPersistedAggregateException(aggregate);
+                }
+                if (aggregate.Version == 0 && events.None())
+                {
+                    throw new AttemptToSaveEmptyAggregateException(aggregate);
+                }
 
-            var events = aggregate.GetChanges().ToList();
-            _store.SaveSingleAggregateEvents(events);
+                _store.SaveSingleAggregateEvents(events);
 
-            events.ForEach(_eventStoreEventPublisher.Publish);
+                events.ForEach(_eventStoreEventPublisher.Publish);
+            });
 
-            aggregate.AcceptChanges();
             _idMap.Add(aggregate.Id, aggregate);
 
             _disposableResources.Add(aggregate.EventStream.Subscribe(OnAggregateEvent));

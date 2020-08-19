@@ -6,7 +6,6 @@
     <IsPackable>false</IsPackable>
     <Configurations>Debug;Release</Configurations>
     <Nullable>disable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>Composable.Tests</RootNamespace>
   </PropertyGroup>

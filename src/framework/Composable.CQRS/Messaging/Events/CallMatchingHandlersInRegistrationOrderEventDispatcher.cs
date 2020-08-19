@@ -15,27 +15,27 @@ namespace Composable.Messaging.Events
     /// Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
     /// </summary>
     public class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
-        where TEvent : class, MessageTypes.IEvent
+        where TEvent : class, IEvent
     {
         abstract class RegisteredHandler
         {
-            internal abstract Action<MessageTypes.IEvent>? TryCreateHandlerFor(Type eventType);
+            internal abstract Action<IEvent>? TryCreateHandlerFor(Type eventType);
         }
 
         class RegisteredHandler<THandledEvent> : RegisteredHandler
-            where THandledEvent : MessageTypes.IEvent
+            where THandledEvent : IEvent
         {
             //Since handler has specified no preference for wrapper type the most generic of all will do and any wrapped event containing a matching event should be dispatched to this handler.
             readonly Action<THandledEvent> _handler;
             public RegisteredHandler(Action<THandledEvent> handler) => _handler = handler;
-            internal override Action<MessageTypes.IEvent>? TryCreateHandlerFor(Type eventType)
+            internal override Action<IEvent>? TryCreateHandlerFor(Type eventType)
             {
                 if(typeof(THandledEvent).IsAssignableFrom(eventType))
                 {
                     return @event => _handler((THandledEvent)@event);
-                } else if(eventType.Is<MessageTypes.IWrapperEvent<THandledEvent>>())
+                } else if(eventType.Is<IWrapperEvent<THandledEvent>>())
                 {
-                    return @event => _handler(((MessageTypes.IWrapperEvent<THandledEvent>)@event).Event);
+                    return @event => _handler(((IWrapperEvent<THandledEvent>)@event).Event);
                 } else
                 {
                     return null;
@@ -44,14 +44,14 @@ namespace Composable.Messaging.Events
         }
 
         class RegisteredWrappedHandler<THandledWrapperEvent> : RegisteredHandler
-            where THandledWrapperEvent : MessageTypes.IWrapperEvent<MessageTypes.IEvent>
+            where THandledWrapperEvent : IWrapperEvent<IEvent>
         {
             readonly Action<THandledWrapperEvent> _handler;
 
             public RegisteredWrappedHandler(Action<THandledWrapperEvent> handler) => _handler = handler;
-            internal override Action<MessageTypes.IEvent>? TryCreateHandlerFor(Type eventType) =>
+            internal override Action<IEvent>? TryCreateHandlerFor(Type eventType) =>
                 typeof(THandledWrapperEvent).IsAssignableFrom(eventType)
-                    ? (Action<MessageTypes.IEvent>?)(@event => _handler((THandledWrapperEvent)@event))
+                    ? (Action<IEvent>?)(@event => _handler((THandledWrapperEvent)@event))
                     : null;
         }
 
@@ -77,7 +77,7 @@ namespace Composable.Messaging.Events
             RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent => ForGenericEvent(handler);
 
             RegistrationBuilder ForWrapped<TWrapperEvent>(Action<TWrapperEvent> handler)
-                where TWrapperEvent : MessageTypes.IWrapperEvent<TEvent>
+                where TWrapperEvent : IWrapperEvent<TEvent>
             {
                 MessageTypeInspector.AssertValidForSubscription(typeof(TWrapperEvent));
                 _owner._handlers.Add(new RegisteredWrappedHandler<TWrapperEvent>(handler));
@@ -89,10 +89,10 @@ namespace Composable.Messaging.Events
             /// Useful for listening to generic events such as IAggregateCreatedEvent or IAggregateDeletedEvent
             /// Be aware that the concrete event received MUST still actually inherit TEvent or there will be an InvalidCastException
             /// </summary>
-            RegistrationBuilder ForGenericEvent<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : MessageTypes.IEvent
+            RegistrationBuilder ForGenericEvent<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : IEvent
             {
                 MessageTypeInspector.AssertValidForSubscription(typeof(THandledEvent));
-                if(typeof(THandledEvent).Is<MessageTypes.IWrapperEvent<MessageTypes.IEvent>>())throw new Exception($"Handlers of type {typeof(MessageTypes.IWrapperEvent<>).Name} must be registered through the {nameof(ForWrapped)} method.");
+                if(typeof(THandledEvent).Is<IWrapperEvent<IEvent>>())throw new Exception($"Handlers of type {typeof(IWrapperEvent<>).Name} must be registered through the {nameof(ForWrapped)} method.");
                 _owner._handlers.Add(new RegisteredHandler<THandledEvent>(handler));
                 _owner._totalHandlers++;
                 return this;
@@ -101,7 +101,7 @@ namespace Composable.Messaging.Events
             RegistrationBuilder BeforeHandlers(Action<TEvent> runBeforeHandlers)
             {
                 //Urgent: fix this. Use the registered handler classes above
-                _owner._runBeforeHandlers.Add(e => runBeforeHandlers(((MessageTypes.IWrapperEvent<TEvent>)e).Event));
+                _owner._runBeforeHandlers.Add(e => runBeforeHandlers(((IWrapperEvent<TEvent>)e).Event));
                 _owner._totalHandlers++;
                 return this;
             }
@@ -109,14 +109,14 @@ namespace Composable.Messaging.Events
             RegistrationBuilder AfterHandlers(Action<TEvent> runAfterHandlers)
             {
                 //Urgent: fix this
-                _owner._runAfterHandlers.Add(e => runAfterHandlers(((MessageTypes.IWrapperEvent<TEvent>)e).Event));
+                _owner._runAfterHandlers.Add(e => runAfterHandlers(((IWrapperEvent<TEvent>)e).Event));
                 return this;
             }
 
-            RegistrationBuilder IgnoreUnhandled<T>() where T : MessageTypes.IEvent
+            RegistrationBuilder IgnoreUnhandled<T>() where T : IEvent
             {
                 _owner._ignoredEvents.Add(typeof(T)); //Urgent: Remove?
-                _owner._ignoredEvents.Add(typeof(MessageTypes.IWrapperEvent<T>)); //urgent: Is this correct?
+                _owner._ignoredEvents.Add(typeof(IWrapperEvent<T>)); //urgent: Is this correct?
                 _owner._totalHandlers++;
                 return this;
             }
@@ -138,17 +138,17 @@ namespace Composable.Messaging.Events
             #endregion
         }
 
-        Dictionary<Type, Action<MessageTypes.IEvent>[]> _typeToHandlerCache = new Dictionary<Type, Action<MessageTypes.IEvent>[]>();
+        Dictionary<Type, Action<IEvent>[]> _typeToHandlerCache = new Dictionary<Type, Action<IEvent>[]>();
         int _cachedTotalHandlers;
         // ReSharper disable once StaticMemberInGenericType
         static readonly Action<object>[] NullHandlerList = Array.Empty<Action<object>>();
 
-        Action<MessageTypes.IEvent>[] GetHandlers(Type type, bool validateHandlerExists = true)
+        Action<IEvent>[] GetHandlers(Type type, bool validateHandlerExists = true)
         {
             if(_cachedTotalHandlers != _totalHandlers)
             {
                 _cachedTotalHandlers = _totalHandlers;
-                _typeToHandlerCache = new Dictionary<Type, Action<MessageTypes.IEvent>[]>();
+                _typeToHandlerCache = new Dictionary<Type, Action<IEvent>[]>();
             }
 
             if(_typeToHandlerCache.TryGetValue(type, out var arrayResult))
@@ -156,7 +156,7 @@ namespace Composable.Messaging.Events
                 return arrayResult;
             }
 
-            var result = new List<Action<MessageTypes.IEvent>>();
+            var result = new List<Action<IEvent>>();
             var hasFoundHandler = false;
 
             foreach(var registeredHandler in _handlers)
@@ -193,8 +193,8 @@ namespace Composable.Messaging.Events
         public void Dispatch(TEvent evt)
         {
             //Urgent: Wrapping here seems arguable at best.
-            var wrapped = evt as MessageTypes.IWrapperEvent<MessageTypes.IEvent>
-                       ?? MessageTypes.WrapperEvent.WrapEvent((MessageTypes.IEvent)evt);
+            var wrapped = evt as IWrapperEvent<IEvent>
+                       ?? MessageTypes.WrapperEvent.WrapEvent((IEvent)evt);
 
             var handlers = GetHandlers(wrapped.GetType());
             for(var i = 0; i < handlers.Length; i++)

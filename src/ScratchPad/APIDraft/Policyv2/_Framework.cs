@@ -20,7 +20,7 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
 
     interface IMessageHandlerPolicy
     {
-        void Configure(IHandlerPolicyConfigurationBuilder builder, MessageTypes.IMessage message);
+        void Configure(IHandlerPolicyConfigurationBuilder builder, IMessage message);
     }
 
 
@@ -93,6 +93,6 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
     class CompositePolicy : IMessageHandlerPolicy
     {
         public CompositePolicy(params IMessageHandlerPolicy[] policies) { }
-        public void Configure(IHandlerPolicyConfigurationBuilder builder, MessageTypes.IMessage message) { throw new Exception(); }
+        public void Configure(IHandlerPolicyConfigurationBuilder builder, IMessage message) { throw new Exception(); }
     }
 }

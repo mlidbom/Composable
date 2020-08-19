@@ -43,7 +43,7 @@ namespace Composable.Messaging.Hypermedia
             return queryHandler.Invoke(query);
         }
 
-        void CommonAssertion(MessageTypes.IMessage message)
+        void CommonAssertion(IMessage message)
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToExecuteLocally(message);

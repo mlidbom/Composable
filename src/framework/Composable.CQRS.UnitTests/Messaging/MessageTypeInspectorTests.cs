@@ -5,8 +5,8 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Messaging
 {
-    interface INonGenericWrapperEvent : MessageTypes.IWrapperEvent<MessageTypes.IEvent>{}
-    interface INonCovariantTypeParameterWrapperEvent : MessageTypes.IWrapperEvent<MessageTypes.IEvent> {}
+    interface INonGenericWrapperEvent : IWrapperEvent<IEvent>{}
+    interface INonCovariantTypeParameterWrapperEvent : IWrapperEvent<IEvent> {}
 
     [TestFixture]public class MessageTypeInspector_throws_MessageTypeDesignViolationException_if_
     {
@@ -37,16 +37,16 @@ namespace Composable.Tests.Messaging
             interface INotMessage{}
             [Test] public void Is_not_IMessage() => AssertInvalidForSending<INotMessage>();
 
-            interface ICommandAndEvent : MessageTypes.IEvent, MessageTypes.ICommand{}
+            interface ICommandAndEvent : IEvent, ICommand{}
             [Test] public void Is_Both_command_and_event() => AssertInvalidForSending<ICommandAndEvent>();
 
-            interface ICommandAndQuery : MessageTypes.IEvent, IQuery<object> {}
+            interface ICommandAndQuery : IEvent, IQuery<object> {}
             [Test] public void Is_Both_command_and_query() => AssertInvalidForSending<ICommandAndQuery>();
 
             interface IStrictlyLocalAndRemotable : IRemotableMessage, IStrictlyLocalMessage {}
             [Test] public void Is_Both_strictly_local_and_remotable() => AssertInvalidForSending<IStrictlyLocalAndRemotable>();
 
-            interface IForbidAndRequireTransactionalSender : MessageTypes.IMustBeSentTransactionally, MessageTypes.ICannotBeSentRemotelyFromWithinTransaction {}
+            interface IForbidAndRequireTransactionalSender : IMustBeSentTransactionally, ICannotBeSentRemotelyFromWithinTransaction {}
             [Test] public void Forbids_and_requires_transactional_sender() => AssertInvalidForSending<IForbidAndRequireTransactionalSender>();
 
             [UsedImplicitly]class AtMostOnceCommandSettingMessageIdInDefaultConstructor : IAtMostOnceHypermediaCommand

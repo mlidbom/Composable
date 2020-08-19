@@ -6,7 +6,7 @@ namespace Composable.Tests.CQRS.EventHandling
 {
     static class EventDispatcherAsserter
     {
-        internal class DispatcherAssertion<TDispatcherRootEvent> where TDispatcherRootEvent : class, MessageTypes.IEvent
+        internal class DispatcherAssertion<TDispatcherRootEvent> where TDispatcherRootEvent : class, IEvent
         {
             readonly IMutableEventDispatcher<TDispatcherRootEvent> _dispatcher;
             public DispatcherAssertion(IMutableEventDispatcher<TDispatcherRootEvent> dispatcher) => _dispatcher = dispatcher;
@@ -16,7 +16,7 @@ namespace Composable.Tests.CQRS.EventHandling
                 new RouteAssertion<TDispatcherRootEvent>(_dispatcher, @event);
         }
 
-        internal class RouteAssertion<TDispatcherRootEvent> where TDispatcherRootEvent : class, MessageTypes.IEvent
+        internal class RouteAssertion<TDispatcherRootEvent> where TDispatcherRootEvent : class, IEvent
         {
             readonly IMutableEventDispatcher<TDispatcherRootEvent> _dispatcher;
             readonly TDispatcherRootEvent _event;
@@ -37,7 +37,7 @@ namespace Composable.Tests.CQRS.EventHandling
             }
 
             public void DispatchesToWrapped<THandlerEvent>()
-                where THandlerEvent : MessageTypes.IWrapperEvent<TDispatcherRootEvent>
+                where THandlerEvent : IWrapperEvent<TDispatcherRootEvent>
             {
                 var callCount = 0;
                 _dispatcher.Register().IgnoreAllUnhandled();
@@ -47,7 +47,7 @@ namespace Composable.Tests.CQRS.EventHandling
             }
 
             public void DoesNotDispatchToWrapped<THandlerEvent>()
-                where THandlerEvent : MessageTypes.IWrapperEvent<TDispatcherRootEvent>
+                where THandlerEvent : IWrapperEvent<TDispatcherRootEvent>
             {
                 var callCount = 0;
                 _dispatcher.Register().IgnoreAllUnhandled();
@@ -57,6 +57,6 @@ namespace Composable.Tests.CQRS.EventHandling
             }
         }
 
-        internal static DispatcherAssertion<TEvent> Assert<TEvent>(this IMutableEventDispatcher<TEvent> @this) where TEvent : class, MessageTypes.IEvent => new DispatcherAssertion<TEvent>(@this);
+        internal static DispatcherAssertion<TEvent> Assert<TEvent>(this IMutableEventDispatcher<TEvent> @this) where TEvent : class, IEvent => new DispatcherAssertion<TEvent>(@this);
     }
 }

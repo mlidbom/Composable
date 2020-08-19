@@ -42,7 +42,7 @@ namespace Composable.Messaging.Buses.Implementation
                             {
                                 try
                                 {
-                                    var result = message is MessageTypes.IMustBeHandledTransactionally
+                                    var result = message is IMustBeHandledTransactionally
                                                      ? _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
                                                      {
                                                          var innerResult = _messageTask(message);

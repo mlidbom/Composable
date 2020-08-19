@@ -56,18 +56,18 @@ namespace Composable.Messaging.Buses.Implementation
 
     interface IMessageHandlerRegistry
     {
-        Action<object> GetCommandHandler(MessageTypes.ICommand message);
+        Action<object> GetCommandHandler(ICommand message);
 
-        Action<MessageTypes.ICommand> GetCommandHandler(Type commandType);
-        Func<MessageTypes.ICommand, object> GetCommandHandlerWithReturnValue(Type commandType);
+        Action<ICommand> GetCommandHandler(Type commandType);
+        Func<ICommand, object> GetCommandHandlerWithReturnValue(Type commandType);
         Func<IQuery<object>, object> GetQueryHandler(Type commandType);
-        IReadOnlyList<Action<MessageTypes.IEvent>> GetEventHandlers(Type eventType);
+        IReadOnlyList<Action<IEvent>> GetEventHandlers(Type eventType);
 
         Func<IStrictlyLocalQuery<TQuery, TResult>, TResult> GetQueryHandler<TQuery, TResult>(IStrictlyLocalQuery<TQuery, TResult> query) where TQuery : IStrictlyLocalQuery<TQuery, TResult>;
 
-        Func<MessageTypes.ICommand<TResult>, TResult> GetCommandHandler<TResult>(MessageTypes.ICommand<TResult> command);
+        Func<ICommand<TResult>, TResult> GetCommandHandler<TResult>(ICommand<TResult> command);
 
-        IEventDispatcher<MessageTypes.IEvent> CreateEventDispatcher();
+        IEventDispatcher<IEvent> CreateEventDispatcher();
 
         ISet<TypeId> HandledRemoteMessageTypeIds();
     }

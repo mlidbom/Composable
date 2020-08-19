@@ -27,7 +27,7 @@ namespace Composable.Messaging
 
         internal static void AssertValidForSubscription(Type type)
         {
-            if(!type.Is<MessageTypes.IEvent>()) throw new Exception($"You can only subscribe to subtypes of {typeof(MessageTypes.IEvent).GetFullNameCompilable()}");
+            if(!type.Is<IEvent>()) throw new Exception($"You can only subscribe to subtypes of {typeof(IEvent).GetFullNameCompilable()}");
             if(!type.IsInterface) throw new Exception($"{type.GetFullNameCompilable()} is not an interface. You can only subscribe to event interfaces because as soon as you subscribe to classes you loose the guarantees of semantic routing since classes do not support multiple inheritance.");;
             AssertValid(type);
         }
@@ -70,8 +70,8 @@ namespace Composable.Messaging
 
         class MustBeIMessage : SimpleMessageTypeDesignRule
         {
-            protected override bool IsInvalid(Type type) => !type.Implements<MessageTypes.IMessage>();
-            protected override string CreateMessage(Type type) => $"{type.GetFullNameCompilable()} does not implement {typeof(MessageTypes.IMessage).GetFullNameCompilable()}";
+            protected override bool IsInvalid(Type type) => !type.Implements<IMessage>();
+            protected override string CreateMessage(Type type) => $"{type.GetFullNameCompilable()} does not implement {typeof(IMessage).GetFullNameCompilable()}";
         }
 
         class MutuallyExclusiveInterfaces<TInterface1, TInterface2> : SimpleMessageTypeDesignRule
@@ -80,15 +80,15 @@ namespace Composable.Messaging
             protected override string CreateMessage(Type type) => $"{type.GetFullNameCompilable()} implements both {typeof(TInterface1).GetFullNameCompilable()} and {typeof(TInterface2).GetFullNameCompilable()}";
         }
 
-        class CannotBeBothCommandAndEvent : MutuallyExclusiveInterfaces<MessageTypes.ICommand, MessageTypes.IEvent> {}
+        class CannotBeBothCommandAndEvent : MutuallyExclusiveInterfaces<ICommand, IEvent> {}
 
-        class CannotBeBothCommandAndQuery : MutuallyExclusiveInterfaces<MessageTypes.ICommand, IQuery<object>> {}
+        class CannotBeBothCommandAndQuery : MutuallyExclusiveInterfaces<ICommand, IQuery<object>> {}
 
-        class CannotBeBothEventAndQuery : MutuallyExclusiveInterfaces<MessageTypes.IEvent, IQuery<object>> {}
+        class CannotBeBothEventAndQuery : MutuallyExclusiveInterfaces<IEvent, IQuery<object>> {}
 
         class CannotBeBothRemotableAndStrictlyLocal : MutuallyExclusiveInterfaces<IRemotableMessage, IStrictlyLocalMessage> {}
 
-        class CannotForbidAndRequireTransactionalSender :  MutuallyExclusiveInterfaces<MessageTypes.IMustBeSentTransactionally, MessageTypes.ICannotBeSentRemotelyFromWithinTransaction> {}
+        class CannotForbidAndRequireTransactionalSender :  MutuallyExclusiveInterfaces<IMustBeSentTransactionally, ICannotBeSentRemotelyFromWithinTransaction> {}
 
 
         class WrapperEventInterfaceMustBeGenericAndDeclareTypeParameterAsAsOutParameter : SimpleMessageTypeDesignRule
@@ -96,23 +96,23 @@ namespace Composable.Messaging
             string _message = "";
             protected override bool IsInvalid(Type type)
             {
-                if(type.Is<MessageTypes.IWrapperEvent<MessageTypes.IEvent>>())
+                if(type.Is<IWrapperEvent<IEvent>>())
                 {
                     var allInterfaces = type.GetInterfaces().ToList();
                     if(type.IsInterface) allInterfaces.Add(type);
 
-                    var wrapperInterfacesImplemented = allInterfaces.Where(@interface => @interface.Is<MessageTypes.IWrapperEvent<MessageTypes.IEvent>>()).ToArray();
+                    var wrapperInterfacesImplemented = allInterfaces.Where(@interface => @interface.Is<IWrapperEvent<IEvent>>()).ToArray();
                     var nonGeneric = wrapperInterfacesImplemented.FirstOrDefault(@interface => !@interface.IsGenericType);
                     if(nonGeneric != null)
                     {
-                        _message = $"{nonGeneric.GetFullNameCompilable()} implements {typeof(MessageTypes.IWrapperEvent<>).GetFullNameCompilable()} but is not generic. This means that routing based on the covariance of the wrapping type is impossible and thus semantic routing breaks down.";
+                        _message = $"{nonGeneric.GetFullNameCompilable()} implements {typeof(IWrapperEvent<>).GetFullNameCompilable()} but is not generic. This means that routing based on the covariance of the wrapping type is impossible and thus semantic routing breaks down.";
                         return true;
                     }
 
                     var typeParameterIsNotOut = wrapperInterfacesImplemented.FirstOrDefault(@interface => !@interface.GetGenericTypeDefinition().GetGenericArguments()[0].GenericParameterAttributes.HasFlag(GenericParameterAttributes.Covariant));
                     if(typeParameterIsNotOut != null)
                     {
-                        _message = $"{typeParameterIsNotOut.GetFullNameCompilable()} implements {typeof(MessageTypes.IWrapperEvent<>).GetFullNameCompilable()} but does not declare the type parameter as covariant(out). If the type parameter is not covariant routing to derived types does not work because they are not assignable to the base interface type";
+                        _message = $"{typeParameterIsNotOut.GetFullNameCompilable()} implements {typeof(IWrapperEvent<>).GetFullNameCompilable()} but does not declare the type parameter as covariant(out). If the type parameter is not covariant routing to derived types does not work because they are not assignable to the base interface type";
                         return true;
                     }
                 }

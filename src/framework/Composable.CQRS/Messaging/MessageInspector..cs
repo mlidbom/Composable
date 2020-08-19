@@ -14,27 +14,27 @@ namespace Composable.Messaging
 
         internal static void AssertValid<TMessage>() => MessageTypeInspector.AssertValid(typeof(TMessage));
 
-        internal static void AssertValidToSendRemote(MessageTypes.IMessage message)
+        internal static void AssertValidToSendRemote(IMessage message)
         {
             CommonAssertions(message);
 
             if(message is IStrictlyLocalMessage strictlyLocalMessage) throw new AttemptToSendStrictlyLocalMessageRemotelyException(strictlyLocalMessage);
-            if(message is MessageTypes.IMustBeSentTransactionally && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IMustBeSentTransactionally).FullName} but there is no transaction.");
-            if(message is MessageTypes.ICannotBeSentRemotelyFromWithinTransaction && Transaction.Current != null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.ICannotBeSentRemotelyFromWithinTransaction).FullName} but there is a transaction.");
+            if(message is IMustBeSentTransactionally && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(IMustBeSentTransactionally).FullName} but there is no transaction.");
+            if(message is ICannotBeSentRemotelyFromWithinTransaction && Transaction.Current != null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(ICannotBeSentRemotelyFromWithinTransaction).FullName} but there is a transaction.");
             if(message is IAtMostOnceMessage atMostOnce && atMostOnce.MessageId == Guid.Empty) throw new Exception($"{nameof(IAtMostOnceMessage.MessageId)} was Guid.Empty for message of type: {message.GetType().FullName}");
         }
 
-        internal static void AssertValidToExecuteLocally(MessageTypes.IMessage message)
+        internal static void AssertValidToExecuteLocally(IMessage message)
         {
             CommonAssertions(message);
 
-            if(message is MessageTypes.IMustBeSentTransactionally && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IMustBeSentTransactionally).FullName} but there is no transaction.");
+            if(message is IMustBeSentTransactionally && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(IMustBeSentTransactionally).FullName} but there is no transaction.");
         }
 
-        static void CommonAssertions(MessageTypes.IMessage message)
+        static void CommonAssertions(IMessage message)
         {
             MessageTypeInspector.AssertValid(message.GetType());
-            if(message is MessageTypes.ICommand command) CommandValidator.AssertCommandIsValid(command);
+            if(message is ICommand command) CommandValidator.AssertCommandIsValid(command);
         }
     }
 }

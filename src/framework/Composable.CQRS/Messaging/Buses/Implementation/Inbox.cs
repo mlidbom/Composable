@@ -91,7 +91,7 @@ namespace Composable.Messaging.Buses.Implementation
                         {
                             //refactor: Consider moving these responsibilities into the message class or other class. Probably create more subtypes so that no type checking is required. See also: HandlerExecutionEngine.Coordinator and [.HandlerExecutionTask]
                             var message = transportMessage.DeserializeMessageAndCacheForNextCall();
-                            if(message is MessageTypes.IRequireAResponse)
+                            if(message is IRequireAResponse)
                             {
                                 if(dispatchResult.IsFaulted)
                                 {
@@ -102,7 +102,7 @@ namespace Composable.Messaging.Buses.Implementation
                                     Assert.Result.Assert(dispatchResult.IsCompleted);
                                     try
                                     {
-                                        if(message is MessageTypes.IHasReturnValue<object>)
+                                        if(message is IHasReturnValue<object>)
                                         {
                                             var successResponse = transportMessage.CreateSuccessResponseWithData(Contract.ReturnNotNull(dispatchResult.Result));
                                             _responseQueue.Enqueue(successResponse);

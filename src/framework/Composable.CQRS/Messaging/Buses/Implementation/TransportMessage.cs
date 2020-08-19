@@ -30,11 +30,11 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly TransportMessageType MessageTypeEnum;
             internal bool Is<TType>() => typeof(TType).IsAssignableFrom(_messageType);
 
-            MessageTypes.IMessage? _message;
+            IMessage? _message;
             readonly ITypeMapper _typeMapper;
 
             //performance: detect BinarySerializable and use instead.
-            public MessageTypes.IMessage DeserializeMessageAndCacheForNextCall()
+            public IMessage DeserializeMessageAndCacheForNextCall()
             {
                 if(_message == null)
                 {
@@ -185,7 +185,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     response.Append(incoming.Client);
                     response.Append(incoming.MessageId);
-                    if(incoming.Is<MessageTypes.IHasReturnValue<object>>())
+                    if(incoming.Is<IHasReturnValue<object>>())
                     {
                         response.Append((int)ResponseType.FailureExpectedReturnValue);
                     } else

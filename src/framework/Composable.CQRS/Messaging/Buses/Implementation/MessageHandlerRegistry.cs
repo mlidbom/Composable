@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         readonly ITypeMapper _typeMapper;
         IReadOnlyDictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
-        IReadOnlyDictionary<Type, IReadOnlyList<Action<MessageTypes.IEvent>>> _eventHandlers = new Dictionary<Type, IReadOnlyList<Action<MessageTypes.IEvent>>>();
+        IReadOnlyDictionary<Type, IReadOnlyList<Action<IEvent>>> _eventHandlers = new Dictionary<Type, IReadOnlyList<Action<IEvent>>>();
         IReadOnlyDictionary<Type, HandlerWithResultRegistration> _queryHandlers = new Dictionary<Type, HandlerWithResultRegistration>();
         IReadOnlyDictionary<Type, HandlerWithResultRegistration> _commandHandlersReturningResults = new Dictionary<Type, HandlerWithResultRegistration>();
         IReadOnlyList<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             MessageInspector.AssertValid<TEvent>();
             _eventHandlers.TryGetValue(typeof(TEvent), out var currentEventSubscribers);
-            currentEventSubscribers ??= new List<Action<MessageTypes.IEvent>>();
+            currentEventSubscribers ??= new List<Action<IEvent>>();
 
             ThreadSafe.AddToCopyAndReplace(ref _eventHandlers, typeof(TEvent), currentEventSubscribers.AddToCopy(@event => handler((TEvent)@event)));
             ThreadSafe.AddToCopyAndReplace(ref _eventHandlerRegistrations, new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
@@ -41,7 +41,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             MessageInspector.AssertValid<TCommand>();
 
-            if(typeof(TCommand).Implements(typeof(MessageTypes.ICommand<>)))
+            if(typeof(TCommand).Implements(typeof(ICommand<>)))
             {
                 throw new Exception($"{typeof(TCommand)} expects a result. You must register a method that returns a result.");
             }
@@ -66,23 +66,23 @@ namespace Composable.Messaging.Buses.Implementation
             return this;
         });
 
-        Action<object> IMessageHandlerRegistry.GetCommandHandler(MessageTypes.ICommand message)
+        Action<object> IMessageHandlerRegistry.GetCommandHandler(ICommand message)
         {
             if(TryGetCommandHandler(message, out var handler)) return handler;
 
             throw new NoHandlerException(message.GetType());
         }
 
-        bool TryGetCommandHandler(MessageTypes.ICommand message, [MaybeNullWhen(false)]out Action<object> handler) =>
+        bool TryGetCommandHandler(ICommand message, [MaybeNullWhen(false)]out Action<object> handler) =>
             _commandHandlers.TryGetValue(message.GetType(), out handler);
 
-        public Func<MessageTypes.ICommand, object> GetCommandHandlerWithReturnValue(Type commandType) => _commandHandlersReturningResults[commandType].HandlerMethod;
+        public Func<ICommand, object> GetCommandHandlerWithReturnValue(Type commandType) => _commandHandlersReturningResults[commandType].HandlerMethod;
 
-        public Action<MessageTypes.ICommand> GetCommandHandler(Type commandType) => _commandHandlers[commandType];
+        public Action<ICommand> GetCommandHandler(Type commandType) => _commandHandlers[commandType];
 
         public Func<IQuery<object>, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType].HandlerMethod;
 
-        public IReadOnlyList<Action<MessageTypes.IEvent>> GetEventHandlers(Type eventType)
+        public IReadOnlyList<Action<IEvent>> GetEventHandlers(Type eventType)
         {
             //performance: Use static caching trick.
             return _eventHandlers.Where(@this => @this.Key.IsAssignableFrom(eventType)).SelectMany(@this => @this.Value).ToList();
@@ -99,7 +99,7 @@ namespace Composable.Messaging.Buses.Implementation
             throw new NoHandlerException(query.GetType());
         }
 
-        public Func<MessageTypes.ICommand<TResult>, TResult> GetCommandHandler<TResult>(MessageTypes.ICommand<TResult> command)
+        public Func<ICommand<TResult>, TResult> GetCommandHandler<TResult>(ICommand<TResult> command)
         {
             if(_commandHandlersReturningResults.TryGetValue(command.GetType(), out var handler))
             {
@@ -109,11 +109,11 @@ namespace Composable.Messaging.Buses.Implementation
             throw new NoHandlerException(command.GetType());
         }
 
-        IEventDispatcher<MessageTypes.IEvent> IMessageHandlerRegistry.CreateEventDispatcher()
+        IEventDispatcher<IEvent> IMessageHandlerRegistry.CreateEventDispatcher()
         {
-            var dispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<MessageTypes.IEvent>();
+            var dispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<IEvent>();
             var registrar = dispatcher.RegisterHandlers()
-                                      .IgnoreUnhandled<MessageTypes.IEvent>();
+                                      .IgnoreUnhandled<IEvent>();
 
             _eventHandlerRegistrations.ForEach(handlerRegistration => handlerRegistration.RegisterHandlerWithRegistrar(registrar));
 
@@ -146,8 +146,8 @@ namespace Composable.Messaging.Buses.Implementation
         class EventHandlerRegistration
         {
             public Type Type { get; }
-            public Action<IEventHandlerRegistrar<MessageTypes.IEvent>> RegisterHandlerWithRegistrar { get; }
-            public EventHandlerRegistration(Type type, Action<IEventHandlerRegistrar<MessageTypes.IEvent>> registerHandlerWithRegistrar)
+            public Action<IEventHandlerRegistrar<IEvent>> RegisterHandlerWithRegistrar { get; }
+            public EventHandlerRegistration(Type type, Action<IEventHandlerRegistrar<IEvent>> registerHandlerWithRegistrar)
             {
                 Type = type;
                 RegisterHandlerWithRegistrar = registerHandlerWithRegistrar;

@@ -33,27 +33,27 @@ namespace Composable.Persistence.EventStore
             TimeSource = timeSource;
         }
 
-        public TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored
+        public TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : class, IEventStored
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
-            if (!DoTryGet(aggregateId, out TAggregate result))
+            if (!DoTryGet(aggregateId, out TAggregate? result))
             {
                 throw new AggregateNotFoundException(aggregateId);
             }
             return result;
         }
 
-        public bool TryGet<TAggregate>(Guid aggregateId, [MaybeNullWhen(false)]out TAggregate aggregate) where TAggregate : IEventStored
+        public bool TryGet<TAggregate>(Guid aggregateId, [MaybeNullWhen(false)]out TAggregate aggregate) where TAggregate : class, IEventStored
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
             return DoTryGet(aggregateId, out aggregate);
         }
 
-        public TAggregate GetReadonlyCopy<TAggregate>(Guid aggregateId) where TAggregate : IEventStored => LoadSpecificVersionInternal<TAggregate>(aggregateId, int.MaxValue, verifyVersion: false);
+        public TAggregate GetReadonlyCopy<TAggregate>(Guid aggregateId) where TAggregate : class, IEventStored => LoadSpecificVersionInternal<TAggregate>(aggregateId, int.MaxValue, verifyVersion: false);
 
-        public TAggregate GetReadonlyCopyOfVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : IEventStored => LoadSpecificVersionInternal<TAggregate>(aggregateId, version);
+        public TAggregate GetReadonlyCopyOfVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : class, IEventStored => LoadSpecificVersionInternal<TAggregate>(aggregateId, version);
 
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         TAggregate LoadSpecificVersionInternal<TAggregate>(Guid aggregateId, int version, bool verifyVersion = true) where TAggregate : IEventStored
@@ -79,7 +79,7 @@ namespace Composable.Persistence.EventStore
             return aggregate;
         }
 
-        public void Save<TAggregate>(TAggregate aggregate) where TAggregate : IEventStored
+        public void Save<TAggregate>(TAggregate aggregate) where TAggregate : class, IEventStored
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
@@ -140,7 +140,7 @@ namespace Composable.Persistence.EventStore
                 ? _store.GetAggregateHistoryForUpdate(aggregateId)
                 : _store.GetAggregateHistory(aggregateId);
 
-        bool DoTryGet<TAggregate>(Guid aggregateId, [MaybeNullWhen(false)]out TAggregate aggregate) where TAggregate : IEventStored
+        bool DoTryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)]out TAggregate? aggregate) where TAggregate : class, IEventStored
         {
             if (_idMap.TryGetValue(aggregateId, out var eventStored))
             {

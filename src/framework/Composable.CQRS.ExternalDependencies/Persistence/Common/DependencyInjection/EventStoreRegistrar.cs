@@ -61,7 +61,7 @@ namespace Composable.Persistence.Common.DependencyInjection
         internal EventStoreRegistrationBuilder(MessageHandlerRegistrarWithDependencyInjectionSupport handlerRegistrar) => _handlerRegistrar = handlerRegistrar;
 
         public EventStoreRegistrationBuilder HandleAggregate<TAggregate, TEvent>()
-            where TAggregate : IEventStored<TEvent>
+            where TAggregate : class, IEventStored<TEvent>
             where TEvent : IAggregateEvent
         {
             EventStoreApi.RegisterHandlersForAggregate<TAggregate, TEvent>(_handlerRegistrar);

@@ -2,36 +2,45 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Composable.SystemCE.CollectionsCE.GenericCE;
 using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
+using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.Messaging
 {
     partial class MessageTypeInspector
     {
-        static readonly MessageTypeDesignRule[] Rules = {
-                                                            new MustBeIMessage(),
-                                                            new CannotBeBothCommandAndEvent(),
-                                                            new CannotBeBothCommandAndQuery(),
-                                                            new CannotBeBothEventAndQuery(),
-                                                            new CannotBeBothRemotableAndStrictlyLocal(),
-                                                            new CannotForbidAndRequireTransactionalSender(),
-                                                            new AtMostOnceCommandDefaultConstructorMustNotSetADeduplicationId(),
-                                                            new WrapperEventInterfaceMustBeGenericAndDeclareTypeParameterAsAsOutParameter()
-                                                        };
+        static readonly MessageTypeDesignRule[] MessageTypeDesignRules =
+        {
+            new MustBeIMessage(),
+            new CannotBeBothCommandAndEvent(),
+            new CannotBeBothCommandAndQuery(),
+            new CannotBeBothEventAndQuery(),
+            new CannotBeBothRemotableAndStrictlyLocal(),
+            new CannotForbidAndRequireTransactionalSender(),
+            new AtMostOnceCommandDefaultConstructorMustNotSetADeduplicationId(),
+            new WrapperEventInterfaceMustBeGenericAndDeclareTypeParameterAsAsOutParameter()
+        };
 
         static readonly MonitorCE Monitor = MonitorCE.WithDefaultTimeout();
-        static HashSet<Type> _successfullyInspectedTypes = new HashSet<Type>();
 
-
+        static IReadonlySetCEx<Type> _successfullyInspectedSubscribableTypes = new HashSetCEx<Type>();
         internal static void AssertValidForSubscription(Type type)
         {
-            if(!type.Is<IEvent>()) throw new Exception($"You can only subscribe to subtypes of {typeof(IEvent).GetFullNameCompilable()}");
-            if(!type.IsInterface) throw new Exception($"{type.GetFullNameCompilable()} is not an interface. You can only subscribe to event interfaces because as soon as you subscribe to classes you loose the guarantees of semantic routing since classes do not support multiple inheritance.");;
-            AssertValid(type);
+            if(_successfullyInspectedSubscribableTypes.Contains(type)) return;
+
+            Monitor.Update(() =>
+            {
+                if(!type.Is<IEvent>()) throw new Exception($"You can only subscribe to subtypes of {typeof(IEvent).GetFullNameCompilable()}");
+                if(!type.IsInterface) throw new Exception($"{type.GetFullNameCompilable()} is not an interface. You can only subscribe to event interfaces because as soon as you subscribe to classes you loose the guarantees of semantic routing since classes do not support multiple inheritance.");
+                AssertTypeIsValidInternal(type);
+                ThreadSafe.AddToCopyAndReplace(ref _successfullyInspectedSubscribableTypes, type);
+            });
         }
 
+        static IReadonlySetCEx<Type> _successfullyInspectedTypes = new HashSetCEx<Type>();
         internal static void AssertValid(Type type)
         {
             if(_successfullyInspectedTypes.Contains(type)) return;
@@ -40,14 +49,14 @@ namespace Composable.Messaging
             {
                 if(_successfullyInspectedTypes.Contains(type)) return;
 
-                foreach(var rule in Rules)
-                {
-                    rule.AssertFulfilledBy(type);
-                }
+                AssertTypeIsValidInternal(type);
 
-                _successfullyInspectedTypes = new HashSet<Type>(_successfullyInspectedTypes) {type};
+                ThreadSafe.AddToCopyAndReplace(ref _successfullyInspectedTypes, type);
             });
         }
+
+        static void AssertTypeIsValidInternal(Type type) =>
+            MessageTypeDesignRules.ForEach(rule => rule.AssertFulfilledBy(type));
 
         abstract class MessageTypeDesignRule
         {
@@ -88,13 +97,11 @@ namespace Composable.Messaging
 
         class CannotBeBothRemotableAndStrictlyLocal : MutuallyExclusiveInterfaces<IRemotableMessage, IStrictlyLocalMessage> {}
 
-        class CannotForbidAndRequireTransactionalSender :  MutuallyExclusiveInterfaces<IMustBeSentTransactionally, ICannotBeSentRemotelyFromWithinTransaction> {}
+        class CannotForbidAndRequireTransactionalSender : MutuallyExclusiveInterfaces<IMustBeSentTransactionally, ICannotBeSentRemotelyFromWithinTransaction> {}
 
-
-        class WrapperEventInterfaceMustBeGenericAndDeclareTypeParameterAsAsOutParameter : SimpleMessageTypeDesignRule
+        class WrapperEventInterfaceMustBeGenericAndDeclareTypeParameterAsAsOutParameter : MessageTypeDesignRule
         {
-            string _message = "";
-            protected override bool IsInvalid(Type type)
+            internal override void AssertFulfilledBy(Type type)
             {
                 if(type.Is<IWrapperEvent<IEvent>>())
                 {
@@ -103,24 +110,12 @@ namespace Composable.Messaging
 
                     var wrapperInterfacesImplemented = allInterfaces.Where(@interface => @interface.Is<IWrapperEvent<IEvent>>()).ToArray();
                     var nonGeneric = wrapperInterfacesImplemented.FirstOrDefault(@interface => !@interface.IsGenericType);
-                    if(nonGeneric != null)
-                    {
-                        _message = $"{nonGeneric.GetFullNameCompilable()} implements {typeof(IWrapperEvent<>).GetFullNameCompilable()} but is not generic. This means that routing based on the covariance of the wrapping type is impossible and thus semantic routing breaks down.";
-                        return true;
-                    }
+                    if(nonGeneric != null) throw new MessageTypeDesignViolationException($"{nonGeneric.GetFullNameCompilable()} implements {typeof(IWrapperEvent<>).GetFullNameCompilable()} but is not generic. This means that routing based on the covariance of the wrapping type is impossible and thus semantic routing breaks down.");
 
                     var typeParameterIsNotOut = wrapperInterfacesImplemented.FirstOrDefault(@interface => !@interface.GetGenericTypeDefinition().GetGenericArguments()[0].GenericParameterAttributes.HasFlag(GenericParameterAttributes.Covariant));
-                    if(typeParameterIsNotOut != null)
-                    {
-                        _message = $"{typeParameterIsNotOut.GetFullNameCompilable()} implements {typeof(IWrapperEvent<>).GetFullNameCompilable()} but does not declare the type parameter as covariant(out). If the type parameter is not covariant routing to derived types does not work because they are not assignable to the base interface type";
-                        return true;
-                    }
+                    if(typeParameterIsNotOut != null) throw new MessageTypeDesignViolationException($"{typeParameterIsNotOut.GetFullNameCompilable()} implements {typeof(IWrapperEvent<>).GetFullNameCompilable()} but does not declare the type parameter as covariant(out). If the type parameter is not covariant routing to derived types does not work because they are not assignable to the base interface type");
                 }
-
-                return false;
             }
-
-            protected override string CreateMessage(Type type) => _message;
         }
 
         class AtMostOnceCommandDefaultConstructorMustNotSetADeduplicationId : MessageTypeDesignRule

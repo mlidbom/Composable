@@ -15,6 +15,9 @@ namespace Composable.SystemCE.CollectionsCE.GenericCE
         public static List<T> AddToCopy<T>(this IReadOnlyList<T> @this, T item) =>
             new List<T>(@this) {item};
 
+        public static HashSetCEx<T> AddToCopy<T>(this IReadonlySetCEx<T> @this, T item) =>
+            new HashSetCEx<T>(@this) {item};
+
         public static List<T> AddRangeToCopy<T>(this IReadOnlyList<T> @this, IEnumerable<T> items) =>
             new List<T>(@this).Mutate(me => me.AddRange(items));
 

@@ -22,7 +22,9 @@ namespace AccountManagement.Domain.Events
 
             public class UserRegistered : Root, AccountEvent.UserRegistered
             {
+#pragma warning disable IDE0051 // Remove unused private members
                 [JsonConstructor] UserRegistered(Email email, Password password)
+#pragma warning restore IDE0051 // Remove unused private members
                 {
                     Email = email;
                     Password = password;

@@ -22,7 +22,7 @@ namespace Composable.Messaging
 {
     public static partial class MessageTypes
     {
-        public class StrictlyLocal
+        public static class StrictlyLocal
         {
             public static class Queries
             {

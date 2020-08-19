@@ -31,9 +31,9 @@ namespace Composable.Persistence.DocumentDb
             _transactionParticipant = new VolatileLambdaTransactionParticipant(EnlistmentOptions.EnlistDuringPrepareRequired, onPrepare: FlushChanges);
         }
 
-        public virtual bool TryGet<TValue>(object key, [NotNullWhen(true)]out TValue document) => TryGetInternal(key, typeof(TValue), out document, useUpdateLock: false);
+        public virtual bool TryGet<TValue>(object key, [MaybeNullWhen(false)]out TValue document) => TryGetInternal(key, typeof(TValue), out document, useUpdateLock: false);
 
-        bool TryGetInternal<TValue>(object key, Type documentType, [NotNullWhen(true)]out TValue value, bool useUpdateLock)
+        bool TryGetInternal<TValue>(object key, Type documentType, [MaybeNullWhen(false)]out TValue value, bool useUpdateLock)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();

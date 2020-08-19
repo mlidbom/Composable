@@ -14,10 +14,10 @@ namespace Composable.Messaging.Buses
     public interface IServiceBusSession
     {
         ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
-        void Send(MessageTypes.Remotable.ExactlyOnce.ICommand command);
+        void Send(MessageTypes.IExactlyOnceCommand command);
 
         ///<summary>Schedules a command to be sent later if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
-        void ScheduleSend(DateTime sendAt, MessageTypes.Remotable.ExactlyOnce.ICommand command);
+        void ScheduleSend(DateTime sendAt, MessageTypes.IExactlyOnceCommand command);
     }
 
     public interface IMessageHandlerRegistrar

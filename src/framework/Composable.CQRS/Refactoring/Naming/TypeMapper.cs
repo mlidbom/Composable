@@ -97,9 +97,9 @@ namespace Composable.Refactoring.Naming
         {
             if(type.IsAbstract)
             {
-                if(!(typeof(MessageTypes.Remotable.IEvent).IsAssignableFrom(type)))
+                if(!(typeof(MessageTypes.IRemotableEvent).IsAssignableFrom(type)))
                 {
-                    throw new Exception($"Type: {type.FullName} is abstract and is not a {typeof(MessageTypes.Remotable.IEvent).FullName}. For other types you should only map concrete types.");
+                    throw new Exception($"Type: {type.FullName} is abstract and is not a {typeof(MessageTypes.IRemotableEvent).FullName}. For other types you should only map concrete types.");
                 }
             }
         }

@@ -50,27 +50,27 @@ namespace Composable.Messaging.Buses.Implementation
             _router.RegisterRoutes(clientConnection, clientConnection.EndpointInformation.HandledMessageTypes);
         }
 
-        public IInboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command) =>
+        public IInboxConnection ConnectionToHandlerFor(MessageTypes.IRemotableCommand command) =>
             _runningAndNotDisposed.Do(() => _router.ConnectionToHandlerFor(command));
 
-        public IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event) =>
+        public IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.IExactlyOnceEvent @event) =>
             _runningAndNotDisposed.Do(() => _router.SubscriberConnectionsFor(@event));
 
-        public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand atMostOnceCommand)
+        public async Task PostAsync(MessageTypes.IAtMostOnceHypermediaCommand atMostOnceCommand)
         {
             _runningAndNotDisposed.Assert();
             var connection = _router.ConnectionToHandlerFor(atMostOnceCommand);
             await connection.PostAsync(atMostOnceCommand).NoMarshalling();
         }
 
-        public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TCommandResult> atMostOnceCommand)
+        public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.IAtMostOnceCommand<TCommandResult> atMostOnceCommand)
         {
             _runningAndNotDisposed.Assert();
             var connection = _router.ConnectionToHandlerFor(atMostOnceCommand);
             return await connection.PostAsync(atMostOnceCommand).NoMarshalling();
         }
 
-        public async Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
+        public async Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.IRemotableQuery<TQueryResult> query)
         {
             _runningAndNotDisposed.Assert();
             var connection = _router.ConnectionToHandlerFor(query);

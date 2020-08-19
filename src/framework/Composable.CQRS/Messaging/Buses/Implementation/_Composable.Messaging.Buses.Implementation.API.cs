@@ -21,8 +21,8 @@ namespace Composable.Messaging.Buses.Implementation
     interface IOutbox
     {
         Task StartAsync();
-        void PublishTransactionally(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent);
-        void SendTransactionally(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand);
+        void PublishTransactionally(MessageTypes.IExactlyOnceEvent exactlyOnceEvent);
+        void SendTransactionally(MessageTypes.IExactlyOnceCommand exactlyOnceCommand);
     }
 
     interface ITransport
@@ -30,23 +30,23 @@ namespace Composable.Messaging.Buses.Implementation
         Task ConnectAsync(EndPointAddress remoteEndpoint);
         void Stop();
 
-        IInboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command);
-        IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
+        IInboxConnection ConnectionToHandlerFor(MessageTypes.IRemotableCommand command);
+        IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.IExactlyOnceEvent @event);
 
-        Task PostAsync(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand command);
-        Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TCommandResult> command);
-        Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
+        Task PostAsync(MessageTypes.IAtMostOnceHypermediaCommand command);
+        Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.IAtMostOnceCommand<TCommandResult> command);
+        Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.IRemotableQuery<TQueryResult> query);
     }
 
     interface IInboxConnection : IDisposable
     {
         MessageTypes.Internal.EndpointInformation EndpointInformation { get; }
-        Task SendAsync(MessageTypes.Remotable.ExactlyOnce.IEvent @event);
-        Task SendAsync(MessageTypes.Remotable.ExactlyOnce.ICommand command);
+        Task SendAsync(MessageTypes.IExactlyOnceEvent @event);
+        Task SendAsync(MessageTypes.IExactlyOnceCommand command);
 
-        Task PostAsync(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand command);
-        Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TCommandResult> command);
-        Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query);
+        Task PostAsync(MessageTypes.IAtMostOnceHypermediaCommand command);
+        Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.IAtMostOnceCommand<TCommandResult> command);
+        Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.IRemotableQuery<TQueryResult> query);
     }
 
     interface IEndpointRegistry
@@ -63,7 +63,7 @@ namespace Composable.Messaging.Buses.Implementation
         Func<MessageTypes.IQuery<object>, object> GetQueryHandler(Type commandType);
         IReadOnlyList<Action<MessageTypes.IEvent>> GetEventHandlers(Type eventType);
 
-        Func<MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>, TResult> GetQueryHandler<TQuery, TResult>(MessageTypes.StrictlyLocal.IQuery<TQuery, TResult> query) where TQuery : MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>;
+        Func<MessageTypes.IStrictlyLocalQuery<TQuery, TResult>, TResult> GetQueryHandler<TQuery, TResult>(MessageTypes.IStrictlyLocalQuery<TQuery, TResult> query) where TQuery : MessageTypes.IStrictlyLocalQuery<TQuery, TResult>;
 
         Func<MessageTypes.ICommand<TResult>, TResult> GetCommandHandler<TResult>(MessageTypes.ICommand<TResult> command);
 

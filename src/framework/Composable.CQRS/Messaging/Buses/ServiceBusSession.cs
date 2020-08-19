@@ -18,19 +18,19 @@ namespace Composable.Messaging.Buses
             _commandScheduler = commandScheduler;
         }
 
-        public void Send(MessageTypes.Remotable.ExactlyOnce.ICommand command)
+        public void Send(MessageTypes.IExactlyOnceCommand command)
         {
            RunAssertions(command);
             _transport.SendTransactionally(command);
         }
 
-        public void ScheduleSend(DateTime sendAt, MessageTypes.Remotable.ExactlyOnce.ICommand command)
+        public void ScheduleSend(DateTime sendAt, MessageTypes.IExactlyOnceCommand command)
         {
             RunAssertions(command);
             _commandScheduler.Schedule(sendAt, command);
         }
 
-        void RunAssertions(MessageTypes.Remotable.ExactlyOnce.ICommand command)
+        void RunAssertions(MessageTypes.IExactlyOnceCommand command)
         {
             _contextGuard.AssertNoContextChangeOccurred(this);
             MessageInspector.AssertValidToSendRemote(command);

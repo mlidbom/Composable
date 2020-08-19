@@ -46,7 +46,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                      ? _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
                                                      {
                                                          var innerResult = _messageTask(message);
-                                                         if(message is MessageTypes.Remotable.IAtMostOnceMessage)
+                                                         if(message is MessageTypes.IAtMostOnceMessage)
                                                          {
                                                              _messageStorage.MarkAsSucceeded(TransportMessage);
                                                          }
@@ -61,14 +61,14 @@ namespace Composable.Messaging.Buses.Implementation
                                 }
                                 catch(Exception exception)
                                 {
-                                    if(message is MessageTypes.Remotable.IAtMostOnceMessage)
+                                    if(message is MessageTypes.IAtMostOnceMessage)
                                     {
                                         _messageStorage.RecordException(TransportMessage, exception);
                                     }
 
                                     if(!retryPolicy.TryAwaitNextRetryTimeForException(exception))
                                     {
-                                        if(message is MessageTypes.Remotable.IAtMostOnceMessage)
+                                        if(message is MessageTypes.IAtMostOnceMessage)
                                         {
                                             _messageStorage.MarkAsFailed(TransportMessage);
                                         }
@@ -101,24 +101,24 @@ namespace Composable.Messaging.Buses.Implementation
                             Implementation.TransportMessage.TransportMessageType.ExactlyOnceEvent => message =>
                             {
                                 var eventHandlers = _handlerRegistry.GetEventHandlers(message.GetType());
-                                eventHandlers.ForEach(handler => handler((MessageTypes.Remotable.ExactlyOnce.IEvent)message));
+                                eventHandlers.ForEach(handler => handler((MessageTypes.IExactlyOnceEvent)message));
                                 return null;
                             },
                             Implementation.TransportMessage.TransportMessageType.AtMostOnceCommandWithReturnValue => message =>
                             {
                                 var commandHandler = _handlerRegistry.GetCommandHandlerWithReturnValue(message.GetType());
-                                return commandHandler((MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand)message);
+                                return commandHandler((MessageTypes.IAtMostOnceHypermediaCommand)message);
                             },
                             Implementation.TransportMessage.TransportMessageType.AtMostOnceCommand => message =>
                             {
                                 var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
-                                commandHandler((MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand)message);
+                                commandHandler((MessageTypes.IAtMostOnceHypermediaCommand)message);
                                 return VoidCE.Instance; //Todo:Properly handle commands with and without return values
                             },
                             Implementation.TransportMessage.TransportMessageType.ExactlyOnceCommand => message =>
                             {
                                 var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
-                                commandHandler((MessageTypes.Remotable.ExactlyOnce.ICommand)message);
+                                commandHandler((MessageTypes.IExactlyOnceCommand)message);
                                 return VoidCE.Instance;//Todo:Properly handle commands with and without return values
                             },
                             Implementation.TransportMessage.TransportMessageType.NonTransactionalQuery => actualMessage =>

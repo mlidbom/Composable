@@ -31,7 +31,7 @@ namespace Composable.Tests.Messaging.Hypermedia
                 {
                     for(int i = 0; i < queriesPerRequest; i++)
                     {
-                        LocalNavigator.Execute(new MyLocalQuery());
+                        LocalNavigator.Execute(new MyLocalStrictlyLocalQuery());
                     }
                 });
             }

@@ -72,12 +72,12 @@ namespace Composable.Messaging.Buses.Implementation
                     foreach(var transportMessage in transportMessageBatch)
                     {
                         //performance: With the current design having this code here causes all queries to wait for persisting of all transactional messages that arrived before them.
-                        if(transportMessage.Is<MessageTypes.Remotable.IAtMostOnceMessage>())
+                        if(transportMessage.Is<MessageTypes.IAtMostOnceMessage>())
                         {
                             //todo: handle the exception that will be thrown if this is a duplicate message
                             _storage.SaveIncomingMessage(transportMessage);
 
-                            if(transportMessage.Is<MessageTypes.Remotable.ExactlyOnce.IMessage>())
+                            if(transportMessage.Is<MessageTypes.IExactlyOnceMessage>())
                             {
                                 var persistedResponse = transportMessage.CreatePersistedResponse();
                                 _responseQueue.Enqueue(persistedResponse);

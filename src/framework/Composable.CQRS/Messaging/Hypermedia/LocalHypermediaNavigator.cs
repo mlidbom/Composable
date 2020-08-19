@@ -14,7 +14,7 @@ namespace Composable.Messaging.Hypermedia
             _handlerRegistry = handlerRegistry;
         }
 
-        public TResult Execute<TResult>(MessageTypes.StrictlyLocal.ICommand<TResult> command)
+        public TResult Execute<TResult>(MessageTypes.IStrictlyLocalCommand<TResult> command)
         {
             CommonAssertion(command);
 
@@ -22,7 +22,7 @@ namespace Composable.Messaging.Hypermedia
             return commandHandler.Invoke(command);
         }
 
-        public void Execute(MessageTypes.StrictlyLocal.ICommand command)
+        public void Execute(MessageTypes.IStrictlyLocalCommand command)
         {
             CommonAssertion(command);
 
@@ -30,7 +30,7 @@ namespace Composable.Messaging.Hypermedia
             commandHandler.Invoke(command);
         }
 
-        public TResult Execute<TQuery, TResult>(MessageTypes.StrictlyLocal.IQuery<TQuery, TResult> query) where TQuery : MessageTypes.StrictlyLocal.IQuery<TQuery, TResult>
+        public TResult Execute<TQuery, TResult>(MessageTypes.IStrictlyLocalQuery<TQuery, TResult> query) where TQuery : MessageTypes.IStrictlyLocalQuery<TQuery, TResult>
         {
             CommonAssertion(query);
 

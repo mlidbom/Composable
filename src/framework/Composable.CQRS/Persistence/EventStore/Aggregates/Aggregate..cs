@@ -13,7 +13,7 @@ using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.Aggregates
 {
-    [Obsolete("Only here to let things compile while inheritors migrate to the version with 5 type parameters")]
+    //Urgent:[Obsolete("Only here to let things compile while inheritors migrate to the version with 5 type parameters")]
     public class Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent> : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent, AggregateEvent<TAggregateEvent>, IAggregateEvent<TAggregateEvent>>
         where TAggregate : Aggregate<TAggregate, TAggregateEventImplementation, TAggregateEvent>
         where TAggregateEvent : class, IAggregateEvent

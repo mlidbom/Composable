@@ -41,7 +41,7 @@ namespace Composable.Persistence.EventStore
             {
                 throw new AggregateNotFoundException(aggregateId);
             }
-            return result!;
+            return result;
         }
 
         public bool TryGet<TAggregate>(Guid aggregateId, [MaybeNullWhen(false)]out TAggregate aggregate) where TAggregate : IEventStored
@@ -159,7 +159,7 @@ namespace Composable.Persistence.EventStore
             }
             else
             {
-                aggregate = default!;
+                aggregate = default;
                 return false;
             }
         }

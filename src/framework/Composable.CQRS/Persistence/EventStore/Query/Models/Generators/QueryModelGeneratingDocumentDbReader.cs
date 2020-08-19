@@ -30,7 +30,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
             _usageGuard.AssertNoContextChangeOccurred(this);
             if (TryGet(key, out TValue value))
             {
-                return value!;
+                return value;
             }
 
             throw new NoSuchDocumentException(key, typeof(TValue));
@@ -41,7 +41,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
             _usageGuard.AssertNoContextChangeOccurred(this);
             if (TryGetVersion(key, out TValue value, version))
             {
-                return value!;
+                return value;
             }
 
             throw new NoSuchDocumentException(key, typeof(TValue));
@@ -54,7 +54,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
             var requiresVersioning = version > 0;
             _usageGuard.AssertNoContextChangeOccurred(this);
 
-            document = default!;
+            document = default;
 
             if (!HandlesDocumentType<TDocument>(requireVersioningSupport: requiresVersioning))
             {

@@ -80,10 +80,10 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            internal bool TryGet<TService>([NotNullWhen(true)]out TService? service) where TService : class
+            internal bool TryGet<TService>([MaybeNullWhen(false)]out TService service)
             {
-                service = (TService?)_instances[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
-                return service != null;
+                service = (TService)_instances[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
+                return !Equals(service, default);
             }
 
             internal ScopeCache(int[] serviceServiceTypeToComponentIndex)

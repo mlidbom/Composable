@@ -20,7 +20,7 @@ namespace Composable.Persistence.DocumentDb
 
         bool ContainsInternal(Type type, object id) => TryGet(type, id, out _);
 
-        internal bool TryGet<T>(object id, [NotNullWhen(true)] out T value)
+        internal bool TryGet<T>(object id, [MaybeNullWhen(false)] out T value)
         {
             using(_monitor.EnterUpdateLock())
             {

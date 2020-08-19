@@ -44,7 +44,7 @@ namespace Composable.Persistence.EventStore
             return result!;
         }
 
-        public bool TryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)]out TAggregate aggregate) where TAggregate : IEventStored
+        public bool TryGet<TAggregate>(Guid aggregateId, [MaybeNullWhen(false)]out TAggregate aggregate) where TAggregate : IEventStored
         {
             _aggregateTypeValidator.AssertIsValid<TAggregate>();
             _usageGuard.AssertNoContextChangeOccurred(this);
@@ -140,7 +140,7 @@ namespace Composable.Persistence.EventStore
                 ? _store.GetAggregateHistoryForUpdate(aggregateId)
                 : _store.GetAggregateHistory(aggregateId);
 
-        bool DoTryGet<TAggregate>(Guid aggregateId, [NotNullWhen(true)]out TAggregate aggregate) where TAggregate : IEventStored
+        bool DoTryGet<TAggregate>(Guid aggregateId, [MaybeNullWhen(false)]out TAggregate aggregate) where TAggregate : IEventStored
         {
             if (_idMap.TryGetValue(aggregateId, out var eventStored))
             {

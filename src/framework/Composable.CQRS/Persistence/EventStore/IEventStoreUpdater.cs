@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Composable.Persistence.EventStore
 {
@@ -31,7 +32,7 @@ namespace Composable.Persistence.EventStore
         /// <summary>
         /// Tries to get the specified instance. Returns false and sets the result to null if the aggregate did not exist.
         /// </summary>
-        bool TryGet<TAggregate>(Guid aggregateId, out TAggregate result) where TAggregate : IEventStored;
+        bool TryGet<TAggregate>(Guid aggregateId, [MaybeNullWhen(false)]out TAggregate result) where TAggregate : IEventStored;
 
         /// <summary>
         /// Deletes all traces of an aggregate from the store.

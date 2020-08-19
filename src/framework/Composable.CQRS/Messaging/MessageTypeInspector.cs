@@ -82,11 +82,11 @@ namespace Composable.Messaging
 
         class CannotBeBothCommandAndEvent : MutuallyExclusiveInterfaces<MessageTypes.ICommand, MessageTypes.IEvent> {}
 
-        class CannotBeBothCommandAndQuery : MutuallyExclusiveInterfaces<MessageTypes.ICommand, MessageTypes.IQuery<object>> {}
+        class CannotBeBothCommandAndQuery : MutuallyExclusiveInterfaces<MessageTypes.ICommand, IQuery<object>> {}
 
-        class CannotBeBothEventAndQuery : MutuallyExclusiveInterfaces<MessageTypes.IEvent, MessageTypes.IQuery<object>> {}
+        class CannotBeBothEventAndQuery : MutuallyExclusiveInterfaces<MessageTypes.IEvent, IQuery<object>> {}
 
-        class CannotBeBothRemotableAndStrictlyLocal : MutuallyExclusiveInterfaces<MessageTypes.IRemotableMessage, MessageTypes.IStrictlyLocalMessage> {}
+        class CannotBeBothRemotableAndStrictlyLocal : MutuallyExclusiveInterfaces<IRemotableMessage, IStrictlyLocalMessage> {}
 
         class CannotForbidAndRequireTransactionalSender :  MutuallyExclusiveInterfaces<MessageTypes.IMustBeSentTransactionally, MessageTypes.ICannotBeSentRemotelyFromWithinTransaction> {}
 
@@ -127,16 +127,16 @@ namespace Composable.Messaging
         {
             internal override void AssertFulfilledBy(Type type)
             {
-                if(type.Implements<MessageTypes.IAtMostOnceHypermediaCommand>())
+                if(type.Implements<IAtMostOnceHypermediaCommand>())
                 {
                     if(Constructor.HasDefaultConstructor(type))
                     {
-                        var instance = (MessageTypes.IAtMostOnceHypermediaCommand)Constructor.CreateInstance(type);
+                        var instance = (IAtMostOnceHypermediaCommand)Constructor.CreateInstance(type);
                         if(instance.MessageId != Guid.Empty)
                         {
-                            throw new MessageTypeDesignViolationException($@"The default constructor of {type.GetFullNameCompilable()} sets {nameof(MessageTypes.IAtMostOnceMessage)}.{nameof(MessageTypes.IAtMostOnceMessage.MessageId)} to a value other than Guid.Empty.
-Since {type.GetFullNameCompilable()} is an {typeof(MessageTypes.IAtMostOnceHypermediaCommand).GetFullNameCompilable()} this is very likely to break the exactly once guarantee.
-For instance: If you bind this command in a web UI and forget to bind the {nameof(MessageTypes.IAtMostOnceMessage.MessageId)} then the infrastructure will be unable to realize that this is NOT the correct originally created {nameof(MessageTypes.IAtMostOnceMessage.MessageId)}.
+                            throw new MessageTypeDesignViolationException($@"The default constructor of {type.GetFullNameCompilable()} sets {nameof(IAtMostOnceMessage)}.{nameof(IAtMostOnceMessage.MessageId)} to a value other than Guid.Empty.
+Since {type.GetFullNameCompilable()} is an {typeof(IAtMostOnceHypermediaCommand).GetFullNameCompilable()} this is very likely to break the exactly once guarantee.
+For instance: If you bind this command in a web UI and forget to bind the {nameof(IAtMostOnceMessage.MessageId)} then the infrastructure will be unable to realize that this is NOT the correct originally created {nameof(IAtMostOnceMessage.MessageId)}.
 This in turn means that if your user clicks multiple times the command may well be both sent and handled multiple times. Thus breaking the exactly once guarantee. The same thing if a Single Page Application receives an HTTP timeout and retries the command. 
 And another example: If you make the setter private many serialization technologies will not be able to maintain the value of the property. But since you used this constructor the property will have a value. A new one each time the instance is deserialized. Again breaking the at most once guarantee.
 ");

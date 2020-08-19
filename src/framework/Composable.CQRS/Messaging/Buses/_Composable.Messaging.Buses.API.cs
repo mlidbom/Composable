@@ -14,10 +14,10 @@ namespace Composable.Messaging.Buses
     public interface IServiceBusSession
     {
         ///<summary>Sends a command if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
-        void Send(MessageTypes.IExactlyOnceCommand command);
+        void Send(IExactlyOnceCommand command);
 
         ///<summary>Schedules a command to be sent later if the current transaction succeeds. The execution of the handler runs is a separate transaction at the receiver.</summary>
-        void ScheduleSend(DateTime sendAt, MessageTypes.IExactlyOnceCommand command);
+        void ScheduleSend(DateTime sendAt, IExactlyOnceCommand command);
     }
 
     public interface IMessageHandlerRegistrar
@@ -25,7 +25,7 @@ namespace Composable.Messaging.Buses
         IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : MessageTypes.IEvent;
         IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : MessageTypes.ICommand;
         IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : MessageTypes.ICommand<TResult>;
-        IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : MessageTypes.IQuery<TResult>;
+        IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult>;
     }
 
     public interface IEndpoint : IDisposable

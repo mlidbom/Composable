@@ -50,7 +50,7 @@ namespace Composable.Tests.Messaging.Hypermedia
             await RunAsyncScenario(requests: 10, queriesPerRequest: 200.EnvDivide(instrumented: 1.5), maxTotal: 9.Milliseconds(), query: new CreatesItsOwnResultQuery());
 
 
-        void RunScenario(bool threaded, int requests, int queriesPerRequest, TimeSpan maxTotal, MessageTypes.IRemotableQuery<MyQueryResult> query)
+        void RunScenario(bool threaded, int requests, int queriesPerRequest, TimeSpan maxTotal, IRemotableQuery<MyQueryResult> query)
         {
             var navigationSpecification = NavigationSpecification.Get(query);
 
@@ -79,7 +79,7 @@ namespace Composable.Tests.Messaging.Hypermedia
             }
         }
 
-        async Task RunAsyncScenario(int requests, int queriesPerRequest, TimeSpan maxTotal, MessageTypes.IRemotableQuery<MyQueryResult> query)
+        async Task RunAsyncScenario(int requests, int queriesPerRequest, TimeSpan maxTotal, IRemotableQuery<MyQueryResult> query)
         {
             var navigationSpecification = NavigationSpecification.Get(query);
 

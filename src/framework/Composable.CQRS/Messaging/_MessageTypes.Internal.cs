@@ -17,7 +17,7 @@ namespace Composable.Messaging
         {
             internal interface IMessage {}
 
-            internal class EndpointInformationQuery : Internal.IMessage, MessageTypes.IRemotableQuery<EndpointInformation> {}
+            internal class EndpointInformationQuery : Internal.IMessage, IRemotableQuery<EndpointInformation> {}
 
             internal class EndpointInformation
             {

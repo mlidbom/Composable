@@ -40,16 +40,16 @@ namespace Composable.Tests.Messaging
             interface ICommandAndEvent : MessageTypes.IEvent, MessageTypes.ICommand{}
             [Test] public void Is_Both_command_and_event() => AssertInvalidForSending<ICommandAndEvent>();
 
-            interface ICommandAndQuery : MessageTypes.IEvent, MessageTypes.IQuery<object> {}
+            interface ICommandAndQuery : MessageTypes.IEvent, IQuery<object> {}
             [Test] public void Is_Both_command_and_query() => AssertInvalidForSending<ICommandAndQuery>();
 
-            interface IStrictlyLocalAndRemotable : MessageTypes.IRemotableMessage, MessageTypes.IStrictlyLocalMessage {}
+            interface IStrictlyLocalAndRemotable : IRemotableMessage, IStrictlyLocalMessage {}
             [Test] public void Is_Both_strictly_local_and_remotable() => AssertInvalidForSending<IStrictlyLocalAndRemotable>();
 
             interface IForbidAndRequireTransactionalSender : MessageTypes.IMustBeSentTransactionally, MessageTypes.ICannotBeSentRemotelyFromWithinTransaction {}
             [Test] public void Forbids_and_requires_transactional_sender() => AssertInvalidForSending<IForbidAndRequireTransactionalSender>();
 
-            [UsedImplicitly]class AtMostOnceCommandSettingMessageIdInDefaultConstructor : MessageTypes.IAtMostOnceHypermediaCommand
+            [UsedImplicitly]class AtMostOnceCommandSettingMessageIdInDefaultConstructor : IAtMostOnceHypermediaCommand
             {
                 public Guid MessageId { get; } = Guid.NewGuid();
             }

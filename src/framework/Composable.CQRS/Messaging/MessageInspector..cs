@@ -18,10 +18,10 @@ namespace Composable.Messaging
         {
             CommonAssertions(message);
 
-            if(message is MessageTypes.IStrictlyLocalMessage strictlyLocalMessage) throw new AttemptToSendStrictlyLocalMessageRemotelyException(strictlyLocalMessage);
+            if(message is IStrictlyLocalMessage strictlyLocalMessage) throw new AttemptToSendStrictlyLocalMessageRemotelyException(strictlyLocalMessage);
             if(message is MessageTypes.IMustBeSentTransactionally && Transaction.Current == null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.IMustBeSentTransactionally).FullName} but there is no transaction.");
             if(message is MessageTypes.ICannotBeSentRemotelyFromWithinTransaction && Transaction.Current != null) throw new TransactionPolicyViolationException($"{message.GetType().FullName} is {typeof(MessageTypes.ICannotBeSentRemotelyFromWithinTransaction).FullName} but there is a transaction.");
-            if(message is MessageTypes.IAtMostOnceMessage atMostOnce && atMostOnce.MessageId == Guid.Empty) throw new Exception($"{nameof(MessageTypes.IAtMostOnceMessage.MessageId)} was Guid.Empty for message of type: {message.GetType().FullName}");
+            if(message is IAtMostOnceMessage atMostOnce && atMostOnce.MessageId == Guid.Empty) throw new Exception($"{nameof(IAtMostOnceMessage.MessageId)} was Guid.Empty for message of type: {message.GetType().FullName}");
         }
 
         internal static void AssertValidToExecuteLocally(MessageTypes.IMessage message)

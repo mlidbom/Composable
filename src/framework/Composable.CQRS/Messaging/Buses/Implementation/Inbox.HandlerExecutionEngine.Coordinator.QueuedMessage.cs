@@ -46,7 +46,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                      ? _serviceLocator.ExecuteTransactionInIsolatedScope(() =>
                                                      {
                                                          var innerResult = _messageTask(message);
-                                                         if(message is MessageTypes.IAtMostOnceMessage)
+                                                         if(message is IAtMostOnceMessage)
                                                          {
                                                              _messageStorage.MarkAsSucceeded(TransportMessage);
                                                          }
@@ -61,14 +61,14 @@ namespace Composable.Messaging.Buses.Implementation
                                 }
                                 catch(Exception exception)
                                 {
-                                    if(message is MessageTypes.IAtMostOnceMessage)
+                                    if(message is IAtMostOnceMessage)
                                     {
                                         _messageStorage.RecordException(TransportMessage, exception);
                                     }
 
                                     if(!retryPolicy.TryAwaitNextRetryTimeForException(exception))
                                     {
-                                        if(message is MessageTypes.IAtMostOnceMessage)
+                                        if(message is IAtMostOnceMessage)
                                         {
                                             _messageStorage.MarkAsFailed(TransportMessage);
                                         }
@@ -101,31 +101,31 @@ namespace Composable.Messaging.Buses.Implementation
                             Implementation.TransportMessage.TransportMessageType.ExactlyOnceEvent => message =>
                             {
                                 var eventHandlers = _handlerRegistry.GetEventHandlers(message.GetType());
-                                eventHandlers.ForEach(handler => handler((MessageTypes.IExactlyOnceEvent)message));
+                                eventHandlers.ForEach(handler => handler((IExactlyOnceEvent)message));
                                 return null;
                             },
                             Implementation.TransportMessage.TransportMessageType.AtMostOnceCommandWithReturnValue => message =>
                             {
                                 var commandHandler = _handlerRegistry.GetCommandHandlerWithReturnValue(message.GetType());
-                                return commandHandler((MessageTypes.IAtMostOnceHypermediaCommand)message);
+                                return commandHandler((IAtMostOnceHypermediaCommand)message);
                             },
                             Implementation.TransportMessage.TransportMessageType.AtMostOnceCommand => message =>
                             {
                                 var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
-                                commandHandler((MessageTypes.IAtMostOnceHypermediaCommand)message);
+                                commandHandler((IAtMostOnceHypermediaCommand)message);
                                 return VoidCE.Instance; //Todo:Properly handle commands with and without return values
                             },
                             Implementation.TransportMessage.TransportMessageType.ExactlyOnceCommand => message =>
                             {
                                 var commandHandler = _handlerRegistry.GetCommandHandler(message.GetType());
-                                commandHandler((MessageTypes.IExactlyOnceCommand)message);
+                                commandHandler((IExactlyOnceCommand)message);
                                 return VoidCE.Instance;//Todo:Properly handle commands with and without return values
                             },
                             Implementation.TransportMessage.TransportMessageType.NonTransactionalQuery => actualMessage =>
                             {
                                 var queryHandler = _handlerRegistry.GetQueryHandler(actualMessage.GetType());
                                 //todo: Double dispatch instead of casting?
-                                return queryHandler((MessageTypes.IQuery<object>)actualMessage);
+                                return queryHandler((IQuery<object>)actualMessage);
                             },
                             _ => throw new ArgumentOutOfRangeException()
                         };

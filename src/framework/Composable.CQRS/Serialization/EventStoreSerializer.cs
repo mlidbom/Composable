@@ -87,7 +87,7 @@ namespace Composable.Serialization
         public string SerializeResponse(object response) => _serializer.Serialize(response);
         public object DeserializeResponse(Type responseType, string json) => _serializer.Deserialize(responseType, json);
 
-        public string SerializeMessage(MessageTypes.IRemotableMessage message) => _serializer.Serialize(message);
-        public MessageTypes.IRemotableMessage DeserializeMessage(Type messageType, string json) => (MessageTypes.IRemotableMessage)_serializer.Deserialize(messageType, json);
+        public string SerializeMessage(IRemotableMessage message) => _serializer.Serialize(message);
+        public IRemotableMessage DeserializeMessage(Type messageType, string json) => (IRemotableMessage)_serializer.Deserialize(messageType, json);
     }
 }

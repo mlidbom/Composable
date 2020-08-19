@@ -80,7 +80,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public Action<MessageTypes.ICommand> GetCommandHandler(Type commandType) => _commandHandlers[commandType];
 
-        public Func<MessageTypes.IQuery<object>, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType].HandlerMethod;
+        public Func<IQuery<object>, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType].HandlerMethod;
 
         public IReadOnlyList<Action<MessageTypes.IEvent>> GetEventHandlers(Type eventType)
         {
@@ -88,7 +88,7 @@ namespace Composable.Messaging.Buses.Implementation
             return _eventHandlers.Where(@this => @this.Key.IsAssignableFrom(eventType)).SelectMany(@this => @this.Value).ToList();
         }
 
-        public Func<MessageTypes.IStrictlyLocalQuery<TQuery, TResult>, TResult> GetQueryHandler<TQuery, TResult>(MessageTypes.IStrictlyLocalQuery<TQuery, TResult> query) where TQuery : MessageTypes.IStrictlyLocalQuery<TQuery, TResult>
+        public Func<IStrictlyLocalQuery<TQuery, TResult>, TResult> GetQueryHandler<TQuery, TResult>(IStrictlyLocalQuery<TQuery, TResult> query) where TQuery : IStrictlyLocalQuery<TQuery, TResult>
         {
             //Urgent: If we don't actually use the TQuery type parameter to do static caching here, remove it.
             if(_queryHandlers.TryGetValue(query.GetType(), out var handler))
@@ -126,12 +126,12 @@ namespace Composable.Messaging.Buses.Implementation
                                                .Concat(_commandHandlersReturningResults.Keys)
                                                .Concat(_queryHandlers.Keys)
                                                .Concat(_eventHandlerRegistrations.Select(reg => reg.Type))
-                                               .Where(messageType => messageType.Implements<MessageTypes.IRemotableMessage>())
+                                               .Where(messageType => messageType.Implements<IRemotableMessage>())
                                                .Where(messageType => !messageType.Implements<MessageTypes.Internal.IMessage>())
                                                .ToSet();
 
             var remoteResultTypes = _commandHandlersReturningResults
-                                   .Where(handler => handler.Key.Implements<MessageTypes.IRemotableMessage>())
+                                   .Where(handler => handler.Key.Implements<IRemotableMessage>())
                                    .Select(handler => handler.Value.ReturnValueType)
                                    .ToList();
 

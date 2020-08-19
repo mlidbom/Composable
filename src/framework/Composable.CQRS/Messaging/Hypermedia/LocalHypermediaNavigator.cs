@@ -14,7 +14,7 @@ namespace Composable.Messaging.Hypermedia
             _handlerRegistry = handlerRegistry;
         }
 
-        public TResult Execute<TResult>(MessageTypes.IStrictlyLocalCommand<TResult> command)
+        public TResult Execute<TResult>(IStrictlyLocalCommand<TResult> command)
         {
             CommonAssertion(command);
 
@@ -22,7 +22,7 @@ namespace Composable.Messaging.Hypermedia
             return commandHandler.Invoke(command);
         }
 
-        public void Execute(MessageTypes.IStrictlyLocalCommand command)
+        public void Execute(IStrictlyLocalCommand command)
         {
             CommonAssertion(command);
 
@@ -30,13 +30,13 @@ namespace Composable.Messaging.Hypermedia
             commandHandler.Invoke(command);
         }
 
-        public TResult Execute<TQuery, TResult>(MessageTypes.IStrictlyLocalQuery<TQuery, TResult> query) where TQuery : MessageTypes.IStrictlyLocalQuery<TQuery, TResult>
+        public TResult Execute<TQuery, TResult>(IStrictlyLocalQuery<TQuery, TResult> query) where TQuery : IStrictlyLocalQuery<TQuery, TResult>
         {
             CommonAssertion(query);
 
             // ReSharper disable once SuspiciousTypeConversion.Global
             //Todo: Test and stop disabling ReSharper warning
-            if(query is MessageTypes.ICreateMyOwnResultQuery<TResult> selfCreating)
+            if(query is ICreateMyOwnResultQuery<TResult> selfCreating)
                 return selfCreating.CreateResult();
 
             var queryHandler = _handlerRegistry.GetQueryHandler(query);

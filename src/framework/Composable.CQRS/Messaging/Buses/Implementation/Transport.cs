@@ -50,27 +50,27 @@ namespace Composable.Messaging.Buses.Implementation
             _router.RegisterRoutes(clientConnection, clientConnection.EndpointInformation.HandledMessageTypes);
         }
 
-        public IInboxConnection ConnectionToHandlerFor(MessageTypes.IRemotableCommand command) =>
+        public IInboxConnection ConnectionToHandlerFor(IRemotableCommand command) =>
             _runningAndNotDisposed.Do(() => _router.ConnectionToHandlerFor(command));
 
-        public IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.IExactlyOnceEvent @event) =>
+        public IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(IExactlyOnceEvent @event) =>
             _runningAndNotDisposed.Do(() => _router.SubscriberConnectionsFor(@event));
 
-        public async Task PostAsync(MessageTypes.IAtMostOnceHypermediaCommand atMostOnceCommand)
+        public async Task PostAsync(IAtMostOnceHypermediaCommand atMostOnceCommand)
         {
             _runningAndNotDisposed.Assert();
             var connection = _router.ConnectionToHandlerFor(atMostOnceCommand);
             await connection.PostAsync(atMostOnceCommand).NoMarshalling();
         }
 
-        public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.IAtMostOnceCommand<TCommandResult> atMostOnceCommand)
+        public async Task<TCommandResult> PostAsync<TCommandResult>(IAtMostOnceCommand<TCommandResult> atMostOnceCommand)
         {
             _runningAndNotDisposed.Assert();
             var connection = _router.ConnectionToHandlerFor(atMostOnceCommand);
             return await connection.PostAsync(atMostOnceCommand).NoMarshalling();
         }
 
-        public async Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.IRemotableQuery<TQueryResult> query)
+        public async Task<TQueryResult> GetAsync<TQueryResult>(IRemotableQuery<TQueryResult> query)
         {
             _runningAndNotDisposed.Assert();
             var connection = _router.ConnectionToHandlerFor(query);

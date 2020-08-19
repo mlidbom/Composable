@@ -4,12 +4,12 @@ using Newtonsoft.Json;
 
 namespace Composable.Persistence.EventStore
 {
-    public interface IAggregateEvent<out TEventInterface> : MessageTypes.IExactlyOnceWrapperEvent<TEventInterface>
+    public interface IAggregateEvent<out TEventInterface> : IExactlyOnceWrapperEvent<TEventInterface>
         where TEventInterface : IAggregateEvent
     {
     }
 
-    public interface IAggregateEvent : MessageTypes.IExactlyOnceEvent
+    public interface IAggregateEvent : IExactlyOnceEvent
     {
         int AggregateVersion { get; }
         Guid AggregateId { get; }

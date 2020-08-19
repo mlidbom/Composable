@@ -32,9 +32,9 @@ namespace Composable.Tests.CQRS
     {
         class EventSpy
         {
-            public IEnumerable<MessageTypes.IExactlyOnceEvent> DispatchedMessages => _events.ToList();
-            public void Receive(MessageTypes.IExactlyOnceEvent @event) { _events.Add(@event); }
-            readonly List<MessageTypes.IExactlyOnceEvent> _events = new List<MessageTypes.IExactlyOnceEvent>();
+            public IEnumerable<IExactlyOnceEvent> DispatchedMessages => _events.ToList();
+            public void Receive(IExactlyOnceEvent @event) { _events.Add(@event); }
+            readonly List<IExactlyOnceEvent> _events = new List<IExactlyOnceEvent>();
         }
 
         EventSpy _eventSpy;
@@ -48,7 +48,7 @@ namespace Composable.Tests.CQRS
             _eventSpy = new EventSpy();
 
             _serviceLocator.Resolve<IMessageHandlerRegistrar>()
-                          .ForEvent<MessageTypes.IExactlyOnceEvent>(_eventSpy.Receive);
+                          .ForEvent<IExactlyOnceEvent>(_eventSpy.Receive);
 
             _serviceLocator.Resolve<ITypeMappingRegistar>()
                           .Map<Composable.Tests.CQRS.User>("2cfabb11-5e5a-494d-898f-8bfc654544eb")

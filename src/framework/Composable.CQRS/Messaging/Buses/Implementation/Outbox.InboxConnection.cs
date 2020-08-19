@@ -27,7 +27,7 @@ namespace Composable.Messaging.Buses.Implementation
             // ReSharper disable once InconsistentNaming we use this naming variation to try and make it extra clear that this must only ever be accessed from the poller thread.
             readonly IDisposable _socketDisposable;
 
-            public async Task SendAsync(MessageTypes.IExactlyOnceEvent @event)
+            public async Task SendAsync(IExactlyOnceEvent @event)
             {
                 var taskCompletionSource = new AsyncTaskCompletionSource();
                 var outGoingMessage = TransportMessage.OutGoing.Create(@event, _typeMapper, _serializer);
@@ -37,7 +37,7 @@ namespace Composable.Messaging.Buses.Implementation
                 await taskCompletionSource.Task.NoMarshalling();
             }
 
-            public async Task SendAsync(MessageTypes.IExactlyOnceCommand command)
+            public async Task SendAsync(IExactlyOnceCommand command)
             {
                 var taskCompletionSource = new AsyncTaskCompletionSource();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
@@ -47,7 +47,7 @@ namespace Composable.Messaging.Buses.Implementation
                 await taskCompletionSource.Task.NoMarshalling();
             }
 
-            public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.IAtMostOnceCommand<TCommandResult> command)
+            public async Task<TCommandResult> PostAsync<TCommandResult>(IAtMostOnceCommand<TCommandResult> command)
             {
                 var taskCompletionSource = new AsyncTaskCompletionSource<Func<object>>();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
@@ -57,7 +57,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return (TCommandResult)(await taskCompletionSource.Task.NoMarshalling()).Invoke();
             }
 
-            public async Task PostAsync(MessageTypes.IAtMostOnceHypermediaCommand command)
+            public async Task PostAsync(IAtMostOnceHypermediaCommand command)
             {
                 var taskCompletionSource = new AsyncTaskCompletionSource();
                 var outGoingMessage = TransportMessage.OutGoing.Create(command, _typeMapper, _serializer);
@@ -67,7 +67,7 @@ namespace Composable.Messaging.Buses.Implementation
                 await taskCompletionSource.Task.NoMarshalling();
             }
 
-            public async Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.IRemotableQuery<TQueryResult> query)
+            public async Task<TQueryResult> GetAsync<TQueryResult>(IRemotableQuery<TQueryResult> query)
             {
                 var taskCompletionSource = new AsyncTaskCompletionSource<Func<object>>();
                 var outGoingMessage = TransportMessage.OutGoing.Create(query, _typeMapper, _serializer);

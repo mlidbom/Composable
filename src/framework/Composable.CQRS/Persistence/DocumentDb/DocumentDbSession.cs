@@ -90,7 +90,7 @@ namespace Composable.Persistence.DocumentDb
                   .ForEach(unloadedDocument => OnInitialLoad(unloadedDocument.Id, unloadedDocument));
 
             var results = _idMap.Select(pair => pair.Value).OfType<TValue>().Where(candidate => idSet.Contains(candidate.Id)).ToArray();
-            var missingDocuments = idSet.Where(id => !results.Any(result => result.Id == id)).ToArray();
+            var missingDocuments = idSet.Where(id => results.None(result => result.Id == id)).ToArray();
             if(missingDocuments.Any())
             {
                 throw new NoSuchDocumentException(missingDocuments.First(), typeof(TValue));

@@ -32,11 +32,11 @@ namespace Composable.Tests.Messaging.Hypermedia
                     builder.RegisterCurrentTestsConfiguredPersistenceLayer();
                     builder.RegisterHandlers
                            .ForQuery((MyRemoteQuery query) => new MyQueryResult())
-                           .ForQuery((MyLocalQuery query) => new MyQueryResult());
+                           .ForQuery((MyLocalStrictlyLocalQuery query) => new MyQueryResult());
 
                     builder.TypeMapper
                            .Map<MyRemoteQuery>("b9d62f22-514b-4e3c-9ac1-66940a7a8144")
-                           .Map<MyLocalQuery>("5640cfb1-0dbc-4e2b-9915-b5b91a289e86")
+                           .Map<MyLocalStrictlyLocalQuery>("5640cfb1-0dbc-4e2b-9915-b5b91a289e86")
                            .Map<MyQueryResult>("07e144ab-af3c-4c2c-9d83-492deffd24aa");
                 });
 
@@ -47,7 +47,7 @@ namespace Composable.Tests.Messaging.Hypermedia
         [TearDown] public void TearDown() { Host.Dispose(); }
 
         protected class MyRemoteQuery : MessageTypes.Remotable.NonTransactional.Queries.Query<MyQueryResult> {}
-        protected class MyLocalQuery : MessageTypes.StrictlyLocal.Queries.Query<MyLocalQuery, MyQueryResult> {}
+        protected class MyLocalStrictlyLocalQuery : MessageTypes.StrictlyLocal.Queries.StrictlyLocalQuery<MyLocalStrictlyLocalQuery, MyQueryResult> {}
         protected internal class MyQueryResult {}
 
         public PerformanceTestBase(string _) : base(_) {}

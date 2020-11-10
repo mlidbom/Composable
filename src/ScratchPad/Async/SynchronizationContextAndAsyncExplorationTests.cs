@@ -36,6 +36,7 @@ namespace ScratchPad.Async
             thrown.Should().BeTrue();
         }
 
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         static async Task Throw(bool @throw = true)
         {
             if(@throw)

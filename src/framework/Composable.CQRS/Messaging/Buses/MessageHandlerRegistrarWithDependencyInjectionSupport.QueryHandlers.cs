@@ -6,7 +6,7 @@ namespace Composable.Messaging.Buses
     {
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TResult> handler) where TQuery : MessageTypes.IQuery<TResult>
+            Func<TQuery, TResult> handler) where TQuery : IQuery<TResult>
         {
             @this.Register.ForQuery(handler);
             return @this;
@@ -14,7 +14,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TDependency1, TResult> handler) where TQuery : MessageTypes.IQuery<TResult>
+            Func<TQuery, TDependency1, TResult> handler) where TQuery : IQuery<TResult>
                                                          where TDependency1 : class
         {
             @this.Register.ForQuery<TQuery, TResult>(query => handler(query, @this.Resolve<TDependency1>()));
@@ -23,7 +23,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TDependency2, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TDependency1, TDependency2, TResult> handler) where TQuery : MessageTypes.IQuery<TResult>
+            Func<TQuery, TDependency1, TDependency2, TResult> handler) where TQuery : IQuery<TResult>
                                                                        where TDependency1 : class
                                                                        where TDependency2 : class
         {
@@ -33,7 +33,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TDependency2, TDependency3, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TDependency1, TDependency2, TDependency3, TResult> handler) where TQuery : MessageTypes.IQuery<TResult>
+            Func<TQuery, TDependency1, TDependency2, TDependency3, TResult> handler) where TQuery : IQuery<TResult>
                                                                                      where TDependency1 : class
                                                                                      where TDependency2 : class
                                                                                      where TDependency3 : class
@@ -44,7 +44,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TResult> handler) where TQuery : MessageTypes.IQuery<TResult>
+            Func<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TResult> handler) where TQuery : IQuery<TResult>
                                                                                                    where TDependency1 : class
                                                                                                    where TDependency2 : class
                                                                                                    where TDependency3 : class
@@ -56,7 +56,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TResult> handler) where TQuery : MessageTypes.IQuery<TResult>
+            Func<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TResult> handler) where TQuery : IQuery<TResult>
                                                                                                                  where TDependency1 : class
                                                                                                                  where TDependency2 : class
                                                                                                                  where TDependency3 : class
@@ -69,7 +69,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TResult> handler) where TQuery : MessageTypes.IQuery<TResult>
+            Func<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TResult> handler) where TQuery : IQuery<TResult>
                                                                                                                                where TDependency1 : class
                                                                                                                                where TDependency2 : class
                                                                                                                                where TDependency3 : class
@@ -83,7 +83,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TResult> handler) where TQuery : MessageTypes.IQuery<TResult>
+            Func<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TResult> handler) where TQuery : IQuery<TResult>
                                                                                                                                              where TDependency1 : class
                                                                                                                                              where TDependency2 : class
                                                                                                                                              where TDependency3 : class
@@ -98,7 +98,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8, TResult> handler) where TQuery : MessageTypes.IQuery<TResult>
+            Func<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8, TResult> handler) where TQuery : IQuery<TResult>
                                                                                                                                                            where TDependency1 : class
                                                                                                                                                            where TDependency2 : class
                                                                                                                                                            where TDependency3 : class
@@ -114,7 +114,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8, TDependency9, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8, TDependency9, TResult> handler) where TQuery : MessageTypes.IQuery<TResult>
+            Func<TQuery, TDependency1, TDependency2, TDependency3, TDependency4, TDependency5, TDependency6, TDependency7, TDependency8, TDependency9, TResult> handler) where TQuery : IQuery<TResult>
                                                                                                                                                                          where TDependency1 : class
                                                                                                                                                                          where TDependency2 : class
                                                                                                                                                                          where TDependency3 : class

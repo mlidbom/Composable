@@ -31,18 +31,18 @@ namespace Composable.Persistence.DocumentDb
             _transactionParticipant = new VolatileLambdaTransactionParticipant(EnlistmentOptions.EnlistDuringPrepareRequired, onPrepare: FlushChanges);
         }
 
-        public virtual bool TryGet<TValue>(object key, [NotNullWhen(true)]out TValue document) => TryGetInternal(key, typeof(TValue), out document, useUpdateLock: false);
+        public virtual bool TryGet<TValue>(object key, [MaybeNullWhen(false)] out TValue document) => TryGetInternal(key, typeof(TValue), out document, useUpdateLock: false);
 
-        bool TryGetInternal<TValue>(object key, Type documentType, [NotNullWhen(true)]out TValue value, bool useUpdateLock)
+        bool TryGetInternal<TValue>(object key, Type documentType, [MaybeNullWhen(false)] out TValue value, bool useUpdateLock)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
-            if (documentType.IsInterface)
+            if(documentType.IsInterface)
             {
                 throw new ArgumentException("You cannot query by id for an interface type. There is no guarantee of uniqueness");
             }
 
-            if (_idMap.TryGet(key, out value) && documentType.IsInstanceOfType(value))
+            if(_idMap.TryGet(key, out value) && documentType.IsInstanceOfType(value))
             {
                 return true;
             }
@@ -61,11 +61,12 @@ namespace Composable.Persistence.DocumentDb
         {
             var documentKey = new DocumentKey(key, documentType);
 
-            if (!_handledDocuments.TryGetValue(documentKey, out var doc))
+            if(!_handledDocuments.TryGetValue(documentKey, out var doc))
             {
                 doc = new DocumentItem(documentKey, _backingStore, _persistentValues);
                 _handledDocuments.Add(documentKey, doc);
             }
+
             return doc;
         }
 
@@ -81,19 +82,20 @@ namespace Composable.Persistence.DocumentDb
         public IEnumerable<TValue> GetAll<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            var idSet = ids.ToSet();//Avoid multiple enumerations.
+            var idSet = ids.ToSet(); //Avoid multiple enumerations.
 
             var stored = _backingStore.GetAll<TValue>(idSet);
 
             stored.Where(document => !_idMap.Contains(typeof(TValue), document.Id))
-                .ForEach(unloadedDocument => OnInitialLoad(unloadedDocument.Id, unloadedDocument));
+                  .ForEach(unloadedDocument => OnInitialLoad(unloadedDocument.Id, unloadedDocument));
 
             var results = _idMap.Select(pair => pair.Value).OfType<TValue>().Where(candidate => idSet.Contains(candidate.Id)).ToArray();
-            var missingDocuments = idSet.Where(id => !results.Any(result => result.Id == id)).ToArray();
-            if (missingDocuments.Any())
+            var missingDocuments = idSet.Where(id => results.None(result => result.Id == id)).ToArray();
+            if(missingDocuments.Any())
             {
                 throw new NoSuchDocumentException(missingDocuments.First(), typeof(TValue));
             }
+
             return results;
         }
 
@@ -101,10 +103,7 @@ namespace Composable.Persistence.DocumentDb
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
-            if (TryGet(key, out TValue value))
-            {
-                return value!;
-            }
+            if(TryGet(key, out TValue value)) return value;
 
             throw new NoSuchDocumentException(key, typeof(TValue));
         }
@@ -113,10 +112,7 @@ namespace Composable.Persistence.DocumentDb
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
-            if (TryGetInternal(key, typeof(TValue), out TValue value, useUpdateLock))
-            {
-                return value!;
-            }
+            if(TryGetInternal(key, typeof(TValue), out TValue value, useUpdateLock)) return value;
 
             throw new NoSuchDocumentException(key, typeof(TValue));
         }
@@ -127,7 +123,7 @@ namespace Composable.Persistence.DocumentDb
             _usageGuard.AssertNoContextChangeOccurred(this);
             _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
 
-            if (TryGetInternal(id, value.GetType(), out TValue _, useUpdateLock: false))
+            if(TryGetInternal(id, value.GetType(), out TValue _, useUpdateLock: false))
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }
@@ -144,10 +140,11 @@ namespace Composable.Persistence.DocumentDb
             _usageGuard.AssertNoContextChangeOccurred(this);
             _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
 
-            if (entity.Id.Equals(Guid.Empty))
+            if(entity.Id.Equals(Guid.Empty))
             {
                 throw new DocumentIdIsEmptyGuidException();
             }
+
             Save(entity.Id, entity);
         }
 
@@ -180,8 +177,8 @@ namespace Composable.Persistence.DocumentDb
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             var stored = _backingStore.GetAll<T>();
-            stored.Where(document => !_idMap.Contains(typeof (T), document.Id))
-                .ForEach(unloadedDocument => OnInitialLoad(unloadedDocument.Id, unloadedDocument));
+            stored.Where(document => !_idMap.Contains(typeof(T), document.Id))
+                  .ForEach(unloadedDocument => OnInitialLoad(unloadedDocument.Id, unloadedDocument));
             return _idMap.Select(pair => pair.Value).OfType<T>();
         }
 

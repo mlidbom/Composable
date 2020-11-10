@@ -83,7 +83,7 @@ namespace Composable.DependencyInjection
                 object cachedSingletonInstance;
                 ComponentRegistration[] registrations;
                 (registrations, cachedSingletonInstance) = _rootCache.TryGet<TService>();
-                resolve = null;
+                resolve = default;
 
                 if(cachedSingletonInstance is TService singleton)
                 {

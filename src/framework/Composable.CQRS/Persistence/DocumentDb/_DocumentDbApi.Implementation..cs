@@ -10,7 +10,7 @@ namespace Composable.Persistence.DocumentDb
     {
         public partial class QueryApi
         {
-            public class GetDocumentForUpdate<TDocument> : MessageTypes.StrictlyLocal.Queries.Query<GetDocumentForUpdate<TDocument>, TDocument>
+            public class GetDocumentForUpdate<TDocument> : MessageTypes.StrictlyLocal.Queries.StrictlyLocalQuery<GetDocumentForUpdate<TDocument>, TDocument>
             {
                 [JsonConstructor] internal GetDocumentForUpdate(Guid id) => Id = id;
                 [JsonProperty] Guid Id { get; set; }
@@ -19,7 +19,7 @@ namespace Composable.Persistence.DocumentDb
                     (GetDocumentForUpdate<TDocument> query, IDocumentDbUpdater updater) => updater.GetForUpdate<TDocument>(query.Id));
             }
 
-            public class TryGetDocument<TDocument> : MessageTypes.StrictlyLocal.Queries.Query<TryGetDocument<TDocument>, Option<TDocument>>
+            public class TryGetDocument<TDocument> : MessageTypes.StrictlyLocal.Queries.StrictlyLocalQuery<TryGetDocument<TDocument>, Option<TDocument>>
             {
                 [JsonConstructor] internal TryGetDocument(string id) => Id = id;
                 [JsonProperty] string Id { get; set; }
@@ -28,7 +28,7 @@ namespace Composable.Persistence.DocumentDb
                     (TryGetDocument<TDocument> query, IDocumentDbReader updater) => updater.TryGet<TDocument>(query.Id, out var document) ? Option.Some(document) : Option.None<TDocument>());
             }
 
-            public class GetReadonlyCopyOfDocument<TDocument> : MessageTypes.StrictlyLocal.Queries.Query<GetReadonlyCopyOfDocument<TDocument>, TDocument>
+            public class GetReadonlyCopyOfDocument<TDocument> : MessageTypes.StrictlyLocal.Queries.StrictlyLocalQuery<GetReadonlyCopyOfDocument<TDocument>, TDocument>
             {
                 [JsonConstructor] internal GetReadonlyCopyOfDocument(Guid id) => Id = id;
                 [JsonProperty] Guid Id { get; set; }
@@ -40,7 +40,7 @@ namespace Composable.Persistence.DocumentDb
 
         public partial class Command
         {
-            public class DeleteDocument<TDocument> : MessageTypes.StrictlyLocal.Commands.Command
+            public class DeleteDocument<TDocument> : MessageTypes.StrictlyLocal.Commands.StrictlyLocalCommand
             {
                 internal DeleteDocument(string key) => Key = key;
                 string Key { get; }
@@ -49,7 +49,7 @@ namespace Composable.Persistence.DocumentDb
                     (DeleteDocument<TDocument> command, IDocumentDbUpdater updater) => updater.Delete<TDocument>(command.Key));
             }
 
-            public class SaveDocument<TDocument> : MessageTypes.StrictlyLocal.Commands.Command
+            public class SaveDocument<TDocument> : MessageTypes.StrictlyLocal.Commands.StrictlyLocalCommand
             {
                 internal SaveDocument(string key, TDocument entity)
                 {

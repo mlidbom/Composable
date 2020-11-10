@@ -12,32 +12,32 @@ namespace Composable.Messaging.Hypermedia
 
         public RemoteHypermediaNavigator(ITransport transport) => _transport = transport;
 
-        public void Post(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand command) => PostAsync(command).WaitUnwrappingException();
+        public void Post(IAtMostOnceHypermediaCommand command) => PostAsync(command).WaitUnwrappingException();
 
-        public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand command)
+        public async Task PostAsync(IAtMostOnceHypermediaCommand command)
         {
             MessageInspector.AssertValidToSendRemote(command);
             await _transport.PostAsync(command).NoMarshalling();
         }
 
-        public TResult Post<TResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TResult> command) => PostAsync(command).ResultUnwrappingException();
+        public TResult Post<TResult>(IAtMostOnceCommand<TResult> command) => PostAsync(command).ResultUnwrappingException();
 
-        public async Task<TResult> PostAsync<TResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TResult> command)
+        public async Task<TResult> PostAsync<TResult>(IAtMostOnceCommand<TResult> command)
         {
             MessageInspector.AssertValidToSendRemote(command);
             return await _transport.PostAsync(command).NoMarshalling();
         }
 
-        public Task<TResult> GetAsync<TResult>(MessageTypes.Remotable.NonTransactional.IQuery<TResult> query)
+        public Task<TResult> GetAsync<TResult>(IRemotableQuery<TResult> query)
         {
             MessageInspector.AssertValidToSendRemote(query);
-            if(query is MessageTypes.ICreateMyOwnResultQuery<TResult> selfCreating)
+            if(query is ICreateMyOwnResultQuery<TResult> selfCreating)
                 return Task.FromResult(selfCreating.CreateResult());
 
             return GetAsyncAfterFastPathOptimization(query);
         }
-        async Task<TResult> GetAsyncAfterFastPathOptimization<TResult>(MessageTypes.Remotable.NonTransactional.IQuery<TResult> query) => await _transport.GetAsync(query).NoMarshalling();
+        async Task<TResult> GetAsyncAfterFastPathOptimization<TResult>(IRemotableQuery<TResult> query) => await _transport.GetAsync(query).NoMarshalling();
 
-        TResult IRemoteHypermediaNavigator.Get<TResult>(MessageTypes.Remotable.NonTransactional.IQuery<TResult> query) => GetAsync(query).ResultUnwrappingException();
+        TResult IRemoteHypermediaNavigator.Get<TResult>(IRemotableQuery<TResult> query) => GetAsync(query).ResultUnwrappingException();
     }
 }

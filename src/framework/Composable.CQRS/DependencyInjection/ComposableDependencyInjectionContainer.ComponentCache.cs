@@ -55,7 +55,9 @@ namespace Composable.DependencyInjection
 
             public void Dispose()
             {
+                // ReSharper disable ConditionIsAlwaysTrueOrFalse
                 DisposeComponents(_cache.Where(@this => @this.Registrations != null && @this.Instance != null)
+                                         // ReSharper restore ConditionIsAlwaysTrueOrFalse
                                         .Where(@this => @this.Registrations[0].InstantiationSpec.SingletonInstance == null) //We don't dispose instance registrations.
                                         .Select(@this => @this.Instance)
                                         .OfType<IDisposable>());
@@ -78,10 +80,10 @@ namespace Composable.DependencyInjection
                 }
             }
 
-            internal bool TryGet<TService>([NotNullWhen(true)]out TService? service) where TService : class
+            internal bool TryGet<TService>([MaybeNullWhen(false)]out TService service)
             {
-                service = (TService?)_instances[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
-                return service != null;
+                service = (TService)_instances[_serviceTypeIndexToComponentIndex[ServiceTypeIndex.ForService<TService>.Index]];
+                return !Equals(service, default);
             }
 
             internal ScopeCache(int[] serviceServiceTypeToComponentIndex)

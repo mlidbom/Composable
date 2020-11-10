@@ -22,7 +22,7 @@ namespace Composable.Messaging.Buses.Implementation
             _configuration = configuration;
         }
 
-        public void PublishTransactionally(MessageTypes.Remotable.ExactlyOnce.IEvent exactlyOnceEvent)
+        public void PublishTransactionally(IExactlyOnceEvent exactlyOnceEvent)
         {
             var connections = _transport.SubscriberConnectionsFor(exactlyOnceEvent)
                                         .Where(connection => connection.EndpointInformation.Id != _configuration.Id)
@@ -43,7 +43,7 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        public void SendTransactionally(MessageTypes.Remotable.ExactlyOnce.ICommand exactlyOnceCommand)
+        public void SendTransactionally(IExactlyOnceCommand exactlyOnceCommand)
         {
             var connection = _transport.ConnectionToHandlerFor(exactlyOnceCommand);
 

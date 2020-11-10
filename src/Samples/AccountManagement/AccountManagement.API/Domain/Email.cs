@@ -47,6 +47,7 @@ namespace AccountManagement.Domain
 
     public class InvalidEmailException : ArgumentException
     {
+        // ReSharper disable once ConstantNullCoalescingCondition Resharper is WRONG about nullable reference types.
         internal InvalidEmailException(string message) : base($"Supplied string: '{message ?? "[null]"}'") {}
     }
 }

@@ -13,7 +13,7 @@ namespace Composable.Persistence.EventStore
     {
         public partial class QueryApi
         {
-            public class AggregateLink<TAggregate> : MessageTypes.StrictlyLocal.Queries.Query<AggregateLink<TAggregate>, TAggregate> where TAggregate : IEventStored
+            public class AggregateLink<TAggregate> : MessageTypes.StrictlyLocal.Queries.StrictlyLocalQuery<AggregateLink<TAggregate>, TAggregate> where TAggregate : class, IEventStored
             {
                 [JsonConstructor] internal AggregateLink(Guid id) => Id = id;
                 [JsonProperty] Guid Id { get; }
@@ -22,7 +22,7 @@ namespace Composable.Persistence.EventStore
                     (AggregateLink<TAggregate> query, IEventStoreUpdater updater) => updater.Get<TAggregate>(query.Id));
             }
 
-            public class GetAggregateHistory<TEvent> : MessageTypes.StrictlyLocal.Queries.Query<GetAggregateHistory<TEvent>, IEnumerable<TEvent>> where TEvent : IAggregateEvent
+            public class GetAggregateHistory<TEvent> : MessageTypes.StrictlyLocal.Queries.StrictlyLocalQuery<GetAggregateHistory<TEvent>, IEnumerable<TEvent>> where TEvent : IAggregateEvent
             {
                 [JsonConstructor] internal GetAggregateHistory(Guid id) => Id = id;
                 [JsonProperty] Guid Id { get; }
@@ -31,7 +31,7 @@ namespace Composable.Persistence.EventStore
                     (GetAggregateHistory<TEvent> query, IEventStoreReader reader) => reader.GetHistory(query.Id).Cast<TEvent>());
             }
 
-            public class GetReadonlyCopyOfAggregate<TAggregate> : MessageTypes.StrictlyLocal.Queries.Query<GetReadonlyCopyOfAggregate<TAggregate>, TAggregate> where TAggregate : IEventStored
+            public class GetReadonlyCopyOfAggregate<TAggregate> : MessageTypes.StrictlyLocal.Queries.StrictlyLocalQuery<GetReadonlyCopyOfAggregate<TAggregate>, TAggregate> where TAggregate : class, IEventStored
             {
                 [JsonConstructor] internal GetReadonlyCopyOfAggregate(Guid id) => Id = id;
                 [JsonProperty] Guid Id { get; }
@@ -40,7 +40,7 @@ namespace Composable.Persistence.EventStore
                     (GetReadonlyCopyOfAggregate<TAggregate> query, IEventStoreReader reader) => reader.GetReadonlyCopy<TAggregate>(query.Id));
             }
 
-            public class GetReadonlyCopyOfAggregateVersion<TAggregate> : MessageTypes.StrictlyLocal.Queries.Query<GetReadonlyCopyOfAggregateVersion<TAggregate>, TAggregate> where TAggregate : IEventStored
+            public class GetReadonlyCopyOfAggregateVersion<TAggregate> : MessageTypes.StrictlyLocal.Queries.StrictlyLocalQuery<GetReadonlyCopyOfAggregateVersion<TAggregate>, TAggregate> where TAggregate : class, IEventStored
             {
                 [JsonConstructor] internal GetReadonlyCopyOfAggregateVersion(Guid id, int version)
                 {
@@ -58,8 +58,8 @@ namespace Composable.Persistence.EventStore
 
         public partial class Command
         {
-            public class SaveAggregate<TAggregate> : MessageTypes.StrictlyLocal.Commands.Command
-                where TAggregate : IEventStored
+            public class SaveAggregate<TAggregate> : MessageTypes.StrictlyLocal.Commands.StrictlyLocalCommand
+                where TAggregate : class, IEventStored
             {
                 [JsonConstructor] internal SaveAggregate(TAggregate entity) => Entity = entity;
                 TAggregate Entity { get; }
@@ -70,7 +70,7 @@ namespace Composable.Persistence.EventStore
         }
 
         internal static void RegisterHandlersForAggregate<TAggregate, TEvent>(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
-            where TAggregate : IEventStored<TEvent>
+            where TAggregate : class, IEventStored<TEvent>
             where TEvent : IAggregateEvent
         {
             Command.SaveAggregate<TAggregate>.RegisterHandler(registrar);

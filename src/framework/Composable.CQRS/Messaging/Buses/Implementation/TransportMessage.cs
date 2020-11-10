@@ -30,17 +30,17 @@ namespace Composable.Messaging.Buses.Implementation
             internal readonly TransportMessageType MessageTypeEnum;
             internal bool Is<TType>() => typeof(TType).IsAssignableFrom(_messageType);
 
-            MessageTypes.IMessage? _message;
+            IMessage? _message;
             readonly ITypeMapper _typeMapper;
 
             //performance: detect BinarySerializable and use instead.
-            public MessageTypes.IMessage DeserializeMessageAndCacheForNextCall()
+            public IMessage DeserializeMessageAndCacheForNextCall()
             {
                 if(_message == null)
                 {
                     _message = _serializer.DeserializeMessage(_messageType, Body);
 
-                    Assert.State.Assert(!(_message is MessageTypes.Remotable.ExactlyOnce.IMessage actualMessage) || MessageId == actualMessage.MessageId);
+                    Assert.State.Assert(!(_message is IExactlyOnceMessage actualMessage) || MessageId == actualMessage.MessageId);
                 }
                 return _message;
             }
@@ -76,15 +76,15 @@ namespace Composable.Messaging.Buses.Implementation
 
             static TransportMessageType GetMessageTypeEnum(Type messageType)
             {
-                if(typeof(MessageTypes.Remotable.NonTransactional.IQuery<object>).IsAssignableFrom(messageType))
+                if(typeof(IRemotableQuery<object>).IsAssignableFrom(messageType))
                     return TransportMessageType.NonTransactionalQuery;
-                if(typeof(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<object>).IsAssignableFrom(messageType))
+                if(typeof(IAtMostOnceCommand<object>).IsAssignableFrom(messageType))
                     return TransportMessageType.AtMostOnceCommandWithReturnValue;
-                if(typeof(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand).IsAssignableFrom(messageType))
+                if(typeof(IAtMostOnceHypermediaCommand).IsAssignableFrom(messageType))
                     return TransportMessageType.AtMostOnceCommand;
-                else if(typeof(MessageTypes.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(messageType))
+                else if(typeof(IExactlyOnceEvent).IsAssignableFrom(messageType))
                     return TransportMessageType.ExactlyOnceEvent;
-                if(typeof(MessageTypes.Remotable.ExactlyOnce.ICommand).IsAssignableFrom(messageType))
+                if(typeof(IExactlyOnceCommand).IsAssignableFrom(messageType))
                     return TransportMessageType.ExactlyOnceCommand;
                 else
                     throw new ArgumentOutOfRangeException();
@@ -117,12 +117,12 @@ namespace Composable.Messaging.Buses.Implementation
                 socket.SendMultipartMessage(message);
             }
 
-            public static OutGoing Create(MessageTypes.Remotable.IMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
+            public static OutGoing Create(IRemotableMessage message, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
             {
-                var messageId = (message as MessageTypes.Remotable.IAtMostOnceMessage)?.MessageId ?? Guid.NewGuid();
+                var messageId = (message as IAtMostOnceMessage)?.MessageId ?? Guid.NewGuid();
                 //performance: detect implementation of BinarySerialized and use that when available
                 var body = serializer.SerializeMessage(message);
-                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is MessageTypes.Remotable.ExactlyOnce.IMessage);
+                return new OutGoing(typeMapper.GetId(message.GetType()), messageId, body, message is IExactlyOnceMessage);
             }
 
             OutGoing(TypeId messageType, Guid messageId, string messageBody, bool isExactlyOnceDeliveryMessage)
@@ -185,7 +185,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                     response.Append(incoming.Client);
                     response.Append(incoming.MessageId);
-                    if(incoming.Is<MessageTypes.IHasReturnValue<object>>())
+                    if(incoming.Is<IHasReturnValue<object>>())
                     {
                         response.Append((int)ResponseType.FailureExpectedReturnValue);
                     } else

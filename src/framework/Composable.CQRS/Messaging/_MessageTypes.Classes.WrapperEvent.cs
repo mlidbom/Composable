@@ -37,10 +37,10 @@ namespace Composable.Messaging
                 (TWrapperEvent)WrapperConstructorCache<TWrapperEvent, TWrappedEvent>.Constructor(theEvent);
 
             public static IWrapperEvent<TWrappedEvent> WrapEvent<TWrappedEvent>(TWrappedEvent theEvent) where TWrappedEvent : IEvent =>
-                WrapperConstructorCache<MessageTypes.IWrapperEvent<TWrappedEvent>, TWrappedEvent>.Constructor(theEvent);
+                WrapperConstructorCache<IWrapperEvent<TWrappedEvent>, TWrappedEvent>.Constructor(theEvent);
 
-            static IReadOnlyDictionary<Type, Func<MessageTypes.IEvent, IWrapperEvent<MessageTypes.IEvent>>> _wrapperConstructors = new Dictionary<Type, Func<IEvent, IWrapperEvent<IEvent>>>();
-            public static IWrapperEvent<MessageTypes.IEvent> WrapEvent(IEvent theEvent) =>
+            static IReadOnlyDictionary<Type, Func<IEvent, IWrapperEvent<IEvent>>> _wrapperConstructors = new Dictionary<Type, Func<IEvent, IWrapperEvent<IEvent>>>();
+            public static IWrapperEvent<IEvent> WrapEvent(IEvent theEvent) =>
                 WrapperConstructorFor(theEvent.GetType()).Invoke(theEvent);
 
             public static Func<IEvent, IWrapperEvent<IEvent>> WrapperConstructorFor(Type wrappedEventType)
@@ -61,14 +61,14 @@ namespace Composable.Messaging
 
             static Func<IEvent, IWrapperEvent<IEvent>> CreateConstructorFor(Type wrappedEventType)
             {
-                var openWrapperEventType = typeof(MessageTypes.IWrapperEvent<>);
+                var openWrapperEventType = typeof(IWrapperEvent<>);
                 var closedWrapperEventType = openWrapperEventType.MakeGenericType(wrappedEventType);
 
                 var openWrapperImplementationType = CreateGenericWrapperEventType(openWrapperEventType);
                 var closedWrapperImplementationType = openWrapperImplementationType.MakeGenericType(wrappedEventType);
 
                 var constructorArgumentTypes = new[] {wrappedEventType};
-                var creatorFunctionArgumentTypes = new[] {typeof(MessageTypes.IEvent)};
+                var creatorFunctionArgumentTypes = new[] {typeof(IEvent)};
 
                 var constructor = closedWrapperImplementationType.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, types: constructorArgumentTypes, modifiers: null);
                 if(constructor == null)
@@ -98,13 +98,13 @@ namespace Composable.Messaging
 
                 if(!wrapperEventType.IsInterface) throw new ArgumentException("Must be an interface", $"{nameof(wrapperEventType)}");
 
-                if(wrapperEventType != typeof(MessageTypes.IWrapperEvent<>)
-                && wrapperEventType.GetInterfaces().All(iface => iface != typeof(MessageTypes.IWrapperEvent<>).MakeGenericType(wrapperEventType.GetGenericArguments()[0])))
-                    throw new ArgumentException($"Must implement {typeof(MessageTypes.IWrapperEvent<>).FullName}", $"{nameof(wrapperEventType)}");
+                if(wrapperEventType != typeof(IWrapperEvent<>)
+                && wrapperEventType.GetInterfaces().All(iface => iface != typeof(IWrapperEvent<>).MakeGenericType(wrapperEventType.GetGenericArguments()[0])))
+                    throw new ArgumentException($"Must implement {typeof(IWrapperEvent<>).FullName}", $"{nameof(wrapperEventType)}");
 
                 var wrappedEventType = wrapperEventType.GetGenericArguments()[0];
 
-                var requiredEventInterface = wrappedEventType.GetGenericParameterConstraints().Single(constraint => constraint.IsInterface && typeof(MessageTypes.IEvent).IsAssignableFrom(constraint));
+                var requiredEventInterface = wrappedEventType.GetGenericParameterConstraints().Single(constraint => constraint.IsInterface && typeof(IEvent).IsAssignableFrom(constraint));
 
                 var genericWrapperEventType = AssemblyBuilderCE.Module.Update(module =>
                 {
@@ -118,7 +118,7 @@ namespace Composable.Messaging
 
                     wrappedEventTypeParameter.SetInterfaceConstraints(requiredEventInterface);
 
-                    var (wrappedEventField, _) = wrapperEventBuilder.ImplementProperty(nameof(MessageTypes.IWrapperEvent<IAggregateEvent>.Event), wrappedEventTypeParameter);
+                    var (wrappedEventField, _) = wrapperEventBuilder.ImplementProperty(nameof(IWrapperEvent<IAggregateEvent>.Event), wrappedEventTypeParameter);
 
                     wrapperEventBuilder.ImplementConstructor(wrappedEventField);
 

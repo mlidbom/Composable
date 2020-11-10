@@ -24,7 +24,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _serializer = serializer;
             }
 
-            public void SaveMessage(MessageTypes.Remotable.ExactlyOnce.IMessage message, params EndpointId[] receiverEndpointIds)
+            public void SaveMessage(IExactlyOnceMessage message, params EndpointId[] receiverEndpointIds)
             {
                 var outboxMessageWithReceivers = new IServiceBusPersistenceLayer.OutboxMessageWithReceivers(_serializer.SerializeMessage(message),
                                                                                                             _typeMapper.GetId(message.GetType()).GuidValue,

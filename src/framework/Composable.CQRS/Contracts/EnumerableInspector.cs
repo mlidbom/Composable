@@ -16,6 +16,7 @@ namespace Composable.Contracts
             where TValue : IEnumerable
         {
             me.Inspect(
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse ReSharper incorrectly believes nullable reference types to deliver runtime guarantees.
                 inspected => !(inspected is null),
                 badValue => new ObjectIsNullContractViolationException(badValue));
 

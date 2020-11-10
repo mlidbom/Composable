@@ -15,10 +15,10 @@ using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace ScratchPad.ReflectionEmit
 {
-    public interface IUserWrapperEvent<out TWrappedUserEvent> : MessageTypes.IWrapperEvent<TWrappedUserEvent>
+    public interface IUserWrapperEvent<out TWrappedUserEvent> : IWrapperEvent<TWrappedUserEvent>
         where TWrappedUserEvent : IUserEvent {}
 
-    public interface IUserEvent : MessageTypes.IEvent {}
+    public interface IUserEvent : IEvent {}
 
     class UserEvent : IUserEvent {}
 
@@ -53,12 +53,12 @@ namespace ScratchPad.ReflectionEmit
             {
 
                 if(!wrapperEventType.IsInterface) throw new ArgumentException("Must be an interface", $"{nameof(wrapperEventType)}");
-                if(wrapperEventType.GetInterfaces().All(iface => iface != typeof(MessageTypes.IWrapperEvent<>).MakeGenericType(wrapperEventType.GetGenericArguments()[0])))
-                    throw new ArgumentException($"Must implement {typeof(MessageTypes.IWrapperEvent<>).FullName}", $"{nameof(wrapperEventType)}");
+                if(wrapperEventType.GetInterfaces().All(iface => iface != typeof(IWrapperEvent<>).MakeGenericType(wrapperEventType.GetGenericArguments()[0])))
+                    throw new ArgumentException($"Must implement {typeof(IWrapperEvent<>).FullName}", $"{nameof(wrapperEventType)}");
 
                 var wrappedEventType = wrapperEventType.GetGenericArguments()[0];
 
-                var requiredEventInterface = wrappedEventType.GetGenericParameterConstraints().Single(constraint => constraint.IsInterface && typeof(MessageTypes.IEvent).IsAssignableFrom(constraint));
+                var requiredEventInterface = wrappedEventType.GetGenericParameterConstraints().Single(constraint => constraint.IsInterface && typeof(IEvent).IsAssignableFrom(constraint));
 
                 var genericWrapperEventType = AssemblyBuilderCE.Module.Update(module =>
                 {
@@ -72,7 +72,7 @@ namespace ScratchPad.ReflectionEmit
 
                     wrappedEventTypeParameter.SetInterfaceConstraints(requiredEventInterface);
 
-                    var (wrappedEventField, _) = wrapperEventBuilder.ImplementProperty(nameof(MessageTypes.IWrapperEvent<IAggregateEvent>.Event), wrappedEventTypeParameter);
+                    var (wrappedEventField, _) = wrapperEventBuilder.ImplementProperty(nameof(IWrapperEvent<IAggregateEvent>.Event), wrappedEventTypeParameter);
 
                     wrapperEventBuilder.ImplementConstructor(wrappedEventField);
 

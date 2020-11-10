@@ -28,7 +28,7 @@ namespace Composable.Persistence.DocumentDb
             _typeMapper = typeMapper;
         }
 
-        bool IDocumentDb.TryGet<TDocument>(object id, [NotNullWhen(true)] [MaybeNull] out TDocument value, Dictionary<Type, Dictionary<string, string>> persistentTDocuments, bool useUpdateLock)
+        bool IDocumentDb.TryGet<TDocument>(object id, [MaybeNullWhen(false)] out TDocument value, Dictionary<Type, Dictionary<string, string>> persistentTDocuments, bool useUpdateLock)
         {
             value = default;
             var idString = GetIdString(id);
@@ -114,7 +114,7 @@ namespace Composable.Persistence.DocumentDb
 
 
         [return:NotNull]TDocument Deserialize<TDocument>(IDocumentDbPersistenceLayer.ReadRow stored) =>
-            (TDocument)_serializer.Deserialize(GetTypeFromId(new TypeId(stored.TypeId)), stored.SerializedDocument);
+            (TDocument)Contract.ReturnNotNull(_serializer.Deserialize(GetTypeFromId(new TypeId(stored.TypeId)), stored.SerializedDocument));
 
         IReadonlySetCEx<Guid> AcceptableTypeIds<T>() => AcceptableTypeIds(typeof(T));
         IReadonlySetCEx<Guid> AcceptableTypeIds(Type type) => _typeMapper.GetIdForTypesAssignableTo(type).Select(typeId => typeId.GuidValue).ToSetCE();

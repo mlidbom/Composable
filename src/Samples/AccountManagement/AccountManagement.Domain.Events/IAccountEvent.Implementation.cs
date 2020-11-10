@@ -22,7 +22,9 @@ namespace AccountManagement.Domain.Events
 
             public class UserRegistered : Root, AccountEvent.UserRegistered
             {
+#pragma warning disable IDE0051 // Remove unused private members
                 [JsonConstructor] UserRegistered(Email email, Password password)
+#pragma warning restore IDE0051 // Remove unused private members
                 {
                     Email = email;
                     Password = password;
@@ -35,7 +37,7 @@ namespace AccountManagement.Domain.Events
                 /// </summary>
                 public UserRegistered(Guid accountId, Email email, Password password) : base(accountId)
                 {
-                    Assert.Argument.Assert(!(email is null), password != null);
+                    Contract.ArgumentNotNull(email, nameof(email), password, nameof(password));
 
                     Email = email;
                     Password = password;

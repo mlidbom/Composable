@@ -62,17 +62,17 @@ namespace Composable.Messaging.Buses.Implementation
                 }
             }
 
-            internal IInboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command) =>
+            internal IInboxConnection ConnectionToHandlerFor(IRemotableCommand command) =>
                 _commandHandlerRoutes.TryGetValue(command.GetType(), out var connection)
                     ? connection
                     : throw new NoHandlerForMessageTypeException(command.GetType());
 
-            internal IInboxConnection ConnectionToHandlerFor<TQuery>(MessageTypes.Remotable.NonTransactional.IQuery<TQuery> query) =>
+            internal IInboxConnection ConnectionToHandlerFor<TQuery>(IRemotableQuery<TQuery> query) =>
                 _queryHandlerRoutes.TryGetValue(query.GetType(), out var connection)
                     ? connection
                     : throw new NoHandlerForMessageTypeException(query.GetType());
 
-            internal IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event)
+            internal IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(IExactlyOnceEvent @event)
             {
                 if(_eventSubscriberRouteCache.TryGetValue(@event.GetType(), out var connection)) return connection;
 
@@ -86,9 +86,9 @@ namespace Composable.Messaging.Buses.Implementation
                 return subscriberConnections;
             }
 
-            static bool IsRemoteCommand(Type type) => typeof(MessageTypes.Remotable.ICommand).IsAssignableFrom(type);
-            static bool IsRemoteEvent(Type type) => typeof(MessageTypes.Remotable.ExactlyOnce.IEvent).IsAssignableFrom(type);
-            static bool IsRemoteQuery(Type type) => typeof(MessageTypes.Remotable.NonTransactional.IQuery<object>).IsAssignableFrom(type);
+            static bool IsRemoteCommand(Type type) => typeof(IRemotableCommand).IsAssignableFrom(type);
+            static bool IsRemoteEvent(Type type) => typeof(IExactlyOnceEvent).IsAssignableFrom(type);
+            static bool IsRemoteQuery(Type type) => typeof(IRemotableQuery<object>).IsAssignableFrom(type);
         }
     }
 }

@@ -42,7 +42,9 @@ FROM {Event.TableName}
                                             RefactoringInformation = (eventReader[7] as string, eventReader[8] as short?)switch
                                             {
                                                 (null, null) => null,
+                                                // ReSharper disable PatternAlwaysOfType
                                                 (string targetEvent, short type) => new AggregateEventRefactoringInformation(Guid.Parse(targetEvent), (AggregateEventRefactoringType)type),
+                                                // ReSharper restore PatternAlwaysOfType
                                                 _ => throw new Exception("Should not be possible to get here")
                                             }
                                         }

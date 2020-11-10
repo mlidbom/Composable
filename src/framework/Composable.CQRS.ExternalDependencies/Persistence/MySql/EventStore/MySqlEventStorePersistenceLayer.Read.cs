@@ -6,7 +6,6 @@ using Composable.Persistence.EventStore.PersistenceLayer;
 using Composable.Persistence.MySql.SystemExtensions;
 using MySql.Data.MySqlClient;
 using Event=Composable.Persistence.Common.EventStore.EventTableSchemaStrings;
-using Lock = Composable.Persistence.Common.EventStore.AggregateLockTableSchemaStrings;
 
 namespace Composable.Persistence.MySql.EventStore
 {
@@ -16,11 +15,11 @@ namespace Composable.Persistence.MySql.EventStore
 
         public MySqlEventStorePersistenceLayer(MySqlEventStoreConnectionManager connectionManager) => _connectionManager = connectionManager;
 
-        static string CreateSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
+        static string CreateSelectClause() => InternalSelect();
 
         static string CreateLockHint(bool takeWriteLock) => takeWriteLock ? "FOR UPDATE" : "";
         // ReSharper disable once UnusedParameter.Local
-        static string InternalSelect(bool takeWriteLock, int? top = null)
+        static string InternalSelect(int? top = null)
         {
             var topClause = top.HasValue ? $"TOP {top.Value} " : "";
             //var lockHint = takeWriteLock ? "With(UPDLOCK, READCOMMITTED, ROWLOCK)" : "With(READCOMMITTED, ROWLOCK)";
@@ -50,7 +49,9 @@ FROM {Event.TableName} {lockHint} ";
                                             RefactoringInformation = (eventReader[7] as Guid?, eventReader[8] as sbyte?)switch
                                             {
                                                 (null, null) => null,
+                                                // ReSharper disable PatternAlwaysOfType
                                                 (Guid targetEvent, sbyte type) => new AggregateEventRefactoringInformation(targetEvent, (AggregateEventRefactoringType)type),
+                                                // ReSharper restore PatternAlwaysOfType
                                                 _ => throw new Exception("Should not be possible to get here")
                                             }
                                         }
@@ -60,7 +61,7 @@ FROM {Event.TableName} {lockHint} ";
         public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0) =>
             _connectionManager.UseCommand(suppressTransactionWarning: !takeWriteLock,
                                           command => command.SetCommandText($@"
-{CreateSelectClause(takeWriteLock)} 
+{CreateSelectClause()} 
 WHERE {Event.AggregateId} = @{Event.AggregateId}
     AND {Event.InsertedVersion} >= @CachedVersion
     AND {Event.EffectiveVersion} > 0
@@ -82,7 +83,7 @@ ORDER BY {Event.ReadOrder} ASC
                                                                 command =>
                                                                 {
                                                                     var commandText = $@"
-{CreateSelectClause(takeWriteLock: false)} 
+{CreateSelectClause()} 
 WHERE {Event.ReadOrder}  > CAST(@{Event.ReadOrder} AS {Event.ReadOrderType})
     AND {Event.EffectiveVersion} > 0
 ORDER BY {Event.ReadOrder} ASC

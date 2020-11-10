@@ -27,6 +27,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public Transport(IGlobalBusStateTracker globalBusStateTracker, ITypeMapper typeMapper, IRemotableMessageSerializer serializer)
         {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse ReSharper incorrectly believes nullable reference types to deliver runtime guarantees.
             _runningAndNotDisposed = new AssertAndRun(() => Assert.State.Assert(_running, _poller != null, _poller.IsRunning));
             _router = new Router(typeMapper);
             _serializer = serializer;
@@ -50,27 +51,27 @@ namespace Composable.Messaging.Buses.Implementation
             _router.RegisterRoutes(clientConnection, clientConnection.EndpointInformation.HandledMessageTypes);
         }
 
-        public IInboxConnection ConnectionToHandlerFor(MessageTypes.Remotable.ICommand command) =>
+        public IInboxConnection ConnectionToHandlerFor(IRemotableCommand command) =>
             _runningAndNotDisposed.Do(() => _router.ConnectionToHandlerFor(command));
 
-        public IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(MessageTypes.Remotable.ExactlyOnce.IEvent @event) =>
+        public IReadOnlyList<IInboxConnection> SubscriberConnectionsFor(IExactlyOnceEvent @event) =>
             _runningAndNotDisposed.Do(() => _router.SubscriberConnectionsFor(@event));
 
-        public async Task PostAsync(MessageTypes.Remotable.AtMostOnce.IAtMostOnceHypermediaCommand atMostOnceCommand)
+        public async Task PostAsync(IAtMostOnceHypermediaCommand atMostOnceCommand)
         {
             _runningAndNotDisposed.Assert();
             var connection = _router.ConnectionToHandlerFor(atMostOnceCommand);
             await connection.PostAsync(atMostOnceCommand).NoMarshalling();
         }
 
-        public async Task<TCommandResult> PostAsync<TCommandResult>(MessageTypes.Remotable.AtMostOnce.IAtMostOnceCommand<TCommandResult> atMostOnceCommand)
+        public async Task<TCommandResult> PostAsync<TCommandResult>(IAtMostOnceCommand<TCommandResult> atMostOnceCommand)
         {
             _runningAndNotDisposed.Assert();
             var connection = _router.ConnectionToHandlerFor(atMostOnceCommand);
             return await connection.PostAsync(atMostOnceCommand).NoMarshalling();
         }
 
-        public async Task<TQueryResult> GetAsync<TQueryResult>(MessageTypes.Remotable.NonTransactional.IQuery<TQueryResult> query)
+        public async Task<TQueryResult> GetAsync<TQueryResult>(IRemotableQuery<TQueryResult> query)
         {
             _runningAndNotDisposed.Assert();
             var connection = _router.ConnectionToHandlerFor(query);

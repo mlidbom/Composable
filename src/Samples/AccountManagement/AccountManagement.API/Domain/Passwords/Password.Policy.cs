@@ -16,6 +16,7 @@ namespace AccountManagement.Domain.Passwords
             ///<summary><para>returns a list of the ways in which a specific password fails to fulfill the policy. If the list is empty the password is compliant with the policy.</para> </summary>
             public static IEnumerable<Failures> GetPolicyFailures(string password)
             {
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse ReSharper incorrectly believes nullable reference types to deliver runtime guarantees.
                 if(password == null)
                 {
                     return new []{Failures.Null}; //Everything else will fail with null reference exception if we don't return here...

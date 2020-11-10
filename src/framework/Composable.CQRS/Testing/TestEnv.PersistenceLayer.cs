@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Composable.Contracts;
 using Composable.SystemCE;
 
 namespace Composable.Testing
@@ -37,9 +39,9 @@ namespace Composable.Testing
                         _ => throw new ArgumentOutOfRangeException()
                     };
 
-            static TValue SelectValue<TValue>(TValue value, string provider)
+            [return:NotNull]static TValue SelectValue<TValue>(TValue value, string provider)
             {
-                if(!Equals(value, default(TValue))) return value;
+                if(!Equals(value, default(TValue))) return Contract.ReturnNotNull(value);
 
                 throw new Exception($"Value missing for {provider}");
             }

@@ -4,7 +4,7 @@ namespace AccountManagement.API.ValidationAttributes.Helpers
 {
     public abstract class ValidationAttributeBase : ValidationAttribute
     {
-        public override bool IsValid(object value)
+        public override bool IsValid(object? value)
         {
             // ReSharper disable once ConvertIfStatementToReturnStatement
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse ReSharper incorrectly believes nullable reference types to deliver runtime guarantees.

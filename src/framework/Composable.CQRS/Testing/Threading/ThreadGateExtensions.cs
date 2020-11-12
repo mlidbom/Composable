@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Transactions;
+using Composable.Contracts;
 using Composable.SystemCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.TasksCE;
@@ -48,7 +49,11 @@ namespace Composable.Testing.Threading
         public static IThreadGate ThrowPostPassThrough(this IThreadGate @this, Exception exception) => @this.SetPostPassThroughAction(_ => throw exception);
         public static IThreadGate ThrowPrePassThrough(this IThreadGate @this, Exception exception) => @this.SetPostPassThroughAction(_ => throw exception);
 
-        public static IThreadGate FailTransactionOnPreparePostPassThrough(this IThreadGate @this, Exception exception) => @this.SetPostPassThroughAction(_ => Transaction.Current.FailOnPrepare(exception));
+        public static IThreadGate FailTransactionOnPreparePostPassThrough(this IThreadGate @this, Exception exception) => @this.SetPostPassThroughAction(_ =>
+        {
+            Assert.State.NotNull(Transaction.Current);
+            Transaction.Current.FailOnPrepare(exception);
+        });
 
 
         public static Task<IThreadGate> ThrowOnNextPassThroughAsync(this IThreadGate @this, Func<ThreadSnapshot, Exception> exceptionFactory)

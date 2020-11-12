@@ -42,7 +42,7 @@
       <Value>DependencyInjection\ComponentRegistrationExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-86</Value>
       <Value>DependencyInjection\ComponentRegistrationExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-87</Value>
       <Value>Messaging\Buses\TestingEndpointHostBase.cs:framework\Composable.CQRS\Composable.CQRS.csproj-28</Value>
-      <Value>Testing\Threading\ThreadGateExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-42</Value>
+      <Value>Testing\Threading\ThreadGateExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-43</Value>
       <Value>DependencyInjection\TransactionalExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-23</Value>
       <Value>DependencyInjection\TransactionalExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-15</Value>
       <Value>Messaging\Buses\ServerEndpointBuilder.cs:framework\Composable.CQRS\Composable.CQRS.csproj-35</Value>
@@ -52,8 +52,8 @@
       <Value>Persistence\MsSql\Testing\Databases\MsSqlDatabaseHelpers.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-53</Value>
       <Value>DependencyInjection\TransactionalExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-39</Value>
       <Value>Testing\Threading\ThreadGate.cs:framework\Composable.CQRS\Composable.CQRS.csproj-86</Value>
-      <Value>Testing\Threading\ThreadGateExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-41</Value>
-      <Value>Testing\Threading\ThreadGateExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
+      <Value>Testing\Threading\ThreadGateExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-42</Value>
+      <Value>Testing\Threading\ThreadGateExtensions.cs:framework\Composable.CQRS\Composable.CQRS.csproj-39</Value>
       <Value>Messaging\Buses\Implementation\Inbox.HandlerExecutionEngine..cs:framework\Composable.CQRS\Composable.CQRS.csproj-34</Value>
       <Value>CQRS\EventRefactoring\Migrations\EventMigrationTest.cs:framework\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj-217</Value>
       <Value>DependencyInjection\DependencyInjectionContainer.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-17</Value>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Transactions;
+using Composable.Contracts;
 
 namespace Composable.SystemCE.TransactionsCE
 {
@@ -9,6 +10,7 @@ namespace Composable.SystemCE.TransactionsCE
         {
             @this.TransactionCompleted += (sender, args) =>
             {
+                Assert.Argument.NotNull(args.Transaction);
                 if(args.Transaction.TransactionInformation.Status == TransactionStatus.Committed)
                 {
                     action();
@@ -22,6 +24,7 @@ namespace Composable.SystemCE.TransactionsCE
         {
             @this.TransactionCompleted += (sender, args) =>
             {
+                Assert.Argument.NotNull(args.Transaction);
                 if(args.Transaction.TransactionInformation.Status == TransactionStatus.Aborted)
                 {
                     action();

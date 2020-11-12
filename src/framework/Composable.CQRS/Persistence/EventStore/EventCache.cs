@@ -24,6 +24,7 @@ namespace Composable.Persistence.EventStore
             {
                 get
                 {
+                    Assert.State.NotNull(Transaction.Current);
                     var transactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
                     Dictionary<Guid, Entry>? overlay = null;
 

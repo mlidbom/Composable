@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Transactions;
+using Composable.Contracts;
 using Composable.SystemCE.LinqCE;
 
 namespace Composable.SystemCE.TransactionsCE
@@ -44,7 +45,11 @@ namespace Composable.SystemCE.TransactionsCE
         {
             base.OnEnlist();
             _onEnlist?.Invoke();
-            Transaction.Current!.TransactionCompleted += (transaction, parameters) => _onTransactionCompleted?.Invoke(parameters.Transaction.TransactionInformation.Status);
+            Transaction.Current!.TransactionCompleted += (transaction, parameters) =>
+            {
+                Assert.Argument.NotNull(parameters.Transaction);
+                _onTransactionCompleted?.Invoke(parameters.Transaction.TransactionInformation.Status);
+            };
         }
     }
 }

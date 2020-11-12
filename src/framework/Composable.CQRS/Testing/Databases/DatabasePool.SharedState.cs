@@ -57,7 +57,7 @@ namespace Composable.Testing.Databases
 
             internal void ReleaseClean(string reservationName)
             {
-                var existing = _databases.SingleOrDefault(@this => @this.ReservationName == reservationName);
+                var existing = _databases.Single(@this => @this.ReservationName == reservationName);
                 Assert.Argument.Assert(existing.IsReserved);
                 existing.Release();
                 existing.Clean();

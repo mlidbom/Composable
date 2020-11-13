@@ -38,15 +38,15 @@ namespace Composable.Persistence.Common.AdoCE
 
         public async Task<int> ExecuteNonQueryAsync(string commandText) => await UseCommand(command => command.ExecuteNonQueryAsync(commandText)).NoMarshalling();
 
-        public object ExecuteScalar(string commandText) => UseCommand(command => command.ExecuteScalar(commandText));
+        public object? ExecuteScalar(string commandText) => UseCommand(command => command.ExecuteScalar(commandText));
 
-        public Task<object> ExecuteScalarAsync(string commandText) => UseCommand(command => command.ExecuteScalarAsync(commandText));
+        public Task<object?> ExecuteScalarAsync(string commandText) => UseCommand(command => command.ExecuteScalarAsync(commandText));
 
         public int PrepareAndExecuteNonQuery(string commandText) => UseCommand(command => command.PrepareAndExecuteNonQuery(commandText));
 
         public async Task<int> PrepareAndExecuteNonQueryAsync(string commandText) =>
             await UseCommand(command => command.PrepareAndExecuteNonQueryAsync(commandText)).NoMarshalling();
 
-        public object PrepareAndExecuteScalar(string commandText) => UseCommand(command => command.PrepareAndExecuteScalar(commandText));
+        public object? PrepareAndExecuteScalar(string commandText) => UseCommand(command => command.PrepareAndExecuteScalar(commandText));
     }
 }

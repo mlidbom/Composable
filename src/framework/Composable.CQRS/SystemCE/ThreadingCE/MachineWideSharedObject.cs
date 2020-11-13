@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using System.Runtime.Versioning;
 using Composable.Contracts;
 using Composable.Persistence;
 using Composable.Serialization;
@@ -15,6 +16,7 @@ namespace Composable.SystemCE.ThreadingCE
         protected static readonly string DataFolder = ComposableTempFolder.EnsureFolderExists("MemoryMappedFiles");
     }
 
+    //[SupportedOSPlatform("windows")]
     class MachineWideSharedObject<TObject> : MachineWideSharedObject, IDisposable where TObject : BinarySerialized<TObject>
     {
         const int LengthIndicatorIntegerLengthInBytes = 4;

@@ -15,10 +15,10 @@ namespace Composable.Persistence.Common.AdoCE
 {
     static class DbCommandCE
     {
-        public static object ExecuteScalar(this DbCommand @this, string commandText) =>
+        public static object? ExecuteScalar(this DbCommand @this, string commandText) =>
             @this.SetCommandText(commandText).ExecuteScalar();
 
-        public static async Task<object> ExecuteScalarAsync(this DbCommand @this, string commandText) =>
+        public static async Task<object?> ExecuteScalarAsync(this DbCommand @this, string commandText) =>
             await @this.SetCommandText(commandText).ExecuteScalarAsync().NoMarshalling();
 
         public static int ExecuteNonQuery(this DbCommand @this, string commandText) =>
@@ -28,10 +28,10 @@ namespace Composable.Persistence.Common.AdoCE
             await @this.SetCommandText(commandText).ExecuteNonQueryAsync().NoMarshalling();
 
 
-        public static object PrepareAndExecuteScalar(this DbCommand @this, string commandText) =>
+        public static object? PrepareAndExecuteScalar(this DbCommand @this, string commandText) =>
             @this.SetCommandText(commandText).PrepareStatement().ExecuteScalar();
 
-        public static async Task<object> PrepareAndExecuteScalarAsync(this DbCommand @this, string commandText) =>
+        public static async Task<object?> PrepareAndExecuteScalarAsync(this DbCommand @this, string commandText) =>
             await @this.SetCommandText(commandText).PrepareStatement().ExecuteScalarAsync().NoMarshalling();
 
         public static int PrepareAndExecuteNonQuery(this DbCommand @this, string commandText) =>

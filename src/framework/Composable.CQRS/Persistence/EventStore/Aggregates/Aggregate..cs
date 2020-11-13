@@ -9,7 +9,6 @@ using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReactiveCE;
 using JetBrains.Annotations;
 
-#pragma warning disable CA1033 // Interface methods should be callable by child types
 
 namespace Composable.Persistence.EventStore.Aggregates
 {

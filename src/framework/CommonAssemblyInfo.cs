@@ -21,7 +21,7 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion("3.4.6.0")]
+[assembly: AssemblyVersion("0.5.0.0")]
 
 
 [assembly: InternalsVisibleTo("Composable.HyperBus")]

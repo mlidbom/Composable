@@ -20,6 +20,7 @@ using Composable.Testing;
 // ReSharper disable InconsistentNaming for testing
 
 #pragma warning disable IDE1006 //Review OK: Test Naming Styles
+#pragma warning disable CA1724  // Type names should not match namespaces
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
@@ -38,9 +39,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         internal IReadOnlyList<IThreadGate> AllGates;
 
-        protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(_timeout);
-        protected IEndpoint ClientEndpoint;
-        protected IEndpoint RemoteEndpoint;
+        protected TestingTaskRunner TaskRunner { get; } = TestingTaskRunner.WithTimeout(_timeout);
+        protected IEndpoint ClientEndpoint { get; set; }
+        protected IEndpoint RemoteEndpoint { get; set; }
         protected IRemoteHypermediaNavigator RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteHypermediaNavigator>();
 
         [SetUp]public async Task Setup()

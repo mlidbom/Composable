@@ -12,7 +12,9 @@ namespace AccountManagement.Domain.Events
     //refactor: Consider using interfaces instead of static classes for nesting our events.
     public static partial class AccountEvent
     {
+#pragma warning disable CA1724 // Type names should not match namespaces
         public static class Implementation
+#pragma warning restore CA1724 // Type names should not match namespaces
         {
             public abstract class Root : AggregateEvent, AccountEvent.Root
             {

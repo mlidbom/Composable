@@ -8,6 +8,7 @@ using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
+#pragma warning disable CA1806 // Do not ignore method results
 
 namespace Composable.Tests.SystemCE.ReflectionCE
 {

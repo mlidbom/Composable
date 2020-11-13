@@ -9,7 +9,9 @@ namespace AccountManagement.API
 
         public Query Queries { get; private set; } = new Query();
 
+#pragma warning disable CA1724 // Type names should not match namespaces
         public class Query
+#pragma warning restore CA1724 // Type names should not match namespaces
         {
             public MessageTypes.Remotable.NonTransactional.Queries.EntityLink<AccountResource> AccountById { get; private set; } = new MessageTypes.Remotable.NonTransactional.Queries.EntityLink<AccountResource>();
         }

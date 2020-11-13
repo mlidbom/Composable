@@ -10,6 +10,7 @@ using NUnit.Framework;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable MemberCanBeInternal
+#pragma warning disable CA1806 // Do not ignore method results
 
 namespace Composable.Tests.CQRS.Aggregates
 {
@@ -97,7 +98,7 @@ namespace Composable.Tests.CQRS.Aggregates
         [Test]public void Trying_to_create_instance_of_aggregate_throws_and_lists_all_broken_types_in_exception_except_ignored()
         {
             AssertThrows.Exception<Exception>(() => new Root(null!)).InnerException!
-                        .Message
+               .Message
                         .Should().Contain(typeof(Root).FullName)
                         .And.Contain(typeof(RootEvent.IRoot).FullName)
                         .And.Contain(typeof(RootEvent.Root).FullName)

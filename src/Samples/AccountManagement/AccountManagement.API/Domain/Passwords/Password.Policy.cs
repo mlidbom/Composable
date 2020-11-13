@@ -11,7 +11,9 @@ namespace AccountManagement.Domain.Passwords
 {
     public partial class Password
     {
+#pragma warning disable CA1724 // Type names should not match namespaces
         public static class Policy
+#pragma warning restore CA1724 // Type names should not match namespaces
         {
             ///<summary><para>returns a list of the ways in which a specific password fails to fulfill the policy. If the list is empty the password is compliant with the policy.</para> </summary>
             public static IEnumerable<Failures> GetPolicyFailures(string password)

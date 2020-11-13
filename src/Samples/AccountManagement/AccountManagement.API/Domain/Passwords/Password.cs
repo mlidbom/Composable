@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AccountManagement.Domain.Passwords
 {
@@ -15,7 +17,9 @@ namespace AccountManagement.Domain.Passwords
         public byte[] Hash { get; private set; }
         public byte[] Salt { get; private set; }
 
+#pragma warning disable IDE0051 // Remove unused private members
         [JsonConstructor]Password(byte[] hash, byte[] salt)
+#pragma warning restore IDE0051 // Remove unused private members
         {
             Hash = hash;
             Salt = salt;

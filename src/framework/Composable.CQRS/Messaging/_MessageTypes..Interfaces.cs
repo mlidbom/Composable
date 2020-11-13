@@ -71,8 +71,6 @@ namespace Composable.Messaging
     public interface IExactlyOnceWrapperEvent<out TEventInterface> : IWrapperEvent<TEventInterface>, IExactlyOnceEvent
         where TEventInterface : IExactlyOnceEvent
     {
-#pragma warning disable CA1033 // Interface methods should be callable by child types: This should be used by infrastructure only. End user code and inheritors should never need to implement it and implementing it in any other way would be a bug.
         Guid IAtMostOnceMessage.MessageId => Event.MessageId;
-#pragma warning restore CA1033 // Interface methods should be callable by child types
     }
 }

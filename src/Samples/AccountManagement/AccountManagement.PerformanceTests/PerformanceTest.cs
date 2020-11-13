@@ -73,8 +73,8 @@ namespace AccountManagement
             TimeAsserter.ExecuteThreaded(description: "Fetch account resource",
                                          action: () =>
                                          {
-                                             var account = accountsReader.Next();
-                                             _clientEndpoint.ExecuteClientRequest(AccountApi.Instance.Query.AccountById(account.Id)).Id.Should().Be(account.Id);
+                                             var accountId = accountsReader.Next().Id;
+                                             _clientEndpoint.ExecuteClientRequest(AccountApi.Instance.Query.AccountById(accountId)).Id.Should().Be(accountId);
                                          },
                                          iterations: fetches,
                                          maxTotal: 10.Milliseconds());

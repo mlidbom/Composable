@@ -14,9 +14,9 @@ namespace Composable.Tests.Messaging.Hypermedia
 {
     public class PerformanceTestBase : DuplicateByPluggableComponentTest
     {
-        protected ITestingEndpointHost Host;
-        protected IEndpoint ServerEndpoint;
-        public IEndpoint ClientEndpoint;
+        protected ITestingEndpointHost Host { get; set; }
+        protected IEndpoint ServerEndpoint { get; set; }
+        public IEndpoint ClientEndpoint { get; set; }
         protected IRemoteHypermediaNavigator RemoteNavigator => ClientEndpoint.ServiceLocator.Resolve<IRemoteHypermediaNavigator>();
         protected IServiceBusSession ServerBusSession => ServerEndpoint.ServiceLocator.Resolve<IServiceBusSession>();
         protected ILocalHypermediaNavigator LocalNavigator => ServerEndpoint.ServiceLocator.Resolve<ILocalHypermediaNavigator>();

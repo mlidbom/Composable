@@ -1,7 +1,7 @@
 ﻿using Composable.Persistence.EventStore;
 // ReSharper disable All
-#pragma warning disable 219
 #pragma warning disable 414
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
 
 namespace ScratchPad
 {
@@ -22,9 +22,9 @@ namespace ScratchPad
 
     public class ReUsableAggregateComponents
     {
+#pragma warning disable IDE0051 // Remove unused private members
         static void DemonstrateSemanticRelationships()
         {
-
             IAggregate1ComponentEvent<IComponentEventBase> wceb = null!;
             IAggregate1ComponentEvent<IComponentEvent1> wce1 = null!;
             IAggregate1ComponentEvent<IComponentEvent2> wce2 = null!;

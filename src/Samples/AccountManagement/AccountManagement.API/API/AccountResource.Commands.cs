@@ -6,7 +6,9 @@ namespace AccountManagement.API
     {
         public class CommandsCollection
         {
+#pragma warning disable IDE0051 // Remove unused private members
             [JsonConstructor]CommandsCollection(Command.ChangeEmail changeEmail, Command.ChangePassword changePassword)
+#pragma warning restore IDE0051 // Remove unused private members
             {
                 ChangeEmail = changeEmail;
                 ChangePassword = changePassword;

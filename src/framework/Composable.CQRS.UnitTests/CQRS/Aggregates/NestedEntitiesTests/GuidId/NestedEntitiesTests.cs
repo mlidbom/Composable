@@ -10,6 +10,10 @@ using NUnit.Framework;
 // ReSharper disable ImplicitlyCapturedClosure
 
 // ReSharper disable MemberHidesStaticFromOuterClass
+
+#pragma warning disable CA1724 // Type names should not match namespaces
+
+
 namespace Composable.Tests.CQRS.Aggregates.NestedEntitiesTests.GuidId
 {
     [TestFixture]

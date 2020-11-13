@@ -38,7 +38,7 @@ namespace Composable.Tests.Persistence.EventStore
 
         [Test] public void RoundTripping_SqlDecimal_results_in_same_value()
         {
-            void TestValue(ReadOrder value)
+            static void TestValue(ReadOrder value)
             {
                 var stringValue = value.ToString();
                 var sql = value.ToSqlDecimal();

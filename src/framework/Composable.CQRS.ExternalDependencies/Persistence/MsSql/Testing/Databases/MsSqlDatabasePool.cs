@@ -27,7 +27,7 @@ namespace Composable.Persistence.MsSql.Testing.Databases
         protected override void EnsureDatabaseExistsAndIsEmpty(Database db)
         {
             var databaseName = db.Name;
-            var exists = (string)_masterConnectionPool.ExecuteScalar($"select name from sysdatabases where name = '{databaseName}'") == databaseName;
+            var exists = (string?)_masterConnectionPool.ExecuteScalar($"select name from sysdatabases where name = '{databaseName}'") == databaseName;
             if(exists)
             {
                 ResetDatabase(db);

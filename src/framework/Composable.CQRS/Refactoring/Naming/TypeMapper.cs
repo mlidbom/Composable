@@ -95,7 +95,7 @@ You should map them in your endpoint configuration by using {typeof(IEndpointBui
 
             typesWithMissingMappings.ForEach(type => fixMessage.Append($"{Environment.NewLine}   .{MapMethodCallforType(type)}"));
 
-            fixMessage.Append(";").AppendLine().AppendLine();
+            fixMessage.Append(';').AppendLine().AppendLine();
 
             return new Exception(fixMessage.ToString());
         }

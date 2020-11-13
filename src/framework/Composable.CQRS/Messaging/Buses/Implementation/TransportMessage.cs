@@ -40,7 +40,7 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     _message = _serializer.DeserializeMessage(_messageType, Body);
 
-                    Assert.State.Assert(!(_message is IExactlyOnceMessage actualMessage) || MessageId == actualMessage.MessageId);
+                    Assert.State.Assert(_message is not IExactlyOnceMessage actualMessage || MessageId == actualMessage.MessageId);
                 }
                 return _message;
             }

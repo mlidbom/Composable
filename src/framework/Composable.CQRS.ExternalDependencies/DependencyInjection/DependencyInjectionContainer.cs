@@ -12,9 +12,7 @@ namespace Composable.DependencyInjection
     {
         public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IEndpointBuilder> setup)
         {
-#pragma warning disable IDE0067 //Review OK-ish: We register the host in the container to ensure that it is disposed when the container is.
             var host = TestingEndpointHost.Create(Create);
-#pragma warning restore IDE0067 // Dispose objects before losing scope
             var endpoint = host.RegisterTestingEndpoint(setup: builder =>
             {
                 builder.RegisterCurrentTestsConfiguredPersistenceLayer();

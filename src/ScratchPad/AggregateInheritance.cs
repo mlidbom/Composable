@@ -1,6 +1,7 @@
 ﻿using Composable.Persistence.EventStore;
 // ReSharper disable All
-#pragma warning disable 219
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+#pragma warning disable IDE0051 // Remove unused private members
 
 namespace ScratchPad
 {

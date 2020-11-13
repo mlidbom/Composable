@@ -11,6 +11,7 @@ using NUnit.Framework;
 // ReSharper disable BuiltInTypeReferenceStyle
 // ReSharper disable MemberCanBePrivate.Local we want the inspection of the objects to include all properties...
 // ReSharper disable MemberCanBePrivate.Global
+#pragma warning disable CA1806 // Do not ignore method results
 
 namespace Composable.Tests.Serialization.BinarySerializeds
 {

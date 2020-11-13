@@ -5,8 +5,8 @@
     <PlatformTarget>x64</PlatformTarget>
     <Configurations>Debug;Release</Configurations>
     <Nullable>enable</Nullable>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>AccountManagement</RootNamespace>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>

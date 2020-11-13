@@ -29,9 +29,11 @@ namespace Composable.Contracts
         }
 
         ///<summary>Extracts the returned field,property,argument value from a lambda</summary>
+#pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable 8605
         [return:MaybeNull]public static TValue ExtractValue<TValue>(Expression<Func<TValue>> fetchValue) => (TValue)GetExpressionValue(fetchValue.Body);
 #pragma warning restore 8605
+#pragma warning restore IDE0079 // Remove unnecessary suppression
 
         static object? GetExpressionValue(Expression expression)
         {

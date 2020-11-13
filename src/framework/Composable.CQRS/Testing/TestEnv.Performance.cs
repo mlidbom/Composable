@@ -44,7 +44,9 @@ namespace Composable.Testing
             return 1.0;
         }
 
+#pragma warning disable CA1724 // Type names should not match namespaces
         public static class Performance
+#pragma warning restore CA1724 // Type names should not match namespaces
         {
             public static readonly bool AreOptimizationsDisabled = ((DebuggableAttribute)typeof(TestEnv).Assembly.GetCustomAttribute(typeof(DebuggableAttribute))!).IsJITOptimizerDisabled;
 

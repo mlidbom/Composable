@@ -6,7 +6,6 @@ using System.Threading;
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
-#pragma warning disable CA1001 // Class owns disposable fields but is not disposable
     ///<summary>The monitor class exposes a rather obscure, brittle and easily misused API in my opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
     public partial class MonitorCE
     {

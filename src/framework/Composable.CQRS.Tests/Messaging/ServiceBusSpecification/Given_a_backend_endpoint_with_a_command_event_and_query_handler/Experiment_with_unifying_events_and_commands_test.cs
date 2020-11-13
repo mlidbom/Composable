@@ -17,7 +17,7 @@ using FluentAssertions;
 using NUnit.Framework;
 // ReSharper disable MemberCanBeInternal for testing
 // ReSharper disable InconsistentNaming for testing
-#pragma warning disable IDE1006 //Review OK: Test Naming Styles
+#pragma warning disable CA1724 // Type names should not match namespaces
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {

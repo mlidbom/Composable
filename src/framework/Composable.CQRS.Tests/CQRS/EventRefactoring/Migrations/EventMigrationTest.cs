@@ -258,7 +258,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         [Test]
         public void PersistingMigrationsOfTheSameAggregateMultipleTimes()
         {
-            var emptyMigrationsArray = new IEventMigration[0];
+            var emptyMigrationsArray = Array.Empty<IEventMigration>();
             IReadOnlyList<IEventMigration> migrations = emptyMigrationsArray;
 
             var toDispose = StrictAggregateDisposable.Create();
@@ -336,7 +336,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         [Test]
         public void PersistingMigrationsOfTheSameAggregateMultipleTimesWithEventsAddedInTheMiddleAndAfter()
         {
-            var emptyMigrationsArray = new IEventMigration[0];
+            var emptyMigrationsArray = Array.Empty<IEventMigration>();
             IReadOnlyList<IEventMigration> migrations = emptyMigrationsArray;
 
             var toDispose = StrictAggregateDisposable.Create();
@@ -422,8 +422,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
         [Test]
         public void UpdatingAnAggregateAfterPersistingMigrations()
         {
-            var emptyMigrationsArray = new IEventMigration[0];
-            IReadOnlyList<IEventMigration> migrations = emptyMigrationsArray;
+            IReadOnlyList<IEventMigration> migrations = Array.Empty<IEventMigration>();
 
             var toDispose = StrictAggregateDisposable.Create();
             try

@@ -39,7 +39,7 @@ namespace Composable.SystemCE.DiagnosticsCE
         readonly RangeStats[] _callStats;
         long _totalCalls;
 
-        MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
+        readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
         TimeSpan _totalTime;
         public TimeSpan TotalTime => _totalTime;
         public long TotalCalls => _totalCalls;

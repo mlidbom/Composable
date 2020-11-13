@@ -11,7 +11,7 @@ namespace AccountManagement.UserStories
 {
     public class UserStoryTest : DuplicateByPluggableComponentTest
     {
-        protected ITestingEndpointHost Host;
+        protected ITestingEndpointHost Host { get; set; }
         IEndpoint _clientEndpoint;
         internal AccountScenarioApi Scenario => new AccountScenarioApi(_clientEndpoint);
 

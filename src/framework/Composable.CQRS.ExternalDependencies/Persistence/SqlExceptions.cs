@@ -26,13 +26,13 @@ namespace Composable.Persistence
             internal static bool IsPrimaryKeyViolation(DB2Exception exception) => (exception.Errors.Cast<DB2Error>().Any(error => error.SQLState == PrimaryKeyViolationSqlState));
 
             //Todo: Properly implement this.
-            public static bool IsUniqueConstraintViolation_TODO(DB2Exception exception) => false;
+            public static bool IsUniqueConstraintViolation_TODO(DB2Exception _) => false;
         }
 
         internal static class Oracle
         {
             //Todo: Implement IsPrimaryKeyViolation for oracle.
-            internal static bool IsPrimaryKeyViolation_TODO(OracleException e) => false;
+            internal static bool IsPrimaryKeyViolation_TODO(OracleException _) => false;
         }
 
         internal static class MySql

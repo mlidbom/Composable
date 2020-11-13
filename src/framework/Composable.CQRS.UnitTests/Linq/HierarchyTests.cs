@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.GenericAbstractions.Hierarchies;
@@ -11,7 +12,7 @@ namespace Composable.Tests.Linq
     {
         class Hierarchical
         {
-            public Hierarchical[] Children = new Hierarchical[0];
+            public Hierarchical[] Children = Array.Empty<Hierarchical>();
         }
 
         [Test]

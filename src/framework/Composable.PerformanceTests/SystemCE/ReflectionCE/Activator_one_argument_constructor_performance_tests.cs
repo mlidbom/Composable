@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using NUnit.Framework;
 
 #pragma warning disable IDE1006 //Review OK: Test Naming Styles
+#pragma warning disable CA1806  // Do not ignore method results
 
 namespace Composable.Tests.SystemCE.ReflectionCE
 {
@@ -20,7 +21,9 @@ namespace Composable.Tests.SystemCE.ReflectionCE
         [UsedImplicitly] class Simple
         {
 #pragma warning disable IDE0060 //Review OK: unused parameter is intentional
+#pragma warning disable CA1801 // Review unused parameters
             public Simple(string arg1){}
+#pragma warning restore CA1801 // Review unused parameters
 #pragma warning restore IDE0060 // Remove unused parameter
         }
 

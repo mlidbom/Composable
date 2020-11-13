@@ -30,14 +30,14 @@ namespace Composable.Persistence.Common.AdoCE
                 _createConnection = createConnection;
             }
 
-            static TimingsStatisticsCollector _subsequentOpenings = StopwatchCE.CreateCollector("Non-First connection openings",
-                                                                                                1.Milliseconds(),
-                                                                                                2.Milliseconds(),
-                                                                                                3.Milliseconds(),
-                                                                                                4.Milliseconds(),
-                                                                                                5.Milliseconds(),
-                                                                                                10.Milliseconds(),
-                                                                                                20.Milliseconds()
+            static readonly TimingsStatisticsCollector SubsequentOpenings = StopwatchCE.CreateCollector("Non-First connection openings",
+                                                                                                         1.Milliseconds(),
+                                                                                                         2.Milliseconds(),
+                                                                                                         3.Milliseconds(),
+                                                                                                         4.Milliseconds(),
+                                                                                                         5.Milliseconds(),
+                                                                                                         10.Milliseconds(),
+                                                                                                         20.Milliseconds()
             );
 
             static int _openings = 0;
@@ -58,7 +58,7 @@ namespace Composable.Persistence.Common.AdoCE
                     //Remember, this includes cleaning databases, creating tables, inserting data, reading the data etc.
                     //This is in other words probably less than 1ms per connection usage that will make at least one
                     //roundtrip to the db server in any case, likely eclipsing 1ms.
-                    await _subsequentOpenings.TimeAsyncFlex(syncOrAsync, connection.OpenAsyncFlex).NoMarshalling();
+                    await SubsequentOpenings.TimeAsyncFlex(syncOrAsync, connection.OpenAsyncFlex).NoMarshalling();
                 }
                 return connection;
             }

@@ -3,6 +3,7 @@
 // ReSharper disable MemberHidesStaticFromOuterClass
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Refactoring.Naming;
@@ -21,7 +22,9 @@ namespace Composable.Messaging
 
             internal class EndpointInformation
             {
-                [UsedImplicitly][JsonConstructor]EndpointInformation(string name, EndpointId id, HashSet<TypeId> handledMessageTypes)
+#pragma warning disable IDE0051 // Remove unused private members
+                [JsonConstructor]EndpointInformation(string name, EndpointId id, HashSet<TypeId> handledMessageTypes)
+#pragma warning restore IDE0051 // Remove unused private members
                 {
                     Name = name;
                     Id = id;

@@ -6,7 +6,9 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
     public class EnterLockTimeoutException : Exception
     {
         // ReSharper disable once FieldCanBeMadeReadOnly.Local (Actually our tests that temporarily changes this through reflection stops working if it is readonly....)
+#pragma warning disable IDE0044 // Add readonly modifier. This is modified via reflection in a test.
         static TimeSpan _timeToWaitForOwningThreadStacktrace = 30.Seconds();
+#pragma warning restore IDE0044 // Add readonly modifier
 
         readonly MonitorCE _monitor = MonitorCE.WithDefaultTimeout();
 

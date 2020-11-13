@@ -1,4 +1,5 @@
-﻿using AccountManagement.Domain;
+﻿using System.Diagnostics.CodeAnalysis;
+using AccountManagement.Domain;
 using AccountManagement.Domain.Passwords;
 using Composable.DDD;
 using Newtonsoft.Json;
@@ -7,7 +8,9 @@ namespace AccountManagement.API
 {
     public partial class AccountResource : Entity<AccountResource>
     {
-        [JsonConstructor] AccountResource(Email email, Password password, CommandsCollection commands)
+#pragma warning disable IDE0051 // Remove unused private members
+        [JsonConstructor]AccountResource(Email email, Password password, CommandsCollection commands)
+#pragma warning restore IDE0051 // Remove unused private members
         {
             Email = email;
             Password = password;

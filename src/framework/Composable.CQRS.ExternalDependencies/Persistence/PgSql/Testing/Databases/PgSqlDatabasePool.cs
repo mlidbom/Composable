@@ -44,7 +44,7 @@ namespace Composable.Persistence.PgSql.Testing.Databases
             //ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
 
             ResetConnectionPool(db);
-            var exists = (string)_masterConnectionPool.ExecuteScalar($"SELECT datname FROM pg_database WHERE datname = '{databaseName.ToLowerInvariant()}'");
+            var exists = (string?)_masterConnectionPool.ExecuteScalar($"SELECT datname FROM pg_database WHERE datname = '{databaseName.ToLowerInvariant()}'");
             if (!exists.IsNullOrEmpty())
             {
                 ResetDatabase(db);

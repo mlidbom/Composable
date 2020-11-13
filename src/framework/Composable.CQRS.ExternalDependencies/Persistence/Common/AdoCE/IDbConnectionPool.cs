@@ -31,7 +31,7 @@ namespace Composable.Persistence.Common.AdoCE
         public int ExecuteNonQuery(string commandText) =>
             UseConnection(connection => connection.ExecuteNonQuery(commandText));
 
-        public object ExecuteScalar(string commandText) =>
+        public object? ExecuteScalar(string commandText) =>
             UseConnection(connection => connection.ExecuteScalar(commandText));
 
         public async Task<int> ExecuteNonQueryAsync(string commandText) =>
@@ -40,7 +40,7 @@ namespace Composable.Persistence.Common.AdoCE
         public int PrepareAndExecuteNonQuery(string commandText) =>
             UseConnection(connection => connection.PrepareAndExecuteNonQuery(commandText));
 
-        public object PrepareAndExecuteScalar(string commandText) =>
+        public object? PrepareAndExecuteScalar(string commandText) =>
             UseConnection(connection => connection.PrepareAndExecuteScalar(commandText));
 
         public async Task<int> PrepareAndExecuteNonQueryAsync(string commandText) =>

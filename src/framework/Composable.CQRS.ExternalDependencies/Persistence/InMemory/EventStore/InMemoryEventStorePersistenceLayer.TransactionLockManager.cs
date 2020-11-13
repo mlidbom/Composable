@@ -43,7 +43,7 @@ namespace Composable.Persistence.InMemory.EventStore
                         return;
                     }
 
-                    var currentTransactionId = Transaction.Current.TransactionInformation.LocalIdentifier;
+                    var currentTransactionId = Transaction.Current!.TransactionInformation.LocalIdentifier;
                     if(currentTransactionId != OwningTransactionLocalId)
                     {
                         var @lock = Guard.EnterUpdateLock();

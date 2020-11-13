@@ -18,7 +18,7 @@ namespace Composable.Persistence.InMemory.ServiceBus
         public void SaveMessage(Guid messageId, Guid typeId, string serializedMessage) => _implementation.Update(@this => @this.SaveMessage(messageId, typeId, serializedMessage));
 
         public void MarkAsSucceeded(Guid messageId)
-            => Transaction.Current.AddCommitTasks(() => _implementation.Update(@this => @this.MarkAsSucceeded(messageId)));
+            => Transaction.Current!.AddCommitTasks(() => _implementation.Update(@this => @this.MarkAsSucceeded(messageId)));
 
         public int RecordException(Guid messageId, string exceptionStackTrace, string exceptionMessage, string exceptionType)
             => _implementation.Update(@this => @this.RecordException(messageId, exceptionStackTrace, exceptionMessage, exceptionType));

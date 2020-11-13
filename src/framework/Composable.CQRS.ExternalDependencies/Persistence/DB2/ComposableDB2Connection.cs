@@ -29,7 +29,7 @@ namespace Composable.Persistence.DB2
 
                 _transactionParticipant = new OptimizedLazy<VolatileLambdaTransactionParticipant>(
                     () => new VolatileLambdaTransactionParticipant(
-                        onEnlist: () => _db2Transaction = Connection.BeginTransaction(Transaction.Current.IsolationLevel.ToDataIsolationLevel()),
+                        onEnlist: () => _db2Transaction = Connection.BeginTransaction(Transaction.Current!.IsolationLevel.ToDataIsolationLevel()),
                         onCommit: () => _db2Transaction!.Commit(),
                         onRollback: () => _db2Transaction!.Rollback(),
                         onTransactionCompleted: _ =>

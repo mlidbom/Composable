@@ -58,8 +58,8 @@ namespace AccountManagement
             TimeAsserter.ExecuteThreaded(description: "Log in to account",
                                          action: () =>
                                          {
-                                             var account = accountsReader.Next();
-                                             _scenarioApi.Login(account.Email, account.Password).Execute().Succeeded.Should().BeTrue();
+                                             var (email, password, _) = accountsReader.Next();
+                                             _scenarioApi.Login(email, password).Execute().Succeeded.Should().BeTrue();
                                          },
                                          iterations: logins,
                                          maxTotal: 20.Milliseconds());

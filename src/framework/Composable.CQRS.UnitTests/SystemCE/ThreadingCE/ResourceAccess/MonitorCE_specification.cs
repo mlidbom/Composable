@@ -58,23 +58,23 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
             [Test] public void Exception_is_ObjectLockTimedOutException()
                 => RunWithChangedStackTraceTimeout(
                     fetchStackTraceTimeout: 60.Milliseconds(),
-                    () => RunScenario(ownerThreadWaitTime:15.Milliseconds(), monitorTimeout:5.Milliseconds()).Should().BeOfType<EnterLockTimeoutException>());
+                    () => RunScenario(ownerThreadBlockTime:15.Milliseconds(), monitorTimeout:5.Milliseconds()).Should().BeOfType<EnterLockTimeoutException>());
 
-            [Test] public void If_owner_thread_blocks_for_less_than_stackTrace_timeout_Exception_contains_owning_threads_stack_trace()
+            [Test] public void If_owner_thread_blocks_for_less_than_fetchStackTraceTimeout_Exception_contains_owning_threads_stack_trace()
                 => RunWithChangedStackTraceTimeout(
                     fetchStackTraceTimeout: 60.Milliseconds(),
-                    () => RunScenario(ownerThreadWaitTime: 15.Milliseconds(), monitorTimeout: 5.Milliseconds()).Message.Should().Contain(nameof(DisposeOwningThreadLock)));
+                    () => RunScenario(ownerThreadBlockTime: 15.Milliseconds(), monitorTimeout: 5.Milliseconds()).Message.Should().Contain(nameof(DisposeOwningThreadLock)));
 
-            [Test] public void If_owner_thread_blocks_for_more_than_stacktrace_timeout__Exception_does_not_contain_owning_threads_stack_trace()
+            [Test] public void If_owner_thread_blocks_for_more_than_fetchStackTraceTimeout_Exception_does_not_contain_owning_threads_stack_trace()
             {
                 RunWithChangedStackTraceTimeout(
                     fetchStackTraceTimeout: 10.Milliseconds(),
-                    () => RunScenario(ownerThreadWaitTime:20.Milliseconds(), monitorTimeout: 5.Milliseconds()).Message.Should().NotContain(nameof(DisposeOwningThreadLock)));
+                    () => RunScenario(ownerThreadBlockTime:20.Milliseconds(), monitorTimeout: 5.Milliseconds()).Message.Should().NotContain(nameof(DisposeOwningThreadLock)));
             }
 
             internal static void DisposeOwningThreadLock(IDisposable disposable) => disposable.Dispose();
 
-            static Exception RunScenario(TimeSpan ownerThreadWaitTime, TimeSpan monitorTimeout)
+            static Exception RunScenario(TimeSpan ownerThreadBlockTime, TimeSpan monitorTimeout)
             {
                 var resourceGuard = MonitorCE.WithTimeout(monitorTimeout);
 
@@ -86,7 +86,7 @@ namespace Composable.Tests.SystemCE.ThreadingCE.ResourceAccess
                     var @lock = resourceGuard.EnterUpdateLock();
                     hasTakenLock.Set();
                     isAwaitingLock.WaitOne();
-                    Thread.Sleep(ownerThreadWaitTime);
+                    Thread.Sleep(ownerThreadBlockTime);
                     DisposeOwningThreadLock(@lock);
                 });
 

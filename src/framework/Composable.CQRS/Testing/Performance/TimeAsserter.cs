@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.Logging;
@@ -95,7 +96,9 @@ namespace Composable.Testing.Performance
                 if(failureMessage.Length > 0)
                 {
                     if(tries >= maxTries) throw new TimeOutException(failureMessage);
-                    ConsoleCE.WriteWarningLine($"Try: {tries} {failureMessage}");
+                    var waitTime = Math.Min(Math.Pow(2, tries), 50) * 100.Milliseconds();//Back off on retries exponentially starting with 100ms, but only up to a maximum wait time of 5 seconds between retries.
+                    ConsoleCE.WriteWarningLine($"Try: {tries} {failureMessage}, waiting {waitTime.FormatReadable()} before next attempt");
+                    Thread.Sleep(waitTime);
                     continue;
                 }
 

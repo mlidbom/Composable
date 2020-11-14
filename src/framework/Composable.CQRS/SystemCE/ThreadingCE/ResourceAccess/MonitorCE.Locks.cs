@@ -3,9 +3,7 @@
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {
     ///<summary>The monitor class exposes a rather horrifying API in my humble opinion. This class attempts to adapt it to something that is reasonably understandable and less brittle.</summary>
-#pragma warning disable CA1001 // Types that own disposable fields should be disposable, these fields hold no reference to anything but this instance. They are disposable only to enable non-allocating use of the using statement to manage locking.
     public partial class MonitorCE
-#pragma warning restore CA1001 // Types that own disposable fields should be disposable
     {
         internal Lock EnterLock()
         {

@@ -6,7 +6,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
     {
         public static MonitorCE WithDefaultTimeout() => new MonitorCE(DefaultTimeout);
         public static MonitorCE WithInfiniteTimeout() => new MonitorCE(InfiniteTimeout);
-        public static MonitorCE WithTimeout(TimeSpan defaultTimeout) => new MonitorCE(defaultTimeout);
+        public static MonitorCE WithTimeout(TimeSpan timeout) => new MonitorCE(timeout);
 
         int _waitingThreadCount;
         readonly object _lockObject = new object();

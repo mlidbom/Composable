@@ -48,7 +48,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
         {
             var acquiredLockStartingWait = false;
 
-            bool AllowReentrancyCondition()
+            bool CheckConditionWhileAllowingReentrancy()
             {
                 try
                 {
@@ -68,7 +68,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                     Enter(DefaultTimeout);
                     acquiredLockStartingWait = true;
                     Interlocked.Increment(ref _waitingThreadCount);
-                    while(!AllowReentrancyCondition()) Wait(InfiniteTimeout);
+                    while(!CheckConditionWhileAllowingReentrancy()) Wait(InfiniteTimeout);
                 } else
                 {
                     var startTime = DateTime.UtcNow;
@@ -76,7 +76,7 @@ namespace Composable.SystemCE.ThreadingCE.ResourceAccess
                     acquiredLockStartingWait = true;
                     Interlocked.Increment(ref _waitingThreadCount);
 
-                    while(!AllowReentrancyCondition())
+                    while(!CheckConditionWhileAllowingReentrancy())
                     {
                         var elapsedTime = DateTime.UtcNow - startTime;
                         var timeRemaining = conditionTimeout - elapsedTime;

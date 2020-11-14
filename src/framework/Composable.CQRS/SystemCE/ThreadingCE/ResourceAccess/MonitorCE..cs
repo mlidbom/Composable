@@ -1,8 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
+
+//An attribute is used rather than a pragma because the roslyn analyzers are confused by the multiple files of this partial class and keep calling
+//the pragma redundant and still showing the warning about disposable fields. After moving the pragma to the file the analyzer wanted it in this
+//time the warning goes away, only to come back with the next restart of visual studio
+[assembly: SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable",
+                           Justification = "By creating the locks only once in the constructor usages become zero-allocation operations. By always referencing them by the concrete type inlining remains possible.",
+                           Scope = "type",
+                           Target = "~T:Composable.SystemCE.ThreadingCE.ResourceAccess.MonitorCE")]
 
 namespace Composable.SystemCE.ThreadingCE.ResourceAccess
 {

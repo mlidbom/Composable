@@ -78,6 +78,24 @@
       <Value>SystemCE\TransactionsCE\TransactionScopeCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-21</Value>
       <Value>Persistence\DB2\Messaging\Buses\Implementation\DB2InboxPersistenceLayer.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-93</Value>
       <Value>Messaging\Buses\Implementation\Inbox.MessageStorage.cs:framework\Composable.CQRS\Composable.CQRS.csproj-38</Value>
+      <Value>SystemCE\ThreadingCE\ResourceAccess\MonitorCE.Functional.Awaiting.cs:framework\Composable.CQRS\Composable.CQRS.csproj-103</Value>
+      <Value>SystemCE\ThreadingCE\ResourceAccess\MonitorCE.Functional.Awaiting.cs:framework\Composable.CQRS\Composable.CQRS.csproj-70</Value>
+      <Value>SystemCE\ThreadingCE\ResourceAccess\ThreadShared.cs:framework\Composable.CQRS\Composable.CQRS.csproj-56</Value>
+      <Value>SystemCE\ThreadingCE\ResourceAccess\MonitorCE.Functional.Awaiting.cs:framework\Composable.CQRS\Composable.CQRS.csproj-28</Value>
+      <Value>SystemCE\ThreadingCE\ResourceAccess\MonitorCE.Functional.Awaiting.cs:framework\Composable.CQRS\Composable.CQRS.csproj-16</Value>
+      <Value>SystemCE\ThreadingCE\ResourceAccess\MonitorCE.Functional.Awaiting.cs:framework\Composable.CQRS\Composable.CQRS.csproj-20</Value>
+      <Value>SystemCE\ThreadingCE\TasksCE\TaskCE.Run.cs:framework\Composable.CQRS\Composable.CQRS.csproj-19</Value>
+      <Value>Persistence\MsSql\SystemExtensions\MsSqlConnectionPool.cs:framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj-32</Value>
+      <Value>SystemCE\ThreadingCE\ResourceAccess\MonitorCE.Functional..cs:framework\Composable.CQRS\Composable.CQRS.csproj-21</Value>
+      <Value>SystemCE\ThreadingCE\ResourceAccess\MonitorCE.Functional.Awaiting.cs:framework\Composable.CQRS\Composable.CQRS.csproj-12</Value>
+      <Value>SystemCE\ThreadingCE\ResourceAccess\MonitorCE.Functional.Awaiting.cs:framework\Composable.CQRS\Composable.CQRS.csproj-40</Value>
+      <Value>SystemCE\OptimizedLazy.cs:framework\Composable.CQRS\Composable.CQRS.csproj-17</Value>
+      <Value>SystemCE\ThreadingCE\ResourceAccess\MonitorCE.Functional.Awaiting.cs:framework\Composable.CQRS\Composable.CQRS.csproj-88</Value>
+      <Value>SystemCE\ThreadingCE\ResourceAccess\MonitorCE.Functional.Awaiting.cs:framework\Composable.CQRS\Composable.CQRS.csproj-8</Value>
+      <Value>Testing\Threading\ThreadGate.cs:framework\Composable.CQRS\Composable.CQRS.csproj-88</Value>
+      <Value>SystemCE\ThreadingCE\SyncOrAsync.cs:framework\Composable.CQRS\Composable.CQRS.csproj-16</Value>
+      <Value>SystemCE\DiagnosticsCE\StopwatchCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-28</Value>
+      <Value>SystemCE\DiagnosticsCE\StopwatchCE.cs:framework\Composable.CQRS\Composable.CQRS.csproj-20</Value>
     </HotSpotsLineExclusionList>
     <InstrumentationMode>Optimised</InstrumentationMode>
     <SlidingBuildDelayInMilliseconds>1000</SlidingBuildDelayInMilliseconds>

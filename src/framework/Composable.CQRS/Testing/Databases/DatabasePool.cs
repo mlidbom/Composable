@@ -6,11 +6,9 @@ using Composable.Contracts;
 using Composable.Logging;
 using Composable.Persistence;
 using Composable.SystemCE;
-using Composable.SystemCE.LinqCE;
 using Composable.SystemCE.ReflectionCE;
 using Composable.SystemCE.ThreadingCE;
 using Composable.SystemCE.ThreadingCE.ResourceAccess;
-using Composable.SystemCE.ThreadingCE.TasksCE;
 using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Testing.Databases
@@ -62,10 +60,7 @@ namespace Composable.Testing.Databases
             var timeoutAt = startTime + 45.Seconds();
             while(reservedDatabase == null)
             {
-                if(DateTime.Now > timeoutAt)
-                {
-                    throw new Exception("Timed out waiting for database. Have you missed disposing a database pool? Please check your logs for errors about non-disposed pools.");
-                }
+                if(DateTime.Now > timeoutAt) throw new Exception("Timed out waiting for database. Have you missed disposing a database pool? Please check your logs for errors about non-disposed pools.");
 
                 MachineWideState.Update(
                     machineWide =>
@@ -74,8 +69,6 @@ namespace Composable.Testing.Databases
                         {
                             Log.Info($"Reserved pool database: {reservedDatabase.Name}");
                             _transientCache = machineWide.DatabasesReservedBy(_poolId);
-                            //Todo:My tests so far show no performance increase from enabling this. Maybe if we used async all the way so hardly any threads were used? If we don't see an meaningful improvement. Remove this method.
-                            //CleanDataBasesInBackgroundTasks(machineWide);
                         }
                     });
 
@@ -85,58 +78,28 @@ namespace Composable.Testing.Databases
                 }
             }
 
-            if(!reservedDatabase!.IsClean)
+            try
             {
-                try
-                {
-                    TransactionScopeCe.SuppressAmbient(() => ResetDatabase(reservedDatabase));
-                }
-                catch(Exception exception)
-                {
-                    Log.Error(exception);
-                    EnsureDatabaseExistsAndIsEmpty(reservedDatabase);
-                }
+                TransactionScopeCe.SuppressAmbient(() => ResetDatabase(reservedDatabase));
+            }
+            catch(Exception exception)
+            {
+                Log.Error(exception);
+                EnsureDatabaseExistsAndIsEmpty(reservedDatabase);
             }
 
             return ConnectionStringFor(reservedDatabase);
         });
 
-        static readonly string BackgroundResetDatabaseTaskName = $"{nameof(DatabasePool)}_{nameof(CleanDataBasesInBackgroundTasks)}";
-        void CleanDataBasesInBackgroundTasks(SharedState machineWide)
-        {
-            machineWide.ReserveDatabasesForCleaning(_poolId)
-                       .ForEach(reserved =>
-                        {
-                            TaskCE.Run(BackgroundResetDatabaseTaskName,
-                                       () =>
-                                       {
-                                           //We are being a bit tricky here. The databases are reserved by this instance so that when it is disposed so are their reservations.
-                                           //That way we don't leave our reservations around when we don't have time to clean them before the test runner terminates.
-                                           //But that means we must be careful not to mess with databases that have been released when this pool was disposed.
-                                           using(_disposeMonitor.EnterUpdateLock())
-                                           {
-                                               if(!_disposed)
-                                               {
-                                                   TransactionScopeCe.SuppressAmbient(() => ResetDatabase(reserved));
-                                                   MachineWideState.Update(innerMachineWide => innerMachineWide.ReleaseClean(reserved.ReservationName));
-                                               }
-                                           }
-                                       });
-                        });
-        }
-
         protected abstract void ResetDatabase(Database db);
 
         protected abstract string ConnectionStringFor(Database db);
 
-        readonly MonitorCE _disposeMonitor = MonitorCE.WithDefaultTimeout();
         protected override void Dispose(bool disposing)
         {
-            using(_disposeMonitor.EnterUpdateLock())
-            {
-                if(_disposed) return;
-                _disposed = true;
-            }
+            if(_disposed) return;
+            _disposed = true;
+
 
             MachineWideState.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
             MachineWideState.Dispose();

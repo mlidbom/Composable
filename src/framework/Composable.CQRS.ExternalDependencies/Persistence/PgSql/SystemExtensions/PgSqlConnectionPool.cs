@@ -25,7 +25,7 @@ namespace Composable.Persistence.PgSql.SystemExtensions
                     () =>
                     {
                         var connectionString = getConnectionString();
-                        return DbConnectionPool<IComposableNpgsqlConnection, NpgsqlCommand>.ForConnectionString(
+                        return DbConnectionManager<IComposableNpgsqlConnection, NpgsqlCommand>.ForConnectionString(
                             connectionString,
                             PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction,
                             IComposableNpgsqlConnection.Create);

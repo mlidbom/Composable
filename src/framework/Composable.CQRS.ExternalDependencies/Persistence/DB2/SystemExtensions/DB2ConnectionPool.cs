@@ -22,7 +22,7 @@ namespace Composable.Persistence.DB2.SystemExtensions
                     () =>
                     {
                         var connectionString = getConnectionString();
-                        return DbConnectionPool<IComposableDB2Connection, DB2Command>.ForConnectionString(
+                        return DbConnectionManager<IComposableDB2Connection, DB2Command>.ForConnectionString(
                             connectionString,
                             PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction,
                             IComposableDB2Connection.Create);

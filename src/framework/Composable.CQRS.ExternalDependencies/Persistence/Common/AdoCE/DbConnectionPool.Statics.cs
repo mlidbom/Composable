@@ -6,7 +6,7 @@ using Composable.SystemCE.ThreadingCE.ResourceAccess;
 
 namespace Composable.Persistence.Common.AdoCE
 {
-    abstract partial class DbConnectionPool<TConnection, TCommand>
+    abstract partial class DbConnectionManager<TConnection, TCommand>
         where TConnection : IPoolableConnection, IComposableDbConnection<TCommand>
         where TCommand : DbCommand
     {
@@ -18,7 +18,7 @@ namespace Composable.Persistence.Common.AdoCE
 
         static IDbConnectionPool<TConnection, TCommand> Create(string connectionString, PoolableConnectionFlags flags, Func<string, TConnection> createConnection) =>
             flags.HasFlag(PoolableConnectionFlags.MustUseSameConnectionThroughoutATransaction)
-                ? new TransactionAffinityDbConnectionPool(connectionString, createConnection)
-                : new DefaultDbConnectionPool(connectionString, createConnection);
+                ? new TransactionAffinityDbConnectionManager(connectionString, createConnection)
+                : new DefaultDbConnectionManager(connectionString, createConnection);
     }
 }

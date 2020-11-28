@@ -22,7 +22,7 @@ namespace Composable.Persistence.Oracle.SystemExtensions
                     () =>
                     {
                         var connectionString = getConnectionString();
-                        return DbConnectionPool<IComposableOracleConnection, OracleCommand>.ForConnectionString(
+                        return DbConnectionManager<IComposableOracleConnection, OracleCommand>.ForConnectionString(
                             connectionString,
                             PoolableConnectionFlags.Defaults,
                             IComposableOracleConnection.Create);

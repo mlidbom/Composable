@@ -22,7 +22,7 @@ namespace Composable.Persistence.MySql.SystemExtensions
                     () =>
                     {
                         var connectionString = getConnectionString();
-                        return DbConnectionPool<IComposableMySqlConnection, MySqlCommand>.ForConnectionString(
+                        return DbConnectionManager<IComposableMySqlConnection, MySqlCommand>.ForConnectionString(
                             connectionString,
                             PoolableConnectionFlags.Defaults,
                             IComposableMySqlConnection.Create);

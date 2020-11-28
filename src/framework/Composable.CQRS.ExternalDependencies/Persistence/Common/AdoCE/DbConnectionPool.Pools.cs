@@ -15,16 +15,16 @@ using Composable.SystemCE.TransactionsCE;
 
 namespace Composable.Persistence.Common.AdoCE
 {
-    abstract partial class DbConnectionPool<TConnection, TCommand>
+    abstract partial class DbConnectionManager<TConnection, TCommand>
         where TConnection : IPoolableConnection, IComposableDbConnection<TCommand>
         where TCommand : DbCommand
     {
-        class DefaultDbConnectionPool : DbConnectionPool<TConnection, TCommand>, IDbConnectionPool<TConnection, TCommand>
+        class DefaultDbConnectionManager : DbConnectionManager<TConnection, TCommand>, IDbConnectionPool<TConnection, TCommand>
         {
             readonly string _connectionString;
             readonly Func<string, TConnection> _createConnection;
 
-            public DefaultDbConnectionPool(string connectionString, Func<string, TConnection> createConnection)
+            public DefaultDbConnectionManager(string connectionString, Func<string, TConnection> createConnection)
             {
                 _connectionString = connectionString;
                 _createConnection = createConnection;
@@ -71,12 +71,12 @@ namespace Composable.Persistence.Common.AdoCE
             }
         }
 
-        class TransactionAffinityDbConnectionPool : DefaultDbConnectionPool
+        class TransactionAffinityDbConnectionManager : DefaultDbConnectionManager
         {
             readonly IThreadShared<Dictionary<string, Task<TConnection>>> _transactionConnections =
                  ThreadShared.WithDefaultTimeout<Dictionary<string, Task<TConnection>>>();
 
-            public TransactionAffinityDbConnectionPool(string connectionString, Func<string, TConnection> createConnection) : base(connectionString, createConnection) {}
+            public TransactionAffinityDbConnectionManager(string connectionString, Func<string, TConnection> createConnection) : base(connectionString, createConnection) {}
 
             public override async Task<TResult> UseConnectionAsyncFlex<TResult>(SyncOrAsync syncOrAsync, Func<TConnection, Task<TResult>> func)
             {

@@ -105,7 +105,7 @@
     <EngineMode>
       <Name>Run all tests automatically except Performance tests.</Name>
       <Settings>
-        <TestsToExecuteAutomatically>(True AND DoesNotHaveCategory 'Performance')</TestsToExecuteAutomatically>
+        <TestsToExecuteAutomatically>DoesNotHaveCategory 'Performance'</TestsToExecuteAutomatically>
       </Settings>
     </EngineMode>
   </EngineModes>

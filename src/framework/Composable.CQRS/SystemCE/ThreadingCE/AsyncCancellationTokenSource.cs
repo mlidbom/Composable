@@ -24,7 +24,7 @@ namespace Composable.SystemCE.ThreadingCE
 
         public bool IsCancellationRequested => _source.IsCancellationRequested;
 
-        static readonly string CancelAsyncTaskName = $"{nameof(AsyncCancellationTokenSource)}_{nameof(CancelAsync)}";
+        const string CancelAsyncTaskName = $"{nameof(AsyncCancellationTokenSource)}_{nameof(CancelAsync)}";
         public Task CancelAsync()
         {
             if(HasOrHasHadCallbacks)

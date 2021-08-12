@@ -32,7 +32,7 @@ namespace Composable.Testing.Databases
             MachineWideState = MachineWideSharedObject<SharedState>.For(GetType().GetFullNameCompilable().ReplaceInvariant(".", "_"), usePersistentFile: true);
         }
 
-        static readonly string PoolDatabaseNamePrefix = $"Composable_{nameof(DatabasePool)}_";
+        const string PoolDatabaseNamePrefix = $"Composable_{nameof(DatabasePool)}_";
 
         readonly MonitorCE _guard = MonitorCE.WithTimeout(30.Seconds());
         readonly Guid _poolId = Guid.NewGuid();

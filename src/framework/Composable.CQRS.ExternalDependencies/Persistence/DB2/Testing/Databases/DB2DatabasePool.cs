@@ -82,7 +82,7 @@ namespace Composable.Persistence.DB2.Testing.Databases
         }
 
         const string SchemaParameterName = "Schema";
-        static readonly string GetRemovalStatementsSql = $@"
+        const string GetRemovalStatementsSql = $@"
 
 SELECT CREATE_TIME, 
     'DROP ' || CASE TYPE

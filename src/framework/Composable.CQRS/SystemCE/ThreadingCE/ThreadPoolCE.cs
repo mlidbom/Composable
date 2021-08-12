@@ -8,7 +8,7 @@ namespace Composable.SystemCE.ThreadingCE
 {
     static class ThreadPoolCE
     {
-        static readonly string FakeTaskName = $"{nameof(ThreadPoolCE)}_{nameof(TryToEnsureSufficientIdleThreadsToRunTasksConcurrently)}";
+        const string FakeTaskName = $"{nameof(ThreadPoolCE)}_{nameof(TryToEnsureSufficientIdleThreadsToRunTasksConcurrently)}";
         internal static void TryToEnsureSufficientIdleThreadsToRunTasksConcurrently(int threadCount)
         {
             for(int tries = 1; Idle <= threadCount && tries < 5; tries++)

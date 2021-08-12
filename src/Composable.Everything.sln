@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29324.140
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31606.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.CQRS", "framework\Composable.CQRS\Composable.CQRS.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
 EndProject
@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packaging", "Packaging", "{
 	ProjectSection(SolutionItems) = preProject
 		buildpackages.ps1 = buildpackages.ps1
 		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
+		global.json = global.json
 	EndProjectSection
 EndProject
 Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "SandcastleDocumentation", "framework\SandcastleDocumentation\SandcastleDocumentation.shfbproj", "{467A4F57-7791-4771-B7FC-0EEAD508723D}"
@@ -56,7 +57,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.UnitTests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.PerformanceTests", "framework\Composable.PerformanceTests\Composable.PerformanceTests.csproj", "{344011D3-F89F-492D-8B7D-E0370B43FE73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.PerformanceTests", "Samples\AccountManagement\AccountManagement.PerformanceTests\AccountManagement.PerformanceTests.csproj", "{93A102B8-E522-4994-B40B-F827FF7D92EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.PerformanceTests", "Samples\AccountManagement\AccountManagement.PerformanceTests\AccountManagement.PerformanceTests.csproj", "{93A102B8-E522-4994-B40B-F827FF7D92EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

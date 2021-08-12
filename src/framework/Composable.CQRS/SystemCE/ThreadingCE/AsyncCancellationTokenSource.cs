@@ -11,7 +11,7 @@ namespace Composable.SystemCE.ThreadingCE
     //Hack to implement the suggested framework fix from here: https://github.com/dotnet/runtime/issues/23405 so that calling cancel on a CancellationTokenSource does not call registrations synchronously.
     sealed class AsyncCancellationTokenSource : IDisposable
     {
-        static readonly Func<CancellationTokenSource, IEnumerable?> GetCallbackPartitionsAsObject = CreateCallbackPartitionsAccessor();
+        static readonly Func<CancellationTokenSource, object?> GetCallbackPartitionsAsObject = CreateCallbackPartitionsAccessor();
         readonly CancellationTokenSource _source;
 
         public AsyncCancellationTokenSource() => _source = new CancellationTokenSource();
@@ -43,17 +43,17 @@ namespace Composable.SystemCE.ThreadingCE
 
         public void Dispose() => _source.Dispose();
 
-        static Func<CancellationTokenSource, IEnumerable> CreateCallbackPartitionsAccessor()
+        static Func<CancellationTokenSource, object> CreateCallbackPartitionsAccessor()
         {
-            FieldInfo callbackPartitionsField = typeof(CancellationTokenSource).GetField("_callbackPartitions", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+            FieldInfo callbackPartitionsField = typeof(CancellationTokenSource).GetField("_registrations", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                                              ?? throw new Exception("Failed to find the internal field:_callbackPartitions. You may be running a different version of .Net than this hack supports.");
 
             var cancellationTokenSource = Expression.Parameter(typeof(CancellationTokenSource), "cancellationTokenSource");
 
-            return Expression.Lambda<Func<CancellationTokenSource, IEnumerable>>(
+            return Expression.Lambda<Func<CancellationTokenSource, object>>(
                 Expression.Convert(
                     Expression.Field(cancellationTokenSource, callbackPartitionsField),
-                    typeof(IEnumerable)),
+                    typeof(object)),
                 cancellationTokenSource).Compile();
         }
     }

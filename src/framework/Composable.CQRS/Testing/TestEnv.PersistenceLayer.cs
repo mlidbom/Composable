@@ -26,7 +26,7 @@ namespace Composable.Testing
                 }
             }
 
-            public static TValue ValueFor<TValue>(TValue db2 = default, TValue memory = default, TValue msSql = default, TValue mySql = default, TValue orcl = default, TValue pgSql = default)
+            public static TValue ValueFor<TValue>(TValue db2 = default!, TValue memory = default!, TValue msSql = default!, TValue mySql = default!, TValue orcl = default!, TValue pgSql = default!)
                 =>
                     Current switch
                     {

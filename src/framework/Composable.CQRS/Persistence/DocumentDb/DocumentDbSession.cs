@@ -103,7 +103,7 @@ namespace Composable.Persistence.DocumentDb
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
-            if(TryGet(key, out TValue value)) return value;
+            if(TryGet(key, out TValue? value)) return Contract.ReturnNotNull(value);
 
             throw new NoSuchDocumentException(key, typeof(TValue));
         }
@@ -112,7 +112,7 @@ namespace Composable.Persistence.DocumentDb
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _transactionParticipant.EnsureEnlistedInAnyAmbientTransaction();
-            if(TryGetInternal(key, typeof(TValue), out TValue value, useUpdateLock)) return value;
+            if(TryGetInternal(key, typeof(TValue), out TValue? value, useUpdateLock)) return Contract.ReturnNotNull(value);
 
             throw new NoSuchDocumentException(key, typeof(TValue));
         }

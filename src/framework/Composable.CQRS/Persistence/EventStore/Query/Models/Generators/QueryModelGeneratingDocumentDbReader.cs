@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Composable.Contracts;
 using Composable.DDD;
 using Composable.Functional;
 using Composable.Persistence.DocumentDb;
@@ -28,9 +29,9 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         public virtual TValue Get<TValue>(object key)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            if (TryGet(key, out TValue value))
+            if (TryGet(key, out TValue? value))
             {
-                return value;
+                return Contract.ReturnNotNull(value);
             }
 
             throw new NoSuchDocumentException(key, typeof(TValue));
@@ -39,9 +40,9 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         public virtual TValue GetVersion<TValue>(object key, int version)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            if (TryGetVersion(key, out TValue value, version))
+            if (TryGetVersion(key, out TValue? value, version))
             {
-                return value;
+                return Contract.ReturnNotNull(value);
             }
 
             throw new NoSuchDocumentException(key, typeof(TValue));

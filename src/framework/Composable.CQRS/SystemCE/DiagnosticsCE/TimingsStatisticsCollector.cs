@@ -63,7 +63,7 @@ namespace Composable.SystemCE.DiagnosticsCE
 
         public TResult Time<TResult>(Func<TResult> func)
         {
-            TResult result = default;
+            TResult? result = default;
             var time = StopwatchCE.TimeExecution(() =>result = func());
             RegisterCall(time);
             return result!;
@@ -84,7 +84,7 @@ namespace Composable.SystemCE.DiagnosticsCE
 
         public async Task<TResult> TimeAsync<TResult>(Func<Task<TResult>> func)
         {
-            TResult result = default;
+            TResult? result = default;
             var time = await StopwatchCE.TimeExecutionAsync(async () => result = await func().NoMarshalling()).NoMarshalling();
             RegisterCall(time);
             return result!;

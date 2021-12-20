@@ -49,7 +49,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         bool HasPassedSendTime(ScheduledCommand message) => _timeSource.UtcNow >= message.SendAt;
 
-        static readonly string SendTaskName = $"{nameof(CommandScheduler)}_Send";
+        const string SendTaskName = $"{nameof(CommandScheduler)}_Send";
         void Send(ScheduledCommand scheduledCommand) => _taskRunner.RunAndSurfaceExceptions(SendTaskName, () => TransactionScopeCe.Execute(() => _transport.SendTransactionally(scheduledCommand.Command)));
 
         public void Dispose() => Stop();

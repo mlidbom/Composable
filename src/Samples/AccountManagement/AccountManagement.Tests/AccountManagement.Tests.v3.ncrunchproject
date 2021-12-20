@@ -1,8 +1,6 @@
 ﻿<ProjectConfiguration>
   <Settings>
-    <HiddenComponentWarnings>
-      <Value>AbnormalReferenceResolution</Value>
-    </HiddenComponentWarnings>
+    <HiddenComponentWarnings />
     <PreviouslyBuiltSuccessfully>True</PreviouslyBuiltSuccessfully>
   </Settings>
 </ProjectConfiguration>

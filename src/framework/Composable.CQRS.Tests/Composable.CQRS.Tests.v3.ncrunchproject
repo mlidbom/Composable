@@ -1,8 +1,6 @@
 ﻿<ProjectConfiguration>
   <Settings>
-    <HiddenComponentWarnings>
-      <Value>AbnormalReferenceResolution</Value>
-    </HiddenComponentWarnings>
+    <HiddenComponentWarnings />
     <IgnoredTests>
       <NamedTestSelector>
         <TestName>Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql.MsSqlEventStoreUpdaterTests.Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed</TestName>

@@ -1,5 +1,6 @@
 ﻿<ProjectConfiguration>
   <Settings>
+    <HiddenComponentWarnings />
     <IgnoredTests>
       <NamedTestSelector>
         <TestName>ServiceBusApi.TypeExploration.Looking_up_type_by_index_is_90_times_faster_than_through_type_id</TestName>

@@ -4,10 +4,6 @@
     <TargetFramework>net6.0</TargetFramework>
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
-      
-  <PropertyGroup>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
 
   <PropertyGroup>
     <Nullable>enable</Nullable>

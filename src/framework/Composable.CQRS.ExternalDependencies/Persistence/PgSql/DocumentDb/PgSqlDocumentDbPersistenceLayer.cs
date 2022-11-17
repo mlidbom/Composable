@@ -35,7 +35,7 @@ namespace Composable.Persistence.PgSql.DocumentDb
                     connection.UseCommand(
                         command => command.SetCommandText($"UPDATE {Schema.TableName} SET {Schema.Value} = @{Schema.Value}, {Schema.Updated} = @{Schema.Updated} WHERE {Schema.Id} = @{Schema.Id} AND {Schema.ValueTypeId} = @{Schema.ValueTypeId}")
                                           .AddVarcharParameter(Schema.Id, 500, writeRow.Id)
-                                          .AddDateTime2Parameter(Schema.Updated, writeRow.UpdateTime)
+                                          .AddTimestampWithTimeZone(Schema.Updated, writeRow.UpdateTime)
                                           .AddParameter(Schema.ValueTypeId, writeRow.TypeId)
                                           .AddMediumTextParameter(Schema.Value, writeRow.SerializedDocument)
                                           .PrepareStatement()
@@ -78,8 +78,8 @@ WHERE {Schema.Id}=@{Schema.Id} AND {Schema.ValueTypeId} {TypeInClause(acceptable
                     command.SetCommandText($@"INSERT INTO {Schema.TableName}({Schema.Id}, {Schema.ValueTypeId}, {Schema.Value}, {Schema.Created}, {Schema.Updated}) VALUES(@{Schema.Id}, @{Schema.ValueTypeId}, @{Schema.Value}, @{Schema.Created}, @{Schema.Updated})")
                            .AddVarcharParameter(Schema.Id, 500, row.Id)
                            .AddParameter(Schema.ValueTypeId, row.TypeId)
-                           .AddDateTime2Parameter(Schema.Created, row.UpdateTime)
-                           .AddDateTime2Parameter(Schema.Updated, row.UpdateTime)
+                           .AddTimestampWithTimeZone(Schema.Created, row.UpdateTime)
+                           .AddTimestampWithTimeZone(Schema.Updated, row.UpdateTime)
                            .AddMediumTextParameter(Schema.Value, row.SerializedDocument)
                            .PrepareStatement()
                            .ExecuteNonQuery();

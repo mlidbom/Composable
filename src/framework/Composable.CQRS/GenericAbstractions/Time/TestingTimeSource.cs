@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using Composable.SystemCE;
 
 namespace Composable.GenericAbstractions.Time
 {
@@ -23,7 +25,9 @@ namespace Composable.GenericAbstractions.Time
                                                                                      _freezeAt = DateTime.SpecifyKind(utcTime, DateTimeKind.Utc)
                                                                                  };
 
-        public void FreezeAtUtcTime(DateTime time) => _freezeAt = time;
+        public void FreezeAtUtcTime(DateTime time) => _freezeAt = time.ToUniversalTimeSafely();
+
+        public void FreezeAtUtcTime(String time) => FreezeAtUtcTime(DateTime.Parse(time, CultureInfo.InvariantCulture).ToUniversalTime());
 
         ///<summary>Gets or sets the current UTC time.</summary>
         public DateTime UtcNow

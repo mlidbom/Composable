@@ -46,7 +46,7 @@ UPDATE {Event.TableName} /*With(READCOMMITTED, ROWLOCK)*/
                                               .AddParameter(Event.InsertedVersion, data.StorageInformation.InsertedVersion)
                                               .AddParameter(Event.EventType, data.EventType)
                                               .AddParameter(Event.EventId, data.EventId)
-                                              .AddDateTime2Parameter(Event.UtcTimeStamp, data.UtcTimeStamp)
+                                              .AddTimestampWithTimeZone(Event.UtcTimeStamp, data.UtcTimeStamp)
                                               .AddMediumTextParameter(Event.Event, data.EventJson)
                                               .AddParameter(Event.ReadOrder, NpgsqlDbType.Varchar, data.StorageInformation.ReadOrder?.ToString() ?? new ReadOrder().ToString())
                                               .AddParameter(Event.EffectiveVersion, NpgsqlDbType.Integer, data.StorageInformation.EffectiveVersion)

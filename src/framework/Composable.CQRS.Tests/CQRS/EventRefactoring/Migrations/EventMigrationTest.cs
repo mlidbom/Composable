@@ -269,7 +269,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-                serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime(DateTime.Parse("2001-01-01 12:00"));
+                serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime("2001-01-01 12:00");
 
                 var aggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E1, E2, E3, E4>());
                 var initialHistory = aggregate.History;
@@ -347,7 +347,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-                serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime(DateTime.Parse("2001-01-01 12:00"));
+                serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime("2001-01-01 12:00");
 
                 var aggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E1, E2, E3, E4>());
                 var initialHistory = aggregate.History;
@@ -432,7 +432,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-                serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime(DateTime.Parse("2001-01-01 12:00"));
+                serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime("2001-01-01 12:00");
 
                 var initialAggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E1>());
 
@@ -480,7 +480,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             {
                 var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations);
                 toDispose.Add(serviceLocator);
-                serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime(DateTime.Parse("2001-01-01 12:00"));
+                serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime("2001-01-01 12:00");
 
                 var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
                 var initialAggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E1>());
@@ -527,7 +527,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             {
                 var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations);
                 toDispose.Add(serviceLocator);
-                serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime(DateTime.Parse("2001-01-01 12:00"));
+                serviceLocator.Resolve<TestingTimeSource>().FreezeAtUtcTime("2001-01-01 12:00");
 
                 var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
                 var initialAggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, EnumerableCE.OfTypes<Ec1, E1>());

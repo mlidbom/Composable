@@ -23,11 +23,11 @@ namespace Composable.Persistence.PgSql.DocumentDb
                         _connectionPool.PrepareAndExecuteNonQuery($@"
 CREATE TABLE IF NOT EXISTS {Document.TableName} 
 (
-    {Document.Id}          VARCHAR(500) NOT NULL,
-    {Document.ValueTypeId} CHAR(38)     NOT NULL,
-    {Document.Created}     TIMESTAMP    NOT NULL,
-    {Document.Updated}     TIMESTAMP    NOT NULL,
-    {Document.Value}       TEXT         NOT NULL,
+    {Document.Id}          VARCHAR(500)                NOT NULL,
+    {Document.ValueTypeId} CHAR(38)                    NOT NULL,
+    {Document.Created}     TIMESTAMP with time zone    NOT NULL,
+    {Document.Updated}     TIMESTAMP with time zone    NOT NULL,
+    {Document.Value}       TEXT                        NOT NULL,
 
     PRIMARY KEY ({Document.Id}, {Document.ValueTypeId})
 )

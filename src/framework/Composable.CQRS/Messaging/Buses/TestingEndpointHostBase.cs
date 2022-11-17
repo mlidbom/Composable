@@ -16,7 +16,7 @@ namespace Composable.Messaging.Buses
         readonly List<Exception> _expectedExceptions = new List<Exception>();
         public TestingEndpointHostBase(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory) => GlobalBusStateTracker = new GlobalBusStateTracker();
 
-        public IEnumerable<EndPointAddress> ServerEndpoints => Endpoints.Where(@this => !(@this.Address is null))
+        public IEnumerable<EndPointAddress> ServerEndpoints => Endpoints.Where(@this => @this.Address is not null)
                                                                         .Select(@this => @this.Address!)
                                                                         .ToList();
 

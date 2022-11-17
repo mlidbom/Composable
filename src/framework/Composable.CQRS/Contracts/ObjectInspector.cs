@@ -17,7 +17,7 @@ namespace Composable.Contracts
         {
             return me.Inspect(
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse ReSharper incorrectly believes nullable reference types to deliver runtime guarantees.
-                inspected => !(inspected is null),
+                inspected => inspected is not null,
                 badValue => new ObjectIsNullContractViolationException(badValue));
         }
 
@@ -43,7 +43,7 @@ namespace Composable.Contracts
         public static IInspected<TValue> NotNullOrDefault<TValue>(this IInspected<TValue> me)
         {
             me.Inspect(
-                inspected => !(inspected is null),
+                inspected => inspected is not null,
                 badValue => new ObjectIsNullContractViolationException(badValue));
 
             return me.Inspect(

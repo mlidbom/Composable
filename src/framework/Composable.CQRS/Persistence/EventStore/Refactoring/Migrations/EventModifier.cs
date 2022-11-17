@@ -97,7 +97,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         public void Reset(AggregateEvent @event)
         {
-            if(@event is EndOfAggregateHistoryEventPlaceHolder && !(_inspectedEvent is EndOfAggregateHistoryEventPlaceHolder))
+            if(@event is EndOfAggregateHistoryEventPlaceHolder && _inspectedEvent is not EndOfAggregateHistoryEventPlaceHolder)
             {
                 _lastEventInActualStream = _inspectedEvent;
             }
@@ -110,7 +110,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         public void MoveTo(LinkedListNode<AggregateEvent> current)
         {
-            if (current.Value is EndOfAggregateHistoryEventPlaceHolder && !(_inspectedEvent is EndOfAggregateHistoryEventPlaceHolder))
+            if (current.Value is EndOfAggregateHistoryEventPlaceHolder && _inspectedEvent is not EndOfAggregateHistoryEventPlaceHolder)
             {
                 _lastEventInActualStream = _inspectedEvent;
             }

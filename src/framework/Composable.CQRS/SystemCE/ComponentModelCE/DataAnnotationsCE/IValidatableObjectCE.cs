@@ -18,9 +18,9 @@ namespace Composable.SystemCE.ComponentModelCE.DataAnnotationsCE
             while (expr.NodeType == ExpressionType.Convert || expr.NodeType == ExpressionType.ConvertChecked)
                 expr = ((UnaryExpression)expr).Operand;
 
-            if (!(expr is MemberExpression))
+            if (expr is not MemberExpression expression)
                 throw new ArgumentException("Arguments must be of the form '() => SomeMember'.");
-            return ((MemberExpression)expr).Member.Name;
+            return expression.Member.Name;
         }
 
         ///<summary>Creates an <see cref="ValidationResult"/> by extracting the invalid member(s) name from the supplied expression(s)</summary>///<summary>Enumerates the lines in a streamreader.</summary>

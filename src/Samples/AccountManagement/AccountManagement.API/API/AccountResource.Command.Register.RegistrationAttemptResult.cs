@@ -16,7 +16,7 @@ namespace AccountManagement.API
                 {
                     [JsonConstructor]internal RegistrationAttemptResult(RegistrationAttemptStatus status, AccountResource? registeredAccount)
                     {
-                        Assert.Argument.Assert(status != RegistrationAttemptStatus.Successful || !(registeredAccount is null));
+                        Assert.Argument.Assert(status != RegistrationAttemptStatus.Successful || registeredAccount is not null);
                         Status = status;
                         RegisteredAccount = registeredAccount;
                     }

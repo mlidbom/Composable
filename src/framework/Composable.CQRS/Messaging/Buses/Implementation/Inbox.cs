@@ -187,7 +187,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Stop()
         {
-            Assert.State.Assert(!(_runner is null));
+            Assert.State.Assert(_runner is not null);
             _runner.Dispose();
             _runner = null;
         }
@@ -195,7 +195,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Dispose()
         {
-            if(!(_runner is null))
+            if(_runner is not null)
             {
                 Stop();
             }

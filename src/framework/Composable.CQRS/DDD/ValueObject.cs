@@ -33,15 +33,15 @@ namespace Composable.DDD
             {
                 var value = fields[i](this);
 
-                if (value is IEnumerable enumerableValue && !(value is string))
+                if (value is IEnumerable enumerableValue && value is not string)
                 {
-                    var value1Array = enumerableValue.Cast<object?>().Where(me => !(me is null)).ToArray();
+                    var value1Array = enumerableValue.Cast<object?>().Where(me => me is not null).ToArray();
                     foreach(var something in value1Array)
                     {
                         hashCode = hashCode * multiplier + something!.GetHashCode();
                     }
                 }
-                else if(!(value is null))
+                else if(value is not null)
                     hashCode = hashCode * multiplier + value.GetHashCode();
             }
 
@@ -69,10 +69,10 @@ namespace Composable.DDD
 
                 if(value1 is null)
                 {
-                    if(!(value2 is null))
+                    if(value2 is not null)
                         return false;
                 }
-                else if (value1 is IEnumerable valueAsEnumerable && !(value1 is string))
+                else if (value1 is IEnumerable valueAsEnumerable && value1 is not string)
                 {
                     if (value2 is null)
                     {
@@ -108,7 +108,7 @@ namespace Composable.DDD
                 return true;
             }
 
-            return !(lhs is null) && lhs.Equals(rhs);
+            return lhs is not null && lhs.Equals(rhs);
         }
 
         ///<summary>Compares the objects for inequality using value semantics</summary>

@@ -64,7 +64,7 @@ namespace Composable.Persistence.EventStore.Aggregates
                 theEvent.UtcTimeStamp = TimeSource.UtcNow;
                 if(Version == 0)
                 {
-                    if(!(theEvent is IAggregateCreatedEvent)) throw new Exception($"The first published event {theEvent.GetType()} did not implement {nameof(IAggregateCreatedEvent)}. The first event an aggregate publishes must always implement {nameof(IAggregateCreatedEvent)}.");
+                    if(theEvent is not IAggregateCreatedEvent) throw new Exception($"The first published event {theEvent.GetType()} did not implement {nameof(IAggregateCreatedEvent)}. The first event an aggregate publishes must always implement {nameof(IAggregateCreatedEvent)}.");
                     if(theEvent.AggregateId == Guid.Empty) throw new Exception($"{nameof(IAggregateEvent.AggregateId)} was empty in {nameof(IAggregateCreatedEvent)}");
                     theEvent.AggregateVersion = 1;
                 } else

@@ -169,7 +169,7 @@ namespace Composable.Serialization
                     var value = Getter(inheritor);
 
                     // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                    if(!(value is null))
+                    if(value is not null)
                     {
                         writer.Write(true);
                         value.Serialize(writer);
@@ -212,7 +212,7 @@ namespace Composable.Serialization
                         writer.Write(list.Count);
                         foreach(var serializable in list)
                         {
-                            if(!(serializable is null))
+                            if(serializable is not null)
                             {
                                 writer.Write(true);
                                 serializable.Serialize(writer);
@@ -274,7 +274,7 @@ namespace Composable.Serialization
                         writer.Write(list.Length);
                         foreach(var serializable in list)
                         {
-                            if(!(serializable is null))
+                            if(serializable is not null)
                             {
                                 writer.Write(true);
                                 serializable.Serialize(writer);

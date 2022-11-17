@@ -45,7 +45,7 @@ namespace Composable.DDD
         /// Implements equals using persistent reference semantics.
         /// If two instances have the same Id, Equals will return true.
         /// </summary>
-        public virtual bool Equals(TEntity? other) => !(other is null) && other.Id.Equals(Id);
+        public virtual bool Equals(TEntity? other) => other is not null && other.Id.Equals(Id);
 
         /// <summary>
         /// Implements equals using persistent reference semantics.
@@ -64,7 +64,7 @@ namespace Composable.DDD
                 return true;
             }
 
-            return !(lhs is null) && lhs.Equals(rhs);
+            return lhs is not null && lhs.Equals(rhs);
         }
 
         ///<summary>True if both instances do not have the same ID</summary>
@@ -108,7 +108,7 @@ namespace Composable.DDD
                 return true;
             }
 
-            return !(lhs is null) && lhs.Equals(rhs);
+            return lhs is not null && lhs.Equals(rhs);
         }
 
         ///<summary>True if both instances do not have the same ID</summary>

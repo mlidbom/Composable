@@ -10,6 +10,7 @@ namespace Composable.Persistence.Oracle
 {
     interface IComposableOracleConnection : IPoolableConnection, IComposableDbConnection<OracleCommand>
     {
+        //todo: Check if the upgrade of Oracle.ManagedDataAccess.Core from 2.19.80 to 3.21.80 means that we should change something. 
         internal static IComposableOracleConnection Create(string connString) => new ComposableOracleConnection(connString);
 
         sealed class ComposableOracleConnection : IComposableOracleConnection

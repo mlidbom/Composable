@@ -15,6 +15,7 @@ namespace Composable.Persistence.DB2
 {
     interface IComposableDB2Connection : IPoolableConnection, IComposableDbConnection<DB2Command>
     {
+        //todo: Check if upgrade of IBM.Data.DB2.Core from 1.3.0.100 to 3.1.0.600 means that we should change something.
         internal static IComposableDB2Connection Create(string connString) => new ComposableDB2Connection(connString);
 
         sealed class ComposableDB2Connection : IComposableDB2Connection

@@ -42,11 +42,11 @@ namespace Composable.Persistence.DocumentDb
                 {
                     return true;
                 }
-                if (!(obj is DocumentKey))
+                if (obj is not DocumentKey key)
                 {
                     return false;
                 }
-                return Equals((DocumentKey)obj);
+                return Equals(key);
             }
 
             public override int GetHashCode() => Id.GetHashcodeInvariant();

@@ -31,8 +31,8 @@ namespace Composable.Tests.Linq
             List<int> indexesEqualValues = null;
 
             // ReSharper disable once ExpressionIsAlwaysNull
-            indexesEqualValues.Invoking( me => me.Second()).Should().Throw<Exception>()
-                .WithMessage("*Parameter 'me'*");
+            (new object()).Invoking( me => indexesEqualValues.Second()).Should().Throw<Exception>()
+                                                                           .WithMessage("*Parameter 'me'*");
         }
     }
 }

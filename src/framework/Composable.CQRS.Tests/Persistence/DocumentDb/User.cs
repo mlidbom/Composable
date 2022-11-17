@@ -12,10 +12,7 @@ namespace Composable.Tests.Persistence.DocumentDb
 
     class User : Person
     {
-        public User()
-        {
-            Id = Guid.NewGuid();
-        }
+        public User() => Id = Guid.NewGuid();
 
         public string Email { get; set; } = "some.email@nodomain.not";
         public string Password { get; set; } = "default";

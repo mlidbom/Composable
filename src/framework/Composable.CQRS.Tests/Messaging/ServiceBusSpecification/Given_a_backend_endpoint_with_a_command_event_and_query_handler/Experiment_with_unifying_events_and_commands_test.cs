@@ -185,7 +185,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         public class UserResource
         {
             public IEnumerable<IAggregateEvent> History { get; }
-            public UserResource(IEnumerable<IAggregateEvent> history) { History = history; }
+            public UserResource(IEnumerable<IAggregateEvent> history) => History = history;
         }
 
         public class RegisterUserResult

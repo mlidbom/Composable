@@ -43,7 +43,7 @@ namespace Composable.Tests.CQRS.Aggregates
                 internal class Root : RootEvent.Root, IRoot { public string Public4 { get; set; } = string.Empty;
                     [UsedImplicitly] public class GetterSetter : IGetSetAggregateEntityEventEntityId<Guid, Root, IRoot>
                     {
-                        public Guid GetId(IRoot @event) { throw new Exception(); }
+                        public Guid GetId(IRoot @event) => throw new Exception();
                         public void SetEntityId(Root @event, Guid id) { throw new Exception(); }
                     }
                 }

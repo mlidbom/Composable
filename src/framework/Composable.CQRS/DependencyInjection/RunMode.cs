@@ -7,9 +7,6 @@
 
         public static readonly IRunMode Production = new RunMode(isTesting: false);
 
-        public RunMode(bool isTesting)
-        {
-            _isTesting = isTesting;
-        }
+        public RunMode(bool isTesting) => _isTesting = isTesting;
     }
 }

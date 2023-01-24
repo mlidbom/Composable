@@ -3,7 +3,7 @@ GEM
   specs:
     addressable (2.5.2)
       public_suffix (>= 2.0.2, < 4.0)
-    asciidoctor (1.5.6.1)
+    asciidoctor (1.5.8)
     asciidoctor-diagram (1.5.7)
       asciidoctor (~> 1.5.0)
     colorator (1.1.0)
@@ -11,7 +11,9 @@ GEM
     em-websocket (0.5.1)
       eventmachine (>= 0.12.9)
       http_parser.rb (~> 0.6.0)
+    eventmachine (1.2.5)
     eventmachine (1.2.5-x86-mingw32)
+    ffi (1.9.18)
     ffi (1.9.18-x86-mingw32)
     forwardable-extended (2.6.0)
     http_parser.rb (0.6.0)
@@ -64,9 +66,9 @@ GEM
     sass-listen (4.0.0)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
-    wdm (0.1.1)
 
 PLATFORMS
+  ruby
   x86-mingw32
 
 DEPENDENCIES
@@ -75,7 +77,6 @@ DEPENDENCIES
   jekyll-asciidoc
   pygments.rb
   rake-jekyll
-  wdm
 
 BUNDLED WITH
    1.16.1

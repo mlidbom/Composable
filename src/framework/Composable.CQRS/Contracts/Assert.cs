@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
-using NotNull = global::System.Diagnostics.CodeAnalysis.NotNullAttribute;
+using NotNull = System.Diagnostics.CodeAnalysis.NotNullAttribute;
 #pragma warning disable CA1815 // Override equals and operator equals on value types
 
 namespace Composable.Contracts

@@ -3,7 +3,9 @@
     <FrameworkUtilisationTypeForGallio>Disabled</FrameworkUtilisationTypeForGallio>
     <FrameworkUtilisationTypeForMSTest>Disabled</FrameworkUtilisationTypeForMSTest>
     <FrameworkUtilisationTypeForNUnit2>Disabled</FrameworkUtilisationTypeForNUnit2>
-    <HiddenComponentWarnings />
+    <HiddenComponentWarnings>
+      <Value>InconsistentCompilerResultsOverGrid</Value>
+    </HiddenComponentWarnings>
     <MSpecEnabled>False</MSpecEnabled>
     <NUnit3Enabled>False</NUnit3Enabled>
     <XUnit2Enabled>False</XUnit2Enabled>

@@ -136,7 +136,7 @@ partial class TessagingConnection
       {
          try
          {
-            //Freshly computed per attempt: sender-side pruning (discard, strand) can punch a hole below the pending tessage
+            //Freshly computed per attempt: sender-side stranding can punch a hole below the pending tessage
             //between attempts, and a refused attempt heals exactly by redeclaring the predecessor the durable rows now name.
             var predecessorSequenceNumber = _tessageStorage.GetDeliveryStreamPredecessorSequenceNumberAsync(_connection.EndpointInformation.Id, pending.DeliveryStreamSequenceNumber._assert().NotNull().Value).GetAwaiter().GetResult();
             _connection._transportMessagePoster.PostAsync(pending, _connection.RemoteAddress, predecessorSequenceNumber, _connection._cancellationSource.Token).GetAwaiter().GetResult();

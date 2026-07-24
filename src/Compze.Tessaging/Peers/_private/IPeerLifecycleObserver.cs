@@ -9,13 +9,14 @@ namespace Compze.Tessaging.Peers._private;
 /// what the peer's advertisement declares — the outbox contributes one; an endpoint composing no such tier has none.</summary>
 ///<remarks>The registry notifies observers from inside <see cref="IPeerRegistry.RecordAdvertisementAsync"/> — on the durable<br/>
 /// registry, inside the same transaction that persists the advertisement, so a recorded shrink and its consequences commit or<br/>
-/// roll back together — and always before the peer's connection starts delivering, so an observer's pruning is complete before<br/>
-/// the connection's recovery backlog is loaded.</remarks>
+/// roll back together — and always before the peer's connection starts delivering, so an observer's reconciliation is complete<br/>
+/// before the connection's recovery backlog is loaded.</remarks>
 interface IPeerLifecycleObserver
 {
    ///<summary>The registry did not know this peer until now — its first advertisement just recorded it. First contact is the<br/>
-   /// boundary: nothing can be owed a peer before it is first known, so an observer holding tessages bound to it has found<br/>
-   /// leftovers of a decommissioned predecessor identity (a publish racing the decommission) and discards them.</summary>
+   /// boundary: binding requires the peer to be remembered, and remembering happens at this very recording — nothing can be<br/>
+   /// owed a peer before it is first known — so an observer holding tessages already bound to it has proof of a broken<br/>
+   /// invariant and fails loud with an assertion, never cleans up silently.</summary>
    Task PeerMetForTheFirstTimeAsync(RememberedPeer peer);
 
    ///<summary>The peer's stored advertisement was replaced wholesale by a fresh fetch. A replacement that shrinks is the peer's<br/>

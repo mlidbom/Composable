@@ -285,7 +285,8 @@ On the exactly-once rung the order is enforced by construction, at both ends of 
   delivery is fast sequentially.
 - **The receiver's inbox admits only in stream order.** Each delivery attempt declares its predecessor —
   the pair's previous still-deliverable-or-received stream member, freshly computed from the sender's durable
-  dispatching rows, so a hole punched by sender-side pruning (a discarded tevent, a stranded tommand) is
+  dispatching rows, so a hole punched by sender-side stranding (an undelivered tessage whose type the
+  receiver's shrunk advertisement renounced) is
   crossed exactly when the rows say it is real. The inbox admits a tessage iff the pair's admission high-water
   mark equals that declared predecessor; a tessage at or below the mark is acknowledged as a redelivered
   duplicate, and anything else is refused back into the sender's retry, which heals the stream by leading

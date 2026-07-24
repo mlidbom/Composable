@@ -22,10 +22,10 @@ interface ITessagingSqlLayer
 
       ///<summary>The declared predecessor for a delivery attempt of the dispatching row at <paramref name="sequenceNumber"/><br/>
       /// bound to <paramref name="receiverId"/>: the pair's largest lower sequence number that is still deliverable or already<br/>
-      /// received — 0 when none, meaning the tessage leads its stream. Sender-side pruning is excluded: a discarded row is<br/>
-      /// gone and an unreceived stranded row awaits explicit resolution, so neither will ever reach the receiver —<br/>
+      /// received — 0 when none, meaning the tessage leads its stream. Stranded rows are excluded: an unreceived stranded row<br/>
+      /// awaits explicit resolution, so it will never reach the receiver —<br/>
       /// which admits a tessage exactly when its admission high-water mark equals this declared predecessor<br/>
-      /// (see <see cref="DeliveryStreamPosition"/>). Computed fresh per delivery attempt, because pruning between attempts<br/>
+      /// (see <see cref="DeliveryStreamPosition"/>). Computed fresh per delivery attempt, because stranding between attempts<br/>
       /// moves it.</summary>
       Task<long> GetDeliveryStreamPredecessorSequenceNumberAsync(EndpointId receiverId, long sequenceNumber);
 
@@ -39,32 +39,13 @@ interface ITessagingSqlLayer
       /// (see <c>src/Compze.Tessaging/dev_docs/WIP/peer-administration.md</c>), never for delivery.</summary>
       Task<IReadOnlyList<UndeliveredTessage>> GetUndeliveredTessagesForEndpointAsync(EndpointId endpointId);
 
-      ///<summary>Discards these undelivered tessages bound to <paramref name="endpointId"/>: their dispatching rows are deleted,<br/>
-      /// so they will never be delivered — the fate of undelivered tevents whose subscriber renounced its subscription in a<br/>
-      /// shrunk advertisement. Runs in the caller's ambient transaction.</summary>
-      Task DiscardUndeliveredTessagesAsync(EndpointId endpointId, IReadOnlyList<TessageId> tessageIds);
-
-      ///<summary>Marks these undelivered tessages bound to <paramref name="endpointId"/> stranded: kept, but excluded from the<br/>
-      /// recovery backlog — the fate of undelivered tommands whose bound receiver's shrunk advertisement no longer handles their<br/>
-      /// type. A stranded tommand awaits explicit resolution (see <c>src/Compze.Tessaging/dev_docs/WIP/peer-administration.md</c>).<br/>
-      /// Runs in the caller's ambient transaction.</summary>
+      ///<summary>Marks these undelivered tessages bound to <paramref name="endpointId"/> stranded: kept and visible, but<br/>
+      /// excluded from the recovery backlog — the fate of every undelivered tessage whose bound receiver's shrunk advertisement<br/>
+      /// no longer serves its type. A stranded tessage awaits explicit resolution<br/>
+      /// (see <c>src/Compze.Tessaging/dev_docs/WIP/peer-administration.md</c>). Runs in the caller's ambient transaction.</summary>
       Task StrandUndeliveredTessagesAsync(EndpointId endpointId, IReadOnlyList<TessageId> tessageIds);
 
-      ///<summary>Discards everything still owed to <paramref name="endpointId"/> — every unreceived dispatching row bound to it,<br/>
-      /// stranded ones included — returning what was discarded, so the caller can report it: the storage half of the<br/>
-      /// first-contact sweep. Runs in the caller's ambient transaction.</summary>
-      Task<IReadOnlyList<DiscardedTessage>> DiscardAllTessagesOwedToAsync(EndpointId endpointId);
-
       Task InitAsync();
-   }
-
-   ///<summary>One tessage discarded by <see cref="IOutboxSqlLayer.DiscardAllTessagesOwedToAsync"/>, described for the discarder's<br/>
-   /// report: its type, and whether it had been stranded (see <see cref="IOutboxSqlLayer.StrandUndeliveredTessagesAsync"/>)<br/>
-   /// or was awaiting the peer's return.</summary>
-   public class DiscardedTessage(TypeId typeId, bool wasStranded)
-   {
-      internal TypeId TypeId { get; } = typeId;
-      internal bool WasStranded { get; } = wasStranded;
    }
 
    public enum MarkAsReceivedResult

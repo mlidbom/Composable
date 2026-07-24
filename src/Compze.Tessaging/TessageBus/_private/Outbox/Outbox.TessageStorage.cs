@@ -67,14 +67,8 @@ partial class Outbox
       public async Task<IReadOnlyList<ITessagingSqlLayer.UndeliveredTessage>> GetUndeliveredTessagesForEndpointAsync(EndpointId endpointId) =>
          await _sqlLayer.GetUndeliveredTessagesForEndpointAsync(endpointId).caf();
 
-      public async Task DiscardUndeliveredTessagesAsync(EndpointId endpointId, IReadOnlyList<TessageId> tessageIds) =>
-         await _sqlLayer.DiscardUndeliveredTessagesAsync(endpointId, tessageIds).caf();
-
       public async Task StrandUndeliveredTessagesAsync(EndpointId endpointId, IReadOnlyList<TessageId> tessageIds) =>
          await _sqlLayer.StrandUndeliveredTessagesAsync(endpointId, tessageIds).caf();
-
-      public async Task<IReadOnlyList<ITessagingSqlLayer.DiscardedTessage>> DiscardAllTessagesOwedToAsync(EndpointId endpointId) =>
-         await _sqlLayer.DiscardAllTessagesOwedToAsync(endpointId).caf();
 
       public async Task StartAsync() => await _sqlLayer.InitAsync().caf();
    }

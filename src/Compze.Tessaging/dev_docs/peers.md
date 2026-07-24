@@ -106,17 +106,17 @@ tevent, publisher crash (memory is memory), and queue overflow.
 - **Update**: every advertisement fetch replaces the stored advertisement wholesale. The peer registries
   notify the `IPeerLifecycleObserver` component set from inside the recording — on the durable registry
   inside the same transaction, and always before the peer's connection loads its recovery backlog, so what
-  is pruned never enters a delivery stream.
+  is stranded never enters a delivery stream.
 - **Shrink**: a shrunk advertisement is the peer's own explicit declaration — an unsubscribe by the
   subscription's owner, nothing like absence. The outbox reconciles the peer's undelivered rows against
-  every replaced advertisement, split by kind:
-  - **Tevents**: the subscriber renounced interest — undelivered tevents of renounced subscriptions are
-    discarded, **with loud reporting** (count and types), never silently.
+  every replaced advertisement: undelivered tessages of types the fresh advertisement no longer serves are
+  **stranded** loudly (`IsStranded` on the dispatching row, excluded from the recovery backlog, never
+  auto-un-stranded), kept and visible, never destroyed, awaiting explicit resolution
+  ([the peer-administration roadmap](WIP/peer-administration.md)). The warning names the kind:
+  - **Tevents**: the subscriber renounced interest — the tevents lost their audience by that audience's
+    own choice.
   - **Tommands**: someone commanded an action that now has no handler — almost certainly a deployment
-    error. The tommand is bound to its receiver, so a successor does not automatically receive it: the row
-    is **stranded** loudly (`IsStranded` on the dispatching row, excluded from the recovery backlog, never
-    auto-un-stranded), kept and visible, awaiting explicit resolution
-    ([the peer-administration roadmap](WIP/peer-administration.md)).
+    error. The tommand is bound to its receiver, so a successor does not automatically receive it.
 
 ## Removing peers from memory: future design, deliberately unimplemented
 

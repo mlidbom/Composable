@@ -9,8 +9,8 @@ namespace Compze.Tessaging._internal.Transport;
 /// have admitted before this one.</summary>
 ///<remarks>The sequence number is assigned inside the transaction that saves the tessage to the sender's outbox, from a<br/>
 /// per-receiver counter row whose lock serializes the pair's commits — so sequence order is commit order, whatever<br/>
-/// interleaving the sending transactions had. The stream can acquire holes after assignment: sender-side pruning discards or<br/>
-/// strands an undelivered tessage (a renounced subscription, a shrunk advertisement), and its sequence number then never<br/>
+/// interleaving the sending transactions had. The stream can acquire holes after assignment: sender-side stranding parks an<br/>
+/// undelivered tessage whose type the receiver's shrunk advertisement renounced, and its sequence number then never<br/>
 /// arrives. So each delivery attempt declares its predecessor — the largest lower sequence number still deliverable or<br/>
 /// already received, freshly computed from the sender's durable dispatching rows — and the receiving inbox admits a tessage<br/>
 /// only when its admission high-water mark equals that declared predecessor, refusing any other (redeliveries at or below the<br/>

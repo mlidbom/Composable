@@ -9,9 +9,9 @@ namespace Compze.Tests.Integration.Tessaging.Given_a_backend_endpoint_with_a_tom
 
 ///<summary>A shrunk advertisement is the peer's own explicit declaration — an unsubscribe by the subscription's owner — and<br/>
 /// what the outbox owes the peer follows it (see the advertisement lifecycle in <c>src/Compze.Tessaging/dev_docs/peers.md</c>):<br/>
-/// undelivered tevents whose subscriptions the peer renounced are discarded, loudly, and undelivered tommands of types the peer<br/>
-/// no longer handles are stranded, loudly — kept, but excluded from the recovery backlog until resolved explicitly, because<br/>
-/// delivering them would fail on an endpoint that no longer has the handler. Both halves are scripted as the real conversation:<br/>
+/// undelivered tessages of types the peer no longer serves — renounced tevent subscriptions, no-longer-handled tommand types —<br/>
+/// are stranded, loudly: kept, but excluded from the recovery backlog until resolved explicitly, because delivering them would<br/>
+/// hand the peer tessages it just declared it does not serve. Both halves are scripted as the real conversation:<br/>
 /// the Backend meets the Remote endpoint, the Remote endpoint goes down, and it returns with the shrunk advertisement — the<br/>
 /// deployment where an endpoint keeping its identity dropped a handler or a subscription.</summary>
 [LongRunning]

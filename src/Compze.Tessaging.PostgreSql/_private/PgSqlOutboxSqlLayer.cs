@@ -203,27 +203,6 @@ partial class PgSqlOutboxSqlLayer(IPgSqlConnectionPool connectionFactory, PgSqlS
                               serializedTessage: row.Body))];
    }
 
-   public async Task DiscardUndeliveredTessagesAsync(EndpointId endpointId, IReadOnlyList<TessageId> tessageIds)
-   {
-      if(tessageIds.Count == 0) return;
-      await _connectionFactory.UseCommandAsync(
-         async command =>
-         {
-            command
-              .SetCommandText(
-                  $"""
-
-                   DELETE FROM {_tables.OutboxTessageDispatching}
-                   WHERE {DispatchingTable.EndpointId} = @{DispatchingTable.EndpointId}
-                     AND {DispatchingTable.TessageId} IN ( {TessageIdParameterList(tessageIds.Count)} );
-
-                   """)
-              .AddParameter(DispatchingTable.EndpointId, endpointId.Value);
-            tessageIds.ForEach((tessageId, index) => command.AddParameter($"{DispatchingTable.TessageId}_{index}", tessageId.Value));
-            return await command.ExecuteNonQueryAsync().caf();
-         }).caf();
-   }
-
    public async Task StrandUndeliveredTessagesAsync(EndpointId endpointId, IReadOnlyList<TessageId> tessageIds)
    {
       if(tessageIds.Count == 0) return;
@@ -244,50 +223,6 @@ partial class PgSqlOutboxSqlLayer(IPgSqlConnectionPool connectionFactory, PgSqlS
             tessageIds.ForEach((tessageId, index) => command.AddParameter($"{DispatchingTable.TessageId}_{index}", tessageId.Value));
             return await command.ExecuteNonQueryAsync().caf();
          }).caf();
-   }
-
-   public async Task<IReadOnlyList<ITessagingSqlLayer.DiscardedTessage>> DiscardAllTessagesOwedToAsync(EndpointId endpointId)
-   {
-      // The TypeId column holds an interned int. Resolve it to the canonical type string AFTER the reader has
-      // closed — resolving during the read could open a second connection on a cache miss while the reader is held.
-      var owed = await _connectionFactory.UseCommandAsync(
-         async command =>
-         {
-            var rows = new List<(TessageId TessageId, int TypeId, bool WasStranded)>();
-
-            command
-               .SetCommandText(
-                   $"""
-
-                    SELECT d.{DispatchingTable.TessageId},
-                           m.{TessageTable.TypeId},
-                           d.{DispatchingTable.IsStranded}
-                    FROM {_tables.OutboxTessageDispatching} d
-                    INNER JOIN {_tables.OutboxTessages} m ON m.{TessageTable.TessageId} = d.{DispatchingTable.TessageId}
-                    WHERE d.{DispatchingTable.IsReceived} = false
-                      AND d.{DispatchingTable.EndpointId} = @endpointId;
-
-                    """)
-               .AddParameter("endpointId", endpointId.Value)
-               .PrepareStatement();
-
-            var reader = await command.ExecuteReaderAsync().caf();
-            await using var _ = reader.caf();
-            while(await reader.ReadAsync().caf())
-            {
-               rows.Add((new TessageId(reader.GetGuid(0)),
-                         reader.GetInt32(1),
-                         reader.GetBoolean(2)));
-            }
-
-            return rows;
-         }).caf();
-
-      await DiscardUndeliveredTessagesAsync(endpointId, [..owed.Select(row => row.TessageId)]).caf();
-
-      return [..owed.Select(row => new ITessagingSqlLayer.DiscardedTessage(
-                              typeId: _typeIdInterner.GetTypeId(row.TypeId),
-                              wasStranded: row.WasStranded))];
    }
 
    static string TessageIdParameterList(int tessageIdCount) =>

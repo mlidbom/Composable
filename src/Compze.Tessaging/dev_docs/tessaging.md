@@ -338,7 +338,8 @@ tommands inline and tevents by in-boundary participation, so the router maintain
 An endpoint remembers every peer it has ever met — identity and last advertisement — with durability
 following the tier: process-lifetime on the best-effort endpoint, database-backed on the exactly-once
 endpoint. Remembered peers are what fan-out, receiver binding, queue-while-down, and waiting are computed
-against; a peer's advertisement shrinking prunes what is owed to it, loudly. The whole story is
+against; a peer's advertisement shrinking strands what is owed to it of the renounced types, loudly. The
+whole story is
 [peers](peers.md).
 
 Administration surfaces:

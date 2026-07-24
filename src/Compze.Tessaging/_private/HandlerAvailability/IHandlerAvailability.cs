@@ -17,9 +17,10 @@ namespace Compze.Tessaging._private.HandlerAvailability;
 /// probes and retry loops around the framework. Waiting absorbs the startup race and steady-state churn (a handler endpoint<br/>
 /// restarting mid-day creates a seconds-wide window with no route); it never absorbs a real misdeployment, which surfaces as<br/>
 /// the loud, diagnostic patience-exhausted failure.</remarks>
-///<remarks>Availability is re-checked against the router's routes and the peer memory on a short interval rather than pushed<br/>
-/// by change signals: the wait window is rare and bounded, so the simplicity of polling wins over signal plumbing across the<br/>
-/// router and the registry; the cost is at most one interval of added latency on a path that just waited out process startup.</remarks>
+///<remarks>Waiting is a condition wait, never polling: the availability condition is evaluated under the router's state lock<br/>
+/// and re-evaluated the moment the routes or the peer memory could have changed<br/>
+/// (<see cref="Routing.ITessagingRouter.TryAwaitConnectionsOrPeerMemorySatisfyingAsync"/>), so a send proceeds the instant the<br/>
+/// world becomes right — zero added latency, zero recurring wakeups.</remarks>
 interface IHandlerAvailability
 {
    ///<summary>The address of the one connected endpoint whose advertisement handles the typermedia type<br/>

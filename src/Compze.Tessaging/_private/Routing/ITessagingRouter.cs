@@ -4,6 +4,7 @@ using Compze.Tessaging.Endpoints.Discovery;
 using Compze.Tessaging.Peers;
 using Compze.Tessaging.Peers._internal;
 using Compze.Tessaging.TessageTypes;
+using Compze.Threading;
 
 namespace Compze.Tessaging._private.Routing;
 
@@ -44,4 +45,16 @@ interface ITessagingRouter
     /// (see <c>IHandlerAvailability</c>). Fails loud when the endpoint declared no discovery registry: with nothing to<br/>
     /// discover through there is nothing to navigate.</summary>
     IReadOnlyList<TypermediaRoute> TypermediaRoutesFor(Type tessageType);
+
+    ///<summary>Awaits, at most <paramref name="patience"/>, until <paramref name="condition"/> returns true — false on exhausted<br/>
+    /// patience, with the condition's captures holding whatever its final evaluation saw. The condition is evaluated under the<br/>
+    /// router's state lock and re-evaluated on every state update: a connection appearing or dropping, routes rebuilding,<br/>
+    /// delivery starting or stopping — and every peer-advertisement recording, because the connect flow always follows a<br/>
+    /// recording with a router state update. So a condition reading this router's routes and the peer memory<br/>
+    /// (<see cref="IPeerRegistry"/>) wakes and re-evaluates the moment either could have changed — no polling. This is what<br/>
+    /// <c>IHandlerAvailability</c>'s waiting sends wait on.</summary>
+    ///<remarks>The blocking wait parks a dedicated thread, never a pool thread: a waiting send can span the endpoint's whole<br/>
+    /// handler-availability patience, and parked pool threads starve the pool. A condition that throws — the router's lookups<br/>
+    /// assert the router is not stopped — propagates out of the wait immediately.</remarks>
+    Task<bool> TryAwaitConnectionsOrPeerMemorySatisfyingAsync(Func<bool> condition, WaitTimeout patience);
 }

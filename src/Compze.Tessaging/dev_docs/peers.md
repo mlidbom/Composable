@@ -145,9 +145,10 @@ composing mechanisms:
 ### Waiting sends — implicit, per-call, bounded patience
 
 A send whose type has no live, unambiguous route right now does not explode. It waits — through
-`IHandlerAvailability`, a bounded re-check loop over the router's routes and the peer memory (deliberately
-polled: the wait window is rare and bounded, so polling's simplicity beats signal plumbing) — for the world
-to become right: a first contact, a known peer's return, an ambiguity resolving. Then it proceeds normally.
+`IHandlerAvailability`, a condition wait on the router's state (the availability condition is re-evaluated
+the moment the routes or the peer memory could have changed, never polled) — for the world to become right:
+a first contact, a known peer's return, an ambiguity resolving. Then it proceeds normally, the instant the
+world does.
 This is what absorbs steady-state churn: a handler endpoint restarting mid-day creates a seconds-wide
 window with no route, and calls in that window wait it out.
 

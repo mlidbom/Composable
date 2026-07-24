@@ -14,6 +14,7 @@ using Compze.Tessaging._private.SystemCE.ThreadingCE;
 using Compze.Tessaging.TessageBus._internal;
 using Compze.Tessaging.TessageTypes;
 using Compze.Threading;
+using Compze.Threading._internal;
 using Compze.TypeIdentifiers;
 using Compze.Tessaging._private.Transport;
 using Compze.Tessaging._private.Transport.Advertisement;
@@ -38,7 +39,9 @@ class TessagingRouter : ITessagingRouter, IDisposable
    /// process's addresses disappearing (a crash signals nothing) and retrying connections that failed.</summary>
    static readonly TimeSpan ReconcileLivenessInterval = TimeSpan.FromSeconds(1);
 
-   readonly IMonitor _monitor = IMonitor.New();
+   //Awaitable: releasing an update lock wakes every condition wait (TryAwaitConnectionsOrPeerMemorySatisfyingAsync), so state
+   //mutations take Update and lookups take Read - on this monitor both are exclusive, only the wake-on-release differs.
+   readonly IAwaitableMonitor _monitor = IAwaitableMonitor.New();
    readonly ITessagesInFlightTracker _tessagesInFlightTracker;
    readonly ITypeMap _typeMap;
    readonly ITessagingSerializer _serializer;
@@ -129,14 +132,12 @@ class TessagingRouter : ITessagingRouter, IDisposable
       var desiredAddresses = (_endpointRegistry?.ServerEndpointAddresses ?? []).ToHashSet();
       desiredAddresses.Remove(_ownAddress!);
 
-      List<EndpointAddress> addressesToConnect = [];
-      List<TessagingConnection> connectionsToDrop = [];
-      _monitor.Locked(() =>
+      var (addressesToConnect, connectionsToDrop) = _monitor.Read<(List<EndpointAddress>, List<TessagingConnection>)>(() =>
       {
-         if(_stopped) return;
+         if(_stopped) return ([], []);
          var connectedAddresses = _connections.Values.Select(connection => connection.RemoteAddress).ToHashSet();
-         addressesToConnect = [..desiredAddresses.Where(address => !connectedAddresses.Contains(address))];
-         connectionsToDrop = [.._connections.Values.Where(connection => !desiredAddresses.Contains(connection.RemoteAddress))];
+         return ([..desiredAddresses.Where(address => !connectedAddresses.Contains(address))],
+                 [.._connections.Values.Where(connection => !desiredAddresses.Contains(connection.RemoteAddress))]);
       });
 
       //An endpoint whose address left the registry is gone (stopped, or crashed and pruned by liveness). Its undelivered
@@ -159,7 +160,7 @@ class TessagingRouter : ITessagingRouter, IDisposable
       }
    }
 
-   void DropConnection(TessagingConnection connection) => _monitor.Locked(() =>
+   void DropConnection(TessagingConnection connection) => _monitor.Update(() =>
    {
       _connections.Remove(connection.EndpointInformation.Id);
       RebuildRoutes();
@@ -192,7 +193,7 @@ class TessagingRouter : ITessagingRouter, IDisposable
          throw;
       }
 
-      _monitor.Locked(() =>
+      _monitor.Update(() =>
       {
          if(_stopped) //A reconciliation pass racing shutdown: the router is no longer connecting to anyone.
          {
@@ -225,7 +226,7 @@ class TessagingRouter : ITessagingRouter, IDisposable
       });
    }
 
-   public void StartDelivery() => _monitor.Locked(() =>
+   public void StartDelivery() => _monitor.Update(() =>
    {
       _deliveryStarted = true;
       foreach(var connection in _connections.Values)
@@ -241,7 +242,7 @@ class TessagingRouter : ITessagingRouter, IDisposable
       //takes the monitor to finish, so joining while holding it would deadlock. Ordered before the connections are stopped so
       //their delivery threads are no longer blocked behind that transaction's locks when they are joined.
       _reconcileLoop?.WaitUnwrappingException();
-      _monitor.Locked(() =>
+      _monitor.Update(() =>
       {
          _deliveryStarted = false;
          foreach(var connection in _connections.Values)
@@ -291,18 +292,20 @@ class TessagingRouter : ITessagingRouter, IDisposable
       _teventSubscriberRouteCache.Clear();
    }
 
-   public void Stop() => _monitor.Locked(() => _stopped = true);
+   //Update, not Read, deliberately: waiters must wake to observe the stop - their conditions' lookups assert against it, which
+   //is how a shutdown propagates out of a wait immediately.
+   public void Stop() => _monitor.Update(() => _stopped = true);
 
    ContractAsserter AssertNotStopped() => State.Assert(!_stopped, () => "router is stopped");
 
-   public bool HasLiveConnectionTo(EndpointId endpointId) => _monitor.Locked(() => _connections.ContainsKey(endpointId));
+   public bool HasLiveConnectionTo(EndpointId endpointId) => _monitor.Read(() => _connections.ContainsKey(endpointId));
 
    public ITessagingInboxConnection? LiveConnectionToHandlerFor(Type tommandType) =>
-      _monitor.Locked(() =>
+      _monitor.Read(() =>
          AssertNotStopped().__(() => _tommandHandlerRoutes.GetValueOrDefault(tommandType)));
 
    public IReadOnlyList<TypermediaRoute> TypermediaRoutesFor(Type tessageType) =>
-      _monitor.Locked(() =>
+      _monitor.Read(() =>
       {
          AssertNotStopped();
          State.Assert(_endpointRegistry is not null,
@@ -312,8 +315,10 @@ class TessagingRouter : ITessagingRouter, IDisposable
                    : [];
       });
 
+   //Read despite the cache fill below: this monitor's read lock is exclusive, so the fill is safe, and a cache fill changes no
+   //state a condition wait watches, so it must not wake the waiters the way an update-lock release would.
    public IReadOnlyList<ITessagingInboxConnection> SubscriberConnectionsFor(IPublisherTevent<IRemotableTevent> wrappedTevent) =>
-      _monitor.Locked(() =>
+      _monitor.Read(() =>
       {
          AssertNotStopped();
          var wrapperTeventType = wrappedTevent.GetType();
@@ -327,10 +332,15 @@ class TessagingRouter : ITessagingRouter, IDisposable
          return cached;
       });
 
+   //The condition may call this router's own lookups: the monitor is reentrant, and the wait runs the condition on its own
+   //dedicated thread, so the nested lock acquisitions are balanced re-entries, never contention.
+   public async Task<bool> TryAwaitConnectionsOrPeerMemorySatisfyingAsync(Func<bool> condition, WaitTimeout patience) =>
+      await _monitor.TryAwaitOnDedicatedThreadAsync(condition, waitTimeout: patience).caf();
+
    public void Dispose()
    {
       var alreadyDisposed = false;
-      _monitor.Locked(() =>
+      _monitor.Update(() =>
       {
          alreadyDisposed = _disposed;
          _disposed = true;
@@ -343,6 +353,6 @@ class TessagingRouter : ITessagingRouter, IDisposable
       _reconcileLoop?.WaitUnwrappingException();
       _reconcileLoopCancellation.Dispose();
 
-      _monitor.Locked(() => _connections.Values.DisposeAll());
+      _monitor.Update(() => _connections.Values.DisposeAll());
    }
 }

@@ -11,6 +11,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Compze.Threading.InternalSpecifications" />
     <InternalsVisibleTo Include="Compze.Threading.Interprocess" />
+    <InternalsVisibleTo Include="Compze.Tessaging" />
   </ItemGroup>
   <!-- Compze.Contracts — flex reference -->
   <ItemGroup Condition="'$(UsePackageReference_Compze_Contracts)' == 'true'">

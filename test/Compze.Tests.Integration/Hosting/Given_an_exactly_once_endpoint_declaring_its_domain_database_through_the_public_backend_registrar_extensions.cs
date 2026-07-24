@@ -89,12 +89,12 @@ public class Given_an_exactly_once_endpoint_declaring_its_domain_database_throug
             SqlLayer.Sqlite => registrar.SqliteDomainDatabase(connectionStringName)
                                         .SqliteTypeIdInterner(new SqliteDomainDatabase($"{connectionStringName}.TypeIdInterner"))
                                         .SqliteDocumentDbSqlLayer()
-                                        .SqliteTessagingSqlLayer()
+                                        .SqliteTessagingSqlLayer(new SqliteDomainDatabase(connectionStringName))
                                         .SqliteTeventStoreSqlLayer(),
             SqlLayer.SqliteMemory => registrar.SqliteMemoryDomainDatabase(connectionStringName)
                                               .SqliteTypeIdInterner($"{connectionStringName}.TypeIdInterner")
                                               .SqliteDocumentDbSqlLayer()
-                                              .SqliteTessagingSqlLayer()
+                                              .SqliteTessagingSqlLayer(new SqliteDomainDatabase(connectionStringName))
                                               .SqliteTeventStoreSqlLayer(),
             _ => throw new ArgumentOutOfRangeException()
          };

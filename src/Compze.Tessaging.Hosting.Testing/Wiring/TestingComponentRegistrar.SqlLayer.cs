@@ -1,6 +1,7 @@
 using Compze.Sql.MicrosoftSql.Wiring;
 using Compze.Sql.MySql.Wiring;
 using Compze.Sql.PostgreSql.Wiring;
+using Compze.Sql.Sqlite;
 using Compze.Sql.Sqlite.Wiring;
 using Compze.DocumentDb.MicrosoftSql.Wiring;
 using Compze.DocumentDb.MySql.Wiring;
@@ -62,12 +63,12 @@ public static class TestingComponentRegistrarSqlLayer
          SqlLayer.Sqlite => @this.SqliteDomainDatabase(connectionStringName)
                                  .SqliteTypeIdInterner($"{connectionStringName}.TypeIdInterner")
                                  .SqliteDocumentDbSqlLayer()
-                                 .SqliteTessagingSqlLayer()
+                                 .SqliteTessagingSqlLayer(new SqliteDomainDatabase(connectionStringName))
                                  .SqliteTeventStoreSqlLayer(),
          SqlLayer.SqliteMemory => @this.SqliteMemoryDomainDatabase(connectionStringName)
                                        .SqliteTypeIdInterner($"{connectionStringName}.TypeIdInterner")
                                        .SqliteDocumentDbSqlLayer()
-                                       .SqliteTessagingSqlLayer()
+                                       .SqliteTessagingSqlLayer(new SqliteDomainDatabase(connectionStringName))
                                        .SqliteTeventStoreSqlLayer(),
          _ => throw new ArgumentOutOfRangeException()
       };

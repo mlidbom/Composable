@@ -216,7 +216,8 @@ partial class PgSqlOutboxSqlLayer(IPgSqlConnectionPool connectionFactory, PgSqlS
                    UPDATE {_tables.OutboxTessageDispatching}
                        SET {DispatchingTable.IsStranded} = true
                    WHERE {DispatchingTable.EndpointId} = @{DispatchingTable.EndpointId}
-                     AND {DispatchingTable.TessageId} IN ( {TessageIdParameterList(tessageIds.Count)} );
+                     AND {DispatchingTable.TessageId} IN ( {TessageIdParameterList(tessageIds.Count)} )
+                     AND {DispatchingTable.IsReceived} = false; -- Received between the reconciliation read and this statement: delivered before the shrink took effect, nothing to strand.
 
                    """)
               .AddParameter(DispatchingTable.EndpointId, endpointId.Value);

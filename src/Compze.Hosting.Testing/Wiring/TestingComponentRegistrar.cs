@@ -30,7 +30,8 @@ public class TestingComponentRegistrar : ComponentRegistrar
                               { typeof(PgSqlConnectionPoolRegistrar.ITestingRegistrar), new PostgreSqlSqlDbPoolRegistrar(this) },
                               { typeof(SqliteConnectionPoolRegistrar.ITestingRegistrar), new SqliteSqlDbPoolRegistrar(this) },
                               { typeof(SqliteMemoryConnectionPoolRegistrar.ITestingRegistrar), new SqliteMemoryDbPoolRegistrar(this) },
-                              { typeof(SqliteTypeIdInternerConnectionPoolRegistrar.ITestingRegistrar), new SqliteTypeIdInternerDbPoolRegistrar(this) }
+                              { typeof(SqliteTypeIdInternerConnectionPoolRegistrar.ITestingRegistrar), new SqliteTypeIdInternerDbPoolRegistrar(this) },
+                              { typeof(SqliteAuxiliaryDatabaseConnectionPoolRegistrar.ITestingRegistrar), new SqliteAuxiliaryDatabaseDbPoolRegistrar(this) }
                            };
    }
 
@@ -106,5 +107,16 @@ public class TestingComponentRegistrar : ComponentRegistrar
                                                                                     .Register(
                                                                                         Singleton.For<ISqliteTypeIdInternerConnectionPool>()
                                                                                                  .CreatedBy((global::Compze.DbPool.DbPool pool) => new ISqliteTypeIdInternerConnectionPool.Pool(() => pool.ConnectionStringFor(connectionStringName))));
+   }
+
+   class SqliteAuxiliaryDatabaseDbPoolRegistrar(IComponentRegistrar registrar) : SqliteAuxiliaryDatabaseConnectionPoolRegistrar.ITestingRegistrar
+   {
+      readonly IComponentRegistrar _registrar = registrar;
+
+      public IComponentRegistrar Register<TPool>(string connectionStringName, Func<Func<string>, TPool> createPool) where TPool : class, ISqliteConnectionPool =>
+         _registrar.CurrentTestsDbPoolIfNotCloneContainer()
+                   .Register(
+                       Singleton.For<TPool>()
+                                .CreatedBy((global::Compze.DbPool.DbPool pool) => createPool(() => pool.ConnectionStringFor(connectionStringName))));
    }
 }

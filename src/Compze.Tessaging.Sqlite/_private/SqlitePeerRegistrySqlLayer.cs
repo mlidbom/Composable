@@ -9,9 +9,9 @@ using Types = Compze.Tessaging._internal.SqlLayer.ITessagingSqlLayer.PeerHandled
 
 namespace Compze.Tessaging.Sqlite._private;
 
-partial class SqlitePeerRegistrySqlLayer(ISqliteConnectionPool connectionFactory, SqliteSqlLayerSchemaManager schemaManager, EndpointTableSet tables) : ITessagingSqlLayer.IPeerRegistrySqlLayer
+partial class SqlitePeerRegistrySqlLayer(ISqlitePeerRegistryConnectionPool connectionFactory, SqliteSqlLayerSchemaManager schemaManager, EndpointTableSet tables) : ITessagingSqlLayer.IPeerRegistrySqlLayer
 {
-   readonly ISqliteConnectionPool _connectionFactory = connectionFactory;
+   readonly ISqlitePeerRegistryConnectionPool _connectionFactory = connectionFactory;
    readonly SqliteSqlLayerSchemaManager _schemaManager = schemaManager;
    readonly EndpointTableSet _tables = tables;
 

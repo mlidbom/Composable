@@ -222,6 +222,7 @@ partial class MsSqlOutboxSqlLayer(IMsSqlConnectionPool connectionFactory, MsSqlS
                        SET {DispatchingTable.IsStranded} = 1
                    WHERE {DispatchingTable.EndpointId} = @{DispatchingTable.EndpointId}
                      AND {DispatchingTable.TessageId} IN ( {TessageIdParameterList(tessageIds.Count)} )
+                     AND {DispatchingTable.IsReceived} = 0 -- Received between the reconciliation read and this statement: delivered before the shrink took effect, nothing to strand.
 
                    """)
               .AddParameter(DispatchingTable.EndpointId, endpointId.Value);

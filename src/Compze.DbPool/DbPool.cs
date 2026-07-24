@@ -30,7 +30,11 @@ public class DbPool : StrictlyManagedResourceBase<DbPool>
    readonly IDbPoolSqlLayer _sqlLayer;
    readonly DbPoolMachineWideState _machineWideState;
    static TimeSpan _reservationLength;
-   internal const int NumberOfDatabases = 50;
+   //Databases materialize lazily up to this cap, so the cap costs nothing until demand reaches it. Sized for the hungriest
+   //consumer: a sqlite-family endpoint reserves three databases - domain, the type-id interner's own, and the peer registry's
+   //own - so a parallel suite run peaks well above the 50 that sufficed when an endpoint reserved two. Exhaustion is loud but
+   //slow: reservation waits up to 45 seconds, then throws - a suite-wide slowdown with unrelated-looking timeouts.
+   internal const int NumberOfDatabases = 100;
 
    DbPool(IDbPoolSqlLayer sqlLayer, TimeSpan reservationLength) : base(forceStackTraceAllocation: false)
    {

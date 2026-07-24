@@ -7,10 +7,12 @@ namespace Compze.Tessaging.Peers._private;
 /// replacement (see the advertisement lifecycle in <c>src/Compze.Tessaging/dev_docs/peers.md</c>). Registered as a component<br/>
 /// set: each delivery tier that keeps tessages for peers contributes the observer that keeps what it holds consistent with<br/>
 /// what the peer's advertisement declares — the outbox contributes one; an endpoint composing no such tier has none.</summary>
-///<remarks>The registry notifies observers from inside <see cref="IPeerRegistry.RecordAdvertisementAsync"/> — on the durable<br/>
-/// registry, inside the same transaction that persists the advertisement, so a recorded shrink and its consequences commit or<br/>
-/// roll back together — and always before the peer's connection starts delivering, so an observer's reconciliation is complete<br/>
-/// before the connection's recovery backlog is loaded.</remarks>
+///<remarks>The registry notifies observers from inside <see cref="IPeerRegistry.RecordAdvertisementAsync"/>, consequences-first:<br/>
+/// before the advertisement is persisted, with no ambient transaction — an observer opens transactions of its own — and always<br/>
+/// before the peer's connection starts delivering, so an observer's reconciliation is complete before the connection's recovery<br/>
+/// backlog is loaded. An observer's consequences must therefore tolerate a rerun: reconciliation runs again on the peer's every<br/>
+/// later advertisement, which is also what heals a crash that separated an observer's committed consequences from the<br/>
+/// advertisement save that was to follow.</remarks>
 interface IPeerLifecycleObserver
 {
    ///<summary>The registry did not know this peer until now — its first advertisement just recorded it. First contact is the<br/>

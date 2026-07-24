@@ -34,10 +34,13 @@ the edge case, declared per relationship (`DoNotQueueTeventsFor`), never assumed
 - **Mirrored in memory, loaded at start**: reads (`Peers`, `SubscriberIdsFor`, `HandlerIdsFor`) are served
   from memory; the backing store is loaded in the endpoint's listening phase.
 - **Durability follows the tier**: on an exactly-once endpoint the memory lives in the endpoint's prefixed
-  table-set in the domain database it joins (`DurablePeerRegistry`) and survives restarts on both sides; on
-  a database-less endpoint it lives for the life of the process (`ProcessLifetimePeerRegistry`), and the
-  `RequirePeers` declaration is the durable memory a database-less endpoint cannot keep anywhere else — it
-  survives restarts by being code.
+  table-set (`DurablePeerRegistry`) and survives restarts on both sides; on a database-less endpoint it
+  lives for the life of the process (`ProcessLifetimePeerRegistry`), and the `RequirePeers` declaration is
+  the durable memory a database-less endpoint cannot keep anywhere else — it survives restarts by being
+  code. On the server engines the table-set sits in the domain database the endpoint joins; on SQLite it
+  sits in an auxiliary database of its own, `«domain-database-name».PeerRegistry`, because a recording must
+  commit while a domain transaction is open and SQLite's per-database write gate would otherwise queue it
+  behind that transaction (`ISqlitePeerRegistryConnectionPool` tells the whole story).
 - **Absence is not a lifecycle event.** Crash, liveness pruning, clean stop with retraction: none of them
   touch peer memory. They affect connections and delivery timing only — a peer is remembered while down,
   because absence is never forgetting.
@@ -104,9 +107,14 @@ tevent, publisher crash (memory is memory), and queue overflow.
   peer to be remembered, and remembering happens at recording — so first contact finding rows already bound
   to the peer's id is an invariant violation.
 - **Update**: every advertisement fetch replaces the stored advertisement wholesale. The peer registries
-  notify the `IPeerLifecycleObserver` component set from inside the recording — on the durable registry
-  inside the same transaction, and always before the peer's connection loads its recovery backlog, so what
-  is stranded never enters a delivery stream.
+  notify the `IPeerLifecycleObserver` component set from inside the recording, consequences-first: the
+  observers reconcile — in transactions of their own — before the advertisement is saved, and the in-memory
+  mirror learns the peer last, so nothing binds to an advertisement that is not yet durable. Always before
+  the peer's connection loads its recovery backlog, so what is stranded never enters a delivery stream. A
+  crash between the steps loses nothing: reconciliation reruns on the peer's every later advertisement, and
+  the next fetch records the advertisement again — the same rerun that covers a publish racing the
+  recording. The one recording that can wait behind an open domain transaction is a replacement with
+  something to strand — stranding writes the domain database; first contact and a growth never do.
 - **Shrink**: a shrunk advertisement is the peer's own explicit declaration — an unsubscribe by the
   subscription's owner, nothing like absence. The outbox reconciles the peer's undelivered rows against
   every replaced advertisement: undelivered tessages of types the fresh advertisement no longer serves are

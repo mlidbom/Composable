@@ -4,6 +4,7 @@ using Compze.Internals.SystemCE.ReflectionCE;
 using Compze.Internals.SystemCE.ThreadingCE.TasksCE;
 using Compze.Internals.SystemCE.TransactionsCE;
 using Compze.Tessaging.Peers;
+using Compze.Tessaging.Peers._internal;
 using Compze.Tessaging._internal.SqlLayer;
 using Compze.Tessaging.TessageTypes;
 using Compze.TypeIdentifiers;
@@ -22,8 +23,9 @@ partial class Outbox
    /// never destroyed. On first contact it asserts that nothing is owed to the peer: binding requires the peer to be<br/>
    /// remembered and remembering happens at recording, so a row already bound to a never-met identity is an invariant<br/>
    /// violation to fail loud on, never something to silently clean up.</summary>
-   ///<remarks>Notified inside the transaction that persists the advertisement and always before the peer's connection loads its<br/>
-   /// recovery backlog, so what is stranded here never enters a delivery stream. Reconciliation runs on every replacement, not<br/>
+   ///<remarks>Notified before the advertisement is persisted — the registry records consequences-first, see<br/>
+   /// <see cref="IPeerRegistry.RecordAdvertisementAsync"/> — and always before the peer's connection loads its recovery<br/>
+   /// backlog, so what is stranded here never enters a delivery stream. Reconciliation runs on every replacement, not<br/>
    /// only detected shrinks, deliberately: a publish fanning out on the not-yet-replaced peer memory can commit a row of a<br/>
    /// renounced type concurrently with the shrink that renounced it, and the rerun on the peer's next advertisement strands it.</remarks>
    ///<remarks>A stranded tessage stays stranded even when a later advertisement re-grows its type: while it was stranded, later<br/>
@@ -38,11 +40,11 @@ partial class Outbox
 
       public async Task PeerMetForTheFirstTimeAsync(RememberedPeer peer)
       {
-         //Read outside the recording's ambient transaction: an assertion probe must never enlist - on SQLite enlisting takes
-         //the per-database write gate, and first contact must never queue behind an open handling transaction's gate.
-         //The recovery-backlog read suffices as the probe: stranded rows require an advertisement replacement of a met peer,
-         //so for a never-met peer the backlog covers everything that could possibly be bound.
-         var rowsBoundToTheNeverMetPeer = await TransactionScopeCe.SuppressAmbientAsync(async () => await _storage.GetUndeliveredTessagesForEndpointAsync(peer.Id).caf()).caf();
+         //The registry notifies with no ambient transaction (see IPeerLifecycleObserver), so this probe never enlists - on
+         //SQLite enlisting takes the per-database write gate, and first contact must never queue behind an open handling
+         //transaction's gate. The recovery-backlog read suffices as the probe: stranded rows require an advertisement
+         //replacement of a met peer, so for a never-met peer the backlog covers everything that could possibly be bound.
+         var rowsBoundToTheNeverMetPeer = await _storage.GetUndeliveredTessagesForEndpointAsync(peer.Id).caf();
          State.Assert(rowsBoundToTheNeverMetPeer.Count == 0,
                       () => $"First contact with peer {peer.Id}, but {rowsBoundToTheNeverMetPeer.Count} tessage(s) are already bound to its identity (types: {DistinctTypeNames(rowsBoundToTheNeverMetPeer.Select(it => it.TypeId))}). "
                           + "Binding requires the peer to be remembered, and remembering happens at recording - nothing can be owed a peer before it is first known, so these rows mean that invariant broke.");
@@ -50,6 +52,9 @@ partial class Outbox
 
       public async Task PeerAdvertisementReplacedAsync(RememberedPeer previous, RememberedPeer current)
       {
+         //The registry notifies with no ambient transaction (see IPeerLifecycleObserver): the read runs unenlisted - on SQLite
+         //an unenlisted read never queues behind an open handling transaction's write gate, so a replacement that strands
+         //nothing completes whatever domain transactions are open. Only a genuine shrink proceeds to the gated stranding below.
          var undelivered = await _storage.GetUndeliveredTessagesForEndpointAsync(current.Id).caf();
          if(undelivered.Count == 0) return;
 
@@ -66,8 +71,16 @@ partial class Outbox
             }
          }
 
-         await StrandTheRenouncedTeventsAsync().caf();
-         await StrandTheNoLongerHandledTommandsAsync().caf();
+         if(renouncedTevents.Count == 0 && noLongerHandledTommands.Count == 0) return;
+
+         //One transaction for both kinds: the stranding commits or rolls back whole, and enlisting is what serializes it
+         //behind sqlite's per-database write gate instead of failing on the engine's own busy timeout. A row received between
+         //the unenlisted read above and this transaction is left alone - the strand statements skip received rows.
+         await TransactionScopeCe.ExecuteAsync(async () =>
+         {
+            await StrandTheRenouncedTeventsAsync().caf();
+            await StrandTheNoLongerHandledTommandsAsync().caf();
+         }).caf();
          return;
 
          async Task StrandTheRenouncedTeventsAsync()

@@ -232,7 +232,7 @@ Synchrony is part of the tessage's contract, declared like everything else by it
 - **Strictly-local kinds keep sync as first-class** — the memory-bound, in-caller's-transaction case — with
   async available for handlers that read actual stores.
 - **Remote typermedia is async-first** on the wire and at its navigator surface.
-- **The administration surfaces are async** — readiness, decommission are awaitables by nature.
+- **The administration surfaces are async** — readiness is an awaitable by nature.
 
 The unit-of-work choreography is async-flow-safe: the ambient transaction flows across awaits. The
 consequence the consistency law makes explicit — locks held across the awaits of in-boundary handlers — is
@@ -323,7 +323,8 @@ parameters filled through its builder (`ExactlyOnceEndpointBuilder` /
 Each endpoint runs one router (`TessagingRouter`). Connections are keyed by `EndpointId`; routes are
 derived from peers' advertisements — tevent subscriptions by type-assignability, single-handler kinds by
 exact type — with one route policy across all kinds: several remembered handlers for a single-handler type
-is a diagnosable send-time condition whose remedy is decommission, never a crash and never a silent pick.
+is a diagnosable send-time condition whose remedy is bringing the current handler up, never a crash and
+never a silent pick.
 
 Discovery is one question: every endpoint serves the endpoint-information query over its one transport
 server, answering with its name, its `EndpointId`, and its advertisement. One advertisement describes
@@ -340,10 +341,11 @@ endpoint. Remembered peers are what fan-out, receiver binding, queue-while-down,
 against; a peer's advertisement shrinking prunes what is owed to it, loudly. The whole story is
 [peers](peers.md).
 
-Administration is a first-class production surface:
+Administration surfaces:
 
-- **Decommission** (`IPeerAdministration`): retire a departed peer deliberately — discard what is held for
-  it, resolve handler ambiguities it left behind, report what was discarded.
+- **Peer memory, read-only** (`IPeerMemory`): the remembered peers, for observation and waiting. Retiring a
+  departed peer deliberately — resolving what is held for it, removing it from memory — is future design,
+  deliberately unimplemented: [the peer-administration roadmap](WIP/peer-administration.md).
 - **Readiness** (`IEndpoint.AwaitReadinessAsync`): awaitable "handlers for these types are available" —
   safe to start taking traffic.
 

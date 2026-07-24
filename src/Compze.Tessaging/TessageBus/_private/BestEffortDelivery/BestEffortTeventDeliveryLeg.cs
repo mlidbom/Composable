@@ -27,8 +27,6 @@ static class BestEffortTeventDeliveryRegistrar
                   //The stream factory grants the router's connections their best-effort delivery streams, each draining its peer's queue - the same wiring idiom as the exactly-once stream factory the outbox registers.
                   .Register(Singleton.For<TessagingConnection.BestEffortDeliveryStream.Factory>()
                                      .CreatedBy((BestEffortTeventQueues queues) => new TessagingConnection.BestEffortDeliveryStream.Factory(queues)))
-                  //The queues are the tier's share of decommissioning a peer: what they keep for it is discarded, reported, by the act (IPeerAdministration.Decommission).
-                  .Register(Singleton.ForSet<IPeerDecommissionParticipant>().CreatedBy((BestEffortTeventQueues queues) => queues))
                   .Register(BestEffortTeventDeliveryLeg.RegisterWith);
 }
 

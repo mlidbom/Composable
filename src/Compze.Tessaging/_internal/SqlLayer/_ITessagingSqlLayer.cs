@@ -35,8 +35,8 @@ interface ITessagingSqlLayer
 
       ///<summary>The endpoint's recovery backlog: every tessage bound to <paramref name="endpointId"/> and not yet received,<br/>
       /// in the pair's delivery stream sequence order — which is commit order, so recovery re-establishes in-order delivery.<br/>
-      /// Stranded tessages are excluded — a stranded tommand waits for explicit resolution on the decommission surface,<br/>
-      /// never for delivery.</summary>
+      /// Stranded tessages are excluded — a stranded tommand waits for explicit resolution<br/>
+      /// (see <c>src/Compze.Tessaging/dev_docs/WIP/peer-administration.md</c>), never for delivery.</summary>
       Task<IReadOnlyList<UndeliveredTessage>> GetUndeliveredTessagesForEndpointAsync(EndpointId endpointId);
 
       ///<summary>Discards these undelivered tessages bound to <paramref name="endpointId"/>: their dispatching rows are deleted,<br/>
@@ -46,12 +46,13 @@ interface ITessagingSqlLayer
 
       ///<summary>Marks these undelivered tessages bound to <paramref name="endpointId"/> stranded: kept, but excluded from the<br/>
       /// recovery backlog — the fate of undelivered tommands whose bound receiver's shrunk advertisement no longer handles their<br/>
-      /// type. A stranded tommand is resolved explicitly on the decommission surface. Runs in the caller's ambient transaction.</summary>
+      /// type. A stranded tommand awaits explicit resolution (see <c>src/Compze.Tessaging/dev_docs/WIP/peer-administration.md</c>).<br/>
+      /// Runs in the caller's ambient transaction.</summary>
       Task StrandUndeliveredTessagesAsync(EndpointId endpointId, IReadOnlyList<TessageId> tessageIds);
 
       ///<summary>Discards everything still owed to <paramref name="endpointId"/> — every unreceived dispatching row bound to it,<br/>
-      /// stranded ones included — returning what was discarded, so the caller can report it: the storage half of decommissioning<br/>
-      /// a peer, and of the first-contact sweep. Runs in the caller's ambient transaction.</summary>
+      /// stranded ones included — returning what was discarded, so the caller can report it: the storage half of the<br/>
+      /// first-contact sweep. Runs in the caller's ambient transaction.</summary>
       Task<IReadOnlyList<DiscardedTessage>> DiscardAllTessagesOwedToAsync(EndpointId endpointId);
 
       Task InitAsync();
@@ -125,10 +126,6 @@ interface ITessagingSqlLayer
 
       ///<summary>Every remembered peer, with its stored advertisement.</summary>
       Task<IReadOnlyList<PersistedPeer>> GetPeersAsync();
-
-      ///<summary>Deletes <paramref name="peerId"/>'s row and stored advertisement — the durable half of decommissioning the<br/>
-      /// peer. Runs in the caller's ambient transaction: the whole decommission act commits or rolls back together.</summary>
-      Task DeletePeerAsync(EndpointId peerId);
 
       Task InitAsync();
    }
@@ -211,10 +208,9 @@ interface ITessagingSqlLayer
 
       Task InitAsync();
 
-      //todo: Decommissioning an endpoint's storage = dropping its prefixed table-set and deleting its catalog entry (refused
-      //while its process lease is held). The design equation is settled (tessaging-target-design.md); the administration operation
-      //that performs the act - its surface, safety asserts, and report shape, mirroring PeerDecommissionReport - awaits its
-      //first consumer.
+      //todo: Removing an endpoint's storage = dropping its prefixed table-set and deleting its catalog entry (refused while
+      //its process lock is held). Part of the future administration design - see
+      //src/Compze.Tessaging/dev_docs/WIP/peer-administration.md - and awaits its first consumer.
    }
 
    ///<summary>The endpoint's held process lock (see <see cref="IEndpointCatalogSqlLayer.TryTakeProcessLockAsync"/>):<br/>

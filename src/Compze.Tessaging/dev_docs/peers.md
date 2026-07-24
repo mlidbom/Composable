@@ -3,7 +3,7 @@
 This document takes a developer who is new to the Tessaging code from zero to understanding peers — the
 endpoint's durable memory of the endpoints it converses with, and everything computed from that memory:
 tevent fan-out membership, tommand receiver binding, queue-while-down, the advertisement lifecycle,
-decommissioning, and handler availability (waiting sends and readiness). It is a companion to
+and handler availability (waiting sends and readiness). It is a companion to
 [Tessaging](tessaging.md), which explains the paradigm, and to
 [the tevent delivery model](tevent-delivery-model.md), which explains the delivery guarantees peer memory
 feeds.
@@ -11,7 +11,7 @@ feeds.
 ## The concepts
 
 - **A peer** is another endpoint, as seen from this one: the unit of identity (`EndpointId`), lifecycle
-  (first contact → advertisement updates → decommissioning), and expectation (`RequirePeers`). An endpoint
+  (first contact → advertisement updates), and expectation (`RequirePeers`). An endpoint
   is never its own peer — its own roster serves its tessages in-boundary.
 - **A `RememberedPeer`** is what the memory holds per peer: its identity and its last-known
   **advertisement** — which remotable tessage types it handles and subscribes to, one advertisement
@@ -65,12 +65,12 @@ stream: **exactly-once in-order holds by construction**. Consequences:
 - A known-but-down handler receives the tommand on its return; the send never explodes on downtime.
 - A bound tommand never enters another endpoint's stream: when a handler endpoint is replaced by a
   successor with a new `EndpointId`, in-flight tommands wait for their bound endpoint while new sends bind
-  to the live successor. A tommand stranded by its receiver's permanent departure is resolved explicitly on
-  the decommission surface, never redelivered by inference.
+  to the live successor. A tommand stranded by its receiver's permanent departure awaits explicit
+  resolution ([the peer-administration roadmap](WIP/peer-administration.md)), never redelivery by inference.
 - Several remembered handlers with none live is a diagnosable condition (a replacement whose retired peer
-  was never decommissioned): the send waits — the moment one of them connects, binding to the live one is
+  is still remembered): the send waits — the moment one of them connects, binding to the live one is
   correct, so waiting legitimately resolves the ambiguity — and only exhausted patience throws
-  `MultipleHandlersForTessageTypeException`, naming the peers and the decommission remedy.
+  `MultipleHandlersForTessageTypeException`, naming the peers and the remedy: bring the current handler up.
 - A tommand whose handler is in the sender's own roster never reaches binding at all: it executes inline,
   in the sender's execution, per the consistency law.
 
@@ -100,9 +100,9 @@ tevent, publisher crash (memory is memory), and queue overflow.
 
 - **First contact**: connecting to a newly discovered endpoint creates its peer entry. Everything published
   before first contact is out of scope by definition — except tevents held under `RequirePeers`, which
-  exist precisely to bridge it. On first contact, anything already bound to the peer's id in storage is
-  discarded — nothing can be owed a peer before it is first known, so such rows are leftovers of a
-  decommissioned predecessor identity.
+  exist precisely to bridge it. Nothing can be owed a peer before it is first known — binding requires the
+  peer to be remembered, and remembering happens at recording — so first contact finding rows already bound
+  to the peer's id is an invariant violation.
 - **Update**: every advertisement fetch replaces the stored advertisement wholesale. The peer registries
   notify the `IPeerLifecycleObserver` component set from inside the recording — on the durable registry
   inside the same transaction, and always before the peer's connection loads its recovery backlog, so what
@@ -115,26 +115,18 @@ tevent, publisher crash (memory is memory), and queue overflow.
   - **Tommands**: someone commanded an action that now has no handler — almost certainly a deployment
     error. The tommand is bound to its receiver, so a successor does not automatically receive it: the row
     is **stranded** loudly (`IsStranded` on the dispatching row, excluded from the recovery backlog, never
-    auto-un-stranded) and resolved explicitly on the decommission surface.
+    auto-un-stranded), kept and visible, awaiting explicit resolution
+    ([the peer-administration roadmap](WIP/peer-administration.md)).
 
-## Decommissioning
+## Removing peers from memory: future design, deliberately unimplemented
 
-The one way a peer leaves the endpoint's memory; an administrative act, never an inference:
-`IPeerAdministration.DecommissionAsync(EndpointId)`.
-
-- The act removes the peer from the registry and discards everything the endpoint still holds for it,
-  through the `IPeerDecommissionParticipant` component set — the outbox (undelivered rows, stranded
-  tommands' explicit resolution) and the best-effort queues (queued tevents, a required peer's
-  first-contact hold). Loud and deliberate: the returned `PeerDecommissionReport` lists what was discarded,
-  and the act logs a warning.
-- One transaction of its own; every in-memory consequence (mirror forget, queue drop) runs only on commit,
-  so an act that fails partway changes nothing.
-- Fails loud on self, on a connected peer (a connected peer is not gone), and on an unknown peer.
-- A decommissioned peer's best-effort queue stays as a tombstone declining every tessage — a publish racing
-  the act must find a queue that declines, never a fresh one holding tessages for a forgotten peer — until
-  the peer's next connection replaces it: a re-announce is a first contact again.
-- Decommission also resolves the several-remembered-handlers ambiguity: decommissioning the retired peer
-  leaves one handler to bind to.
+Nothing forgets a peer today. A speculative decommission act existed and was deleted 2026-07-24 — it
+bulk-destroyed exactly-once content, had no reviewed design, no admin surface, and no consumer beyond its
+own tests. The staged design that will replace it — explicit per-kind resolution of orphaned tessages, an
+archive as the destination for everything never-to-be-delivered, removal from memory as the final
+refuses-while-anything-is-owed step — is recorded in
+[the peer-administration roadmap](WIP/peer-administration.md), along with the safe steady states the
+deletion leaves (bounded loud holds, inert undelivered rows, visible strands).
 
 ## Handler availability: waiting sends and readiness
 
@@ -199,7 +191,7 @@ executes inline in the sender's execution, so it has nothing to wait for.
 
 `test/Compze.Tests.Integration/Tessaging/Given_a_backend_endpoint_with_a_tommand_tevent_and_tuery_handler/`
 holds the peer-memory pins (`Peer_registry_tests`, `Tevent_delivery_to_peers_that_are_down_tests`,
-`Tommand_receiver_binding_tests`, `Advertisement_shrink_tests`, `Peer_decommission_tests`);
+`Tommand_receiver_binding_tests`, `Advertisement_shrink_tests`);
 `test/Compze.Tests.Integration/Hosting/` the queue-while-down, required-peer, and opt-down specs;
 `test/Compze.Tests.Integration/Tessaging/` the readiness and exactly-once-bind-wait specs; and
 `test/Compze.Tessaging.Specifications/Typermedia/` the typermedia waiting-send specs.

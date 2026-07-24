@@ -15,9 +15,9 @@ namespace Compze.Tessaging.Peers._internal;
 /// subscriber that was down when a tevent was published — a routine rolling restart sufficed — silently never received it.</remarks>
 ///<remarks>Every transport-speaking endpoint registers exactly one, through the distributed Tessaging core. Durability follows<br/>
 /// the foundation: with Tessaging persistence declared, peer memory lives in the endpoint's prefixed table-set in the domain<br/>
-/// database it joins and survives restarts<br/>
-/// (<see cref="DurablePeerRegistry"/>, where a peer is remembered until explicitly decommissioned); on a database-less endpoint<br/>
-/// it lives in memory for the life of the process (<see cref="ProcessLifetimePeerRegistry"/>).</remarks>
+/// database it joins and survives restarts (<see cref="DurablePeerRegistry"/> — a peer, once met, stays remembered: nothing<br/>
+/// forgets a peer until the peer-administration design exists, see <c>src/Compze.Tessaging/dev_docs/WIP/peer-administration.md</c>);<br/>
+/// on a database-less endpoint it lives in memory for the life of the process (<see cref="ProcessLifetimePeerRegistry"/>).</remarks>
 interface IPeerRegistry
 {
    ///<summary>Records <paramref name="advertisement"/> as the advertising peer's current one, replacing what was stored —<br/>
@@ -42,19 +42,12 @@ interface IPeerRegistry
    /// single-handler type <paramref name="tessageType"/> — an exactly-once tommand, a typermedia tommand, or a tuery — matched<br/>
    /// exactly, the way the router's routes match these kinds. Exactly one entry is the known-but-down handler; none means<br/>
    /// nothing this endpoint has ever met serves the type (never-seen); more than one is a handler replacement whose retired<br/>
-   /// peer was never decommissioned. Two askers: an exactly-once tommand binds to its one specific receiver at send time, and<br/>
+   /// peer is still remembered. Two askers: an exactly-once tommand binds to its one specific receiver at send time, and<br/>
    /// when no handler is live this list is where the receiver comes from; and waiting sends and readiness compute their<br/>
    /// known-but-down vs never-seen availability and failure wording from it, for every single-handler kind. The endpoint<br/>
    /// itself never asks: a peer is another endpoint, and an in-roster tessage is served in-boundary — an in-roster tommand<br/>
    /// executes inline in the sender's execution and never reaches the outbox's receiver binding at all.</summary>
    IReadOnlyList<EndpointId> HandlerIdsFor(Type tessageType);
-
-   ///<summary>The registry's share of decommissioning <paramref name="peer"/> — the one way a peer leaves the endpoint's memory<br/>
-   /// (see <see cref="IPeerAdministration.DecommissionAsync"/>, the surface that performs the whole act and calls this inside the<br/>
-   /// act's transaction): durable removal rides that transaction, and the in-memory memory forgets the peer only on commit — so<br/>
-   /// a decommission that fails partway leaves the peer fully remembered, and the moment the act commits, tevent fan-out stops<br/>
-   /// including the peer and tommand sends stop binding to it.</summary>
-   Task DecommissionAsync(EndpointId peer);
 
    ///<summary>Initializes the registry's backing store, if any, and loads the remembered peers into memory. Runs in the<br/>
    /// endpoint's listening phase, before any endpoint in the host starts sending.</summary>

@@ -19,10 +19,6 @@ class RememberedPeers
    ///<summary>The remembered peer with this identity — null when no peer with it has been remembered.</summary>
    internal RememberedPeer? Find(EndpointId peerId) => _monitor.Locked(() => _peers.GetValueOrDefault(peerId));
 
-   ///<summary>Forgets the peer — the memory half of decommissioning it: reads stop listing it the moment this runs, so tevent<br/>
-   /// fan-out stops including it and tommand sends stop binding to it.</summary>
-   internal void Forget(EndpointId peerId) => _monitor.Locked(() => _peers = _peers.RemoveFromCopy(peerId));
-
    internal void ReplaceAllWith(IEnumerable<RememberedPeer> peers) => _monitor.Locked(() => _peers = peers.ToDictionary(peer => peer.Id));
 
    internal IReadOnlyList<RememberedPeer> Peers => _monitor.Locked(() => (IReadOnlyList<RememberedPeer>)[.._peers.Values]);

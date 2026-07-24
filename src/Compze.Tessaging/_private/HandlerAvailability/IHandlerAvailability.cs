@@ -35,7 +35,7 @@ interface IHandlerAvailability
    /// outbox's storage. What waits, within patience, are the two states with no bindable receiver: a type nothing this<br/>
    /// endpoint has ever met serves — waiting for its first contact, after which the send binds and proceeds — and several<br/>
    /// remembered handlers with none live — waiting for one to connect (live is current by definition, resolving the<br/>
-   /// replacement ambiguity) or for a decommission to resolve it. Exhausted patience throws<br/>
+   /// replacement ambiguity). Exhausted patience throws<br/>
    /// <see cref="NoHandlerForTessageTypeException"/> / <see cref="MultipleHandlersForTessageTypeException"/>.</summary>
    ///<remarks>The wait strictly precedes the bind, so the exactly-once in-order guarantee is untouched: the tommand still<br/>
    /// binds exactly once, before its row is saved, and rides the bound pair's single ordered, receiver-deduped delivery<br/>

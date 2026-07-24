@@ -41,7 +41,7 @@ the current-state docs are the living truth.
 - [tevent-delivery-model.md](../tevent-delivery-model.md) — how tevents travel: the delivery ladder,
   publishing, subscribing, observation, ordering.
 - [peers.md](../peers.md) — the endpoint's memory of its peers and everything computed from it:
-  fan-out membership, receiver binding, queue-while-down, advertisement lifecycle, decommission, waiting
+  fan-out membership, receiver binding, queue-while-down, advertisement lifecycle, waiting
   sends and readiness.
 - [storage.md](../storage.md) — the domain database: per-endpoint table-sets, the endpoint
   catalog, the process lock, schema creation.

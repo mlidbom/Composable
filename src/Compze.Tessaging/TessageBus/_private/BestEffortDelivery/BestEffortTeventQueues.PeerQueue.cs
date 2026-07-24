@@ -24,7 +24,6 @@ partial class BestEffortTeventQueues
       int _reservedSlots;
       bool _awaitingFirstContact;
       bool _drainingStreamAttached;
-      bool _decommissioned;
       readonly AutoResetEvent _enqueued = new(false);
 
       internal PeerQueue(EndpointId peerId, bool awaitingFirstContact, bool queueingDeclined = false)
@@ -68,26 +67,6 @@ partial class BestEffortTeventQueues
       /// for it, since which tevents it subscribes to is unknown until first contact resolves the held tevents<br/>
       /// (<see cref="FlushHeldTeventsOnFirstContact"/>).</summary>
       internal bool IsAwaitingFirstContact => _monitor.Locked(() => _awaitingFirstContact);
-
-      ///<summary>Whether the peer was decommissioned (<see cref="Decommission"/>): the queue is then a tombstone declining every<br/>
-      /// tessage. It stays in the store deliberately — a publish racing the decommission must find a queue that declines, never<br/>
-      /// a fresh one that would hold tessages for a forgotten peer — until the peer's next connection replaces it with a fresh<br/>
-      /// queue: a re-announce is first contact again.</summary>
-      internal bool IsDecommissioned => _monitor.Locked(() => _decommissioned);
-
-      ///<summary>How many tessages are queued right now — what a decommission reports before discarding them.</summary>
-      internal int QueuedCount => _monitor.Locked(() => _queue.Count);
-
-      ///<summary>The queue's share of decommissioning its peer: everything queued is dropped and returned for the act's report,<br/>
-      /// a required peer's first-contact hold ends, and the queue becomes a tombstone (<see cref="IsDecommissioned"/>).</summary>
-      internal IReadOnlyList<TransportTessage.OutGoing> Decommission() => _monitor.Locked(() =>
-      {
-         _decommissioned = true;
-         _awaitingFirstContact = false;
-         IReadOnlyList<TransportTessage.OutGoing> dropped = [.._queue];
-         _queue.Clear();
-         return dropped;
-      });
 
       ///<summary>Signaled on every <see cref="Enqueue"/> — what the draining stream waits on when the queue is empty.</summary>
       internal WaitHandle EnqueuedSignal => _enqueued;
@@ -145,14 +124,14 @@ partial class BestEffortTeventQueues
       ///<summary>Appends <paramref name="transportTessage"/>, converting the reservation its publish took inside the<br/>
       /// now-committed transaction — unless the tessage is declined (the reservation still converts, and the caller reports the<br/>
       /// drop): a not-queued-for peer's queue declines whenever no stream is draining it — such a peer's tevents exist only<br/>
-      /// while it is there to receive them — and a decommissioned peer's tombstone declines everything.</summary>
+      /// while it is there to receive them.</summary>
       internal bool Enqueue(TransportTessage.OutGoing transportTessage)
       {
          var enqueued = _monitor.Locked(() =>
          {
             State.Assert(_reservedSlots > 0, () => "Every enqueue converts a reservation its publish took; enqueueing with none reserved is a bookkeeping bug.");
             _reservedSlots--;
-            if(_decommissioned || (QueueingDeclined && !_drainingStreamAttached)) return false;
+            if(QueueingDeclined && !_drainingStreamAttached) return false;
             _queue.Enqueue(transportTessage);
             return true;
          });

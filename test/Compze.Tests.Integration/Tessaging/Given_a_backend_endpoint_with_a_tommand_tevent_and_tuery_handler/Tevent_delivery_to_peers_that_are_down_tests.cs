@@ -20,7 +20,7 @@ public class Tevent_delivery_to_peers_that_are_down_tests : EndpointHostTestBase
       await StartHostWithOnlyTheBackendEndpointAsync();
 
       //Down is not forgotten: the Backend's peer registry loaded Remote and its subscriptions from the Backend's database.
-      BackendPeerAdministration.Peers.Select(peer => peer.Id).Must().Contain(RemoteEndpointDeclaration.Id);
+      BackendPeerMemory.Peers.Select(peer => peer.Id).Must().Contain(RemoteEndpointDeclaration.Id);
 
       //Publishes IMyTaggregateTevent - which Remote subscribes to - exactly-once, while Remote is down.
       await Navigator.PostAsync(MyCreateTaggregateTommand.Create());
@@ -31,5 +31,5 @@ public class Tevent_delivery_to_peers_that_are_down_tests : EndpointHostTestBase
       MyRemoteTaggregateTeventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1, WaitTimeout.Seconds(15));
    }
 
-   IPeerAdministration BackendPeerAdministration => BackendEndPoint.ServiceLocator.Resolve<IPeerAdministration>();
+   IPeerMemory BackendPeerMemory => BackendEndPoint.ServiceLocator.Resolve<IPeerMemory>();
 }

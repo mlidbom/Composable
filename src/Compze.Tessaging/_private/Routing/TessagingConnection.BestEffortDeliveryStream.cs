@@ -45,9 +45,8 @@ partial class TessagingConnection
       {
          //Resolved here rather than at construction: the peer's identity arrives with the connection's InitAsync. A required
          //peer met for the first time has its held tevents resolved against its just-learned subscriptions before draining
-         //starts, and a decommissioned peer's tombstone is replaced by a fresh queue - a re-announce is first contact again.
-         //The router recorded the advertisement in the peer registry before this runs (ConnectAsync), which is the ordering
-         //the delivery leg's queues-before-registry read relies on.
+         //starts. The router recorded the advertisement in the peer registry before this runs (ConnectAsync), which is the
+         //ordering the delivery leg's queues-before-registry read relies on.
          _peerQueue = _queues.ForConnectedPeer(_connection.EndpointInformation);
 
          //Attached here, synchronously, before the loop's thread exists - the router adds this connection and starts its

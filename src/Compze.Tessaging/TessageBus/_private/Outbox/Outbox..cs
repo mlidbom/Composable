@@ -33,9 +33,8 @@ partial class Outbox : IOutbox
       registrar.Register(Singleton.ForSet<IExactlyOnceTeventDeliveryLeg>().CreatedBy((IOutbox outbox) => outbox));
       //...and what grants the router's connections their exactly-once delivery streams, backed by the outbox's storage: on an endpoint without the outbox this set is empty and connections carry no such stream (see TessagingConnection).
       registrar.Register(Singleton.ForSet<TessagingConnection.ExactlyOnceDeliveryStream.Factory>().CreatedBy((ITessageStorage tessageStorage) => new TessagingConnection.ExactlyOnceDeliveryStream.Factory(tessageStorage)));
-      //...and the outbox's side of the peer lifecycle: the peer registry notifies the observer set on every recorded advertisement, and this member keeps the undelivered rows consistent with what each peer's advertisement declares (shrink pruning, first-contact sweep); as the decommission participant it discards everything the outbox still owes a decommissioned peer. An endpoint without the outbox contributes neither.
+      //...and the outbox's side of the peer lifecycle: the peer registry notifies the observer set on every recorded advertisement, and this member keeps the undelivered rows consistent with what each peer's advertisement declares. An endpoint without the outbox contributes nothing.
       registrar.Register(Singleton.ForSet<IPeerLifecycleObserver>().CreatedBy((ITessageStorage tessageStorage) => new PeerLifecycleObserver(tessageStorage)));
-      registrar.Register(Singleton.ForSet<IPeerDecommissionParticipant>().CreatedBy((ITessageStorage tessageStorage) => new PeerLifecycleObserver(tessageStorage)));
       registrar.Register(TessageStorage.RegisterWith);
    }
 

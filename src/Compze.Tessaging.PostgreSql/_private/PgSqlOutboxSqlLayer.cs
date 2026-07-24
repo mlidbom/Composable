@@ -175,7 +175,7 @@ partial class PgSqlOutboxSqlLayer(IPgSqlConnectionPool connectionFactory, PgSqlS
                     FROM {_tables.OutboxTessages} m
                     INNER JOIN {_tables.OutboxTessageDispatching} d ON m.{TessageTable.TessageId} = d.{DispatchingTable.TessageId}
                     WHERE d.{DispatchingTable.IsReceived} = false
-                      AND d.{DispatchingTable.IsStranded} = false -- A stranded tessage waits for explicit resolution on the decommission surface, never for delivery.
+                      AND d.{DispatchingTable.IsStranded} = false -- A stranded tessage awaits explicit resolution (dev_docs/WIP/peer-administration.md), never delivery.
                       AND d.{DispatchingTable.EndpointId} = @endpointId
                     ORDER BY d.{DispatchingTable.DeliveryStreamSequenceNumber}; -- The pair's stream order, which is commit order: recovery re-establishes in-order delivery.
 

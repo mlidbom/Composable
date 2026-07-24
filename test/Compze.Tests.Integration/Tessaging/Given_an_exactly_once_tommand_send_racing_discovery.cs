@@ -62,7 +62,7 @@ public class Given_an_exactly_once_tommand_send_racing_discovery : UniversalTest
    [PCT] public async Task A_send_while_several_remembered_peers_advertise_the_type_and_none_is_live_binds_to_the_one_that_connects_and_is_delivered()
    {
       //The sender met the retired peer - a handler of the tommand's type - in one host generation, and the late handler in the
-      //next: a handler replacement whose retired predecessor was never decommissioned. Its durable peer memory now remembers
+      //next: a handler replacement whose retired predecessor is still remembered. Its durable peer memory now remembers
       //two peers advertising the type...
       await MeetTheEndpointHandlingTheTommandTypeInItsOwnHostGenerationAsync(new RetiredPeerEndpointDeclaration(_retiredPeerThreadGate));
       await MeetTheEndpointHandlingTheTommandTypeInItsOwnHostGenerationAsync(new LateHandlerEndpointDeclaration(_lateHandlerThreadGate));

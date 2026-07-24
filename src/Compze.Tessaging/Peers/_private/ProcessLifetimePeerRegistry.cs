@@ -1,7 +1,4 @@
-using System.Transactions;
-using Compze.Contracts;
 using Compze.Internals.SystemCE.ThreadingCE.TasksCE;
-using Compze.Internals.SystemCE.TransactionsCE;
 using Compze.Tessaging.Endpoints;
 using Compze.Tessaging.TessageTypes;
 using Compze.TypeIdentifiers;
@@ -36,14 +33,6 @@ namespace Compze.Tessaging.Peers._private;
       var previous = _rememberedPeers.Find(peer.Id);
       _rememberedPeers.Remember(peer);
       await _lifecycleObservers.NotifyAdvertisementRecordedAsync(previous, peer).caf();
-   }
-
-   public Task DecommissionAsync(EndpointId peer)
-   {
-      //Deferred to commit like the durable flavor: the decommission act's other consequences may still fail and roll the act back.
-      State.NotNull(Transaction.Current);
-      Transaction.Current.OnCommittedSuccessfully(() => _rememberedPeers.Forget(peer));
-      return Task.CompletedTask;
    }
 
    public IReadOnlyList<RememberedPeer> Peers => _rememberedPeers.Peers;

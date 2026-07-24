@@ -262,11 +262,11 @@ public abstract class EndpointBuilder
                .LocalTypermediaNavigatorSession()
                .IndependentLocalTypermediaNavigator();
 
-      //The transport-speaking substrate: one router, peer memory and its administration, the waiting sends' availability machinery,
-      //the best-effort tevent delivery leg (the RequirePeers/DoNotQueueTeventsFor declarations are captured by the lists),
-      //and the tier's request handling.
+      //The transport-speaking substrate: one router, peer memory and its public read view, the waiting sends' availability
+      //machinery, the best-effort tevent delivery leg (the RequirePeers/DoNotQueueTeventsFor declarations are captured by the
+      //lists), and the tier's request handling.
       Registrar.PeerRegistry()
-               .PeerAdministration()
+               .PeerMemory()
                .TessagingTransport()
                .HandlerAvailability()
                .BestEffortTeventDelivery(_requiredPeers, _peersNotQueuedFor)

@@ -33,9 +33,8 @@ public class Advertisement_shrink_tests : EndpointHostTestBase
 
       //The kept tommand delivers...
       MyExactlyOnceTommandHandledByTheRemoteEndpointHandlerThreadGate.AwaitPassedThroughCountEqualTo(1, WaitTimeout.Seconds(15));
-      //...while the tevent, whose subscription the returned advertisement renounced, is discarded rather than delivered to an
-      //endpoint that no longer subscribes. That discarded means gone - not kept the way a stranded tommand is kept - is
-      //pinned by the decommission report specifications.
+      //...while the tevent, whose subscription the returned advertisement renounced, is not delivered to an endpoint that no
+      //longer subscribes.
       MyRemoteTaggregateTeventHandlerThreadGate.TryAwaitPassedThroughCountEqualTo(1, WaitTimeout.Seconds(2)).Must().BeFalse();
    }
 

@@ -30,8 +30,8 @@ interface ITessagingRouter
     /// its one specific receiver at send time, preferring the live handler and falling back to the sole remembered one<br/>
     /// (see <see cref="IPeerRegistry.HandlerIdsFor"/>), so a handler being down never makes the send explode.</summary>
     ITessagingInboxConnection? LiveConnectionToHandlerFor(Type tommandType);
-    ///<summary>Whether a live connection to the endpoint currently exists. What <see cref="IPeerAdministration.DecommissionAsync"/><br/>
-    /// asserts against: decommissioning declares a peer gone for good, and a connected peer is not gone.</summary>
+    ///<summary>Whether a live connection to the endpoint currently exists — the router's definition of the peer being up,<br/>
+    /// which the internal specifications observe to script downtime and return deterministically.</summary>
     bool HasLiveConnectionTo(EndpointId endpointId);
     ///<summary>The connections to every endpoint whose advertised tevent subscriptions match <paramref name="wrappedTevent"/>. Advertised subscriptions are wrapper<br/>
     /// types, so matching is against the wrapper — pure type assignability. Which delivery leg the tevent travels to a matched subscriber is not routing's concern:<br/>

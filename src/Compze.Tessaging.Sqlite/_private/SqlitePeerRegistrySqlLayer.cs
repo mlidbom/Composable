@@ -78,20 +78,5 @@ partial class SqlitePeerRegistrySqlLayer(ISqliteConnectionPool connectionFactory
                                peer.Where(row => row.HandledTessageType != null).Select(row => row.HandledTessageType!).ToHashSet()))];
    }
 
-   public async Task DeletePeerAsync(EndpointId peerId)
-   {
-      await _connectionFactory.UseCommandAsync(
-         async command => await command
-                   .SetCommandText(
-                       $"""
-
-                        DELETE FROM {_tables.PeerHandledTessageTypes} WHERE {Types.EndpointId} = @{Types.EndpointId};
-                        DELETE FROM {_tables.Peers} WHERE {PeersSchema.EndpointId} = @{PeersSchema.EndpointId};
-
-                        """)
-                   .AddMediumTextParameter(PeersSchema.EndpointId, peerId.ToString())
-                   .ExecuteNonQueryAsync().caf()).caf();
-   }
-
    public async Task InitAsync() => await _schemaManager.EnsureSchemaInitializedAsync().caf();
 }

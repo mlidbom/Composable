@@ -16,7 +16,6 @@ using Compze.Must;
 using Compze.Tessaging._private.Routing;
 using Compze.Tessaging.Endpoints;
 using Compze.Tessaging.Endpoints.BestEffort;
-using Compze.Tessaging.Peers;
 using Compze.Tessaging.TessageBus;
 using Compze.Tessaging.TessageBus.Exceptions;
 using Compze.Tests.Infrastructure;
@@ -126,29 +125,6 @@ public class Given_a_met_distributed_tessaging_subscriber_that_goes_down : Unive
 
       _subscriberTeventHandlerGate.AwaitPassedThroughCountEqualTo(4);
       _teventsHandledOnTheSubscriber.Select(it => it.SequenceNumber).SequenceEqual(1.Through(4)).Must().BeTrue();
-   }
-
-   [PCT] public async Task decommissioning_the_down_subscriber_discards_its_queued_tevents_and_its_later_return_is_a_first_contact()
-   {
-      await MeetTheSubscriberDeliveringTeventOneThenTakeItDownAsync();
-
-      2.Through(4).ForEach(PublishOnThePublisherEndpointInATransaction);
-
-      //The act discards the three queued tevents, reported - decommissioning a peer with held tessages is loud and deliberate.
-      var report = await _publisherEndpoint.ServiceLocator.Resolve<IPeerAdministration>().DecommissionAsync(SubscriberEndpointDeclaration.Id);
-      report.Discarded.Single().Count.Must().Be(3);
-
-      //Published while decommissioned: fanned out to nobody - nothing anywhere remembers the peer.
-      PublishOnThePublisherEndpointInATransaction(sequenceNumber: 5);
-
-      //The returned subscriber is a first contact again: it receives only what is published after it is re-met.
-      _subscriberHost = CreateSubscriberHost();
-      await _subscriberHost.StartAsync();
-      AwaitThePublisherConnectedToTheSubscriber();
-      PublishOnThePublisherEndpointInATransaction(sequenceNumber: 6);
-
-      _subscriberTeventHandlerGate.AwaitPassedThroughCountEqualTo(2);
-      _teventsHandledOnTheSubscriber.Select(it => it.SequenceNumber).SequenceEqual([1, 6]).Must().BeTrue();
    }
 
    [PCT] public async Task the_publish_that_would_exceed_10_000_queued_tevents_for_the_down_subscriber_fails_loud_naming_the_peer_and_the_bound()

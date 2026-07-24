@@ -1,5 +1,3 @@
-using System.Transactions;
-using Compze.Contracts;
 using Compze.Internals.SystemCE.ThreadingCE.TasksCE;
 using Compze.Internals.SystemCE.TransactionsCE;
 using Compze.Tessaging.Endpoints;
@@ -15,7 +13,7 @@ namespace Compze.Tessaging.Peers._private;
 
 ///<summary>The <see cref="IPeerRegistry"/> of an endpoint whose foundation declares Tessaging persistence: the durable peer<br/>
 /// tables fronted by the in-memory <see cref="RememberedPeers"/>, so reads never touch the database and writes hit it once per<br/>
-/// advertisement fetch. Peer memory survives restarts on both sides: a peer is remembered until explicitly decommissioned.</summary>
+/// advertisement fetch. Peer memory survives restarts on both sides: a peer, once met, stays remembered.</summary>
 [UsedImplicitly] class DurablePeerRegistry : IPeerRegistry
 {
    readonly ITessagingSqlLayer.IPeerRegistrySqlLayer _sqlLayer;
@@ -49,15 +47,6 @@ namespace Compze.Tessaging.Peers._private;
          await _lifecycleObservers.NotifyAdvertisementRecordedAsync(previous, peer).caf();
       }).caf()).caf();
       _rememberedPeers.Remember(peer);
-   }
-
-   public async Task DecommissionAsync(EndpointId peer)
-   {
-      State.NotNull(Transaction.Current);
-      var transaction = Transaction.Current;
-      await _sqlLayer.DeletePeerAsync(peer).caf();
-      //The mirror follows only on commit: fan-out and receiver binding must keep seeing the peer while the act can still roll back.
-      transaction.OnCommittedSuccessfully(() => _rememberedPeers.Forget(peer));
    }
 
    public IReadOnlyList<RememberedPeer> Peers => _rememberedPeers.Peers;

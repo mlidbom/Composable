@@ -8,12 +8,9 @@ using Compze.Hosting.Testing.Wiring;
 using Compze.Internals.SystemCE.LinqCE;
 using Compze.Internals.SystemCE.ThreadingCE.TasksCE;
 using Compze.Internals.Testing;
-using Compze.Internals.Testing.Utilities.Awaiting;
 using Compze.Must;
-using Compze.Tessaging._private.Routing;
 using Compze.Tessaging.Endpoints;
 using Compze.Tessaging.Endpoints.BestEffort;
-using Compze.Tessaging.Peers;
 using Compze.Tessaging.TessageBus;
 using Compze.Tests.Infrastructure;
 using Compze.Tests.Infrastructure.XUnit;
@@ -32,10 +29,6 @@ namespace Compze.Tessaging.InternalSpecifications;
 /// advertisement, and the subset matching the peer's subscriptions delivers, in order, when the peer is first met — so startup
 /// ordering stops mattering and nothing a required peer should see is lost to the discovery race.
 ///</summary>
-///<remarks>An internal specification because the second specification below has to publish at a moment defined by the
-/// publisher's router: after the returning peer's connection is up, so that what it receives proves the hold has ended rather
-/// than that the hold delivered. Only <see cref="ITessagingRouter.HasLiveConnectionTo"/> says when that is — a consumer neither
-/// can ask nor needs to, since <c>RequirePeers</c> exists precisely so applications need not think about the race.</remarks>
 public class Given_a_distributed_tessaging_endpoint_requiring_a_peer_it_has_never_met : UniversalTestBase
 {
    static readonly WaitTimeout HandlerTimeout = WaitTimeout.Seconds(30);
@@ -110,29 +103,6 @@ public class Given_a_distributed_tessaging_endpoint_requiring_a_peer_it_has_neve
       _teventsHandledOnTheSubscriber.Select(it => it.SequenceNumber).SequenceEqual(1.Through(3)).Must().BeTrue();
    }
 
-   [PCT] public async Task decommissioning_the_never_met_required_peer_ends_the_hold_and_the_peers_later_arrival_is_a_plain_first_contact()
-   {
-      1.Through(3).ForEach(PublishOnThePublisherEndpointInATransaction);
-
-      //The act ends the first-contact hold, discarding the three held tevents - reported: the composition required a peer
-      //that an administrator now declares is not coming.
-      var report = await _publisherEndpoint.ServiceLocator.Resolve<IPeerAdministration>().DecommissionAsync(SubscriberEndpointDeclaration.Id);
-      report.Discarded.Single().Count.Must().Be(3);
-      report.Discarded.Single().Description.Must().Contain("first contact");
-
-      //Published after the decommission: held for nobody, delivered to nobody.
-      PublishOnThePublisherEndpointInATransaction(sequenceNumber: 4);
-
-      //When the peer arrives after all it is a plain first contact: it receives only what is published after it is met.
-      _subscriberHost = CreateSubscriberHost();
-      await _subscriberHost.StartAsync();
-      AwaitThePublisherConnectedToTheSubscriber();
-      PublishOnThePublisherEndpointInATransaction(sequenceNumber: 5);
-
-      _subscriberTeventHandlerGate.AwaitPassedThroughCountEqualTo(1);
-      _teventsHandledOnTheSubscriber.Select(it => it.SequenceNumber).Single().Must().Be(5);
-   }
-
    IEndpointHost CreateSubscriberHost()
    {
       var host = EndpointHost.Production.Create(() => TestEnv.DIContainer.CreateTestingContainerBuilder(), new EnvironmentParticipatingInTheSpecificationsRegistry(_registry));
@@ -144,10 +114,4 @@ public class Given_a_distributed_tessaging_endpoint_requiring_a_peer_it_has_neve
       _publisherEndpoint.ServiceLocator.Resolve<IScopeFactory>().ExecuteUnitOfWork(unitOfWork =>
          unitOfWork.Resolve<IUnitOfWorkTeventPublisher>().Publish(new SequencedBestEffortTevent { SequenceNumber = sequenceNumber }));
 
-   ///<summary>Publishing "after the peer is met" means after the connection carrying its deliveries exists, so the specification
-   /// waits for exactly that rather than for anything that merely precedes it.</summary>
-   void AwaitThePublisherConnectedToTheSubscriber() =>
-      PublishersRouter.PollAwait(it => it.HasLiveConnectionTo(SubscriberEndpointDeclaration.Id));
-
-   ITessagingRouter PublishersRouter => _publisherEndpoint.ServiceLocator.Resolve<ITessagingRouter>();
 }

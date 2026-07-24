@@ -1,10 +1,11 @@
 # Push CI: on every push to any branch, build and run the full pluggable-component matrix (the build-and-test job).
 #
-# Two independent de-duplication mechanisms keep interweaving branches from re-verifying the same work:
-#   * concurrency (below), keyed on the branch ref, supersedes an in-flight run when the SAME branch is pushed again.
-#   * the check-duplicate-commit job, keyed on the commit SHA, skips this run entirely when the SAME commit has already
-#     triggered CI under another branch — the common case when several branches share a head commit and are pushed in
-#     quick succession.
+# One de-duplication mechanism keeps interweaving branches from re-verifying the same work: the check-duplicate-commit job,
+# keyed on the commit SHA, skips this run entirely when the SAME commit has already triggered CI under another branch — the
+# common case when several branches share a head commit and are pushed in quick succession.
+#
+# There is deliberately no concurrency group: a push never supersedes an in-flight run of the same branch, so every pushed
+# commit is verified on its own rather than being cancelled by whatever was pushed next.
 #
 # Only the push trigger is used, deliberately: a pull_request trigger would double-verify every same-repo PR (once for
 # the push event, once for the PR event) and — because github.sha on a PR event is the ephemeral merge commit, not the

@@ -67,6 +67,12 @@ jobs:
     if: needs.check-duplicate-commit.outputs.already_triggered != 'true'
     runs-on: ubuntu-latest
 
+    # The backstop, not the hang mechanism: --blame-hang (see the build-and-test action) is what catches a hung test, dumps its
+    # stacks and fails fast. This only caps what a hang GitHub's default would otherwise let run for six hours - a hang the dump
+    # cannot catch because it is outside test execution, or the test driver itself wedged. Generous on purpose: these jobs take
+    # four to ten minutes, and a hang dump costs the ten-minute detection window plus writing the dump before the step fails.
+    timeout-minutes: 30
+
     strategy:
       fail-fast: false
       matrix:
@@ -139,6 +145,9 @@ jobs:
     needs: check-duplicate-commit
     if: needs.check-duplicate-commit.outputs.already_triggered != 'true'
     runs-on: windows-latest
+
+    # Same backstop, same reasoning as the Linux job above.
+    timeout-minutes: 30
 
     strategy:
       fail-fast: false

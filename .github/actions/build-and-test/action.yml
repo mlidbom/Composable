@@ -22,10 +22,15 @@ runs:
     - name: Configure test pluggable components
       shell: bash
       run: |
+        # The combination also labels this job's hang-dump artifact. Artifact names must be unique within a run and may not
+        # contain a colon, and the matrix runs the same combinations on two operating systems - hence the dash-separated
+        # combination here, and the runner OS added where the artifact is uploaded.
         if [ -n "${{ inputs.pluggable-components }}" ]; then
           echo "${{ inputs.pluggable-components }}" > src/TestUsingPluggableComponentCombinations
+          echo "COMPZE_TESTED_COMBINATION=$(echo '${{ inputs.pluggable-components }}' | tr ':' '-')" >> "$GITHUB_ENV"
         else
           cp src/TestUsingPluggableComponentCombinations.github-ci src/TestUsingPluggableComponentCombinations
+          echo "COMPZE_TESTED_COMBINATION=github-ci-defaults" >> "$GITHUB_ENV"
         fi
 
     - name: Build
@@ -52,7 +57,16 @@ runs:
         # `... | head` closes its pipe early, which SIGPIPEs the upstream `sort` (non-zero under pipefail); under errexit
         # that aborted the step before `exit $test_exit`, failing a passing run at random on whichever leg lost that race.
         set +e
-        dotnet test Compze.AllProjects.slnx --configuration ${{ inputs.configuration }} --no-build -m:1
+        # --blame-hang turns a hung test run from a silent multi-hour burn into a fast, diagnosable failure. When a test
+        # produces no result within the timeout, vstest dumps every thread of the test host and kills it, so this step FAILS
+        # with the stacks on disk - rather than hanging until the job's timeout-minutes backstop kills the runner and takes
+        # the evidence with it. Without it a hang tells us only which assembly stopped reporting, which is where the
+        # 2026-07-24 Sqlite:LightInject:Newtonsoft:NamedPipes hang left us: 107 minutes, one named assembly, no stacks.
+        # The timeout is deliberately far above anything real - the whole solution runs in about three minutes and its
+        # slowest single assembly executes in under a second - so it can only fire on a genuine hang, never a slow runner.
+        # --results-directory collects every project's dump and sequence file in one place for the upload step below.
+        dotnet test Compze.AllProjects.slnx --configuration ${{ inputs.configuration }} --no-build -m:1 \
+                    --results-directory TestResults --blame-hang --blame-hang-timeout 10min --blame-hang-dump-type full
         test_exit=$?
 
         if [ "$sample_load" = true ]; then
@@ -80,3 +94,15 @@ runs:
         fi
 
         exit $test_exit
+
+    # A hang dump is written to the runner's disk and dies with the runner, so without this the diagnostics above buy nothing.
+    # Uploaded only on failure, and a plain test failure writes no dump - hence if-no-files-found: ignore, which keeps a normal
+    # red build from reporting a missing-artifact warning on top of its real failure.
+    - name: Upload hang dumps
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: hang-dump-${{ runner.os }}-${{ env.COMPZE_TESTED_COMBINATION }}
+        path: TestResults/**
+        if-no-files-found: ignore
+        retention-days: 7

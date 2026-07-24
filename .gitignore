@@ -2,6 +2,7 @@
 [Bb]in
 obj
 test-results
+TestResults
 
 .claude/settings.local.json
 

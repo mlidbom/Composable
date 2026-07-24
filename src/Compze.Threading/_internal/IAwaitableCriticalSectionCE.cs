@@ -21,15 +21,29 @@ static class IAwaitableCriticalSectionCE
       /// <paramref name="condition"/> returns true or <paramref name="waitTimeout"/> expires — false on timeout, else true.<br/>
       /// The choice for a wait that can be long: the dedicated thread costs a thread, never the thread pool's health.</summary>
 #pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler The factory was created with TaskScheduler.Default.
-      internal async Task<bool> TryAwaitOnDedicatedThreadAsync(Func<bool> condition, CancellationToken cancellationToken = default, WaitTimeout? waitTimeout = null, LockTimeout? lockTimeout = null) =>
-         await DefaultSchedulerDenyChildAttachTaskFactory.StartNew(() => @this.TryAwait(condition, cancellationToken, waitTimeout, lockTimeout), TaskCreationOptions.LongRunning).ConfigureAwait(false);
+      internal async Task<bool> TryAwaitOnDedicatedThreadAsync(Func<bool> condition, CancellationToken cancellationToken = default, WaitTimeout? waitTimeout = null, LockTimeout? lockTimeout = null)
+      {
+         if(@this.Read(condition))
+         {
+            return true;
+         }
+
+         return await DefaultSchedulerDenyChildAttachTaskFactory.StartNew(() => @this.TryAwait(condition, cancellationToken, waitTimeout, lockTimeout), TaskCreationOptions.LongRunning).ConfigureAwait(false);
+      }
 
       ///<summary><see cref="IAwaitableCriticalSection.TryAwait"/> parked on a thread-pool thread: awaits until<br/>
       /// <paramref name="condition"/> returns true or <paramref name="waitTimeout"/> expires — false on timeout, else true.<br/>
       /// Only for a wait known to be brief: the parked thread is one of the pool's, and a pool full of parked waiters is a<br/>
       /// starved pool.</summary>
-      internal async Task<bool> TryAwaitOnThreadPoolThreadAsync(Func<bool> condition, CancellationToken cancellationToken = default, WaitTimeout? waitTimeout = null, LockTimeout? lockTimeout = null) =>
-         await DefaultSchedulerDenyChildAttachTaskFactory.StartNew(() => @this.TryAwait(condition, cancellationToken, waitTimeout, lockTimeout)).ConfigureAwait(false);
+      internal async Task<bool> TryAwaitOnThreadPoolThreadAsync(Func<bool> condition, CancellationToken cancellationToken = default, WaitTimeout? waitTimeout = null, LockTimeout? lockTimeout = null)
+      {
+         if(@this.Read(condition))
+         {
+            return true;
+         }
+
+         return await DefaultSchedulerDenyChildAttachTaskFactory.StartNew(() => @this.TryAwait(condition, cancellationToken, waitTimeout, lockTimeout), cancellationToken).ConfigureAwait(false);
+      }
 #pragma warning restore CA2008
 #pragma warning restore CA1068
    }

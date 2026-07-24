@@ -90,7 +90,13 @@ public partial interface IAwaitableMonitor
          try
          {
             // When the token is cancelled, PulseAll wakes any thread blocked in Monitor.Wait so it can observe the cancellation.
-            // The callback acquires the monitor lock briefly — this is safe because the waiting thread has released it via Monitor.Wait.
+            //todo:urgent: this deadlocks. AcquireLockAndNotifyWaitingThreads blocks on the monitor lock, and this thread holds that lock
+            //everywhere below except the instant it is inside Monitor.Wait. CancellationTokenRegistration.Dispose blocks until a callback
+            //already running on another thread returns, and this registration is disposed - at the end of this try block, on both the
+            //condition-became-true path and the unwind to the catch - with the lock still held. A cancellation landing in that window
+            //deadlocks the pair permanently: the disposer waits for the callback, the callback waits for the lock the disposer holds.
+            //Unreachable today - no caller passes a cancellable token to a condition wait on this monitor - so it is armed for the first
+            //one that does. The wait-timeout path is the one that is safe: it releases the lock before returning through the dispose.
             using var registration = cancellationToken.CanBeCanceled
                                         ? cancellationToken.Register(_monitor.AcquireLockAndNotifyWaitingThreads)
                                         : default(CancellationTokenRegistration);

@@ -6,6 +6,7 @@ using Compze.DependencyInjection;
 using Compze.DependencyInjection.Abstractions;
 using Compze.DependencyInjection.Microsoft;
 using Compze.Hosting;
+using Compze.Internals.Logging;
 using Compze.Hosting.SameMachine;
 using Compze.Serialization.Newtonsoft.Wiring;
 using Compze.Tessaging.Endpoints;
@@ -41,6 +42,11 @@ public static class Program
    public static async Task<int> Main(string[] args)
    {
       MakeNCrunchInstrumentedDependenciesLoadable();
+
+      //Everything this process logs goes to the console the launching specification captures, and Debug is where the delivery
+      //machinery narrates itself - each delivery, failure, and backoff - so a cross-process failure report tells this side's
+      //whole story.
+      CompzeLogger.LogLevel = LogLevel.Debug;
 
       var registryName = args[0];
       var workDirectory = new DirectoryInfo(args[1]); //Holds the registry's backing file and, for the exactly-once composition, this process's sqlite database files.

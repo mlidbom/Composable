@@ -149,10 +149,12 @@ public class Given_a_separate_process_hosting_an_endpoint_discovered_through_a_s
       {
          _replyTommandGate.AwaitPassedThroughCountEqualTo(1, WaitTimeout.Seconds(30));
       }
-      catch(Exception)
+      catch(Exception replyNeverArrived)
       {
          _endpointHostProcess.ThrowDescribingTheFailureIfTheProcessHasExited();
-         throw;
+         //The tommand reached the endpoint host process (the waiting send above succeeded), so what went wrong is on ITS side -
+         //its handler, its outbox, its delivery back to us - and only its console output tells that story.
+         throw new InvalidOperationException($"The reply tommand never arrived, and the endpoint host process is still running.{Environment.NewLine}{_endpointHostProcess.ConsoleOutput}", replyNeverArrived);
       }
    }
 }

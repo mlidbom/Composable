@@ -53,8 +53,10 @@ interface ITessagingRouter
     /// recording with a router state update. So a condition reading this router's routes and the peer memory<br/>
     /// (<see cref="IPeerRegistry"/>) wakes and re-evaluates the moment either could have changed — no polling. This is what<br/>
     /// <c>IHandlerAvailability</c>'s waiting sends wait on.</summary>
-    ///<remarks>The blocking wait parks a dedicated thread, never a pool thread: a waiting send can span the endpoint's whole<br/>
-    /// handler-availability patience, and parked pool threads starve the pool. A condition that throws — the router's lookups<br/>
-    /// assert the router is not stopped — propagates out of the wait immediately.</remarks>
+    ///<remarks>The condition is first evaluated inline on the calling thread — in the common case it already holds, and a send<br/>
+    /// must not cost a thread to discover that. Only a wait that must actually block parks a thread, and it parks a dedicated<br/>
+    /// thread, never a pool thread: a waiting send can span the endpoint's whole handler-availability patience, and parked<br/>
+    /// pool threads starve the pool. A condition that throws — the router's lookups assert the router is not stopped —<br/>
+    /// propagates out of the wait immediately.</remarks>
     Task<bool> TryAwaitConnectionsOrPeerMemorySatisfyingAsync(Func<bool> condition, WaitTimeout patience);
 }

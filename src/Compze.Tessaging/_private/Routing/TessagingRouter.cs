@@ -332,8 +332,9 @@ class TessagingRouter : ITessagingRouter, IDisposable
          return cached;
       });
 
-   //The condition may call this router's own lookups: the monitor is reentrant, and the wait runs the condition on its own
-   //dedicated thread, so the nested lock acquisitions are balanced re-entries, never contention.
+   //The condition may call this router's own lookups: the monitor is reentrant, and the condition always runs on the one
+   //thread that holds it - the calling thread for the inline first evaluation, the wait's dedicated thread thereafter - so the
+   //nested lock acquisitions are balanced re-entries, never contention.
    public async Task<bool> TryAwaitConnectionsOrPeerMemorySatisfyingAsync(Func<bool> condition, WaitTimeout patience) =>
       await _monitor.TryAwaitOnDedicatedThreadAsync(condition, waitTimeout: patience).caf();
 

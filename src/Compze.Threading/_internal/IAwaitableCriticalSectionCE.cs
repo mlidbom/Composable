@@ -29,7 +29,10 @@ static class IAwaitableCriticalSectionCE
 #pragma warning disable CA2008 // Do not create tasks without passing a TaskScheduler The factory was created with TaskScheduler.Default.
       internal async Task<bool> TryAwaitOnDedicatedThreadAsync(Func<bool> condition, CancellationToken cancellationToken = default, WaitTimeout? waitTimeout = null, LockTimeout? lockTimeout = null)
       {
-         if(@this.Read(condition, cancellationToken, lockTimeout)) return true;
+         if(@this.Read(condition, cancellationToken, lockTimeout))
+         {
+            return true;
+         }
 
          return await DefaultSchedulerDenyChildAttachTaskFactory.StartNew(() => @this.TryAwait(condition, cancellationToken, waitTimeout, lockTimeout), TaskCreationOptions.LongRunning).ConfigureAwait(false);
       }

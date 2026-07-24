@@ -34,7 +34,9 @@ static class IAwaitableCriticalSectionCE
             return true;
          }
 
-         return await DefaultSchedulerDenyChildAttachTaskFactory.StartNew(() => @this.TryAwait(condition, cancellationToken, waitTimeout, lockTimeout), TaskCreationOptions.LongRunning).ConfigureAwait(false);
+         return await DefaultSchedulerDenyChildAttachTaskFactory.StartNew(
+                   () => @this.TryAwait(condition, cancellationToken, waitTimeout, lockTimeout),
+                   TaskCreationOptions.LongRunning).ConfigureAwait(false);
       }
 #pragma warning restore CA2008
 #pragma warning restore CA1068

@@ -96,10 +96,15 @@ partial class Outbox : IOutbox
       //(Routing at delivery time was tried and retracted: re-delivery could reach an endpoint whose inbox never saw the
       //tommand, breaking exactly-once across handler replacement - see src/Compze.Tessaging/dev_docs/DONE/durable-peer-topology.md.)
       //The bind is a waiting send: with no bindable receiver right now - never-seen, or several remembered with none live -
-      //it waits, within the endpoint's handler-availability patience, inside the caller's unit of work. On SQLite one corner
-      //degrades to the pre-waiting failure, delayed: a caller whose transaction already wrote to the domain database
-      //holds the per-database write gate across the wait, so the first-contact advertisement recording that would satisfy it
-      //cannot commit - the wait exhausts, the transaction rolls back releasing the gate, the recording lands, and a retry binds.
+      //it waits, within the endpoint's handler-availability patience, inside the caller's unit of work.
+      //todo:urgent: BUG: on SQLite this wait deadlocks every first contact that races handling, stalling it for the FULL
+      //patience. A handling transaction's first act is the inbox claim write, which on SQLite takes the per-database write
+      //gate for the whole transaction (CompzeSqliteConnection) - so a handler awaiting a never-met peer sits here holding the
+      //gate, while RecordAdvertisementAsync, whose in-memory mirror update is what would satisfy this wait, needs that same
+      //gate to commit and cannot. The stall self-resolves only by exhausting the patience: the rollback frees the gate, the
+      //recording lands, and the inbox retry binds - default 30 seconds of stall plus a burned handler attempt, in production.
+      //Candidate fixes: update the peer registry's in-memory mirror before persisting (removes the same-database commit from
+      //this wait's critical path on every engine), or give the peer registry its own sqlite database file (own write gate).
       var receiverId = await _handlerAvailability.AwaitBindableReceiverOfAsync(exactlyOnceTommand.GetType()).caf();
       var assignedSequenceNumbers = await _storage.SaveTessageAsync(exactlyOnceTommand, exactlyOnceTommand.Id, receiverId).caf();
 

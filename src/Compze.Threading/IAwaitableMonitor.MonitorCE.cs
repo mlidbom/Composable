@@ -122,13 +122,7 @@ public partial interface IAwaitableMonitor
          }
          finally
          {
-            //Unregister, never Dispose. Dispose blocks until a callback already running on another thread returns, and this
-            //callback blocks on the monitor lock - which this thread holds everywhere above except the instant it is inside
-            //Monitor.Wait, and which on the success path it does not release here at all, since the lock is handed to the
-            //caller. Waiting for the callback would therefore deadlock the pair permanently. Unregister only prevents future
-            //invocations, which is all this needs: a callback that already started merely pulses the monitor, which is
-            //harmless whenever it lands.
-            wakeWaitingThreadsOnCancellation.Unregister();
+            wakeWaitingThreadsOnCancellation.Unregister(); //Dispose would cause a deadlock in certain situations (test verified) so we use Unregister.
          }
 
          return LockFor(lockType);

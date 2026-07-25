@@ -87,20 +87,12 @@ public partial interface IAwaitableMonitor
          var waitStartedAt = DateTime.UtcNow;
 
          IDisposable takenLock = TakeLock(lockType, effectiveLockTimeout, cancellationToken);
+         // When the token is cancelled, PulseAll wakes any thread blocked in Monitor.Wait so it can observe the cancellation.
+         var wakeWaitingThreadsOnCancellation = cancellationToken.CanBeCanceled
+                                                   ? cancellationToken.Register(_monitor.AcquireLockAndNotifyWaitingThreads)
+                                                   : default(CancellationTokenRegistration);
          try
          {
-            // When the token is cancelled, PulseAll wakes any thread blocked in Monitor.Wait so it can observe the cancellation.
-            //todo:urgent: this deadlocks. AcquireLockAndNotifyWaitingThreads blocks on the monitor lock, and this thread holds that lock
-            //everywhere below except the instant it is inside Monitor.Wait. CancellationTokenRegistration.Dispose blocks until a callback
-            //already running on another thread returns, and this registration is disposed - at the end of this try block, on both the
-            //condition-became-true path and the unwind to the catch - with the lock still held. A cancellation landing in that window
-            //deadlocks the pair permanently: the disposer waits for the callback, the callback waits for the lock the disposer holds.
-            //Unreachable today - no caller passes a cancellable token to a condition wait on this monitor - so it is armed for the first
-            //one that does. The wait-timeout path is the one that is safe: it releases the lock before returning through the dispose.
-            using var registration = cancellationToken.CanBeCanceled
-                                        ? cancellationToken.Register(_monitor.AcquireLockAndNotifyWaitingThreads)
-                                        : default(CancellationTokenRegistration);
-
             if(effectiveWaitTimeout.IsInfinite)
             {
                while(!condition())
@@ -127,6 +119,16 @@ public partial interface IAwaitableMonitor
          {
             ReleaseLock();
             throw;
+         }
+         finally
+         {
+            //Unregister, never Dispose. Dispose blocks until a callback already running on another thread returns, and this
+            //callback blocks on the monitor lock - which this thread holds everywhere above except the instant it is inside
+            //Monitor.Wait, and which on the success path it does not release here at all, since the lock is handed to the
+            //caller. Waiting for the callback would therefore deadlock the pair permanently. Unregister only prevents future
+            //invocations, which is all this needs: a callback that already started merely pulses the monitor, which is
+            //harmless whenever it lands.
+            wakeWaitingThreadsOnCancellation.Unregister();
          }
 
          return LockFor(lockType);

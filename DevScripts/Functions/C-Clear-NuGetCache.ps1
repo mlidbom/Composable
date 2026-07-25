@@ -8,7 +8,7 @@ function C-Clear-NuGetCache {
     Removes cached Compze packages from the NuGet global-packages folder so that
     subset solutions pick up freshly packed versions from the local nupkgs/ feed.
 
-    Does NOT clear Compze.Build.FlexRef (build tool package that comes from nuget.org).
+    Leaves the packages this repository does not publish — see Get-PackageIdsPublishedFromOtherRepositories.
 
     .EXAMPLE
     C-Clear-NuGetCache
@@ -26,10 +26,8 @@ function C-Clear-NuGetCache {
         return
     }
 
-    # Package prefixes to keep (build tools from nuget.org)
-    $keepPatterns = @(
-        'compze.build.flexref'
-    )
+    # Packages this repository never packs come from nuget.org, so clearing them would only force a re-download
+    $keepPatterns = @(Get-PackageIdsPublishedFromOtherRepositories | ForEach-Object { $_.ToLowerInvariant() })
 
     $cleared = 0
     Get-ChildItem $pkgDir -Directory -Filter "compze.*" | ForEach-Object {

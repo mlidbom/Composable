@@ -15,7 +15,7 @@ function Get-ProjectFilesInPath {
     .PARAMETER Recurse
     Whether to search recursively (default: $true)
     
-    .RETURNS
+    .OUTPUTS
     Array of FileInfo objects for all .csproj files, excluding nCrunchTemp
     #>
     [CmdletBinding()]

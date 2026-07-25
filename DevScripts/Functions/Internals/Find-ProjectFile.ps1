@@ -15,7 +15,7 @@ function Find-ProjectFile {
     .PARAMETER ProjectName
     Name of the project to find (without .csproj extension)
     
-    .RETURNS
+    .OUTPUTS
     FileInfo object for the project file, or $null if not found
     #>
     [CmdletBinding()]

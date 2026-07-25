@@ -11,7 +11,7 @@ function Get-ProjectReferences {
     .PARAMETER CsprojPath
     Path to the .csproj file
     
-    .RETURNS
+    .OUTPUTS
     Array of ProjectReference Include attribute values
     #>
     [CmdletBinding()]

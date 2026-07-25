@@ -18,7 +18,7 @@ function Get-CsprojFiles {
     .PARAMETER Recurse
     Whether to search recursively (default: $true)
     
-    .RETURNS
+    .OUTPUTS
     Array of FileInfo objects for .csproj files, excluding nCrunchTemp
     #>
     [CmdletBinding()]

@@ -11,7 +11,7 @@ function Get-AllProjectFiles {
     .PARAMETER SolutionPath
     Path to the solution file
     
-    .RETURNS
+    .OUTPUTS
     Array of FileInfo objects for all .csproj files
     #>
     [CmdletBinding()]

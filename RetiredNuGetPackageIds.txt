@@ -1,0 +1,59 @@
+# Package identities Compze has published to nuget.org and no longer publishes under.
+#
+# C-Unlist-RetiredNuGetPackages unlists every version of every id recorded here. Unlisting hides a
+# package from nuget.org search and from version resolution. It is not a delete: anyone already
+# depending on an exact version can still restore it, so nothing breaks for existing consumers.
+#
+# Format, one line per retired id:
+#
+#     <retired package id> -> <what replaced it>
+#
+# The successor text is mandatory. A retired id whose successor nobody can state is a rename nobody
+# finished thinking through, and it is the one thing a reader who meets the dead id actually needs.
+# Write "dissolved: ..." when the functionality went several places rather than to one successor.
+#
+# ADDING an entry: C-Get-RetiredNuGetPackageStatus reports every id that is listed on nuget.org with
+# no project left in the solution. Confirm each is really ours and really retired before recording it
+# — a Compze package published from its own repository looks exactly the same from nuget.org's side.
+#
+# REMOVING an entry: only when a project reclaims the id. C-Unlist-RetiredNuGetPackages refuses to run
+# while any id recorded here belongs to a project in the solution, so a reclaimed id must leave.
+#
+# Unlisting is one-way from the command line: nuget.org offers no API to re-list, only a per-version
+# checkbox on the website. Read the plan the command prints before running it with -Execute.
+#
+# Consider deprecating an id on nuget.org before unlisting it. Deprecation carries the successor named
+# below to consumers ("dotnet list package --deprecated", Visual Studio); unlisting only hides. It is
+# website-only, so it cannot be scripted here. See dev_docs/retiring-nuget-package-identities.md.
+
+
+# ── Compze.Core emptied out and was removed (e2f67aa3f, 2026-06-22) ──
+Compze.Core                                         -> dissolved: its contents moved into Compze.Tessaging, Compze.DocumentDb and Compze.Abstractions
+
+# ── The tevent store is Teventive's, not Tessaging's, so it took Teventive's name (2026-06) ──
+Compze.Tessaging.Teventive.TeventStore              -> Compze.Teventive.TeventStore
+Compze.Tessaging.Teventive.TeventStore.MicrosoftSql -> Compze.Teventive.TeventStore.MicrosoftSql
+Compze.Tessaging.Teventive.TeventStore.MySql        -> Compze.Teventive.TeventStore.MySql
+Compze.Tessaging.Teventive.TeventStore.PostgreSql   -> Compze.Teventive.TeventStore.PostgreSql
+Compze.Tessaging.Teventive.TeventStore.Sqlite       -> Compze.Teventive.TeventStore.Sqlite
+Compze.Tessaging.Teventive.TeventStore.Typermedia   -> Compze.Teventive.TeventStore.Typermedia
+
+# ── The Internals label must tell the truth: these are packages consumers compose with (968f46d8f, 2026-07-21) ──
+Compze.Internals.Serialization.Newtonsoft           -> Compze.Serialization.Newtonsoft
+Compze.Internals.Sql.Common                         -> Compze.Sql.Common
+Compze.Internals.Sql.MicrosoftSql                   -> Compze.Sql.MicrosoftSql
+Compze.Internals.Sql.MySql                          -> Compze.Sql.MySql
+Compze.Internals.Sql.PostgreSql                     -> Compze.Sql.PostgreSql
+Compze.Internals.Sql.Sqlite                         -> Compze.Sql.Sqlite
+
+# ── Typermedia folded into Tessaging (700f40cc0, 2026-07-17) ──
+Compze.Typermedia                                   -> Compze.Tessaging
+Compze.Typermedia.Client                            -> Compze.Tessaging
+Compze.Typermedia.Hosting                           -> Compze.Tessaging
+Compze.Typermedia.Hosting.Testing                   -> Compze.Tessaging.Hosting.Testing
+
+# ── One transport serves every feature, under its truthful name (d2151a326 and 494aa7200, 2026-07) ──
+Compze.Internals.Transport                          -> Compze.Tessaging
+Compze.Internals.Transport.AspNet                   -> Compze.Tessaging.Transport.AspNetCore
+Compze.Tessaging.Hosting.AspNetCore                 -> Compze.Tessaging.Transport.AspNetCore
+Compze.Typermedia.Hosting.AspNetCore                -> Compze.Tessaging.Transport.AspNetCore
